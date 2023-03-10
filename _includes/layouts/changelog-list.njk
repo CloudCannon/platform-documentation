@@ -1,0 +1,32 @@
+---
+layout: layouts/base.njk
+title: 'Changelog'
+description: List of all changes made to the CloudCannon app
+---
+
+<div class="l-page">
+    <div class="l-column">
+        <div class="l-small-content">
+            <h1 class="l-heading u-margin-bottom-0">
+                Changelog
+                {% if pagination.page > 1 %}<small>Page: {{ pagination.page }}</small>{% endif %}
+            </h1>
+            <p class="l-subheading">
+                <a href="/documentation/changelog/feed.xml">Subscribe with RSS</a> to keep up with the latest changes.
+            </p>
+
+            <div class="u-card-box">
+                {% for changelog in results %}
+                    <h2 {% if loop.first %}class="u-margin-top-0"{% endif %}><a href="{{ changelog.data.url }}">{{ changelog.data.title }}</a></h2>
+                    <p>{{ changelog.data.date | date('HUMAN_DATE') }} | {{ changelog.data.type | capitalize }}</p>
+                    {{ changelog.data.content | md | safe }}
+
+                    {% if not loop.last %}<div class="c-br"></div>{% endif %}
+                {% endfor %}
+            </div>
+
+            {% include "pagination-controls.njk" %}
+        </div>
+    </div>
+</div>
+

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<link href="{{ url | url(true) }}" rel="self"/>
+	<link href="{{ "/changelog" | url(true) }}"/>
+	{% set pages = search.pages("url^=/documentation/changelog/", "date=desc")%}
+	{% set lastPage = pages | first %}
+	<updated>{{ lastPage.data.date | date("ATOM") }}</updated>
+	<id>{{ url | url(true) }}</id>
+	<title>{{ meta.title }}</title>
+	<subtitle>{{ meta.subtitle }}</subtitle>
+	{%- for page in pages %}
+	<entry>
+		<title>{{ page.data.title }}</title>
+		<link href="{{ page.data.url | url(true) }}"/>
+		<updated>{{ page.data.date | date("ATOM") }}</updated>
+		<id>{{ page.data.url | url(true) }}</id>
+		{% set content = page.data.content %}
+		<content type="html"><![CDATA[ {{ content | md | safe }} ]]></content>
+		<summary type="html"><![CDATA[ {{ content | md | changelog_summary | safe}} ]]></summary>
+	</entry>
+	{%- endfor %}
+</feed>

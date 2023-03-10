@@ -1,0 +1,59 @@
+---
+layout: layouts/base.njk
+---
+
+<div class="l-page">
+    <div class="l-column">
+        <aside class="l-left" x-data="{
+            more: true
+        }">
+            {% import "docnav.njk" as docnav with context %}
+            {{ docnav.nav(navigation) }}
+        </aside>
+        <div class="u-card-box l-content">
+            <template x-if="!$store.conditionals.selected('ssg-name')">
+                <div class="c-conditional" x-data="{ show_message: true }">
+                    <p data-pagefind-ignore class="c-conditional__header">
+                        <img src="/documentation/static/ssgs/spread.svg" />
+                    </p>
+                    <h2>Welcome to the CloudCannon documentation!</h2>
+                    <p class="c-conditional__intro">
+                        Some documentation only applies to specific static site generators. To ensure the documentation is relevant for you, select your preferred SSG below:
+                    </p>
+                    {% include "conditionals-select.njk" %}
+                    <p><i>Tip: You can change this at any time at the top right of the page.</i></p>
+                </div>
+            </template>
+            <h1 data-pagefind-body class="l-heading u-margin-bottom-0">{{ title }}</h1>
+            <p class="l-subheading">Last modified: {{ date | date('HUMAN_DATE') }}</h1>
+            <div data-pagefind-body data-pagefind-filter="site:Documentation" data-pagefind-meta="site:Documentation" class="l-content-split">
+                <main>
+                    {{ content | safe }}
+                </main>
+                <aside data-pagefind-ignore class="l-right">
+                    <div class="l-toc">
+                        <!-- "On this page" -->
+                    </div>
+                </aside>
+            </div>
+
+            {% include "related-articles.njk" %}
+
+            {% for block in navigation.headings | bubble_up_nav %}
+                {% set index = block._bubbled | index_of(url) %}
+                {% if index >= 0 %}
+                    {% set prevUrl = block._bubbled[index - 1] %}
+                    {% set nextUrl = block._bubbled[index + 1] %}
+
+                    {% if prevUrl %}
+                        {% set prev = search.page("url=" + prevUrl) %}
+                    {% endif %}
+                    {% if nextUrl %}
+                        {% set next = search.page("url=" + nextUrl) %}
+                    {% endif %}
+                    {% include "prev-next.njk" %}
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+</div>

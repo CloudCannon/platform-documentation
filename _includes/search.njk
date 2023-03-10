@@ -1,0 +1,43 @@
+<div
+  class="t-searcher"
+  role="dialog"
+  tabindex="-1"
+  x-show="isModalOpen"
+  x-cloak
+  x-transition
+>
+    <div class="t-searcher-inner" x-on:click.away="isModalOpen = false; $focusSearch(false);">
+      <p class="t-searcher-header">
+        <span id="summary">Search</span>
+        <button x-on:click="isModalOpen = false; $focusSearch(false);" class="t-searcher-close" title="Close Search">
+          <img src="/assets/img/close.svg" inline>
+        </button>
+      </p>
+      <div id="searchbox"></div>
+      <div id="searchfilter"></div>
+      <div 
+          class="t-searcher-message" 
+          id="searchmessage" 
+          x-data="{ recents: [] }"
+          x-init="recents = $getRecentSearches() ?? []">
+        <template x-if="!recents.length"><span>No recent searches</span></template>
+        <template x-if="recents.length"><span class="t-searcher-recents-label">Recents</span></template>
+        <template x-for="recent in recents">
+          <div class="t-searcher-recent">
+            <button x-on:click="$triggerSearch(recent)" class="t-searcher-trigger" :title="`Search for ${recent}`">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M13.4041 3.00178C8.31407 2.86178 4.14407 6.95178 4.14407 12.0018H2.35407C1.90407 12.0018 1.68407 12.5418 2.00407 12.8518L4.79407 15.6518C4.99407 15.8518 5.30407 15.8518 5.50407 15.6518L8.29407 12.8518C8.60407 12.5418 8.38407 12.0018 7.93407 12.0018H6.14407C6.14407 8.10178 9.32407 4.95178 13.2441 5.00178C16.9641 5.05178 20.0941 8.18178 20.1441 11.9018C20.1941 15.8118 17.0441 19.0018 13.1441 19.0018C11.5341 19.0018 10.0441 18.4518 8.86407 17.5218C8.46407 17.2118 7.90407 17.2418 7.54407 17.6018C7.12407 18.0218 7.15407 18.7318 7.62407 19.0918C9.14407 20.2918 11.0541 21.0018 13.1441 21.0018C18.1941 21.0018 22.2841 16.8318 22.1441 11.7418C22.0141 7.05178 18.0941 3.13178 13.4041 3.00178ZM12.8941 8.00178C12.4841 8.00178 12.1441 8.34178 12.1441 8.75178V12.4318C12.1441 12.7818 12.3341 13.1118 12.6341 13.2918L15.7541 15.1418C16.1141 15.3518 16.5741 15.2318 16.7841 14.8818C16.9941 14.5218 16.8741 14.0618 16.5241 13.8518L13.6441 12.1418V8.74178C13.6441 8.34178 13.3041 8.00178 12.8941 8.00178Z" fill="#9D9D9D"/></svg>
+              <span class="t-searcher-recent-text" x-text="recent"></span>
+            </button>
+            <button x-on:click="recents = $deleteRecentSearch(recent)" class="t-searcher-delete" title="Delete Recent Search">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M13.3 0.710001C12.91 0.320001 12.28 0.320001 11.89 0.710001L6.99997 5.59L2.10997 0.700001C1.71997 0.310001 1.08997 0.310001 0.699971 0.700001C0.309971 1.09 0.309971 1.72 0.699971 2.11L5.58997 7L0.699971 11.89C0.309971 12.28 0.309971 12.91 0.699971 13.3C1.08997 13.69 1.71997 13.69 2.10997 13.3L6.99997 8.41L11.89 13.3C12.28 13.69 12.91 13.69 13.3 13.3C13.69 12.91 13.69 12.28 13.3 11.89L8.40997 7L13.3 2.11C13.68 1.73 13.68 1.09 13.3 0.710001Z" fill="#707070"/></svg>
+            </button>
+          </div>
+        </template>
+      </div>
+      <div id="searchresults"></div>
+    </div>
+</div>
+<div 
+  class="t-overlay" 
+  x-show="isModalOpen" 
+  x-cloak></div>

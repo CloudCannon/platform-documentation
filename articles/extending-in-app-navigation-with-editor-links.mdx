@@ -1,0 +1,262 @@
+---
+_uuid: 435b3fd0-0dd4-4e7e-a4b2-0d5b206f4194
+_created_at: "2021-09-15 23:13:40 +0000"
+title: "Linking to CloudCannon views"
+nav_title: "Editor links"
+published: true
+image: "/documentation/static/CloudCannonDocumentationog.jpg"
+description: "Editor links allow you to link to other sections of the CloudCannon interface from within the Visual Editor. Use them to create edit buttons for your collection items and blog posts to quickly navigate the app. You can also add front matter Editor links to open the front matter Editor at specified fields."
+tags: ["editor","navigation","collections","front matter"]
+change_logs: [{"name":"Initial Version","_created_at":"2021-09-15 23:13:40 +0000"}]
+related_articles: ["introducing-the-visual-editor","cloudcannon-protocol"]
+related_links: null
+---
+
+Editor Links allow you to link to other sections of the CloudCannon interface from within the [Visual Editor](/documentation/articles/introducing-the-visual-editor/). Use them to create edit buttons for your collection items and blog posts to quickly navigate the app. You can also add front matter Editor Links to open the front matter Editor at specified fields.
+
+Editor Links are using the [CloudCannon link protocol](/documentation/articles/cloudcannon-protocol/).
+
+## Linking to front matter
+Create a link to open a data editor at a specific input:
+
+<comp.CodeBlock language="html" source="index.html">
+```
+<!-- Inputs -->
+<a href="cloudcannon:#title">
+  Edit the title
+</a>
+
+<!-- Arrays -->
+<a href="cloudcannon:#array[1]">
+  Edit the first array item
+</a>
+
+<a href="cloudcannon:#array[+]">
+  Create a new item in an array
+</a>
+
+<!-- Inputs within an Object -->
+<a href="cloudcannon:#object.title">
+  Edit a variable within an object
+</a>
+
+<a href="cloudcannon:#object.array">
+  Edit an array within an object
+</a>
+
+<!-- Inputs within an Array inside an Object -->
+<a href="cloudcannon:#object.array[0].title">
+  Edit the title of the first array item within an object
+</a>
+```
+</comp.CodeBlock>
+
+<comp.Notice info_type="info">
+  You can edit [hidden inputs](/documentation/articles/how-to-choose-what-input-is-used-in-the-data-editor/) by using popout-style editor links.
+</comp.Notice>
+
+### Open the sidebar instead
+Front matter can be highlighted within the data editor in the sidebar, or displayed standalone in a panel (default). To change open an editor link in the sidebar:
+
+1. Add the `data-cms-bind-style` attribute
+2. Set the attribute’s value to **sidebar** (optional)
+
+<comp.CodeBlock language="html" source="index.html">
+```
+<a href="cloudcannon:#title" data-cms-bind-style="sidebar">
+  Edit the title
+</a>
+```
+</comp.CodeBlock>
+
+<comp.DocsImage path="ye_olde_images/editing-editor-links-modal.png" alt="Screenshot of a modal style editor link in the CloudCannon visual editor" type="screenshot" />
+
+## Linking to other views
+To have edit links for posts in a list, add an Editor Link in the blog post loop:
+
+<comp.CodeBlock language="html" source="index.html">
+```
+<a href="cloudcannon:collections/staff">
+  Edit all staff
+</a>
+
+<a href="cloudcannon:collections/staff/jane-doe.md">
+  Edit Jane Doe
+</a>
+
+<a href="cloudcannon:collections/posts/welcome-post.md">
+  Edit Welcome Post
+</a>
+
+<a href="cloudcannon:status">
+  Link to Site Status and Recent Activity
+</a>
+```
+</comp.CodeBlock>
+
+Front matter Editor Links are prefixed with `cloudcannon:#` and use a common syntax to reference them, for example:
+
+<comp.CodeBlock language="html" source="index.html">
+```
+<!-- Inputs -->
+<a href="cloudcannon:#title">
+  Edit the title
+</a>
+
+<!-- Arrays -->
+<a href="cloudcannon:#array[1]">
+  Edit the first array item
+</a>
+
+<a href="cloudcannon:#array[+]">
+  Create a new item in an array
+</a>
+
+<!-- Inputs within an Object -->
+<a href="cloudcannon:#object.title">
+  Edit a variable within an object
+</a>
+
+<a href="cloudcannon:#object.array">
+  Edit an array within an object
+</a>
+
+<!-- Inputs within an Array inside an Object -->
+<a href="cloudcannon:#object.array[0].title">
+  Edit the title of the first array item within an object
+</a>
+```
+</comp.CodeBlock>
+
+### Posts Example
+To have edit links for posts in a list, add an Editor Link in the blog post loop:
+
+
+
+<comp.Conditional ssgs={["Jekyll"]}>
+  <comp.CodeBlock language="html" source="posts.html">
+  ```
+  <ul class="blog-posts">
+    {% for post in site.posts %}
+      <li class="blog-post">
+        <h3>{{ post.title }}</h3>
+        <!-- Editor Link -->
+        <a href="cloudcannon:collections/{{ post.path }}" class="editor-link">Edit post</a>
+        <p>{{ post.excerpt }}</p>
+        <a href="{{ post.url }}">Read more</a>
+      </li>
+    {% endfor %}
+  </ul>
+  ```
+  </comp.CodeBlock>
+</comp.Conditional>
+
+
+
+<comp.Conditional ssgs={["Hugo"]}>
+  <comp.CodeBlock language="html" source="posts.html">
+  ```
+  <ul class="blog-posts">
+    {{ range .Pages }}
+      <li class="blog-post">
+        <h3>{{ .Title }}</h3>
+        <!-- Editor Link -->
+        <a href="cloudcannon:/collections/content/{{ .File.Path }}" class="editor-link">Edit post</a>
+        <p>{{ .Summary }}</p>
+        <a href="{{ .RelPermalink }}">Read more</a>
+      </li>
+    {{ end }}
+  </ul>
+  ```
+  </comp.CodeBlock>
+</comp.Conditional>
+
+
+
+<comp.Conditional ssgs={["Eleventy"]}>
+  <comp.CodeBlock language="html" source="posts.njk">
+  ```
+  <ul class="blog-posts">
+    {% for post in collections.posts %}
+      <li class="blog-post">
+        <h3>{{ post.title }}</h3>
+        <!-- Editor Link -->
+        <a href="cloudcannon:/collections/content/{{ .File.Path }}" class="editor-link">Edit post</a>
+        <p>{{ post.excerpt }}</p>
+        <a href="{{ post.url }}">Read more</a>
+
+        <!-- Editor Link -->
+        <a href="cloudcannon:collections/{{ post.inputPath | replace('./', '') }}" class="editor-link">Edit post</a>
+      </li>
+    {% endfor %}
+  </ul>
+  ```
+  </comp.CodeBlock>
+</comp.Conditional>
+
+
+
+<comp.Conditional not_ssgs={["Jekyll", "Eleventy", "Hugo"]}>
+  See other SSG examples and implement with your SSG's templating.
+</comp.Conditional>
+
+
+
+<comp.DocsImage path="ye_olde_images/editing-editor-links-blog-posts.png" alt="Screenshot of visual editor with editor links to edit blog posts" type="screenshot" />
+
+### Collection example
+To have an edit link on a collection item page, add the following to the page:
+
+
+
+<comp.Conditional ssgs={["Jekyll"]}>
+  <comp.CodeBlock language="html" source="item.html">
+  ```
+  <a href="cloudcannon:collections/{{ page.relative_path }}" class="editor-link">Edit</a>
+  ```
+  </comp.CodeBlock>
+
+  If you are using a custom `collections_dir` include `site.collections_dir` in your editor link:
+
+  <comp.CodeBlock language="html" source="item.html">
+  ```
+  <a href="cloudcannon:collections/{{ site.collections_dir }}/{{ page.relative_path }}" class="editor-link">Edit</a>
+  ```
+  </comp.CodeBlock>
+
+  <comp.Notice info_type="info">
+    When generating Editor Links in Jekyll, collection items should use relative\_path, while posts and pages should use path.
+  </comp.Notice>
+</comp.Conditional>
+
+
+
+<comp.Conditional ssgs={["Hugo"]}>
+  <comp.CodeBlock language="html" source="item.html">
+  ```
+  <a href="cloudcannon:collections/content/{{ .File.Path }}" class="editor-link">Edit</a>
+  ```
+  </comp.CodeBlock>
+
+  Replace 'content' in the `href` above with the name of your content directory.
+</comp.Conditional>
+
+
+
+<comp.Conditional ssgs={["Eleventy"]}>
+  <comp.CodeBlock language="html" source="item.njk">
+  ```
+  <a href="cloudcannon:collections/{{ page.inputPath | replace('./', '') }}" class="editor-link">Edit</a>
+  ```
+  </comp.CodeBlock>
+</comp.Conditional>
+
+
+
+<comp.Conditional not_ssgs={["Jekyll", "Eleventy", "Hugo"]}>
+  See other SSG examples and implement with your SSG's templating.
+</comp.Conditional>
+
+
+
+<comp.DocsImage path="ye_olde_images/editing-editor-links-collection-items.png" alt="Screenshot of a blog post in CloudCannon with an editor link" type="screenshot" />

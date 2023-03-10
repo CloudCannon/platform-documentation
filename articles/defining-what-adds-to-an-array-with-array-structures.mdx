@@ -1,0 +1,127 @@
+---
+_uuid: 0b858151-b890-4d71-a54a-8eadeee951b1
+_created_at: "2021-09-15 23:13:40 +0000"
+title: "Defining what adds to an array"
+nav_title: "Defining what adds to an array"
+published: true
+image: "/documentation/static/CloudCannonDocumentationog.jpg"
+description: "Array add values allow you to define which keys in your data should be arrays, what data should be added when 'Add' is clicked, and how the editor can decide what item to add."
+tags: []
+change_logs: [{"name":"Initial Version","_created_at":"2021-09-15 23:13:40 +0000"}]
+related_articles: ["using-arrays-to-edit-your-data"]
+related_links: null
+---
+
+By default, arrays in the [Data Editor](/documentation/articles/introducing-the-data-editor/) allow you to create new items. Adding a new item clones the previous item and clears its data. This default behavior is convenient as there is no configuration, however, there are some limitations as a trade-off:
+
+* The array must always contain at least one value for the editor to clone when adding.
+* Every item in the array has the same data type or structure.
+
+You can overcome these limitations by configuring how new array items are added manually by giving CloudCannon more context with Structures.
+
+<comp.Notice info_type="info">
+  Alternatively, [configure inline array inputs](/documentation/articles/using-arrays-to-edit-your-data/#inline-values) to set which input is used for array items. This also allows array to be empty.
+</comp.Notice>
+
+<comp.DocsImage path="ye_olde_images/object-array-add-highlighted.png" alt="An array with the add button highlighted" type="screenshot-snippet" />
+
+## Structures
+Array add values are defined under the key `_structures`. These allow you to define which keys in your data should be arrays, what data should be added when **Add** is clicked, and how the editor can decide what item to add.
+
+### Defining your key
+The first step to configuring your structures is to define which key is used. For this example we will use the `example` key. If `_structures` is already defined, add your key to that object. Key level config in structures do not get merged; the latest defined key will be the only config. Below is the basic structure once your key is chosen:
+
+<comp.Tabs label="Languages">
+  <comp.Tab name="YAML">
+    <comp.CodeBlock language="yaml" source="Configuration">
+    ```
+    _structures:
+      example:
+        # Configure example key in here
+    ```
+    </comp.CodeBlock>
+  </comp.Tab>
+  <comp.Tab name="TOML">
+    <comp.CodeBlock language="toml" source="Configuration">
+    ```
+    [[_structures.example]]
+    # Configure example key in here
+    ```
+    </comp.CodeBlock>
+  </comp.Tab>
+  <comp.Tab name="JSON">
+    <comp.CodeBlock language="json" source="Configuration">
+    ```
+    {
+      "_structures": {
+        "example": {}
+      }
+    }
+    ```
+    </comp.CodeBlock>
+  </comp.Tab>
+</comp.Tabs>
+
+### Defining a single value
+For the first example we want editors to click **Add** and immediately have the following data added:
+
+<comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="New Item Content">
+```
+name:
+description:
+image:
+```
+</comp.MultiCodeBlock>
+
+For this we need to add our new structure under a `value` key inside an array called `values`\:
+
+<comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="Configuration">
+```
+_structures:
+  example:
+    values:
+      - value: 
+          name:
+          description:
+          image:
+```
+</comp.MultiCodeBlock>
+
+Our editors can now add a new value to our array and remove every array item because we have moved our add instructions into the `_structures` config.
+
+<comp.DocsImage path="ye_olde_images/no-items-no-labels.png" alt="An empty array with the option to add an item" type="screenshot-snippet" />
+
+### Defining a second value
+For the second example we want editors to click **Add** and be prompted for a choice of options. We are going to add the following structure to our structures:
+
+<comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="New Item Content">
+```
+heading:
+subtext:
+```
+</comp.MultiCodeBlock>
+
+For this we need to add our new structure under our previous in the array called `values`. Now that we have more than one option, it is important to label our values. Labels are defined on the same level as the `value` key with the `label` key. Here is our new configuration:
+
+<comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="Configuration">
+```
+_structures:
+  example:
+    values:
+      - label: 'First'
+        value: 
+          name:
+          description:
+          image:
+      - label: 'Second'
+        value: 
+          heading:
+          subtext:
+```
+</comp.MultiCodeBlock>
+
+<comp.DocsImage path="ye_olde_images/no-items-two-options.png" alt="An empty array with two add options in a dropdown" type="screenshot-snippet" />
+
+<comp.DocsImage path="ye_olde_images/two-options-two-items.png" alt="An array with two add options in a dropdown and two existing items" type="screenshot-snippet" />
+
+There are a number of ways to change the way your array values look, just like the `label` key. These include the `description`, `icon`, `image`, and `image_size` keys. See the [structures reference](/documentation/articles/array-structures-reference/) for more details on these keys.

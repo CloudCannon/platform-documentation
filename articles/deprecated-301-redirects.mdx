@@ -1,0 +1,80 @@
+---
+_uuid: 851832fb-bdba-4b30-8407-5a5e398cc852
+_created_at: "2021-09-15 23:13:40 +0000"
+title: "Deprecated 301.txt Redirects"
+nav_title: "301.txt"
+published: true
+image: "/documentation/static/CloudCannonDocumentationog.jpg"
+description: "301.txt redirects are deprecated, use routing.json to configure this with more options."
+tags: ["Hosting","Sites","Redirects","Deprecated","Guides"]
+change_logs: [{"name":"Initial Version","_created_at":"2021-09-15 23:13:40 +0000"}]
+related_articles: ["configuring-custom-routing"]
+related_links: null
+---
+
+<comp.Notice info_type="info">
+  This feature has been deprecated. It is highly recommended you update to use a [Routing file](/documentation/articles/configuring-custom-routing/).
+</comp.Notice>
+
+301 redirects are inside the 301.txt file at the root of your built files. Redirects are specified using the following syntax:
+
+`old-url new-url`
+
+Redirect to external domains and wildcard matching with `*`. Here’s an example file:
+
+<comp.CodeBlock language="plaintext" source="301.txt">
+```
+/about.html /about/
+/category/* /new-category
+/should-have-been-elsewhere/ https://example.com
+```
+</comp.CodeBlock>
+
+Redirects will only occur if the redirect-from page/location no longer exists within the site. If the page/location still exists within your site, this will be served instead of performing a redirect.
+
+<comp.Notice info_type="info">
+  You can redirect to, but not from a URL fragment (e.g. \#example-heading). The fragment is not passed to the server so, it cannot be processed by the redirect.
+</comp.Notice>
+
+## Migrating to a Routing file
+301\.txt redirects still work to ensure backwards compatibility for older sites. Once a `.cloudcannon/routing.json` file has been added 301.txt will be ignored. 301.txt offers a subset of the options available in the Routing file. This feature will not be receiving any further improvements.
+
+Upgrading will give access to the following improvements:
+
+1. Regex redirects and regex parameters in the location
+2. Redirects run before all other behaviour allowing easier configuration
+3. More redirect status codes
+4. Customise headers on existing routes
+5. And more coming soon
+
+For the above example, here is the equivalent:
+
+<comp.CodeBlock language="json" source=".cloudcannon/routing.json">
+```
+{
+  "routes": [
+      {
+        "from": "/about.html",
+        "to": "/about/",
+        "status": 301,
+        "substitutions": false,
+        "forced": false
+      },
+      {
+        "from": "/category/*",
+        "to": "/new-category",
+        "status": 301,
+        "substitutions": false,
+        "forced": false
+      },
+      {
+        "from": "/should-have-been-elsewhere/",
+        "to": "https://example.com",
+        "status": 301,
+        "substitutions": false,
+        "forced": false
+      }
+  ]
+}
+```
+</comp.CodeBlock>

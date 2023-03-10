@@ -1,0 +1,123 @@
+---
+_uuid: "fcc32311-3fad-431f-8521-bfffbd9ae1ea"
+_created_at: "2022-08-17 04:40:51 +0000"
+title: "Creating a Google Cloud Storage DAM"
+nav_title: "Google Cloud Storage DAM"
+published: true
+image: "/documentation/static/CloudCannonDocumentationog.jpg"
+description: Set up a DAM with Google Cloud Storage and link it to your CloudCannon Organization
+tags: []
+change_logs: [{"name":"Initial Version","_created_at":"2022-08-17 04:40:51 +0000"}]
+related_articles: null
+related_links: null
+---
+
+Adding a Digital Asset Manager (DAM) to your site enables you to store your images and other assets in an external service, separate from your content. DAMs improve site build times and allow you to reuse the same assets across different sites. With Google Cloud Storage you can host your own DAM while still managing your files directly from CloudCannon.
+
+### Create a project for your DAM
+
+Open the navigation menu (in the top left), and navigate to *IAM and admin &gt; Manage resources.*
+
+In the resources console, click the **Create Project** button in the top left.
+
+Give your project a name and then click the **Create.**
+
+### Create your Google Cloud Storage bucket
+
+Open the navigation menu (in the top left), and navigate to *Cloud Storage &gt; Buckets.*
+
+Make sure your DAM project is selected in the projects drop-down (in the top left).
+
+In the Cloud Storage console, click the **Create** button in the top menu bar.
+
+Give your bucket a name and choose where you want it to be located, then click the **Create** button again, leaving the other settings unchanged. Note that your choice of location may affect response times from your bucket, so you should pick a location close to your users.
+
+Open the *Permission *tab of your newly created bucket and click the **Add** button next to the **Permissions** heading.
+
+Enter `allUsers` as the new principal** **and select `Storage Object Viewer` from the roles drop-down.
+
+Click the **Save **button, and then click the** Allow Public Access** button on the popup.
+
+### Configure CORS for your bucket
+
+Download and install the gsutil command line tool by following the instructions in the [Google Cloud Storage documentation](https://cloud.google.com/storage/docs/gsutil_install).
+
+Create a JSON file with the following contents:
+
+
+
+<comp.CodeBlock language="json" source="cors.json">
+```
+[
+  {
+    "origin": ["https://www.example.com"],
+    "responseHeader": ["Content-Type"],
+    "method": ["GET"],
+    "maxAgeSeconds": 3600
+  },
+  {
+    "origin": ["https://app.cloudcannon.com"],
+    "responseHeader": ["Content-Type"],
+    "method": ["*"],
+    "maxAgeSeconds": 3600
+  }
+]
+```
+</comp.CodeBlock>
+
+The CloudCannon app needs to have access to your bucket so that you can upload images to it.
+
+Replace `https://www.example.com` in the JSON file with a list of domains that you want to be able to access your DAM, then run the following command:
+
+<comp.CodeBlock language="shell" source={null}>
+```
+
+gsutil cors set [path-to-your-json-file] gs://[your-bucket-name]
+```
+</comp.CodeBlock>
+
+### Create an IAM role
+
+Open the navigation menu (in the top left), and navigate to *IAM and admin &gt; Roles*.
+
+In the roles console, click the **Create Role** button in the top menu bar.
+
+Give your role a title, description, and ID. Then set the role launch stage to `General Availablity.`
+
+Click the **Add Permissions** button, and give your role the following permissions:
+
+* storage.buckets.get
+* storage.objects.create
+* storage.objects.delete
+* storage.objects.get
+* storage.objects.list
+
+Click the **Create** button to finish creating your role.
+
+### Create a service account
+
+Open the navigation menu (in the top left), and navigate to *IAM and admin &gt; Service accounts.*
+
+In the service accounts console, click the **Create service account **button in the top menu bar.
+
+Give your service account a name, and select your newly created role under the **Grant this service account access to the project** section.
+
+Click the **Done** button to finish creating your service account.
+
+Click on the service account and open the *Keys* tab. Then click on the **Add Key** button and select the **Create new key** option.
+
+Select `JSON` as your key type, then click the **Create** button. Save the downloaded JSON file, you’ll need this to connect your DAM to CloudCannon.
+
+### Connecting your DAM to CloudCannon
+
+Open your site settings in CloudCannon. Navigate to *Files* */* *Assets*. Under *Link DAM*, select **New DAM**.
+
+Choose **Google Cloud Storage** as your DAM type and enter a name - this will be used to identify your DAM in CloudCannon.
+
+Set *Base URL* to `https://storage.googleapis.com/<your-bucket-name>/`
+
+Set *Storage Bucket Name* to the name of your bucket in Google Cloud Storage.
+
+Set *Credentials* to the contents of your service account's JSON key.
+
+Click **Authenticate**, to save and close the modal, then click **Link DAM**.

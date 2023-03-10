@@ -1,0 +1,54 @@
+---
+_uuid: "60c3442a-e6d5-4fd5-b4f1-ff96fa681b3a"
+_created_at: "2021-09-15 05:03:07 +0000"
+title: "Syncing build files from CloudCannon to an external provider"
+nav_title: "Build Deploys"
+published: true
+image: "/documentation/static/CloudCannonDocumentationog.jpg"
+description: "Configure a Build Deploy to commit the built version of your site to a repository."
+tags: ["deploys","output","git","repository","builds"]
+change_logs: [{"name":"Initial Version","_created_at":"2021-09-15 05:03:07 +0000"}]
+related_articles: null
+related_links: null
+---
+
+Configure a Build Deploy to commit the built version of your site to a repository. With a Build Deploy you can have CloudCannon handle your build and easily deploy the site to your own infrastructure.
+
+## Adding a Build Deploy
+1. First, create a repository that you would like to sync your site to, and connect it to a git provider.
+2. Go to *Site Settings* / *Build Deploys* and choose your provider from the dropdown. If you have not yet authenticated CloudCannon with your provider, you will be prompted to do so.
+3. Once authenticated, choose your repository from the dropdown, and choose an existing branch or create a new one.
+4. Click **Connect and Sync** in the top right of the page.
+
+<comp.Notice info_type="important">
+  Your chosen branch will be overwritten once connected as a Build Deploy. Please ensure your chosen repository + branch is correct before proceeding.
+</comp.Notice>
+
+<comp.DocsImage path="ye_olde_images/files-output-storage-providers.png" alt="Storage Providers interface" type="screenshot" />
+
+Once connected, your most recently compiled site will replace the contents of the configured branch. This process will repeat after every build.
+
+You can change the what part of the build step is synced after selecting the provider. By default, the compiled output of the build step is synced.
+
+## Select a Deploy Step
+Once you have connected to your repository, you can select which build step you would like to be synced.
+
+Go to *Site Settings* / *Build Deploys* and click the dropdown menu under *Deploy Step*. Select from one of the following:
+
+* **Build**\: Once built, your site will be synced to your output repository before any further work is done on it.
+* **I18n**\: Sync your built site after translations have been performed on it.
+* **Process**\: Sync your built site after encrypting form details.
+* **Compress**\: Sync your built site after assets have been minified.
+
+Then click **Update Build Deploy**.
+
+<comp.DocsImage path="ye_olde_images/files-output-github.png" alt="Output Providers interface" type="screenshot" />
+
+These options are listed in build-order. For example, selecting **Process** will sync your site once it has been built, translated, and processed, but before CloudCannon performs any compression.
+
+In some cases the repo you're deploying to may contain special files you don't want to be overwritten by your deploy. The Excluded Paths setting allows you to specify a comma separated list of file prefixes, files matching one of these prefixes will not be updated by CloudCannon.
+
+In the case that a file exists in your repo but not as part of your build, adding it as an excluded path will prevent if from being deleted by a deploy.
+
+## Removing a Build Deploy
+Go to *Site Settings* / *Build Deploys* and click **Disconnect &lt;Provider&gt;**.

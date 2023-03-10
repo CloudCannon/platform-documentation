@@ -1,0 +1,27 @@
+---
+title: New inputs configuration and more
+type: major
+---
+This release introduces [configuration for inputs](/documentation/articles/how-to-choose-what-input-is-used-in-the-data-editor/) separate from the naming conventions. It's all backwards compatible, and we have a [migration guide](/documentation/articles/migrating-to-input-configuration/) to start changing your sites over. There are a number of new inputs and options for each.
+
+**Features:**
+
+* [Color inputs](/documentation/articles/using-color-inputs-to-edit-your-data/) have new `format` and `alpha` options, falling back to the naming convention if these options are not set.
+* [Hiding inputs](/documentation/articles/how-to-choose-what-input-is-used-in-the-data-editor/#configuration) is now set with `hidden` in an `_inputs` entry rather than an option, since it’s available for any input type. This key also supports a string where the input is hidden based on the value of another input. This can start with a `!` to reverse the value.
+* [Object structures are now supported](/documentation/articles/editing-objects-in-your-data/#options). These allow you to configure objects between an empty state (`null`) and a selection of object formats. Useful if you have components with a limited number of sub-components.
+* Two new inputs: [Range number input](/documentation/articles/using-number-inputs-to-edit-your-data/#range) and a [Switch boolean input](/documentation/articles/using-checkbox-inputs-to-edit-your-data/#switch). These are only available with the new inputs config. More input types coming soon, contact support if you have specific requests.
+* [Comments](/documentation/articles/how-to-choose-what-input-is-used-in-the-data-editor/) now support a limited set of Markdown: links, bold, italic, subscript, superscript and inline code elements are allowed. Links in this block also support [Editor Links](/documentation/articles/extending-in-app-navigation-with-editor-links/).
+* Better object previews with configurable text and subtext.
+* Select and multiselect inputs now have the `value_key` option to set how values are saved, and the `text_key` option for setting how values are displayed.
+* Added disabled input type for visible, uneditable text values.
+* `step`, `min` and `max` options for number inputs.
+* Configuration for changing the label and type of an input separate from the naming conventions.
+
+**Fixes:**
+
+* Number inputs are invalid if they don't contain numbers.
+* Corrected the textarea input naming convention from `text` to `textarea`.
+* Clone page is now hidden if `_disable_add` is `true`.
+* Webhooks now fail if they have no site attached.
+* HTML, Markdown and Code Block is no longer stripped from input labels.
+* Fixed some valid values not being allowed when adding DNS records.

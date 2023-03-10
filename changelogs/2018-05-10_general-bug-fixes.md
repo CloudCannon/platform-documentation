@@ -1,0 +1,13 @@
+---
+title: General Bug Fixes
+type: minor
+---
+
+This release fixes a number of minor issues.
+
+**Fixes:**
+
+* Error preventing image uploads in some *Client Sharing* configurations
+* Indefinite loading spinner when trying to load a repository list with no repositories
+* Updating the title of an image no longer toggles the display in the image popout incorrectly
+* Prevent accidentally setting the publish branch to the same values as source

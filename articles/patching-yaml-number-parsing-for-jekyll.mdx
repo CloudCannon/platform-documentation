@@ -1,0 +1,50 @@
+---
+_uuid: "35130c50-48d6-49b5-a592-9f3efdf6255d"
+_created_at: "2021-10-05 01:13:43 +0000"
+title: "Patching YAML number parsing for Jekyll"
+nav_title: "Number parsing in Jekyll"
+published: true
+image: "/documentation/static/CloudCannonDocumentationog.jpg"
+description: null
+tags: []
+change_logs: [{"name":"Initial Version","_created_at":"2021-10-05 01:13:43 +0000"}]
+related_articles: null
+related_links: null
+---
+
+This is a patch for SafeYAML (Jekyll YAML parser) to fix a parsing error.
+
+Updating a text input in CloudCannon to 1,234 saves the value unquoted, allowed by the YAML specification. Jekyll then parses this as a number which can case unexpected results. This patch removes the comma when testing for a number.
+
+<comp.CodeBlock language="ruby" source="_plugins/patch.rb">
+```
+# This is a patch for SafeYAML to fix a parsing error.
+# It ensures the following is parsed as a string rather than a number:
+#
+# a_string: 1,234
+#
+# Rendering this with {{ page.a_string }}
+# Unpatched is: 1234
+# Patched is: 1,234
+
+module SafeYAML
+  class Transform
+    class ToInteger
+      MATCHERS = Deep.freeze([
+        /\A[-+]?(0|([1-9][0-9_]*))\Z/, # decimal
+        /\A0[0-7]+\Z/,                  # octal
+        /\A0x[0-9a-f]+\Z/i,             # hexadecimal
+        /\A0b[01_]+\Z/                  # binary
+      ])
+
+      def transform?(value)
+        MATCHERS.each_with_index do |matcher, idx|
+          return true, Integer(value) if matcher.match(value)
+        end
+        try_edge_cases?(value)
+      end
+    end
+  end
+end
+```
+</comp.CodeBlock>

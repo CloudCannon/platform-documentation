@@ -1,0 +1,213 @@
+---
+_uuid: e8772472-bd44-4b34-85a2-96632a3517dd
+_created_at: "2021-09-15 05:03:07 +0000"
+title: "Using file path inputs to edit your data"
+nav_title: "File"
+published: true
+image: "/documentation/static/CloudCannonDocumentationog.jpg"
+description: "These inputs allow editors to upload new files, select existing images, or link to external files."
+tags: []
+change_logs: [{"name":"Initial Version","_created_at":"2021-09-15 05:03:07 +0000"},{"name":"Input configuration","_created_at":"2021-11-04 02:03:45 +0000"}]
+related_articles: null
+related_links: null
+---
+
+These inputs allow editors to upload new files, select existing images, and add external links. Enterprise customers can even configure an external digital asset manager for their team.
+
+## File
+File select input with controls to enter external links and upload new files. Does not filter by file type when choosing files.
+
+File inputs are shown for inputs configured with the type `file`, or for input keys matching:
+
+* `path`
+* `*_path`
+
+<comp.DocsImage path="ye_olde_images/path.png" alt="Screenshot of file input field with a CSS file selected" type="screenshot-snippet" />
+
+<comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="Naming convention">
+```
+extra_styles_path: /styles/screen.css
+```
+</comp.MultiCodeBlock>
+
+<comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="Input configuration">
+```
+path_to_css: /styles/screen.css
+_inputs:
+  path_to_css:
+    type: file
+```
+</comp.MultiCodeBlock>
+
+## Image
+Image select inputs with controls to enter external links and upload new image files. Filters files available to choose to files with image extensions.
+
+Image inputs are shown for inputs configured with the type `image`, or for input keys matching:
+
+* `image`
+* `*_image`
+* `image_path`
+* `*_image_path`
+
+<comp.DocsImage path="ye_olde_images/image.png" alt="Screenshot of image upload field with an image file selected" type="screenshot-snippet" />
+
+<comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="Naming convention">
+```
+background_image_path: /images/background.png
+```
+</comp.MultiCodeBlock>
+
+<comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="Input configuration">
+```
+image_file: /images/background.png
+_inputs:
+  image_file:
+    type: image
+```
+</comp.MultiCodeBlock>
+
+## Document
+Document select inputs with controls to enter external links and upload new document files. Filters files available to choose to files with document extensions.
+
+Document inputs are shown for inputs configured with the type `document`, or for input keys matching:
+
+* `document`
+* `*_document`
+* `document_path`
+* `*_document_path`
+
+<comp.DocsImage path="ye_olde_images/document.png" alt="Screenshot of Document input field with a PDF file selected" type="screenshot-snippet" />
+
+<comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="Naming convention">
+```
+newsletter_document_path: /documents/2016/newsletter.pdf
+```
+</comp.MultiCodeBlock>
+
+<comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="Input configuration">
+```
+path_to_newsletter: /documents/2016/newsletter.pdf
+_inputs:
+  path_to_newsletter:
+    type: document
+```
+</comp.MultiCodeBlock>
+
+## Options
+File path inputs are configured with `options` inside an `_inputs` entry.
+
+<comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="Input configuration">
+```
+image_file: ye_olde_images/image.png
+_inputs:
+  image_file:
+    type: file
+    options:
+      uploads_dir: uploads
+      accepts_mime_types:
+        - image/png
+        - image/svg+xml
+        - image/jpeg
+      width: 400
+      height: 300
+      resize_style: cover
+      mime_type: image/jpeg
+      expandable: true
+      correct_orientation: false
+```
+</comp.MultiCodeBlock>
+
+File path inputs have the following options available:
+
+<comp.DataReference>
+  <comp.DataReferenceRow label="paths" type_markdown="Object">
+    Paths to common folders. Each path is relative to [global](/documentation/articles/setting-global-configuration/) site `source`. The available keys are:
+
+    * `uploads` for the default location of newly uploaded site files.
+    * `dam_uploads` for the default location of newly uploaded [DAM](/documentation/articles/introduction-to-assets-and-dams/) files.
+    * `dam_static` for the location of statically copied assets for [DAM](/documentation/articles/introduction-to-assets-and-dams/) files.
+
+    `uploads` and `dam_uploads` have a [number of dynamic placeholders available](/documentation/articles/adjusting-the-uploads-path/).
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="accepts_mime_types" type_markdown="String or array of strings">
+    Restricts which file types are available to select or upload to this input. Optional, each file path input has a different default:
+
+    * File: `*`
+    * Image: `image/x-icon,image/gif,image/jpeg,image/jpeg,image/png,image/webp,image/bmp,image/svg+xml`
+    * Document: `application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation`
+
+    If set as a string, the value should be a comma-separated (no spaces) list of the [mime types](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types) you want to filter by. The string `*` by itself allows any type.
+
+    If set as an array, each item should be a string of a single [mime type](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types) you want to filter by.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="empty_type" type_markdown="string">
+    Set how an ‘empty’ value will be saved. Does not apply to existing empty values. Can be one of the following:
+
+    * `string` - an empty value for this input will be stored as `""`.
+    * `null` - an empty value for this input will be stored as a null value (default). This does not apply to TOML files.
+  </comp.DataReferenceRow>
+</comp.DataReference>
+
+If the input allows for images, the following options are also available:
+
+<comp.DataReference>
+  <comp.DataReferenceRow label="width" type_markdown="Integer">
+    Defines the width of the bounding box used in the resizing process defined with `resize_style`.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="height" type_markdown="Integer">
+    Defines the height of the bounding box used in the resizing process defined with `resize_style`.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="resize_style" type_markdown="String">
+    Sets how uploaded image files are resized with a bounding box defined by `width` and `height` prior to upload. Defaults to `contain`. Must be `contain`, `cover` or `stretch`\:
+
+    * `cover` keeps aspect ratio and ensures the image covers the bounding box
+    * `contain` keeps aspect ratio and ensures the image fits inside the bounding box
+    * `stretch` ignores aspect ratio and resizes the image to the bounding box
+
+    Has no effect when selecting existing images, or if `width` and `height` are not set.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="mime_type" type_markdown="String">
+    Sets what format the image is converted to prior to upload. The extension of the file is updated to match. Defaults to keeping the mime type of the uploaded file. Must be one of `image/jpeg` or `image/png`.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="expandable" type_markdown="Boolean">
+    Controls whether or not images can be upscaled to fit the bounding box during resize prior to upload. Defaults to `false`. Has no effect if files are not resized.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="correct_orientation" type_markdown="Boolean">
+    Controls whether or not the JPEG headers defining how an image should be rotated before being displayed is baked into the image prior to upload. Defaults to `true`.
+  </comp.DataReferenceRow>
+</comp.DataReference>
+
+## Valid values
+
+Documented below are the valid formats for **file**, **image**, and **document** inputs.
+
+The lists of examples are non-exhaustive.
+
+<comp.Tabs label="Languages">
+ <comp.Tab name="YAML">
+    Empty/null value:
+    * `file: `
+
+    Any valid string (quoted or unquoted):
+    * `file: ""`
+    * `file: ''`
+    * `file: path/to`
+    * `file: "path/to"`
+    * `file: 'path/to'`
+ </comp.Tab>
+ <comp.Tab name="TOML">
+    Any valid string:
+    * `file = ""`
+    * `file = ''`
+    * `file = "path/to"`
+    * `file = 'path/to'`
+ </comp.Tab>
+ <comp.Tab name="JSON">
+    Null value:
+    * `"file": null`
+
+    Any valid string:
+    * `"file": ""`
+    * `"file": "path/to"`
+ </comp.Tab>
+</comp.Tabs>

@@ -1,0 +1,190 @@
+---
+_uuid: bd77fdf2-e707-4695-a6f8-504ba6ba8493
+_created_at: "2021-09-15 05:03:07 +0000"
+title: "Using Color Inputs to edit your data"
+nav_title: "Color"
+published: true
+image: "/documentation/static/CloudCannonDocumentationog.jpg"
+description: "Color picker input with spectrum and transparency controls for editing color values in your data."
+tags: []
+change_logs: [{"name":"Initial Version","_created_at":"2021-09-15 05:03:07 +0000"},{"name":"Input configuration","_created_at":"2021-11-04 03:48:59 +0000"}]
+related_articles: ["how-to-choose-what-input-is-used-in-the-data-editor","using-the-configuration-cascade"]
+related_links: null
+---
+
+Color picker input with spectrum and transparency controls for editing color values in your data.
+
+Color inputs are shown for inputs configured with the type `color`, or for input keys matching:
+
+* `color`
+* `*_color`
+* `colour`
+* `*_colour`
+* `rgb`
+* `*_rgb`
+* `rgba`
+* `*_rgba`
+* `hex`
+* `*_hex`
+* `hsv`
+* `*_hsv`
+* `hsva`
+* `*_hsva`
+* `hsl`
+* `*_hsl`
+* `hsla`
+* `*_hsla`
+
+Each variation specified by the matching pattern in its key defines the preferred format of the color. The `color` and `colour` variations default to hex.
+
+Variations ending in `a` have an additional transparency control.
+
+<comp.DocsImage path="ye_olde_images/color.png" alt="Screenshot of color input unfocused" type="screenshot-snippet" />
+
+<comp.DocsImage path="ye_olde_images/color-open.png" alt="Screenshot of color input field focused" type="screenshot-snippet" />
+
+<comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="Naming convention">
+```
+brand_color: '#f05f40'
+```
+</comp.MultiCodeBlock>
+
+<comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="Input configuration">
+```
+top_gradient_stop: '#f05f40'
+_inputs:
+  top_gradient_stop:
+    type: color
+```
+</comp.MultiCodeBlock>
+
+### Options
+Color inputs are configured with `options` inside an `_inputs` entry.
+
+<comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="Input configuration">
+```
+top_gradient_stop: '#f05f40'
+_inputs:
+  top_gradient_stop:
+    type: color
+    options:
+      format: rgb
+      alpha: true
+```
+</comp.MultiCodeBlock>
+
+Color inputs have the following options available:
+
+<comp.DataReference>
+  <comp.DataReferenceRow label="format" type_markdown="String">
+    Sets what format the color value is saved as. Optional, defaults to the naming convention, then `hex` if that is unset. Must be `rgb`, `hex`, `hsl`  or `hsv`.
+
+    Alternatively, you can configure `format` with the naming convention as well. If an input key ends with a valid `format` (and optionally `alpha`), it is used (e.g. the input keys `rgba` or `my_rgb` result in format `rgb`).
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="alpha" type_markdown="Boolean">
+    Toggles showing a control for adjusting the transparency of the selected color. Optional, defaults to using the naming convention.
+
+    Alternatively, you can configure `alpha` with the naming convention as well. `alpha` is set to `true` if the input key ends with `a`.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="empty_type" type_markdown="string">
+    Set how an ‘empty’ value will be saved. Does not apply to existing empty values. Can be one of the following:
+
+    * `string` - an empty value for this input will be stored as `""`.
+    * `null` - an empty value for this input will be stored as a null value (default). This does not apply to TOML files.
+  </comp.DataReferenceRow>
+</comp.DataReference>
+
+## Valid values
+
+Documented below are the valid formats for **color** inputs.
+
+The lists of examples are non-exhaustive.
+
+<comp.Notice info_type="info">
+  * Hex colours with an alpha value will be converted to `rgba`.
+
+  * Colors will be converted to the specified `format` input
+  option when loaded into the Data Editor
+
+  * Quotes will be stripped from non-hex colors when loaded into the Data
+  Editor
+</comp.Notice>
+
+<comp.Tabs label="Languages">
+ <comp.Tab name="YAML">
+    Empty/null value:
+    * `color: `
+
+    Any valid CSS color name (quoted or unquoted):
+    * `color: blue`
+    * `color: "blue"`
+
+    Quoted hexadecimal color (case insensitive):
+    * `color: "#034AD8"`
+    * `color: "#034ad8"`
+    * `color: "#034AD8FF"`
+
+    RGB and RGBA (quoted or unquoted):
+    * `color: rgb(3, 74, 216)`
+    * `color: "rgb(3, 74, 216)"`
+    * `color: rgba(3, 74, 216, 0.5)`
+    * `color: "rgba(3, 74, 216, 0.5)"`
+
+    HSL and HSLA (quoted or unquoted):
+    * `color: hsl(220, 97.3, 42.9)`
+    * `color: "hsl(220, 97.3, 42.9)"`
+    * `color: hsla(220, 97.3, 42.9, 0.5)`
+    * `color: "hsla(220, 97.3, 42.9, 0.5)"`
+
+    HSV and HSVA (quoted or unquoted):
+    * `color: hsv(220, 98.6, 84.7)`
+    * `color: "hsv(220, 98.6, 84.7)"`
+    * `color: hsva(220, 98.6, 84.7, 0.5)`
+    * `color: "hsva(220, 98.6, 84.7, 0.5)"`
+ </comp.Tab>
+ <comp.Tab name="TOML">
+    Any valid CSS color name:
+    * `color = "blue"`
+
+    Hexadecimal color (case insensitive):
+    * `color = "#034AD8"`
+    * `color = "#034ad8"`
+    * `color = "#034AD8FF"`
+
+    RGB and RGBA:
+    * `color = "rgb(3, 74, 216)"`
+    * `color = "rgba(3, 74, 216, 0.5)"`
+
+    HSL and HSLA:
+    * `color = "hsl(220, 97.3, 42.9)"`
+    * `color = "hsla(220, 97.3, 42.9, 0.5)"`
+
+    HSV and HSVA:
+    * `color = "hsv(220, 98.6, 84.7)"`
+    * `color = "hsva(220, 98.6, 84.7, 0.5)"`
+ </comp.Tab>
+ <comp.Tab name="JSON">
+    Empty/null value:
+    * `"color": null`
+
+    Any valid CSS color name:
+    * `"color": "blue"`
+
+    Hexadecimal color (case insensitive):
+    * `"color": "#034AD8"`
+    * `"color": "#034ad8"`
+    * `"color": "#034AD8FF"`
+
+    RGB and RGBA:
+    * `"color": "rgb(3, 74, 216)"`
+    * `"color": "rgba(3, 74, 216, 0.5)"`
+
+    HSL and HSLA:
+    * `"color": "hsl(220, 97.3, 42.9)"`
+    * `"color": "hsla(220, 97.3, 42.9, 0.5)"`
+
+    HSV and HSVA:
+    * `"color": "hsv(220, 98.6, 84.7)"`
+    * `"color": "hsva(220, 98.6, 84.7, 0.5)"`
+ </comp.Tab>
+</comp.Tabs>

@@ -1,0 +1,102 @@
+---
+_uuid: 28b9a68d-a851-4d6e-bc6b-ebe65cb14160
+_created_at: "2021-09-15 23:13:40 +0000"
+title: "Reducing spam by adding Google reCAPTCHA"
+nav_title: "Google reCAPTCHA"
+published: null
+image: "/documentation/static/CloudCannonDocumentationog.jpg"
+description: "Protect form submissions from automated spam."
+tags: ["Hosting","Forms","Sites","Guides"]
+change_logs: [{"name":"Initial Version","_created_at":"2021-09-15 23:13:40 +0000"}]
+related_articles: ["reducing-spam-by-adding-hcaptcha"]
+related_links: [{"name":"Recaptcha Home","url":"https://developers.google.com/recaptcha/"},{"name":"Recaptcha Documentation","url":"https://developers.google.com/recaptcha/docs/display"}]
+---
+
+[reCAPTCHA](https://developers.google.com/recaptcha/) embeds a CAPTCHA in your page to help prevent spam. [reCAPTCHA](https://developers.google.com/recaptcha/) requires additional configuration in the *Site Settings*.
+
+<comp.DocsImage path="ye_olde_images/hosting-forms-captcha.gif" alt="Gif of Google ReCAPTCHA succesfully verifying" type="screenshot-snippet" />
+
+To add [reCAPTCHA](https://developers.google.com/recaptcha/) to your site:​​​​
+
+1. In your organisation settings, under *Hosting &gt; Forms* either create a new inbox or select *manage* on an existing inbox
+2. Select [reCAPTCHA](https://developers.google.com/recaptcha/) as your captcha provider.
+3. Sign up for an API key at [https://developers.google.com/recaptcha/](https://developers.google.com/recaptcha/)
+4. Enter your secret as your captcha secret key, and your site key as your captcha site key.
+
+Once configured, any form submissions that fails to validate will return a 401 error page.
+
+<comp.DocsImage path="ye_olde_images/hosting-forms-401-error.png" alt="Screenshot of form-submission failure screen" type="screenshot" />
+
+## reCAPTCHA v3
+Additional JavaScript is required to use reCAPTCHA v3 with CloudCannon forms. This is to add the required input named `g-recaptcha-response` before submitting. An example of how to set this up is:
+
+1. Add your form to the HTML
+2. Include the reCAPTCHA script tag with your Site Key
+3. Add JavaScript to catch form submissions
+4. Generate the recaptcha token
+5. Add token to a new input named `g-recaptcha-response`
+6. Resubmit the form
+
+HTML Form:
+
+<comp.CodeBlock language="html" source="contact.html">
+```
+<form method="post" id="my-form" action="/contact-success">
+  <label for="email_address">Email Address</label>
+  <input id="email_address" type="text" name="email">
+
+  <label for="message">Message</label>
+  <textarea id="message" name="message"></textarea>
+
+  <input type="hidden" name="_to" value="{{ site.data.company.contact_email_address }}">
+  <input type="text" name="_gotcha" style="display: none;">
+
+  <input type="submit" value="Send Message">
+</form>
+```
+</comp.CodeBlock>
+
+Javascript:
+
+<comp.CodeBlock language="html" source="contact.html">
+```
+<script src="https://www.google.com/recaptcha/api.js?render=SITE_ID"></script>
+<script>
+  var submitted = false;
+  var tokenCreated = false;
+  var formEl = document.getElementById('my-form');
+
+  formEl.addEventListener("submit", function (event) {
+
+    // Check if the recaptcha exists
+    if (!tokenCreated) {
+
+      // Prevent submission
+      event.preventDefault();
+
+      // Prevent more than one submission
+      if (!submitted) {
+        submitted = true;
+        // needs for recaptacha ready
+        grecaptcha.ready(function() {
+          // do request for recaptcha token
+          // response is promise with passed token
+          grecaptcha.execute('SITE_ID', {action: 'create_comment'}).then(function (token) {
+            // add token to form
+            var input = document.createElement("input");
+            input.type = "hidden";
+            input.name = "g-recaptcha-response";
+            input.value = token;
+            formEl.appendChild(input);
+
+            // resubmit the form
+            tokenCreated = true;
+            formEl.submit();
+          });
+        });
+      }
+    }
+  });
+</script>
+```
+</comp.CodeBlock>

@@ -1,0 +1,91 @@
+---
+_uuid: 46d2a5fd-615a-4d33-be84-9d6704bf8160
+_created_at: "2021-09-15 23:13:40 +0000"
+title: "Visual data previews with vanilla JavaScript"
+nav_title: "Previews with vanilla JS"
+published: true
+image: "/documentation/static/CloudCannonDocumentationog.jpg"
+description: "Live editing on CloudCannon with vanilla JS. Create your own live previews by hooking into document events."
+tags: []
+change_logs: [{"name":"Initial Version","_created_at":"2021-09-15 23:13:40 +0000"},{"name":"Fixed event detail reference and added an async function around the CloudCannon.get call","_created_at":"2021-09-30 22:27:03 +0000"}]
+related_articles: ["what-is-live-editing","using-live-editing-with-react","preventing-the-global-cloudcannon-live-editing-object"]
+related_links: null
+---
+
+Live editing in CloudCannon is all based on an injected JavaScript object `CloudCannon` and custom events triggered on the `document` object.
+
+## CloudCannon Events
+When your website is loaded in the Visual Editor, CloudCannon will trigger [CustomEvents on the global `document` object](https://developer.mozilla.org/en-US/docs/Web/Events/Creating_and_triggering_events). This is a feature available in all major browsers.
+
+### Load Event
+Triggers when CloudCannon live editing API is available. Triggers before the `CloudCannon` object is  injected onto the `window` object."
+
+<comp.CodeBlock language="javascript" source={null}>
+```
+document.addEventListener('cloudcannon:load', function (e) {
+  onLiveEditorLoad(e.detail.CloudCannon);
+});
+```
+</comp.CodeBlock>
+
+Depending on when the JavaScript is run, the load event might have already been triggered. In this case, the CloudCannon object will be available on the global `window` object.
+
+<comp.CodeBlock language="javascript" source={null}>
+```
+if (!window.CloudCannon) {
+  document.addEventListener('cloudcannon:load', function (e) {
+    onLiveEditorLoad(e.detail.CloudCannon);
+  });
+} else {
+  onLiveEditorLoad(window.CloudCannon);
+}
+```
+</comp.CodeBlock>
+
+### Update event
+Using the `CloudCannon` object, we need to enable the other document events. To do this we need to use the following code:
+
+Once this CloudCannon object is saved, you can enable live editing. To demonstrate, we are using the function called in the last code snippet.
+
+<comp.CodeBlock language="javascript" source={null}>
+```
+function onLiveEditorLoad(CloudCannon) {
+  CloudCannon.enableEvents();
+}
+```
+</comp.CodeBlock>
+
+With that enabled, we can register an event listener to the update event. The `cloudcannon:update` event is triggered after every front matter change.
+
+<comp.CodeBlock language="javascript" source={null}>
+```
+document.addEventListener('cloudcannon:update', async function (e) {
+  useNewPageProps(e.detail.CloudCannon);
+});
+```
+</comp.CodeBlock>
+
+All events provide the `CloudCannon` object available on the event details.
+
+## The CloudCannon Object
+All events provide the `CloudCannon` object available on the event details. Alternatively this object is available at `window.CloudCannon`. This object gives you access to the CloudCannon interface.
+
+### Fetching the current front matter value
+Using the `CloudCannon` object, we can fetch the latest value of the front matter. This paired with the update event is the key to live previews. To do this, we use the `CloudCannon.value()` function. This function returns a promise, when awaited will return a json object of the latest value.
+
+<comp.CodeBlock language="javascript" source={null}>
+```
+async function useNewPageProps(CloudCannon) {
+  const latestValue = await CloudCannon.value();
+}
+```
+</comp.CodeBlock>
+
+### Updating a front matter key
+Using the `CloudCannon` object, we can set a value of a key in the front matter. This allows us to build custom controls directly on our page. To do this, we use the `CloudCannon.set(slug, value)` function.
+
+<comp.CodeBlock language="javascript" source={null}>
+```
+CloudCannon.set('title', 'new title value');
+```
+</comp.CodeBlock>

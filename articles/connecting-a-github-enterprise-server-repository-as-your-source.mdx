@@ -1,0 +1,87 @@
+---
+_schema: default
+_uuid: 1d5273ef-8260-4c79-80a6-4d112900f3ff
+_created_at: 2023-03-09T02:41:06Z
+title: Connecting a GitHub Enterprise Server repository as your source
+nav_title: GitHub Enterprise Server
+published: true
+image: ye_olde_images/self-hosted-gitlab-selected.png
+description: >-
+  Learn how to connect a GitHub Enterprise Server repository as your source with
+  CloudCannon.
+tags: []
+change_logs: []
+related_articles:
+  - creating-backups-of-your-source-files
+  - connecting-a-github-repository-as-your-source
+related_links: []
+---
+Connecting to your GitHub Enterprise Server allows you to work on your websites locally and have the changes synced to CloudCannon. File changes made on CloudCannon also get synced back to your GitHub Enterprise Server repository.
+
+<comp.Notice info_type="info">
+  To connect to a GitHub.com repository instead, follow the instructions listed for [GitHub](/documentation/articles/connecting-a-github-repository-as-your-source/).
+</comp.Notice>
+
+### Creating a GitHub App
+
+Before configuring your GitHub Enterprise Server, you need to [Create a new GitHub App](https://docs.github.com/en/enterprise-server@3.7/developers/apps/building-github-apps/creating-a-github-app). You only need to do this once per server. We recommend creating the App under a GitHub Organisation.
+
+1. On your GitHub Enterprise Server instance, navigate to **Settings &gt; Developer Settings &gt; GitHub Apps** and select **New GitHub App.**
+2. Fill the **Register new GitHub App** with the following:
+   * **GitHub App name**\: `CloudCannon`
+   * **Homepage URL**\: `https://app.cloudcannon.com`
+   * **Callback URL**\: `https://app.cloudcannon.com/github_enterprise_server/authorize`
+   * **Setup URL**\: `https://app.cloudcannon.com/github_enterprise_server/install`
+   * **Redirect on update**\: `true`
+   * **Webhook URL**\: `https://app.cloudcannon.com/hooks/github_enterprise_server`
+   * **Webhook secret**\: A random [string with high entropy](https://docs.github.com/en/developers/webhooks-and-events/webhooks/securing-your-webhooks#setting-your-secret-token)
+3. Set the **Permissions** as follows:
+   * **Repository permissions**
+     * **Commit statuses**\: `Read and Write`
+     * **Contents**\: `Read and Write`
+     * **Metadata**\: `Read-only`
+     * **Pull requests**\: `Read and Write`
+   * **User permissions**
+     * **Email addresses**\: `Read-only`
+4. Under **Subscribe to events** select the following events:
+   * **Meta**
+   * **Push**
+5. Choose the best option for your team on the **Where can this GitHub App be installed?** option.
+
+### Generate client secret and private key
+
+After creating your GitHub App, you will be able to generate a client secret and a Private Key. Those keys along with other details will be used to authenticate CloudCannon requests on your GitHub Enterprise Server.
+
+1. Under **General** settings select **Generate a new client secret.** Make sure you copy the generated secret to be used later.
+2. Under **General** settings select **Generate a private key.** This will generate a PEM file and will be automatically downloaded. Keep this in a safe place to be used later.
+
+### **Configuring your GitHub Enterprise Server**
+
+Before syncing with a repository in your GitHub Enterprise Server, you need to configure your instance on CloudCannon. You only need to do this once per account. To connect to your GitHub Enterprise Server instance:
+
+1. Go to *Settings / GitHub Enterprise Server*
+2. Enter the details for your GitHub Enterprise Server instance:
+   * **Endpoint**\: The URL where your instance can be accessed.`https://HOSTNAME`
+   * **Authorize URL**\: `https://HOSTNAME/login/oauth/authorize`
+   * **Token UR**L: `https://HOSTNAME/login/oauth/access_token`
+   * **GitHub App ID**\: Values assigned by GitHub.
+   * **GitHub App Name**\: `CloudCannon` (The same name used when creating the App in the [Creating a GitHub App](#creating-a-git-hub-app) step)
+   * **Client ID**\: Values assigned by GitHub.
+   * **Client Secret**\: [Previously generated](#generate-client-secret-and-private-key)
+   * **WebHook Secret**\: The random string with high entropy previously generated.
+   * **Private Key**\: Contents of the PEM file [previously generated](#generate-client-secret-and-private-key).
+3. Click&nbsp;**Configure GitHub Enterprise Server**
+<comp.DocsImage path="/ye_olde_images/github-enterprise-server-settings.png" alt="Configuring your GitHub Enterprise Server"  type="screenshot"/>
+
+### Syncing with a repository
+
+To connect a GitHub Enterprise Server repository and start syncing files, follow these instructions:
+
+1. Go to *Site Settings / Source Syncing*
+2. Select **GitHub Enterprise Server** repository
+3. Click **Authenticate**
+<comp.DocsImage path="/ye_olde_images/github-enterprise-server-source-syncing.png" alt="Selecting GitHub Enterprise Server as the your source syncing provider" type="screenshot"/>
+
+From there you can follow the same instructions as [configuring a GitHub.com repository](/documentation/articles/connecting-a-github-repository-as-your-source/).
+
+###

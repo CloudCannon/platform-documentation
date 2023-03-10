@@ -1,0 +1,66 @@
+---
+_uuid: 5e3dcd09-cc8a-41a1-915f-eb317b814c22
+_created_at: "2021-09-15 23:13:40 +0000"
+title: "Supplying the initial contents for new files"
+nav_title: "Initial contents"
+published: true
+image: "/documentation/static/CloudCannonDocumentationog.jpg"
+description: "Learn how to provide initial front matter and/or content for new collection files in CloudCannon."
+tags: ["editor"]
+change_logs: [{"name":"Initial Version","_created_at":"2021-09-15 23:13:40 +0000"},{"name":"Schemas","_created_at":"2022-04-18 23:38:43 +0000"}]
+related_articles: ["defining-your-collections"]
+related_links: null
+---
+
+When you create a file for a collection in CloudCannon, the initial contents and file extension are copied from a schema file configured for the collection.
+
+**[Follow these steps to create and configure a schema](/documentation/articles/creating-collection-schemas/) for your collection.**
+
+Here's an example schema file and the required configuration for a `posts` collection:
+
+<comp.CodeBlock language="markdown" source="schemas/post.md">
+```
+---
+title:
+author:
+image:
+---
+```
+</comp.CodeBlock>
+
+
+<comp.MultiCodeBlock language="yaml" translate_into={["json", "javascript"]} source="cloudcannon.config.yml">
+```
+collections_config:
+  posts:
+    schemas:
+      default:
+        path: schemas/post.md
+```
+</comp.MultiCodeBlock>
+
+<comp.Notice info_type="info">
+  Without a schema, the contents of another content file in the collection is used instead. The extension is copied as-is, and the contents are copied with some inputs cleared.
+</comp.Notice>
+
+Creating a file from a schema adds a `_schema` field to the front matter or data to keep track of what schema the file was created from. Schemas also [keep data consistent](/documentation/articles/keeping-content-consistent-across-files-in-a-collection/) by updating the available inputs when editing existing files so it's important that this is set correctly.
+
+<comp.Notice info_type="info">
+  The `default` schema is used if this field does not exist. You can change the field from `_schema` with the `schema_key` option when [defining your collections](/documentation/articles/defining-your-collections/).
+</comp.Notice>
+
+<comp.CodeBlock language="markdown" source="content/posts/my-new-post.md">
+```
+---
+_schema: default
+title: My new post
+author: /authors/jane
+image: /images/posts/header.png
+---
+This is the content of my new post!
+```
+</comp.CodeBlock>
+
+<comp.Notice info_type="info">
+  Schemas are also used to manage and [keep data consistent](/documentation/articles/keeping-content-consistent-across-files-in-a-collection/) across files in a collection, as well as providing the default `add_options` for [creating new files](/documentation/articles/defining-more-ways-to-add-new-files/).
+</comp.Notice>

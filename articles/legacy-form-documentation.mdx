@@ -1,0 +1,209 @@
+---
+_uuid: "fb497550-2223-4126-8aa1-c65a975c4e21"
+_created_at: "2022-02-17 02:43:43 +0000"
+title: "Legacy form documentation"
+nav_title: "Legacy forms"
+published: true
+image: "/documentation/static/CloudCannonDocumentationog.jpg"
+description: "Create forms on your site and send the submissions to an email address or integrate with your own workflows."
+tags: ["forms","webhooks","hosting"]
+change_logs: [{"name":"Initial Version","_created_at":"2022-02-17 02:43:43 +0000"}]
+related_articles: ["reducing-spam-by-adding-google-recaptcha"]
+related_links: [{"name":"Zapier","url":"https://zapier.com/"},{"name":"Zapier Documentation","url":"https://zapier.com/help/create/code-webhooks"},{"name":"Automate","url":"https://automate.io/"},{"name":"Automate Documentation","url":"https://docs.automate.io/en/articles/1305409-webhooks"},{"name":"IFTTT","url":"https://ifttt.com/"},{"name":"IFTTT FAQ","url":"https://help.ifttt.com/hc/en-us/articles/115010230347-The-Webhooks-Service"}]
+---
+
+<comp.Notice info_type="important">
+  Legacy forms are deprecated. It is recommended that you migrate to the new  forms feature. This will speed up your build process and enable a new range of features. Legacy forms will not work with all SSGs.
+</comp.Notice>
+
+Create forms on your site and send the submissions to an email address or integrate with your own workflows.
+
+To create a form:
+
+1. Add an HTML form to a page
+2. Set the `method` attribute to **post**
+3. Set the `action` to where the visitor is redirected after the form submission
+4. Add form fields with `name` attributes to collect data from visitors
+
+<comp.CodeBlock language="html" source="contact.html">
+```
+<form method="post" action="/success.html">
+  <label>Email Address</label>
+  <input type="text" name="email">
+
+  <label>Name</label>
+  <input type="text" name="name">
+
+  <label>Message</label>
+  <textarea name="message"></textarea>
+
+  <label>Urgent</label>
+  <input type="checkbox" name="urgent">
+
+  <label>Type of Enquiry</label>
+  <input type="radio" name="_subject" value="Sales Enquiry"> Sales
+  <input type="radio" name="_subject" value="General Enquiry"> General
+
+  <input type="hidden" name="_to" value="sales@example.com,support@example.com">
+  <input type="hidden" name="_cc" value="sales.tracker@example.com">
+  <input type="text" name="_gotcha" style="display: none;">
+
+  <input type="submit" value="Send Message">
+</form>
+```
+</comp.CodeBlock>
+
+CloudCannon sends named form data to email addresses of your choosing. Alternatively, [use a hook](/documentation/host/forms/webhooks/) to integrate with services like Zapier or IFTTT.
+
+## Special Fields
+Use these fields to customize the email CloudCannon sends through the form. The fields can be hidden or visible, depending on your requirements.
+
+`_to` *(required)* - the address (or addresses) that CloudCannon sends the email to. Send the email to multiple addresses by separating them with commas.
+
+If a `_hook` is defined, this field will not be used.
+
+<comp.CodeBlock language="html" source="contact.html">
+```
+<input type="hidden" name="_to" value="contact@example.com">
+```
+</comp.CodeBlock>
+
+`_replyto` or `email` - the value used for the Reply-To header in the email. Use this to ensure clients reply to the visitor rather than a default CloudCannon address.
+
+<comp.CodeBlock language="html" source="contact.html">
+```
+<label>
+  Your Email Address
+  <input type="text" name="_replyto">
+</label>
+```
+</comp.CodeBlock>
+
+`_subject` - the subject of the email.
+
+<comp.CodeBlock language="html" source="contact.html">
+```
+<select name="_subject">
+  <option>General Enquiry</option>
+  <option>Quote Request</option>
+  <option>Support</option>
+</select>
+```
+</comp.CodeBlock>
+
+`_cc` - the value used for the CC header in the email. Use this to send a copy in another address (or addresses) without sending it directly. Send a copy of the email to multiple addresses by separating them with commas.
+
+<comp.CodeBlock language="html" source="contact.html">
+```
+<input type="hidden" name="_cc" value="contact@example.com">
+```
+</comp.CodeBlock>
+
+`_hook` - instead of sending an email, a webhook can be supplied for the data to be sent to. See [Webhooks](#using-webhooks) for configuration details.
+
+<comp.CodeBlock language="html" source="contact.html">
+```
+<input type="hidden" name="_hook" value="https://hooks.zapier.com/hooks/catch/1234567/abcdef/">
+```
+</comp.CodeBlock>
+
+`_gotcha` - honeypot field for preventing untargeted spam. CloudCannon does **not** send the email if this field has a value. Hide it with CSS to prevent visitors filling it out.
+
+<comp.CodeBlock language="html" source="contact.html">
+```
+<input type="text" name="_gotcha" style="display: none;">
+```
+</comp.CodeBlock>
+
+<comp.Notice info_type="info">
+  For better spam prevention try using [Google reCAPTCHA](/documentation/articles/reducing-spam-by-adding-google-recaptcha/).
+</comp.Notice>
+
+## Security
+these fields are encrypted before being served to protect your information and prevent spam.
+
+* `_to`
+* `_cc`
+* `_hook`
+
+## Submitting with AJAX
+Submitting a form with JavaScript saves a page load after sending a message, providing a seamless experience. Viewers without JavaScript enabled will fall back to the normal flow.
+
+To submit your form with JavaScript:
+
+1. Build and test your form
+2. Override the submit event on your form
+3. Change the page to notify your viewers the message was sent
+
+Start with this JavaScript snippet and adapt it for your site:
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+// Helper function to get form data in the supported format
+function getFormDataString(formEl) {
+    var formData = new FormData(formEl),
+      data = [];
+
+  for (var keyValue of formData) {
+      data.push(encodeURIComponent(keyValue[0]) + "=" + encodeURIComponent(keyValue[1]));
+  }
+
+  return data.join("&");
+}
+
+// Fetch the form element
+var formEl = document.getElementById("contact-form");
+
+// Override the submit event
+formEl.addEventListener("submit", function (e) {
+    e.preventDefault();
+
+  if (grecaptcha) {
+      var recaptchaResponse = grecaptcha.getResponse();
+    if (!recaptchaResponse) { // reCAPTCHA not clicked yet
+      return false;
+    }
+  }
+
+  var request = new XMLHttpRequest();
+
+  request.addEventListener("load", function () {
+    if (request.status === 302) { // CloudCannon redirects on success
+      // It worked
+    }
+  });
+
+  request.open(formEl.method, formEl.action);
+  request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+  request.send(getFormDataString(formEl));
+});
+```
+</comp.CodeBlock>
+
+## Using Webhooks
+Create your own workflow around form submissions.
+
+The `_hook` field allows you to supply a webhook that you control to process the form submission. The data is sent as a **POST** request with the Content Type `application/json`.
+
+We currently allow hooks from the following platforms to be used:
+
+* [Zapier](https://zapier.com/) - *[Documentation](https://zapier.com/help/create/code-webhooks)*
+* [Automate](https://automate.io/) - *[Documentation](https://docs.automate.io/en/articles/1305409-webhooks)*
+* [IFTTT](https://ifttt.com/) - *[Help Page](https://help.ifttt.com/hc/en-us/articles/115010230347-The-Webhooks-Service)*
+
+If you have use cases beyond these platforms, [send us a message](https://cloudcannon.com/contact/).
+
+#### IFTTT
+Note that IFTTT does not support custom **JSON** keys. Webhook Applets have access to the three keys `value1`, `value2` and `value3`, the quantity and naming is fixed. This means that you will have to reflect this structure in your form. For example:
+
+<comp.CodeBlock language="html" source="contact.html">
+```
+<label>Email Address</label>
+<input type="email" name="value1">
+```
+</comp.CodeBlock>
+
+Zapier and Automate do not have a limitation on the number of fields or custom keys.
+
+## Rate Limiting
+Forms hosted on CloudCannon are limited to 750 submissions per 10 days. [Contact us](https://cloudcannon.com/contact) if you need this limit expanded.

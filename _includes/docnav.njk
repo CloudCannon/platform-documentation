@@ -1,0 +1,67 @@
+{% macro nav(navigation) %}
+    <nav id="t-docs-nav" class="t-docs-nav" :class="isPageNavOpen ? 't-docs-nav t-docs-nav--open' : 't-docs-nav'" x-init="$getNavMemory?.()">
+            <div class="t-docs-nav__heading">
+                <h2>Docs</h2>
+
+                <button class="t-docs-nav__control" x-on:click="isPageNavOpen = true; $focusNav(true);" x-show="!isPageNavOpen" aria-label="Open docs menu">
+                    <img src="/assets/img/expand.svg" inline>
+                </button>
+                <button class="t-docs-nav__control" x-on:click="isPageNavOpen = false; $focusNav(false);" x-show="isPageNavOpen" aria-label="Close docs menu">
+                    <img src="/assets/img/close.svg" inline>
+                </button>
+            </div>
+        
+        <ol class="t-docs-nav__main-list">
+            {% for block in navigation.headings | bubble_up_nav %}
+                <li class="t-docs-nav__main-list__item" >
+                    {% if not block.heading_hidden %}
+                        <span class="t-docs-nav__main-list__item__heading">{{ block.heading }}</span>
+                    {% endif %}
+                    
+                    {{ subnav(block) }}
+                </li>
+            {% endfor %}
+        </ol>
+        <div x-intersect="more = false" x-intersect:leave="more = true"></div>
+    </nav>
+    <div class="t-docs-nav__base" :data-show="more">
+        <img src="/assets/img/arrow.svg" class="t-docs-nav__base__icon" inline>
+    </div>
+{% endmacro %}
+
+{% macro subnav(block) %}
+    <ol class="t-docs-nav__sub-list">
+        {% for item in block.items %}
+            {% if item._type == "group" %}
+                <li>
+                    <details {% if url in item._bubbled %}open{% endif %}>
+                        <summary class="t-docs-nav__sub-list__heading">
+                            {{ item.name }}
+                            <img src="/assets/img/arrow.svg" class="t-docs-nav__sub-list__heading__arrow" inline>
+                        </summary>
+                        {{ subnav(item) }}
+                    </details>
+                </li>
+            {% else %}
+                {% for article in item.articles %}
+                    {% if article === 'index' %}
+                        {% set article_page = search.page("url=/documentation/articles/") %}
+                    {% else %}
+                        {% set article_page = search.page("url*=" + article) %}
+                    {% endif %}
+                    
+                    {% if article_page %}
+                    <li>
+                        <a class="t-docs-nav__sub-list__article"
+                            {% if article_page.data.url == url %} aria-current="page"{% endif %}
+                            href="{{ article_page.data.url | url }}"
+                            @click="$setNavMemory?.()">
+                            {{ article_page.data.nav_title }}
+                        </a>
+                    </li>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+        {% endfor %}
+    </ol>
+{% endmacro %}

@@ -1,0 +1,48 @@
+echo "{"
+echo '"system":{'
+apt list --installed 2> /dev/null | tail -n +2 | cut -d" " -f -2 | awk '{ printf "\"%s\": { \"list\": [\"%s\"] },", $1, $2}' | sed 's/,$/\n/'
+echo "},"
+
+echo '"ruby": {'
+echo '"ruby": { "default": '
+rbenv version --bare | awk '{ printf "\"%s\",", $1}' | sed 's/,$/\n/'
+echo ', "list": ['
+rbenv versions --bare | awk '{ printf "\"%s\",", $1}' | sed 's/,$/\n/'
+echo ']}},'
+
+echo '"go": {'
+echo '"go": { "list": ['
+go version | grep -o "[[:digit:]]*\.[[:digit:]]*\.[[:digit:]]*" | awk '{ printf "\"%s\"", $1}'
+echo '] }, "hugo": { "list": ['
+hugo version | cut -d" " -f 2 | awk '{ printf "\"%s\"", $1}'
+echo "]}},"
+
+echo '"dotnet": {'
+echo '"dotnet": { "list": ['
+dotnet --version | awk '{ printf "\"%s\"", $1}'
+echo "]}},"
+
+echo '"python": {'
+echo '"python": { "list": ['
+python2 --version 2>&1 >/dev/null | cut -d" " -f 2 | awk '{ printf "\"%s\",", $1}'
+python3 --version | cut -d" " -f 2 | awk '{ printf "\"%s\"", $1}'
+echo '] }, "pip": { "list": ['
+pip --version | cut -d" " -f 2 | awk '{ printf "\"%s\"", $1}'
+echo '] }, "pipenv": { "list": ['
+pipenv --version | cut -d" " -f 3 | awk '{ printf "\"%s\"", $1}'
+echo '] }, "mkdocs": { "list": ['
+mkdocs --version | cut -d" " -f 3 | awk '{ printf "\"%s\"", $1}'
+echo "]}},"
+
+echo '"node": {'
+echo '"node": { "default": '
+node -v | grep -o "[[:digit:]]*\.[[:digit:]]*\.[[:digit:]]*" | awk '{ printf "\"%s\",", $1}' | sed 's/,$/\n/'
+echo ', "list": ['
+nvm list --no-alias --no-colors | grep -o "[[:digit:]]*\.[[:digit:]]*\.[[:digit:]]*" | awk '{ printf "\"%s\",", $1}' | sed 's/,$/\n/'
+echo '] }, "rosey": { "list": ["1.13.0"] },' # TODO: change this to not be hardcoded when we update rosey to 2.x by default
+echo '"reseed": { "list": ['
+npx reseed --version 2> /dev/null | awk '{ printf "\"%s\"", $1}'
+echo '] },"yarn": { "list": ['
+yarn --version | awk '{ printf "\"%s\"", $1}'
+echo "]}}"
+echo "}"

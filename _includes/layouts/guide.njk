@@ -1,0 +1,76 @@
+---
+layout: layouts/base.njk
+---
+
+{% set articles = search.pages("guide_id=" + guide_id, "order") %}
+{% set currentIndex = 0 %}
+
+<div class="l-page">
+    <div class="l-column">
+        <aside class="l-left" x-data="{
+            more: true
+        }">
+          <nav id="t-docs-nav" class="t-docs-nav" :class="isPageNavOpen ? 't-docs-nav t-docs-nav--open' : 't-docs-nav'">
+            <div class="t-docs-nav__heading">
+                {% if guide_image %}<img src="{{ guide_image }}" width="50" height="50" />{% endif %}
+                <h2>{{ guide_title }}</h2>
+
+                <button class="t-docs-nav__control" x-on:click="isPageNavOpen = true; $focusNav(true);" x-show="!isPageNavOpen" aria-label="Open guide menu">
+                    <img src="/assets/img/expand.svg" inline>
+                </button>
+                <button class="t-docs-nav__control" x-on:click="isPageNavOpen = false; $focusNav(false);" x-show="isPageNavOpen" aria-label="Close guide menu">
+                    <img src="/assets/img/close.svg" inline>
+                </button>
+            </div>
+            <ol class="t-docs-nav__main-list">
+            <li class="t-docs-nav__main-list__item" >
+                <span class="t-docs-nav__main-list__item__heading">In this guide</span>
+                <ol class="t-docs-nav__sub-list">
+                    {% set complete_class = 'guide-complete' %}
+                    {% for article in articles %}
+                    <li>
+                        <a class="t-docs-nav__sub-list__article"
+                            {% if article.data.url == url %} aria-current="page"{% endif %}
+                            href="{{ article.data.url | url }}">
+
+                            <span class="t-docs-nav__sub-list__index {{ complete_class }}">{{ loop.index }}</span>
+                            {{ article.data.title }}
+                        </a>
+                        {% if article.data.url == url %}
+                            {% set complete_class = '' %}
+                            {% set currentIndex = loop.index0 %}
+                        {% endif %}
+                        {% if not loop.last %}
+                            <span class="t-docs-nav__sub-list__connector {{ complete_class }}"></span>
+                        {% endif %}
+                    </li>
+                    {% endfor %}
+                </ol>
+            </li>
+            </ol>
+            <div x-intersect="more = false" x-intersect:leave="more = true"></div>
+          </nav>
+          <div class="t-docs-nav__base" :data-show="more">
+              <img src="/assets/img/arrow.svg" class="t-docs-nav__base__icon" inline>
+          </div>
+        </aside>
+        <div class="u-card-box l-content">
+            <h1 data-pagefind-body class="l-heading u-margin-bottom-0">{{ title }}</h1>
+            <p data-pagefind-body class="l-subheading">{{ description }}</h1>
+            <div data-pagefind-body data-pagefind-filter="site:Guides" data-pagefind-meta="site:Guides" class="l-content-split">
+                <main>
+                    {{ content | safe }}
+                </main>
+                <aside data-pagefind-ignore class="l-right">
+                    <div class="l-toc">
+                        <!-- "On this page" -->
+                    </div>
+                </aside>
+            </div>
+
+            {% set prev = articles[currentIndex - 1] %}
+            {% set next = articles[currentIndex + 1] %}
+            {% include "prev-next.njk" %}
+        </div>
+    </div>
+</div>

@@ -1,0 +1,85 @@
+---
+_uuid: "3daacb2a-fe62-4f1e-96ea-2540dad80ec8"
+_created_at: "2022-04-19 02:40:59 +0000"
+title: "Keeping content consistent across files in a collection"
+nav_title: "File consistency"
+published: true
+image: "/documentation/static/CloudCannonDocumentationog.jpg"
+description: "Learn how to keep content and data consistent across multiple files in a collection."
+tags: []
+change_logs: [{"name":"Initial Version","_created_at":"2022-04-19 02:40:59 +0000"}]
+related_articles: ["/articles/defining-the-default-contents-of-new-files"]
+related_links: null
+---
+
+When you edit a file in a collection with a schema defined, the front matter or data is updated to match the configured schema. This allows you to keep your files consistent across a collection as they are edited by adding, removing, or reordering inputs in the schema file.
+
+**[Follow these steps to create and configure a schema](/documentation/articles/creating-collection-schemas/) for your collection.**
+
+Here’s an example schema file and the required configuration for a `posts` collection:
+
+<comp.CodeBlock language="markdown" source="schemas/post.md">
+```
+---
+title:
+author:
+image:
+---
+```
+</comp.CodeBlock>
+
+<comp.MultiCodeBlock language="yaml" translate_into={["json", "javascript"]} source="cloudcannon.config.yml">
+```
+collections_config:
+  posts:
+    schemas:
+      default:
+        path: schemas/post.md
+```
+</comp.MultiCodeBlock>
+
+<comp.Notice info_type="info">
+  Existing files are not processed before being loaded into the editor if a schema is not configured on the collection.
+</comp.Notice>
+
+Since multiple schemas can be defined, the `_schema` field inside the file being edited is used to find the correct one. The `_schema` field is automatically added when creating files for a collection with schemas within CloudCannon.
+
+<comp.Notice info_type="info">
+  The `default` schema is used if `_schema` does not exist. You can change the field from `_schema` with the `schema_key` option when [defining your collections](/documentation/articles/defining-your-collections/).
+</comp.Notice>
+
+### Example
+In this example, we have the schema defined above for the `posts` collection, and we have the following post that was created when the schema had different fields:
+
+<comp.CodeBlock language="markdown" source="content/posts/my-existing-post.md ">
+```
+---
+_schema: default
+title: My post
+category: news
+---
+This is the content of my post!
+```
+</comp.CodeBlock>
+
+After editing this post there are these changes:
+
+1. `category` was removed
+2. `author` and `image` were added
+3. All inputs were reordered to match the schema
+
+<comp.CodeBlock language="markdown" source="content/posts/my-existing-post.md ">
+```
+---
+_schema: default
+title: My updated post
+author: /authors/jane
+image: /images/posts/header.png
+---
+This is the updated content of my post!
+```
+</comp.CodeBlock>
+
+<comp.Notice info_type="info">
+  You can control whether inputs are reordered, removed and/or hidden with the `reorder_inputs`, `remove_empty_inputs` and `hide_extra_inputs` [schema options](/documentation/articles/creating-collection-schemas/#options).
+</comp.Notice>

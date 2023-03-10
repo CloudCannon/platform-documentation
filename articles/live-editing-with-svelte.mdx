@@ -1,0 +1,62 @@
+---
+_uuid: "d97667ab-dac0-48f7-8a26-a7b1a6c9e6a0"
+_created_at: "2021-10-17 06:54:28 +0000"
+title: "Visual data previews with Svelte"
+nav_title: "Previews with Svelte"
+published: true
+image: "/documentation/static/CloudCannonDocumentationog.jpg"
+description: "Data previews on CloudCannon with Svelte. Edit Front Matter and see the changes show up live."
+tags: ["Data previews","svelte","sveltekit"]
+change_logs: [{"name":"Initial Version","_created_at":"2021-10-17 06:54:28 +0000"}]
+related_articles: ["what-is-live-editing","using-live-editing-with-vanilla-js"]
+related_links: [{"name":"@cloudcannon/svelte-connector","url":"https://www.npmjs.com/package/@cloudcannon/svelte-connector"},{"name":"GitHub","url":"https://github.com/CloudCannon/svelte-connector"}]
+---
+
+Svelte is great at receiving new data and rerendering components. To make this integration work we hook into the Svelte lifecycle. onMount and onDestroy can set up event listeners that update the pages properties.
+
+## Requirements for data previews
+* Components must have an output URL. SvelteKit routes are a good example.
+* Components must get their data from a data/content file somewhere in your project. This is critical, as the Visual Editor cannot open the components themselves.
+* These data/content files must be configured as a CloudCannon Collection. See the [CloudCannon Reader documentation](https://github.com/CloudCannon/reader#readme) for more information.
+* Components will need to use the Svelte `onDestroy` and `onMount` functions.
+
+## Installation and Usage
+The CloudCannon Svelte connector is [available on npm](https://www.npmjs.com/package/@cloudcannon/svelte-connector).
+
+To install, run:
+
+<comp.CodeBlock language="shell" source="Shell">
+```
+npm i @cloudcannon/svelte-connector
+```
+</comp.CodeBlock>
+
+Next, add the following code to any component that you wish to add live editing to:
+
+<comp.CodeBlock language="html" source="index.svelte">
+```
+<script>
+  import { onDestroy, onMount } from 'svelte';
+  import { onCloudCannonChanges, stopCloudCannonChanges } from '$lib/cloudcannon.js';
+
+  // pageDetails is passed from parent, or via SvelteKit load function
+  export let pageDetails;
+
+  onMount(async () => {
+    onCloudCannonChanges((newProps) => pageDetails = newProps);
+  });
+
+  onDestroy(async () => {
+    stopCloudCannonChanges();
+  });
+</script>
+```
+</comp.CodeBlock>
+
+In the above code, `pageDetails` is an object that contains data for the markup portion of the component.
+
+After loading the content file in the Visual Editor, changing the data in the sidebar will push the new props to `pageDetails`. This will display the new values in the Visual Editor immediately.
+
+This should make no difference to your development or production environment.
+
+For an example integration, check out our [Urban SvelteKit template](https://cloudcannon.com/community/themes/urban/). If you have any issues, please [contact support](https://cloudcannon.com/contact/), or [raise an issue on the GitHub repository](https://github.com/CloudCannon/svelte-connector/issues).

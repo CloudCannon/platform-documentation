@@ -1,0 +1,51 @@
+---
+_uuid: c002f90f-7a89-43d9-b238-3955ddec4604
+_created_at: "2021-09-15 23:13:40 +0000"
+title: "Visual data previews with React"
+nav_title: "Previews with React"
+published: true
+image: "/documentation/static/CloudCannonDocumentationog.jpg"
+description: "Live editing on CloudCannon with React. Edit Front Matter and see the changes show up live."
+tags: []
+change_logs: [{"name":"Initial Version","_created_at":"2021-09-15 23:13:40 +0000"}]
+related_articles: ["what-is-live-editing","using-live-editing-with-vanilla-js","preventing-the-global-cloudcannon-live-editing-object"]
+related_links: null
+---
+
+React is a great at receiving new data and rerendering components. To make this integration easier CloudCannon has developed an open source library for easy installation. [`@cloudcannon/react-connector`](https://github.com/CloudCannon/react-connector) is a higher order component that listens to live editing events and passes the new props to your component.
+
+## Installation
+Cloudcannon React Connector is available on npm. To install run:
+
+<comp.CodeBlock language="shell" source="Shell">
+```
+npm i @cloudcannon/react-connector
+```
+</comp.CodeBlock>
+
+## Next.js Integration
+Update the code in `pages/_app.jsx` from:
+
+<comp.CodeBlock language="jsx" source="pages/_app.jsx">
+```
+export default function App({ Component, pageProps }) {
+  return <Component {...pageProps} />
+}
+```
+</comp.CodeBlock>
+
+to:
+
+<comp.CodeBlock language="jsx" source="pages/_app.jsx">
+```
+import { CloudCannonConnect } from '@cloudcannon/react-connector'
+export default function App({ Component, pageProps }) {
+  const AppComponent = CloudCannonConnect(Component);
+  return <AppComponent {...pageProps}/>
+}
+```
+</comp.CodeBlock>
+
+This should make no difference to your development or production environment. Loading the site in CloudCannon's Visual Editor and changing front matter will push new changes directly into the page props.
+
+Any issues, please contact support or [raise an issue on the GitHub repository](https://github.com/CloudCannon/react-connector/issues).

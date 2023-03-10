@@ -1,0 +1,87 @@
+---
+_uuid: "dc783d96-c19c-44ed-81ac-dbe46d9953bc"
+_created_at: "2022-08-18 03:41:00 +0000"
+title: "Adjusting the uploads path"
+nav_title: "Upload paths"
+published: true
+image: "/documentation/static/CloudCannonDocumentationog.jpg"
+description: "Uploads paths are locations where new asset files are uploaded to within the editor. They also defines the default location when selecting existing files. There are a number of placeholders available to aid in organization."
+tags: []
+change_logs: [{"name":"Initial Version","_created_at":"2022-08-18 03:41:00 +0000"}]
+related_articles: null
+related_links: null
+---
+
+Uploads paths are locations where new asset files are uploaded to within the editor. The two options are `paths.uploads` for site files, and `paths.dam_uploads` for [DAM](/documentation/articles/introduction-to-assets-and-dams/) files.
+
+Uploads paths are configured alongside other paths in a number of places:
+
+* Globally in the [global configuration file](/documentation/articles/setting-global-configuration/).
+* Per Content Editor or Editable Region with [editables configuration options](/documentation/articles/defining-editable-regions-in-your-html/#options).
+* Per input with inputs configuration:
+  * [File input options](/documentation/articles/using-upload-inputs-to-edit-your-data/#options).
+  * [URL input options](/documentation/articles/using-url-inputs-to-edit-your-data/#options).
+  * [Rich Text input options](/documentation/articles/using-rich-text-inputs-to-edit-your-data/#options).
+
+Here's an example for a fixed path:
+
+```yaml
+paths:
+  uploads: assets/uploads
+  dam_uploads: raw
+```
+
+Here's an example for a path that changes depending on where new assets files are uploaded:
+
+```yaml
+paths:
+  uploads: static/assets/[collection]/{title|slugify}
+  dam_uploads: raw/{date|year}-{date|month}-{date|day}
+```
+
+<comp.Notice info_type="info">
+  The uploads path also defines the default location when selecting existing files.
+</comp.Notice>
+
+## Placeholders
+Uploads paths have a number of placeholders available. There are two types of placeholders: file and data placeholders.
+
+File placeholders are always available, and relate to the file the editor is open on:
+
+* `[collection]` is the collection key the file is assigned to.
+* `[path]` is the full path of the file, relative to site source.
+* `[base_path]` is the path of the file excluding filename, relative to site source.
+* `[slug]` is the filename, excluding extension. Is an empty string if this results in "index".
+* `[filename]` is the filename, including extension.
+* `[ext]` is the last extension.
+* `[relative_path]` is the full path of the file, relative to the collection path.
+* `[relative_base_path]` is the path of the file excluding filename, relative to the collection path.
+* `[full_slug]` is an alias for `[relative_base_path]/[slug]`.
+
+Data placeholders are populated from front matter or data values in the editor, and support a number of filters:
+
+* `{title}` is the title from inside the file.
+* `{id}` is the id from inside the file.
+* `{title|lowercase}` is title from inside the file, lower cased.
+* `{category|slugify}` is category from inside the file, slugified.
+* `{tag|slugify|uppercase}` is tag from inside the file, slugified, then upper cased.
+* `{date|year}` is date from inside the file, with the 4-digit year extracted.
+* `{date|month}` is date from inside the file, with the 2-digit month extracted.
+* `{date|day}` is date from inside the file, with the 2-digit day extracted.
+
+The placeholders are processed when the new asset is added. This means that changes to front matter or data after adding an asset file are not updated for that processed upload path.
+
+<comp.Notice info_type="info">
+  Placeholders that result in empty values may result in sequential slashes — these are collapsed into one after applying placeholders.
+</comp.Notice>
+
+## Migrating from old format
+The `uploads_dir` option and legacy placeholders are an old configuration that we have since improved on. These are backwards compatible so there's no need to change anything. If you do wish to update, the legacy placeholders and their new equivalents are:
+
+* `:categories` is now `{categories|slugify}`.
+* `:title` is now `{title|slugify}`.
+* `:slug` is now `{slug}`.
+* `:year` is now `{date|year}`.
+* `:month` is now `{date|month}`.
+* `:day` is now `{date|day}`.
+* `:collection` is now `[collection]`.

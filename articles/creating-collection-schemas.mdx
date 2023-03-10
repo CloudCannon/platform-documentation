@@ -1,0 +1,132 @@
+---
+_uuid: "30c752ad-a024-4782-a07a-f444ffe92a56"
+_created_at: "2022-04-19 03:08:59 +0000"
+title: "Collection schemas"
+nav_title: "Schemas"
+published: true
+image: "/documentation/static/CloudCannonDocumentationog.jpg"
+description: "Learn how to create collection schemas for managing content across files in a collection."
+tags: ["editor"]
+change_logs: [{"name":"Initial Version","_created_at":"2022-04-19 03:08:59 +0000"},{"name":"Schemas","_created_at":"2022-04-19 03:08:59 +0000"}]
+related_articles: ["defining-your-collections"]
+related_links: null
+---
+
+Collection schemas are used to:
+
+* [Populate the initial contents of new files](/documentation/articles/defining-the-default-contents-of-new-files/)
+* [Keep content consistent across a collection when editing files](/documentation/articles/keeping-content-consistent-across-files-in-a-collection/)
+* [Provide default options when choosing to add a file](/documentation/articles/defining-more-ways-to-add-new-files/)
+
+To create a schema:
+
+1. Create a file with the contents and type you need (e.g. `schemas/post.md`)
+2. Configure a collection in your [global configuration file](/documentation/articles/setting-global-configuration/) to use that file
+
+<comp.CodeBlock language="markdown" source="schemas/post.md">
+```
+---
+title:
+author:
+image:
+---
+```
+</comp.CodeBlock>
+
+<comp.MultiCodeBlock language="yaml" translate_into={["json", "javascript"]} source="cloudcannon.config.yml">
+```
+collections_config:
+  posts:
+    schemas:
+      default:
+        path: schemas/post.md
+```
+</comp.MultiCodeBlock>
+
+You can define multiple schemas for a collection, each with their own file and options:
+
+<comp.MultiCodeBlock language="yaml" translate_into={["json", "javascript"]} source="cloudcannon.config.yml">
+```
+collections_config:
+  posts:
+    schemas:
+      default:
+        path: schemas/posts/default.md
+      news:
+        path: schemas/posts/news.md
+        name: Newsletter Entry
+```
+</comp.MultiCodeBlock>
+
+### Options
+Each entry in `schemas` has the following options available:
+
+<comp.DataReference>
+  <comp.DataReferenceRow label="create" type_markdown="Object or string">
+    The create path definition to control where new files are saved to inside this collection. Defaults to `[relative_base_path]/{title|slugify}.md`.
+
+    Read more details for `create` when [choosing where to create new files](/documentation/articles/choosing-where-to-create-new-files/).
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="hide_extra_inputs" type_markdown="Boolean">
+    Sets the behavior when editing existing files with inputs not present in the schema with `remove_extra_inputs` set to `false`. Defaults to `false`. Has no effect if `remove_extra_inputs` is `true`.
+
+    If `true`, non-schema inputs are hidden in the Data Editor.
+
+    If `false`, non-schema inputs are visible in the Data Editor.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="icon" type_markdown="String">
+    Displayed in the add menu when creating new files, also used as the icon for collection files if no other preview is found. Must be a [Material Icon](https://material.io/resources/icons/) name. Defaults to `notes`.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="name" type_markdown="String">
+    Displayed in the add menu when creating new files. Defaults to a formatted version of the key.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="new_preview_url" type_markdown="String">
+    Preview your unbuilt pages (e.g. drafts) to another page’s output URL. The Visual Editor will load that set preview URL and use the Data Bindings and Previews to render your new page without saving.
+
+    For example `new_preview_url: /about/` will load the `/about/` URL on new or unbuilt pages in the Visual Editor.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="path" type_markdown="String">
+    The path to the schema file. Relative to the root folder of the site. Required.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="reorder_inputs" type_markdown="Boolean">
+    Controls whether or not inputs are sorted to match the schema when editing existing files. Defaults to `true`.
+
+    Non-schema inputs are ordered after schema inputs if not removed with `remove_extra_inputs`.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="remove_empty_inputs" type_markdown="Boolean">
+    Sets the behavior when saving files with empty inputs. Defaults to `false`.
+
+    If `true`, empty inputs are removed before persisting the data to the source file.
+
+    If `false`, empty inputs are persisted in the source file.
+
+    Removed inputs are available for editing again provided they are in the matching schema file. Inputs are considered empty if the value is `null`, `undefined` or `''`.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="remove_extra_inputs" type_markdown="Boolean">
+    Sets the behavior when editing existing files with inputs not present in the schema. Defaults to `true`.
+
+    If `true`, non-schema inputs are removed before the editor loads, and subsequently removed from the source file if saved.
+
+    If `false`, non-schema inputs are either hidden or visible in the editor depending on `hide_extra_inputs`, but still kept in the source file on save.
+
+    If any inputs conflict with schema (e.g. a file's `title` is a string and the schema's `title` is an object), the schema version takes priority.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="preview" type_markdown="Object">
+    The preview definition for changing the way collection items with this schema are previewed across the editor. Defaults to using the collection's `preview`.
+
+    All preview options are available for schemas, and are the same as the ones listed in the [collections configuration options](/documentation/articles/defining-your-collections/#options)\:
+
+    * `gallery`
+    * `icon`
+    * `image`
+    * `metadata`
+    * `subtext`
+    * `text`
+
+    See the [preview options documentation](/documentation/articles/changing-how-cards-preview-your-data/) for detailed information on setting this option.
+  </comp.DataReferenceRow>
+</comp.DataReference>
+
+<comp.Notice info_type="info">
+  Schemas now support the new `preview` option. [Read our migration guide](/documentation/articles/migrating-to-preview-options/) if you are still using the old options: `text_key`, `subtext_key`, `image_key` and `image_size`.
+</comp.Notice>

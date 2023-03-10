@@ -1,0 +1,249 @@
+---
+_schema: default
+_uuid: 7e0ee192-e574-4469-9617-bb445878495c
+_created_at: '2021-09-15 23:13:40 +0000'
+title: Configuring your build
+nav_title: Configuring your build
+published: true
+image: /documentation/static/CloudCannonDocumentationog.jpg
+description: >-
+  CloudCannon sites can be configured to build using Jekyll, Hugo, Eleventy,
+  Next.js, Nuxt.js, Gatsby, SvelteKit, Astro, MkDocs, Static, or Custom.
+
+
+  Support for Nuxt.js is currently in private beta. Contact support if you would
+  like to join the beta.
+tags:
+  - build
+change_logs:
+  - name: Initial Version
+    _created_at: '2021-09-15 23:13:40 +0000'
+related_articles:
+  - extending-your-build-process-with-hooks
+related_links: []
+---
+Sites can be configured to build using Jekyll, Hugo, Eleventy, Next.js, Nuxt.js, Gatsby, SvelteKit, Astro, MkDocs, Static, or Custom.
+
+When [connecting your site](/documentation/articles/connecting-your-first-site/), you will be asked to select your SSG to build with. You can change this at any time by:
+
+1. Navigating to your site's settings
+2. Navigating to *Builds* / *Build*
+3. Selecting your SSG from the dropdown, then clicking **Update Configuration** at the bottom of the page
+
+## Build Step
+
+Here you can find what commands CloudCannon uses to build your sites. Learn more about [extending your build process with hooks](/documentation/articles/extending-your-build-process-with-hooks/).
+
+<comp.Conditional ssgs={["Jekyll"]}>
+  Jekyll is one of the first popular SSGs. Learn how you can customize Jekyll and the build environment to your needs.
+
+  Sites **without** a `Gemfile` are built with:
+
+  <comp.CodeBlock language="shell" source="shell">
+  ```
+  jekyll build
+  ```
+  </comp.CodeBlock>
+
+  Sites **with** a `Gemfile` are built with:
+
+  <comp.CodeBlock language="shell" source="shell">
+  ```
+  bundle install
+  bundle exec jekyll build
+  ```
+  </comp.CodeBlock>
+
+  These commands are run in the root folder of your site.
+
+  <comp.Notice info_type="info">
+    If your `Gemfile` isn’t in the root folder, set the `BUNDLE_GEMFILE` [environment variable](/documentation/build/setup/environments/) to tell the Bundler where to find it. Setting this requires that your gems are specified in the `_config.yml` file.
+  </comp.Notice>
+</comp.Conditional>
+<comp.Conditional ssgs={["Hugo"]}>
+  Hugo is a popular SSG built using Golang.
+
+  Hugo sites are built with:
+
+  <comp.CodeBlock language="shell" source="shell">
+  ```
+  hugo
+  ```
+  </comp.CodeBlock>
+</comp.Conditional>
+<comp.Conditional ssgs={["Eleventy"]}>
+  Eleventy (or 11ty) is a popular static site generator built with Node.js.
+
+  Eleventy sites are built with:
+
+  <comp.CodeBlock language="shell" source="shell">
+  ```
+  npx @11ty/eleventy
+  ```
+  </comp.CodeBlock>
+</comp.Conditional>
+<comp.Conditional ssgs={["Static"]}>
+  Static is the most basic SSG option available on CloudCannon.
+
+  Files are copied to the live site as-is. CloudCannon performs optimizations and processes static-specific hosting features on the files.
+</comp.Conditional>
+<comp.Conditional not_ssgs={["Jekyll", "Eleventy", "Hugo", "Static"]}>
+  CloudCannon provides a build command for each known SSG, and this can be changed to suit your build. The build command is set in the build configuration when you select an SSG.
+</comp.Conditional>
+
+## Setting your SSG version
+
+It's good practice to specify which version of your static site generator you use to avoid errors and unexpected behavior. CloudCannon offers different methods to manage this based on which generator you use.
+
+<comp.Conditional ssgs={["Jekyll"]}>
+  CloudCannon supports Jekyll versions after **2\.4.0**. New sites without the version set use a default version. The version is displayed in the *Status* section after each build.
+
+  <comp.Notice info_type="info">
+    Set the version to avoid future breaking changes and version clashes across environments.
+  </comp.Notice>
+
+  To set the version:
+
+  1. Add a `Gemfile` to the root folder
+  2. Add the `jekyll` dependency to your `Gemfile`
+  3. Set the version as required
+
+  <comp.CodeBlock language="ruby" source="Gemfile">
+  ```
+  source "https://rubygems.org"
+  gem "jekyll", "~> 4.1.1"
+  ```
+  </comp.CodeBlock>
+
+  By default, CloudCannon uses `/Gemfile` as the gem source. To change this you can set the `BUNDLE_GEMFILE` environment variable (e.g. `BUNDLE_GEMFILE=src/Gemfile`).
+
+  <comp.Notice info_type="important">
+    Setting the `BUNDLE_GEMFILE` environment variable requires that your gems are specified in the `_config.yml` file.
+  </comp.Notice>
+</comp.Conditional>
+<comp.Conditional ssgs={["Hugo"]}>
+  By default CloudCannon builds using Hugo version **0\.96.0\_extended**. You can change which version of Hugo your build uses by running the `install-hugo` command in a [preinstall hook](/documentation/articles/extending-your-build-process-with-hooks/).
+
+  <comp.CodeBlock language="shell" source=".cloudcannon/preinstall">
+  ```
+  install-hugo 0.98.0
+  ```
+  </comp.CodeBlock>
+</comp.Conditional>
+<comp.Conditional ssgs={["Eleventy"]}>
+  CloudCannon builds with any version of Eleventy, although is focused from version **v0.12.1** onward.
+
+  Since we build Eleventy sites with `npx`, the latest version is run unless specified otherwise in `package.json`.
+</comp.Conditional>
+<comp.Conditional not_ssgs={["Jekyll", "Eleventy", "Hugo"]}>
+  CloudCannon uses the version you specify for your SSG with `npm` or another package manager.
+</comp.Conditional>
+
+## Changing your CLI options
+
+Most static site generators offer a number of configuration options for use on the command line. Configure these and other CloudCannon-specific build options per site.
+
+To change a command line build option:
+
+1. Go to the *Site Settings* / *Build* section
+2. Change details for one or more options
+3. Click **Update Configuration**
+<comp.Notice info_type="info">
+  See in-depth details for configuring [Environments](/documentation/articles/managing-your-node-version-with-nvm/) and [Optimizations](/documentation/articles/optimizing-your-build-by-minifying-css-and-javascript/)
+</comp.Notice>
+<comp.DocsImage path="ye_olde_images/builds-configuration.png" alt="Build Configuration interface" type="screenshot"/>
+
+## Using Environment Variables
+
+Environments allow you to use different values in your website depending on where it is deployed. For example, you could use a different CDN for your development, staging and production sites.
+
+To change the environment variables for your site:
+
+1. Go to the *Site Settings* / *Configuration* section
+2. Create/edit your environment key and value under *Environment Variables*
+3. Click **Update Build Details**
+<comp.Conditional ssgs={["Jekyll"]}>
+  CloudCannon defaults to **production**. Running Jekyll locally defaults to **development**.
+
+  <comp.CodeBlock language="shell" source="shell">
+  ```
+  $ JEKYLL_ENV=production bundle exec jekyll serve
+  ```
+  </comp.CodeBlock>
+
+  Jekyll exposes the environment with `jekyll.environment`. You can use this to create separate configurations.
+
+  Here’s a short example using variables from `_config.yml`\:
+
+  <comp.CodeBlock language="yaml" source="_config.yml">
+  ```
+  development:
+    asset_url: "http://localhost:1337/"
+    app_url: "http://localhost:3000/"
+
+  staging:
+    asset_url: "https://staging.example.org/assets/"
+    app_url: "https://staging.example.org/"
+
+  production:
+    asset_url: "https://cdn.example.org/"
+    app_url: "https://app.example.org/"
+  ```
+  </comp.CodeBlock>
+
+  <comp.CodeBlock language="html" source="index.html">
+  ```
+  ---
+  ---
+
+  <p>Environment: {{ jekyll.environment }}</p>
+  <p>Asset URL: {{ site[jekyll.environment].asset_url }}</p>
+  <p>App URL: {{ site[jekyll.environment].app_url }}</p>
+  <p>Development Asset URL: {{ site.development.asset_url }}</p>
+  <p>Production Asset URL: {{ site.production.asset_url }}</p>
+  <p>Staging Asset URL: {{ site.staging.asset_url }}</p>
+  <p>Development App URL: {{ site.development.app_url }}</p>
+  <p>Staging App URL: {{ site.staging.app_url }}</p>
+  <p>Production App URL: {{ site.production.app_url }}</p>
+  ```
+  </comp.CodeBlock>
+</comp.Conditional>
+<comp.Conditional ssgs={["Hugo"]}>
+  CloudCannon defaults to **production**. Running `hugo` locally defaults to **production**. Running `hugo server` locally defaults to **development**.
+
+  To change the environment locally, set it before running Hugo:
+
+  <comp.CodeBlock language="shell" source="shell">
+  ```
+  $ HUGO_ENV=production hugo
+  ```
+  </comp.CodeBlock>
+
+  You can set the Hugo environment using the `—-environment` flag in the command line. Learn more about [build configuration](/documentation/build/setup/configuration/).
+
+  Hugo exposes the environment with `hugo.Environment`.
+
+  Using a configuration directory allows you to create separate configurations for each environment. See the example in the [Hugo documentation](https://gohugo.io/getting-started/configuration/#configuration-directory).
+</comp.Conditional>
+<comp.Conditional ssgs={["Eleventy"]}>
+  CloudCannon has no default. You should set your environment variables everywhere you need them before building. The Eleventy documentation mentions `ELEVENTY_ENV` as a convention.
+
+  To change the environment locally, set it before running Eleventy:
+
+  <comp.CodeBlock language="shell" source="shell">
+  ```
+  $ ELEVENTY_ENV=production npx @11ty/eleventy
+  ```
+  </comp.CodeBlock>
+</comp.Conditional>
+<comp.Conditional not_ssgs={["Jekyll", "Eleventy", "Hugo"]}>
+  CloudCannon does not set default environment variables for custom SSGs.
+
+  To change an environment variable locally, set it before running your build command:
+
+  <comp.CodeBlock language="shell" source="shell">
+  ```
+    $ MY_ENV_VAR=hello <build command>
+  ```
+  </comp.CodeBlock>
+</comp.Conditional>

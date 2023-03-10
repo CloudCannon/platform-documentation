@@ -1,0 +1,266 @@
+---
+_uuid: "496797e9-6ec8-4c6a-bb73-9f223ad505c5"
+_created_at: "2023-02-14 03:02:12 +0000"
+title: "Migrating to preview options"
+nav_title: "Migrating to preview options"
+published: true
+image: "/documentation/static/CloudCannonDocumentationog.jpg"
+description: "How to migrate from our legacy preview option keys to the latest consolidated preview option."
+tags: ["migration"]
+change_logs: [{"name":"Initial Version","_created_at":"2023-02-14 03:02:12 +0000"}]
+related_articles: ["/articles/defining-your-collections","/articles/creating-collection-schemas","/articles/array-structures-reference","/articles/editing-objects-in-your-data","/articles/using-arrays-to-edit-your-data"]
+related_links: null
+---
+
+How you configure previews in CloudCannon has changed. We recommend updating, but **the previous configuration will continue to work**. There’s now a consolidated key called `preview` that encompasses our previous keys:
+
+* `text_key`
+* `text`
+* `subtext_key`
+* `subtext`
+* `icon_key`
+* `icon`
+* `image_key`
+* `image`
+* `image_size`
+* `preview_image`
+* `description`
+
+As our configuration has grown, many of these keys were used inconsistently across different locations. We now offer [a single option called preview that contains each of these options](/documentation/articles/changing-how-cards-preview-your-data/) in a cascading process.
+
+You can now define more than one option value for each preview option. Each option value is processed in order until a data value is found.
+
+This is used in a number of places so far:
+
+1. [Hugo Shortcodes](/documentation/articles/editing-with-hugo-shortcodes/) (Snippets)
+2. Snippet Picker
+3. [Structures](/documentation/articles/defining-what-adds-to-an-array-with-array-structures/) inside [Array inputs](/documentation/articles/using-arrays-to-edit-your-data/)
+4. [Structure Picker](/documentation/articles/defining-what-adds-to-an-array-with-array-structures/)
+5. [Select-style inputs](/documentation/articles/using-select-inputs-to-edit-your-data/)
+6. [Object inputs](/documentation/articles/editing-objects-in-your-data/)
+7. Non-structure items inside [Array inputs](/documentation/articles/using-arrays-to-edit-your-data/)
+
+## Examples
+Here are a number of examples to show the difference before and after migrating.
+
+### Collection items
+Changing how collection items look in the collection file list:
+
+<comp.CodeBlock language="yaml" source="cloudcannon.config.yml (legacy)">
+```
+collections_config:
+  posts:
+    text_key: heading
+    subtext_key: author
+    icon: event_available
+    image_key: thumbnail
+    image_size: contain
+```
+</comp.CodeBlock>
+
+<comp.MultiCodeBlock language="yaml" translate_into={["json", "javascript"]} source="cloudcannon.config.yml">
+```
+collections_config:
+  posts:
+    icon: event_available
+    preview:
+      text_key:
+        - key: heading
+      subtext_key:
+        - key: author
+      icon: event_available # redundant here - defaults to icon above
+      image: # Alternatively, migrate to preview.gallery.image
+        - key: thumbnail
+```
+</comp.MultiCodeBlock>
+
+Changing how a collection item with a schema appears in the collection file list:
+
+<comp.CodeBlock language="yaml" source="cloudcannon.config.yml (legacy)">
+```
+collections_config:
+  posts:
+    schemas:
+      default:
+        path: schemas/post.md
+      news:
+        path: schemas/news-post.md
+        text_key: heading
+        icon: newspaper
+        image_key: cover_image
+        image_size: cover
+```
+</comp.CodeBlock>
+
+<comp.MultiCodeBlock language="yaml" translate_into={["json", "javascript"]} source="cloudcannon.config.yml">
+```
+collections_config:
+  posts:
+    schemas:
+      default:
+        path: schemas/post.md
+      news:
+        path: schemas/news-post.md
+        preview:
+          text:
+            - key: heading
+          icon: newspaper
+          gallery:
+            image:
+              - key: cover_image
+            fit: cover
+```
+</comp.MultiCodeBlock>
+
+### Object and Array inputs
+Changing how an object input appears in the Data Editor before opening:
+
+<comp.CodeBlock language="yaml" source="cloudcannon.config.yml (legacy)">
+```
+seo:
+  title: About us
+  description: A longer description of the page that is all about us.
+  image: /uploads/seo-cover.png
+_inputs:
+  seo:
+    text_key: title
+    subtext_key: description
+    icon: search
+    image_key: image
+```
+</comp.CodeBlock>
+
+<comp.MultiCodeBlock language="yaml" translate_into={["json", "javascript"]} source="cloudcannon.config.yml">
+```
+seo:
+  title: About us
+  description: A longer description of the page that is all about us.
+  image: /uploads/seo-cover.png
+_inputs:
+  seo:
+    preview:
+      text:
+        - key: title
+      subtext:
+        - key: description
+      icon: search
+      image:
+        - key: image
+```
+</comp.MultiCodeBlock>
+
+Changing how a non-structure item within an array input appears in the Data Editor before opening:
+
+<comp.CodeBlock language="yaml" source="cloudcannon.config.yml (legacy)">
+```
+quotes:
+  - message: Great product!
+    author: Jane
+    image: /uploads/jane.png
+  - message: Highly recommended.
+    author: John
+    image: /uploads/john.png
+_inputs:
+  quotes:
+    text_key: message
+    subtext_key: author
+    icon: format_quote
+    image_key: image
+```
+</comp.CodeBlock>
+
+<comp.MultiCodeBlock language="yaml" translate_into={["json", "javascript"]} source="cloudcannon.config.yml">
+```
+quotes:
+  - message: Great product!
+    author: Jane
+    image: /uploads/jane.png
+  - message: Highly recommended.
+    author: John
+    image: /uploads/john.png
+_inputs:
+  quotes:
+    preview:
+      text:
+        - key: message
+      subtext:
+        - key: author
+      icon: format_quote
+      image:
+        - key: image
+```
+</comp.MultiCodeBlock>
+
+### Structures
+Changing how a structure item appears when choosing a new one to add in the Data Editor:
+
+<comp.CodeBlock language="yaml" source="cloudcannon.config.yml (legacy)">
+```
+_structures:
+  gallery:
+    style: modal
+    values:
+      - label: Image
+        description: Full width image
+        preview_image: https://example.com/image-screenshot.png
+        image: /path/to/image.png
+        icon: image
+        text_key: caption
+        subtext_key: image
+        image_key: image
+        image_size: cover
+        tags:
+          - Media
+          - Asset
+        value:
+          image: /uploads/placeholder.png
+          caption:
+      - label: External link
+        icon: link
+        tags:
+          - Media
+        value:
+          url:
+          title:
+```
+</comp.CodeBlock>
+
+<comp.MultiCodeBlock language="yaml" translate_into={["json", "javascript"]} source="cloudcannon.config.yml">
+```
+_structures:
+  gallery:
+    style: modal
+    values:
+      - label: Image
+        icon: image
+        tags:
+          - Media
+          - Asset
+        value:
+          image: /uploads/placeholder.png
+          caption:
+        preview:
+          text:
+            - key: caption
+          icon: image
+          subtext:
+            - key: image
+            - Full width image
+          gallery:
+            image:
+              - key: image
+              - /path/to/image.png
+            fit: cover
+        picker_preview:
+          gallery:
+            image: https://example.com/image-screenshot.png
+
+      - label: External link
+        icon: link
+        tags:
+          - Media
+        value:
+          url:
+          title:
+```
+</comp.MultiCodeBlock>

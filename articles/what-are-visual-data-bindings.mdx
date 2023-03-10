@@ -1,0 +1,50 @@
+---
+_uuid: 77d1c22d-19db-489a-9dbc-f4d1e37b822a
+_created_at: "2021-09-15 23:13:40 +0000"
+title: "What are visual data bindings"
+nav_title: "What are bindings"
+published: true
+image: "/documentation/static/CloudCannonDocumentationog.jpg"
+description: "TODO"
+tags: []
+change_logs: [{"name":"Initial Version","_created_at":"2021-09-15 23:13:40 +0000"}]
+related_articles: ["visual-data-bindings-with-react","visual-data-bindings-with-bookshop","cloudcannon-protocol"]
+related_links: null
+---
+
+Visual data bindings are a way to tell CloudCannon what elements correlate to what data. With this information CloudCannon can generate inline controls for editing directly onto the page. Editors can simply click what they want to edit, and change, remove, move, clone and add items directly. This, paired with visual data previews, means they can see what changes as they change it.
+
+Data bindings tell CloudCannon to add overlays to the Visual Editor. These overlays are absolutely positioned on the page. Once clicked, the overlay is selected and the controls become available. These controls are dependant on the type of data that is bound. Edit, for example, will always be available. Clicking off the selected area will unselect the current element.
+
+Elements that have data bindings can contain elements with data bindings. In this case, the child data bindings are only available to click once the parent is selected. This helps to keep the interface clean and reduce confusion.
+
+## Adding a data binding
+Data bindings are added by adding the `data-cms-bind` attribute to any element. The value of this attribute is the slug of object/key you want to edit. Starting from the base of your structure, name each item as a step towards your desired object. Each object or property is separated by a dot. An array item is denoted by an open square bracket, an integer starting from 0, followed by a closing square bracket (`[index]`). For example:
+- `#title` Targets the title of the current page
+- `#seo.title` Targets the title within the seo object
+- `#people[0]` Targets the first array item in an array named people.
+- `#people[0].title` Targets the title of the first array item within an array named people.
+
+<comp.CodeBlock language="html" source="index.html">
+```
+<h1 data-cms-bind="#title">Edit the title</h1>
+```
+</comp.CodeBlock>
+
+## Working with arrays
+Data bindings on arrays give a few extra controls:
+
+1. Add/Clone above and below
+2. Move up/down and left/right depending on their relative position from their siblings
+3. Remove with a double click confirm
+
+## Working with z-indexes
+Data binding overlays can sometimes get in the way of important navigation elements. By default, overlays are positioned between a 9000 and 9010 z-index. The lower bound of this range can be configured with the `--editor-panel-zindex` CSS variable. If your navigation is at 100 z-index, we recommend using a 90 z-index. In this example, you can use the following code snippet:
+
+<comp.CodeBlock language="css" source="index.html">
+```
+:root {
+  --editor-panel-zindex: 90;
+}
+```
+</comp.CodeBlock>

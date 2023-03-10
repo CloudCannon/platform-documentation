@@ -1,0 +1,39 @@
+---
+_uuid: 1b2d5441-52ed-470b-93a3-cee60f45865a
+_created_at: "2021-09-15 23:13:40 +0000"
+title: "CloudCannon link protocol"
+nav_title: "CloudCannon link protocol"
+published: true
+image: "/documentation/static/CloudCannonDocumentationog.jpg"
+description: "CloudCannon links are a custom protocol that allows you to deep link into CloudCannon."
+tags: ["editor","navigation","collections","front matter"]
+change_logs: [{"name":"Initial Version","_created_at":"2021-09-15 23:13:40 +0000"}]
+related_articles: ["introducing-the-visual-editor"]
+related_links: null
+---
+
+CloudCannon Links allow you to reference other sections of the CloudCannon interface. These are used within Editor links and Add options.
+
+## Syntax
+CloudCannon Links are formatted with `cloudcannon:{path}#{slug}` and match the URL structure of the CloudCannon app.
+
+<comp.DataReference>
+  <comp.DataReferenceRow label="path" type_markdown="string">
+    The relative path of the collection inside of the site url. For example  `https://app.cloudcannon.com/123/editor#sites/456/dashboard` would become  `dashboard` which targets the current site's dashboard.
+
+    If you want your link to be relative to `https://app.cloudcannon.com/` add  a `!` to the start of your URL. This is used internally for linking to the  templates list and using this is not recommended.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="slug" type_markdown="string">
+    Modelled after [JavaScripts property accessors](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Property_accessors), this is a recursive representation of your desired object target. Starting from the base of your structure, name each item as a step towards your desired object. Each object or property is separated by a dot. An array item is denoted by an open square bracket, an integer starting from 0, followed by a closing square bracket (`[index]`).
+  </comp.DataReferenceRow>
+</comp.DataReference>
+
+### Linking to front matter
+By excluding the front path, the cloudcannon link is relative to the current page. This is useful for keeping your code DRY. For example:
+- `cloudcannon:#title` Targets the title of the current page
+- `cloudcannon:#seo.title` Targets the title within the seo object
+- `cloudcannon:#people[0]` Targets the first array item in an array named people.
+- `cloudcannon:#people[0].title` Targets the title of the first array item within an array named people.
+
+### Creating an array item
+A special case of slug editing is the `+`, by targeting an array you can trigger an item to be added to the end of the array. For example `cloudcannon:#people[+]` Create a new item in an array named people.
