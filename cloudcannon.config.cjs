@@ -75,14 +75,6 @@ module.exports = {
         }
     },
     _structures: {
-        change_logs: {
-            values: {
-                value: {
-                    name: 'Initial Version',
-                    _created_at: null 
-                }
-            }
-        },
         related_links: {
             values: {
                 value: {
