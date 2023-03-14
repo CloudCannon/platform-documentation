@@ -35,6 +35,10 @@ module.exports = {
             icon: 'tips_and_updates',
             url: '/changelog/[slug]/',
             parser: 'front-matter',
+            sort: {
+              key: 'path',
+              order: 'desc'
+            },
             schemas: {
                 default: {
                     path: "schemas/changelog.mdx"
