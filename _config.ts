@@ -116,13 +116,13 @@ function appendTargetBlank(page, el) {
     }
 }
 
-const codeAnnotationRegex = /\/\*\s*(\d+)\s*\*\//;
+const codeAnnotationRegex = /^\/\*\s*(\d+)\s*\*\/$|^(?:\/\/|#)\s*(\d+)\s*|^<!--\s*(\d+)\s*-->$/;
 const annotateCodeBlocks = (page) => {
     page.document?.querySelectorAll('.token.comment').forEach((commentEl) => {
         if (!codeAnnotationRegex.test(commentEl.innerText)) return;
 
         const matches = commentEl.innerText.match(codeAnnotationRegex);
-        const annotationId = matches[1] ?? matches[2];
+        const annotationId = matches[1] ?? matches[2] ?? matches[3];
         if (!annotationId) return;
         
         commentEl.innerText = "";

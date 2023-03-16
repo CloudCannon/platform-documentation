@@ -1,0 +1,78 @@
+---
+_schema: guide-item
+_uuid: e28a3b8e-a198-4aaf-bf72-1619123c40c4
+_created_at: "2023-02-01 02:40:30 +0000"
+title: "Component templating"
+nav_title: "Component templating"
+order: 3
+published: true
+image: https://dam-cdn.cloudcannon.com/eleventy-cloudcannon-tutorial-social.png
+description: "Creating and editing your Eleventy components with Bookshop"
+tags: []
+related_articles: null
+related_links: []
+---
+
+Bookshop components use the templating language of your chosen static site generator.
+For Eleventy, Bookshop supports writing components as `.liquid` files.
+
+## Creating your first component
+
+If you followed the previous [Getting set up](/documentation/articles/getting-set-up/) section of this guide,
+and ran the `@bookshop/init` command, a sample component will have been created for you:
+
+<comp.Tree>
+```
+_component-library/
+>> components/
+   >> sample/
+      >> sample.bookshop.yml
+      >> sample.scss
+      >> sample.eleventy.liquid
+```
+</comp.Tree>
+
+<comp.Notice info_type="info">
+  Bookshop supports multiple SSG targets, so to reduce conflicts each SSG is namespaced. This is why your component files will
+  be `.eleventy.liquid`, rather than `.liquid`.
+</comp.Notice>
+
+For now, we're going to ignore the `.scss` and `.bookshop.yml` files and just look at the `.eleventy.liquid` templating file.
+If you don't have this component, create an empty file at `components/sample/sample.eleventy.liquid` in your Bookshop folder.
+
+If we look inside the sample file that was created for us, we'll see:
+
+<comp.CodeBlock language="liquid" source="components/sample/sample.eleventy.liquid">
+```
+<div class="c-sample">
+  <p>{{ text }}</p>
+</div>
+```
+</comp.CodeBlock>
+
+If you're used to writing Liquid includes on your Eleventy site, the contents of this component should be very familiar.
+Beyond the special directory structure that this component should live in, the templating can (in most cases) be migrated directly
+from any existing Eleventy includes.
+
+Here's a hypothetical component that uses a bit more liquid syntax:
+
+<comp.CodeBlock language="liquid" source="components/hero/hero.eleventy.liquid">
+```
+<div class="c-hero">
+  <p class="date">Published on {{ publish_date | date: '%a, %b %d, %y' }}</p>
+  <h1>{{ title }}</h1>
+  {% if subtitle %}
+    <h2>{{ subtitle }}</h2>
+  {% endif %}
+</div>
+```
+</comp.CodeBlock>
+
+## Supported templating filters and functions
+
+There are some restrictions on the features you can use inside your components.
+Since Bookshop renders your components in the browser, any custom filters you define in your `.eleventy.js`
+configuration won't be available. 
+
+Any filters that are defined in the [LiquidJS Filter documentation](https://liquidjs.com/filters/overview.html) will be available,
+and Bookshop also provides working `markdownify`, `slugify`, and `url` filters that match Eleventy's default logic.
