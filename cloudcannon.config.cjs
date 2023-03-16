@@ -29,6 +29,13 @@ module.exports = {
                 }
             }
         },
+        guides: {
+            path: 'guides',
+            output: true,
+            icon: 'school',
+            url: '/guides/relative_base_path/[slug]/',
+            parser: 'front-matter'
+        },
         changelog: {
             path: 'changelogs',
             output: true,
