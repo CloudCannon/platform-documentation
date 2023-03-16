@@ -16,14 +16,27 @@ import slugify from "npm:@sindresorhus/slugify@2.2.0";
 import "npm:prismjs@1.29.0/components/prism-yaml.js";
 import "npm:prismjs@1.29.0/components/prism-json.js";
 import "npm:prismjs@1.29.0/components/prism-toml.js";
+import "npm:prismjs@1.29.0/components/prism-diff.js";
+import "npm:prismjs@1.29.0/components/prism-ignore.js";
 
 // Lang highlights
 import "npm:prismjs@1.29.0/components/prism-bash.js";
 import "npm:prismjs@1.29.0/components/prism-ruby.js";
+import "npm:prismjs@1.29.0/components/prism-scss.js";
+import "npm:prismjs@1.29.0/components/prism-typescript.js";
+
+// Required language dependencies for languages like liquid
+import "npm:prismjs@1.29.0/components/prism-markup-templating.js";
 
 // Template highlights
 import "npm:prismjs@1.29.0/components/prism-markdown.js";
+import "npm:prismjs@1.29.0/components/prism-liquid.js";
+import "npm:prismjs@1.29.0/components/prism-handlebars.js";
+import "npm:prismjs@1.29.0/components/prism-ejs.js";
 import "npm:prismjs@1.29.0/components/prism-jsx.js";
+
+// Custom highlights
+import "./_config/prism-tree.js";
 
 const domainsRegExp = new RegExp('cloudcannon.com|^\/|^\#');
 

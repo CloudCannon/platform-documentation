@@ -35,7 +35,7 @@ export default function ({ comp, children }) {
       <div className="c-code-block__code">
         <figure className="highlight">
           <pre>
-            <code className={`language-plaintext`}>
+            <code className={`language-tree`}>
               {tree_str}
             </code>
           </pre>
