@@ -128,6 +128,7 @@ const annotateCodeBlocks = (page) => {
         commentEl.innerText = "";
         commentEl.classList.add("annotation", "code-annotation");
         commentEl.setAttribute("data-annotation-number", annotationId);
+        commentEl.setAttribute("@click", `highlighedAnnotation = ${annotationId}`);
     });
 }
 

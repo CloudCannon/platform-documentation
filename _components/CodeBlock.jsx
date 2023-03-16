@@ -18,7 +18,7 @@ export default function ({ comp, language, source, content, children }) {
   const codeEncoded = btoa(encodeURIComponent(code_str))
 
   return (
-    <>
+    <div x-data="{ highlighedAnnotation: null }">
       <div className={`c-code-block${annotations ? ` c-code-block--annotated` : ``}`}>
         <div className="c-code-block__heading">
           <LanguageIcon lang={language} />
@@ -43,6 +43,6 @@ export default function ({ comp, language, source, content, children }) {
         </div>
       </div>
       {annotations}
-    </>
+    </div>
   )
 }
