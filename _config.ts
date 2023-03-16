@@ -126,7 +126,7 @@ const annotateCodeBlocks = (page) => {
         if (!annotationId) return;
         
         commentEl.innerText = "";
-        commentEl.classList.add("annotation");
+        commentEl.classList.add("annotation", "code-annotation");
         commentEl.setAttribute("data-annotation-number", annotationId);
     });
 }
