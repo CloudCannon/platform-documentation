@@ -103,6 +103,21 @@ function appendTargetBlank(page, el) {
     }
 }
 
+const codeAnnotationRegex = /\/\*\s*(\d+)\s*\*\//;
+const annotateCodeBlocks = (page) => {
+    page.document?.querySelectorAll('.token.comment').forEach((commentEl) => {
+        if (!codeAnnotationRegex.test(commentEl.innerText)) return;
+
+        const matches = commentEl.innerText.match(codeAnnotationRegex);
+        const annotationId = matches[1] ?? matches[2];
+        if (!annotationId) return;
+        
+        commentEl.innerText = "";
+        commentEl.classList.add("annotation");
+        commentEl.setAttribute("data-annotation-number", annotationId);
+    });
+}
+
 site.process([".html"], (page) => {
     for (const [attr, newattr] of Object.entries(alpineRemaps)) {
         page.document?.querySelectorAll(`[${attr}]`).forEach((el) => {
@@ -173,6 +188,8 @@ site.process([".html"], (page) => {
     page.document?.querySelectorAll('a').forEach((el) => {
         appendTargetBlank(page, el);
     });
+
+    annotateCodeBlocks(page);
 });
 
 // TODO: Redo docnav as JSX and move this logic into the component
