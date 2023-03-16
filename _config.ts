@@ -34,6 +34,8 @@ const site = lume({
     }
 });
 
+site.ignore("README.md");
+
 // Sets `/documentation/` through the url filter when running locally
 if (Deno.args.includes("-s") || Deno.args.includes("--serve")) {
     site.options.location = new URL("http://localhost:9010/documentation/");
