@@ -39,6 +39,7 @@ module.exports = {
               key: 'path',
               order: 'desc'
             },
+            create: '{date|year}-{date|month}-{date|day}_{title|slugify}.[ext]',
             schemas: {
                 default: {
                     path: "schemas/changelog.mdx"
