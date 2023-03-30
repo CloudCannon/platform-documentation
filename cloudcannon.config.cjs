@@ -39,7 +39,14 @@ module.exports = {
               key: 'path',
               order: 'desc'
             },
-            create: '{date|year}-{date|month}-{date|day}_{title|slugify}.[ext]',
+            create: {
+              path: '{date|year}-{date|month}-{date|day}_{title|slugify}.[ext]',
+              _inputs: {
+                date: {
+                  instance_value: 'NOW'
+                }
+              }
+            },
             schemas: {
                 default: {
                     path: "schemas/changelog.mdx"
