@@ -39,6 +39,14 @@ module.exports = {
               key: 'path',
               order: 'desc'
             },
+            create: {
+              path: '{date|year}-{date|month}-{date|day}_{title|slugify}.[ext]',
+              _inputs: {
+                date: {
+                  instance_value: 'NOW'
+                }
+              }
+            },
             schemas: {
                 default: {
                     path: "schemas/changelog.mdx"
@@ -95,5 +103,8 @@ module.exports = {
         _uuid: {
             instance_value: 'UUID',
         }
-    }
+    },
+    commit_templates: [
+        {template_string: '{message}'}
+    ]
 }
