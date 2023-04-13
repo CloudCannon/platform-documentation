@@ -116,7 +116,7 @@ function appendTargetBlank(page, el) {
     }
 }
 
-const codeAnnotationRegex = /^\/\*\s*(\d+)\s*\*\/$|^(?:\/\/|#)\s*(\d+)\s*|^<!--\s*(\d+)\s*-->$/;
+const codeAnnotationRegex = /^\/\*\s*(\d+|\*)\s*\*\/$|^(?:\/\/|#)\s*(\d+|\*)\s*|^<!--\s*(\d+|\*)\s*-->$/;
 const annotateCodeBlocks = (page) => {
     page.document?.querySelectorAll('.token.comment').forEach((commentEl) => {
         if (!codeAnnotationRegex.test(commentEl.innerText)) return;
@@ -127,8 +127,12 @@ const annotateCodeBlocks = (page) => {
         
         commentEl.innerText = "";
         commentEl.classList.add("annotation", "code-annotation");
-        commentEl.setAttribute("data-annotation-number", annotationId);
-        commentEl.setAttribute("@click", `highlighedAnnotation = ${annotationId}`);
+        if (annotationId === "*") {
+            commentEl.setAttribute("data-annotation-number", "★");
+        } else {
+            commentEl.setAttribute("data-annotation-number", annotationId);
+            commentEl.setAttribute("@click", `highlighedAnnotation = ${annotationId}`);
+        }
     });
 }
 
