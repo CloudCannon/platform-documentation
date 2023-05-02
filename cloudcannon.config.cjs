@@ -42,6 +42,18 @@ module.exports = {
             icon: 'tips_and_updates',
             url: '/changelog/[slug]/',
             parser: 'front-matter',
+            sort: {
+              key: 'path',
+              order: 'desc'
+            },
+            create: {
+              path: '{date|year}-{date|month}-{date|day}_{title|slugify}.[ext]',
+              _inputs: {
+                date: {
+                  instance_value: 'NOW'
+                }
+              }
+            },
             schemas: {
                 default: {
                     path: "schemas/changelog.mdx"
@@ -63,6 +75,7 @@ module.exports = {
     },
     _editables: {
         content: {
+            format: true,
             blockquote: true,
             bold: true,
             italic: true,
@@ -82,14 +95,6 @@ module.exports = {
         }
     },
     _structures: {
-        change_logs: {
-            values: {
-                value: {
-                    name: 'Initial Version',
-                    _created_at: null 
-                }
-            }
-        },
         related_links: {
             values: {
                 value: {
@@ -106,5 +111,9 @@ module.exports = {
         _uuid: {
             instance_value: 'UUID',
         }
-    }
+    },
+    commit_templates: [
+        {template_string: '{message}'}
+    ],
+    timezone: 'Pacific/Auckland'
 }
