@@ -106,3 +106,33 @@ components:
   When doing do, the generated Structures will automatically include this `_bookshop_name` value for you to use.
 </comp.Annotation>
 </comp.CodeBlock>
+
+## Passing Data to Bookshop Components
+
+In order to live edit Bookshop components, Bookshop needs a clear path between a component
+and the data it draws from. 
+
+In general, you should avoid adding logic around your Bookshop components in your
+site layouts, and instead move that logic into a Bookshop component or helper.
+
+For example:
+<comp.CodeBlock language="markdown" source="page.liquid">
+```
+---
+hero_text: "Hello World"
+---
+{% bookshop 'hero' text: hero_text %} <!--1-->
+
+{% assign my_title = hero_text %}
+{% bookshop 'hero' text: my_title %} <!--2-->
+```
+<comp.Annotation number="1">
+  This component can make the connection between the `text` prop and the page front-matter,
+  and will work as expected in the visual editor.
+</comp.Annotation>
+<comp.Annotation number="2">
+  This component doesn't have the context to find the origin of the `text` prop,
+  and will error in the visual editor.  
+  _(Reassignments **inside** Bookshop components will work correctly)._
+</comp.Annotation>
+</comp.CodeBlock>

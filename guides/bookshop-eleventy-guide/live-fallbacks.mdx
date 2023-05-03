@@ -1,0 +1,81 @@
+---
+_schema: guide-item
+_uuid: 83e0bf7b-709d-45bb-b188-b9fd6e0e49cd
+_created_at: "2023-02-01 02:40:30 +0000"
+title: "Live Editing Fallbacks"
+nav_title: "Live Editing Fallbacks"
+order: 13
+published: true
+image: https://dam-cdn.cloudcannon.com/eleventy-cloudcannon-tutorial-social.png
+description: "Add custom handling for components that cannot be visually edited"
+tags: []
+related_articles: null
+related_links: []
+---
+
+Some components will never be editable without the full context of your Eleventy site. For example,
+if you rely heavily on a custom plugin, or access file and network resources directly.
+
+In these cases, you'll need to provide fallback content for Bookshop to use, or opt out of live previews
+for a set of components altogether.
+
+## Rendering different content when live editing
+
+Bookshop sets a global flag when rendering your components in the Visual Editor. Using this flag
+you can show extra information to your editors, or render fallback content instead of unsupported templating.
+
+You can render special content in the live editing 
+environment by checking the Bookshop Live Editor flag. This can be 
+useful to show extra information to your editors, or to use a feature 
+that isn't supported while live editing.
+
+<comp.CodeBlock language="liquid" source="components/sample/sample.eleventy.liquid">
+```
+{% if env_bookshop_live %}
+
+  <p>I am being edited live!</p>
+  <h1>Fallback Title</h1>
+
+{% else %}
+
+  <p>Standard build output</p>
+  <h1>{% my_plugin %}</h1>
+
+{% endif %}
+```
+</comp.CodeBlock>
+
+With the above component, your production hosted site will contain `Standard build output` and the output
+of the `{% my_plugin %}` tag. Only when inside CloudCannon's Visual Editor, where `my_plugin` does not exist,
+your editors will see the `Fallback Title` branch of the template.
+
+## Disabling Live Editing
+
+In some cases you can disable live editing entirely, using a flag in the component data.
+
+This only works for components that are referenced in a site layout, and opts out of
+rendering that tree of components and subcomponents. As such, this feature is intended
+for rendering components such as navigation and footer templates from your Bookshop. 
+In the page building workflow, you should instead use the `env_bookshop_live` template check referenced above.
+
+To disable live editing, Bookshop will look for any of the following keys on a **top-level** component:
+
+- live_render
+- liveRender
+- _live_render
+- _liveRender
+
+
+<comp.CodeBlock language="liquid" source="page.liquid">
+```
+{% bookshop 'navigation' props: props %} <!--1-->
+
+{% bookshop 'navigation' live_render: false props: props %} <!--2-->
+```
+<comp.Annotation number="1">
+  This component will attempt to re-render in the visual editor.
+</comp.Annotation>
+<comp.Annotation number="2">
+  This component will **not** re-render in the visual editor.
+</comp.Annotation>
+</comp.CodeBlock>

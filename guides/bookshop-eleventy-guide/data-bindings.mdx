@@ -1,0 +1,62 @@
+---
+_schema: guide-item
+_uuid: ffd1e297-4fa5-44a2-bc2a-572e5a3b7d17
+_created_at: "2023-02-01 02:40:30 +0000"
+title: "Controlling Data Bindings"
+nav_title: "Controlling Data Bindings"
+order: 11
+published: true
+image: https://dam-cdn.cloudcannon.com/eleventy-cloudcannon-tutorial-social.png
+description: "Control how CloudCannon adds automatic data bindings to your components"
+tags: []
+related_articles: null
+related_links: []
+---
+
+With components on the page, Bookshop will create CloudCannon's
+[Visual Data Bindings](https://cloudcannon.com/documentation/articles/what-are-visual-data-bindings/) automatically
+if the data for that component can be found in your page's front-matter.
+
+By default, Bookshop will add bindings for any components 
+on the page, but will not add bindings for shared helper files. This 
+prevents Bookshop from rendering data bindings around our shared page helper,
+so that the components within are immediately accessible.
+
+This behavior can be customized by including a flag in the component's data. Bookshop will look for any of the following keys:
+
+- `data_binding`
+- `dataBinding`
+- `_data_binding`
+- `_dataBinding`
+
+For example:
+
+<comp.CodeBlock language="liquid" source="page.liquid">
+```
+<!-- Components -->
+{% bookshop 'item' props: props %} <!--1-->
+{% bookshop 'item' data_binding: false props: props %} <!--2-->
+
+<!-- Includes -->
+{% bookshop_include 'page' props: props %} <!--3-->
+{% bookshop_include 'page' data_binding: true props: props %} <!--4-->
+```
+<comp.Annotation number="1">
+  By default, a component will be given a data binding if possible.
+</comp.Annotation>
+<comp.Annotation number="2">
+  This component will **not** be given a data binding.
+</comp.Annotation>
+<comp.Annotation number="3">
+  By default, bookshop_include helpers will not be given a data binding.
+</comp.Annotation>
+<comp.Annotation number="4">
+  This helper **will** be given a data binding.
+</comp.Annotation>
+</comp.CodeBlock>
+
+<comp.Notice info_type="info">
+  This flag only applies to the tagged component directly and doesn't cascade 
+  down. Any subcomponents will follow the standard rules, or may also 
+  specify their own Data Binding flag.
+</comp.Notice>
