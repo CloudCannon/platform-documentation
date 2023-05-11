@@ -38,6 +38,14 @@ import "npm:prismjs@1.29.0/components/prism-jsx.js";
 // Custom highlights
 import "./_config/prism-tree.js";
 
+import { DOMParser } from "https://deno.land/x/deno_dom@v0.1.38/deno-dom-wasm.ts";
+
+function stripHTML(html) {
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    return doc.body.textContent || '';
+}
+
+
 const domainsRegExp = new RegExp('cloudcannon.com|^\/|^\#');
 
 const site = lume({
@@ -46,6 +54,8 @@ const site = lume({
         port: 9010,
     }
 });
+
+const mdFilter = site.renderer.helpers.get('md')[0];
 
 site.ignore("README.md");
 
@@ -59,6 +69,19 @@ if (Deno.args.includes("-s") || Deno.args.includes("--serve")) {
 //  but to subpath it on CloudCannon we want this at `_site/documentation/index.html`)
 site.preprocess("*", (page) => {
     page.data.url = `/documentation${page.data.url}`;
+});
+
+// Creates an excerpt for all changelogs saved in description.
+site.preprocess(['.md', '.mdx'], (page) => {
+    if (!page.data.description && page.src.path.startsWith('/changelogs/')) {
+        const firstLine = page.data.content.trim().split('\n')[0];
+        if (!firstLine) {
+            return;
+        }
+
+        const markdownInline = mdFilter(firstLine, true) || '';
+        page.data.description = stripHTML(markdownInline);
+    }
 });
 
 site.copy("ye_olde_images", "documentation/ye_olde_images");
