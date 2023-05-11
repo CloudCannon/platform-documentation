@@ -25,7 +25,7 @@ module.exports = {
             parser: 'front-matter',
             schemas: {
                 default: {
-                    path: "schemas/article.mdx"
+                    path: ".cloudcannon/schemas/article.mdx"
                 }
             }
         },
@@ -49,7 +49,7 @@ module.exports = {
             },
             schemas: {
                 default: {
-                    path: "schemas/changelog.mdx"
+                    path: ".cloudcannon/schemas/changelog.mdx"
                 }
             }
         },
