@@ -16,14 +16,27 @@ import slugify from "npm:@sindresorhus/slugify@2.2.0";
 import "npm:prismjs@1.29.0/components/prism-yaml.js";
 import "npm:prismjs@1.29.0/components/prism-json.js";
 import "npm:prismjs@1.29.0/components/prism-toml.js";
+import "npm:prismjs@1.29.0/components/prism-diff.js";
+import "npm:prismjs@1.29.0/components/prism-ignore.js";
 
 // Lang highlights
 import "npm:prismjs@1.29.0/components/prism-bash.js";
 import "npm:prismjs@1.29.0/components/prism-ruby.js";
+import "npm:prismjs@1.29.0/components/prism-scss.js";
+import "npm:prismjs@1.29.0/components/prism-typescript.js";
+
+// Required language dependencies for languages like liquid
+import "npm:prismjs@1.29.0/components/prism-markup-templating.js";
 
 // Template highlights
 import "npm:prismjs@1.29.0/components/prism-markdown.js";
+import "npm:prismjs@1.29.0/components/prism-liquid.js";
+import "npm:prismjs@1.29.0/components/prism-handlebars.js";
+import "npm:prismjs@1.29.0/components/prism-ejs.js";
 import "npm:prismjs@1.29.0/components/prism-jsx.js";
+
+// Custom highlights
+import "./_config/prism-tree.js";
 
 import { DOMParser } from "https://deno.land/x/deno_dom@v0.1.38/deno-dom-wasm.ts";
 
@@ -31,6 +44,7 @@ function stripHTML(html) {
     const doc = new DOMParser().parseFromString(html, 'text/html');
     return doc.body.textContent || '';
 }
+
 
 const domainsRegExp = new RegExp('cloudcannon.com|^\/|^\#');
 
@@ -127,6 +141,26 @@ function appendTargetBlank(page, el) {
     }
 }
 
+const codeAnnotationRegex = /^\/\*\s*(\d+|\*)\s*\*\/$|^(?:\/\/|#)\s*(\d+|\*)\s*|^<!--\s*(\d+|\*)\s*-->$/;
+const annotateCodeBlocks = (page) => {
+    page.document?.querySelectorAll('.token.comment').forEach((commentEl) => {
+        if (!codeAnnotationRegex.test(commentEl.innerText)) return;
+
+        const matches = commentEl.innerText.match(codeAnnotationRegex);
+        const annotationId = matches[1] ?? matches[2] ?? matches[3];
+        if (!annotationId) return;
+        
+        commentEl.innerText = "";
+        commentEl.classList.add("annotation", "code-annotation");
+        if (annotationId === "*") {
+            commentEl.setAttribute("data-annotation-number", "★");
+        } else {
+            commentEl.setAttribute("data-annotation-number", annotationId);
+            commentEl.setAttribute("@click", `highlighedAnnotation = ${annotationId}`);
+        }
+    });
+}
+
 site.process([".html"], (page) => {
     for (const [attr, newattr] of Object.entries(alpineRemaps)) {
         page.document?.querySelectorAll(`[${attr}]`).forEach((el) => {
@@ -197,6 +231,8 @@ site.process([".html"], (page) => {
     page.document?.querySelectorAll('a').forEach((el) => {
         appendTargetBlank(page, el);
     });
+
+    annotateCodeBlocks(page);
 });
 
 // TODO: Redo docnav as JSX and move this logic into the component

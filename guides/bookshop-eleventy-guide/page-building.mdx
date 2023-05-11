@@ -1,0 +1,120 @@
+---
+_schema: guide-item
+_uuid: 76f5368e-6807-41a5-ba51-28f6b35d1329
+_created_at: "2023-02-01 02:40:30 +0000"
+title: "Page Building"
+nav_title: "Page Building"
+order: 7
+published: true
+image: /documentation/static/bookshop-11ty/bookshop-eleventy-og.png
+description: "Use your components to visually build pages from scratch"
+tags: []
+related_articles: null
+related_links: []
+---
+
+With your components live rendering, and Structures created in CloudCannon,
+we now have the ingredients we need to create a page-building experience in the CMS.
+
+## Looping components
+
+Once you have a few more components built out, an ideal front-matter section might look like:
+
+<comp.CodeBlock language="yml" source="content/index.md">
+```
+---
+content_blocks:
+  
+  - _bookshop_name: hero
+    title: Kākā
+    subtitle: The New Zealand kākā is a large species of parrot
+  
+  - _bookshop_name: content
+    content_markdown: >-
+      The New Zealand kākā lives in lowland and mid-altitude native forest
+  
+  - _bookshop_name: image
+    image_url: /uploads/Scrapping_kaka.jpg
+    image_alt: The bird that screams loudest and most persistently gets to own the branch
+  
+  - _bookshop_name: stats
+    length: 45cm
+    weight: 452g
+    color: reddish
+---
+```
+</comp.CodeBlock>
+
+To render this array of components on the page, we can loop over them and use the 
+liquid interpolation we covered in [Using Bookshop components](/documentation/guides/bookshop-eleventy-guide/using-components/#rendering-dynamic-components):
+
+<comp.CodeBlock language="html" source="layout.html">
+```
+{% for block in content_blocks %}
+  {% bookshop "{{block._bookshop_name}}" bind: block %}
+{% endfor %}
+```
+</comp.CodeBlock>
+
+While this will work to render these components, using this directly
+in a layout on your site will cause problems when live editing. 
+Bookshop can only live render changes within the boundaries of Bookshop components.  
+
+This means that if the above loop is placed directly in one of your Eleventy files,
+the live editing boundaries will be:
+
+<comp.CodeBlock language="html" source="layout.html">
+```
+{% for block in content_blocks %}
+  <!-- start live editing -->
+  {% bookshop "{{block._bookshop_name}}" bind: block %}
+  <!-- end live editing -->
+{% endfor %}
+```
+</comp.CodeBlock>
+
+In this setup, each component individually will update changes live,
+but rearranging or adding new components will not render correctly, 
+as the `{% for block in content_blocks %}` loop is not being rerendered.
+
+The solution to this is to simply move this loop inside a Bookshop component. In fact,
+the `@bookshop/init` command we ran earlier created a template explicity for this purpose:
+
+<comp.Tree>
+```
+_component-library/
+>> components/
+>  >> sample/
+>     >> sample.eleventy.liquid
+>> shared/
+   >> eleventy/
+      >> page.eleventy.liquid #*
+```
+</comp.Tree>
+
+## Bookshop Includes
+
+You'll notice that this file doesn't live in the components directory, and is
+instead in the `shared/eleventy` folder. This is a location for you to place templating
+that needs to rerender in the Visual Editor, but isn't semantically a "component"
+that an editor would add to a page.
+Apart from this distinction, these files are functionally the same as your components,
+and can be accessed using the `bookshop_include` tag:
+
+<comp.CodeBlock language="html" source="layout.html">
+```
+{% bookshop_include "page" content_blocks: content_blocks %}
+```
+</comp.CodeBlock>
+
+By passing all of the data to our `page` helper and looping within,
+Bookshop is now able to update the entire page when the `content_blocks` array is changed.
+
+## Taking stock
+
+With the steps taken so far, you should have the framework for a fully functional page builder,
+rendering live when editing on CloudCannon. This is a great moment to jump into your codebase,
+start migrating some components, and experiment with the system.
+
+The following sections of this guide will cover some of Bookshop's remaining features that can help polish
+the page-building experience, but might not be required while setting things up.
