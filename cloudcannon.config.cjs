@@ -108,5 +108,6 @@ module.exports = {
     commit_templates: [
         {template_string: '{message}'}
     ],
-    timezone: 'Pacific/Auckland'
+    timezone: 'Pacific/Auckland',
+    base_url: 'documentation'
 }
