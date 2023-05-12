@@ -1,5 +1,5 @@
 ---
-title: 'Full support for Next.js '
+title: Full support for Next.js
 type: minor
 ---
 This release adds full support for static sites built with Next.js. Check out our starter guide for tips on [configuring your Next.js site for CloudCannon](/documentation/guides/nextjs-starter-guide/). We have also released a new [Sendit template for Astro](https://app.cloudcannon.com/editor#sites/connect/github/CloudCannon/sendit-astro-template/main).

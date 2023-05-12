@@ -10,7 +10,7 @@ This release bring significant performance improvements to builds. Also included
 * Added support for libraries that rely on *libXss.so.1*
 * Improved performance when starting a build on big repositories
 * Improved build time performance with a new Rust-based parser running the *Process* and *Compress* build steps
-* Allowed for Jekyll build output to be available on *\_site* directory during the [*postbuild*​​​​​ hook execution](/documentation/articles/optimizing-your-build-by-minifying-css-and-javascript)
+* Allowed for Jekyll build output to be available on *\_site* directory during the [*postbuild* hook execution](/documentation/articles/optimizing-your-build-by-minifying-css-and-javascript)
 
 **Fixes:**
 

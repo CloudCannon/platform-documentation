@@ -11,7 +11,7 @@ This release improves our team features and pricing. Create organisations to man
 * Organisation support
 * Improved pricing plans for teams
 * Transfer sites to organisations and other accounts
-* *Client Sharing* interface now shows status of site sync and build
+* *Client Sharing* interface now shows status of site sync and build
 * Pre-installed latest Jekyll versions for site builds
 
 **Fixes:**

@@ -17,6 +17,6 @@ This release provides sign up and login options for GitHub, Bitbucket and Dropbo
 * Logout for site authentication issues
 * Some configurations with `auth-routes.txt` file
 * Missing CORS headers on optimised files
-* Prevent *Client Sharing* on free plan in specific configuration
+* Prevent *Client Sharing* on free plan in specific configuration
 * MP4 video issues when serving to some browsers
 * Prevent linking the same GitHub account to multiple CloudCannon accounts

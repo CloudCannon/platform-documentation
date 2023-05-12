@@ -3,7 +3,7 @@ title: Explore Options and Improvements
 type: major
 ---
 
-This release overhauls the design for files and collections. A number of configuration options have been made available for how the *Explore* section looks and behaves. The pre-build process has been improved, and a couple of options have been added to support faster `bundle install` for future builds.
+This release overhauls the design for files and collections. A number of configuration options have been made available for how the *Explore* section looks and behaves. The pre-build process has been improved, and a couple of options have been added to support faster `bundle install` for future builds.
 
 **Features:**
 
