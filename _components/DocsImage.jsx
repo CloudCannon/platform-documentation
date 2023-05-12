@@ -1,7 +1,7 @@
 export default function ({comp, type, path, alt}, helpers) {
     let imageClass = "c-docs-image";
-    if (type === "screenshot") {
-        imageClass += " c-docs-image--type-screenshot";
+    if (type) {
+        imageClass += ` c-docs-image--type-${type}`;
     }
     return (
         <div className="c-docs-image__wrapper">

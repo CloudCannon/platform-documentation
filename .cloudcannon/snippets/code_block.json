@@ -1,6 +1,6 @@
 {
   "code_block": {
-    "snippet": "<comp.CodeBlock [[args]]>\n```\n[[inner]]\n```\n</comp.CodeBlock>",
+    "snippet": "<comp.CodeBlock [[args]]>\n```\n[[inner]]\n```\n[[annotations]]</comp.CodeBlock>",
     "inline": false,
     "preview": {
       "text": [
@@ -19,6 +19,46 @@
     "_inputs": {
       "content": {
         "type": "code"
+      },
+      "annotations": {
+        "type": "array",
+        "comment": "Optional annotations to show below the code block. Link them with a comment like `/*1*/`, `//1`, `#1`, or `<!--1-->`",
+        "options": {
+          "structures": {
+            "values": [
+              {
+                "_inputs": {
+                  "annotation_content": {
+                    "type": "markdown"
+                  },
+                  "number": {
+                    "comment": "Match to a comment of `/*1*/`, `//1`, `#1`, or `<!--1-->` in the code block",
+                    "type": "string"
+                  }
+                },
+                "preview": {
+                  "icon": "campaign",
+                  "text": [
+                    {
+                      "key": "number"
+                    },
+                    "Unconfigured"
+                  ],
+                  "subtext": [
+                    {
+                      "key": "annotation_content"
+                    },
+                    "Empty"
+                  ]
+                },
+                "value": {
+                  "number": 1,
+                  "annotation_content": ""
+                }
+              }
+            ]
+          }
+        }
       }
     },
     "params": {
@@ -44,7 +84,46 @@
         "parser": "content",
         "options": {
           "editor_key": "content",
-          "allow_nested": false
+          "allow_nested": false,
+          "forbidden_tokens": [
+            "```"
+          ]
+        }
+      },
+      "annotations": {
+        "parser": "optional",
+        "options": {
+          "snippet": "[[annotation_repeat]]"
+        }
+      },
+      "annotation_repeat": {
+        "parser": "repeating",
+        "options": {
+          "default_length": 0,
+          "editor_key": "annotations",
+          "snippet": "<comp.Annotation [[annotation_args]]>\n[[annotation_content]]\n</comp.Annotation>"
+        }
+      },
+      "annotation_args": {
+        "parser": "key_values",
+        "options": {
+          "models": [
+            {
+              "editor_key": "number",
+              "type": "string"
+            }
+          ],
+          "format": {
+            "ref": "mdx_format"
+          }
+        }
+      },
+      "annotation_content": {
+        "parser": "content",
+        "options": {
+          "editor_key": "annotation_content",
+          "allow_nested": false,
+          "indented_by": "  "
         }
       }
     }

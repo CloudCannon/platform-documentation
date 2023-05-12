@@ -29,6 +29,13 @@ module.exports = {
                 }
             }
         },
+        guides: {
+            path: 'guides',
+            output: true,
+            icon: 'school',
+            url: '/guides/relative_base_path/[slug]/',
+            parser: 'front-matter'
+        },
         changelog: {
             path: 'changelogs',
             output: true,
@@ -108,5 +115,6 @@ module.exports = {
     commit_templates: [
         {template_string: '{message}'}
     ],
-    timezone: 'Pacific/Auckland'
+    timezone: 'Pacific/Auckland',
+    base_url: 'documentation'
 }
