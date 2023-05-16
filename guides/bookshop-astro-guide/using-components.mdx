@@ -1,0 +1,138 @@
+---
+_schema: guide-item
+_uuid: 202462d9-22e1-47d2-b82c-5fefed5a4c33
+_created_at: "2023-02-01 02:40:30 +0000"
+title: "Using Bookshop components"
+nav_title: "Using Bookshop components"
+order: 4
+published: true
+image: /documentation/static/bookshop-11ty/bookshop-astro-og.png
+description: "Using your Eleventy Bookshop components on your site"
+tags: []
+related_articles: null
+related_links: []
+---
+
+Using a Bookshop component on your Eleventy site is very similar to using a regular Liquid include, with a few small differences.
+
+## The Bookshop tag
+
+The Bookshop plugin provides a `bookshop` tag for use in your layouts.
+
+If you've been following along with this guide, add the following snippet
+to a layout to use the sample component we created:
+
+<comp.CodeBlock language="markdown" source="_includes/layouts/base.liquid">
+```
+...
+
+{% bookshop "sample" text: "Hello from the sample component" %}
+
+...
+```
+</comp.CodeBlock>
+
+This component matches the syntax of the standard Liquid include, but takes a Bookshop component name rather than a file path.
+
+<comp.Notice info_type="info">
+  The Bookshop name of a component is the path to its directory.
+  The name for `components/sample/sample.eleventy.liquid` is `sample`,
+  and the name for `components/generic/button/button.eleventy.liquid` would be `generic/button`.
+</comp.Notice>
+
+There are no limitations on referencing Bookshop comonents from other components — the `{% bookshop %}` tag can be used anywhere
+on your site or in your components.
+
+## Bookshop's bind syntax
+
+Often when working with Bookshop components your data will live in a front-matter object, with all keys passed through.
+This might end up looking like:
+
+<comp.CodeBlock language="markdown" source="page.liquid">
+```
+---
+hero:
+  title: Hello World
+  subtext: My page hero contents
+  image: /image.png
+---
+
+{% bookshop "hero" title: hero.title subtext: hero.subtext image: hero.image %}
+
+```
+</comp.CodeBlock>
+
+Passing through each key can quickly become unwieldy. To help with this, Bookshop provides
+the bind attribute:
+
+<comp.CodeBlock language="markdown" source="page.liquid">
+```
+---
+hero:
+  title: Hello World
+  subtext: My page hero contents
+  image: /image.png
+---
+
+{% bookshop "hero" bind: hero %}
+
+```
+</comp.CodeBlock>
+
+This functions similar to the spread operator in Javascript, passing all
+object keys as props to the component.
+
+## Rendering dynamic components
+
+The Bookshop tag supports interpolating Liquid, so if you have your component name in a variable you can use:
+
+<comp.CodeBlock language="markdown" source="page.liquid">
+```
+---
+components:
+  - _bookshop_name: hero #1
+    title: Hello World
+    subtext: My page hero contents
+    image: /image.png
+---
+
+{% for component in components %}
+  {% bookshop "{{component._bookshop_name}}" bind: component %}
+{% endfor %}
+
+```
+<comp.Annotation number="1">
+  Later in this guide we'll cover creating CloudCannon Structures from your Bookshop components.
+  When doing do, the generated Structures will automatically include this `_bookshop_name` value for you to use.
+</comp.Annotation>
+</comp.CodeBlock>
+
+## Passing Data to Bookshop Components
+
+In order to live edit Bookshop components, Bookshop needs a clear path between a component
+and the data it draws from. 
+
+In general, you should avoid adding logic around your Bookshop components in your
+site layouts, and instead move that logic into a Bookshop component or helper.
+
+For example:
+<comp.CodeBlock language="markdown" source="page.liquid">
+```
+---
+hero_text: "Hello World"
+---
+{% bookshop 'hero' text: hero_text %} <!--1-->
+
+{% assign my_title = hero_text %}
+{% bookshop 'hero' text: my_title %} <!--2-->
+```
+<comp.Annotation number="1">
+  This component can make the connection between the `text` prop and the page's front matter,
+  and will work as expected in the visual editor.
+</comp.Annotation>
+<comp.Annotation number="2">
+  This component doesn't have the context to find the origin of the `text` prop,
+  and will error in the visual editor.  
+  _(Reassignments **inside** Bookshop components will work correctly)._
+</comp.Annotation>
+</comp.CodeBlock>
