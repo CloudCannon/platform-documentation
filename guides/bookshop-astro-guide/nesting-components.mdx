@@ -91,16 +91,24 @@ blueprint:
 
 Then our matching component template file might look like:
 
-<comp.CodeBlock language="liquid" source="hero.eleventy.liquid">
+<comp.CodeBlock language="astro" source="hero.astro">
 ```
+---
+import Button from './button.astro'
+
+const { hero_text, cta_button, column_components } = Astro.props;
+const components = import.meta.glob("./**/*.astro", {
+  eager: true,
+});
+---
 <div class="hero">
-  <h1>{{ hero_text }}</h1>
-  {% if cta_button %} <!--1-->
-    {% bookshop "button" bind: cta_button %}
-  {% endif %}
-  {% for component in column_components %}
-    {% bookshop "{{ component._bookshop_name }}" bind: component %}
-  {% endfor %}
+  <h1>{ hero_text }</h1>
+  {cta_button && <Button {...cta_button}/>} /*1*/
+  {column_components.map((block) => {
+    const name = `components/${block._bookshop_name}.astro`;
+    const Component = components[name].default;
+    return <Component {...block} />;
+  })}
 </div>
 ```
 <comp.Annotation number="1">

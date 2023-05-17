@@ -7,90 +7,57 @@ nav_title: "Component templating"
 order: 3
 published: true
 image: /documentation/static/bookshop-11ty/bookshop-astro-og.png
-description: "Creating your Eleventy components for Bookshop"
+description: "Creating your Astro components for Bookshop"
 tags: []
 related_articles: null
 related_links: []
 ---
 
 Bookshop components use the templating language of your chosen static site generator.
-For Eleventy, Bookshop supports writing components as `.liquid` files.
+For Astro, Bookshop supports writing components as `.astro` files, or as React in either `.jsx` or `.tsx` files.
 
 ## Creating your first component
 
-If you followed the previous [Getting set up](/documentation/guides/bookshop-eleventy-guide/getting-set-up/) section of this guide
-and ran the `@bookshop/init` command, a sample component will have been created for you:
+Bookshop components live in the `src/components/` directory that Astro creates by default.
+Each component can either be placed at the top level of a folder, or nested in folder matching that components name.
 
-<comp.Tree>
-```
-_component-library/
->> components/
-   >> sample/
-      >> sample.bookshop.yml
-      >> sample.scss
-      >> sample.eleventy.liquid
-```
-</comp.Tree>
+To start, lets have a look at a sample bookshop component. Create an empty file at `src/components/sample/sample.astro` in your site
+and add the following content:
 
-Bookshop components live in the `components/` directory, each inside a folder matching their name.
-
-<comp.Notice info_type="info">
-  Bookshop supports multiple SSG targets, so to reduce conflicts each SSG is namespaced. This is why your component files will
-  be `.eleventy.liquid`, rather than `.liquid`.
-</comp.Notice>
-
-For now, we're going to ignore the `.scss` and `.bookshop.yml` files and just look at the `.eleventy.liquid` templating file.
-If you don't have this component, create an empty file at `components/sample/sample.eleventy.liquid` in your Bookshop folder.
-
-If we look inside the sample file that was created for us, we'll see:
-
-<comp.CodeBlock language="liquid" source="components/sample/sample.eleventy.liquid">
+<comp.CodeBlock language="astro" source="src/components/sample/sample.astro">
 ```
 <div class="c-sample">
-  <p>{{ text }}</p>
+  <p>{ Astro.props.text }</p>
 </div>
 ```
 </comp.CodeBlock>
 
-If you're used to writing Liquid includes on your Eleventy site, the contents of this component should be very familiar.
-Beyond the special directory structure that this component should live in, the templating can _(in most cases)_ be migrated directly
-from any existing Eleventy includes.
+If you're used to writing Astro templates on your site, the contents of this component should be very familiar.
+Beyond the special directory structure that this component should live in, any existing components should be
+compatible with Bookshop without any changes. Notice that this component is nested in a folder with the same name as the component.
+This doesn't change the components Bookshop name (`sample`) but can be useful for grouping files related to this component.
 
-Here's a hypothetical component that uses more Liquid syntax:
+Here's a hypothetical React component that uses more advanced syntax:
 
-<comp.CodeBlock language="liquid" source="components/hero/hero.eleventy.liquid">
+<comp.CodeBlock language="jsx" source="src/components/hero.jsx">
 ```
-<div class="c-hero">
-  <p class="date">Published on {{ publish_date | date: '%a, %b %d, %y' }}</p>
-  <h1>{{ title }}</h1>
-  {% if subtitle %}
-    <h2>{{ subtitle }}</h2>
-  {% endif %}
-</div>
-```
-</comp.CodeBlock>
-
-## Scaffolding new components
-
-The `@bookshop/init` command also provides a way to create new components:
-
-<comp.CodeBlock language="bash" source="Command line">
-```
-npx @bookshop/init --component <name>
+export default ({ date, title, subtitle }) => {
+  return <div class="c-hero">
+    <p className="date">Published on {date.toLocaleDateString()}</p>
+    <h1>{ title }</h1>
+    {subtitle && <h2>{ subtitle }</h2>}
+  </div>;
+}
 ```
 </comp.CodeBlock>
 
-Running the above command in an existing Bookshop will scaffold out some initial component files for you.
+As with the Astro example, this component is using standard React JSX and any existing React components should largely be
+compatible with Bookshop by default. With this component we've opted not to nest it inside a folder. This can be cleaner when
+creating individual components that don't have any supporting files. 
 
-## Supported templating filters and functions
+## Supported templating and functions
 
 There are some restrictions on the features you can use inside your components.
-Since Bookshop renders your components in the browser, any custom filters you define in your `.eleventy.js`
-configuration won't be available. 
-
-Any filters that are defined in the [LiquidJS Filter documentation](https://liquidjs.com/filters/overview.html) will be available,
-and Bookshop also provides working `markdownify`, `slugify`, and `url` filters that match Eleventy's default logic.
-
-Bookshop only has access to the files in your component browser when live editing, so accessing any of your
-Eleventy includes from within a component will cause an error in the Visual Editor. If these need to be accessed,
-turn them into Bookshop components, or use Bookshop's [bookshop_include](/documentation/guides/bookshop-eleventy-guide/page-building/#bookshop-includes) feature.
+Since Bookshop renders your components in the browser, any functions or packages that you use must be able to run in a browser.
+Bookshop will include any `.png`, `.svg`, `.jpg`, and `.webp` assets imported by your components for live editing,
+but other assets types are not supported.

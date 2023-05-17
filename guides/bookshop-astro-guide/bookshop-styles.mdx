@@ -19,20 +19,20 @@ While not required, this can help organize your component directory and keep com
 
 ## The Bookshop SCSS file
 
-The last files for us to cover from the `@bookshop/init` command we ran earlier are the SCSS files that were
-created for us.
+To add a Bookshop SCSS file for a component just create a `.scss` file next to your component with
+the same name, just like the Bookshop data file from [Using Structures](/documentation/guides/bookshop-astro-guide/using-structures).
+
+So, if we wanted to add styles for our sample component we would create a `sample.scss` file in the same
+folder as our `sample.astro` file. Afterwards our directory structure will look like:
 
 <comp.Tree>
 ```
-_component-library/
+src/
 >> components/
 >  >> sample/
 >     >> sample.eleventy.liquid
 >     >> sample.bookshop.yml
 >     >> sample.scss #*
->> shared/
-   >> styles/
-      >> global.scss #*
 ```
 </comp.Tree>
 
@@ -41,21 +41,38 @@ _component-library/
   if you would rather maintain your component styles elsewhere.
 </comp.Notice>
 
-To include Bookshop styles on an Eleventy website, Bookshop provides a `@bookshop/sass` package 
+## Global Bookshop SCSS
+
+In addition to per component SCSS files you can also use Bookshop to include global SCSS files
+which will affect all components on your site. Global SCSS files live in the `shared/styles` directory,
+so a site with a single `global.scss` might look like this:
+
+<comp.Tree>
+```
+src/
+>> shared/
+   >> styles/
+      >> global.scss #*
+```
+</comp.Tree>
+
+Bookshop first imports all styles that exist in the `shared/styles/` directory, followed by all component styles
+in alphabetical order. As such the `shared/styles/` directory is a great place to define any variables or mixins
+that your component styles will use.
+
+## Building your Bookshop SCSS
+
+To include Bookshop styles on an Astro website, Bookshop provides a `@bookshop/sass` package 
 to include as part of your build step:
 
 <comp.CodeBlock language="bash" source="Command line">
 ```
-npx @bookshop/sass -b component-library -o site/css/bookshop.css
+npx @bookshop/sass -b src -o public/css/bookshop.css
 ```
 </comp.CodeBlock>
 
 This compiles all of the styles from your Bookshop directory,
 and outputs a CSS file ready to be referenced on your website or imported into another style pipeline.
-
-Bookshop first imports all styles that exist in the `shared/styles/` directory, followed by all component styles
-in alphabetical order. As such the `shared/styles/` directory is a great place to define any variables or mixins
-that your component styles will use.
 
 <comp.Notice info_type="info">
   The `@bookshop/sass` command will run any PostCSS plugins you have configured in your working directory.
@@ -70,8 +87,8 @@ To easily add this command as part of your workflow, install the `@bookshop/sass
   ...
   "scripts": {
     ...
-    "sass:build": "bookshop-sass -b component-library -o site/css/bookshop.css",
-    "sass:watch": "bookshop-sass -b component-library -o site/css/bookshop.css -w"
+    "sass:build": "bookshop-sass -b src -o public/css/bookshop.css",
+    "sass:watch": "bookshop-sass -b src -o public/css/bookshop.css -w"
   }
 }
 ```

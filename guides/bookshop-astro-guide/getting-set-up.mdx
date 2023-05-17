@@ -7,19 +7,19 @@ nav_title: "Getting set up"
 order: 2
 published: true
 image: /documentation/static/bookshop-11ty/bookshop-astro-og.png
-description: "The first steps for building an Eleventy site with Bookshop"
+description: "The first steps for building an Astro site with Bookshop"
 tags: []
 related_articles: null
 related_links: []
 ---
 
 Building a site with Bookshop requires a specific directory structure that lives alongside your website,
-and an Eleventy plugin to discover and use components.
+and an Astro integration to discover and use components.
 
 <comp.Notice info_type="info">
-   As a useful reference, the [Eleventy Bookshop Starter](https://github.com/CloudCannon/eleventy-bookshop-starter/) repository 
-   contains a simple site fully integrated with visual editing. Browsing the code and the file structure
-   of the starter site can be helpful to solidify the concepts covered in this guide.
+   As a useful reference, the [Astro Sendit Template](https://github.com/CloudCannon/sendit-astro-template) repository 
+   contains an example site fully integrated with visual editing. Browsing the code and the file structure
+   of this template can be helpful to solidify the concepts covered in this guide.
 </comp.Notice>
 
 ## Prerequisites
@@ -31,100 +31,74 @@ Bookshop requires Node >= 16 to be installed on your machine.
 Bookshop requires that your component files live in a specific directory structure, which allows for components
 to be discovered automatically. 
 
-The easiest way to get started is to run Bookshop's `init` command. This should be run alongside your website source files:
+The easiest way to get started is to create a `bookshop` folder containing a `bookshop.config.cjs` in your site
+`src` folder, alongside the existing Astro `components` directory. This way Bookshop can automatically discover
+components from the `components` directory.
 
-<comp.CodeBlock language="bash" source="Command line">
-```
-npx @bookshop/init --new _component-library --framework eleventy
-```
-</comp.CodeBlock>
-
-After running this command, the following directory structure will be created:
+With this in mind, the basic directory structure for an Astro Bookshop site will look like:
 
 <comp.Tree>
 ```
-_component-library/
+public/
+src/
 >> bookshop/
 >  >> bookshop.config.cjs
 >> components/
->  >> sample/
->     >> sample.bookshop.yml
->     >> sample.eleventy.liquid
->     >> sample.scss
->> shared/
-   >> eleventy/
-   >  >> page.eleventy.liquid
-   >> styles/
-      >> global.scss
+>> layouts/
+>> pages/
+astro.config.mjs
 ```
 </comp.Tree>
 
-Here's a quick run-through of what has been generated:
+Inside your `bookshop.config.cjs` add the following content:
 
-<comp.DataReference>
- <comp.DataReferenceRow label="bookshop/bookshop.config.cjs" type_markdown="">
-    This houses the configuration for your Bookshop project, in this case instructing Bookshop to use the `@bookshop/eleventy-engine` package for any live component rendering.
- </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="components/" type_markdown="">
-    This is where you will write your component files, a sample component has been added for you.
- </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="shared/eleventy/" type_markdown="">
-    Any non-component files that you want to be able to use when live editing can be placed here. A page helper has been created, which helps render arrays of components.
- </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="shared/styles/" type_markdown="">
-    Optionally, any SCSS files in this directory will be imported alphabetically before component SCSS files. These are used on both the site, and the component browser.
- </comp.DataReferenceRow>
-</comp.DataReference>
+<comp.CodeBlock language="javascript" source="bookshop.config.cjs">
+```
+// Standard bookshop configuration
+module.exports = {
+  engines: {
+    "@bookshop/astro-engine": {}
+  }
+}
+```
+</comp.CodeBlock>
 
-## Connecting Bookshop to Eleventy
+This file houses the configuration for your Bookshop project,
+in this case instructing Bookshop to use the `@bookshop/astro-engine` package for any live component rendering.
 
-To connect Bookshop and Eleventy, install the `@bookshop/eleventy-bookshop` plugin from npm:
+## Connecting Bookshop to Astro
+
+To connect Bookshop and Astro, install the `@bookshop/astro-bookshop` integration from npm:
 
 <comp.Tabs label="Package Managers">
  <comp.Tab name="npm">
     <comp.CodeBlock language="bash" source="Command line">
     ```
-    npm i --save-exact @bookshop/eleventy-bookshop
+    npm i --save-exact @bookshop/astro-bookshop
     ```
     </comp.CodeBlock>
  </comp.Tab>
  <comp.Tab name="Yarn">
     <comp.CodeBlock language="bash" source="Command line">
     ```
-    yarn add --exact @bookshop/eleventy-bookshop
+    yarn add --exact @bookshop/astro-bookshop
     ```
     </comp.CodeBlock>
  </comp.Tab>
 </comp.Tabs>
 
-Within your Eleventy config, import this plugin and specify the path to your Bookshop project.
+Within your Astro config, import this integration and add it to your Astro config.
 
-<comp.CodeBlock language="javascript" source=".eleventy.js">
+<comp.CodeBlock language="astro" source="astro.config.mjs">
 ```
-const pluginBookshop = require("@bookshop/eleventy-bookshop");
+import { defineConfig } from 'astro/config';
+import bookshop from '@bookshop/astro-bookshop';
 
-module.exports = function (eleventyConfig) {
+export default defineConfig({
   // ...
-
-  eleventyConfig.addPlugin(pluginBookshop({
-    bookshopLocations: ["_component-library"], /*1*/ /*2*/
-    pathPrefix: '', /*3*/
-  }));
-
-  // ...
-};
+  integrations: [bookshop()]
+});
 ```
-<comp.Annotation number="1">
-   Make sure that `bookshopLocations` points to the component library you just created, relative to your Eleventy source.
-</comp.Annotation>
-<comp.Annotation number="2">
-   If you specify multiple paths, components will be merged from all sources that exist.
-</comp.Annotation>
-<comp.Annotation number="3">
-   The `pathPrefix` provided must match the `pathPrefix` configured in your `.eleventy.js` configuration.
-
-   If you aren't using `pathPrefix`, this option can be omitted.
-</comp.Annotation>
 </comp.CodeBlock>
 
-Now that Bookshop is installed and your Eleventy site can access it, we can look at creating and using components.
+Now that Bookshop is installed and your Astro site can access it, we can look at creating and using components.

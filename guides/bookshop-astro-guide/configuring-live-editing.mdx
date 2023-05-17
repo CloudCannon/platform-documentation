@@ -21,7 +21,7 @@ To power the live editing experience, Bookshop requires a few extra packages to 
 <comp.CodeBlock language="bash" source="Command line">
 ```
          #1
-npm i -D --save-exact @bookshop/generate @bookshop/browser @bookshop/eleventy-engine
+npm i -D --save-exact @bookshop/generate @bookshop/browser @bookshop/astro-engine
 ```
 <comp.Annotation number="1">
   Bookshop releases all packages on every release, so the version numbers should
@@ -47,14 +47,12 @@ With that in place, any Bookshop components that use data from the front matter 
 
 Additionally, you should notice CloudCannon's Data Bindings have been added around your components, allowing you to click directly on the page and open an editing panel.
 
-As an example, if we have a component that pulls from front matter:
-
-<comp.CodeBlock language="liquid" source="about.html">
+As an example, if we have a markdown page with front matter:
+<comp.CodeBlock language="markdown" source="src/pages/about.md">
 ```
 ---
 title: About
-layout: base.liquid
-permalink: /about/
+layout: ../layouts/base.astro
 hero_component:
   title: On a mission to change email marketing
   description: We're here to breathe new air into email marketing and help grow your business.
@@ -62,9 +60,19 @@ hero_component:
     text: "Try This Free"
     link: "/signup"
 ---
+```
+</comp.CodeBlock>
 
-{% bookshop "about/hero" bind: hero_component %}
+And a layout which use that frontmatter to render a component:
+<comp.CodeBlock language="astro" source="src/layouts/base.astro">
+```
+---
+import AboutHero from '../components/about/hero.astro'
 
+const { frontmatter } = Astro.props;
+---
+
+<AboutHero bookshop:live {...frontmatter.hero_component}>
 ```
 </comp.CodeBlock>
 
