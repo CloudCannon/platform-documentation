@@ -148,6 +148,8 @@ function appendTargetBlank(page, el) {
 const commentAnnotationRegex = /^\/\*\s*(\d+|\*)\s*\*\/$|^(?:\/\/|#)\s*(\d+|\*)\s*|^<!--\s*(\d+|\*)\s*-->$/;
 const tokenAnnotationRegex = /___(\d+|\*)___/g;
 const annotateCodeBlocks = (page) => {
+    // Comment tokens for standard code blocks, annotations
+    // are inserted for syntax comments containing only digits
     page.document?.querySelectorAll('.token.comment').forEach((commentEl) => {
         if (!commentAnnotationRegex.test(commentEl.innerText)) return;
 
