@@ -58,15 +58,43 @@ These are the parsers that a snippet can use:
 <comp.DataReference>
  <comp.DataReferenceRow label="argument" type_markdown="">
    Parses a single argument, optionally delimited by characters. Useful for matching a single positional argument.
+
+   <comp.CodeBlock language="markdown" frameless={true}>
+    ```
+    {{<figure image.png>}}
+              └───────┘
+    ```
+    </comp.CodeBlock>
  </comp.DataReferenceRow>
  <comp.DataReferenceRow label="argument_list" type_markdown="">
    Parses a list of positional arguments based on their position.
+
+   <comp.CodeBlock language="markdown" frameless={true}>
+    ```
+    {{<figure "image.png" "My image title">}}
+              └──────────────────────────┘
+    ```
+    </comp.CodeBlock>
  </comp.DataReferenceRow>
  <comp.DataReferenceRow label="key_values" type_markdown="">
-   Parses repeating pairs or keys and values. Useful for most SSG snippets that take properties.
+   Parses repeating pairs of keys and values. Useful for most SSG snippets that take properties.
+
+   <comp.CodeBlock language="liquid" frameless={true}>
+    ```
+    {% include "image.html" image: "tree.png" alt: "Image of a tree" %}
+                            └──────────────────────────────────────┘
+    ```
+    </comp.CodeBlock>
  </comp.DataReferenceRow>
  <comp.DataReferenceRow label="content" type_markdown="">
    Parses rich multiline content, such as the content between paired tags. Can be configured to parse nested snippets within.
+
+   <comp.CodeBlock language="liquid" frameless={true}>
+    ```
+    {% highlight "js" %} let a = b; {% endhighlight %}
+                        └──────────┘
+    ```
+    </comp.CodeBlock>
  </comp.DataReferenceRow>
  <comp.DataReferenceRow label="literal" type_markdown="">
    Parses an exact literal value. Mainly useful when configuring a snippet template.
@@ -299,68 +327,79 @@ This parser matches a list of positional arguments and parses each using a diffe
 Instead of taking a single `model` object, this parser takes an array of `model` objects.
 Each `model` object is an [argument parser](#argument-parser), but they all share one `format` object.
 
-Continuing with our `video` snippet shown above, we might add the ability to add a custom title as an optional second positional argument:
+<comp.Example>
+  Continuing with our `video` snippet shown above, we might add the ability to add a custom title as an optional second positional argument:
 
-<comp.CodeBlock language="markdown" source="page.md">
-```
-## My blog post
+  <comp.CodeBlock language="markdown" source="page.md">
+  ```
+  ## My blog post
 
-<<video "riXoAr6gO-E">>
+  <<video "riXoAr6gO-E">>
 
-<<video "CZcNgDN81Sw" "Whiteboard the Web and Astro with Ben Holmes">>
+  <<video "CZcNgDN81Sw" "Whiteboard the Web and Astro with Ben Holmes">>
 
-Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
-```
-</comp.CodeBlock>
+  Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
+  ```
+  </comp.CodeBlock>
 
-<comp.MultiCodeBlock language="yaml" translate_into={["json", "javascript"]} source="cloudcannon.config.yml">
-```
-_snippets:
-  video:
-    snippet: "<<video [[arguments]]>>"
-    params:
-      arguments:
-        parser: "argument_list"
-        options:
-          models: [{ editor_key: "video_id" }, { editor_key: "video_title", optional: true }]
-          format: { string_boundary: ['"'] }
-```
-</comp.MultiCodeBlock>
+  <comp.MultiCodeBlock language="yaml" translate_into={["json", "javascript"]} source="cloudcannon.config.yml">
+  ```
+  _snippets:
+    video:
+      snippet: "<<video [[arguments]]>>"
+      params:
+        arguments:
+          parser: "argument_list"
+          options:
+            models: [{ editor_key: "video_id" }, { editor_key: "video_title", optional: true }]
+            format: { string_boundary: ['"'] }
+  ```
+  </comp.MultiCodeBlock>
 
-<comp.Notice info_type="info">
-  Since the title might contain whitespace, we're now setting a string boundary of `"` to capture each argument as intended.
-</comp.Notice>
+  <comp.Notice info_type="info">
+    Since the title might contain whitespace, we're now setting a string boundary of `"` to capture each argument as intended.
+  </comp.Notice>
+</comp.Example>
 
 ### Content parser
 
-`model`:
+The content parser is used to extract a block of content, optionally spread across multiple lines.
+
+Usually this parser will be used to parse the content between paired start and end tags in a templating language.
+
 <comp.DataReference>
  <comp.DataReferenceRow label="editor_key" type_markdown="string">
-    ...
+    Specifies the key that a user in CloudCannon will see when editing this value.
+    This key will also be used if you want to specify any input configuration using `_inputs`.
  </comp.DataReferenceRow>
  <comp.DataReferenceRow label="indented_by" type_markdown="string">
-    ...
+    A string value that the content parser will require when parsing. 
+    Often used when a snippet continues for as long as content is indented.
+
+    If you want parsing to be flexible, but the output to be formatted, use the Style options instead.
  </comp.DataReferenceRow>
  <comp.DataReferenceRow label="trim_text" type_markdown="boolean">
-    ...
+    If true, all whitespace and newlines will be trimmed from the start and end of the content 
+    before it is presented to an editor in CloudCannon.
  </comp.DataReferenceRow>
  <comp.DataReferenceRow label="allow_nested" type_markdown="boolean">
-    ...
+    If set, nested snippets will be parsed and returned.
  </comp.DataReferenceRow>
  <comp.DataReferenceRow label="raw" type_markdown="boolean">
-    ...
+    TODO
  </comp.DataReferenceRow>
  <comp.DataReferenceRow label="forbidden_tokens" type_markdown="array of strings">
-    ...
+    Stops parsing content as soon as one of these tokens is encountered. 
+    Useful when the content parser is being greedy and consuming more input than intended.
  </comp.DataReferenceRow>
  <comp.DataReferenceRow label="optional" type_markdown="boolean">
-    ...
+    Whether content is required for this snippet to match.
  </comp.DataReferenceRow>
  <comp.DataReferenceRow label="allow_leading" type_markdown="boolean">
-    ...
+    TODO
  </comp.DataReferenceRow>
- <comp.DataReferenceRow label="style" type_markdown="style object">
-    ...
+ <comp.DataReferenceRow label="style" type_markdown="Style options">
+    A style object to control how content is parsed and stringified, to produce cleaner source code.
  </comp.DataReferenceRow>
 </comp.DataReference>
 
@@ -371,19 +410,23 @@ _snippets:
 `models` is an array of
 <comp.DataReference>
  <comp.DataReferenceRow label="source_key" type_markdown="string">
-    ...
+    Specifies the key that the parser should look for in the source text.
  </comp.DataReferenceRow>
  <comp.DataReferenceRow label="editor_key" type_markdown="string">
-    ...
+    Specifies the key that a user in CloudCannon will see when editing this value.
+    This key will also be used if you want to specify any input configuration using `_inputs`.
+
+    If not set, the `source_key` will be used, so specifying both isn't required.
  </comp.DataReferenceRow>
  <comp.DataReferenceRow label="default" type_markdown="string">
-    ...
+    The default value for this argument, which is used when adding a new snippet to a page in CloudCannon.
  </comp.DataReferenceRow>
  <comp.DataReferenceRow label="optional" type_markdown="boolean">
-    ...
+    Whether a value must exist for this parser. Useful for long sets of key-value pairs that are not all required.
  </comp.DataReferenceRow>
  <comp.DataReferenceRow label="remove_empty" type_markdown="boolean">
-    ...
+    Whether this key-value pair should be omitted altogether if the value is empty.
+    Requires that this key is also set as optional, as otherwise the snippet would not re-parse.
  </comp.DataReferenceRow>
 </comp.DataReference>
 
@@ -393,7 +436,7 @@ _snippets:
 `direct:`
 <comp.DataReference>
  <comp.DataReferenceRow label="literal" type_markdown="string">
-    ...
+    The exact litreal string that should be matched.
  </comp.DataReferenceRow>
 </comp.DataReference>
 
@@ -409,7 +452,7 @@ _snippets:
     ...
  </comp.DataReferenceRow>
  <comp.DataReferenceRow label="default" type_markdown="number">
-    ...
+    The default value for this argument, which is used when adding a new snippet to a page in CloudCannon.
  </comp.DataReferenceRow>
  <comp.DataReferenceRow label="minimum" type_markdown="number">
     ...
