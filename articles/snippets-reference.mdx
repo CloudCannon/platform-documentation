@@ -1,0 +1,532 @@
+---
+_uuid: "b04875a8-1b36-47d1-b4fa-0617c89be522"
+_created_at: "2022-10-27 02:00:59 +0000"
+title: "Snippets Reference"
+nav_title: "Snippets Reference"
+published: true
+image: "/documentation/static/CloudCannonDocumentationog.jpg"
+description: "The full set of options available when configuring low-level snippets for CloudCannon."
+tags: ["content editor","snippets"]
+related_articles: ["/articles/introducing-the-content-editor"]
+related_links: null
+---
+
+In some cases, you might want to configure a snippet that is more complicated than the snippet templates provided for your SSG allow.
+Alternatively, you might be working with a syntax that CloudCannon doesn't provide templates for, and you want to create your own snippet templates.
+In these cases, CloudCannon's underlying snippet parser can be configured directly. 
+
+Configuring snippets directly is more complicated than using snippet templates, but unlocks significantly more potential.
+
+## Snippet syntax
+
+Custom snippets are configured under the `_snippets` key, but provide a `snippet` string rather than a `template`. 
+If we were wanting to configure a custom snippet that matched bash variables like `$HOME` or `$PATH`, we might use the following config:
+
+<comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="cloudcannon.config.yml">
+```
+_snippets:
+  variable:
+    snippet: "$[[var_name]]"
+    params:
+      var_name:
+        parser: "argument"
+        options:
+          model:
+            editor_key: variable
+          format:
+            string_boundary: [""]
+```
+</comp.MultiCodeBlock>
+
+The `snippet` string contains the text to match for your snippet, with any dynamic sections represented using a placeholder in double square brackets.
+In this example of `$[[var_name]]`, the `$` will match a literal `$` character, and the `[[var_name]]` will use a specified parser.
+
+For each placeholder, a matching key should be supplied inside the `params` object. Here, `[[var_name]]` maps to `params.var_name`.
+
+Each param needs to specify a `parser` from the list of supported parsers. Each parser then requires a certain set of `options` unique to that parser.
+In this case, we want to use the `argument` parser to grab a single value following a `$` character, and by using an empty `string_boundary`
+we can match `$HOME` rather than `$"HOME"`.
+
+
+## Parsers
+
+These are the parsers that a snippet can use:
+
+<comp.DataReference>
+ <comp.DataReferenceRow label="argument" type_markdown="">
+   Parses a single argument, optionally delimited by characters. Useful for matching a single positional argument.
+ </comp.DataReferenceRow>
+ <comp.DataReferenceRow label="argument_list" type_markdown="">
+   Parses a list of positional arguments based on their position.
+ </comp.DataReferenceRow>
+ <comp.DataReferenceRow label="key_values" type_markdown="">
+   Parses repeating pairs or keys and values. Useful for most SSG snippets that take properties.
+ </comp.DataReferenceRow>
+ <comp.DataReferenceRow label="content" type_markdown="">
+   Parses rich multiline content, such as the content between paired tags. Can be configured to parse nested snippets within.
+ </comp.DataReferenceRow>
+ <comp.DataReferenceRow label="literal" type_markdown="">
+   Parses an exact literal value. Mainly useful when configuring a snippet template.
+ </comp.DataReferenceRow>
+ <comp.DataReferenceRow label="repeating_literal" type_markdown="">
+   Parses a repeating set of exact literal values. 
+ </comp.DataReferenceRow>
+ <comp.DataReferenceRow label="optional" type_markdown="">
+    Higher-order parser that wraps a snippet string and makes it optional
+ </comp.DataReferenceRow>
+ <comp.DataReferenceRow label="repeating" type_markdown="">
+    Higher-order parser that wraps a snippet string and allows it to repeat
+ </comp.DataReferenceRow>
+</comp.DataReference>
+
+### Argument parser
+
+Parses a single argument, optionally delimited by characters. Useful for matching a single positional argument.
+
+<comp.Example>
+  To illustrate the argument parser, we'll look at a custom `video` snippet that takes a single named argument:
+
+  <comp.CodeBlock language="markdown" source="page.md">
+  ```
+  ## My blog post
+
+  <<video CZcNgDN81Sw>>
+
+  Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
+  ```
+  </comp.CodeBlock>
+
+  <comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="cloudcannon.config.yml">
+  ```
+  _snippets:
+    video:
+      snippet: "<<video [[video_arg]]>>"
+      params:
+        video_arg:
+          parser: "argument"
+          options:
+            model:
+              editor_key: video_id
+  ```
+  </comp.MultiCodeBlock>
+</comp.Example>
+
+#### Model Options
+<comp.DataReference>
+ <comp.DataReferenceRow label="editor_key" type_markdown="string">
+    Specifies the key that a user in CloudCannon will see when editing this value.
+    This key will also be used if you want to specify any input configuration using `_inputs`.
+
+    <comp.Example>
+      <comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="cloudcannon.config.yml">
+      ```
+      parser: "argument"
+      options:
+        model:
+          editor_key: video_id
+      ```
+      </comp.MultiCodeBlock>
+
+      {/* TODO: Screenshot of data panel */}
+    </comp.Example>
+
+ </comp.DataReferenceRow>
+ <comp.DataReferenceRow label="allowed_values" type_markdown="array of strings">
+   A list of valid values for the parser. If specified, values not in the provided list will cause this snippet to be skipped,
+   and a different snippet will be matched if possible. 
+   A user entering a different value while editing this snippet will cause it to error, so this option is
+   best paired with a select input configured on the `editor_key`.
+
+    <comp.Example>
+      <comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="cloudcannon.config.yml">
+      ```
+      parser: "argument"
+      options:
+        model:
+          editor_key: video_id
+          allowed_values: ["riXoAr6gO-E", "CZcNgDN81Sw", "0iwNjcFIHNM"]
+      ```
+      </comp.MultiCodeBlock>
+
+      Example usage:
+
+      <comp.CodeBlock language="markdown" source="page.md">
+      ```
+      ## My blog post
+
+      <<video CZcNgDN81Sw>> <!--1-->
+
+      <<video riXoAr6gO-E>> <!--1-->
+
+      <<video RuvMHkfOpvg>> <!--2-->
+
+      Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
+      ```
+      <comp.Annotation number="1">
+        These IDs match a value in `allowed_values`, thus will be shown as a `video` snippet
+      </comp.Annotation>
+      <comp.Annotation number="2">
+        This ID is not present in `allowed_values` and will not parse as a `video` snippet.
+        It may still parse as another snippet, or will remain as plaintext.
+      </comp.Annotation>
+      </comp.CodeBlock>
+    </comp.Example>
+
+ </comp.DataReferenceRow>
+ <comp.DataReferenceRow label="default" type_markdown="string">
+   The default value for this argument, which is used when adding a new snippet to a page in CloudCannon.
+
+    <comp.Example>
+      <comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="cloudcannon.config.yml">
+      ```
+      parser: "argument"
+      options:
+        model:
+          editor_key: video_id
+          default: "riXoAr6gO-E"
+      ```
+      </comp.MultiCodeBlock>
+    </comp.Example>
+
+    With this config, adding a new `video` snippet to a page in CloudCannon will instantiate it as `<<video riXoAr6gO-E>>`.
+ </comp.DataReferenceRow>
+ <comp.DataReferenceRow label="implied_boolean" type_markdown="boolean">
+   If `implied_boolean` is set to `true`, then any value in this argument will alias to `true`, and an empty value will alias
+   to `false`.
+
+    <comp.Example>
+      <comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="cloudcannon.config.yml">
+      ```
+      parser: "argument"
+      options:
+        model:
+          editor_key: has_video_id
+          implied_boolean: true
+      ```
+      </comp.MultiCodeBlock>
+
+      With this config the video ID itself will not be used. The editor will instead see a checkbox named `has_video_id`
+      representing the presence of the argument. Unchecking and rechecking this checkbox will result in `<<video true>>`,
+      so this option is not very useful for our video snippet example.
+    </comp.Example>
+ </comp.DataReferenceRow>
+ <comp.DataReferenceRow label="optional" type_markdown="boolean">
+   Whether a value must exist for this parser. Useful for a snippet that takes zero or one positional arguments.
+
+    <comp.Example>
+      <comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="cloudcannon.config.yml">
+      ```
+      parser: "argument"
+      options:
+        model:
+          editor_key: video_id
+          optional: true
+      ```
+      </comp.MultiCodeBlock>
+
+      With this config, both of the following snippet examples will parse:
+
+      <comp.CodeBlock language="markdown" source="page.md">
+      ```
+      ## My blog post
+
+      <<video CZcNgDN81Sw>>
+
+      <<video>>
+
+      Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
+      ```
+      </comp.CodeBlock>
+    </comp.Example>
+
+ </comp.DataReferenceRow>
+ <comp.DataReferenceRow label="remove_empty" type_markdown="boolean">
+   If `true`, the output of this parser will be omitted entirely if the value is empty, rather than saving an empty value such as `""`.
+   In most cases, you will want to make sure to set `optional: true` so that the output is able to be parsed again.
+
+    <comp.Example>
+      <comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="cloudcannon.config.yml">
+      ```
+      parser: "argument"
+      options:
+        model:
+          editor_key: video_id
+          remove_empty: true
+      ```
+      </comp.MultiCodeBlock>
+
+      In cases where you have a string boundary set, with this config saving a snippet with an 
+      empty `video_id` value will save it as `<<video>>` rather than `<<video "">>` or `<<video ''>>`.
+    </comp.Example>
+
+ </comp.DataReferenceRow>
+</comp.DataReference>
+
+#### Format Options
+
+`format` should be an object containing keys from the available Format keys. 
+
+<comp.Example>
+  A common option to configure for the
+  argument parser is the `string_boundary`:
+
+  <comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="cloudcannon.config.yml">
+  ```
+  _snippets:
+    video:
+      snippet: "<<video [[video_arg]]>>"
+      params:
+        video_arg:
+          parser: "argument"
+          options:
+            model:
+              editor_key: video_id
+            format:
+              string_boundary: ['"', "'"]
+  ```
+  </comp.MultiCodeBlock>
+
+  This would make our snippet match `<<video "CZcNgDN81Sw">>` or `<<video 'CZcNgDN81Sw'>>` but not `<<video CZcNgDN81Sw>>`.
+</comp.Example>
+
+### Argument List parser
+
+This parser matches a list of positional arguments and parses each using a different model.
+
+Instead of taking a single `model` object, this parser takes an array of `model` objects.
+Each `model` object is an [argument parser](#argument-parser), but they all share one `format` object.
+
+Continuing with our `video` snippet shown above, we might add the ability to add a custom title as an optional second positional argument:
+
+<comp.CodeBlock language="markdown" source="page.md">
+```
+## My blog post
+
+<<video "riXoAr6gO-E">>
+
+<<video "CZcNgDN81Sw" "Whiteboard the Web and Astro with Ben Holmes">>
+
+Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
+```
+</comp.CodeBlock>
+
+<comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="cloudcannon.config.yml">
+```
+_snippets:
+  video:
+    snippet: "<<video [[arguments]]>>"
+    params:
+      arguments:
+        parser: "argument_list"
+        options:
+          models: [{ editor_key: "video_id" }, { editor_key: "video_title", optional: true }]
+          format: { string_boundary: ['"'] }
+```
+</comp.MultiCodeBlock>
+
+<comp.Notice info_type="info">
+  Since the title might contain whitespace, we're now setting a string boundary of `"` to capture each argument as intended.
+</comp.Notice>
+
+### Content parser
+
+`model`:
+<comp.DataReference>
+ <comp.DataReferenceRow label="editor_key" type_markdown="string">
+    ...
+ </comp.DataReferenceRow>
+ <comp.DataReferenceRow label="indented_by" type_markdown="string">
+    ...
+ </comp.DataReferenceRow>
+ <comp.DataReferenceRow label="trim_text" type_markdown="boolean">
+    ...
+ </comp.DataReferenceRow>
+ <comp.DataReferenceRow label="allow_nested" type_markdown="boolean">
+    ...
+ </comp.DataReferenceRow>
+ <comp.DataReferenceRow label="raw" type_markdown="boolean">
+    ...
+ </comp.DataReferenceRow>
+ <comp.DataReferenceRow label="forbidden_tokens" type_markdown="array of strings">
+    ...
+ </comp.DataReferenceRow>
+ <comp.DataReferenceRow label="optional" type_markdown="boolean">
+    ...
+ </comp.DataReferenceRow>
+ <comp.DataReferenceRow label="allow_leading" type_markdown="boolean">
+    ...
+ </comp.DataReferenceRow>
+ <comp.DataReferenceRow label="style" type_markdown="style object">
+    ...
+ </comp.DataReferenceRow>
+</comp.DataReference>
+
+
+
+### Key values parser
+
+`models` is an array of
+<comp.DataReference>
+ <comp.DataReferenceRow label="source_key" type_markdown="string">
+    ...
+ </comp.DataReferenceRow>
+ <comp.DataReferenceRow label="editor_key" type_markdown="string">
+    ...
+ </comp.DataReferenceRow>
+ <comp.DataReferenceRow label="default" type_markdown="string">
+    ...
+ </comp.DataReferenceRow>
+ <comp.DataReferenceRow label="optional" type_markdown="boolean">
+    ...
+ </comp.DataReferenceRow>
+ <comp.DataReferenceRow label="remove_empty" type_markdown="boolean">
+    ...
+ </comp.DataReferenceRow>
+</comp.DataReference>
+
+
+### Literal parser
+
+`direct:`
+<comp.DataReference>
+ <comp.DataReferenceRow label="literal" type_markdown="string">
+    ...
+ </comp.DataReferenceRow>
+</comp.DataReference>
+
+
+### Repeating literal parser
+
+
+<comp.DataReference>
+ <comp.DataReferenceRow label="literal" type_markdown="string">
+    ...
+ </comp.DataReferenceRow>
+ <comp.DataReferenceRow label="editor_key" type_markdown="string">
+    ...
+ </comp.DataReferenceRow>
+ <comp.DataReferenceRow label="default" type_markdown="number">
+    ...
+ </comp.DataReferenceRow>
+ <comp.DataReferenceRow label="minimum" type_markdown="number">
+    ...
+ </comp.DataReferenceRow>
+</comp.DataReference>
+
+### Optional parser
+
+<comp.DataReference>
+ <comp.DataReferenceRow label="snippet" type_markdown="string">
+    ...
+ </comp.DataReferenceRow>
+ <comp.DataReferenceRow label="remove_empty" type_markdown="boolean">
+    ...
+ </comp.DataReferenceRow>
+</comp.DataReference>
+
+
+### Repeating parser
+
+
+
+<comp.DataReference>
+ <comp.DataReferenceRow label="snippet" type_markdown="string">
+    ...
+ </comp.DataReferenceRow>
+ <comp.DataReferenceRow label="editor_key" type_markdown="string">
+    ...
+ </comp.DataReferenceRow>
+ <comp.DataReferenceRow label="output_delimiter" type_markdown="string">
+    ...
+ </comp.DataReferenceRow>
+ <comp.DataReferenceRow label="default_length" type_markdown="number">
+    ...
+ </comp.DataReferenceRow>
+ <comp.DataReferenceRow label="optional" type_markdown="boolean">
+    ...
+ </comp.DataReferenceRow>
+ <comp.DataReferenceRow label="style" type_markdown="style option">
+    ...
+ </comp.DataReferenceRow>
+</comp.DataReference>
+
+## Format
+
+
+<comp.DataReference>
+ <comp.DataReferenceRow label="root_boundary" type_markdown="...">
+    ...
+ </comp.DataReferenceRow>
+ <comp.DataReferenceRow label="root_value_delimiter" type_markdown="...">
+    ...
+ </comp.DataReferenceRow>
+ <comp.DataReferenceRow label="root_value_boundary" type_markdown="...">
+    ...
+ </comp.DataReferenceRow>
+ <comp.DataReferenceRow label="root_value_boundary_optional" type_markdown="...">
+    ...
+ </comp.DataReferenceRow>
+ <comp.DataReferenceRow label="root_pair_delimiter" type_markdown="...">
+    ...
+ </comp.DataReferenceRow>
+ <comp.DataReferenceRow label="string_boundary" type_markdown="...">
+    ...
+ </comp.DataReferenceRow>
+ <comp.DataReferenceRow label="string_escape_character" type_markdown="...">
+    ...
+ </comp.DataReferenceRow>
+ <comp.DataReferenceRow label="remove_empty_root_boundary" type_markdown="...">
+    ...
+ </comp.DataReferenceRow>
+ <comp.DataReferenceRow label="object_boundary" type_markdown="...">
+    ...
+ </comp.DataReferenceRow>
+ <comp.DataReferenceRow label="object_value_delimiter" type_markdown="...">
+    ...
+ </comp.DataReferenceRow>
+ <comp.DataReferenceRow label="object_pair_delimiter" type_markdown="...">
+    ...
+ </comp.DataReferenceRow>
+ <comp.DataReferenceRow label="array_boundary" type_markdown="...">
+    ...
+ </comp.DataReferenceRow>
+ <comp.DataReferenceRow label="array_delimiter" type_markdown="...">
+    ...
+ </comp.DataReferenceRow>
+ <comp.DataReferenceRow label="forbidden_tokens" type_markdown="...">
+    ...
+ </comp.DataReferenceRow>
+ <comp.DataReferenceRow label="allow_booleans" type_markdown="...">
+    ...
+ </comp.DataReferenceRow>
+ <comp.DataReferenceRow label="allow_numbers" type_markdown="...">
+    ...
+ </comp.DataReferenceRow>
+ <comp.DataReferenceRow label="allow_implied_values" type_markdown="...">
+    ...
+ </comp.DataReferenceRow>
+</comp.DataReference>
+
+
+## Style
+
+<comp.DataReference>
+ <comp.DataReferenceRow label="output" type_markdown="string">
+    ...
+ </comp.DataReferenceRow>
+ <comp.DataReferenceRow label="inline.leading" type_markdown="string">
+    ...
+ </comp.DataReferenceRow>
+ <comp.DataReferenceRow label="inline.trailing" type_markdown="string">
+    ...
+ </comp.DataReferenceRow>
+ <comp.DataReferenceRow label="block.leading" type_markdown="string">
+    ...
+ </comp.DataReferenceRow>
+ <comp.DataReferenceRow label="block.trailing" type_markdown="string">
+    ...
+ </comp.DataReferenceRow>
+ <comp.DataReferenceRow label="block.indent" type_markdown="string">
+    ...
+ </comp.DataReferenceRow>
+</comp.DataReference>
