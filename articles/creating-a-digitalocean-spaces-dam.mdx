@@ -8,12 +8,12 @@ image: "/documentation/static/CloudCannonDocumentationog.jpg"
 description: Set up a DAM with DigitalOcean Spaces and link it to your CloudCannon Organization
 tags: []
 related_articles: ["integrating-your-dam-with-cloudcannon"]
-related_links: [{"name":"DigitalOcean Spaces","url":"https://www.digitalocean.com/products/spaces"}]
+related_links: [{"name":"DigitalOcean Spaces","url":"https://www.digitalocean.com/products/spaces"}, {"name":"AWS CLI","url":"https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html"}]
 ---
 
 [DigitalOcean Spaces](https://www.digitalocean.com/products/spaces) is a scalable, performant data storage service, built of top of Amazon's S3 service.
 
-Below is a step-by-step guide for getting set up with DigitalOcean Spaces and connecting it to CloudCannon.
+Below is a step-by-step guide for getting set up with DigitalOcean Spaces and connecting it to CloudCannon. Note that one step in this guide requires the use of a command-line interface.
 
 ### Create your Spaces bucket
 
@@ -23,9 +23,6 @@ Click the "Create Spaces Bucket" button. Choose a datacenter region close to you
 
 <comp.DocsImage path="ye_olde_images/digitalocean-spaces-create-bucket.png" alt="Screenshot of the bucket creation menu in DigitalOcean" type="screenshot" />
 
-### Make your bucket items public
-
-# TODO
 
 ### Configure CORS policies
 
@@ -43,6 +40,48 @@ Click "Generate New Key" and type any name to create the key. Save the secret to
 
 <comp.DocsImage path="ye_olde_images/digitalocean-spaces-access-key.png" alt="Screenshot of the menu in DigitalOcean for creating API keys" type="screenshot" />
 
+### Make your bucket items public
+
+By default, all the objects in your DigitalOcean Spaces bucket are private, and cannot be viewed without authentication. You will need to make them public, so that they can be viewed on your site and within CloudCannon. You can configure the permissions on each object separately within DigitalOcean, but ideally we want to make all objects in the bucket public default.
+
+DigitalOcean Spaces is built on top of Amazon's S3 service, so you can use the AWS CLI to make changes to your bucket policy. [See the AWS guide for installing the CLI here](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html).
+
+First, make a file called `policy.json` with the following contents, substituting `<YOUR-BUCKET-NAME>` with the name of your bucket. This policy will allow public read access for all objects within your bucket.
+
+<comp.CodeBlock language="json" source="policy.json">
+```
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "PublicReadGetObject",
+            "Effect": "Allow",
+            "Principal": "*",
+            "Action": [
+                "s3:GetObject"
+            ],
+            "Resource": [
+                "arn:aws:s3:::<YOUR-BUCKET-NAME>/*"
+            ]
+        }
+    ]
+}
+```
+</comp.CodeBlock>
+
+Now run this command in your terminal, using the `aws` command line tool. Again, you will need to substitute the angle-bracketed placeholders with data from DigitalOcean.
+
+<comp.CodeBlock language="bash">
+```
+AWS_ACCESS_KEY_ID=<YOUR-API-TOKEN-KEY> \
+AWS_SECRET_ACCESS_KEY=<YOUR-API-TOKEN-SECRET> \
+aws s3api put-bucket-policy \
+    --bucket=<YOUR-BUCKET-NAME> \
+    --policy=file://./policy.json \
+    --endpoint-url=<YOUR-BUCKET-ENDPOINT>
+```
+</comp.CodeBlock>
+
 ### Connect your DAM to CloudCannon
 
 You should now have everything you need to connect CloudCannon with your R2 DAM.
@@ -55,8 +94,8 @@ Fill out the form as follows, then click "Authenticate" to finish.
 
 * **DAM Provider**: DigitalOcean Spaces
 * **Name**: This is the name you will see for your DAM in CloudCannon.
-* **Base URL**: TODO
-* **Endpoint**: you can find the origin endpoint in the bucket's settings in DigitalOcean.
+* **Base URL**: copy the "origin endpoint" in the bucket's settings in DigitalOcean. This should look something like `https://bucket-name.reg1.digitaloceanspaces.com`
 * **Region**: a 4-character code representing the your bucket's region. You can find this in the middle of the bucket's origin endpoint.
+* **Endpoint**: this is the same as Base URL, but with the bucket name removed from the front (e.g. `https://reg1.digitaloceanspaces.com`)
 * **Access Key**: the key name for the secret you generated earlier.
 * **Access Secret**: the secret token you generated earlier.
