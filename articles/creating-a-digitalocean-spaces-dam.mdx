@@ -1,0 +1,62 @@
+---
+_uuid: "d17bf9af-c93b-49b8-855f-1d696046a35f"
+_created_at: "2023-05-23 06:31:41 +0000"
+title: "Creating a DigitalOcean Spaces DAM"
+nav_title: "DigitalOcean DAM"
+published: true
+image: "/documentation/static/CloudCannonDocumentationog.jpg"
+description: Set up a DAM with DigitalOcean Spaces and link it to your CloudCannon Organization
+tags: []
+related_articles: ["integrating-your-dam-with-cloudcannon"]
+related_links: [{"name":"DigitalOcean Spaces","url":"https://www.digitalocean.com/products/spaces"}]
+---
+
+[DigitalOcean Spaces](https://www.digitalocean.com/products/spaces) is a scalable, performant data storage service, built of top of Amazon's S3 service.
+
+Below is a step-by-step guide for getting set up with DigitalOcean Spaces and connecting it to CloudCannon.
+
+### Create your Spaces bucket
+
+[Sign in to your DigitalOcean account](https://cloud.digitalocean.com/), and navigate to "Spaces" using the sidebar.
+
+Click the "Create Spaces Bucket" button. Choose a datacenter region close to your users and enter a unique name for your bucket. Finally, click "Create a Spaces Bucket" to finish.
+
+<comp.DocsImage path="ye_olde_images/digitalocean-spaces-create-bucket.png" alt="Screenshot of the bucket creation menu in DigitalOcean" type="screenshot" />
+
+### Make your bucket items public
+
+# TODO
+
+### Configure CORS policies
+
+You will need to configure your CORS policies to allow CloudCannon to interact with your bucket. In the Settings tab for your bucket in DigitalOcean, click the Add button next to "CORS Configurations" to add a new policy.
+
+Minimally, you need to allow the GET and PUT methods, and the Content-Type header for https://app.cloudcannon.com.
+
+<comp.DocsImage path="ye_olde_images/digitalocean-spaces-cors-config.png" alt="Screenshot of the CORS policy editor in DigitalOcean" type="screenshot" />
+
+### Create an API token
+
+You will also need to create an API token to allow CloudCannon to access your bucket. Click on "API" in the sidebar in DigitalOcean, and open the "Spaces Keys" tab.
+
+Click "Generate New Key" and type any name to create the key. Save the secret token somewhere safe, and note down the Key for later.
+
+<comp.DocsImage path="ye_olde_images/digitalocean-spaces-access-key.png" alt="Screenshot of the menu in DigitalOcean for creating API keys" type="screenshot" />
+
+### Connect your DAM to CloudCannon
+
+You should now have everything you need to connect CloudCannon with your R2 DAM.
+
+Navigate to the Assets section of your Organization settings, and use the menu to authenticate a new Cloudflare R2 DAM.
+
+<comp.DocsImage path="ye_olde_images/digitalocean-spaces-cloudcannon-settings.png" alt="Screenshot of the CloudCannon form for authenticating a DigitalOcean DAM" type="screenshot" />
+
+Fill out the form as follows, then click "Authenticate" to finish.
+
+* **DAM Provider**: DigitalOcean Spaces
+* **Name**: This is the name you will see for your DAM in CloudCannon.
+* **Base URL**: TODO
+* **Endpoint**: you can find the origin endpoint in the bucket's settings in DigitalOcean.
+* **Region**: a 4-character code representing the your bucket's region. You can find this in the middle of the bucket's origin endpoint.
+* **Access Key**: the key name for the secret you generated earlier.
+* **Access Secret**: the secret token you generated earlier.
