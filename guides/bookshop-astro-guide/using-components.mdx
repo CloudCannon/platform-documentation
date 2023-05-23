@@ -31,23 +31,23 @@ import Sample from '../components/sample/sample.astro'
 
 This matches the standard syntax for using a component in an Astro file, but with the added `bookshop:live` directive. Bookshop processes components with this directive at build time to set up live visual editing and visual data bindings.
 
-The `bookshop:live` directive can only be used in Astro templates, but there are no limitations on where those templates can be located. For example, you could enable live editing for a component only within a certain layout or parent component. You can also add the `bookshop:live` directive to React components imported in your Astro templates.
+The `bookshop:live` directive can only be used in Astro templates, but there are no limitations on where those templates can be located. For example, you could enable live editing for a component only within a certain layout or parent component. You can also add the `bookshop:live` directive to React components imported in your Astro templates. 
 
-Like other Astro directives, the `bookshop:live` directive must be visible at compile time. For example, the following code would not work:
+Like other Astro directives, the `bookshop:live` directive must be visible at compile time. So if you're using the spread syntax for your component's props, you must add the directive separately from the object being spread otherwise Bookshop will be unable to process that component.
 
-<comp.CodeBlock language="astro" source="src/pages/index.astro">
+An example of using the `bookshop:live` directive with the spread syntax might look like this:
+<comp.CodeBlock language="astro" source="src/pages/page.astro">
 ```
 ---
-import Sample from '../components/sample/sample.astro'
+import Sample from '../components/sample/sample.astro';
 
-const props = {
-  'bookshop:live': true,
-  text: 'Hello from the sample component'
-}
+const props = { /* ... */ };
 ---
-<Sample {...props}/>
+<Sample bookshop:live {...props} />
 ```
 </comp.CodeBlock>
+
+You can find more information on template directives and how to use them at Astro's [template directives reference documentation](https://docs.astro.build/en/reference/directives-reference).
 
 ## Rendering dynamic components
 
