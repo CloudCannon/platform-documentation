@@ -33,7 +33,7 @@ module.exports = {
             path: 'guides',
             output: true,
             icon: 'school',
-            url: '/guides/relative_base_path/[slug]/',
+            url: '/guides/[relative_base_path]/[slug]/',
             parser: 'front-matter'
         },
         changelog: {
