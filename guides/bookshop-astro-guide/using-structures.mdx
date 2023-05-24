@@ -67,7 +67,7 @@ To get things started, we'll focus on the required `spec` and `blueprint` sectio
 
 ## The component spec
 
-The component `spec` controls everything about how a component should be displayed in the CMS and where it can be added to a page. Let's walk through a more fleshed-out `spec` section:
+The component `spec` controls everything about how a component is displayed in the CMS and where it can be added to a page. Let's walk through a more fleshed-out `spec` section:
 
 <comp.CodeBlock language="yaml" source="sample.bookshop.yml">
 ```
@@ -121,7 +121,7 @@ Component blueprints contain some other powerful features for helping create you
 
 The `npx @bookshop/generate` command that we set up when [configuring live editing](/documentation/guides/bookshop-eleventy-guide/configuring-live-editing/) will automatically create Structures from your Bookshop components and make them available to CloudCannon. This process happens as part of your site's build step on CloudCannon.
 
-The Structures to which that your component is assigned will determine where you can add it in CloudCannon. For a `sample` component tagged as:
+The Structures listed in your component's `spec` determine where you can add that component in CloudCannon. For a `sample` component tagged as:
 
 <comp.CodeBlock language="yaml" source="sample.bookshop.yml">
 ```
@@ -141,7 +141,11 @@ content_blocks:
 ```
 </comp.CodeBlock>
 
-CloudCannon will treat `content_blocks` as an array and allow editors to add the `sample` component to it. Structures can also be accessed in CloudCannon using input configuration; if you want to use a different key, you can configure:
+CloudCannon will treat `content_blocks` as an array and allow editors to add the `sample` component to it. 
+
+You can also reference Bookshop generated structures in your CloudCannon input configuration.
+For example, If you wanted to create a `page_components` input in CloudCannon that has
+access to your Bookshop structures, you could configure `page_components` like this:
 
 <comp.CodeBlock language="yml" source="cloudcannon.config.yml">
 ```
@@ -149,20 +153,25 @@ _inputs:
   page_components:
     type: array #1
     options:
-      structures: _structures.content_blocks
+      structures: _structures.content_blocks #2
 ```
 <comp.Annotation number="1">
-  Here you may also specify `type: object`, which will function similarly to an array with a maximum length of one.
+  Here you may also specify `type: object` that will function similarly to an array with a maximum length of one.
   As an object, a single component from the set of Structures can be added or removed.
-</comp.Annotation></comp.CodeBlock>
+</comp.Annotation>
+<comp.Annotation number="2">
+  Bookshop generated structures are available under the `_structures` key. This line sets the components available in
+  the `page_component` input to be all those assigned to the `content_blocks` structure in their Bookshop specification.
+</comp.Annotation>
+</comp.CodeBlock>
 
 ## Supported File Formats
 
-In the examples above, we have been writing the Bookshop configuration files using YAML. This is the recommended format, but if you prefer, you can also choose another.
-
 Bookshop supports reading component files written in `yaml`, `toml`, `json`, and `js`.
+Above, we have been writing the Bookshop configuration files using YAML. 
+This is the recommended format, but if you prefer, you can choose another.
 
 <comp.Notice info_type="info">
   Can't decide? You can always run `npx @bookshop/up --format <format>`
-  to automatically convert all of your files if you change your mind.
+  to automatically convert all of your Bookshop specification files if you change your mind.
 </comp.Notice>
