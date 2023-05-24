@@ -15,5 +15,5 @@ We have also noticed an issue with builds failing for sites using Astro versions
 
 **Fixes:**
 
-* DigiCert is now deprecated as a certificate authority for SSL. Affected users will be sent advice about how to proceed.​​​
+* DigiCert is now deprecated as a certificate authority for SSL. Affected users will be sent advice about how to proceed.
 * Requests to sites with invalid routing rules will now result in informative error pages, instead of generic 500 errors.

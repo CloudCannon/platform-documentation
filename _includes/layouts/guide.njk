@@ -24,10 +24,17 @@ layout: layouts/base.njk
             </div>
             <ol class="t-docs-nav__main-list">
             <li class="t-docs-nav__main-list__item" >
-                <span class="t-docs-nav__main-list__item__heading">In this guide</span>
+                <span class="t-docs-nav__main-list__item__heading">{{ initial_secton_heading | default("In this guide") }}</span>
                 <ol class="t-docs-nav__sub-list">
                     {% set complete_class = 'guide-complete' %}
                     {% for article in articles %}
+
+                    {% if article.data.start_nav_group %}
+                        </ol>
+                        <span class="t-docs-nav__main-list__item__heading">{{ article.data.start_nav_group }}</span>
+                        <ol class="t-docs-nav__sub-list">
+                    {% endif %}
+
                     <li>
                         <a class="t-docs-nav__sub-list__article"
                             {% if article.data.url == url %} aria-current="page"{% endif %}
@@ -40,9 +47,7 @@ layout: layouts/base.njk
                             {% set complete_class = '' %}
                             {% set currentIndex = loop.index0 %}
                         {% endif %}
-                        {% if not loop.last %}
-                            <span class="t-docs-nav__sub-list__connector {{ complete_class }}"></span>
-                        {% endif %}
+                        <span class="t-docs-nav__sub-list__connector {{ complete_class }}"></span>
                     </li>
                     {% endfor %}
                 </ol>
