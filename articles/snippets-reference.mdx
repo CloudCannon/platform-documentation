@@ -367,16 +367,159 @@ The content parser is used to extract a block of content, optionally spread acro
 
 Usually this parser will be used to parse the content between paired start and end tags in a templating language.
 
+<comp.Example>
+  To illustrate the content parser, we'll look at a custom `highlight` snippet that wraps a block of content:
+
+  <comp.CodeBlock language="markdown" source="page.md">
+  ```
+  ## My blog post
+
+  <<highlight>> My highlighted content! <</highlight>>
+
+  Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
+  ```
+  </comp.CodeBlock>
+
+  <comp.MultiCodeBlock language="yaml" translate_into={["json", "javascript"]} source="cloudcannon.config.yml">
+  ```
+  _snippets:
+    highlight:
+      snippet: "<<highlight>>[[inner]]<</highlight>>"
+      params:
+        inner:
+          parser: "content"
+          options:
+            editor_key: highlighted_text
+  ```
+  </comp.MultiCodeBlock>
+</comp.Example>
+
+
 <comp.DataReference>
  <comp.DataReferenceRow label="editor_key" type_markdown="string">
     Specifies the key that a user in CloudCannon will see when editing this value.
     This key will also be used if you want to specify any input configuration using `_inputs`.
+
+    <comp.Example>
+      <comp.MultiCodeBlock language="yaml" translate_into={["json", "javascript"]} source="cloudcannon.config.yml">
+      ```
+      _snippets:
+        highlight:
+        snippet: "<<highlight>>[[inner]]<</highlight>>"
+        params:
+          inner:
+            parser: "content"
+            options:
+              editor_key: highlighted_text
+        _inputs:
+          highlighted_text:
+            type: markdown
+            comment: Enter the text that should be highlighted
+      ```
+      </comp.MultiCodeBlock>
+
+      With this config, the inner value of out snippet will be editable in CloudCannon
+      using an input named `highlighted_text`, which we have configured as markdown
+      and specified a comment for.
+    </comp.Example>
+
  </comp.DataReferenceRow>
  <comp.DataReferenceRow label="indented_by" type_markdown="string">
     A string value that the content parser will require when parsing. 
     Often used when a snippet continues for as long as content is indented.
 
     If you want parsing to be flexible, but the output to be formatted, use the Style options instead.
+
+    <comp.Example>
+      <comp.MultiCodeBlock language="yaml" translate_into={["json", "javascript"]} source="cloudcannon.config.yml">
+      ```
+      _snippets:
+        highlight:
+          snippet: "<<highlight>>[[inner]]<</highlight>>"
+          params:
+            inner:
+              parser: "content"
+              options:
+                editor_key: highlighted_text
+                indented_by___0___: "  "
+      ```
+      </comp.MultiCodeBlock>
+
+      Example usage:
+
+      <comp.CodeBlock language="markdown" source="page.md">
+      ```
+      ## My blog post
+
+      <<highlight>>
+        My highlighted content!   <!--1-->
+      <</highlight>>
+
+      <<highlight>>
+          My highlighted content! <!--2-->
+      <</highlight>>
+
+      <<highlight>>
+      My highlighted content!     <!--3-->
+      <</highlight>>
+
+      Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
+      ```
+      <comp.Annotation number="1">
+        This will parse correctly as `My highlighted content!`
+      </comp.Annotation>
+      <comp.Annotation number="2">
+        This will strip only the indentation that matches, and return `  My highlighted content!`
+      </comp.Annotation>
+      <comp.Annotation number="2">
+        This will **not** match this parser, as indentation is required.
+        Use the `style.block.indent` option instead.
+      </comp.Annotation>
+      </comp.CodeBlock>
+    </comp.Example>
+
+ </comp.DataReferenceRow>
+ <comp.DataReferenceRow label="allow_leading" type_markdown="boolean">
+    If an `indented_by` value is set, `allow_leading: true` signifies that the _first_
+    line of the content does **not** need to be indented, but subsequent lines do.
+
+    <comp.Example>
+      <comp.MultiCodeBlock language="yaml" translate_into={["json", "javascript"]} source="cloudcannon.config.yml">
+      ```
+      parser: "content"
+      options:
+         editor_key: highlighted_text
+         indented_by: "  "
+         allow_leading: true
+      ```
+      </comp.MultiCodeBlock>
+
+      Example usage:
+
+      <comp.CodeBlock language="markdown" source="page.md">
+      ```
+      ## My blog post
+
+      <<highlight>>
+        My highlighted content!   <!--1-->
+      <</highlight>>
+
+      <<highlight>>Some initial content
+         More highlighted content!   <!--2-->
+      <</highlight>>
+
+      Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
+      ```
+      <comp.Annotation number="1">
+        This will parse correctly as `My highlighted content!`
+      </comp.Annotation>
+      <comp.Annotation number="2">
+        This will also parse correctly, as `Some initial content\nMore highlighted content!`,
+        despite the first line not being indented.
+      </comp.Annotation>
+      </comp.CodeBlock>
+    </comp.Example>
+
  </comp.DataReferenceRow>
  <comp.DataReferenceRow label="trim_text" type_markdown="boolean">
     If true, all whitespace and newlines will be trimmed from the start and end of the content 
@@ -386,7 +529,8 @@ Usually this parser will be used to parse the content between paired start and e
     If set, nested snippets will be parsed and returned.
  </comp.DataReferenceRow>
  <comp.DataReferenceRow label="raw" type_markdown="boolean">
-    TODO
+    A stricter version of `allow_nested: false` that performs no processing of the inner text.
+    Useful to improve the performance of the content parser in some instances.
  </comp.DataReferenceRow>
  <comp.DataReferenceRow label="forbidden_tokens" type_markdown="array of strings">
     Stops parsing content as soon as one of these tokens is encountered. 
@@ -394,9 +538,6 @@ Usually this parser will be used to parse the content between paired start and e
  </comp.DataReferenceRow>
  <comp.DataReferenceRow label="optional" type_markdown="boolean">
     Whether content is required for this snippet to match.
- </comp.DataReferenceRow>
- <comp.DataReferenceRow label="allow_leading" type_markdown="boolean">
-    TODO
  </comp.DataReferenceRow>
  <comp.DataReferenceRow label="style" type_markdown="Style options">
     A style object to control how content is parsed and stringified, to produce cleaner source code.
@@ -436,7 +577,7 @@ Usually this parser will be used to parse the content between paired start and e
 `direct:`
 <comp.DataReference>
  <comp.DataReferenceRow label="literal" type_markdown="string">
-    The exact litreal string that should be matched.
+    The exact literal string that should be matched.
  </comp.DataReferenceRow>
 </comp.DataReference>
 
@@ -446,16 +587,20 @@ Usually this parser will be used to parse the content between paired start and e
 
 <comp.DataReference>
  <comp.DataReferenceRow label="literal" type_markdown="string">
-    ...
+    The exact literal string that should be matched.
+ </comp.DataReferenceRow>
+ <comp.DataReferenceRow label="minimum" type_markdown="number">
+    The minimum number of times that the literal string must occur to match this parser.
+    A good example is a markdown code block, which can open with any number of backticks
+    greater than three.
  </comp.DataReferenceRow>
  <comp.DataReferenceRow label="editor_key" type_markdown="string">
-    ...
+    Specifies a key that a user in CloudCannon will see to edit this value.
+    The value returned by this parser is a number input that can be edited to change how
+    many literals are output by the parser.
  </comp.DataReferenceRow>
  <comp.DataReferenceRow label="default" type_markdown="number">
     The default value for this argument, which is used when adding a new snippet to a page in CloudCannon.
- </comp.DataReferenceRow>
- <comp.DataReferenceRow label="minimum" type_markdown="number">
-    ...
  </comp.DataReferenceRow>
 </comp.DataReference>
 
@@ -463,10 +608,13 @@ Usually this parser will be used to parse the content between paired start and e
 
 <comp.DataReference>
  <comp.DataReferenceRow label="snippet" type_markdown="string">
-    ...
+    A snippet string to wrap and make optional. Uses the same params
+    as the outermost snippet, so may reference itself or other params.
  </comp.DataReferenceRow>
  <comp.DataReferenceRow label="remove_empty" type_markdown="boolean">
-    ...
+    Whether to output an empty string, or no value at all.
+    This will bubble up to any outer parsers, so may control whether they
+    return output.
  </comp.DataReferenceRow>
 </comp.DataReference>
 
@@ -477,22 +625,27 @@ Usually this parser will be used to parse the content between paired start and e
 
 <comp.DataReference>
  <comp.DataReferenceRow label="snippet" type_markdown="string">
-    ...
+    A snippet string to wrap and make optional. Uses the same params
+    as the outermost snippet, so may reference itself or other params.
  </comp.DataReferenceRow>
  <comp.DataReferenceRow label="editor_key" type_markdown="string">
-    ...
+    The key to use when editing the data for this snippet in CloudCannon.
+    This key will become an array of objects, each containing the data for
+    an iteration of the repeated snippet.
  </comp.DataReferenceRow>
  <comp.DataReferenceRow label="output_delimiter" type_markdown="string">
-    ...
+    TODO: Probably hide this value and favor style.between
  </comp.DataReferenceRow>
  <comp.DataReferenceRow label="default_length" type_markdown="number">
-    ...
+    If initializing a new snippet, how many repetitions should be created
+    as a default?
  </comp.DataReferenceRow>
  <comp.DataReferenceRow label="optional" type_markdown="boolean">
-    ...
+    If `false` this parser requires at least one matching value. If `true`,
+    matching zero times is a valid state.
  </comp.DataReferenceRow>
- <comp.DataReferenceRow label="style" type_markdown="style option">
-    ...
+ <comp.DataReferenceRow label="style" type_markdown="Style options">
+    A style object to control how content is parsed and stringified, to produce cleaner source code.
  </comp.DataReferenceRow>
 </comp.DataReference>
 
@@ -503,10 +656,13 @@ Usually this parser will be used to parse the content between paired start and e
  <comp.DataReferenceRow label="root_boundary" type_markdown="...">
     ...
  </comp.DataReferenceRow>
- <comp.DataReferenceRow label="root_value_delimiter" type_markdown="...">
+ <comp.DataReferenceRow label="remove_empty_root_boundary" type_markdown="...">
     ...
  </comp.DataReferenceRow>
  <comp.DataReferenceRow label="root_value_boundary" type_markdown="...">
+    ...
+ </comp.DataReferenceRow>
+ <comp.DataReferenceRow label="root_value_delimiter" type_markdown="...">
     ...
  </comp.DataReferenceRow>
  <comp.DataReferenceRow label="root_value_boundary_optional" type_markdown="...">
@@ -515,41 +671,40 @@ Usually this parser will be used to parse the content between paired start and e
  <comp.DataReferenceRow label="root_pair_delimiter" type_markdown="...">
     ...
  </comp.DataReferenceRow>
- <comp.DataReferenceRow label="string_boundary" type_markdown="...">
-    ...
+ <comp.DataReferenceRow label="string_boundary" type_markdown="array of strings">
+    The valid tokens that can bound a string. The parser will ensure the matched end token
+    is the same as the start token.
  </comp.DataReferenceRow>
- <comp.DataReferenceRow label="string_escape_character" type_markdown="...">
-    ...
+ <comp.DataReferenceRow label="string_escape_character" type_markdown="string">
+    What character can be placed before a string boundary to escape it? (Usually `\`).
  </comp.DataReferenceRow>
- <comp.DataReferenceRow label="remove_empty_root_boundary" type_markdown="...">
-    ...
+ <comp.DataReferenceRow label="object_boundary" type_markdown="{ start: string, end: string }">
+    For snippets which can parse object literals, what characters start and end an object?
  </comp.DataReferenceRow>
- <comp.DataReferenceRow label="object_boundary" type_markdown="...">
-    ...
+ <comp.DataReferenceRow label="object_value_delimiter" type_markdown="string">
+    Within an object, what character(s) separate a key and a value?
  </comp.DataReferenceRow>
- <comp.DataReferenceRow label="object_value_delimiter" type_markdown="...">
-    ...
+ <comp.DataReferenceRow label="object_pair_delimiter" type_markdown="string">
+    Within an object, what character(s) separate each key-value pair.
  </comp.DataReferenceRow>
- <comp.DataReferenceRow label="object_pair_delimiter" type_markdown="...">
-    ...
+ <comp.DataReferenceRow label="array_boundary" type_markdown="{ start: string, end: string }">
+    For snippets which can parse array literals, what characters start and end an array?
  </comp.DataReferenceRow>
- <comp.DataReferenceRow label="array_boundary" type_markdown="...">
-    ...
+ <comp.DataReferenceRow label="array_delimiter" type_markdown="string">
+    Within an array, what character(s) separate each value"?
  </comp.DataReferenceRow>
- <comp.DataReferenceRow label="array_delimiter" type_markdown="...">
-    ...
+ <comp.DataReferenceRow label="forbidden_tokens" type_markdown="string">
+    For the given parser, what tokens are strictly not allowed in the value.
+    Most often used to limit what the content parser will consume.
  </comp.DataReferenceRow>
- <comp.DataReferenceRow label="forbidden_tokens" type_markdown="...">
-    ...
+ <comp.DataReferenceRow label="allow_booleans" type_markdown="boolean">
+    Whether unquoted booleans like `true` and `false` can be used as values.
  </comp.DataReferenceRow>
- <comp.DataReferenceRow label="allow_booleans" type_markdown="...">
-    ...
+ <comp.DataReferenceRow label="allow_numbers" type_markdown="boolean">
+    Whether unquoted numbers like `5` and `-0.4` can be used as values.
  </comp.DataReferenceRow>
- <comp.DataReferenceRow label="allow_numbers" type_markdown="...">
-    ...
- </comp.DataReferenceRow>
- <comp.DataReferenceRow label="allow_implied_values" type_markdown="...">
-    ...
+ <comp.DataReferenceRow label="allow_implied_values" type_markdown="boolean">
+    When parsing key-value pairs, can a key be specified without a value to imply a value of `true`?
  </comp.DataReferenceRow>
 </comp.DataReference>
 
@@ -558,21 +713,26 @@ Usually this parser will be used to parse the content between paired start and e
 
 <comp.DataReference>
  <comp.DataReferenceRow label="output" type_markdown="string">
-    ...
+    Either `inline` or `block`. For parser such as the content and repeating parsers,
+    determines how to format the output.
+    
+    If unspecified, `inline` will be chosen when the value is a single line, otherwise `block`
+    formatting will be used.
  </comp.DataReferenceRow>
  <comp.DataReferenceRow label="inline.leading" type_markdown="string">
-    ...
+    For inline content, what should lead the value. Useful for adding whitespace around strings.
  </comp.DataReferenceRow>
  <comp.DataReferenceRow label="inline.trailing" type_markdown="string">
-    ...
+    For inline content, what should trail the value. Useful for adding whitespace around strings.
  </comp.DataReferenceRow>
  <comp.DataReferenceRow label="block.leading" type_markdown="string">
-    ...
+    For block content, what should lead the value. Useful for adding newlines around content.
  </comp.DataReferenceRow>
  <comp.DataReferenceRow label="block.trailing" type_markdown="string">
-    ...
+    For block content, what should trail the value. Useful for adding newlines around content.
  </comp.DataReferenceRow>
  <comp.DataReferenceRow label="block.indent" type_markdown="string">
-    ...
+    For block content, how should the value be indented.
+    Nested snippets only need to specify the indentation relative to their parent.
  </comp.DataReferenceRow>
 </comp.DataReference>

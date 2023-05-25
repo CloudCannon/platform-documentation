@@ -160,7 +160,7 @@ const annotateCodeBlocks = (page) => {
         // Empty the comment token and replace it with a clickable annotation box
         commentEl.innerText = "";
         commentEl.classList.add("annotation", "code-annotation");
-        if (annotationId === "*") {
+        if (annotationId === "*" || annotationId === "0") {
             commentEl.setAttribute("data-annotation-number", "★");
         } else {
             commentEl.setAttribute("data-annotation-number", annotationId);
