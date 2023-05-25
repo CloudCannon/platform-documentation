@@ -1,0 +1,51 @@
+---
+_schema: guide-item
+_uuid: 8503f1d8-d8c3-45b7-81c7-aa166d0843cd
+_created_at: '2023-02-01 02:40:30 +0000'
+title: Component templating
+nav_title: Component templating
+order: 3
+published: true
+image: /documentation/static/bookshop-11ty/bookshop-astro-og.png
+description: Creating your Astro components for Bookshop
+tags: []
+related_articles:
+related_links: []
+---
+Bookshop components use the templating language of your chosen static site generator. For Astro, Bookshop supports writing components as `.astro` files or in React as either `.jsx` or `.tsx` files.
+
+## Creating your first component
+
+Bookshop components live in the `src/components/` directory that Astro creates by default. Each component can be placed at the top level of a folder or nested in a folder matching that component's name.
+
+To start, let's have a look at a sample bookshop component. Create an empty file at `src/components/sample/sample.astro` in your site and add the following content:
+
+<comp.CodeBlock language="astro" source="src/components/sample/sample.astro">
+```
+<div class="c-sample">
+  <p>{ Astro.props.text }</p>
+</div>
+```
+</comp.CodeBlock>
+
+If you're used to writing Astro templates on your site, the contents of this component should be very familiar. Beyond the special directory structure that this component should live in, any existing components should be compatible with Bookshop without any changes. Notice that this component is nested in a folder with the same name as the component. This doesn't change the component's Bookshop name (`sample`) but can be useful for grouping files related to this component — we'll see some examples of this later on.
+
+Here's a hypothetical React component that uses some more advanced syntax:
+
+<comp.CodeBlock language="jsx" source="src/components/hero.jsx">
+```
+export default ({ date, title, subtitle }) => {
+  return <div class="c-hero">
+    <p className="date">Published on {date.toLocaleDateString()}</p>
+    <h1>{ title }</h1>
+    {subtitle && <h2>{ subtitle }</h2>}
+  </div>;
+}
+```
+</comp.CodeBlock>
+
+As with the Astro example, this component uses standard React JSX, and any existing React components should be compatible with Bookshop by default. With this component, we've opted not to nest it inside a folder. This can be cleaner when creating individual components that don't have any supporting files.
+
+## Supported templating and functions
+
+There are some restrictions on the features you can use inside your components. Since Bookshop renders your components in the browser, any functions or packages that you use must be able to run in a browser. Bookshop will include any `.png`, `.svg`, `.jpg`, and `.webp` assets imported by your components for live editing, but other asset types are not supported.

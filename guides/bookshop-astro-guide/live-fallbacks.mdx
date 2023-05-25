@@ -1,0 +1,45 @@
+---
+_schema: guide-item
+_uuid: 1e1bf2a7-6388-466c-96fb-6068cce0d983
+_created_at: "2023-02-01 02:40:30 +0000"
+title: "Live Editing Fallbacks"
+nav_title: "Live Editing Fallbacks"
+order: 13
+published: true
+image: /documentation/static/bookshop-11ty/bookshop-astro-og.png
+description: "Add custom handling for components that cannot be visually edited"
+tags: []
+related_articles: null
+related_links: []
+---
+
+Some components will never be editable without the full context of your Astro site. For example,
+if you rely heavily on a package without browser support or access file and network resources directly.
+
+In these cases, you'll need to provide fallback content for Bookshop to use or opt out of live previews
+for a set of components altogether.
+
+## Rendering different content when live editing
+
+Bookshop sets a global flag when rendering your components in the Visual Editor. Using this flag
+you can show extra information to your editors or render fallback content instead of unsupported templating.
+
+<comp.CodeBlock language="astro" source="components/sample/sample.astro">
+```
+{ 
+  ENV_BOOKSHOP_LIVE
+    ? <>
+        <p>I am being edited live!</p>
+        <h1>Fallback Title</h1>
+      </> 
+    : <>
+        <p>Standard build output</p>
+        <h1>{ serverOnlyFunction() }</h1>
+      </>
+}
+```
+</comp.CodeBlock>
+
+With the above component, your production-hosted site will contain `Standard build output` and the output
+of the `serverOnlyFunction` function. Only when inside CloudCannon's Visual Editor, where `serverOnlyFunction` does not exist,
+will your editors see the `Fallback Title` branch of the template.
