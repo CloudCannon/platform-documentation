@@ -1,18 +1,18 @@
 import "../../_includes/scripts/alpine.js";
-import { Instance, Input, ResultList, Summary, FilterPills } from "npm:@pagefind/modular-ui@0.12.1-beta.0";
+import { Instance, Input, ResultList, Summary, FilterPills } from "npm:@pagefind/modular-ui@1.0.0-alpha.5";
 
 // TODO: Replace with https://github.com/CloudCannon/pagefind/issues/226
 const trimExcerpt = (excerpt, target) => {
     const words = excerpt.split(/\s/);
     let core = words.findIndex(s => s.startsWith("<mark>"));
     if (core === -1) {
-        core = target/2;
+        core = target / 2;
     }
     const start = core - Math.floor(target * 0.2);
     const end = core + Math.floor(target * 0.8);
     const res = words.slice(
         start < 0 ? 0 : start,
-        end > words.length-1 ? words.length-1 : end
+        end > words.length - 1 ? words.length - 1 : end
     );
     return res.join(' ');
 }
@@ -58,7 +58,7 @@ search.add(new FilterPills({
 /* Homepage search */
 
 if (document.querySelector("#onpagesearch")) {
-    const homepageSearch = new Instance({ 
+    const homepageSearch = new Instance({
         bundlePath: "/documentation/_pagefind/",
         baseUrl: "/",
     });
@@ -115,16 +115,16 @@ if (messageElement) {
 const anchorTagElements = document.getElementsByTagName('a');
 const urls = [];
 
-[ ...anchorTagElements ].forEach(anchor => {
-	anchor.addEventListener('mouseover', event => {
-		const href = event.target.href;
+[...anchorTagElements].forEach(anchor => {
+    anchor.addEventListener('mouseover', event => {
+        const href = event.target.href;
 
-		if (href !== undefined && !urls.includes(href)) {
-			urls.push(href);
-			const link = document.createElement('link');
-			link.rel = 'prefetch';
-			link.href = href;
-			document.head.appendChild(link);
-		}
-	});
+        if (href !== undefined && !urls.includes(href)) {
+            urls.push(href);
+            const link = document.createElement('link');
+            link.rel = 'prefetch';
+            link.href = href;
+            document.head.appendChild(link);
+        }
+    });
 });
