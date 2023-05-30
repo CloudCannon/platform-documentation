@@ -1,0 +1,120 @@
+---
+_schema: guide-item
+_uuid: 11fcf7d3-e787-437f-a542-2915f6c5e056
+_created_at: '2023-02-01 02:40:30 +0000'
+title: Using Bookshop components
+nav_title: Using Bookshop components
+order: 4
+published: true
+image: /documentation/static/bookshop-11ty/bookshop-astro-og.png
+description: Using your Astro Bookshop components on your site
+tags: []
+related_articles:
+related_links: []
+---
+Using a Bookshop component on your Astro site is similar to using a regular component, with a few differences.
+
+## The Bookshop component directive
+
+The Bookshop integration provides a `bookshop:live` for use in your Astro template files.
+
+If you've been following along with this guide, add the following snippet to a page to use the sample component we created:
+
+<comp.CodeBlock language="astro" source="src/pages/index.astro">
+```
+---
+import Sample from '../components/sample/sample.astro'
+---
+<Sample bookshop:live text="Hello from the sample component" />
+```
+</comp.CodeBlock>
+
+This matches the standard syntax for using a component in an Astro file, but with the added `bookshop:live` directive. Bookshop processes components with this directive at build time to set up live visual editing and visual data bindings.
+
+The `bookshop:live` directive can only be used in Astro templates, but there are no limitations on where those templates can be located. For example, you could enable live editing for a component only within a certain layout or parent component. You can also add the `bookshop:live` directive to React components imported in your Astro templates. 
+
+Like other Astro directives, the `bookshop:live` directive must be visible at compile time. So if you're using the spread syntax for your component's props, you must add the directive separately from the object being spread otherwise Bookshop will be unable to process that component.
+
+An example of using the `bookshop:live` directive with the spread syntax might look like this:
+<comp.CodeBlock language="astro" source="src/pages/page.astro">
+```
+---
+import Sample from '../components/sample/sample.astro';
+
+const props = { /* ... */ };
+---
+<Sample bookshop:live {...props} />
+```
+</comp.CodeBlock>
+
+You can find more information on template directives and how to use them at Astro's [template directives reference documentation](https://docs.astro.build/en/reference/directives-reference).
+
+## Rendering dynamic components
+
+The `bookshop:live` directive can also be applied to components with dynamic values. This means if you have a variable list of component names and you want to render all of them with Bookshop you can use this:
+
+<comp.CodeBlock language="astro" source="src/pages/page.astro">
+```
+---
+const componentData = [
+  {
+    _bookshop_name: "hero", //1
+    title: "Hello World",
+    subtext: "My page hero contents",
+    image: "/image.png"
+  }
+];
+
+const components = import .meta.glob("../components/**/*.astro", {
+  eager: true,
+});
+
+---
+
+<main>
+  {componentData.map((block) => {
+    const name = `../components/${block._bookshop_name}.astro`;
+    const Component = components[name].default;
+    return <Component bookshop:live {...block} />;
+  })}
+</main>
+
+```
+<comp.Annotation number="1">
+  Later in this guide, we'll cover creating CloudCannon Structures from your Bookshop components.
+  When doing so, the generated Structures will automatically include this `_bookshop_name` value for you to use.
+</comp.Annotation>
+</comp.CodeBlock>
+
+## Passing Data to Bookshop Components
+
+To live edit Bookshop components, Bookshop needs to know which data comes from the page front matter,
+and a clear path between a component and the front matter data it draws from.
+
+The front matter data is always assumed to come from the `Astro.props.frontmatter` variable. This means Bookshop
+will automatically work for Markdown pages using layouts. Instead, if you're using an Astro template, you
+need to assign the front matter prop yourself.
+
+Here's an example of a page that loads its content using static paths:
+<comp.CodeBlock language="astro" source="src/pages/page.astro">
+```
+---
+import { getCollection } from "astro:content";
+import Page from '../components/page.astro';
+
+export async function getStaticPaths() {
+  const pages = await getCollection("pages");
+  return pages.map((page) => {
+    return { params: { slug }, props: { frontmatter: page.data } };
+  });
+}
+
+const page = Astro.props.frontmatter;
+---
+
+<Page bookshop:live {...page} />
+
+```
+</comp.CodeBlock>
+
+Once you have defined your front matter data, Bookshop should be able to track the flow of data to the component that uses it through most reassignments and functions. However, if your data is not detected correctly, you should move the logic that operates on that data as close as possible to where that data is used.

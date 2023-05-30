@@ -1,0 +1,83 @@
+---
+_schema: guide-item
+_uuid: 48ef1516-10d6-4f61-8b6f-48ad66a35796
+_created_at: '2023-02-01 02:40:30 +0000'
+title: Configuring live editing
+nav_title: Configuring live editing
+order: 5
+published: true
+image: /documentation/static/bookshop-11ty/bookshop-astro-og.png
+description: Connecting Bookshop to CloudCannon's live editing
+tags: []
+related_articles:
+related_links: []
+---
+Bookshop can render changes to your components live in CloudCannon, allowing you to build rich visual editing experiences.
+
+## Installing Bookshop's development dependencies
+
+To power the live editing experience, Bookshop depends on a few extra packages. Unlike the previous integration we installed, these dependencies have no impact on your production site: they only provide Bookshop tooling locally on your machine and within the CloudCannon Visual Editor.
+
+<comp.CodeBlock language="bash" source="Command line">
+```
+         #1
+npm i -D --save-exact @bookshop/generate @bookshop/browser @bookshop/astro-engine
+```
+<comp.Annotation number="1">
+  Bookshop releases all packages on every release, so the version numbers should
+  always stay the same. Using `--save-exact` here means that npm won't use a newer version
+  than the one specified.
+</comp.Annotation></comp.CodeBlock>
+
+## Running the Bookshop generate command
+
+Bookshop provides a command to run after your static site build. This command automatically discovers your component library and site files and connects CloudCannon's live editing APIs to the Bookshop components on your site.
+
+Additionally, when we cover the structured data features of Bookshop, this command will create your CloudCannon Structures for you.
+
+To run this command, add the following to a [CloudCannon postbuild script](https://cloudcannon.com/documentation/articles/extending-your-build-process-with-hooks/) at the root of your repository:
+
+<comp.CodeBlock language="bash" source=".cloudcannon/postbuild">
+```
+npx @bookshop/generate
+```
+</comp.CodeBlock>
+
+With that in place, any Bookshop components that use data from the front matter of a page will render changes live in the Visual Editor.
+
+Also in the Visual Editor, you will notice CloudCannon's Data Bindings have been added around your components, allowing you to click directly on the page and open an editing panel.
+
+As an example, if we have a markdown page with front matter:
+
+<comp.CodeBlock language="markdown" source="src/pages/about.md">
+```
+---
+title: About
+layout: ../layouts/base.astro
+hero_component:
+  title: On a mission to change email marketing
+  description: We're here to breathe new air into email marketing and help grow your business.
+  button:
+    text: "Try This Free"
+    link: "/signup"
+---
+```
+</comp.CodeBlock>
+
+And a layout that uses that front matter to render a component:
+
+<comp.CodeBlock language="astro" source="src/layouts/base.astro">
+```
+---
+import AboutHero from '../components/about/hero.astro'
+
+const { frontmatter } = Astro.props;
+---
+
+<AboutHero bookshop:live {...frontmatter.hero_component}>
+```
+</comp.CodeBlock>
+
+When viewed in the Visual Editor, we will be able to interact with the element directly on the page and open up an editing panel:
+
+<comp.DocsImage path="/documentation/static/bookshop-11ty/sendit-data-binding.png" alt="An example page matching the aforementioned code block, showing a data panel open in CloudCannon's visual editor after interacting directly with a component."/>
