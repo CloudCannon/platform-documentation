@@ -1011,6 +1011,42 @@ Usually this parser will be used to parse the content between paired start and e
 ### Repeating literal parser
 
 
+<comp.Example>
+  For this example, we'll pretend that we're making a Snippet for a markdown heading. 
+  This isn't something you need to do on CloudCannon since we understand Markdown natively,
+  but it's a good illustration of the repeating literal parser.
+
+  <comp.CodeBlock language="markdown" source="page.md">
+  ```
+  # My blog post
+
+  Aenean lacinia bibendum nulla sed consectetur.
+
+  ## My heading
+
+  Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
+  ```
+  </comp.CodeBlock>
+
+  <comp.MultiCodeBlock language="yaml" translate_into={["json", "javascript"]} source="cloudcannon.config.yml">
+  ```
+  _snippets:
+    anchor:
+      snippet: "[[hashes]] [[title]]"
+      params:
+        args:
+          parser: hashes
+          literal: "#"
+          minimum: 1
+        title:
+          parser: "content"
+          options:
+            editor_key: title
+            forbidden_tokens: ["\n"]
+  ```
+  </comp.MultiCodeBlock>
+</comp.Example>
+
 <comp.DataReference>
  <comp.DataReferenceRow label="literal" type_markdown="string">
     The exact literal string that should be matched.
@@ -1024,9 +1060,51 @@ Usually this parser will be used to parse the content between paired start and e
     Specifies a key that a user in CloudCannon will see to edit this value.
     The value returned by this parser is a number input that can be edited to change how
     many literals are output by the parser.
+
+    <comp.Example>
+
+      <comp.MultiCodeBlock language="yaml" translate_into={["json", "javascript"]} source="cloudcannon.config.yml">
+      ```
+      _snippets:
+        anchor:
+          snippet: "[[hashes]] [[title]]"
+          params:
+            args:
+              parser: hashes
+              literal: "#"
+              minimum: 1
+              editor_key: heading_level
+            title:
+              parser: "content"
+              options:
+                editor_key: title
+                forbidden_tokens: ["\n"]
+      ```
+      </comp.MultiCodeBlock>
+
+      Example usage:
+
+      <comp.CodeBlock language="markdown" source="page.md">
+      ```
+      # My blog post <!--1-->
+
+      Aenean lacinia bibendum nulla sed consectetur.
+
+      ## My heading <!--1-->
+
+      Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
+      ```
+      <comp.Annotation number="1">
+        If editing these as snippets in CloudCannon, the editor will see
+        `heading_level` as a number input. Changing this value will 
+        add or remove `#` to the source code to match the number.
+      </comp.Annotation>
+      </comp.CodeBlock>
+    </comp.Example>
+    
  </comp.DataReferenceRow>
  <comp.DataReferenceRow label="default" type_markdown="number">
-    The default value for this argument, which is used when adding a new snippet to a page in CloudCannon.
+    The default number of literals, which is used when adding a new snippet to a page in CloudCannon.
  </comp.DataReferenceRow>
 </comp.DataReference>
 
