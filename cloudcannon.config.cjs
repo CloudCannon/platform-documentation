@@ -60,6 +60,7 @@ const _snippets = {
   ...require(snip("notice")),
   ...require(snip("tabs")),
   ...require(snip("youtube")),
+  ...require(snip("example")),
   ...require(snip("common_content")),
   ...require(snip("starter_guide_deflector")),
   ...require(snip("common_content_param")),
