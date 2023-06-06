@@ -22,7 +22,7 @@ Configuring snippets directly is more complicated than using snippet templates, 
 
 ## Snippet syntax
 
-Custom snippets are configured under the `_snippets` key, but provide a `snippet` string rather than a `template`. If we were wanting to configure a custom snippet that matched bash variables like `$HOME` or `$PATH`, we might use the following config:
+Custom snippets are configured under the `_snippets` key, and provide a `snippet` string rather than a `template`. If we were wanting to configure a custom snippet that matched bash variables like `$HOME` or `$PATH`, we might use the following config:
 
 <comp.MultiCodeBlock language="yaml" translate_into={["json", "javascript"]} source="cloudcannon.config.yml">
 ```
@@ -63,8 +63,8 @@ These are the parsers that a snippet can use:
 
     <comp.CodeBlock language="markdown" frameless={true}>
     ```
-        {{<figure image.png>}}
-                  └───────┘
+            {{<figure image.png>}}
+                      └───────┘
     ```
     </comp.CodeBlock>
   </comp.DataReferenceRow>
@@ -73,8 +73,8 @@ These are the parsers that a snippet can use:
 
     <comp.CodeBlock language="markdown" frameless={true}>
     ```
-        {{<figure "image.png" "My image title">}}
-                  └──────────────────────────┘
+            {{<figure "image.png" "My image title">}}
+                      └──────────────────────────┘
     ```
     </comp.CodeBlock>
   </comp.DataReferenceRow>
@@ -83,8 +83,8 @@ These are the parsers that a snippet can use:
 
     <comp.CodeBlock language="liquid" frameless={true}>
     ```
-        {% include "image.html" image: "tree.png" alt: "Image of a tree" %}
-                                └──────────────────────────────────────┘
+            {% include "image.html" image: "tree.png" alt: "Image of a tree" %}
+                                    └──────────────────────────────────────┘
     ```
     </comp.CodeBlock>
   </comp.DataReferenceRow>
@@ -93,8 +93,8 @@ These are the parsers that a snippet can use:
 
     <comp.CodeBlock language="liquid" frameless={true}>
     ```
-        {% highlight "js" %} let a = b; {% endhighlight %}
-                            └──────────┘
+            {% highlight "js" %} let a = b; {% endhighlight %}
+                                └──────────┘
     ```
     </comp.CodeBlock>
   </comp.DataReferenceRow>
@@ -120,28 +120,28 @@ Parses a single argument, optionally delimited by characters. Useful for matchin
   To illustrate the argument parser, we'll look at a custom `video` snippet that takes a single named argument:
 
   <comp.CodeBlock language="markdown" source="page.md">
-```
-  ## My blog post
+  ```
+    ## My blog post
 
-  <<video CZcNgDN81Sw>>
+    <<video CZcNgDN81Sw>>
 
-  Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
-```
-</comp.CodeBlock>
+    Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
+  ```
+  </comp.CodeBlock>
 
   <comp.MultiCodeBlock language="yaml" translate_into={["json", "javascript"]} source="cloudcannon.config.yml">
-```
-  _snippets:
-    video:
-      snippet: "<<video [[video_arg]]>>"
-      params:
-        video_arg:
-          parser: "argument"
-          options:
-            model:
-              editor_key: video_id
-```
-</comp.MultiCodeBlock>
+  ```
+    _snippets:
+      video:
+        snippet: "<<video [[video_arg]]>>"
+        params:
+          video_arg:
+            parser: "argument"
+            options:
+              model:
+                editor_key: video_id
+  ```
+  </comp.MultiCodeBlock>
 </comp.Example>
 
 #### Model Options
@@ -152,17 +152,17 @@ Parses a single argument, optionally delimited by characters. Useful for matchin
     This key will also be used if you want to specify any input configuration using `_inputs`.
 
     <comp.Example>
-          <comp.MultiCodeBlock language="yaml" translate_into={["json", "javascript"]} source="cloudcannon.config.yml">
-    ```
-          parser: "argument"
-          options:
-            model:
-              editor_key: video_id
-    ```
-    </comp.MultiCodeBlock>
+      <comp.MultiCodeBlock language="yaml" translate_into={["json", "javascript"]} source="cloudcannon.config.yml">
+      ```
+                parser: "argument"
+                options:
+                  model:
+                    editor_key: video_id
+      ```
+      </comp.MultiCodeBlock>
 
-          {/* TODO: Screenshot of data panel */}
-        </comp.Example>
+      {/* TODO: Screenshot of data panel */}
+    </comp.Example>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="allowed_values" type_markdown="array of strings">
     A list of valid values for the parser. If specified, values not in the provided list will cause this snippet to be skipped,
@@ -171,54 +171,54 @@ Parses a single argument, optionally delimited by characters. Useful for matchin
     best paired with a select input configured on the `editor_key`.
 
     <comp.Example>
-          <comp.MultiCodeBlock language="yaml" translate_into={["json", "javascript"]} source="cloudcannon.config.yml">
-    ```
-          parser: "argument"
-          options:
-            model:
-              editor_key: video_id
-              allowed_values: ["riXoAr6gO-E", "CZcNgDN81Sw", "0iwNjcFIHNM"]
-    ```
-    </comp.MultiCodeBlock>
+      <comp.MultiCodeBlock language="yaml" translate_into={["json", "javascript"]} source="cloudcannon.config.yml">
+      ```
+                parser: "argument"
+                options:
+                  model:
+                    editor_key: video_id
+                    allowed_values: ["riXoAr6gO-E", "CZcNgDN81Sw", "0iwNjcFIHNM"]
+      ```
+      </comp.MultiCodeBlock>
 
-          Example usage:
+      Example usage:
 
-          <comp.CodeBlock language="markdown" source="page.md">
-    ```
-          ## My blog post
+      <comp.CodeBlock language="markdown" source="page.md">
+      ```
+                ## My blog post
 
-          <<video CZcNgDN81Sw>> <!--1-->
+                <<video CZcNgDN81Sw>> <!--1-->
 
-          <<video riXoAr6gO-E>> <!--1-->
+                <<video riXoAr6gO-E>> <!--1-->
 
-          <<video RuvMHkfOpvg>> <!--2-->
+                <<video RuvMHkfOpvg>> <!--2-->
 
-          Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
-    ```
-    <comp.Annotation number="1">
-      These IDs match a value in `allowed_values`, thus will be shown as a `video` snippet
-    </comp.Annotation>
-    <comp.Annotation number="2">
-      This ID is not present in `allowed_values` and will not parse as a `video` snippet.
-      It may still parse as another snippet, or will remain as plaintext.
-    </comp.Annotation>
-    </comp.CodeBlock>
-        </comp.Example>
+                Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
+      ```
+      <comp.Annotation number="1">
+        These IDs match a value in `allowed_values`, thus will be shown as a `video` snippet
+      </comp.Annotation>
+      <comp.Annotation number="2">
+        This ID is not present in `allowed_values` and will not parse as a `video` snippet.
+        It may still parse as another snippet, or will remain as plaintext.
+      </comp.Annotation>
+      </comp.CodeBlock>
+    </comp.Example>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="default" type_markdown="string">
     The default value for this argument, which is used when adding a new snippet to a page in CloudCannon.
 
     <comp.Example>
-          <comp.MultiCodeBlock language="yaml" translate_into={["json", "javascript"]} source="cloudcannon.config.yml">
-    ```
-          parser: "argument"
-          options:
-            model:
-              editor_key: video_id
-              default: "riXoAr6gO-E"
-    ```
-    </comp.MultiCodeBlock>
-        </comp.Example>
+      <comp.MultiCodeBlock language="yaml" translate_into={["json", "javascript"]} source="cloudcannon.config.yml">
+      ```
+                parser: "argument"
+                options:
+                  model:
+                    editor_key: video_id
+                    default: "riXoAr6gO-E"
+      ```
+      </comp.MultiCodeBlock>
+    </comp.Example>
 
      With this config, adding a new `video` snippet to a page in CloudCannon will instantiate it as `<<video riXoAr6gO-E>>`.
   </comp.DataReferenceRow>
@@ -227,68 +227,68 @@ Parses a single argument, optionally delimited by characters. Useful for matchin
     to `false`.
 
     <comp.Example>
-          <comp.MultiCodeBlock language="yaml" translate_into={["json", "javascript"]} source="cloudcannon.config.yml">
-    ```
-          parser: "argument"
-          options:
-            model:
-              editor_key: has_video_id
-              implied_boolean: true
-    ```
-    </comp.MultiCodeBlock>
+      <comp.MultiCodeBlock language="yaml" translate_into={["json", "javascript"]} source="cloudcannon.config.yml">
+      ```
+                parser: "argument"
+                options:
+                  model:
+                    editor_key: has_video_id
+                    implied_boolean: true
+      ```
+      </comp.MultiCodeBlock>
 
-          With this config the video ID itself will not be used. The editor will instead see a checkbox named `has_video_id`
-          representing the presence of the argument. Unchecking and rechecking this checkbox will result in `<<video true>>`,
-          so this option is not very useful for our video snippet example.
-        </comp.Example>
+      With this config the video ID itself will not be used. The editor will instead see a checkbox named `has_video_id`
+      representing the presence of the argument. Unchecking and rechecking this checkbox will result in `<<video true>>`,
+      so this option is not very useful for our video snippet example.
+    </comp.Example>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="optional" type_markdown="boolean">
     Whether a value must exist for this parser. Useful for a snippet that takes zero or one positional arguments.
 
     <comp.Example>
-          <comp.MultiCodeBlock language="yaml" translate_into={["json", "javascript"]} source="cloudcannon.config.yml">
-    ```
-          parser: "argument"
-          options:
-            model:
-              editor_key: video_id
-              optional: true
-    ```
-    </comp.MultiCodeBlock>
+      <comp.MultiCodeBlock language="yaml" translate_into={["json", "javascript"]} source="cloudcannon.config.yml">
+      ```
+                parser: "argument"
+                options:
+                  model:
+                    editor_key: video_id
+                    optional: true
+      ```
+      </comp.MultiCodeBlock>
 
-          With this config, both of the following snippet examples will parse:
+      With this config, both of the following snippet examples will parse:
 
-          <comp.CodeBlock language="markdown" source="page.md">
-    ```
-          ## My blog post
+      <comp.CodeBlock language="markdown" source="page.md">
+      ```
+                ## My blog post
 
-          <<video CZcNgDN81Sw>>
+                <<video CZcNgDN81Sw>>
 
-          <<video>>
+                <<video>>
 
-          Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
-    ```
-    </comp.CodeBlock>
-        </comp.Example>
+                Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
+      ```
+      </comp.CodeBlock>
+    </comp.Example>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="remove_empty" type_markdown="boolean">
     If `true`, the output of this parser will be omitted entirely if the value is empty, rather than saving an empty value such as `""`.
     In most cases, you will want to make sure to set `optional: true` so that the output is able to be parsed again.
 
     <comp.Example>
-          <comp.MultiCodeBlock language="yaml" translate_into={["json", "javascript"]} source="cloudcannon.config.yml">
-    ```
-          parser: "argument"
-          options:
-            model:
-              editor_key: video_id
-              remove_empty: true
-    ```
-    </comp.MultiCodeBlock>
+      <comp.MultiCodeBlock language="yaml" translate_into={["json", "javascript"]} source="cloudcannon.config.yml">
+      ```
+                parser: "argument"
+                options:
+                  model:
+                    editor_key: video_id
+                    remove_empty: true
+      ```
+      </comp.MultiCodeBlock>
 
-          In cases where you have a string boundary set, with this config saving a snippet with an
-          empty `video_id` value will save it as `<<video>>` rather than `<<video "">>` or `<<video ''>>`.
-        </comp.Example>
+      In cases where you have a string boundary set, with this config saving a snippet with an
+      empty `video_id` value will save it as `<<video>>` rather than `<<video "">>` or `<<video ''>>`.
+    </comp.Example>
   </comp.DataReferenceRow>
 </comp.DataReference>
 
@@ -301,20 +301,20 @@ Parses a single argument, optionally delimited by characters. Useful for matchin
   argument parser is the `string_boundary`:
 
   <comp.MultiCodeBlock language="yaml" translate_into={["json", "javascript"]} source="cloudcannon.config.yml">
-```
-  _snippets:
-    video:
-      snippet: "<<video [[video_arg]]>>"
-      params:
-        video_arg:
-          parser: "argument"
-          options:
-            model:
-              editor_key: video_id
-            format:
-              string_boundary: ['"', "'"]
-```
-</comp.MultiCodeBlock>
+  ```
+    _snippets:
+      video:
+        snippet: "<<video [[video_arg]]>>"
+        params:
+          video_arg:
+            parser: "argument"
+            options:
+              model:
+                editor_key: video_id
+              format:
+                string_boundary: ['"', "'"]
+  ```
+  </comp.MultiCodeBlock>
 
   This would make our snippet match `<<video "CZcNgDN81Sw">>` or `<<video 'CZcNgDN81Sw'>>` but not `<<video CZcNgDN81Sw>>`.
 </comp.Example>
@@ -329,34 +329,34 @@ Instead of taking a single `model` object, this parser takes an array of `model`
   Continuing with our `video` snippet shown above, we might add the ability to add a custom title as an optional second positional argument:
 
   <comp.CodeBlock language="markdown" source="page.md">
-```
-  ## My blog post
+  ```
+    ## My blog post
 
-  <<video "riXoAr6gO-E">>
+    <<video "riXoAr6gO-E">>
 
-  <<video "CZcNgDN81Sw" "Whiteboard the Web and Astro with Ben Holmes">>
+    <<video "CZcNgDN81Sw" "Whiteboard the Web and Astro with Ben Holmes">>
 
-  Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
-```
-</comp.CodeBlock>
+    Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
+  ```
+  </comp.CodeBlock>
 
   <comp.MultiCodeBlock language="yaml" translate_into={["json", "javascript"]} source="cloudcannon.config.yml">
-```
-  _snippets:
-    video:
-      snippet: "<<video [[arguments]]>>"
-      params:
-        arguments:
-          parser: "argument_list"
-          options:
-            models: [{ editor_key: "video_id" }, { editor_key: "video_title", optional: true }]
-            format: { string_boundary: ['"'] }
-```
-</comp.MultiCodeBlock>
+  ```
+    _snippets:
+      video:
+        snippet: "<<video [[arguments]]>>"
+        params:
+          arguments:
+            parser: "argument_list"
+            options:
+              models: [{ editor_key: "video_id" }, { editor_key: "video_title", optional: true }]
+              format: { string_boundary: ['"'] }
+  ```
+  </comp.MultiCodeBlock>
 
   <comp.Notice info_type="info">
-  Since the title might contain whitespace, we're now setting a string boundary of `"` to capture each argument as intended.
-</comp.Notice>
+    Since the title might contain whitespace, we're now setting a string boundary of `"` to capture each argument as intended.
+  </comp.Notice>
 </comp.Example>
 
 ### Content parser
@@ -369,27 +369,27 @@ Usually this parser will be used to parse the content between paired start and e
   To illustrate the content parser, we'll look at a custom `highlight` snippet that wraps a block of content:
 
   <comp.CodeBlock language="markdown" source="page.md">
-```
-  ## My blog post
+  ```
+    ## My blog post
 
-  <<highlight>> My highlighted content! <</highlight>>
+    <<highlight>> My highlighted content! <</highlight>>
 
-  Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
-```
-</comp.CodeBlock>
+    Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
+  ```
+  </comp.CodeBlock>
 
   <comp.MultiCodeBlock language="yaml" translate_into={["json", "javascript"]} source="cloudcannon.config.yml">
-```
-  _snippets:
-    highlight:
-      snippet: "<<highlight>>[[inner]]<</highlight>>"
-      params:
-        inner:
-          parser: "content"
-          options:
-            editor_key: highlighted_text
-```
-</comp.MultiCodeBlock>
+  ```
+    _snippets:
+      highlight:
+        snippet: "<<highlight>>[[inner]]<</highlight>>"
+        params:
+          inner:
+            parser: "content"
+            options:
+              editor_key: highlighted_text
+  ```
+  </comp.MultiCodeBlock>
 </comp.Example>
 
 <comp.DataReference>
@@ -398,27 +398,27 @@ Usually this parser will be used to parse the content between paired start and e
     This key will also be used if you want to specify any input configuration using `_inputs`.
 
     <comp.Example>
-          <comp.MultiCodeBlock language="yaml" translate_into={["json", "javascript"]} source="cloudcannon.config.yml">
-    ```
-          _snippets:
-            highlight:
-            snippet: "<<highlight>>[[inner]]<</highlight>>"
-            params:
-              inner:
-                parser: "content"
-                options:
-                  editor_key: highlighted_text
-            _inputs:
-              highlighted_text:
-                type: markdown
-                comment: Enter the text that should be highlighted
-    ```
-    </comp.MultiCodeBlock>
+      <comp.MultiCodeBlock language="yaml" translate_into={["json", "javascript"]} source="cloudcannon.config.yml">
+      ```
+                _snippets:
+                  highlight:
+                  snippet: "<<highlight>>[[inner]]<</highlight>>"
+                  params:
+                    inner:
+                      parser: "content"
+                      options:
+                        editor_key: highlighted_text
+                  _inputs:
+                    highlighted_text:
+                      type: markdown
+                      comment: Enter the text that should be highlighted
+      ```
+      </comp.MultiCodeBlock>
 
-          With this config, the inner value of out snippet will be editable in CloudCannon
-          using an input named `highlighted_text`, which we have configured as markdown
-          and specified a comment for.
-        </comp.Example>
+      With this config, the inner value of out snippet will be editable in CloudCannon
+      using an input named `highlighted_text`, which we have configured as markdown
+      and specified a comment for.
+    </comp.Example>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="indented_by" type_markdown="string">
     A string value that the content parser will require when parsing.
@@ -427,93 +427,93 @@ Usually this parser will be used to parse the content between paired start and e
     If you want parsing to be flexible, but the output to be formatted, use the Style options instead.
 
     <comp.Example>
-          <comp.MultiCodeBlock language="yaml" translate_into={["json", "javascript"]} source="cloudcannon.config.yml">
-    ```
-          _snippets:
-            highlight:
-              snippet: "<<highlight>>[[inner]]<</highlight>>"
-              params:
-                inner:
-                  parser: "content"
-                  options:
-                    editor_key: highlighted_text
-                    indented_by___0___: "  "
-    ```
-    </comp.MultiCodeBlock>
+      <comp.MultiCodeBlock language="yaml" translate_into={["json", "javascript"]} source="cloudcannon.config.yml">
+      ```
+                _snippets:
+                  highlight:
+                    snippet: "<<highlight>>[[inner]]<</highlight>>"
+                    params:
+                      inner:
+                        parser: "content"
+                        options:
+                          editor_key: highlighted_text
+                          indented_by___0___: "  "
+      ```
+      </comp.MultiCodeBlock>
 
-          Example usage:
+      Example usage:
 
-          <comp.CodeBlock language="markdown" source="page.md">
-    ```
-          ## My blog post
+      <comp.CodeBlock language="markdown" source="page.md">
+      ```
+                ## My blog post
 
-          <<highlight>>
-            My highlighted content!   <!--1-->
-          <</highlight>>
+                <<highlight>>
+                  My highlighted content!   <!--1-->
+                <</highlight>>
 
-          <<highlight>>
-              My highlighted content! <!--2-->
-          <</highlight>>
+                <<highlight>>
+                    My highlighted content! <!--2-->
+                <</highlight>>
 
-          <<highlight>>
-          My highlighted content!     <!--3-->
-          <</highlight>>
+                <<highlight>>
+                My highlighted content!     <!--3-->
+                <</highlight>>
 
-          Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
-    ```
-    <comp.Annotation number="1">
-      This will parse correctly as `My highlighted content!`
-    </comp.Annotation>
-    <comp.Annotation number="2">
-      This will strip only the indentation that matches, and return `  My highlighted content!`
-    </comp.Annotation>
-    <comp.Annotation number="2">
-      This will **not** match this parser, as indentation is required.
-      Use the `style.block.indent` option instead.
-    </comp.Annotation>
-    </comp.CodeBlock>
-        </comp.Example>
+                Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
+      ```
+      <comp.Annotation number="1">
+        This will parse correctly as `My highlighted content!`
+      </comp.Annotation>
+      <comp.Annotation number="2">
+        This will strip only the indentation that matches, and return `  My highlighted content!`
+      </comp.Annotation>
+      <comp.Annotation number="2">
+        This will **not** match this parser, as indentation is required.
+        Use the `style.block.indent` option instead.
+      </comp.Annotation>
+      </comp.CodeBlock>
+    </comp.Example>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="allow_leading" type_markdown="boolean">
     If an `indented_by` value is set, `allow_leading: true` signifies that the _first_
     line of the content does **not** need to be indented, but subsequent lines do.
 
     <comp.Example>
-          <comp.MultiCodeBlock language="yaml" translate_into={["json", "javascript"]} source="cloudcannon.config.yml">
-    ```
-          parser: "content"
-          options:
-             editor_key: highlighted_text
-             indented_by: "  "
-             allow_leading: true
-    ```
-    </comp.MultiCodeBlock>
+      <comp.MultiCodeBlock language="yaml" translate_into={["json", "javascript"]} source="cloudcannon.config.yml">
+      ```
+                parser: "content"
+                options:
+                   editor_key: highlighted_text
+                   indented_by: "  "
+                   allow_leading: true
+      ```
+      </comp.MultiCodeBlock>
 
-          Example usage:
+      Example usage:
 
-          <comp.CodeBlock language="markdown" source="page.md">
-    ```
-          ## My blog post
+      <comp.CodeBlock language="markdown" source="page.md">
+      ```
+                ## My blog post
 
-          <<highlight>>
-            My highlighted content!   <!--1-->
-          <</highlight>>
+                <<highlight>>
+                  My highlighted content!   <!--1-->
+                <</highlight>>
 
-          <<highlight>>Some initial content
-             More highlighted content!   <!--2-->
-          <</highlight>>
+                <<highlight>>Some initial content
+                   More highlighted content!   <!--2-->
+                <</highlight>>
 
-          Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
-    ```
-    <comp.Annotation number="1">
-      This will parse correctly as `My highlighted content!`
-    </comp.Annotation>
-    <comp.Annotation number="2">
-      This will also parse correctly, as `Some initial content\nMore highlighted content!`,
-      despite the first line not being indented.
-    </comp.Annotation>
-    </comp.CodeBlock>
-        </comp.Example>
+                Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
+      ```
+      <comp.Annotation number="1">
+        This will parse correctly as `My highlighted content!`
+      </comp.Annotation>
+      <comp.Annotation number="2">
+        This will also parse correctly, as `Some initial content\nMore highlighted content!`,
+        despite the first line not being indented.
+      </comp.Annotation>
+      </comp.CodeBlock>
+    </comp.Example>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="trim_text" type_markdown="boolean">
     If true, all whitespace and newlines will be trimmed from the start and end of the content
@@ -521,113 +521,113 @@ Usually this parser will be used to parse the content between paired start and e
 
 
     <comp.Example>
-          <comp.MultiCodeBlock language="yaml" translate_into={["json", "javascript"]} source="cloudcannon.config.yml">
-    ```
-          parser: "content"
-          options:
-             editor_key: highlighted_text
-             trim_text: true
-    ```
-    </comp.MultiCodeBlock>
+      <comp.MultiCodeBlock language="yaml" translate_into={["json", "javascript"]} source="cloudcannon.config.yml">
+      ```
+                parser: "content"
+                options:
+                   editor_key: highlighted_text
+                   trim_text: true
+      ```
+      </comp.MultiCodeBlock>
 
-          Example usage:
+      Example usage:
 
-          <comp.CodeBlock language="markdown" source="page.md">
-    ```
-          ## My blog post
+      <comp.CodeBlock language="markdown" source="page.md">
+      ```
+                ## My blog post
 
-          <<highlight>>
-            My highlighted content!   <!--1-->
-          <</highlight>>
+                <<highlight>>
+                  My highlighted content!   <!--1-->
+                <</highlight>>
 
-          <<highlight>>  My highlighted content!  <</highlight>> <!--1-->
+                <<highlight>>  My highlighted content!  <</highlight>> <!--1-->
 
-          Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
-    ```
-    <comp.Annotation number="1">
-      Both of these will parse as `My highlighted content!`, despite the newlines and
-      whitespace surrounding them.
+                Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
+      ```
+      <comp.Annotation number="1">
+        Both of these will parse as `My highlighted content!`, despite the newlines and
+        whitespace surrounding them.
 
-      To add whitespace back in when outputting the snippet, use the Style options.
-    </comp.Annotation>
-    </comp.CodeBlock>
-        </comp.Example>
+        To add whitespace back in when outputting the snippet, use the Style options.
+      </comp.Annotation>
+      </comp.CodeBlock>
+    </comp.Example>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="allow_nested" type_markdown="boolean">
     If set, nested snippets will be parsed and returned.
 
     <comp.Example>
-          <comp.MultiCodeBlock language="yaml" translate_into={["json", "javascript"]} source="cloudcannon.config.yml">
-    ```
-          parser: "content"
-          options:
-             editor_key: highlighted_text
-             allow_nested: true
-    ```
-    </comp.MultiCodeBlock>
+      <comp.MultiCodeBlock language="yaml" translate_into={["json", "javascript"]} source="cloudcannon.config.yml">
+      ```
+                parser: "content"
+                options:
+                   editor_key: highlighted_text
+                   allow_nested: true
+      ```
+      </comp.MultiCodeBlock>
 
-          Example usage:
+      Example usage:
 
-          <comp.CodeBlock language="markdown" source="page.md">
-    ```
-          ## My blog post
+      <comp.CodeBlock language="markdown" source="page.md">
+      ```
+                ## My blog post
 
-          <<highlight>>
-            My highlighted <<highlight>>content!<</highlight>>   <!--1-->
-          <</highlight>>
+                <<highlight>>
+                  My highlighted <<highlight>>content!<</highlight>>   <!--1-->
+                <</highlight>>
 
-          Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
-    ```
-    <comp.Annotation number="1">
-      With `allow_nested` turned on, the content parser will detect and parse the nested
-      `<<highlight>>` tags as another snippet, rather than plaintext.
+                Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
+      ```
+      <comp.Annotation number="1">
+        With `allow_nested` turned on, the content parser will detect and parse the nested
+        `<<highlight>>` tags as another snippet, rather than plaintext.
 
-      This doesn't have to be the same snippet, any configured snippet will be parsed inside
-      the content parser.
+        This doesn't have to be the same snippet, any configured snippet will be parsed inside
+        the content parser.
 
-      If `allow_nested` is set to false, inner snippets will still be parsed, but will not be returned.
-      This means that in the above example, `My highlighted <<highlight>>content!<</highlight>>` would
-      be the raw text with `allow_nested: false`. If inner snippets were not parsed, the content parser
-      would end parsing at the first `<</highlight>>`, giving you the text:
-      `My highlighted <<highlight>>content!`. This is the behavior of the `raw` option.
-    </comp.Annotation>
-    </comp.CodeBlock>
-        </comp.Example>
+        If `allow_nested` is set to false, inner snippets will still be parsed, but will not be returned.
+        This means that in the above example, `My highlighted <<highlight>>content!<</highlight>>` would
+        be the raw text with `allow_nested: false`. If inner snippets were not parsed, the content parser
+        would end parsing at the first `<</highlight>>`, giving you the text:
+        `My highlighted <<highlight>>content!`. This is the behavior of the `raw` option.
+      </comp.Annotation>
+      </comp.CodeBlock>
+    </comp.Example>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="raw" type_markdown="boolean">
     A stricter version of `allow_nested: false` that performs no parsing of the inner text.
     Useful to improve the performance of the content parser, but can misbehave.
 
     <comp.Example>
-          <comp.MultiCodeBlock language="yaml" translate_into={["json", "javascript"]} source="cloudcannon.config.yml">
-    ```
-          parser: "content"
-          options:
-             editor_key: highlighted_text
-             raw: true
-    ```
-    </comp.MultiCodeBlock>
+      <comp.MultiCodeBlock language="yaml" translate_into={["json", "javascript"]} source="cloudcannon.config.yml">
+      ```
+                parser: "content"
+                options:
+                   editor_key: highlighted_text
+                   raw: true
+      ```
+      </comp.MultiCodeBlock>
 
-          Example usage:
+      Example usage:
 
-          <comp.CodeBlock language="markdown" source="page.md">
-    ```
-          ## My blog post
+      <comp.CodeBlock language="markdown" source="page.md">
+      ```
+                ## My blog post
 
-          <<highlight>>
-            My highlighted <<highlight>>content!<</highlight>>   <!--1-->
-          <</highlight>>
+                <<highlight>>
+                  My highlighted <<highlight>>content!<</highlight>>   <!--1-->
+                <</highlight>>
 
-          Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
-    ```
-    <comp.Annotation number="1">
-      With `raw` turned on, the content parser will perform no parsing on the text it is capturing.
-      This means that the nested `<<highlight>>` will not be detected as a snippet and the first
-      `<</highlight>>` tag found will end the content parser, giving you the parsed content
-      `My highlighted <<highlight>>content!`.
-    </comp.Annotation>
-    </comp.CodeBlock>
-        </comp.Example>
+                Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
+      ```
+      <comp.Annotation number="1">
+        With `raw` turned on, the content parser will perform no parsing on the text it is capturing.
+        This means that the nested `<<highlight>>` will not be detected as a snippet and the first
+        `<</highlight>>` tag found will end the content parser, giving you the parsed content
+        `My highlighted <<highlight>>content!`.
+      </comp.Annotation>
+      </comp.CodeBlock>
+    </comp.Example>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="forbidden_tokens" type_markdown="array of strings">
     Stops parsing content as soon as one of these tokens is encountered.
@@ -635,38 +635,38 @@ Usually this parser will be used to parse the content between paired start and e
 
 
     <comp.Example>
-          <comp.MultiCodeBlock language="yaml" translate_into={["json", "javascript"]} source="cloudcannon.config.yml">
-    ```
-          parser: "content"
-          options:
-             editor_key: highlighted_text
-             forbidden_tokens: ['<']
-    ```
-    </comp.MultiCodeBlock>
+      <comp.MultiCodeBlock language="yaml" translate_into={["json", "javascript"]} source="cloudcannon.config.yml">
+      ```
+                parser: "content"
+                options:
+                   editor_key: highlighted_text
+                   forbidden_tokens: ['<']
+      ```
+      </comp.MultiCodeBlock>
 
-          Example usage:
+      Example usage:
 
-          <comp.CodeBlock language="markdown" source="page.md">
-    ```
-          ## My blog post
+      <comp.CodeBlock language="markdown" source="page.md">
+      ```
+                ## My blog post
 
-          <<highlight>> My content <</highlight>> <!--1-->
+                <<highlight>> My content <</highlight>> <!--1-->
 
-          <<highlight>> My < content <</highlight>> <!--2-->
+                <<highlight>> My < content <</highlight>> <!--2-->
 
-          Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
-    ```
-    <comp.Annotation number="1">
-      This snippet does not contain a forbidden token, so will parse and return correctly.
-    </comp.Annotation>
-    <comp.Annotation number="2">
-      This snippet **does** contain a forbidden token, and will not match.
+                Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
+      ```
+      <comp.Annotation number="1">
+        This snippet does not contain a forbidden token, so will parse and return correctly.
+      </comp.Annotation>
+      <comp.Annotation number="2">
+        This snippet **does** contain a forbidden token, and will not match.
 
-      This isn't particularly useful in this example, but is generally used to prevent the content
-      parser from consuming the end token of itself.
-    </comp.Annotation>
-    </comp.CodeBlock>
-        </comp.Example>
+        This isn't particularly useful in this example, but is generally used to prevent the content
+        parser from consuming the end token of itself.
+      </comp.Annotation>
+      </comp.CodeBlock>
+    </comp.Example>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="optional" type_markdown="boolean">
     Whether content is required for this snippet to match.
@@ -675,73 +675,73 @@ Usually this parser will be used to parse the content between paired start and e
     A style object to control how content is parsed and stringified, to produce cleaner source code.
 
     <comp.Example>
-          <comp.MultiCodeBlock language="yaml" translate_into={["json", "javascript"]} source="cloudcannon.config.yml">
-    ```
-          parser: "content"
-          options:
-            editor_key: highlighted_text
-            style:
-              inline:
-                leading: " "
-                trailing: " "
-              block:
-                leading: "\n"
-                trailing: "\n"
-                indent: "  "
-    ```
-    </comp.MultiCodeBlock>
+      <comp.MultiCodeBlock language="yaml" translate_into={["json", "javascript"]} source="cloudcannon.config.yml">
+      ```
+                parser: "content"
+                options:
+                  editor_key: highlighted_text
+                  style:
+                    inline:
+                      leading: " "
+                      trailing: " "
+                    block:
+                      leading: "\n"
+                      trailing: "\n"
+                      indent: "  "
+      ```
+      </comp.MultiCodeBlock>
 
-          Example usage:
+      Example usage:
 
-          <comp.CodeBlock language="markdown" source="page.md">
-    ```
-          ## My blog post
+      <comp.CodeBlock language="markdown" source="page.md">
+      ```
+                ## My blog post
 
-          <<highlight>>My content<</highlight>> <!--1-->
+                <<highlight>>My content<</highlight>> <!--1-->
 
-          <<highlight>>My
-          multiline               <!--2-->
-          content<</highlight>>
+                <<highlight>>My
+                multiline               <!--2-->
+                content<</highlight>>
 
-          Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
-    ```
-    <comp.Annotation number="1">
-      As this snippet contains a single line of text, it will be formatted as `inline`.
-    </comp.Annotation>
-    <comp.Annotation number="2">
-      This snippet contains multiple lines, so will be auto-formatted as `block`.
-    </comp.Annotation>
-    </comp.CodeBlock>
+                Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
+      ```
+      <comp.Annotation number="1">
+        As this snippet contains a single line of text, it will be formatted as `inline`.
+      </comp.Annotation>
+      <comp.Annotation number="2">
+        This snippet contains multiple lines, so will be auto-formatted as `block`.
+      </comp.Annotation>
+      </comp.CodeBlock>
 
-          When the above file is opened in CloudCannon and saved, the source will be formatted to:
+      When the above file is opened in CloudCannon and saved, the source will be formatted to:
 
-          <comp.CodeBlock language="markdown" source="page.md">
-    ```
-          ## My blog post
+      <comp.CodeBlock language="markdown" source="page.md">
+      ```
+                ## My blog post
 
-          <<highlight>> My content <</highlight>> <!--1-->
+                <<highlight>> My content <</highlight>> <!--1-->
 
-          <<highlight>>
-            My
-            multiline               <!--2-->
-            content
-          <</highlight>>
+                <<highlight>>
+                  My
+                  multiline               <!--2-->
+                  content
+                <</highlight>>
 
-          Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
-    ```
-    <comp.Annotation number="1">
-      The `inline` snippet was given the leading and trailing padding of the `inline` style options.
-    </comp.Annotation>
-    <comp.Annotation number="2">
-      The `block` snippet was given the leading and trailing padding of the `block` style options,
-      and was also indented by the provided tokens.
-    </comp.Annotation>
-    </comp.CodeBlock>
+                Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
+      ```
+      <comp.Annotation number="1">
+        The `inline` snippet was given the leading and trailing padding of the `inline` style options.
+      </comp.Annotation>
+      <comp.Annotation number="2">
+        The `block` snippet was given the leading and trailing padding of the `block` style options,
+        and was also indented by the provided tokens.
+      </comp.Annotation>
+      </comp.CodeBlock>
 
-          The style options are also stripped when the content editor loads a snippet, so the above
-          snippets would be edited as `My content` and `My\nmultiline\ncontent` respectively. As a result,
-          when using the style options you shouldn't need to configure the `indented_by` option for the content parser.
-        </comp.Example>
+      The style options are also stripped when the content editor loads a snippet, so the above
+      snippets would be edited as `My content` and `My\nmultiline\ncontent` respectively. As a result,
+      when using the style options you shouldn't need to configure the `indented_by` option for the content parser.
+    </comp.Example>
   </comp.DataReferenceRow>
 </comp.DataReference>
 
@@ -751,33 +751,33 @@ Usually this parser will be used to parse the content between paired start and e
   To illustrate the Key values parser, we'll look at a custom `anchor` snippet that parses the standard HTML anchor tag:
 
   <comp.CodeBlock language="markdown" source="page.md">
-```
-  ## My blog post
+  ```
+    ## My blog post
 
-  <a href="#link" > inner </a>
+    <a href="#link" > inner </a>
 
-  Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
-```
-</comp.CodeBlock>
+    Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
+  ```
+  </comp.CodeBlock>
 
   <comp.MultiCodeBlock language="yaml" translate_into={["json", "javascript"]} source="cloudcannon.config.yml">
-```
-  _snippets:
-    anchor:
-      snippet: "<<a [[args]]>>[[inner]]<</highlight>>"
-      params:
-        args:
-          parser: key_values
-          models:
-            - source_key: href
-          format:
-            # TODO
-        inner:
-          parser: "content"
-          options:
-            editor_key: text
-```
-</comp.MultiCodeBlock>
+  ```
+    _snippets:
+      anchor:
+        snippet: "<<a [[args]]>>[[inner]]<</highlight>>"
+        params:
+          args:
+            parser: key_values
+            models:
+              - source_key: href
+            format:
+              # TODO
+          inner:
+            parser: "content"
+            options:
+              editor_key: text
+  ```
+  </comp.MultiCodeBlock>
 </comp.Example>
 
 `models` options
@@ -788,45 +788,44 @@ Usually this parser will be used to parse the content between paired start and e
     This will also be used as the key for editing, unless `editor_key` is set alongside.
 
     <comp.Example>
-          <comp.MultiCodeBlock language="yaml" translate_into={["json", "javascript"]} source="cloudcannon.config.yml">
-    ```
-          parser: "key_values"
-          options:
-            models___1___:
-              - source_key: href
-              - source_key: class
-              - source_key: target
-    ```
-    <comp.Annotation number="1">
-      Key/value models can be specified in any order, so do not have to match the order
-      of they keys in the source code.
-    </comp.Annotation>
-    </comp.MultiCodeBlock>
+      <comp.MultiCodeBlock language="yaml" translate_into={["json", "javascript"]} source="cloudcannon.config.yml">
+      ```
+                parser: "key_values"
+                options:
+                  models___1___:
+                    - source_key: href
+                    - source_key: class
+                    - source_key: target
+      ```
+      <comp.Annotation number="1">
+        Key/value models can be specified in any order, so do not have to match the order
+        of they keys in the source code.
+      </comp.Annotation>
+      </comp.MultiCodeBlock>
 
-          Example usage:
+      Example usage:
 
-          <comp.CodeBlock language="markdown" source="page.md">
-    ```
-          ## My blog post
+      <comp.CodeBlock language="markdown" source="page.md">
+      ```
+                ## My blog post
 
-          <a href="#link" target="_blank" class="my_link"> ... </a>
-          Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
-    ```
-    </comp.CodeBlock>
+                <a href="#link" target="_blank" class="my_link"> ... </a>
+                Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
+      ```
+      </comp.CodeBlock>
 
-          When edited in CloudCannon, this will edit as the data model:
+      When edited in CloudCannon, this will edit as the data model:
 
-          {/* TODO: Use screenshot here instead */}
+      {/* TODO: Use screenshot here instead */}
 
-          <comp.CodeBlock language="yaml" frameless={true}>
-    ```
-          href: "#link"
-          target: "_blank"
-          class: "my_link"
-    ```
-    </comp.CodeBlock>
-
-        </comp.Example>
+      <comp.CodeBlock language="yaml" frameless={true}>
+      ```
+                href: "#link"
+                target: "_blank"
+                class: "my_link"
+      ```
+      </comp.CodeBlock>
+    </comp.Example>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="editor_key" type_markdown="string">
     Specifies the key that a user in CloudCannon will see when editing this value.
@@ -835,105 +834,104 @@ Usually this parser will be used to parse the content between paired start and e
     If not set, the `source_key` will be used, so specifying both isn't required.
 
     <comp.Example>
-          <comp.MultiCodeBlock language="yaml" translate_into={["json", "javascript"]} source="cloudcannon.config.yml">
-    ```
-          parser: "key_values"
-          options:
-            models:
-              - source_key: href
-                editor_key: link
-              - source_key: target
-                editor_key: link_target
-              - source_key: class
-                editor_key: classnames
-    ```
-    </comp.MultiCodeBlock>
+      <comp.MultiCodeBlock language="yaml" translate_into={["json", "javascript"]} source="cloudcannon.config.yml">
+      ```
+                parser: "key_values"
+                options:
+                  models:
+                    - source_key: href
+                      editor_key: link
+                    - source_key: target
+                      editor_key: link_target
+                    - source_key: class
+                      editor_key: classnames
+      ```
+      </comp.MultiCodeBlock>
 
-          Example usage:
+      Example usage:
 
-          <comp.CodeBlock language="markdown" source="page.md">
-    ```
-          ## My blog post
+      <comp.CodeBlock language="markdown" source="page.md">
+      ```
+                ## My blog post
 
-          <a href="#link" target="_blank" class="my_link"> ... </a>
-          Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
-    ```
-    </comp.CodeBlock>
+                <a href="#link" target="_blank" class="my_link"> ... </a>
+                Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
+      ```
+      </comp.CodeBlock>
 
-          When edited in CloudCannon, this will edit as the data model:
+      When edited in CloudCannon, this will edit as the data model:
 
-          {/* TODO: Use screenshot here instead */}
+      {/* TODO: Use screenshot here instead */}
 
-          <comp.CodeBlock language="yaml" frameless={true}>
-    ```
-          link: "#link"
-          link_target: "_blank"
-          classnames: "my_link"
-    ```
-    </comp.CodeBlock>
-
-        </comp.Example>
+      <comp.CodeBlock language="yaml" frameless={true}>
+      ```
+                link: "#link"
+                link_target: "_blank"
+                classnames: "my_link"
+      ```
+      </comp.CodeBlock>
+    </comp.Example>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="default" type_markdown="string">
     The default value for this argument, which is used when adding a new snippet to a page in CloudCannon.
 
     <comp.Example>
-          <comp.MultiCodeBlock language="yaml" translate_into={["json", "javascript"]} source="cloudcannon.config.yml">
-    ```
-          parser: "key_values"
-          options:
-            models:
-              - source_key: href
-                default: "/"
-              - source_key: target
-                default: "_blank"
-    ```
-    </comp.MultiCodeBlock>
+      <comp.MultiCodeBlock language="yaml" translate_into={["json", "javascript"]} source="cloudcannon.config.yml">
+      ```
+                parser: "key_values"
+                options:
+                  models:
+                    - source_key: href
+                      default: "/"
+                    - source_key: target
+                      default: "_blank"
+      ```
+      </comp.MultiCodeBlock>
 
-          With this config, adding a new `anchor` snippet to a page in CloudCannon will instantiate it
-          as `<a href="/" target="_blank"> ... </a>`
-        </comp.Example>
+      With this config, adding a new `anchor` snippet to a page in CloudCannon will instantiate it
+      as `<a href="/" target="_blank"> ... </a>`
+    </comp.Example>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="optional" type_markdown="boolean">
     Whether a value must exist for this parser. Useful for long sets of key-value pairs that are not all required.
 
     <comp.Example>
-          <comp.MultiCodeBlock language="yaml" translate_into={["json", "javascript"]} source="cloudcannon.config.yml">
-    ```
-          parser: "key_values"
-          options:
-            models:
-              - source_key: href
-              - source_key: target
-                optional: true
-              - source_key: class
-                optional: true
-    ```
-    </comp.MultiCodeBlock>
+      <comp.MultiCodeBlock language="yaml" translate_into={["json", "javascript"]} source="cloudcannon.config.yml">
+      ```
+                parser: "key_values"
+                options:
+                  models:
+                    - source_key: href
+                    - source_key: target
+                      optional: true
+                    - source_key: class
+                      optional: true
+      ```
+      </comp.MultiCodeBlock>
 
-          Example usage:
+      Example usage:
 
-          <comp.CodeBlock language="markdown" source="page.md">
-    ```
-          ## My blog post
+      <comp.CodeBlock language="markdown" source="page.md">
+      ```
+                ## My blog post
 
-          <a href="#link" target="_blank" class="my_link"> ... </a> <!--1-->
-          <a href="#link" target="_blank"> ... </a> <!--1-->
-          <a href="#link"> ... </a> <!--1-->
+                <a href="#link" target="_blank" class="my_link"> ... </a> <!--1-->
+                <a href="#link" target="_blank"> ... </a> <!--1-->
+                <a href="#link"> ... </a> <!--1-->
 
-          <a target="_blank"> ... </a> <!--2-->
+                <a target="_blank"> ... </a> <!--2-->
 
-          Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
-    ```
-    <comp.Annotation number="1">
-      All of these anchor tags will parse correctly, as they are missing either `target` or `class`
-      keys from the arguments, and both are marked as `optional`.
-    </comp.Annotation>
-    <comp.Annotation number="2">
-      This anchor tag will not be parsed, as the `href` key is absent and is not marked as `optional`.
-    </comp.Annotation>
-    </comp.CodeBlock>
-        </comp.Example>
+                Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
+      ```
+      <comp.Annotation number="1">
+        All of these anchor tags will parse correctly, as they are missing either `target` or `class`
+        keys from the arguments, and both are marked as `optional`.
+      </comp.Annotation>
+      <comp.Annotation number="2">
+        This anchor tag will not be parsed, as the `href` key is absent and is not marked as `optional`.
+      </comp.Annotation>
+      </comp.CodeBlock>
+    </comp.Example>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="remove_empty" type_markdown="boolean">
     Whether this key-value pair should be omitted altogether if the value is empty.
@@ -941,40 +939,40 @@ Usually this parser will be used to parse the content between paired start and e
 
 
     <comp.Example>
-          <comp.MultiCodeBlock language="yaml" translate_into={["json", "javascript"]} source="cloudcannon.config.yml">
-    ```
-          parser: "key_values"
-          options:
-            models:
-              - source_key: href
-              - source_key: target
-              - source_key: class
-                optional: true
-                remove_empty: true
-    ```
-    </comp.MultiCodeBlock>
+      <comp.MultiCodeBlock language="yaml" translate_into={["json", "javascript"]} source="cloudcannon.config.yml">
+      ```
+                parser: "key_values"
+                options:
+                  models:
+                    - source_key: href
+                    - source_key: target
+                    - source_key: class
+                      optional: true
+                      remove_empty: true
+      ```
+      </comp.MultiCodeBlock>
 
-          Example usage:
+      Example usage:
 
-          <comp.CodeBlock language="markdown" source="page.md">
-    ```
-          ## My blog post
+      <comp.CodeBlock language="markdown" source="page.md">
+      ```
+                ## My blog post
 
-          <a href="#link" target="_blank" class=""> ... </a> <!--1-->
-          <a href="#link" target="_blank"> ... </a> <!--1--> <!--2-->
+                <a href="#link" target="_blank" class=""> ... </a> <!--1-->
+                <a href="#link" target="_blank"> ... </a> <!--1--> <!--2-->
 
-          Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
-    ```
-    <comp.Annotation number="1">
-      With `remove_empty: true` both of these anchor tags will be output as `<a href="#link" target="_blank"> ... </a>`
-      as the `class` key contains no value.
-    </comp.Annotation>
-    <comp.Annotation number="2">
-      If `remove_empty: false` was set, this snippet would be output as `<a href="#link" target="_blank" class=""> ... </a>`.
-      The empty `class` key will be written even if it did not originally appear in the parsed source.
-    </comp.Annotation>
-    </comp.CodeBlock>
-        </comp.Example>
+                Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
+      ```
+      <comp.Annotation number="1">
+        With `remove_empty: true` both of these anchor tags will be output as `<a href="#link" target="_blank"> ... </a>`
+        as the `class` key contains no value.
+      </comp.Annotation>
+      <comp.Annotation number="2">
+        If `remove_empty: false` was set, this snippet would be output as `<a href="#link" target="_blank" class=""> ... </a>`.
+        The empty `class` key will be written even if it did not originally appear in the parsed source.
+      </comp.Annotation>
+      </comp.CodeBlock>
+    </comp.Example>
   </comp.DataReferenceRow>
 </comp.DataReference>
 
@@ -996,34 +994,34 @@ Usually this parser will be used to parse the content between paired start and e
   but it's a good illustration of the repeating literal parser.
 
   <comp.CodeBlock language="markdown" source="page.md">
-```
-  # My blog post
+  ```
+    # My blog post
 
-  Aenean lacinia bibendum nulla sed consectetur.
+    Aenean lacinia bibendum nulla sed consectetur.
 
-  ## My heading
+    ## My heading
 
-  Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
-```
-</comp.CodeBlock>
+    Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
+  ```
+  </comp.CodeBlock>
 
   <comp.MultiCodeBlock language="yaml" translate_into={["json", "javascript"]} source="cloudcannon.config.yml">
-```
-  _snippets:
-    anchor:
-      snippet: "[[hashes]] [[title]]"
-      params:
-        args:
-          parser: hashes
-          literal: "#"
-          minimum: 1
-        title:
-          parser: "content"
-          options:
-            editor_key: title
-            forbidden_tokens: ["\n"]
-```
-</comp.MultiCodeBlock>
+  ```
+    _snippets:
+      anchor:
+        snippet: "[[hashes]] [[title]]"
+        params:
+          args:
+            parser: hashes
+            literal: "#"
+            minimum: 1
+          title:
+            parser: "content"
+            options:
+              editor_key: title
+              forbidden_tokens: ["\n"]
+  ```
+  </comp.MultiCodeBlock>
 </comp.Example>
 
 <comp.DataReference>
@@ -1041,45 +1039,44 @@ Usually this parser will be used to parse the content between paired start and e
     many literals are output by the parser.
 
     <comp.Example>
+      <comp.MultiCodeBlock language="yaml" translate_into={["json", "javascript"]} source="cloudcannon.config.yml">
+      ```
+                _snippets:
+                  anchor:
+                    snippet: "[[hashes]] [[title]]"
+                    params:
+                      args:
+                        parser: hashes
+                        literal: "#"
+                        minimum: 1
+                        editor_key: heading_level
+                      title:
+                        parser: "content"
+                        options:
+                          editor_key: title
+                          forbidden_tokens: ["\n"]
+      ```
+      </comp.MultiCodeBlock>
 
-          <comp.MultiCodeBlock language="yaml" translate_into={["json", "javascript"]} source="cloudcannon.config.yml">
-    ```
-          _snippets:
-            anchor:
-              snippet: "[[hashes]] [[title]]"
-              params:
-                args:
-                  parser: hashes
-                  literal: "#"
-                  minimum: 1
-                  editor_key: heading_level
-                title:
-                  parser: "content"
-                  options:
-                    editor_key: title
-                    forbidden_tokens: ["\n"]
-    ```
-    </comp.MultiCodeBlock>
+      Example usage:
 
-          Example usage:
+      <comp.CodeBlock language="markdown" source="page.md">
+      ```
+                # My blog post <!--1-->
 
-          <comp.CodeBlock language="markdown" source="page.md">
-    ```
-          # My blog post <!--1-->
+                Aenean lacinia bibendum nulla sed consectetur.
 
-          Aenean lacinia bibendum nulla sed consectetur.
+                ## My heading <!--1-->
 
-          ## My heading <!--1-->
-
-          Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
-    ```
-    <comp.Annotation number="1">
-      If editing these as snippets in CloudCannon, the editor will see
-      `heading_level` as a number input. Changing this value will
-      add or remove `#` to the source code to match the number.
-    </comp.Annotation>
-    </comp.CodeBlock>
-        </comp.Example>
+                Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
+      ```
+      <comp.Annotation number="1">
+        If editing these as snippets in CloudCannon, the editor will see
+        `heading_level` as a number input. Changing this value will
+        add or remove `#` to the source code to match the number.
+      </comp.Annotation>
+      </comp.CodeBlock>
+    </comp.Example>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="default" type_markdown="number">
     The default number of literals, which is used when adding a new snippet to a page in CloudCannon.
