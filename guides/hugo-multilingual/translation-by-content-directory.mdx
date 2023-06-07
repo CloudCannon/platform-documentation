@@ -1,0 +1,75 @@
+---
+_schema: guide-item
+_uuid: 3d16fb1d-b83d-476b-9ff9-b702ccc200aa
+_created_at: 2023-06-07T00:00:00Z
+title: Translation by content directory
+nav_title: Translation by content directory
+published: true
+order: 3
+image: "/documentation/static/CloudCannonDocumentationog.jpg"
+description: Managing multilingual Hugo sites translated by content directory/folder.
+tags: []
+related_articles: []
+related_links: null
+---
+This approach is when you have files inside a top-level content folder for each language (e.g. `content/es/posts/my-post.md`).
+Hugo calls this [Translation by content directory](https://gohugo.io/content-management/multilingual/#translation-by-content-directory).
+
+The best practice here is to **define a collection per language and folder of related files** (e.g. Pages EN, Pages ES, Pages FR, Posts EN, Posts ES, Posts FR). This approach separates all languages which can make it easier to find specific files. More configuration entries are required, resulting in a longer site navigation.
+
+Here's an example with Pages and Posts:
+
+<comp.Tree>
+```
+content/
+>> en/
+   >> about.md
+   >> blog/
+      >> first-post.md
+>> es/
+   >> about.md
+   >> blog/
+      >> first-post.md
+>> fr/
+   >> about.md
+   >> blog/
+      >> first-post.md
+```
+</comp.Tree>
+
+<comp.CodeBlock language="yaml" source="cloudcannon.config.yml">
+```
+collections_config:
+  pages_en:
+    name: Pages EN
+    icon: wysiwyg
+    path: content/en
+    filter: strict #1
+  pages_es:
+    name: Pages ES
+    icon: wysiwyg
+    path: content/es
+    filter: strict #1
+  pages_fr:
+    name: Pages FR
+    icon: wysiwyg
+    path: content/en
+    filter: strict #1
+  posts_en:
+    name: Posts EN
+    icon: event_available
+    paths: content/en/blog
+  posts_es:
+    name: Posts ES
+    icon: event_available
+    paths: content/es/blog
+  posts_fr:
+    name: Posts FR
+    icon: event_available
+    paths: content/fr/blog
+```
+</comp.CodeBlock>
+
+<comp.Annotation number="1">
+  Hides collection-like files from other collections. In this case, the posts, as they are in a subfolder of this one.
+</comp.Annotation>

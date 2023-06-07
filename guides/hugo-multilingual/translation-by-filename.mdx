@@ -1,0 +1,77 @@
+---
+_schema: guide-item
+_uuid: 6c4f7848-45bf-4677-8c59-4a6942de0bf7
+_created_at: 2023-06-07T00:00:00Z
+title: Translation by filename
+nav_title: Translation by filename
+published: true
+order: 2
+image: "/documentation/static/CloudCannonDocumentationog.jpg"
+description: Managing multilingual Hugo sites translated by filename.
+tags: []
+related_articles: []
+related_links: null
+---
+This approach is when you have a language specified per file, as an extension prefix (e.g. `content/blog/my-post.es.md`). Hugo calls this [Translation by filename](https://gohugo.io/content-management/multilingual/#translation-by-filename).
+
+The best practice here is to **define a collection for each folder of related files** (e.g. Posts, Pages, Staff Members). Each collection contains the files from all languages. This approach is similar to a non-multilingual configuration. Related content stays together, making it easier to see inconsistencies across languages. However, it may be harder to find or distinguish specific files.
+
+You'll need a custom [create path](/documentation/articles/choosing-where-to-create-new-files/) here to include the language code in new filenames.
+
+Here's an example with Pages and Posts:
+
+<comp.Tree>
+```
+content/
+>> about.md
+>> about.es.md
+>> about.fr.md
+>> blog/
+   >> first-post.md
+   >> first-post.es.md
+   >> first-post.fr.md
+```
+</comp.Tree>
+
+<comp.CodeBlock language="yaml" source="cloudcannon.config.yml">
+```
+collections_config:
+  pages:
+    path: content
+    filter: strict #1
+  posts:
+    paths: content/blog
+    create: #2
+      path: '[relative_base_path]/{title|slugify}{suffix}.md'
+      extra_data:
+        dot: '.'
+        suffix: '{dot|if=language}{language|lowercase}'
+      _inputs:
+        language: #3
+          type: select
+          options:
+            allow_empty: false
+            value_key: id
+            values:
+              - id:
+                name: English
+              - id: es
+                name: Spanish
+              - id: fr
+                name: French
+```
+</comp.CodeBlock>
+
+<comp.Annotation number="1">
+  Hides collection-like files from other collections. In this case, the posts, as they are in a subfolder of this one.
+</comp.Annotation>
+<comp.Annotation number="2">
+  This controls the filename and path new content files are given.
+
+  Editors are prompted to add a `title` and `language` when saving the file for the first time. If the placeholders share names with top level inputs in your front matter, editing them in the prompt also changes those values in the file contents.
+
+  When "English" is chosen, no language code is added to the filename - in this example English is the default language, and Hugo has no extra filename suffix for the default language.
+</comp.Annotation>
+<comp.Annotation number="3">
+  This `_inputs` entry restricts the language editors can choose to one of the specified languages. `language` would be a text input without this, which would work but is more prone to errors.
+</comp.Annotation>
