@@ -20,13 +20,13 @@ guide_listing:
   **Note:** publishing workflows in CloudCannon are only available on the [Standard plan](/pricing/) and above.
 </comp.Notice>
 
-One of the advantages of using CloudCannon is being able to leverage workflows from Git when maintaining your site. This guide will talk about the benefits of a staging/production workflow, before looking at how to set this up in CloudCannon.
+One of the advantages of using CloudCannon is being able to leverage workflows from Git when maintaining your site. This guide will talk about the benefits of a staging workflow, then explore how to set this up in CloudCannon.
 
 You can see [a list of supported Git providers here](/documentation/articles/introduction-to-syncing/#supported-git-providers).
 
 ## What is a staging workflow
 
-In a "staging workflow", you'll keep two Git branches to serve as production and staging environments. 
+In a staging workflow, you'll keep two Git branches to serve as production and staging environments. 
 
 * The **production** branch is what you'll show to your end users (visitors to your site). You won't ever edit this branch directly.
 * The **staging** branch is where you make all your edits. When your changes are ready, you use Git to merge into the production branch.
@@ -35,16 +35,15 @@ In a "staging workflow", you'll keep two Git branches to serve as production and
 
 One of the most obvious advantages of this workflow is that allows you to work on the site without the end users seeing any unfinished changes.
 
-Another benefit is that you can tailor each environment according to its use. If your production site has a long postbuild step for compressing images or translating content in another language, you can use environment variables to only run this step on the production branch.
+You can also set protections on your production Git branch to ensure it isn't merged to without appropriate quality assessment. You might require Pull Requests to be issued to your branch, and those Pull Requests might require a suite of automated tests to pass and/or approval from another team member before merging is possible.
 
+Another benefit is that you can tailor each environment according to its use. If your production site has a long postbuild step for compressing images or translating content in another language, you can use environment variables to only run this step on the production branch.
 
 <comp.CodeBlock language="sh" source=".cloudcannon/postbuild">
 ```
-if [[ $LOCALIZE_CONTENT == "true" ]];
+if [[ $RUN_POSTBUILD == "true" ]];
 then
-    npm run localize  
+    npm run postbuild  
 fi
 ```
 </comp.CodeBlock>
-
-You can also set protections on your production Git branch to ensure it isn't merged to without appropriate quality assessment. You might require Pull Requests to be issued to your branch, and those Pull Requests might require a suite of automated tests to pass and/or approval from another team member before merging is possible.
