@@ -17,4 +17,6 @@
 
 	Prism.languages.tree = Prism.languages.cc_tree;
 
+  Prism.languages.astro = Prism.languages.jsx;
+
 }(Prism));
