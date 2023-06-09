@@ -1,0 +1,79 @@
+---
+_schema: guide-item
+_uuid: 3d16fb1d-b83d-476b-9ff9-b702ccc200aa
+_created_at: 2023-06-07T00:00:00Z
+title: Translation by content directory
+nav_title: Translation by content directory
+published: true
+order: 3
+image: /documentation/static/CloudCannonDocumentationog.jpg
+description: Managing multilingual Hugo sites translated by content directory/folder.
+tags: []
+related_articles: []
+related_links:
+---
+This approach separates all languages, which can make it easier to find specific files. More configuration entries are required, however, resulting in a longer site navigation.
+
+Hugo calls this [Translation by content directory](https://gohugo.io/content-management/multilingual/#translation-by-content-directory). Your files will be placed inside a top-level content folder for each language (e.g. `content/es/posts/my-post.md`).
+
+The best practice here is to **define a collection per language and folder of related files** (e.g. Pages EN, Pages ES, Pages FR, Posts EN, Posts ES, Posts FR).
+
+Here's an example with Pages and Posts:
+
+<comp.Tree>
+```
+content/
+>> en/
+   >> about.md
+   >> blog/
+      >> first-post.md
+>> es/
+   >> about.md
+   >> blog/
+      >> first-post.md
+>> fr/
+   >> about.md
+   >> blog/
+      >> first-post.md
+```
+</comp.Tree>
+
+<comp.CodeBlock language="yaml" source="cloudcannon.config.yml">
+```
+collections_config:
+  pages_en:
+    name: Pages EN
+    icon: wysiwyg
+    path: content/en
+    filter: strict #1
+  pages_es:
+    name: Pages ES
+    icon: wysiwyg
+    path: content/es
+    filter: strict #1
+  pages_fr:
+    name: Pages FR
+    icon: wysiwyg
+    path: content/en
+    filter: strict #1
+  posts_en:
+    name: Posts EN
+    icon: event_available
+    paths: content/en/blog
+  posts_es:
+    name: Posts ES
+    icon: event_available
+    paths: content/es/blog
+  posts_fr:
+    name: Posts FR
+    icon: event_available
+    paths: content/fr/blog
+```
+<comp.Annotation number="1">
+  When you browse a collection in CloudCannon, all files within that folder will be shown by default. 
+  Applying the `strict` filter to a collection instead limits the UI to show only the files that exactly match that collection.
+
+  In this case, it prevents files from the `posts_*` collections in the `content/*/blog/` subdirectories
+  from appearing when browsing the `pages` collection for that language.
+</comp.Annotation>
+</comp.CodeBlock>
