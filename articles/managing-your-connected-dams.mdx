@@ -11,37 +11,58 @@ related_articles: null
 related_links: null
 ---
 
-Learn how to update the details of your connected DAMs
+Learn how to update the details of your connected DAMs.
 
-### Updating your DAM details
-To update the details that are stored in CloudCannon:
+## Updating your DAM details
+
+To update the details that are stored in CloudCannon for connecting to your DAM:
 
 1. In your Organisation settings, navigate to *Files* / *Assets*
 2. Locate the relevant DAM, and click the **Manage** button next to its name
 3. In the **Configuration tab**, edit your details, then click **Update** to save your changes.
 
-### Prevent uploads to your DAM
+<comp.DocsImage path="ye_olde_images/org-dam-settings.png" alt="Screenshot of organization DAM settings" type="screenshot" />
 
+To update the settings for using your DAM, on a site-by-site basis:
+
+1. In your site’s settings, navigate to *Files* / *Assets*.
+2. Locate your DAM from the list, and click the three dots in the top right corner.
+3. From the context menu, click **Settings**
+4. Edit the settings in the modal that appears, then click **Update** to save your changes.
+
+<comp.DocsImage path="ye_olde_images/site-dam-settings.png" alt="Screenshot of site DAM settings modal" type="screenshot" />
+
+### Prevent uploads to your DAM
 
 <comp.Notice info_type="info">
   **Tenovos** DAMs do not support uploading within CloudCannon.
 </comp.Notice>
 
-<comp.Notice info_type="info">
-  Uploads to **Cloudinary** DAMs cannot be disabled.
-</comp.Notice>
+You check the **Uploads Locked** option to prevent your editors from uploading assets to the DAM from within the CloudCannon app. This is set per-site.
 
-You can prevent your editors from uploading assets to the DAM from within the CloudCannon app. This is set per-site.
+If you're using a Cloudinary DAM, you can prevent uploads by removing the **Upload Preset** instead.
 
-To lock uploads to your DAM:
+### Determine where on the site your DAM can be used
 
-1. In your site’s settings, navigate to *Files */ *Assets*
-2. Locate your DAM from the list, and click the three dots in the top right corner
-3. From the context menu, click **Update Settings**
-4. In the modal, tick the **Uploads Locked** option, then click **Update**.
+The `allowed_sources` configuration option can allow you to choose which "sources" (i.e. DAMs and site files) are available for different editing interfaces across a single site. To use this, you'll need to set a **Reference Key** in the site-level DAM configuration, which you can then reference in the `allowed_sources` array in your site files.
 
-<comp.DocsImage path="https://dam-cdn.cloudcannon.com/documentation/images/assets/site_dam_settings.png" alt="Screenshot of site DAM settings modal" type="screenshot" />
+The configuration might look something like this:
 
-<comp.Notice info_type="info">
-  You can prevent choosing existing files from and uploads to your site/repository files in the *Site Settings / Details* section.
-</comp.Notice>
+<comp.CodeBlock language="yml" source="cloudcannon.config.yml">
+```
+_inputs:
+  image:
+    options:
+      allowed_sources:
+        - 'my-cloudinary-dam'
+				- 'site-files'
+```
+</comp.CodeBlock>
+
+The reference key can be any string, except for `site-files` which is reserved to refer to the files from your site. You also cannot have two DAMs with the same reference key on one site.
+
+For more information, see the documentation for:
+
+* [Configuring editable regions in your HTML](/documentation/articles/defining-editable-regions-in-your-html/#image-options)
+* [Using rich text inputs](/documentation/articles/using-rich-text-inputs-to-edit-your-data/#image-options)
+* [Using upload inputs](/documentation/articles/using-upload-inputs-to-edit-your-data/)
