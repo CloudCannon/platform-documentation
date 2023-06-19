@@ -11,7 +11,26 @@ related_articles: null
 related_links: null
 ---
 
-Uploads paths are locations where new asset files are uploaded to within the editor. The two options are `paths.uploads` for site files, and `paths.dam_uploads` for [DAM](/documentation/articles/introduction-to-assets-and-dams/) files.
+Uploads paths are locations where new asset files are uploaded to within the editor. There are 4 options:
+
+<comp.DataReference>
+ <comp.DataReferenceRow label="paths.uploads" type_markdown="String">
+  Determines the directory to upload to, for site files.
+ </comp.DataReferenceRow>
+ <comp.DataReferenceRow label="paths.uploads_filename" type_markdown="String">
+  Determines the name of the uploaded file, for site files.
+  
+  The default value is `[asset_filename_without_ext|slugify|deburr][count].[asset_ext|lowercase]`.
+ </comp.DataReferenceRow>
+ <comp.DataReferenceRow label="paths.dam_uploads" type_markdown="String">
+  Determines the directory to upload to, when uploading [DAM](/documentation/articles/introduction-to-assets-and-dams/) files.
+ </comp.DataReferenceRow>
+ <comp.DataReferenceRow label="paths.dam_uploads_filename" type_markdown="String">
+  Determines the name of the uploaded file, when uploading [DAM](/documentation/articles/introduction-to-assets-and-dams/) files.
+  
+  The default value is `[asset_filename]`.
+ </comp.DataReferenceRow>
+</comp.DataReference>
 
 Uploads paths are configured alongside other paths in a number of places:
 
@@ -43,7 +62,12 @@ paths:
 </comp.Notice>
 
 ## Placeholders
-Uploads paths have a number of placeholders available. There are two types of placeholders: file and data placeholders.
+
+Uploads paths have a number of placeholders available, depending on whether you are configuring the upload directory (with `path.uploads` or `path.dam_uploads`) or the upload filename (with `path.uploads_filename` or `path.dam_uploads_filename`).
+
+### Directory placeholders
+
+There are two types of placeholders: file and data placeholders.
 
 File placeholders are always available, and relate to the file the editor is open on:
 
@@ -69,6 +93,15 @@ Data placeholders are populated from front matter or data values in the editor, 
 * `{date|day}` is date from inside the file, with the 2-digit day extracted.
 
 The placeholders are processed when the new asset is added. This means that changes to front matter or data after adding an asset file are not updated for that processed upload path.
+
+### Filename placeholders
+
+* `[asset_filename]` is the full name of uploaded file (e.g. "my-document.pdf").
+* `[asset_filename_without_ext]` is filename without any extension (e.g. "my-document").
+* `[asset_ext]` is the file's extension without a "." (e.g. "png").
+* `[count]` becomes a hyphen and number if the processed file path clashes with an existing file (e.g. `my-document-1.pdf`)
+
+You can use filters to transform these placeholders. For example `[asset_filename|slugify].[asset_ext]` with turn "My Document.pdf" into "my-document.pdf". You can read more about using placeholders, and see a list of all available filters, [in this article](/documentation/articles/configuring-with-placeholders/).
 
 <comp.Notice info_type="info">
   Placeholders that result in empty values may result in sequential slashes — these are collapsed into one after applying placeholders.
