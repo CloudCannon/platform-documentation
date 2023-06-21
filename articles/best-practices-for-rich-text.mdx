@@ -27,10 +27,35 @@ To prevent cross-site scripting attacks and other unwanted interactions between 
 
 <comp.DocsImage path="/documentation/static/boxed-xss-elements.png" alt="script and style elements replaced with boxes" type="screenshot-snippet"/>
 
-Some elements with simple text content, like `kbd` and `main`, will be included in this process and will become uneditable. These elements typically also fall into the category of HTML that cannot be reconstructed, and should be avoided in rich text content anyway.
+Some elements with simple text content, like `kbd` and `main`, will be included in this process and will become uneditable. These elements always also fall into the category of HTML that cannot be reconstructed, and should be avoided in rich text content anyway.
+
+The full list of elements that will be replaced with boxes is: `base`, `blink`, `button`, `canvas`, `data`, `datalist`, `dfn`, `dialog`, `fieldset`, `form`, `hgroup`, `iframe`, `input`, `kbd`, `label`, `legend`, `link`, `main`, `map`, `marquee`, `math`, `menu`, `menuitem`, `meta`, `meter`, `noscript`, `object`, `optgroup`, `option`, `output`, `picture`, `portal`, `progress`, `q`, `rb`, `rp`, `rt`, `ruby`, `samp`, `script`, `select`, `slot`, `source`, `style`, `svg`, `template`, `textarea`, `time`, `title`, `track`, `var`, and `wbr`.
+
+Any content that is not boxed this way will also be processed with an XSS stripping library, which will remove any remaining potential attack vectors. This will remove most attributes from HTML elements. The only exceptions are the `class` attribute, and other basic attributes required for the functionality of different elements (e.g. `src` and `alt` for `img`). Once again, these attributes also fall into the category of HTML that cannot be reconstructed, and should be avoided in rich text content anyway.
 
 ## Best practices
 
 The simplest approach is to ensure that all markup in your rich text content can be rendered and edited in CloudCannon. Any markup that can be straightforwardly converted between HTML and Markdown is most likely okay.
 
 If you need custom markup in your rich text content, configure snippets to provide a safe, structured way to edit that content.
+
+## Examples
+
+It's important to think about the kind of content that goes into rich text content. Any custom markup is subject to be removed by either of the processes described in this article. Let's look at an example, and how to solve this problem.
+
+In this example, we have added a heading with an `id` attribute to our rich text, with the goal of being able to link directly to that heading from elsewhere.
+
+<comp.CodeBlock language="markdown" source="/blog/first-post.md">
+```
+<h1 id="introduction">Introduction</h1>
+
+Blog post content goes here.
+```
+</comp.CodeBlock>
+
+However, we have now added an HTML structure that cannot be reproduced in CloudCannon's rich text editor. If a team member accidentally deletes this heading, they won't be able to add the `id` attribute if they try to recreate it. There is also no visual representation of the `id` attribute, so it's likely that no one will notice it is broken for a while. Even if this doesn't happen, the `id` attribute will actually be stripped automatically from the `<h1>` element, by the XSS stripper, when it is loaded in the editor.
+
+Solutions to this problems might include:
+
+* Configuring snippets to replace your custom markup. Read more about configuring snippets with [Hugo](/documentation/articles/editing-with-hugo-shortcodes/), [Eleventy](/documentation/articles/editing-with-eleventy-shortcodes/), and [MDX](/documentation/articles/editing-with-mdx-components/).
+* Use postprocessing to add the desired HTML during the build (for example, using Hugo's [Markdown render hooks](https://gohugo.io/templates/render-hooks/) or simply a templating language provided by your SSG).
