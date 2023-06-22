@@ -1,0 +1,152 @@
+---
+_schema: guide-item
+_uuid: af2b9618-a24c-40a8-9b05-fc396158cc73
+_created_at: '2023-02-01 02:40:30 +0000'
+title: Page Building
+nav_title: Page Building
+order: 7
+published: true
+image: /documentation/static/bookshop-11ty/bookshop-astro-og.png
+description: Use your components to visually build pages from scratch
+tags: []
+related_articles:
+related_links: []
+---
+With your components live rendering and your Structures created in CloudCannon, we now have the ingredients to create a page-building experience in the CMS.
+
+## Looping components
+
+Once you have a few more components built out, an ideal front matter section might look like this:
+
+<comp.CodeBlock language="yml" source="src/pages/index.md">
+```
+---
+layout: ../layouts/PageLayout.astro
+content_blocks:
+
+  - _bookshop_name: hero
+    title: Kākā
+    subtitle: The New Zealand kākā is a large species of parrot
+
+  - _bookshop_name: content
+    content_markdown: >-
+      The New Zealand kākā lives in lowland and mid-altitude native forest
+
+  - _bookshop_name: image
+    image_url: /uploads/Scrapping_kaka.jpg
+    image_alt: The bird that screams loudest and most persistently gets to own the branch
+
+  - _bookshop_name: stats
+    length: 45cm
+    weight: 452g
+    color: reddish
+---
+```
+</comp.CodeBlock>
+
+Now we need to create a page component that loops over each item in this array and renders them on the page using the dynamic components we covered in [Using Bookshop components](/documentation/guides/bookshop-astro-guide/using-components/#rendering-dynamic-components).
+Instead of creating this component in our regular `src/components` directory we're going to create this component in our Bookshop shared components directory. We'll explain what this means later, but for now create a `shared/astro` directory in your `src` folder.
+This directory is where we'll place all our future shared components. Next, create an empty `page.astro` component inside your `src/shared/astro` directory.
+
+Afterward, you should have a directory structure like this:
+<comp.Tree>
+```
+src/
+>> components/
+>  >> sample/
+>     >> sample.astro
+>> shared/
+   >> astro/
+      >> page.astro #*
+```
+</comp.Tree>
+
+Now add the following code to your `page.astro` component:
+<comp.CodeBlock language="astro" source="src/shared/astro/page.astro">
+```
+---
+const { contentBlocks } = Astro.props;
+const components = {};
+const componentImports = import.meta.glob("../../components/**/*.astro", {
+  eager: true,
+});
+Object.entries(componentImports).forEach(([path, obj]) => {
+  const parts = path
+    .replace("../../components/", "")
+    .split(".")[0]
+    .split("/");
+  if (parts[parts.length - 1] === parts[parts.length - 2]) {
+    parts.pop();
+  }
+  const bookshopName = parts.join("/");
+  components[bookshopName] = obj.default;
+});
+---
+
+<main>
+  {contentBlocks.map((block) => {
+    const Component = components[block._bookshop_name];
+    return <Component {...block} />;
+  })}
+</main>
+
+```
+</comp.CodeBlock>
+
+This example implementation loads all the Astro components in your components library and renders them according
+to the `contentBlocks` array prop.
+
+We'll also need to add a layout that passes the `content_blocks` array from the markdown to our new page component.
+<comp.CodeBlock language="astro" source="src/layouts/PageLayout.astro">
+```
+---
+import Page from '../shared/astro/page.astro';
+
+const { frontmatter } = Astro.props;
+---
+
+<Page bookshop:live contentBlocks={frontmatter.content_blocks} />
+```
+</comp.CodeBlock>
+
+Note that we don't need to add the `bookshop:live` directive to the subcomponents within a page
+because the entire page component is already live rendering.
+
+It is important to put our component loop inside another Bookshop component rather than
+using it directly in our layout because Bookshop can only live render changes within
+the boundaries of Bookshop components. If we look at the loop in our page component and note where
+the internal live editing boundaries would be, it will look like this:
+
+<comp.CodeBlock language="astro" source="src/shared/astro/page.astro">
+```
+{frontmatter.content_blocks.map((block) => {
+  const name = `../components/${block._bookshop_name}.astro`;
+  const Component = components[name].default;
+  return <>
+    {/* start live editing */}
+    <Component bookshop:live {...block} />;
+    {/* end live editing */}
+  </>
+})}
+```
+</comp.CodeBlock>
+
+So if we were to use this loop directly, each component individually would update changes live,
+but rearranging or adding new components wouldn't render correctly
+because the outer `frontmatter.content_blocks.map` loop wouldn't get re-rendered.
+Adding the loop to a page component ensures that the entire loop is contained within a live editing boundary and is re-rendered whenever components are added or moved.
+
+## Shared Components
+
+Earlier we introduced the `shared/astro` directory for shared components. Shared components are components
+that need to re-render in the Visual Editor but aren't semantically a "component"
+that an editor would add to a page. In the previous section, we made our page component a shared component
+because we needed it to re-render our `content_blocks` array, but editors shouldn't be able to add page
+components within a page. Apart from this distinction, these files are
+functionally the same as your other components and can be imported and used the same way.
+
+## Taking stock
+
+With the steps taken so far, you should have the framework for a fully functional page builder, rendering live when editing on CloudCannon. Now is a great moment to jump into your codebase, start migrating some components, and experiment with the system.
+
+The following sections of this guide will cover some of Bookshop's remaining features that can help polish the page-building experience, but aren't required while setting things up.
