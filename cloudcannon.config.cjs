@@ -33,14 +33,18 @@ module.exports = {
             path: 'guides',
             output: true,
             icon: 'school',
-            url: '/guides/relative_base_path/[slug]/',
+            url: '/guides/[relative_base_path]/[slug]/',
             parser: 'front-matter'
         },
         changelog: {
             path: 'changelogs',
             output: true,
             icon: 'tips_and_updates',
-            url: '/changelog/[slug]/',
+            url: (filePath) => {
+                const regex = /^changelogs\/([0-9]{4})\-([0-9]{2})\-([0-9]{2})_(.+)\.mdx?/;
+                const [, year, month, day, slug] = filePath.match(regex) || [];
+                return `/changelog/${year}/${month}/${day}/${slug}.html`;
+            },
             parser: 'front-matter',
             sort: {
               key: 'path',

@@ -1,0 +1,177 @@
+---
+_schema: guide-item
+_uuid: 2e744b85-1d7e-44d6-b677-0be035dafdf0
+_created_at: '2023-02-01 02:40:30 +0000'
+title: Using Structures
+nav_title: Using Structures
+order: 6
+published: true
+image: /documentation/static/bookshop-11ty/bookshop-astro-og.png
+description: Create structured, reusable data from your components
+tags: []
+related_articles:
+related_links: []
+---
+So far, we have introduced how to use components on a site and how to update them live when the front matter of a page changes. The next aspect to tackle is adding components to and removing them from a page. This is where CloudCannon Structures come into the picture.
+
+## What are Structures?
+
+Structures are CloudCannon's answer to structured data on static sites. You can read more about structures in [Defining what adds to an array](/documentation/articles/defining-what-adds-to-an-array-with-array-structures/#structures) and the [Structures reference](/documentation/articles/array-structures-reference/). The main thing to know is that for Bookshop, Structures define the set of components that you can add to a specific key in CloudCannon.
+
+## The Bookshop specification file
+
+To start with CloudCannon Structures, we first need to add Bookshop specification files for our components. The Bookshop specification file for a component is created next to that component and has the same name. If you're following along with the guide, you can create an empty `sample.bookshop.yml` next to our sample component.
+
+Afterward, your file structure should look like this:
+
+<comp.Tree>
+```
+src/
+>> components/
+   >> sample/
+      >> sample.astro
+      >> sample.bookshop.yml #*
+```
+</comp.Tree>
+
+Similarly to the live editing setup, this file isn't required when building your site. Instead, it's picked up by the `@bookshop/generate` command to configure your component in CloudCannon.
+
+Here's a bare-bones file to illustrate the main keys:
+
+<comp.CodeBlock language="yaml" source="sample.bookshop.yml">
+```
+spec: #1
+  structures:
+    - content_blocks
+  label: My Component
+
+blueprint: #2
+  text: "Hello World!"
+
+preview: #3
+
+_inputs: #4
+```
+<comp.Annotation number="1">
+  The `spec` section names this component and tells CloudCannon where you can place this component on your site.
+</comp.Annotation> <comp.Annotation number="2">
+  The `blueprint` section defines the data your component needs and provides the default values when a new component is created.
+</comp.Annotation> <comp.Annotation number="3">
+  The `preview` section is used in the Bookshop component browser and doesn't affect visual editing. We can ignore this key for now.
+</comp.Annotation> <comp.Annotation number="4">
+  The `_inputs` section is passed through as [CloudCannon's input configuration](/documentation/articles/how-to-choose-what-input-is-used-in-the-data-editor/),
+  allowing you to customize the fields specified in the `blueprint`.
+</comp.Annotation></comp.CodeBlock>
+
+To get things started, we'll focus on the required `spec` and `blueprint` sections.
+
+## The component spec
+
+The component `spec` controls everything about how a component is displayed in the CMS and where it can be added to a page. Let's walk through a more fleshed-out `spec` section:
+
+<comp.CodeBlock language="yaml" source="sample.bookshop.yml">
+```
+spec:
+  structures: #1
+    - content_blocks
+  label: My Component #2
+  description: A very simple component #3
+  icon: nature_people #4
+```
+<comp.Annotation number="1">
+  The `structures` key tells CloudCannon where this component can be added. In this example,
+  we are adding this component to the set of `content_blocks` structures.
+  In practice, this means that if a `content_blocks` key exists anywhere on your site,
+  for example, in the front matter of a page, CloudCannon will give editors the option to add
+  the `sample` component to that array or object.
+</comp.Annotation> <comp.Annotation number="2">
+  The `label` key is used as the main title of the component when selecting new components,
+  and browsing the existing components on a page.
+</comp.Annotation> <comp.Annotation number="3">
+  The `description` key can help provide context when selecting a new component in CloudCannon.
+</comp.Annotation> <comp.Annotation number="4">
+  The `icon` key is shown alongside existing components in CloudCannon, and when selecting new components.
+  This should be the attribute name of any [Material Icon](https://fonts.google.com/icons).
+</comp.Annotation></comp.CodeBlock>
+
+## The component blueprint
+
+The component `blueprint` is used to generate the CloudCannon Structure for your component. This object will be used as the initial data when the component is added to a page and represents all of the editable data that your component takes.
+
+If our `sample` component contained the following blueprint:
+
+<comp.CodeBlock language="yaml" source="sample.bookshop.yml">
+```
+blueprint:
+  text: "Hello World!"
+  color: "#034AD8"
+  image:
+    image_url: "/image.png"
+    image_alt: "My alternate text"
+```
+</comp.CodeBlock>
+
+Then creating a new `sample` component in CloudCannon would present us with the following data editor:
+
+<comp.DocsImage path="/documentation/static/bookshop-11ty/new-sample-component.png" alt="A data editor panel open in CloudCannon showing the initialized state of a new Sample component when added to the page" type="ui-snippet"/>
+
+Component blueprints contain some other powerful features for helping create your Structures. We'll see those soon in the [Nesting components](/documentation/guides/bookshop-eleventy-guide/nesting-components/) page of this guide.
+
+## Generating and using Structures
+
+The `npx @bookshop/generate` command that we set up when [configuring live editing](/documentation/guides/bookshop-eleventy-guide/configuring-live-editing/) will automatically create Structures from your Bookshop components and make them available to CloudCannon. This process happens as part of your site's build step on CloudCannon.
+
+The Structures listed in your component's `spec` determine where you can add that component in CloudCannon. For a `sample` component tagged as:
+
+<comp.CodeBlock language="yaml" source="sample.bookshop.yml">
+```
+spec:
+  structures:
+    - content_blocks
+```
+</comp.CodeBlock>
+
+With the page:
+
+<comp.CodeBlock language="markdown" source="pages/index.md">
+```
+---
+content_blocks:
+---
+```
+</comp.CodeBlock>
+
+CloudCannon will treat `content_blocks` as an array and allow editors to add the `sample` component to it. 
+
+You can also reference Bookshop generated structures in your CloudCannon input configuration.
+For example, If you wanted to create a `page_components` input in CloudCannon that has
+access to your Bookshop structures, you could configure `page_components` like this:
+
+<comp.CodeBlock language="yml" source="cloudcannon.config.yml">
+```
+_inputs:
+  page_components:
+    type: array #1
+    options:
+      structures: _structures.content_blocks #2
+```
+<comp.Annotation number="1">
+  Here you may also specify `type: object` that will function similarly to an array with a maximum length of one.
+  As an object, a single component from the set of Structures can be added or removed.
+</comp.Annotation>
+<comp.Annotation number="2">
+  Bookshop generated structures are available under the `_structures` key. This line sets the components available in
+  the `page_component` input to be all those assigned to the `content_blocks` structure in their Bookshop specification.
+</comp.Annotation>
+</comp.CodeBlock>
+
+## Supported File Formats
+
+Bookshop supports reading component files written in `yaml`, `toml`, `json`, and `js`.
+Above, we have been writing the Bookshop configuration files using YAML. 
+This is the recommended format, but if you prefer, you can choose another.
+
+<comp.Notice info_type="info">
+  Can't decide? You can always run `npx @bookshop/up --format <format>`
+  to automatically convert all of your Bookshop specification files if you change your mind.
+</comp.Notice>
