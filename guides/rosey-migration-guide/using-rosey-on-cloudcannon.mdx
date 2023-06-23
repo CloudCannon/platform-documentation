@@ -1,0 +1,39 @@
+---
+_schema: guide-item
+_uuid: e650e671-14de-4392-80b4-03c90b8f2d41
+_created_at: '2023-05-26 00:32:03 +0000'
+title: Using Rosey on CloudCannon
+nav_title: Using Rosey on CloudCannon
+order: 3
+published: true
+image: /documentation/static/CloudCannonDocumentationog.jpg
+description: Build a translated site with Rosey on CloudCannon
+tags: []
+related_articles:
+related_links:
+---
+
+Now that you can build your translated site with Rosey locally, we want to get the same build process working on CloudCannon. We'll add a postbuild step using [build hooks](/documentation/articles/extending-your-build-process-with-hooks/).
+
+Recall that using Rosey in our postbuild can cause issues for the Visual Editor. To get around this, we'll only run Rosey on our production site. This works because we don't want to directly edit the production site anyway, and we may not need to see all the translated content on the staging site where we're editing. If you do need to preview translations on your site before they go live, you can create another site connected to the `staging` branch which also runs the postbuild!
+
+Add a `.cloudcannon/postbuild` script to run Rosey after every build on CloudCannon. We'll use an environment variable to tell our script whether to run Rosey or not.
+
+<comp.CodeBlock language="sh" source=".cloudcannon/postbuild"> 
+```
+if [[ $TRANSLATE == "true" ]];
+then
+  echo "Installing Rosey"
+  npm install
+
+  echo "Translating site with Rosey"
+  # There's a little bit of shuffling around here to ensure the translated site ends up where CloudCannon picks up your site
+  mv ./_site ./_untranslated_site                  
+  npx rosey build --source _untranslated_site --dest _site
+fi
+```
+</comp.CodeBlock>
+
+On our production site, we'll add an environment variable `TRANSLATE` with the value `true`. You can do this in the **Command Line Options** menu in the *Configuration* section of your site settings.
+    
+Your site should be now translated on CloudCannon! 🎉 If you were previously using CloudCannon i18n, you can switch it off in your build settings.
