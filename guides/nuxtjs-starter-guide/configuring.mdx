@@ -1,0 +1,102 @@
+---
+_schema: guide-item
+_uuid: "cfe55ac8-e5ce-4960-8336-8624b28a5893"
+_created_at: "2023-06-22 06:54:28 +0000"
+title: "Configuring"
+nav_title: "Configuring"
+order: 4
+published: true
+image: "/documentation/static/CloudCannonDocumentationog.jpg"
+description: "This guide will walk through the steps required to get your Nuxt site built, editable and live on CloudCannon."
+tags: []
+related_articles: null
+related_links: null
+---
+
+Some SSGs, like Jekyll, Hugo, and Eleventy, have strong opinions about how to organize the content in your repo.
+CloudCannon can run automatic processes on these SSGs and provide basic editing out of the box.
+Nuxt takes a less opinionated approach and allows you to decide where and how content is stored.
+This means that for Nuxt sites, CloudCannon out of the box only has the source editor available.
+
+#### Interlude: Editing terminology
+
+CloudCannon has a few concepts that make organizing data easier:
+
+* **Data**\: These are standalone data files. This is ideal for site configuration or files that don't need to repeat. Data is edited by altering a single file.
+* **Collections**\: A folder of files that represent a repeatable data format. This is a good fit for pages, blogs, staff members, recipes, etc. Collections are edited by altering any file or adding more files.
+
+Using the [Nuxt Content](https://content.nuxtjs.org/) module makes integrating your Nuxt site with CloudCannon easy.
+This module has clear anologues to the organization of data mentioned above.
+Most importabtly, it requires that you separate your site content from the templating and rendering logic.
+This makes it easiest to integrate the site into the CMS.
+
+When using the Nuxt Content module, we recommend grouping related content in directories.
+For instance, if your site has a blog with multiple posts, it's a good idea to keep those posts in a `posts/` folder.
+
+<comp.Notice info_type="info">
+  CloudCannon does not support Server-side Rendering as our build and hosting environments are decoupled.
+</comp.Notice>
+
+CloudCannon supports a set of file formats for files in Data or Collections:
+
+* Structured data files: JSON, YAML, TOML, CSV, TSV
+* Markup files: HTML, Markdown
+* Combination files: HTML with front matter, Markdown with front matter
+
+Front matter refers to a section at the top of a markup file that contains structured data. CloudCannon supports JSON, YAML and TOML front matter. Markdown comes in many flavours, so be sure to checkout configuring your Markdown engine.
+
+*<u><strong>If you need another supported format, please contact support and we would be happy to look into it.</strong></u>*
+
+### 3: Updating Nuxt to use file data
+
+Now that we have the terminology it’s time to organize our content.
+For Document-driven sites, in your Nuxt page component(s) you can fetch your page data like so:
+
+<comp.CodeBlock language="javascript" source="pages/[...slug].vue">
+```
+  const { page } = useContent();
+```
+</comp.CodeBlock>
+This catch-all route will fetch the relevant file in your `content/` directory, based on the URL you have navigated to.
+For example, navigating to `/about/` will fetch the `content/about.md`, if it exists.
+
+If you are not using Document-driven mode, you can instead fetch your page data using the [queryContent composable](https://content.nuxtjs.org/api/composables/query-content), like so:
+
+<comp.CodeBlock language="javascript" source="pages/about.vue">
+```
+	const page = await queryContent().where({ _path: '/about' }).findOne();
+```
+</comp.CodeBlock>
+
+CloudCannon edits content stored in the local file system. This means we need to change the fetch to use an `fs` call instead. For example:
+
+For more usage examples, we recommend taking a look at our [Sendit Nuxt template](https://github.com/CloudCannon/sendit-nuxtjs-template).
+
+### 4: Tell CloudCannon about the data
+
+To configure the CloudCannon interface, you will need to tell CloudCannon how our your site is structured.
+For this we use [CloudCannon reader](https://github.com/CloudCannon/reader), an open-source NPM library used to integrate editing.
+You don't need to install this package, as CloudCannon will run it automatically as part of your build processes.
+
+Reader looks for a [CloudCannon config file](https://cloudcannon.com/documentation/articles/setting-global-configuration/) in the root of your site.
+You can configure almost all of the editing interfaces in CloudCannon using this file.
+
+Check out the [reader documentation](https://github.com/CloudCannon/reader) and define your collections.
+Once you have pushed your changes to CloudCannon your site will rebuild.
+After building, any changes to the interface that you configured in your cloudcannon config file will take effect.
+You will be able to:
+
+* Add, remove, edit and rename any collection item
+* Edit any data file
+* Configure the look and feel of the CloudCannon Editors
+
+#### The CloudCannon Editors
+CloudCannon has four different options for editing your site files:
+
+* **Source Editor**: Edit your code directly within CloudCannon in a familiar-looking text editor.
+* **Data Editor**: Edit your data and front matter in a recursive form full of customizable inputs.
+  * Add, remove, clone, rearrange and edit arrays
+  * Open objects and edit content to any depth
+  * Change data with date, color, number, URL, and more inputs
+* **Content Editor**: A big WYSIWYG editor for your markdown content with an embedded Data Editor on the side. This is perfect for files that have a combination of markdown and front matter.
+* **Visual Editor**: A combination editor with your live site on one side and the Data Editor on the other side. The rest of this tutorial will focus on linking these two side-by-side editors.

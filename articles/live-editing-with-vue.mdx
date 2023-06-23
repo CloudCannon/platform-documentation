@@ -1,0 +1,86 @@
+---
+_uuid: "98c153a7-88a8-4532-a279-040e61083ff8"
+_created_at: "2023-06-22 06:54:28 +0000"
+title: "Visual data previews with Vue"
+nav_title: "Previews with Vue"
+published: true
+image: "/documentation/static/CloudCannonDocumentationog.jpg"
+description: "Data previews on CloudCannon with Vue. Edit Front Matter and see the changes show up live."
+tags: ["Data previews","vue","nuxt"]
+related_articles: ["what-is-live-editing","using-live-editing-with-vanilla-js"]
+related_links: []
+---
+
+As a modern web framework, Vue is purpose-built to handle reactive components that re-render when their data changes.
+This power can be used to configure live editing within the CloudCannon CMS.
+
+<comp.Notice info_type="info">
+  This guide will focus on components that use the [Vue Composition API](https://vuejs.org/guide/introduction.html#composition-api).
+</comp.Notice>
+
+## Requirements for data previews
+* Components must have an output URL. If your site is built with Nuxt using the Nuxt Content module, components in the `pages/` directory are a good example.
+* Components must get their data from a data/content file somewhere in your project. This is critical, as the Visual Editor cannot open the components themselves.
+* These data/content files must be configured as a CloudCannon Collection. See the [CloudCannon Reader documentation](https://github.com/CloudCannon/reader#readme) for more information.
+* Components will need to use the Vue `onMounted` and `onBeforeUmount` hooks.
+
+## Installation
+The CloudCannon Visual Editor connector is [available on npm](https://www.npmjs.com/package/@cloudcannon/visual-editor-connector).
+
+To install, run:
+
+<comp.CodeBlock language="shell" source="Shell">
+```
+npm i -D @cloudcannon/visual-editor-connector
+```
+</comp.CodeBlock>
+
+## Integration
+
+Below is a component with the bare minimum needed for live editing in the Visual Editing.
+
+<comp.CodeBlock language="html" source="pages/[...slug].vue">
+```
+<script setup>
+  import { onMounted, onBeforeUnmount, ref } from 'vue';
+  import { onCloudCannonChanges, stopCloudCannonChanges } from '@cloudcannon/visual-editor-connector';
+
+  const { page } = useContent(); //1
+
+  const pageData = ref(page.value); //2
+
+  onMounted(async () => {
+    onCloudCannonChanges((latestValue) => {
+      pageData.value = latestValue; //3
+    });
+  });
+
+  onBeforeUnmount(async () => {
+    stopCloudCannonChanges(); //4
+  });
+</script>
+```
+<comp.Annotation number="1">
+  `useContent()` is a function that is provided by [Nuxt Content's Document-driven mode](https://content.nuxtjs.org/guide/writing/document-driven).
+  It fetches the file in the `content/` directory that reflects the current URL. Replace this line with however you fetch page data.
+</comp.Annotation>
+<comp.Annotation number="2">
+  [Vue's ref function](https://vuejs.org/api/reactivity-core.html#ref) creates a mutable reactive object.
+  Whenever the value of `pageData` changes, any component that relies on that data will re-render.
+</comp.Annotation>
+<comp.Annotation number="3">
+  The `onCloudCannonChanges()` hook takes a callback function that is triggered whenever the page is edited in CloudCannon.
+  For example, editing the front matter of the correspondong page in the Data Editor will run the code here.
+  The callback takes the updated page data as a parameter, and assigns the new data to the `pageData` object.
+
+  Because `pageData` is reactive, this will re-render and display the updated component in the Visual Editor immediately.
+</comp.Annotation>
+<comp.Annotation number="4">
+  This needs to be run in the `onBeforeUmount()` hook to tear-down listeners before the component is destroyed.
+</comp.Annotation>
+</comp.CodeBlock>
+
+You should be able to make these additions with no difference to your build output or production environment.
+
+For an example integration, check out our [Sendit Nuxt template](https://cloudcannon.com/community/themes/sendit/).
+If you have any issues, please [contact support](https://cloudcannon.com/contact/), or [raise an issue on the GitHub repository](https://github.com/CloudCannon/visual-editor-connector/issues).
