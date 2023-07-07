@@ -92,6 +92,40 @@ _inputs:
 ```
 </comp.MultiCodeBlock>
 
+### Object with grouped inputs
+
+An object input with configuration to group related inputs together, creating a more focused editing experience.
+
+<comp.MultiCodeBlock language="yaml" translate_into={["json"]} source="Input configuration">
+```
+title: About
+description: Everything about us is explained right here.
+image: /staff.png
+slug: about-us
+sitemap: true
+components:
+call_to_action: contact-us
+
+_inputs:
+  $:
+    type: object
+    options:
+      place_groups_below: false
+      groups:
+        - heading: SEO
+          description: Values for search engines to read
+          inputs:
+            - title
+            - description
+            - image
+        - heading: Advanced
+          collapsed: true
+          inputs:
+            - slug
+            - sitemap
+```
+</comp.MultiCodeBlock>
+
 ### Structured object
 
 An object input with controls to remove the value, and then replace it with one of two predefined values.
@@ -251,10 +285,10 @@ _structures:
 Object inputs have the following options available within `options` inside an `_inputs` entry:
 
 <comp.DataReference>
- <comp.DataReferenceRow label="allow_create" type_markdown="Boolean">
+  <comp.DataReferenceRow label="allow_create" type_markdown="boolean">
     Determines if entries can be added to the data within an object input. Setting this to `true` changes the appearance of the input, by listing entries as a sequential group with controls for adding, removing, renaming and reordering. Defaults to `false`.
- </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="allowed_keys" type_markdown="Array or object">
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="allowed_keys" type_markdown="array or object">
     Defines a limited set of keys that can exist on the data within an object input. This set is used when entries are added and renamed with `allow_create` enabled. Defaults to `[]`.
 
     Has no effect if `allow_create` is `false`.
@@ -262,14 +296,36 @@ Object inputs have the following options available within `options` inside an `_
     If set as an array of strings, the strings are used as the available keys, and as labels during selection.
 
     If set as a single depth object with string values, the keys are the available keys, and the values are used as labels during selection.
- </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="empty_type" type_markdown="String">
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="empty_type" type_markdown="string">
     Set how an empty value will be saved. Does not apply to existing empty values. Can be one of the following:
 
     * `object` - an empty value for this input will be stored as `{}` (default).
     * `null` - an empty value for this input will be stored as a null value. This does not apply to TOML files.
- </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="preview" type_markdown="Object">
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="groups" type_markdown="array<Group>">
+    Allows you to group the inputs inside this object together without changing the data structure.
+
+    Groups are labelled with a heading and description. They can start collapsed or expanded (default). The inputs that belong to each group are referred to by key. Groups can only contain inputs inside this object.
+
+    Ungrouped inputs are displayed after the groups by default, but you can reverse this with `place_groups_below`.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="groups[*].heading" type_markdown="text">
+    The main text displayed at the top of a group. Visible when open or collapsed.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="groups[*].description" type_markdown="text">
+    The supporting text displayed at the top of a group, below the heading. Visible when open or expanded.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="groups[*].collapsed" type_markdown="boolean">
+    Whether the group starts open or collapsed. Defaults to `false` (open).
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="groups[*].inputs" type_markdown="array<string>">
+    The input keys included in this group. These keys must reference keys within this object input's data. Defaults to `[]`.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="place_groups_below" type_markdown="boolean">
+    Controls which order input groups and ungrouped inputs appear in. Defaults to `false`. Inputs are grouped with the `groups` options.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="preview" type_markdown="object">
     The preview definition for changing the way data within an object input is previewed before being expanded. The options available for object inputs are:
 
     * `text`
@@ -284,34 +340,34 @@ Object inputs have the following options available within `options` inside an `_
     <comp.Notice info_type="info">
       Object inputs now support the new `preview` option. [Read our migration guide](/documentation/articles/migrating-to-preview-options/) if you are still using the old options: `text_key`, `subtext_key`, `image_key` and `icon`.
     </comp.Notice>
- </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="preview.icon" type_markdown="Array, string or boolean">
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="preview.icon" type_markdown="array, string or boolean">
     Controls the icon shown on the unopened input. Must match a [Material Icon](https://material.io/tools/icons/) name. Defaults checking the `icon` key, then falls back to `notes`.
 
     If set to `false`, no icon is displayed.
 
     If `image` is set, it will cover `icon` when loaded successfully.
- </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="preview.image" type_markdown="Array, string or boolean">
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="preview.image" type_markdown="array, string or boolean">
     Controls the image shown on the unopened input. Has no default, falls back to `thumbnail_image`, `thumbnail_image_path`, `image`, and `image_path` in that order.
 
     If set to `false`, no image is displayed.
 
     If no image is found, `icon` is displayed instead.
- </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="preview.text" type_markdown="Array, string or boolean">
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="preview.text" type_markdown="array, string or boolean">
     Controls the main text shown on the unopened input. Has no default, falls back to the first value found (prioritizing text-based values).
 
     If set to `false`, no text is displayed.
- </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="preview.subtext" type_markdown="Array, string or boolean">
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="preview.subtext" type_markdown="array, string or boolean">
     Controls the supporting text shown on the unopened input. Has no default, falls back to listing the `label` of each input inside the object value.
 
     If set to `false`, no text is displayed.
 
     Subtext is hidden if text and subtext is the same. If there's no text, subtext is used instead.
- </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="structures" type_markdown="String or object">
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="structures" type_markdown="string or object">
     Provides data formats for value of this object. When choosing an item, team members are prompted to choose from [a number of values you have defined](/documentation/articles/defining-what-adds-to-an-array-with-array-structures/). Has no default.
 
     If set as an object, the structures value is used directly.
@@ -321,8 +377,8 @@ Object inputs have the following options available within `options` inside an `_
     <comp.Notice info_type="info">
       This looks similar to, and shares same format as `value_structures`. However, `structures` applies to the object itself, and `value_structures` applies to the entries within the object.
     </comp.Notice>
- </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="value_structures" type_markdown="String or object">
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="value_structures" type_markdown="string or object">
     Provides data formats when adding entries to the data within this object input. When adding an entry, team members are prompted to choose from [a number of values you have defined](/documentation/articles/defining-what-adds-to-an-array-with-array-structures/). Has no default.
 
     Has no effect if `allow_create` is `false`.
@@ -334,5 +390,5 @@ Object inputs have the following options available within `options` inside an `_
     <comp.Notice info_type="info">
       This looks similar to, and shares same format as `structures`. However, `value_structures` applies to the entries within the object, and `structures` applies to the object itself.
     </comp.Notice>
- </comp.DataReferenceRow>
+  </comp.DataReferenceRow>
 </comp.DataReference>
