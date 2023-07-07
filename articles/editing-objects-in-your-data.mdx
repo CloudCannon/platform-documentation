@@ -280,6 +280,60 @@ _structures:
   `value_structures` applies to the entries of an object, while `structures` applies to the object.
 </comp.Notice>
 
+### Mutable object with set keys and set values specific to keys
+
+An object with entries shown in a list, with controls to add, remove, rename, and reorder.
+
+When adding a new entry here, you are given the option of two predefined values: *Image* and *External Link*.
+The keys available when adding new entries and renaming existing entries are limited to the `allowed_keys` list.
+No entries can be added once all `allowed_keys` are in use.
+Entries with keys not included in `allowed_keys` can exist, but if removed/renamed, cannot be re-added.
+
+<comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="Input configuration">
+```
+details:
+  image:
+    image: /uploads/cat.png
+    caption: Tabby cat jumping off a wooden fence.
+  link:
+    url: 'https://example.com/'
+    title: Website all about dogs.
+_inputs:
+  details:
+    type: object
+    options:
+      allow_create: true
+      allowed_keys:
+        - image
+        - link
+        - link_or_image
+      allowed_structures:
+        link:
+          - link_detail
+        image:
+          - image_detail
+        link_or_image:
+          - image_detail
+          - link_detail
+      value_structures: _structures.detail_items
+_structures:
+  detail_items:
+    values:
+      - id: image_detail
+        label: Image
+        icon: image
+        value:
+          image:
+          caption:
+      - id: link_detail
+        label: External link
+        icon: link
+        value:
+          url:
+          title:
+```
+</comp.MultiCodeBlock>
+
 ## Options
 
 Object inputs have the following options available within `options` inside an `_inputs` entry:
@@ -291,11 +345,16 @@ Object inputs have the following options available within `options` inside an `_
   <comp.DataReferenceRow label="allowed_keys" type_markdown="array or object">
     Defines a limited set of keys that can exist on the data within an object input. This set is used when entries are added and renamed with `allow_create` enabled. Defaults to `[]`.
 
-    Has no effect if `allow_create` is `false`.
+    Has no effect if `allow_create` is `false`. *Only applies to mutable objects*.
 
     If set as an array of strings, the strings are used as the available keys, and as labels during selection.
 
     If set as a single depth object with string values, the keys are the available keys, and the values are used as labels during selection.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="allowed_structures" type_markdown="object">
+    Reduces the set of structure values available for entries with specific keys within a mutable object input. This set is used when entries are added with `allow_create` enabled. Structure values are referred to by their `id`.
+
+    Has no effect if `allow_create` is `false`. *Only applies to mutable objects*.
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="empty_type" type_markdown="string">
     Set how an empty value will be saved. Does not apply to existing empty values. Can be one of the following:
@@ -306,16 +365,16 @@ Object inputs have the following options available within `options` inside an `_
   <comp.DataReferenceRow label="allow_label_formatting" type_markdown="boolean">
     Controls whether or not labels on mutable object entries are formatted. Defaults to `false`.
 
-    *Only applies to mutable objects.*
+    *Only applies to mutable objects*.
   </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="groups" type_markdown="array<Group>">
+  <comp.DataReferenceRow label="groups" type_markdown="array of Group">
     Allows you to group the inputs inside this object together without changing the data structure.
 
     Groups are labelled with a heading and description. They can start collapsed or expanded (default). The inputs that belong to each group are referred to by key. Groups can only contain inputs inside this object.
 
     Ungrouped inputs are displayed after the groups by default, but you can reverse this with `place_groups_below`.
 
-    *Does not apply to mutable or structured objects.*
+    *Does not apply to mutable or structured objects*.
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="groups[*].heading" type_markdown="text">
     The main text displayed at the top of a group. Visible when open or collapsed.
@@ -326,7 +385,7 @@ Object inputs have the following options available within `options` inside an `_
   <comp.DataReferenceRow label="groups[*].collapsed" type_markdown="boolean">
     Whether the group starts open or collapsed. Defaults to `false` (open).
   </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="groups[*].inputs" type_markdown="array<string>">
+  <comp.DataReferenceRow label="groups[*].inputs" type_markdown="array of string">
     The input keys included in this group. These keys must reference keys within this object input's data. Defaults to `[]`.
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="place_groups_below" type_markdown="boolean">
