@@ -304,9 +304,9 @@ _snippets_imports:
 Some Python extensions don't work out of the box and require additional configuration. These are the [Snippet extension](https://facelessuser.github.io/pymdown-extensions/extensions/snippets/) and the [Markdown in HTML extension](https://python-markdown.github.io/extensions/md_in_html/).
 By default any instance of these extensions will be escaped into either an HTML element or an Unknown Snippet, this allows an editor to move and delete these Snippets, but prevents editing of their arguments or content:
 
-<comp.DocsImage path="ye_olde_images/unknown-mdx-component.png" alt="A screenshot of an unknown Snippet displayed as a block in the CloudCannon Content Editor" type="regular" />
+<comp.DocsImage path="/static/unknown-python-snippet.png" alt="A screenshot of an unknown Snippet displayed as a block in the CloudCannon Content Editor" type="regular" />
 
-To enable editing and provide the custom snippet in the toolbar, your custom snippet must be configured using the `_snippets` object in your CloudCannon global config file. CloudCannon Snippets can be built from scratch to support nearly any syntax or SSG, but importing a Snippet configuration provides a set of snippet templates for common use cases in MDX.
+To enable editing and provide the custom snippet in the toolbar, your custom snippet must be configured using the `_snippets` object in your CloudCannon global config file. CloudCannon Snippets can be built from scratch to support nearly any syntax or SSG, but importing a Snippet configuration provides a set of snippet templates for common use cases in Python Markdown.
 
 To help illustrate configuring custom Snippets, we will first cover a few examples. First, let's look a custom glossary snippet that includes a set of abbreviations for our site:
 
@@ -340,7 +340,7 @@ _snippets:
 ```
 </comp.MultiCodeBlock>
 
-Each snippet definition lives under a top level key, `glossary` in this example. This is the unique name that CloudCannon uses to identify this snippet, but is otherwise unused in the component configuration itself.
+Each snippet definition lives under a top level key, `glossary` in this example. This is the unique name that CloudCannon uses to identify this snippet, but is otherwise unused in the snippet configuration itself.
 
 We specify the template that this snippet should inherit from, and also specify that it is not an `inline` snippet, so it can only be used on a line on its own.
 
@@ -352,7 +352,7 @@ In `definitions` we need to specify some values that are required for the templa
 
 Finally, we can specify any other keys from the [CloudCannon configuration cascade](/documentation/articles/using-the-configuration-cascade/) here. In this example, we configure the inputs for the keys that this snippet will generate. With that in place, we can now add and edit our glossary snippet anywhere on our site.
 
-<comp.DocsImage path="ye_olde_images/tint-shortcode.png" alt={"A screenshot of the \"tint\" component in the Content Editor, with the editing panel open showing the snippet data"} type="regular" />
+<comp.DocsImage path="/static/glossary-snippet.png" alt={"A screenshot of the \"glossary\" snippet in the Content Editor"} type="regular" />
 
 Next, let's quickly look at a snippet using Markdown in HTML:
 
@@ -374,12 +374,14 @@ In CloudCannon, we could configure this snippet using the following global confi
 
 <comp.MultiCodeBlock language="yaml" translate_into={["json", "javascript"]} source="cloudcannon.config.yml">
 ```
+_snippets_imports:
+  python_markdown_extensions:
 _snippets:
-  callout:
+  diagram:
     template: python_markdown_markdown_in_html
     inline: false
     preview:
-      text: Figure
+      text: Diagram
     definitions:
       tag_name: figure
       content_key: content
@@ -395,10 +397,10 @@ _snippets:
 In this example, we want to ensure that our block has a class of `diagram` but we don't want the class to be editable in CloudCannon. By using `source_key` with no `editor_key` we prevent
 the class from being editable in CloudCannon, then the `default` and `allowed_values` settings ensure that all instances of this snippet have class `diagram`.
 
-<comp.DocsImage path="ye_olde_images/callout-shortcode.png" alt={"A screenshot of the \"callout\" component in the Content Editor, with the editing panel open showing the snippet data"} type="regular" />
+<comp.DocsImage path="/documentation/static/diagram-snippet.png" alt={"A screenshot of the \"diagram\" Snippet in the Content Editor, with the editing panel open showing the snippet data"} type="regular" />
 
 ## Snippet options
-The following options are available for MDX component snippets:
+The following options are available for custom snippets:
 
 <comp.DataReference>
   <comp.DataReferenceRow label="template" type_markdown="String">
@@ -408,18 +410,18 @@ The following options are available for MDX component snippets:
     The variables required for the selected template.
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="inline" type_markdown="Boolean">
-    Whether this component can appear inline (within a sentence). Defaults to `false`, which will treat this component as a block-level element in the content editor.
+    Whether this snippet can appear inline (within a sentence). Defaults to `false`, which will treat this snippet as a block-level element in the content editor.
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="preview" type_markdown="Object">
-    A preview definition for displaying this component in the CloudCannon editor. See the [preview options documentation](/documentation/articles/changing-how-cards-preview-your-data/).
+    A preview definition for displaying this snippet in the CloudCannon editor. See the [preview options documentation](/documentation/articles/changing-how-cards-preview-your-data/).
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="_inputs" type_markdown="Object">
-    Input configurations for the keys contained in this component. See the [input configuration documentation](/documentation/articles/how-to-choose-what-input-is-used-in-the-data-editor/).
+    Input configurations for the keys contained in this snippet. See the [input configuration documentation](/documentation/articles/how-to-choose-what-input-is-used-in-the-data-editor/).
   </comp.DataReferenceRow>
 </comp.DataReference>
 
 ## Python Markdown Templates
-The first step to configure your custom component is to identify which component template to use, as each component template requires a set of `definitions` keys to be configured. The following component templates are available:
+The first step to configure your custom snippet is to identify which snippet template to use, as each snippet template requires a set of `definitions` keys to be configured. The following snippet templates are available:
 
 ### Snippets
 
