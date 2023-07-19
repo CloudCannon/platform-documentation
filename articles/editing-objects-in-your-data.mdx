@@ -28,7 +28,7 @@ By default, they appear as a button that opens a new level in the editor to the 
 Alternatively, object inputs can be configured to behave differently:
 
 1. **Structured** object, a switchable button that can be set from one or more values. Configured with the `structures` option.
-2. **Mutable** object, a list showing each entry. Each entry is shown as its own input, including nested objects. Configured with the `allow_create` option.
+2. **Mutable** object, a list showing each entry. Each entry is shown as its own input, including nested objects. Configured with the `subtype` option.
 
 ## Examples
 
@@ -157,7 +157,7 @@ _structures:
 </comp.MultiCodeBlock>
 
 <comp.Notice info_type="info">
-  `structures` applies to the object, while `value_structures` applies to the entries of an object.
+  `structures` applies to the object, while `entries.structures` applies to the entries of an object.
 </comp.Notice>
 
 ### Mutable object
@@ -181,12 +181,12 @@ _inputs:
   staff:
     type: object
     options:
-      allow_create: true
+      subtype: mutable
 ```
 </comp.MultiCodeBlock>
 
 <comp.Notice info_type="info">
-  `allowed_keys` can be used in combination with subtypes and `value_structures` to control both the keys and the values for this object.
+  `entries.allowed_keys` can be used in combination with subtypes and `entries.structures` to control both the keys and the values for this object.
 </comp.Notice>
 
 ### Mutable object with subtype
@@ -206,7 +206,7 @@ _inputs:
   timeline:
     type: object
     options:
-      allow_create: true
+      subtype: mutable
   timeline.*:
     type: time
 ```
@@ -216,9 +216,9 @@ _inputs:
 
 An object with entries shown in a list, with controls to add, remove, rename, and reorder.
 
-The keys available when adding new entries and renaming existing entries are limited to the `allowed_keys` list.
-No entries can be added once all `allowed_keys` are in use.
-Entries with keys not included in `allowed_keys` can exist, but if removed/renamed, cannot be re-added.
+The keys available when adding new entries and renaming existing entries are limited to the `entries.allowed_keys` list.
+No entries can be added once all `entries.allowed_keys` are in use.
+Entries with keys not included in `entries.allowed_keys` can exist, but if removed/renamed, cannot be re-added.
 
 <comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="Input configuration">
 ```
@@ -231,11 +231,12 @@ _inputs:
   menu:
     type: object
     options:
-      allow_create: true
-      allowed_keys:
-        - main
-        - footer
-        - sidebar
+      subtype: mutable
+      entries:
+        allowed_keys:
+          - main
+          - footer
+          - sidebar
 ```
 </comp.MultiCodeBlock>
 
@@ -258,8 +259,9 @@ _inputs:
   gallery:
     type: object
     options:
-      allow_create: true
-      value_structures: _structures.grid_items
+      subtype: mutable
+      entries:
+        structures: _structures.grid_items
 _structures:
   grid_items:
     values:
@@ -277,7 +279,7 @@ _structures:
 </comp.MultiCodeBlock>
 
 <comp.Notice info_type="info">
-  `value_structures` applies to the entries of an object, while `structures` applies to the object.
+  `entries.structures` applies to the entries of an object, while `structures` applies to the object.
 </comp.Notice>
 
 ### Mutable object with set keys and set values specific to keys
@@ -285,9 +287,9 @@ _structures:
 An object with entries shown in a list, with controls to add, remove, rename, and reorder.
 
 When adding a new entry here, you are given the option of two predefined values: *Image* and *External Link*.
-The keys available when adding new entries and renaming existing entries are limited to the `allowed_keys` list.
-No entries can be added once all `allowed_keys` are in use.
-Entries with keys not included in `allowed_keys` can exist, but if removed/renamed, cannot be re-added.
+The keys available when adding new entries and renaming existing entries are limited to the `entries.allowed_keys` list.
+No entries can be added once all `entries.allowed_keys` are in use.
+Entries with keys not included in `entries.allowed_keys` can exist, but if removed/renamed, cannot be re-added.
 
 <comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="Input configuration">
 ```
@@ -302,20 +304,21 @@ _inputs:
   details:
     type: object
     options:
-      allow_create: true
-      allowed_keys:
-        - image
-        - link
-        - link_or_image
-      allowed_structures:
-        link:
-          - link_detail
-        image:
-          - image_detail
-        link_or_image:
-          - image_detail
-          - link_detail
-      value_structures: _structures.detail_items
+      subtype: mutable
+      entries:
+        structures: _structures.detail_items
+        allowed_keys:
+          - image
+          - link
+          - link_or_image
+        assigned_structures:
+          link:
+            - link_detail
+          image:
+            - image_detail
+          link_or_image:
+            - image_detail
+            - link_detail
 _structures:
   detail_items:
     values:
@@ -339,22 +342,61 @@ _structures:
 Object inputs have the following options available within `options` inside an `_inputs` entry:
 
 <comp.DataReference>
-  <comp.DataReferenceRow label="allow_create" type_markdown="boolean">
-    Determines if entries can be added to the data within an object input. Setting this to `true` changes the appearance of the input, by listing entries as a sequential group with controls for adding, removing, renaming and reordering. Defaults to `false`.
+  <comp.DataReferenceRow label="subtype" type_markdown="boolean">
+    Changes how this is object input is displayed and interacted with. Defaults to `object`.
+
+    If set to `object`, data entries appear as standard inputs, nested one layer deeper.
+
+    If set to `mutable`, data entries within an object input can be added, renamed, removed and reordered. This also changes the appearance of the input, by listing entries as a sequential group with controls for adding, removing, renaming and reordering.
   </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="allowed_keys" type_markdown="array or object">
-    Defines a limited set of keys that can exist on the data within an object input. This set is used when entries are added and renamed with `allow_create` enabled. Defaults to `[]`.
+  <comp.DataReferenceRow label="entries.allowed_keys" type_markdown="array">
+    Defines a limited set of keys that can exist on the data within an object input. This set is used when entries are added and renamed with `subtype: mutable`. Defaults to `[]`.
 
-    Has no effect if `allow_create` is `false`. *Only applies to mutable objects*.
-
-    If set as an array of strings, the strings are used as the available keys, and as labels during selection.
-
-    If set as a single depth object with string values, the keys are the available keys, and the values are used as labels during selection.
+    Has no effect if `subtype` anything but `mutable`. *Only applies to mutable objects*.
   </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="allowed_structures" type_markdown="object">
-    Reduces the set of structure values available for entries with specific keys within a mutable object input. This set is used when entries are added with `allow_create` enabled. Structure values are referred to by their `id`.
+  <comp.DataReferenceRow label="entries.structures" type_markdown="string or object">
+    Provides data formats when adding entries to the data within this object input. When adding an entry, team members are prompted to choose from [a number of values you have defined](/documentation/articles/defining-what-adds-to-an-array-with-array-structures/). Has no default.
 
-    Has no effect if `allow_create` is `false`. *Only applies to mutable objects*.
+    Has no effect if `subtype` anything but `mutable`. *Only applies to mutable objects*.
+
+    If set as an object, the structures value is used directly.
+
+    If set as a string, the structures value is fetched from the [configuration cascade](/documentation/articles/using-the-configuration-cascade/). This allows you to define `_structures` elsewhere and reference it from here.
+
+    <comp.Notice info_type="info">
+      This looks similar to, and shares same format as `structures`. However, `entries.structures` applies to the entries within the object, and `structures` applies to the object itself.
+    </comp.Notice>
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="entries.assigned_structures" type_markdown="object">
+    Reduces the set of structure values available for entries with specific keys within a mutable object input. This set is used when entries are added with `subtype: mutable`. Structure values are referred to by their `id`.
+
+    Has no effect if `subtype` anything but `mutable`. *Only applies to mutable objects*.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="entries.comment" type_markdown="text">
+    Used to supply help text above the key input when adding/renaming within a mutable object input. Has no default. Supports a limited set of Markdown: links, bold, italic, subscript, superscript and inline code elements are allowed.
+
+    Has no effect if `subtype` anything but `mutable`. *Only applies to mutable objects*.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="entries.documentation" type_markdown="object">
+    Provides a custom link for documentation for editors shown above the key input when adding/renaming within a mutable object input. Contains the following fields:
+
+    * `url` for the `href` value of the link (String, *required*).
+    * `text` for the visible text used in the link (String). Defaults to `Documentation`.
+    * `icon` for the icon displayed next to the link. Must be a Material Icon name. Defaults to `auto_stories`.
+
+    ```yaml
+    _inputs:
+      my_object:
+        type: object
+        options:
+          subtype: mutable
+          entries:
+            documentation:
+              url: 'https://example.com/documentation/'
+              text: Read more about adding/renaming this key
+    ```
+
+    Has no effect if `subtype` anything but `mutable`. *Only applies to mutable objects*.
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="empty_type" type_markdown="string">
     Set how an empty value will be saved. Does not apply to existing empty values. Can be one of the following:
@@ -441,20 +483,7 @@ Object inputs have the following options available within `options` inside an `_
     If set as a string, the structures value is fetched from the [configuration cascade](/documentation/articles/using-the-configuration-cascade/). This allows you to define `_structures` elsewhere and reference it from here.
 
     <comp.Notice info_type="info">
-      This looks similar to, and shares same format as `value_structures`. However, `structures` applies to the object itself, and `value_structures` applies to the entries within the object.
-    </comp.Notice>
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="value_structures" type_markdown="string or object">
-    Provides data formats when adding entries to the data within this object input. When adding an entry, team members are prompted to choose from [a number of values you have defined](/documentation/articles/defining-what-adds-to-an-array-with-array-structures/). Has no default.
-
-    Has no effect if `allow_create` is `false`.
-
-    If set as an object, the structures value is used directly.
-
-    If set as a string, the structures value is fetched from the [configuration cascade](/documentation/articles/using-the-configuration-cascade/). This allows you to define `_structures` elsewhere and reference it from here.
-
-    <comp.Notice info_type="info">
-      This looks similar to, and shares same format as `structures`. However, `value_structures` applies to the entries within the object, and `structures` applies to the object itself.
+      This looks similar to, and shares same format as `entries.structures`. However, `structures` applies to the object itself, and `entries.structures` applies to the entries within the object.
     </comp.Notice>
   </comp.DataReferenceRow>
 </comp.DataReference>
