@@ -5,7 +5,7 @@ type: minor
 
 This release adds a colour picker to the range of interfaces for Jekyll front matter and YAML.
 
-<comp.DocsImage path="https://dam-cdn.cloudcannon.com/changelog/images/editing/front-matter/overview@2x.png" alt="CloudCannon front matter interface including new colour picker" type="screenshot" />
+<comp.DocsImage path="https://cc-dam.imgix.net/changelog/images/editing/front-matter/overview@2x.png" alt="CloudCannon front matter interface including new colour picker" type="screenshot" />
 
 **Features:**
 

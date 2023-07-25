@@ -7,8 +7,8 @@ This release changes the layout of our pre-app pages including login, sign up an
 
 **Before:**
 
-<comp.DocsImage path="https://dam-cdn.cloudcannon.com/changelog/images/change-log/old-login@2x.png" alt="Old login screen" type="screenshot" />
+<comp.DocsImage path="https://cc-dam.imgix.net/changelog/images/change-log/old-login@2x.png" alt="Old login screen" type="screenshot" />
 
 **After:**
 
-<comp.DocsImage path="https://dam-cdn.cloudcannon.com/changelog/images/change-log/new-login@2x.png" alt="New login screen" type="screenshot" />
+<comp.DocsImage path="https://cc-dam.imgix.net/changelog/images/change-log/new-login@2x.png" alt="New login screen" type="screenshot" />

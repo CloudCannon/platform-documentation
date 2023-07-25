@@ -6,7 +6,7 @@ type: major
 
 This release adds inline editing of Markdown content. This feature means that posts, collection items or pages written in Markdown are editable in the *Visual Editor* automatically. View the [related blog post](https://cloudcannon.com/features/2016/04/11/inline-editing-of-markdown-pages/) or the [Editable Region documentation](/documentation/edit/editing/html/) for more information.
 
-<comp.DocsImage path="https://dam-cdn.cloudcannon.com/changelog/images/editing/editable-regions/markdown-editable@2x.png" alt="Markdown content region editable in the Visual Editor" type="screenshot" />
+<comp.DocsImage path="https://cc-dam.imgix.net/changelog/images/editing/editable-regions/markdown-editable@2x.png" alt="Markdown content region editable in the Visual Editor" type="screenshot" />
 
 **Features:**
 
