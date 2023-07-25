@@ -6,7 +6,7 @@ type: minor
 
 This release adds live output from Jekyll builds. This also allows you to view output from successful builds rather than only failed builds.
 
-<comp.DocsImage path="https://dam-cdn.cloudcannon.com/changelog/images/change-log/live-output@2x.png" alt="Markdown content region editable in the Visual Editor" type="screenshot" />
+<comp.DocsImage path="https://cc-dam.imgix.net/changelog/images/change-log/live-output@2x.png" alt="Markdown content region editable in the Visual Editor" type="screenshot" />
 
 **Features:**
 

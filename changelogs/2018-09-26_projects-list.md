@@ -5,7 +5,7 @@ type: major
 
 This release adds the projects feature. Projects store useful links and group sites by repository, helping you and your editors stay organised.
 
-<comp.DocsImage path="https://dam-cdn.cloudcannon.com/changelog/images/change-log/projects-list@2x.png" alt="Empty projects list" type="screenshot" />
+<comp.DocsImage path="https://cc-dam.imgix.net/changelog/images/change-log/projects-list@2x.png" alt="Empty projects list" type="screenshot" />
 
 **Features:**
 

@@ -8,8 +8,8 @@ This release changes the layout of our app pages and adds org branding features.
 
 **Before:**
 
-<comp.DocsImage path="https://dam-cdn.cloudcannon.com/changelog/images/change-log/old-sites-list-empty.png" alt="Old login screen" type="screenshot" />
+<comp.DocsImage path="https://cc-dam.imgix.net/changelog/images/change-log/old-sites-list-empty.png" alt="Old login screen" type="screenshot" />
 
 **After:**
 
-<comp.DocsImage path="https://dam-cdn.cloudcannon.com/changelog/images/change-log/new-sites-list-empty.png" alt="New login screen" type="screenshot" />
+<comp.DocsImage path="https://cc-dam.imgix.net/changelog/images/change-log/new-sites-list-empty.png" alt="New login screen" type="screenshot" />
