@@ -1,4 +1,5 @@
 ---
+_schema: default
 title: Option to add "nofollow" to links
 type: minor
 ---
@@ -10,7 +11,6 @@ We have also noticed an issue with builds failing for sites using Astro versions
 
 * A "nofollow" option is now available when editing links.
 * The Sendit template is now available for Gatsby and Nuxt, in beta.
-* CloudCannon can now auto-detect build settings for Astro sites.
 * Added a suggested fix for a known build issue with Astro `v2.0.7` and above.
 
 **Fixes:**
