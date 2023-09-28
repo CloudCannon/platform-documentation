@@ -1,4 +1,38 @@
 const path = require("path");
+const fs = require("fs");
+const matter = require("gray-matter");
+const fg = require("fast-glob");
+
+const common_content_structures = [];
+
+const common_content_files = fg.sync(["_common_content/**/*.mdx"]);
+
+for (const common_content_file of common_content_files) {
+  const file_content = fs.readFileSync(common_content_file, {
+    encoding: "utf8",
+  });
+  const { data } = matter(file_content);
+
+  const structure_value = {
+    preview: {
+      text: [data.content_name],
+    },
+    value: {
+      _file: common_content_file,
+    },
+    _inputs: {},
+  };
+
+  for (const [param, settings] of Object.entries(data.parameters)) {
+    structure_value.value[param] = null;
+    structure_value._inputs[param] = {
+      type: settings.type,
+      comment: settings.comment,
+    };
+  }
+
+  common_content_structures.push(structure_value);
+}
 
 const _snippets = {
   ...require(path.join(__dirname, ".cloudcannon/snippets/code_block.json")),
@@ -157,6 +191,9 @@ module.exports = {
           url: "",
         },
       },
+    },
+    common_content_types: {
+      values: common_content_structures,
     },
   },
   _inputs: {
