@@ -9,11 +9,14 @@ const common_content_files = fg.sync([
   path.join(__dirname, "_common_content/**/*.mdx"),
 ]);
 
+console.log(`Loading common content from ${common_content_files.join(", ")}`);
+
 for (const common_content_file of common_content_files) {
   const file_content = fs.readFileSync(common_content_file, {
     encoding: "utf8",
   });
   const { data } = matter(file_content);
+  console.log(`Loaded ${data}`);
 
   const structure_value = {
     preview: {
