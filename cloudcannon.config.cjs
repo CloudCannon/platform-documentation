@@ -16,7 +16,7 @@ for (const common_content_file of common_content_files) {
     encoding: "utf8",
   });
   const { data } = matter(file_content);
-  console.log(`Loaded ${data}`);
+  console.log(`Loaded ${JSON.stringify(data)}`);
 
   const structure_value = {
     preview: {
