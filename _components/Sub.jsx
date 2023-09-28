@@ -1,7 +1,7 @@
-export default function ({comp}) {
+export default function ({comp, parameter, parameters}) {
   return (
       <>
-        MY_SSG_NAME
+        {parameters[parameter] || ""}
       </>
   );
 }
