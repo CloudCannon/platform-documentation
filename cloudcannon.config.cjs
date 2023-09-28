@@ -28,6 +28,46 @@ module.exports = {
       output: false,
       icon: "copy_all",
       parser: "front-matter",
+      schemas: {
+        default: {
+          path: ".cloudcannon/schemas/common_content.mdx",
+        },
+      },
+      _inputs: {
+        content_name: {
+          comment:
+            "Give this piece of reusable content a descriptive name, as this is what you will select when inserting it in a page",
+        },
+        parameters: {
+          type: "object",
+          comment: "Define any keys you created in Substitution snippets here",
+          options: {
+            subtype: "mutable",
+            entries: {
+              structures: {
+                values: [
+                  {
+                    value: {
+                      comment: null,
+                      type: null,
+                    },
+                    _inputs: {
+                      comment: {
+                        comment:
+                          "Text that will be shown alongside this parameter when using this piece of custom content",
+                      },
+                      type: {
+                        comment:
+                          "The CloudCannon input type that should be used for editing this parameter",
+                      },
+                    },
+                  },
+                ],
+              },
+            },
+          },
+        },
+      },
     },
     articles: {
       path: "articles",
