@@ -39,6 +39,9 @@ import "npm:prismjs@1.29.0/components/prism-jsx.js";
 import "./_config/prism-tree.js";
 
 import { DOMParser } from "https://deno.land/x/deno_dom@v0.1.38/deno-dom-wasm.ts";
+import { Page } from "lume/core.ts";
+import { Element } from "lume/deps/dom.ts";
+import { extract } from "lume/deps/front_matter.ts";
 
 function stripHTML(html) {
     const doc = new DOMParser().parseFromString(html, 'text/html');
@@ -54,6 +57,8 @@ const site = lume({
         port: 9010,
     }
 });
+
+const injectedSections: Promise<string>[] = [];
 
 const mdFilter = site.renderer.helpers.get('md')[0];
 
@@ -161,7 +166,25 @@ const annotateCodeBlocks = (page) => {
     });
 }
 
+const injectReusableContent = async (page: Page) => {
+    const reusableContent = page.document?.querySelectorAll(`[data-common-content-id]`);
+    if (!reusableContent || reusableContent.length === 0) {
+        return;
+    }
+
+    for (const node of reusableContent) {
+        const injectionEl = node as Element;
+        const content_id = parseInt(injectionEl.getAttribute("data-common-content-id")!);
+        const content = await injectedSections[content_id];
+        injectionEl.innerHTML = content?.toString() || content;
+    }
+}
+
 site.process([".html"], (page) => {
+    // while(page.document?.querySelector(`[data-common-content-id]`)) {
+        injectReusableContent(page);
+    // }
+
     for (const [attr, newattr] of Object.entries(alpineRemaps)) {
         page.document?.querySelectorAll(`[${attr}]`).forEach((el) => {
             el.setAttribute(newattr, el.getAttribute(attr));
@@ -248,6 +271,7 @@ const bubble_up_nav = (obj) => {
     }
 }
 
+
 site.filter("bubble_up_nav", (blocks) => {
     blocks.forEach(bubble_up_nav);
     return blocks
@@ -261,6 +285,14 @@ const summaryMarker = '</p>';
 site.filter("changelog_summary", (block, item) => {
     return block.substring(0, block.indexOf(summaryMarker) + summaryMarker.length);
 });
+
+site.filter("render_common", (file: string, data: object = {}) => {
+    const file_content = Deno.readTextFileSync(file);
+    const {body, attrs} = extract(file_content);
+    const content_id = injectedSections.push(site.renderer.render(body, data, file));
+
+    return content_id - 1;
+})
 
 /* Environment data */
 
