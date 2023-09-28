@@ -1,6 +1,6 @@
 const path = require("path");
 const fs = require("fs");
-const matter = require("gray-matter");
+const fm = require("front-matter");
 const fg = require("fast-glob");
 
 const common_content_structures = [];
@@ -9,9 +9,16 @@ const common_content_files = fg.sync([
   path.join(__dirname, "_common_content/**/*.mdx"),
 ]);
 
+console.log(`Loading common content from ${common_content_files.join(", ")}`);
+
 for (const common_content_file of common_content_files) {
-  const parsed = matter.read(common_content_file);
+  const file_content = fs.readFileSync(common_content_file, {
+    encoding: "utf8",
+  });
+  console.log(`Parsing ${file_content}`);
+  const parsed = fm(file_content);
   console.log(`Loaded ${JSON.stringify(parsed, null, 2)}`);
+  process.exit(1);
 
   // const structure_value = {
   //   preview: {
@@ -33,7 +40,6 @@ for (const common_content_file of common_content_files) {
 
   // common_content_structures.push(structure_value);
 }
-process.exit(1);
 
 const _snippets = {
   ...require(path.join(__dirname, ".cloudcannon/snippets/code_block.json")),
