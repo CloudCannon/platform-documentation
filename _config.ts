@@ -40,7 +40,7 @@ import "./_config/prism-tree.js";
 
 import { DOMParser } from "https://deno.land/x/deno_dom@v0.1.38/deno-dom-wasm.ts";
 import { Page } from "lume/core.ts";
-import { Element } from "lume/deps/dom.ts";
+import { Element, Node } from "lume/deps/dom.ts";
 import { extract } from "lume/deps/front_matter.ts";
 
 function stripHTML(html) {
@@ -166,24 +166,39 @@ const annotateCodeBlocks = (page) => {
     });
 }
 
-const injectReusableContent = async (page: Page) => {
-    const reusableContent = page.document?.querySelectorAll(`[data-common-content-id]`);
-    if (!reusableContent || reusableContent.length === 0) {
-        return;
-    }
+const injectReusableContent = async (el: Element) => {
+    const reusableContent = el.querySelectorAll(`:scope [data-common-content-id]`);
 
     for (const node of reusableContent) {
         const injectionEl = node as Element;
+        const injectionSlots: Record<string, string> = {};
+        for (const slotContentEl of injectionEl.querySelectorAll(`:scope [data-common-content-slot-content]`)) {
+            const slotName = (slotContentEl as Element).getAttribute("data-common-content-slot-content");
+            if (!slotName) continue;
+
+            injectionSlots[slotName] = (slotContentEl as Element).innerHTML;
+        }
+
         const content_id = parseInt(injectionEl.getAttribute("data-common-content-id")!);
         const content = await injectedSections[content_id];
         injectionEl.innerHTML = content?.toString() || content;
+
+        for (const slotEl of injectionEl.querySelectorAll(`:scope [data-common-content-slot]`)) {
+            
+            const slotName = (slotEl as Element).getAttribute("data-common-content-slot");
+            if (!slotName) continue;
+
+            if (injectionSlots[slotName]) {
+                (slotEl as Element).innerHTML = injectionSlots[slotName];
+            }
+        }
+
+        injectReusableContent(injectionEl);
     }
 }
 
 site.process([".html"], (page) => {
-    // while(page.document?.querySelector(`[data-common-content-id]`)) {
-        injectReusableContent(page);
-    // }
+    if (page.document) injectReusableContent(page.document.body);
 
     for (const [attr, newattr] of Object.entries(alpineRemaps)) {
         page.document?.querySelectorAll(`[${attr}]`).forEach((el) => {
