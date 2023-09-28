@@ -5,7 +5,9 @@ const fg = require("fast-glob");
 
 const common_content_structures = [];
 
-const common_content_files = fg.sync(["_common_content/**/*.mdx"]);
+const common_content_files = fg.sync([
+  path.join(__dirname, "_common_content/**/*.mdx"),
+]);
 
 for (const common_content_file of common_content_files) {
   const file_content = fs.readFileSync(common_content_file, {
