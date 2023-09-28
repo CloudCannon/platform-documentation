@@ -13,6 +13,8 @@ const _snippets = {
   ...require(path.join(__dirname, ".cloudcannon/snippets/tabs.json")),
   ...require(path.join(__dirname, ".cloudcannon/snippets/youtube.json")),
   ...require(path.join(__dirname, ".cloudcannon/snippets/common_content.json")),
+  ...require(path.join(__dirname, ".cloudcannon/snippets/sub.json")),
+  ...require(path.join(__dirname, ".cloudcannon/snippets/slot.json")),
 };
 
 module.exports = {
