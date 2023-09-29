@@ -1,6 +1,6 @@
 const path = require("path");
 const fs = require("fs");
-const fm = require("front-matter");
+const { matter } = require("md-front-matter");
 const fg = require("fast-glob");
 
 const common_content_structures = [];
@@ -16,29 +16,28 @@ for (const common_content_file of common_content_files) {
     encoding: "utf8",
   });
   console.log(`Parsing ${file_content}`);
-  const parsed = fm(file_content);
-  console.log(`Loaded ${JSON.stringify(parsed, null, 2)}`);
-  process.exit(1);
+  const { data } = matter(file_content);
+  console.log(`Loaded ${JSON.stringify(data, null, 2)}`);
 
-  // const structure_value = {
-  //   preview: {
-  //     text: [data.content_name],
-  //   },
-  //   value: {
-  //     _file: common_content_file,
-  //   },
-  //   _inputs: {},
-  // };
+  const structure_value = {
+    preview: {
+      text: [data.content_name],
+    },
+    value: {
+      _file: common_content_file,
+    },
+    _inputs: {},
+  };
 
-  // for (const [param, settings] of Object.entries(data.parameters)) {
-  //   structure_value.value[param] = null;
-  //   structure_value._inputs[param] = {
-  //     type: settings.type,
-  //     comment: settings.comment,
-  //   };
-  // }
+  for (const [param, settings] of Object.entries(data.parameters)) {
+    structure_value.value[param] = null;
+    structure_value._inputs[param] = {
+      type: settings.type,
+      comment: settings.comment,
+    };
+  }
 
-  // common_content_structures.push(structure_value);
+  common_content_structures.push(structure_value);
 }
 
 const _snippets = {
