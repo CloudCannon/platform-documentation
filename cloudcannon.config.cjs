@@ -15,11 +15,10 @@ for (const common_content_file of common_content_files) {
   const file_content = fs.readFileSync(common_content_file, {
     encoding: "utf8",
   });
-  console.log(`Parsing ${file_content}`);
   const { data } = matter(file_content);
-  console.log(`Loaded ${JSON.stringify(data, null, 2)}`);
 
   const structure_value = {
+    label: data.content_name,
     preview: {
       text: [data.content_name],
     },
