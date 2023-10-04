@@ -183,7 +183,6 @@ module.exports = {
       code: true,
       embed: true,
       horizontalrule: true,
-      image: true,
       table: true,
       snippet: true,
     },
