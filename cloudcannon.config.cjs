@@ -66,6 +66,7 @@ module.exports = {
   _snippets,
   collections_config: {
     common_content: {
+      dam_uploads_filename: "[collection|slugify]/{date|year}/{date|month}/[asset-filename]"
       path: "_common_content",
       output: false,
       icon: "copy_all",
