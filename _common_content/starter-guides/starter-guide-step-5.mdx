@@ -3,3 +3,142 @@ _schema: default
 content_name: Starter Guide Step 5
 parameters: {}
 ---
+## Reopen your global configuration file
+
+In the previous section of this guide, we created our <a target="_blank" rel="noopener" href="https://cloudcannon.com/documentation/articles/setting-global-configuration/">CloudCannon configuration file</a>, `cloudcannon.config.yaml`. The sidebar prompt to create the configuration file has disappeared.
+
+To edit your configuration file further, you can do so manually through the Files tab or by reopening the configuration GUI.
+
+Access the configuration GUI by navigating to the Settings &gt; General &gt; Editing tab. Click the ‘Edit your global configuration file’ button.
+
+### Markdown WYSIWYG toolbar
+
+Markdown is used in the Content and Visual Editors. The Content Editor is a rich text editor for Markdown files. The Visual Editor can edit Markdown files if they are wrapped in an HTML element. To customize your experience using these editors, you should configure your&nbsp;<a target="_blank" rel="noopener" href="https://cloudcannon.com/documentation/articles/defining-editable-regions-in-your-html/#options">WYSIWYG toolbar</a>.
+
+Let’s go over an example of how you would customize the toolbar. We want to allow our content team to add a table to Markdown files. In our global configuration file, we have complete control over the WYSIWYG toolbar.
+
+You can define the `_editables` for each editor in the global configuration file. These sections look like this in the configuration GUI:
+
+<comp.DocsImage path="" alt="" title=""/>
+
+When you have created your CloudCannon global configuration file, your schemas will look something like this:
+
+<comp.CodeBlock language="YAML" source="cloudcannon.config.yml">
+```
+_editables:
+  content:
+    bold: true
+    italic: true
+    bulletedlist: true
+    numberedlist: true
+    image: true
+    table: true
+    undo: true
+    redo: true
+```
+</comp.CodeBlock>
+
+As you can see, we have enabled many of the common functions your team would expect in a content editor. But that’s not all! Check out our documentation for many more ways to <a target="_blank" rel="noopener" href="https://cloudcannon.com/documentation/articles/defining-editable-regions-in-your-html/#options">configure the WYSIWYG toolbar</a>.
+
+### Markdown engine
+
+Your Markdown engine will process Markdown into HTML, making it editable. You can use any Markdown engine when building your site; this only covers the Markdown content you edit inside CloudCannon.
+
+CloudCannon supports the CommonMark and Kramdown specifications. These implementations are&nbsp;`markdown-it`&nbsp;(JavaScript) and&nbsp;`kramdown`&nbsp;(Ruby). `markdown-it`&nbsp;is the default Markdown processor in CloudCannon.
+
+<comp.CodeBlock language="YAML" source="cloudcannon.config.yml">
+```
+generator:
+  metadata:
+    markdown: markdown-it
+    markdown-it:
+      html: true
+      linkify: true
+```
+</comp.CodeBlock>
+
+The default configuration is&nbsp;`{ html: true }`&nbsp;to allow the images with width and height attributes the Rich Text editors create. However, you can update this to match your site by setting the&nbsp;`generator.metadata`&nbsp;in your global configuration file as shown above.
+
+### Front matter
+
+Inputs in the front matter are automatically available in the sidebar in the Visual Editor, Content Editor, and the dedicated Data Editor. Your content team will interact with these often, so let’s explicitly configure the front matter.
+
+<comp.CodeBlock language="HTML" source="blog_post.html">
+```
+---
+background: "#ff0000"
+hero_content: "Everything you need"
+sidebar:
+---
+```
+</comp.CodeBlock>
+
+We want team members to have the following inputs for each of these keys:
+
+* **background**&nbsp;— color picker
+* **hero\_content**&nbsp;— WYSIWYG markdown editor
+* **sidebar**&nbsp;— checkbox
+
+To achieve this, we should add the following to our global configuration file using the configuration GUI:
+
+<comp.CodeBlock language="YAML" source="cloudcannon.config.yml">
+```
+_inputs:
+  background:
+    type: color
+    comment: Defines the background for the entire page
+  hero_content:
+    type: markdown
+    label: Hero text
+  sidebar:
+    type: checkbox
+    hidden: true
+```
+</comp.CodeBlock>
+
+You will also see that we added some other elements to our keys:
+
+* A comment to describe the function of the input.
+* A label to name the input in the Data Editor.
+* A hidden status to prevent the input from appearing in the Data Editor.
+
+We covered inputs in the previous section of our guide, and you can always check out our documentation for <a target="_blank" rel="noopener" href="https://cloudcannon.com/documentation/articles/how-to-choose-what-input-is-used-in-the-data-editor/">customizing your inputs</a> to see more options.
+
+Here’s how our new inputs look in the Data Editor:
+
+<comp.DocsImage path="" alt="" title=""/>
+
+If you want to update front matter content in the Visual Editor rather than the Data Editor sidebar, you can set up&nbsp;<a rel="noopener" target="_blank" href="https://cloudcannon.com/documentation/articles/what-are-visual-data-bindings/">Visual Data binding</a>. Visual Data binding is an HTML attribute indicating which front matter property populates an HTML element. For example, the HTML class below will open an overlay to edit the title property in the front matter.
+
+<comp.CodeBlock language="HTML" source="homepage.html">
+```
+<h1 data-cms-bind="#title">{{title}}</h1>
+```
+</comp.CodeBlock>
+
+### Data files
+
+Data files are automatically available to update in the&nbsp;[Data Editor](https://cloudcannon.com/documentation/articles/introducing-the-data-editor/). The same&nbsp;[inputs configuration](https://cloudcannon.com/documentation/articles/how-to-choose-what-input-is-used-in-the-data-editor/)&nbsp;you used for the front matter will also work on data files.
+
+You can save the global configuration file and exit the GUI.
+
+## HTML
+
+In a previous section of this guide, we talked about the Visual Editor — an intuitive way to edit your site by clicking directly on a preview of your page. But how do you make each region editable in the Visual Editor?
+
+To edit HTML in the Visual Editor, add the class ‘editable’ to HTML elements. This way, you can give as much or as little access to your content team as you need.
+
+You can define add the ‘editable’ class to your site in the Source Editor:
+
+<comp.CodeBlock language="HTML" source="homepage.html">
+```
+<p class="editable">I'm editable in the visual editor</p>
+<p>I'm <strong>not</strong> editable in the visual editior</p>
+```
+</comp.CodeBlock>
+
+The element you apply the ‘editable’ class to will change the editing options in the WYSIWYG toolbar. For example, adding the editable class to an &lt;h1&gt; element will provide basic text formatting options. Adding it to a &lt;div&gt; element will open the option to add images, lists, and tables. You can&nbsp;<a rel="noopener" target="_blank" href="https://cloudcannon.com/documentation/articles/defining-editable-regions-in-your-html/#options">customize the WYSIWYG toolbar</a>&nbsp;to have complete control over what editors can and cannot add to each element.
+
+<comp.Notice info_type="info">
+  Changes made to the HTML save back to your layout, which might affect multiple content files.
+</comp.Notice>
