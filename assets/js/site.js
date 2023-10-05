@@ -12,11 +12,11 @@ const search = new Instance({
   baseUrl: "/",
   indexWeight: 2,
   excerptLength: 15,
-  mergeIndex: [
-    {
-      bundlePath: "https://cloudcannon.com/_pagefind/",
-    },
-  ],
+  // mergeIndex: [
+  //   {
+  //     bundlePath: "https://cloudcannon.com/_pagefind/",
+  //   },
+  // ],
 });
 window.searchInstance = search;
 
