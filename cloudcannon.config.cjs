@@ -67,7 +67,8 @@ module.exports = {
   collections_config: {
     common_content: {
       paths: {
-        dam_uploads: "[collection|slugify]/{date|year}/{date|month}/[asset-filename]",
+        dam_uploads:
+          "[collection|slugify]/{date|year}/{date|month}/[asset-filename]",
       },
       path: "_common_content",
       output: false,
@@ -132,6 +133,11 @@ module.exports = {
       icon: "school",
       url: "/guides/[relative_base_path]/[slug]/",
       parser: "front-matter",
+      schemas: {
+        default: {
+          path: ".cloudcannon/schemas/guide-item.mdx",
+        },
+      },
     },
     changelog: {
       path: "changelogs",
