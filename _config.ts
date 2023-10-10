@@ -302,7 +302,8 @@ site.filter("changelog_summary", (block, item) => {
 });
 
 site.filter("render_common", (file: string, data: object = {}) => {
-    const file_content = Deno.readTextFileSync(file);
+    // TODO: Remove the `/usr/local/__site/src/` replacement after fixing path selection
+    const file_content = Deno.readTextFileSync(file.replace("/usr/local/__site/src/", ""));
     const {body, attrs} = extract(file_content);
     const content_id = injectedSections.push(site.renderer.render(body, data, file));
 
