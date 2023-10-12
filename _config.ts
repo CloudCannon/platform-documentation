@@ -39,6 +39,7 @@ import "npm:prismjs@1.29.0/components/prism-jsx.js";
 import "./_config/prism-tree.js";
 
 import { DOMParser } from "https://deno.land/x/deno_dom@v0.1.38/deno-dom-wasm.ts";
+import { Page } from "lume/core.ts";
 
 function stripHTML(html) {
     const doc = new DOMParser().parseFromString(html, 'text/html');
@@ -247,6 +248,10 @@ const bubble_up_nav = (obj) => {
         return obj.articles?.map(a => `/documentation/articles/${a}/`) ?? [];
     }
 }
+
+site.filter("render_page_content", async (page: Page) => {
+    return await site.renderer.render(page.data.content, page.data, `${page.src.path}.${page.src.ext || "mdx"}`);
+}, true)
 
 site.filter("bubble_up_nav", (blocks) => {
     blocks.forEach(bubble_up_nav);
