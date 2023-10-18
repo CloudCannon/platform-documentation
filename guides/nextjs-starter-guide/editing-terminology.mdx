@@ -36,14 +36,14 @@ guide_listing:
 
     <comp.CodeBlock language="Javascript" source="">
     ```
-    export async function getStaticProps(context) {
-    	const buffer = await fs.promises.readFile('config.json')
-    	const data = JSON.parse(buffer.toString('utf8'))
+        export async function getStaticProps(context) {
+        	const buffer = await fs.promises.readFile('config.json')
+        	const data = JSON.parse(buffer.toString('utf8'))
 
-    	return {
-    		props: { data }
-    	}
-    }
+        	return {
+        		props: { data }
+        	}
+        }
     ```
     </comp.CodeBlock>
 
@@ -59,5 +59,58 @@ guide_listing:
 
     For example, in a&nbsp;`pages/blog/[slug].jsx` (or equivalent) you could fetch your matching `content/blog/slug.md` file data like so:
 
+    <comp.CodeBlock language="Javascript" source="">
+    ```
+    import Filer from '@cloudcannon/filer';
+    import DefaultLayout from '../../components/layouts/default';
+    import { formatDate } from '../../utility';
+
+    const filer = new Filer({ path: 'content' });
+
+    export default function Post({ page }) {
+      return (
+        <DefaultLayout page={page}>
+          <h1>{page.data.title}</h1>
+
+          <ul>
+            <li>{formatDate(page.data.date, 'string')}</li>
+            <li>{page.data.author}</li>
+          </ul>
+
+          <img
+            src={page.data.image}
+            alt={page.data.image_alt}
+          />
+
+          <article dangerouslySetInnerHTML={{ __html: page.content_html }}></article>
+        </DefaultLayout>
+      );
+    }
+
+    export async function getStaticPaths() {
+      const postSlugs = await filer.listItemSlugs('posts');
+      const paths = postSlugs.map((slug) => ({ params: { slug } }));
+
+      return {
+        paths,
+        fallback: false,
+      };
+    }
+
+    export async function getStaticProps({ params }) {
+      const post = await filer.getItem(`${params.slug}.md`, {
+        folder: 'posts',
+      });
+
+      return {
+        props: {
+          page: JSON.parse(JSON.stringify(post)),
+        },
+      };
+    }
+    ```
+    </comp.CodeBlock>
+
+    For more usage examples, we recommend taking a look at our <a rel="noopener noreferrer" href="https://github.com/CloudCannon/sendit-nextjs-template/">Sendit Next.js template</a>.
   </comp.SlotContent>
 </comp.CommonContent>
