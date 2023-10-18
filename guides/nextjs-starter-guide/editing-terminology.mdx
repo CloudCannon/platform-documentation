@@ -32,7 +32,32 @@ guide_listing:
 
     Now that we have the terminology, it’s time to organize our content. Most of the Next.js documentation is weighted towards using a fetch for your [getStaticProps](https://nextjs.org/docs/basic-features/data-fetching#getstaticprops-static-generation) and [getStaticPaths](https://nextjs.org/docs/basic-features/data-fetching#getstaticpaths-static-generation).
 
-    CloudCannon edits content stored in its local file system. This means we need to alter the fetch to use an&nbsp;`fs` call instead of `fetch`. For example, in your page file, use the following:
+    CloudCannon edits content stored in its local file system. This means we need to alter the fetch to use an `fs` call instead of `fetch`. For example, in your page file, use the following:
+
+    <comp.CodeBlock language="Javascript" source="">
+    ```
+    export async function getStaticProps(context) {
+    	const buffer = await fs.promises.readFile('config.json')
+    	const data = JSON.parse(buffer.toString('utf8'))
+
+    	return {
+    		props: { data }
+    	}
+    }
+    ```
+    </comp.CodeBlock>
+
+    Next.js documentation refers to this under [Data Fetching: Reading files](https://nextjs.org/docs/basic-features/data-fetching#reading-files-use-processcwd). The same process will need to happen for any calls to `getStaticPaths`.
+
+    It’s time to organize our content.
+
+    To get the most out of CloudCannon, it's best to make sure your content is separate from your templating and routing logic. We recommend storing your page content in files using one of the file formats listed above. Markdown with front matter is a great choice for storing content because the front matter can be easily edited in the Data Editor and the Markdown content Content Editor.
+
+    We recommend one content file per page, organized within a `content/` folder.
+
+    With your content nicely organized, you'll then need to fetch this data into your page components. CloudCannon has an open-source package called [Filer](https://github.com/cloudcannon/filer), which lets you easily pull data from your content files and collections.
+
+    For example, in a&nbsp;`pages/blog/[slug].jsx` (or equivalent) you could fetch your matching `content/blog/slug.md` file data like so:
 
   </comp.SlotContent>
 </comp.CommonContent>
