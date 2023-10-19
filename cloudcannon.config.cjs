@@ -1,4 +1,5 @@
 const path = require("path");
+const yaml = require("js-yaml");
 const fs = require("fs");
 const { matter } = require("md-front-matter");
 const fg = require("fast-glob");
@@ -10,6 +11,10 @@ const common_content_files = fg.sync([
 ]);
 
 console.log(`Loading common content from ${common_content_files.join(", ")}`);
+
+const ssg_data = yaml.load(
+  fs.readFileSync(path.join(__dirname, "_data/ssgs.yml"), "utf8")
+);
 
 for (const common_content_file of common_content_files) {
   const file_content = fs.readFileSync(common_content_file, {
@@ -64,6 +69,9 @@ module.exports = {
     mdx: true,
   },
   _snippets,
+  _select_data: {
+    docs_ssgs: ssg_data.ssgs,
+  },
   collections_config: {
     common_content: {
       paths: {
@@ -136,6 +144,23 @@ module.exports = {
       schemas: {
         default: {
           path: ".cloudcannon/schemas/guide-item.mdx",
+        },
+        guide_data: {
+          path: ".cloudcannon/schemas/guide-data.yml",
+          _inputs: {
+            guide_target_ssgs: {
+              type: "multiselect",
+              options: {
+                values: "_select_data.docs_ssgs",
+                value_key: id,
+                preview: {
+                  label: {
+                    key: name,
+                  },
+                },
+              },
+            },
+          },
         },
       },
     },
