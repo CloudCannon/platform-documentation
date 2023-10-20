@@ -288,6 +288,9 @@ const bubble_up_nav = (obj) => {
     }
 }
 
+site.filter("render_page_content", async (page: Page) => {
+    return await site.renderer.render(page.data.content, page.data, `${page.src.path}.${page.src.ext || "mdx"}`);
+}, true)
 
 site.filter("bubble_up_nav", (blocks) => {
     blocks.forEach(bubble_up_nav);
