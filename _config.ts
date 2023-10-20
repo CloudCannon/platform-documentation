@@ -98,16 +98,16 @@ site.formats.get(".md").engines[0].engine.disable("code");
 // Disable builtin Pagefind instance while we're pinned to a beta version,
 // which must be pulled from a different repository.
 // Remove from .cloudcannon/postbuild when enabling this.
-/*
-site.use(pagefind({
-    binary: {
-        version: "v0.11.0",
-    },
-    indexing: {
-        bundleDirectory: "documentation/_pagefind",
-    },    
-}));
-*/
+
+// site.use(pagefind({
+//     binary: {
+//         version: "v1.0.3",
+//     },
+//     indexing: {
+//         bundleDirectory: "documentation/_pagefind",
+//     },    
+// }));
+
 
 site.use(jsx());
 site.use(mdx());
@@ -235,6 +235,8 @@ site.process([".html"], (page) => {
 
     let hasItems = false;
     page.document?.querySelectorAll(`main h1, main h2, main h3`).forEach((el) => {
+        if (el.hasAttribute("data-skip-anchor")) return;
+
         const text = el.innerText;
         const slugPrefix = el.getAttribute('id') || slugify(text);
         if (!slugPrefix) {

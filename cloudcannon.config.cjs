@@ -156,7 +156,7 @@ module.exports = {
               type: "multiselect",
               options: {
                 values: "_select_data.docs_ssgs",
-                value_key: "id",
+                value_key: "name",
                 preview: {
                   label: {
                     key: "name",
