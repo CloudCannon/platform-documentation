@@ -76,44 +76,6 @@ search.add(
   })
 );
 
-/* Homepage search */
-
-if (document.querySelector("#onpagesearch")) {
-  const homepageSearch = new Instance({
-    bundlePath: "/documentation/_pagefind/",
-    baseUrl: "/",
-    excerptLength: 15,
-  });
-
-  homepageSearch.triggerFilters({
-    site: {
-      not: "Changelog",
-    },
-  });
-
-  homepageSearch.add(
-    new Input({
-      containerElement: "#onpagesearch",
-    })
-  );
-
-  if (document.querySelector("#onpagesummary")) {
-    homepageSearch.add(
-      new Summary({
-        containerElement: "#onpagesummary",
-      })
-    );
-  }
-  if (document.querySelector("#onpageresults")) {
-    homepageSearch.add(
-      new ResultList({
-        containerElement: "#onpageresults",
-        resultTemplate: searchResultTemplate,
-      })
-    );
-  }
-}
-
 let recentSearches = null,
   thisSearch = null;
 search.on("search", (term) => {
