@@ -57,6 +57,12 @@ Alpine.store("conditionals", {
 
     this.select("ssg-name", matching_value.name);
     this.select("ssg-icon", matching_value.icon);
+
+    document
+      .querySelector(".c-docs-ssg-selector")
+      ?.dispatchEvent?.(
+        new CustomEvent("ssgchange", { detail: {}, bubbles: true })
+      );
   },
 });
 
