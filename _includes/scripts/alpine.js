@@ -13,18 +13,23 @@ Alpine.plugin(focus);
 
 Alpine.store("conditionals", {
   conditions: {},
+  knownValues: {},
+  setFromURL: null,
 
   register(k) {
     this.conditions[k] = {
       selected: null,
     };
 
-    const selected_url = new URLSearchParams(
-      window?.location?.search?.toLocaleLowerCase?.() || "?"
-    ).get(k.toLocaleLowerCase());
     const selected_stored = localStorage.getItem(`conditional_${k}`) ?? null;
 
-    this.select(k, selected_url ? selected_url : selected_stored);
+    this.select(k, selected_stored);
+  },
+  registerValue(k, v) {
+    this.knownValues[k] = this.knownValues[k] || [];
+    this.knownValues[k].push(v);
+
+    this.updateSSGFromURL();
   },
   select(k, v) {
     this.conditions[k].selected = v;
@@ -36,6 +41,22 @@ Alpine.store("conditionals", {
   },
   keys() {
     return Object.keys(this.conditions);
+  },
+  updateSSGFromURL() {
+    const selected_in_url = new URLSearchParams(
+      window?.location?.search?.toLocaleLowerCase?.() || "?"
+    ).get("ssg");
+    if (!selected_in_url) return;
+
+    const matching_value = this.knownValues["ssg"]?.filter(
+      (v) =>
+        v.name.toLocaleLowerCase().replace(/[^a-z]/i, "") ===
+        selected_in_url.replace(/[^a-z]/i, "")
+    )[0];
+    if (!matching_value) return;
+
+    this.select("ssg-name", matching_value.name);
+    this.select("ssg-icon", matching_value.icon);
   },
 });
 
