@@ -257,6 +257,11 @@ module.exports = {
     _uuid: {
       instance_value: "UUID",
     },
+    explicit_canonical: {
+      type: "url",
+      comment:
+        "Optionally reference a different page or URL that this page should set as its canonical URL",
+    },
   },
   commit_templates: [{ template_string: "{message}" }],
   timezone: "Pacific/Auckland",
