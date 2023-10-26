@@ -47,24 +47,22 @@ for (const common_content_file of common_content_files) {
   common_content_structures.push(structure_value);
 }
 
+const snip = (name) =>
+  path.join(__dirname, `.cloudcannon/snippets/${name}.json`);
+
 const _snippets = {
-  ...require(path.join(__dirname, ".cloudcannon/snippets/code_block.json")),
-  ...require(path.join(__dirname, ".cloudcannon/snippets/conditional.json")),
-  ...require(path.join(__dirname, ".cloudcannon/snippets/data_reference.json")),
-  ...require(path.join(__dirname, ".cloudcannon/snippets/docs_image.json")),
-  ...require(path.join(
-    __dirname,
-    ".cloudcannon/snippets/multi_code_block.json"
-  )),
-  ...require(path.join(__dirname, ".cloudcannon/snippets/notice.json")),
-  ...require(path.join(__dirname, ".cloudcannon/snippets/tabs.json")),
-  ...require(path.join(__dirname, ".cloudcannon/snippets/youtube.json")),
-  ...require(path.join(__dirname, ".cloudcannon/snippets/common_content.json")),
-  ...require(path.join(
-    __dirname,
-    ".cloudcannon/snippets/common_content_param.json"
-  )),
-  ...require(path.join(__dirname, ".cloudcannon/snippets/slot.json")),
+  ...require(snip("code_block")),
+  ...require(snip("conditional")),
+  ...require(snip("data_reference")),
+  ...require(snip("docs_image")),
+  ...require(snip("multi_code_block")),
+  ...require(snip("notice")),
+  ...require(snip("tabs")),
+  ...require(snip("youtube")),
+  ...require(snip("common_content")),
+  ...require(snip("starter_guide_deflector")),
+  ...require(snip("common_content_param")),
+  ...require(snip("slot")),
 };
 
 module.exports = {
