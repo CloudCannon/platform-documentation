@@ -22,6 +22,28 @@ explicit_canonical: /documentation/guides/universal-starter-guide/editing-termin
     Using the [Nuxt Content](https://content.nuxtjs.org/) module makes integrating your Nuxt site with CloudCannon easy, with clear analogs to the organization of data mentioned above. Most importantly, this module requires that you separate your site content from the templating and rendering logic. This will make it easier to integrate the site into the CMS.
 
     When using the Nuxt Content module, we recommend grouping related content in directories. For instance, if your site has a blog with multiple posts, it is a good idea to keep those posts in a `posts/` folder.
+  </comp.SlotContent> <comp.SlotContent name="SSG_Update_File_Data">
+    ## Updating Nuxt to use file data
 
+    Now that we have covered the terminology, it’s time to organize our content. For Document-driven sites, in your Nuxt page component(s), you can fetch your page data like so:
+
+    <comp.CodeBlock language="JavaScript" source="">
+    ```
+    const { page } = useContent();
+    const pageData = page.value
+    ```
+    </comp.CodeBlock>
+
+    This catch-all route will fetch the relevant file in your `content/` directory based on the URL you have navigated to. For example, navigating to `/about/` will fetch the `content/about.md`, if it exists.
+
+    If you are not using Document-driven mode, you can instead fetch your page data using the [queryContent composable](https://content.nuxtjs.org/api/composables/query-content), like so:
+
+    <comp.CodeBlock language="JavaScript" source="">
+    ```
+    const page = await queryContent().where({ _path: '/about' }).findOne();
+    ```
+    </comp.CodeBlock>
+
+    For more usage examples, we recommend taking a look at our [Sendit Nuxt template](https://github.com/CloudCannon/sendit-nuxtjs-template).
   </comp.SlotContent>
 </comp.CommonContent>
