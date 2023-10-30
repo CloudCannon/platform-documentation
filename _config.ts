@@ -111,7 +111,6 @@ site.formats.get(".md").engines[0].engine.disable("code");
 
 site.use(jsx());
 site.use(mdx());
-site.use(prism());
 site.use(esbuild());
 site.use(sass());
 site.use(date());
@@ -274,10 +273,11 @@ site.process([".html"], async (page) => {
     annotateCodeBlocks(page);
 });
 
-// This MUST appear after our custom site.process([".html"] handling,
+// These MUST appear after our custom site.process([".html"] handling,
 // as in that function we inject content that should then be processed by the inline plugin,
 // and processing runs in the order it was instantiated.
 site.use(inline());
+site.use(prism());
 
 // TODO: Redo docnav as JSX and move this logic into the component
 const bubble_up_nav = (obj) => {
