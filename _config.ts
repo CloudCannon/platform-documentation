@@ -40,6 +40,8 @@ import "./_config/prism-tree.js";
 
 import { DOMParser } from "https://deno.land/x/deno_dom@v0.1.38/deno-dom-wasm.ts";
 import { Page } from "lume/core.ts";
+import { Element, Node } from "lume/deps/dom.ts";
+import { extract } from "lume/deps/front_matter.ts";
 
 function stripHTML(html) {
     const doc = new DOMParser().parseFromString(html, 'text/html');
@@ -55,6 +57,8 @@ const site = lume({
         port: 9010,
     }
 });
+
+const injectedSections: Promise<string>[] = [];
 
 const mdFilter = site.renderer.helpers.get('md')[0];
 
@@ -94,24 +98,22 @@ site.formats.get(".md").engines[0].engine.disable("code");
 // Disable builtin Pagefind instance while we're pinned to a beta version,
 // which must be pulled from a different repository.
 // Remove from .cloudcannon/postbuild when enabling this.
-/*
-site.use(pagefind({
-    binary: {
-        version: "v0.11.0",
-    },
-    indexing: {
-        bundleDirectory: "documentation/_pagefind",
-    },    
-}));
-*/
+
+// site.use(pagefind({
+//     binary: {
+//         version: "v1.0.3",
+//     },
+//     indexing: {
+//         bundleDirectory: "documentation/_pagefind",
+//     },    
+// }));
+
 
 site.use(jsx());
 site.use(mdx());
-site.use(prism());
 site.use(esbuild());
 site.use(sass());
 site.use(date());
-site.use(inline());
 site.use(sitemap({
     filename: '/documentation/sitemap.xml'
 }));
@@ -162,7 +164,40 @@ const annotateCodeBlocks = (page) => {
     });
 }
 
-site.process([".html"], (page) => {
+const injectReusableContent = async (el: Element) => {
+    const reusableContent = el.querySelectorAll(`:scope [data-common-content-id]`);
+
+    for (const node of reusableContent) {
+        const injectionEl = node as Element;
+        const injectionSlots: Record<string, string> = {};
+        for (const slotContentEl of injectionEl.querySelectorAll(`:scope [data-common-content-slot-content]`)) {
+            const slotName = (slotContentEl as Element).getAttribute("data-common-content-slot-content");
+            if (!slotName) continue;
+
+            injectionSlots[slotName] = (slotContentEl as Element).innerHTML;
+        }
+
+        const content_id = parseInt(injectionEl.getAttribute("data-common-content-id")!);
+        const content = await injectedSections[content_id];
+        injectionEl.innerHTML = content?.toString() || content;
+
+        for (const slotEl of injectionEl.querySelectorAll(`:scope [data-common-content-slot]`)) {
+            
+            const slotName = (slotEl as Element).getAttribute("data-common-content-slot");
+            if (!slotName) continue;
+
+            if (injectionSlots[slotName]) {
+                (slotEl as Element).innerHTML = injectionSlots[slotName];
+            }
+        }
+
+        injectReusableContent(injectionEl);
+    }
+}
+
+site.process([".html"], async (page) => {
+    if (page.document) await injectReusableContent(page.document.body);
+
     for (const [attr, newattr] of Object.entries(alpineRemaps)) {
         page.document?.querySelectorAll(`[${attr}]`).forEach((el) => {
             el.setAttribute(newattr, el.getAttribute(attr));
@@ -198,6 +233,8 @@ site.process([".html"], (page) => {
 
     let hasItems = false;
     page.document?.querySelectorAll(`main h1, main h2, main h3`).forEach((el) => {
+        if (el.hasAttribute("data-skip-anchor")) return;
+
         const text = el.innerText;
         const slugPrefix = el.getAttribute('id') || slugify(text);
         if (!slugPrefix) {
@@ -236,6 +273,12 @@ site.process([".html"], (page) => {
     annotateCodeBlocks(page);
 });
 
+// These MUST appear after our custom site.process([".html"] handling,
+// as in that function we inject content that should then be processed by the inline plugin,
+// and processing runs in the order it was instantiated.
+site.use(inline());
+site.use(prism());
+
 // TODO: Redo docnav as JSX and move this logic into the component
 const bubble_up_nav = (obj) => {
     if (obj._bubbled) return;
@@ -266,6 +309,15 @@ const summaryMarker = '</p>';
 site.filter("changelog_summary", (block, item) => {
     return block.substring(0, block.indexOf(summaryMarker) + summaryMarker.length);
 });
+
+site.filter("render_common", (file: string, data: object = {}) => {
+    // TODO: Remove the `/usr/local/__site/src/` replacement after fixing path selection
+    const file_content = Deno.readTextFileSync(file.replace("/usr/local/__site/src/", ""));
+    const {body, attrs} = extract(file_content);
+    const content_id = injectedSections.push(site.renderer.render(body, data, file));
+
+    return content_id - 1;
+})
 
 /* Environment data */
 
