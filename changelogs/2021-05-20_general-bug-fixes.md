@@ -6,7 +6,7 @@ This release fixes a number of small bugs.
 
 **Features:**
 
-* Improved App load time by reducing Javascript file sizes.
+* Improved App load time by reducing JavaScript file sizes.
 
 **Fixes:**
 

@@ -7,4 +7,4 @@ This release includes a number of follow up improvements and fixes from recent l
 **Fixes:**
 
 * Fixed handling filenames that are over a certain length
-* Fixed a number of minor Javascript errors
+* Fixed a number of minor JavaScript errors
