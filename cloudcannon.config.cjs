@@ -217,7 +217,6 @@ module.exports = {
   },
   _editables: {
     content: {
-      format: true,
       blockquote: true,
       bold: true,
       italic: true,
