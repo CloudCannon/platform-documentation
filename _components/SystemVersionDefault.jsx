@@ -1,4 +1,4 @@
-export default function ({comp, language, item, systemversions}) {
+export default function ({comp, language, item, systemversions, plaintext = false}) {
   const lookup = systemversions?.[language]?.[item];
-  return (<code>{lookup.default || 'Unknown'}</code>);
+  return (plaintext ? <span>{lookup.default || 'Unknown'}</span> : <code>{lookup.default || 'Unknown'}</code>);
 }
