@@ -44,7 +44,7 @@ const stringifyToJavascript = (obj) => {
 }
 
 const parseLanguageExtension = (lang) => {
-  switch (lang){ 
+  switch (lang.toLowerCase()){ 
     case "javascript":
       return "js";
     default:
@@ -54,7 +54,7 @@ const parseLanguageExtension = (lang) => {
 
 const parseFromLanguage = (str, lang) => {
   try {
-    switch (lang) {
+    switch (lang.toLowerCase()) {
       case "yaml":
       case "yml":
         return yaml.load(str);
@@ -70,7 +70,7 @@ const parseFromLanguage = (str, lang) => {
 
 const stringifyToLanguage = (obj, lang) => {
   try {
-    switch (lang) {
+    switch (lang.toLowerCase()) {
       case "yaml":
       case "yml":
         return yaml.dump(obj, { 
