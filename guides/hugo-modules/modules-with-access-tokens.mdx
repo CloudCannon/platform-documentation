@@ -2,48 +2,44 @@
 _schema: default
 _uuid: 8087a5a8-2e7a-4091-b556-bd40bf9844e6
 _created_at: 2023-06-07T00:00:00Z
-title: Private modules with access tokens
-nav_title: Private modules with access tokens
-published: true
+title: Access private modules with an access token
+nav_title: Access private modules with an access token
 order: 3
-image: /documentation/static/CloudCannonDocumentationog.jpg
-description: Using GitHub's access tokens to authenticate private Hugo Modules.
+published: true
+image: >-
+  https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+description: >-
+  Learn how to use GitHub's access tokens to authenticate a private Hugo Modules
+  repository.
 tags: []
 related_articles: []
 related_links:
 ---
+Some Hugo Modules won't be a good fit for Site Mounting, particularly if they are hosted on a private repository and require a complex setup. In this case, we can configure your CloudCannon site to install private Hugo Modules.
 
-For Hugo Modules in private repositories that aren't a good fit for Site Mounting, your environment can be configured to download private Hugo Module repositories successfully.
-
-This setup uses GitHub's access token feature, CloudCannon's environment variables, and CloudCannon's Build Hooks feature.
+Let's enable Hugo Modules with GitHub's access token feature, CloudCannon's environment variables, and [CloudCannon's Build Hooks](https://cloudcannon.com/documentation/articles/extending-your-build-process-with-hooks/) feature.
 
 ## Create a GitHub access token
 
-1. Navigate to [GitHub's Fine-grained tokens settings](https://github.com/settings/tokens?type=beta), and click **Generate new token**.
+Open GitHub and navigate to your [Fine-grained tokens settings](https://github.com/settings/tokens?type=beta). Click *Generate new token.*
 
-2. When creating a token, choose a name, some expiry date, and the GitHub Organization or user that owns the private repository.
+When creating a token, you must select a name, expiry date, and which GitHub organization or user owns the private repository. Under *Repository access*, enable the *Only Select Repositories* option, and select the private repository that contains your Hugo Modules. In the *Repository permissions* field, set *Contents* to "Access: Read-only".
 
-3. Under **Repository access**, enable **Only select repositories** and select the private repository that contains your Hugo Module.
+Click the *Generate token* button and copy the token to your clipboard.
 
-4. Under **Repository permissions** set **Contents** to Access: `Read-only`.
+## Add the token to CloudCannon
 
-5. Generate the token and copy it to your clipboard.
+Open your site in CloudCannon and navigate to your *Configuration* under *Site Settings*, then *Builds*. Click on the *Command Line Options* card to expand it.
 
-## Add the token as an environment variable
+\[screenshot\]
 
-1. In your site on CloudCannon, navigate to **Site Settings** > **Builds** > **Configuration** > **Command Line Options**.
+Add an environment variable to your site using the key "GH\_TOKEN". Paste the GitHub token you generated into the value field. Click the *Update Configuration* button.
 
-2. Add an environment variable with the name `GH_TOKEN` and paste the access token you generated above as the value.
+## Configure git to use your access token
 
-3. At the bottom of the page, click **Update Configuration**.
+Next, configure your git command to use this token when downloading your Hugo Modules using [CloudCannon's Build Hooks](https://cloudcannon.com/documentation/articles/extending-your-build-process-with-hooks/).
 
-## Configure git to use your token
-
-With a read-only access token available in your build environment, we need to configure the git command to use this token when downloading your Hugo Modules.
-
-To do this, we'll use [CloudCannon's Build Hooks](https://cloudcannon.com/documentation/articles/extending-your-build-process-with-hooks/).
-
-Create a file named `preinstall`, inside a `.cloudcannon` folder at the root of your repository, containing:
+Create a file inside a .cloudcannon folder in the root of your repository. Name this file "preinstall" and add the following:
 
 <comp.CodeBlock language="bash" source=".cloudcannon/preinstall">
 ```
@@ -51,10 +47,8 @@ git config --global url."https://${GH_TOKEN}:x-oauth-basic@github.com".insteadOf
 ```
 </comp.CodeBlock>
 
-<comp.Notice info_type="info">
-  Do not paste your token here, leave the text as `${GH_TOKEN}` exactly. This will use the token from the environment variable we set above.
-</comp.Notice>
+Do not paste your access token here. Leave the text as $&lt;span class="cms-snippet " data-cms-snippet-id="d6ec7030-b39d-436e-89d4-a5d7d41e26df" data-cms-snippet="eyJ0ZW1wbGF0ZSI6IkdIXFxfVE9LRU5cXCIsIl9oaWRkZW4iOnRydWUsIl9zbmlwcGV0X3R5cGUiOiJfY2NfbWR4X3Vua25vd25fdGVtcGxhdGUiLCJfbWV0YSI6eyJ0ZW1wbGF0ZSI6eyJvcmlnaW5hbERhdGEiOlt7Il90eXBlIjoidGV4dCIsInRleHQiOiJHSFxcX1RPS0VOXFwifV19fX0="&gt;keep.
 
-This command tells git to use your access token whenever it interacts with `https://github.com`, which is what Hugo will use when downloading modules.
+CloudCannon will use the token from the environment variable set in the previous step. Git will use your access token whenever it interacts with https://github.com. Hugo will use this when downloading your modules.
 
-Once this file is committed to your repository, your site will rebuild and download your Hugo Modules successfully.
+Once you have committed this file to your repository, CloudCannon will trigger a new build of your site and download your Hugo Modules.
