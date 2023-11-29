@@ -75,22 +75,24 @@ CloudCannon will pull available updates from your Publish Branch.
 
 ### Upstream commit message templates
 
-When you merge upstream changes, a configurable message will be used to create a merge commit or pull request. To help maintain a consistent format in these messages, you can configure an **upstream commit template** in your [global configuration](/documentation/articles/setting-global-configuration/).
+Updating from a Publish Branch will merge upstream changes with a merge commit or pull request. You can configure a commit message for these merges in your [global configuration file](/documentation/articles/setting-global-configuration/). Configuring a commit message will help you to maintain a consistent format.
 
-Upstream commit templates are configured with template strings. See [this article](/documentation/articles/configuring-with-placeholders/) for more information about this.
+Upstream commit messages use [template strings](/documentation/articles/configuring-with-placeholders/). To add an upstream commit template, add the key upstream\_commit\_template to the root level of your global configuration file.
 
-To add an upstream commit template, open your global configuration file and add an entry in `upstream_commit_template`. An upstream commit template can contain a combination of plain text and placeholders. Each placeholder is replaced with data. For example, your commit template might look like this:
+Your `upstream_commit_template` should look something like this:
 
+<comp.CodeBlock language="yaml" source="/cloudcannon.config.yaml">
 ```
-Merge branch [publish_branch] into develop of [branch] by [author] at [date]
+upstream_commit_template: "Merge branch [publish_branch] into develop of [branch] by [author] at [date]"
 ```
+</comp.CodeBlock>
 
-**Commit placeholders** insert data related to the commit, and are always surrounded by `[ ]` brackets. The available commit placeholders are:
+An upstream commit message template can contain plain text and placeholders. Placeholders insert data related to the commit and use `[ ]` brackets. CloudCannon supports the following commit placeholders:
 
-* `branch`
-* `publish_branch`
-* `date` is the current date
-* `author` is the email address of the person making the commit
+* `[branch]` — the name of the current branch.
+* `[publish_branch]` — the name of the Publish Branch from which you merge upstream changes.
+* `[author]` — the email address of the person responsible for the upstream merge.
+* `[date]` — the date of the upstream merge in the format "Tue Nov 28 2023 21:46:17 GMT+0000".
 
 ## Delete after publishing
 
