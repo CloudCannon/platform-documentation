@@ -301,6 +301,16 @@ site.filter("bubble_up_nav", (blocks) => {
     return blocks
 });
 
+site.filter("nav_contains", (nav, url) => {
+    nav.headings.forEach(bubble_up_nav);
+    for (const block of nav.headings) {
+        if (block._bubbled.includes(url)) {
+            return true;
+        }
+    }
+    return false;
+});
+
 site.filter("index_of", (block, item) => {
     return block.indexOf(item);
 });
