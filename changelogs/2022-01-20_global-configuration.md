@@ -6,9 +6,9 @@ This release brings support for separate global configuration files across all s
 
 **Features:**
 
-* CloudCannon-specific [global configuration](/documentation/articles/setting-global-configuration/) files across all SSGs
+* CloudCannon-specific [global configuration](/documentation/articles/create-a-global-configuration-file/) files across all SSGs
 * Improved post processing and compression build steps
-* New `sort` and `sort_options` [collection configuration](/documentation/articles/defining-your-collections/) keys for better control over sorting
+* New `sort` and `sort_options` [collection configuration](/documentation/articles/define-your-collections/) keys for better control over sorting
 * `form` elements with the `cms-no-rewrite` class no longer get encrypted or processed during a build
 
 **Fixes:**
