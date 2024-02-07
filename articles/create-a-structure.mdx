@@ -19,7 +19,7 @@ A structure is a predefined, custom object you can add to an array. You can use 
 
 Team members can easily add, remove, reorder, and update structures in the [Data Editor](/documentation/articles/introducing-the-data-editor/) or the sidebar of the [Visual](/documentation/articles/introducing-the-visual-editor/) or [Content Editor](/documentation/articles/introducing-the-content-editor/).
 
-<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/structures/2024-Q1/CloudCannon-Documentation-Structure-in-Array.png" alt="The sidebar of the Content Editor shows an array with the options for Manager and Employee configured in the structure." title="" type="ui-snippet"/>
+<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/structures/2024-Q1/CloudCannon-Documentation-Structure-in-Array.png" alt="The sidebar of the Content Editor shows an array with the options for Manager and Employee configured in the structure." title="A" type="ui-snippet"/>
 
 ## Structures and arrays
 
@@ -144,21 +144,50 @@ Because we have more than one value for this structure, adding a label to each o
 
 Here is our new structure configuration:
 
-x
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="Global Configuration File">
+```
+_structures:
+  example:
+    values:
+      - label: First
+        value:
+          name:
+          description:
+          image:
+      - label: Second
+        value:
+          heading:
+          subtext:
+```
+</comp.MultiCodeBlock>
 
 Once you save the global configuration file, your team can click the *\+ Add Example* button below the array to see a dropdown menu listing available structures for this array.
 
-<div data-cms-snippet-id="f3f416b3-4ac6-4a48-966c-15ddb7cff6cb" data-cms-snippet-type="block" data-cms-data="null"></div>
+<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/structures/2024-Q1/CloudCannon-Documentation-Multiple-Structure-Options.png" alt="An empty array with the option to add an item from a list of options defined in the structure." title="An empty array" type="ui-snippet"/>
 
 As you create more options for your structure, a dropdown may not be the best way to view your options. If you have many structures, a pop-up modal might be better. We can use the style key to switch from a dropdown to a pop-up modal.
 
-x
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="Global Configuration File">
+```
+_structures:
+  example:
+		style: select
+    values:
+      - label: First
+        value:
+          name:
+          description:
+          image:
+      - label: Second
+        value:
+          heading:
+          subtext:
+```
+</comp.MultiCodeBlock>
 
 The `style` key has two values: “select” and “modal”. When the `style` key is not configured, CloudCannon sets the style to “select” by default. When set to `select`, clicking the&nbsp;*\+ Add*&nbsp;button for an array creates a dropdown menu. When set to `modal`, the *\+ Add* button will create a pop-up modal that allows you to search all available options for that structure and utilize images, icons, and descriptions to define each option clearly.
 
 To switch to a modal, set the `style` key to `modal`.
-
-x
 
 For more information, including how to use images, icons, and descriptions to customize your structure options, read our reference documentation on [structure keys and values](/documentation/articles/array-structures-reference/).
 
@@ -178,7 +207,21 @@ To configure for an individual collection, use the `_structures` key under your 
 
 Here is a structure configuration for the collection Blog:
 
-x
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="Global Configuration File">
+```
+collections_config:
+	blog:
+		_structures:
+		  example:
+				style: select
+		    values:
+		      - label: Product
+		        value:
+		          name:
+		          description:
+		          image:
+```
+</comp.MultiCodeBlock>
 
 You can nest structures by defining a structure within another structure. These “sub-structures” will only affect arrays within the containing structure.
 
@@ -186,10 +229,49 @@ For this example, we want to create a page builder called `page_sections`. Withi
 
 Here is our structure configuration:
 
-x
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="Global Configuration File">
+```
+page_sections: []
+
+_structures:
+  page_sections:
+    values:
+      - label: Hero
+        icon: title
+        value:
+          _type: hero
+          title:
+          description:
+      - label: Content
+        icon: subject
+        value:
+          _type: content
+          elements: []
+        _structures:
+          elements:
+            values:
+              - label: Text
+                icon: article
+                value:
+                  content:
+              - label: Image
+                icon: image
+                value:
+                  image:
+                  description:
+      - label: Call to action
+        icon: smart_button
+        value:
+          _type: cta
+          url:
+          content:
+```
+</comp.MultiCodeBlock>
 
 Let’s populate the arrays for page\_sections and elements with sample content to see this substructure in action. Here is how the arrays look in the sidebar of the Content Editor.
 
-x
+<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/structures/2024-Q1/CloudCannon-Documentation-Structures-Page-Builder.png" alt="The sidebar of the Content Editor shows a structure with options for Hero, Content, and Call to action." type="ui-snippet"/>
+
+<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/structures/2024-Q1/CloudCannon-Documentation-Substructure-Within-Structure.png" alt="The sidebar of the Content Editor shows a structure within a structure with options for Text and Image." title="A structure within a structure" type="ui-snippet"/>
 
 For more information, read our reference documentation on [using the configuration cascade](/documentation/articles/using-the-configuration-cascade/).
