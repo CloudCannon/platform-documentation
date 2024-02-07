@@ -15,16 +15,92 @@ related_articles:
   - using-arrays-to-edit-your-data
 related_links: []
 ---
-By default, arrays in the [Data Editor](/documentation/articles/introducing-the-data-editor/) allow you to create new items. Adding a new item clones the previous item and clears its data. This default behavior is convenient as there is no configuration, however, there are some limitations as a trade-off:
+A structure is a predefined, custom object you can add to an array. You can use structures for any objects you want to repeat across your site, such as testimonials, image galleries, or page-building components.
 
-* The array must always contain at least one value for the editor to clone when adding.
-* Every item in the array has the same data type or structure.
+Team members can easily add, remove, reorder, and update structures in the [Data Editor](/documentation/articles/introducing-the-data-editor/) or the sidebar of the [Visual](/documentation/articles/introducing-the-visual-editor/) or [Content Editor](/documentation/articles/introducing-the-content-editor/).
 
-You can overcome these limitations by configuring how new array items are added manually by giving CloudCannon more context with Structures.
+## Structures and arrays
+
+Structures and arrays go hand-in-hand. The [array input](/documentation/articles/using-arrays-to-edit-your-data/) contains an ordered list of related items, while a structure is a template that determines what data CloudCannon should add to new array items. By creating structures, you can define different objects that your team members can add to arrays within your site.
+
+x
+
+### Default array behavior
+
+When you first connect your site files and make them editable in the Data Editor, CloudCannon will automatically detect arrays in your front matter and data files.
+
+<comp.DocsImage path="" alt="" title=""/>
+
+You can add new items to your arrays without the need for configuration. Clicking the *\+ Add* button for an array will clone the last array item and clear the data from the new item to create a blank array object. This behavior is convenient if you do not want to configure structures or have simple arrays.
+
+The default array behavior may not be right for you if:
+
+* Your array does not contain at least one object.
+* You want to have different object types in your array.
+
+Because the default behavior clones existing array items, CloudCannon will prevent you from removing the last item from an array if you do not have a structure configured. Additionally, cloning existing items does not allow for variation of object types. You can add different objects to the array manually using the [Source Editor](/documentation/articles/introducing-the-source-editor/). However, this can become inefficient to maintain.
+
+You can overcome these limitations by configuring data structures to add to your arrays.
 
 <comp.Notice info_type="info">
   Alternatively, [configure inline array inputs](/documentation/articles/using-arrays-to-edit-your-data/#inline-values) to set which input is used for array items. This also allows array to be empty.
 </comp.Notice>
+
+## Structures and objects
+
+Structures also work for individual objects. The [object input](/documentation/articles/editing-objects-in-your-data/) can contain a maximum of one value. When a structure is applied to an object input, team members can select which option from the structure they want to add to that object. Once a value is selected, you cannot add more until the value is replaced or deleted.
+
+## Create a structure
+
+You can configure your structures at any level of the [configuration cascade](/documentation/articles/using-the-configuration-cascade/). Global structures, which affect every array on your site, are configured in your [global configuration file](/documentation/articles/create-a-global-configuration-file/) under the object called `_structures`. We will cover other locations in the configuration cascade later in this article.
+
+You can edit your global configuration file by opening it in the Source Editor.
+
+<comp.Notice info_type="important">
+  Currently, you cannot configure the values for your structures in the Configuration GUI.
+</comp.Notice>
+
+To create a structure:
+
+1. Navigate to your global configuration file and open it in the Source Editor.
+2. Identify the `_structures` object, or create one.
+3. Within `_structures`, enter the key name for your structure.
+4. Select the [input](/documentation/articles/configure-your-inputs/) fields for each value in the structure.
+5. [Save your changes](/documentation/articles/save-your-changes/) to the global configuration file.
+
+Let’s go over an example of how you would create a structure.
+
+We want to allow your team members to add new objects to an array with fields for name, description, and image. We will use the key `example` and [define the input type](/documentation/articles/configure-your-inputs/) as an array.
+
+Here is our structure configuration:
+
+<comp.MultiCodeBlock language="YAML" translate_into={["toml", "json"]} source="Global Configuration File">
+```
+_structures:
+  example:
+    values:
+      - value:
+          name:
+          description:
+          image:
+
+_inputs:
+    example:
+      type: array
+```
+</comp.MultiCodeBlock>
+
+Here is the front matter of the file containing our array:
+
+xx
+
+
+
+
+
+
+
+
 
 <comp.DocsImage path="/documentation/static/inputs/structures/add-array-item.png" alt="An array with the add button highlighted" title="" type="screenshot-snippet"/>
 
