@@ -74,7 +74,7 @@ We want to allow your team members to add new objects to an array with fields fo
 
 Here is our structure configuration:
 
-<comp.MultiCodeBlock language="YAML" translate_into={[null, "json"]} source="Global Configuration File">
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="Global Configuration File">
 ```
 _structures:
   example:
@@ -94,111 +94,82 @@ Here is the front matter of the file containing our array:
 
 xx
 
-<comp.DocsImage path="/documentation/static/inputs/structures/add-array-item.png" alt="An array with the add button highlighted" title="" type="screenshot-snippet"/>
+Once you save the global configuration file, your team can click the *\+ Add Example* button below the array and immediately have a new object added. You can also remove all the objects within the array, as the template for creating new array objects is saved within the structure.
 
-## Structures
+x
 
-Array add values are defined under the key `_structures`. These allow you to define which keys in your data should be arrays, what data should be added when **Add** is clicked, and how the editor can decide what item to add.
+<comp.Notice info_type="info">
+  In this example, the inputs called “name”, “description”, and “image” should also be configured somewhere in the [configuration cascade](/documentation/articles/using-the-configuration-cascade/). For more information, read our documentation on [configuring your inputs](/documentation/articles/configure-your-inputs/).
+</comp.Notice>
 
-If you add keys to your structure definition, any existing instances of that structure will have those keys added the next time it is loaded in CloudCannon.
+If we wanted out input `example` to have a maximum of one value, we can use an object input rather than an array.
 
-### Defining your key
+Here is our structure configuration:
 
-The first step to configuring your structures is to define which key is used. For this example we will use the `example` key. If `_structures` is already defined, add your key to that object. Key level config in structures do not get merged; the latest defined key will be the only config. Below is the basic structure once your key is chosen:
+x
 
-<comp.Tabs label="Languages">
- <comp.Tab name="YAML">
-    <comp.CodeBlock language="yaml" source="Configuration">
-    ```
-    _structures:
-      example:
-        # Configure example key in here
-    ```
-    </comp.CodeBlock>
- </comp.Tab>
-  <comp.Tab name="TOML">
-    <comp.CodeBlock language="toml" source="Configuration">
-    ```
-    [[_structures.example]]
-    # Configure example key in here
-    ```
-    </comp.CodeBlock>
- </comp.Tab>
-  <comp.Tab name="JSON">
-    <comp.CodeBlock language="json" source="Configuration">
-    ```
-    {
-      "_structures": {
-        "example": {}
-      }
-    }
-    ```
-    </comp.CodeBlock>
- </comp.Tab>
-</comp.Tabs>
+Here is the front matter of the file containing our object:
 
-### Defining a single value
+x
 
-For the first example we want editors to click **Add** and immediately have the following data added:
+For more information, read our documentation on how to reference one structure in multiple arrays.
 
-<comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="New Item Content">
-```
-name:
-description:
-image:
-```
-</comp.MultiCodeBlock>
+### Add multiple options to a structure
 
-For this we need to add our new structure under a `value` key inside an array called `values`:
+You can create multiple options for a structure to give your team a selection of object templates.
 
-<comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="Configuration">
-```
-_structures:
-  example:
-    values:
-      - value:
-          name:
-          description:
-          image:
-```
-</comp.MultiCodeBlock>
+For this example, we want to allow your team members to be able to add another object type to the array. This new object will contain the fields for heading and subtext. Let’s add a new structure under our previous example.
 
-Our editors can now add a new value to our array and remove every array item because we have moved our add instructions into the `_structures` config.
+Because we have more than one value for this structure, adding a label to each option is important. Define your label on the same level as the&nbsp;`value`&nbsp;key with the&nbsp;`label`&nbsp;key.
 
-<comp.DocsImage path="/documentation/static/inputs/structures/empty-structure.png" alt="An empty array with the option to add an item" title="" type="screenshot-snippet"/>
+Here is our new structure configuration:
 
-### Defining a second value
+x
 
-For the second example we want editors to click **Add** and be prompted for a choice of options. We are going to add the following structure to our structures:
+Once you save the global configuration file, your team can click the *\+ Add Example* button below the array to see a dropdown menu listing available structures for this array.
 
-<comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="New Item Content">
-```
-heading:
-subtext:
-```
-</comp.MultiCodeBlock>
+<div data-cms-snippet-id="f3f416b3-4ac6-4a48-966c-15ddb7cff6cb" data-cms-snippet-type="block" data-cms-data="null"></div>
 
-For this we need to add our new structure under our previous in the array called `values`. Now that we have more than one option, it is important to label our values. Labels are defined on the same level as the `value` key with the `label` key. Here is our new configuration:
+As you create more options for your structure, a dropdown may not be the best way to view your options. If you have many structures, a pop-up modal might be better. We can use the style key to switch from a dropdown to a pop-up modal.
 
-<comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="Configuration">
-```
-_structures:
-  example:
-    values:
-      - label: 'First'
-        value:
-          name:
-          description:
-          image:
-      - label: 'Second'
-        value:
-          heading:
-          subtext:
-```
-</comp.MultiCodeBlock>
+x
 
-<comp.DocsImage path="/documentation/static/inputs/structures/dropdown-selector.png" alt="An empty array with two add options in a dropdown" title="" type="screenshot-snippet"/>
+The `style` key has two values: “select” and “modal”. When the `style` key is not configured, CloudCannon sets the style to “select” by default. When set to `select`, clicking the&nbsp;*\+ Add*&nbsp;button for an array creates a dropdown menu. When set to `modal`, the *\+ Add* button will create a pop-up modal that allows you to search all available options for that structure and utilize images, icons, and descriptions to define each option clearly.
 
-<comp.DocsImage path="/documentation/static/inputs/structures/structure-with-values.png" alt="An array with two add options in a dropdown and two existing items" title="" type="screenshot-snippet"/>
+To switch to a modal, set the `style` key to `modal`.
 
-There are a number of ways to change the way your array values look, just like the `label` key. These include the `description`, `icon`, `image`, and `image_size` keys. See the [structures reference](/documentation/articles/array-structures-reference/) for more details on these keys.
+x
+
+For more information, including how to use images, icons, and descriptions to customize your structure options, read our reference documentation on [structure keys and values](/documentation/articles/array-structures-reference/).
+
+### Structures in the configuration cascade
+
+Structures are part of the CloudCannon [configuration cascade](/documentation/articles/using-the-configuration-cascade/), so you can configure them for your site as a whole and for a specific page or collection. You can define your structures in the following places:
+
+1. [The global configuration file](/documentation/articles/create-a-global-configuration-file)
+2. [Collection&nbsp;configuration](/documentation/articles/define-your-collections/)
+3. [Schema&nbsp;configuration](/documentation/articles/create-a-schema)
+4. File front matter
+5. Within another structure
+
+When you define a structure in multiple places, CloudCannon uses the highest priority source and does not merge the structures. For example, a structure defined in the front matter of a file will take priority over one defined in collections.
+
+To configure for an individual collection, use the `_structures` key under your collection in `collections_config`.
+
+Here is a structure configuration for the collection Blog:
+
+x
+
+You can nest structures by defining a structure within another structure. These “sub-structures” will only affect arrays within the containing structure.
+
+For this example, we want to create a page builder called `page_sections`. Within the structure for the `page_sections` array, let’s create an option for a hero, content, and call-to-action section. Then, within the option for `content`, let’s define a second structure for the array `elements`. The `elements` structure will have the options for text and image.
+
+Here is our structure configuration:
+
+x
+
+Let’s populate the arrays for page\_sections and elements with sample content to see this substructure in action. Here is how the arrays look in the sidebar of the Content Editor.
+
+x
+
+For more information, read our reference documentation on [using the configuration cascade](/documentation/articles/using-the-configuration-cascade/).
