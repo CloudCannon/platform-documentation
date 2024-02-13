@@ -51,7 +51,7 @@ Structures also work for individual objects. The [object input](/documentation/a
 
 ## Create a structure
 
-You can configure your structures at any level of the [configuration cascade](/documentation/articles/using-the-configuration-cascade/). Global structures, which affect every array on your site, are configured in your [global configuration file](/documentation/articles/create-a-global-configuration-file/) under the object called `_structures`. We will cover other locations in the configuration cascade later in this article.
+You can configure your structures at any level of the [configuration cascade](/documentation/articles/using-the-configuration-cascade/). Global structures, which affect every array on your site, are configured in your [global configuration file](/documentation/articles/create-a-global-configuration-file/) under the object called `_structures`. For more information, including how to define structures at other levels of the configuration cascade, read our reference documentation on [structures in the configuration cascade](/documentation/articles/structures-in-the-configuration-cascade/).
 
 You can edit your global configuration file by opening it in the Source Editor.
 
@@ -190,88 +190,3 @@ The `style` key has two values: “select” and “modal”. When the `style` k
 To switch to a modal, set the `style` key to `modal`.
 
 For more information, including how to use images, icons, and descriptions to customize your structure options, read our reference documentation on [structure keys and values](/documentation/articles/array-structures-reference/).
-
-### Structures in the configuration cascade
-
-Structures are part of the CloudCannon [configuration cascade](/documentation/articles/using-the-configuration-cascade/), so you can configure them for your site as a whole and for a specific page or collection. You can define your structures in the following places:
-
-1. [The global configuration file](/documentation/articles/create-a-global-configuration-file)
-2. [Collection&nbsp;configuration](/documentation/articles/define-your-collections/)
-3. [Schema&nbsp;configuration](/documentation/articles/create-a-schema)
-4. File front matter
-5. Within another structure
-
-When you define a structure in multiple places, CloudCannon uses the highest priority source and does not merge the structures. For example, a structure defined in the front matter of a file will take priority over one defined in collections.
-
-To configure for an individual collection, use the `_structures` key under your collection in `collections_config`.
-
-Here is a structure configuration for the collection Blog:
-
-<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="">
-```
-collections_config:
-  blog:
-    _structures:
-      example:
-        style: select
-        values:
-          - label: Product
-            value:
-              name:
-              description:
-              image:
-```
-</comp.MultiCodeBlock>
-
-You can nest structures by defining a structure within another structure. These “sub-structures” will only affect arrays within the containing structure.
-
-For this example, we want to create a page builder called `page_sections`. Within the structure for the `page_sections` array, let’s create an option for a hero, content, and call-to-action section. Then, within the option for `content`, let’s define a second structure for the array `elements`. The `elements` structure will have the options for text and image.
-
-Here is our structure configuration:
-
-<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="Global Configuration File">
-```
-page_sections: []
-
-_structures:
-  page_sections:
-    values:
-      - label: Hero
-        icon: title
-        value:
-          _type: hero
-          title:
-          description:
-      - label: Content
-        icon: subject
-        value:
-          _type: content
-          elements: []
-        _structures:
-          elements:
-            values:
-              - label: Text
-                icon: article
-                value:
-                  content:
-              - label: Image
-                icon: image
-                value:
-                  image:
-                  description:
-      - label: Call to action
-        icon: smart_button
-        value:
-          _type: cta
-          url:
-          content:
-```
-</comp.MultiCodeBlock>
-
-Let’s populate the arrays for page\_sections and elements with sample content to see this substructure in action. Here is how the arrays look in the sidebar of the Content Editor.
-
-<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/structures/2024-Q1/CloudCannon-Documentation-Structures-Page-Builder.png" alt="The sidebar of the Content Editor shows a structure with options for Hero, Content, and Call to action." title="An array with dropdown options" type="ui-snippet"/>
-
-<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/structures/2024-Q1/CloudCannon-Documentation-Substructure-Within-Structure.png" alt="The sidebar of the Content Editor shows a structure within a structure with options for Text and Image." title="A structure within a structure" type="ui-snippet"/>
-
-For more information, read our reference documentation on [using the configuration cascade](/documentation/articles/using-the-configuration-cascade/).
