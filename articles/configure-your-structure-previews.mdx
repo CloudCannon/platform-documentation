@@ -13,3 +13,112 @@ related_articles: []
 related_links: []
 explicit_canonical:
 ---
+You can alter how your [structure](/documentation/articles/create-a-structure/)options appear by configuring the preview for each option. When you have many options in a structure, configuring the appearance of these options is a good way to create an intuitive experience for your team members.
+
+CloudCannon uses a [data card](/documentation/articles/configure-your-card-previews/) to represent each structure option in [objects](/documentation/articles/editing-objects-in-your-data/) and [arrays](/documentation/articles/using-arrays-to-edit-your-data). These cards are configurable UI elements that give you a preview of that data. Cards representing your structure options appear in the dropdown menu, [pop-up modal](/documentation/articles/create-a-structure/#create-a-structures-modal), and in the [Data Editor](/documentation/articles/introducing-the-data-editor) or sidebar of the [Visual](/documentation/articles/introducing-the-visual-editor) or [Content Editor](/documentation/articles/introducing-the-content-editor).
+
+You can configure how card previews look using the `preview` key. For each option in a structure, you can configure the values for the text, subtext, image, and icon within the `preview` key. The `text`, `subtext`, `image`, and `icon` keys can contain a string, a key, or an array of strings or keys.
+
+* `text` — Add a title to your option preview.
+* `subtext` — Add a subtitle to your option preview underneath your title. (If `text` is not configured, then the string for `subtext` will appear in the title.)
+* `image` — Add an image to your option preview.
+* `icon` — Add an icon from Google’s [Material Icons](https://fonts.google.com/icons?icon.set=Material+Icons) list to your option preview. The name of your icon must match the Material Icon name.
+
+<comp.Notice info_type="info">
+  Icons and images appear in the same place on your option preview. If your image fails to load or has no value, it will fall back to an icon (if one is configured).
+</comp.Notice>
+
+Let’s go over an example of how you would configure the preview of options within a structure.
+
+We want to create an array of staff members for our staff web page. The structure for this array will contain two options, one called “Employee” and one called “Manager”. The Employee option will have fields for a name, job description, and profile picture. The Manager option will have the same fields but also include a URL field for a link to their calendar. These fields will be configured under the `value` key.
+
+We can configure how these options look under the `preview` key. Let’s implement the following:
+
+* Make the staff member’s name, job description, and profile picture appear on each card in the array.
+* When no name, job description, or profile picture is selected, the fields fall back to a string or icon.
+
+Here is our structure configuration:
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+```
+_inputs:
+  staff:
+    type: array
+  profile_picture:
+    type: image
+  job_description:
+    type: textarea
+
+_structures:
+  staff:
+    style: modal
+    values:
+      - label: Employee
+        preview:
+          text:
+            - key: name
+            - Employee
+          subtext:
+            - key: job_description
+            - Description of position
+          image:
+            - key: profile_picture
+          icon: support_agent
+        value:
+          _type: Employee
+          name:
+          job_description:
+          profile_picture:
+      - label: Manager
+        preview:
+          text:
+            - key: name
+            - Manager
+          subtext:
+            - key: job_description
+            - Description of position
+          image:
+            - key: profile_picture
+          icon: face
+        value:
+          _type: Manager
+          name:
+          job_description:
+          profile_picture:
+          url:
+```
+</comp.MultiCodeBlock>
+
+In our configuration file, the objects `preview.text` and `preview.subtext` contain arrays. These arrays initially set the object value to the keys `name` or `job_description` but also have a fallback string if no values are found. For the object `preview.text`, the fallback string is either “Employee” or “Manager”, depending on the structure option, and for the object `preview.subtext` the fallback string is “Description of position”.
+
+In both options, we have configured the object `preview.image` to equal the value of the `profile_picture` key. If no value is found, we have configured the object `preview.icon` to equal an icon from Google’s [Material Icons](https://fonts.google.com/icons?icon.set=Material+Icons) list. The icon is `face` or `support_agent`, depending on the structure option.
+
+At the top of this configuration file, we have also defined a few inputs (i.e., `staff`, `profile_picture`, and `job_description`). For more information on this, read our documentation on [configuring your inputs](/documentation/articles/configure-your-inputs).
+
+Here is the front matter of the file containing our array:
+
+<comp.CodeBlock language="markdown" source="staff_page.md">
+```
+staff: []
+```
+</comp.CodeBlock>
+
+Let’s populate the array to see the previews in action.
+
+We have added a Manager “Karen Key” and an Employee “Billy Mills”. We entered the names of each staff member in the `name` field, a short sentence about their position in the `job_description` field, and the image path in the `profile_picture` field.
+
+We have also added two blank objects to the array, one using the Manager option and one using the Employee option.
+
+Here is how the array looks in the sidebar of the Content Editor.
+
+x
+
+The image above shows that once we added values for name and job description, those strings appeared in the text and subtext positions on each card. Additionally, once we added an image path for Karen and Billy, their profile pictures appeared on the card.
+
+Our blank array items look a little different. The text and subtext for each card match the fallback strings we configured for these options. Also, with no image path selected, the cards have fallen back to the icons we configured.
+
+These fallback values also appear in the dropdown menu or [pop-up modal](/documentation/articles/create-a-structure/#create-a-structures-modal) when selecting an option for new array items. In the image above, the dropdown shows the value of `preview.icon` and `label`. In the image below, we see the value of `preview.icon`, `preview.text`, and `preview.subtext`, when the array style is switched to a pop-up modal.
+
+x
+
+For more information about data cards in CloudCannon, read our documentation on&nbsp;[configuring your card previews](/documentation/articles/configure-your-card-previews).
