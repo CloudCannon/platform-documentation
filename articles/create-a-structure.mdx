@@ -47,11 +47,13 @@ You can overcome these limitations by configuring data structures to add to your
 
 ## Structures and objects
 
-Structures also work for individual objects. The [object input](/documentation/articles/editing-objects-in-your-data/) can contain a maximum of one value. When a structure is applied to an object input, team members can select which option from the structure they want to add to that object. Once a value is selected, you cannot add more until the value is replaced or deleted.
+Structures also work for individual objects. The [object input](/documentation/articles/editing-objects-in-your-data/) can contain a maximum of one value. When a structure is applied to an object input, team members can select which structure they want to add to that object. Once a value is selected, you cannot add more until the value is replaced or deleted.
 
 ## Create a structure
 
-You can configure your structures at any level of the [configuration cascade](/documentation/articles/using-the-configuration-cascade/). Global structures, which affect every array on your site, are configured in your [global configuration file](/documentation/articles/create-a-global-configuration-file/) under the object called `_structures`. For more information, including how to define structures at other levels of the configuration cascade, read our reference documentation on [structures in the configuration cascade](/documentation/articles/structures-in-the-configuration-cascade/).
+In CloudCannon, you can configure structures under the key called `_structures`.
+
+You can configure your structures at any level of the [configuration cascade](/documentation/articles/using-the-configuration-cascade/). Global structures, which affect every array on your site, are configured in your [global configuration file](/documentation/articles/create-a-global-configuration-file/). For more information, including how to define structures at other levels of the configuration cascade, read our reference documentation on [structures in the configuration cascade](/documentation/articles/structures-in-the-configuration-cascade/).
 
 You can edit your global configuration file by opening it in the Source Editor.
 
@@ -87,6 +89,12 @@ _structures: #1
 </comp.Annotation> <comp.Annotation number="4">
   4
 </comp.Annotation></comp.CodeBlock>
+
+### Referencing a structure in an input
+
+x
+
+### Array example
 
 Let’s go over an example of how you would create a structure.
 
@@ -128,6 +136,8 @@ Once you save the global configuration file, your team can click the *\+ Add Exa
   In this example, the inputs called “name”, “description”, and “image” should also be configured somewhere in the [configuration cascade](/documentation/articles/using-the-configuration-cascade/). For more information, read our documentation on [configuring your inputs](/documentation/articles/configure-your-inputs/).
 </comp.Notice>
 
+### Object example
+
 If we wanted our input `example` to have a maximum of one value, we can use an object input rather than an array.
 
 Here is our structure configuration:
@@ -156,34 +166,42 @@ example: []
 ```
 </comp.MultiCodeBlock>
 
-### Add multiple options to a structure
+### Add multiple structures
 
-You can create multiple options for a structure to give your team a selection of object templates.
+CloudCannon can store multiple structures under a single key. By creating an array of structures under a single key, you can provide your team with a selection of object templates for any array or object input.
 
-For this example, we want to allow your team members to be able to add another object type to the array. This new object will contain the fields for heading and subtext. Let’s add a new structure under our previous example.
+When referencing a key which contains multiple structures, all the structures within that key are available. Therefore, the key becomes the name of a groups of structures, rather than a single structure.
 
-Because we have more than one value for this structure, adding a label to each option is important. Define your label on the same level as the `value` key with the `label` key.
+Here is an example of multiple structures under one key:
 
-Here is our new structure configuration:
-
-<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="Global Configuration File">
+<comp.CodeBlock language="YAML" source="cloudcannon.config.yml">
 ```
 _structures:
-  example:
-    values:
-      - label: First
+  example: #1
+    values: #2
+      - label: First #3
         value:
           name:
           description:
           image:
-      - label: Second
+      - label: Second #4
         value:
           heading:
           subtext:
 ```
-</comp.MultiCodeBlock>
+<comp.Annotation number="1">
+  The key name of your group of structures. In this code we have called our structure `example`.
+</comp.Annotation> <comp.Annotation number="2">
+  The `example.values` key contains an array of structures. Each structure in this array is named using the `label` key.
+</comp.Annotation> <comp.Annotation number="3">
+  The first structure in the group called `example`. This structure contains fields for `name`, `description`, and `image`.
+</comp.Annotation> <comp.Annotation number="4">
+  The second structure in the group called `example`. This structure is different from the first, containing fields for `heading` and `subtext`.
+</comp.Annotation></comp.CodeBlock>
 
-Once you save the global configuration file, your team can click the *\+ Add Example* button below the array to see a dropdown menu listing available structures for this array.
+You can have as many structures under one key as you want. As you create multiple structures, it is important to add a label to each one. Define your label on the same level as the `value` key using the `label` key.
+
+Multiple structures appear as a dropdown menu when you click the *\+ Add* button below an array or object.
 
 <comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/structures/2024-Q1/CloudCannon-Documentation-Multiple-Structure-Options.png" alt="An empty array with the option to add an item from a list of options defined in the structure." title="An empty array" type="ui-snippet"/>
 
