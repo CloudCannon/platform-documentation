@@ -39,15 +39,51 @@ that isn't supported while live editing.
 {% else %}
 
   <p>Standard build output</p>
-  <h1>{% my_plugin %}</h1>
+  <h1>{{ title | custom_filter }}</h1>
 
 {% endif %}
 ```
 </comp.CodeBlock>
 
 With the above component, your production hosted site will contain `Standard build output` and the output
-of the `{% my_plugin %}` tag. Only when inside CloudCannon's Visual Editor, where `my_plugin` does not exist,
+from the `custom_filter` filter. Only when inside CloudCannon's Visual Editor, where `custom_filter` does not exist,
 your editors will see the `Fallback Title` branch of the template.
+
+This approach alone will not work for custom plugins, as these must exist when the templating is parsed.
+For example, the following template will fail to render:
+
+<comp.CodeBlock language="liquid" source="components/sample/sample.eleventy.liquid">
+```
+{% if env_bookshop_live %}
+
+  <p>I am being edited live!</p>
+  <h1>Fallback Title</h1>
+
+{% else %}
+
+  <p>Standard build output</p>
+  <h1>{% my_plugin %}</h1>
+
+{% endif %}
+```
+</comp.CodeBlock>
+
+To resolve this error, [define your custom plugin via your Bookshop configuration](/documentation/guides/bookshop-eleventy-guide/custom-plugins/).
+
+<comp.CodeBlock language="javascript" source="bookshop/my-plugin.js">
+```
+module.exports = function (Liquid) {
+    this.registerTag('my_plugin', () => {
+      return true;
+    });
+}
+```
+</comp.CodeBlock>
+
+The above snippet registers the `my_plugin` tag, which will allow the component to parse successfully.
+
+In this example we don't add any functionality inside the plugin, so we would still wrap its usage in a `{% if env_bookshop_live %}` check.
+As another option, we could instead implement a fallback inside our custom plugin file, and avoid using the `env_bookshop_live` check altogether.
 
 ## Disabling Live Editing
 
