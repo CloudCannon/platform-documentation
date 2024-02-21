@@ -65,7 +65,7 @@ In CloudCannon, you can configure structures under the key called `_structures`.
 
 You can configure `_structures` at any level of the [configuration cascade](/documentation/articles/using-the-configuration-cascade/). Global structures, which you can reference from any array or object input on your site, are configured in your [global configuration file](/documentation/articles/create-a-global-configuration-file/). For more information about how to define structures at other levels of the configuration cascade, read our reference documentation on [structures in the configuration cascade](/documentation/articles/structures-in-the-configuration-cascade/).
 
-You can edit your global configuration file by opening it in the Source Editor.
+Let's create a structure in the global configuration file.
 
 <comp.Notice info_type="important">
   Currently, you cannot configure the values for your structures in the Configuration GUI.
@@ -91,7 +91,7 @@ _structures: #1
           image:
 ```
 <comp.Annotation number="1">
-  The `_structures` object contains all the structures defined at a given level of the configuration cascade.
+  The `_structures` key contains all the structures defined at a given level of the configuration cascade.
 </comp.Annotation> <comp.Annotation number="2">
   The key name of your structure. In this code we have called our structure `example`. You can call your structure anything you want.
 </comp.Annotation> <comp.Annotation number="3">
@@ -102,81 +102,67 @@ _structures: #1
 
 In the above code, we have created a simple structure under the key `example`. This structure contains the fields for `name`, `description`, and `image`. This structure can be referenced in any array or object input.
 
-## Reference a structure in an array or object input
-
-x
-
-### Array example
-
-Let’s go over an example of how you would create a structure.
-
-We want to allow your team members to add new objects to an array with fields for name, description, and image. We will use the key `example` and [define the input type](/documentation/articles/configure-your-inputs/) as an array.
-
-Here is our structure configuration:
-
-<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="Global Configuration File">
-```
-_structures:
-  example:
-    values:
-      - value:
-          name:
-          description:
-          image:
-
-_inputs:
-    example:
-      type: array
-```
-</comp.MultiCodeBlock>
-
-Here is the front matter of the file containing our array:
-
-<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="">
-```
-example: []
-```
-</comp.MultiCodeBlock>
-
-Once you save the global configuration file, your team can click the *\+ Add Example* button below the array and immediately have a new object added. You can also remove all the objects within the array, as the template for creating new array objects is saved within the structure.
-
-<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/structures/2024-Q1/CloudCannon-Documentation-Empty-Array-Example.png" alt="An empty array with the option to add an item." title="An empty array" type="ui-snippet"/>
-
-<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/structures/2024-Q1/CloudCannon-Documentation-Example-Structure-Fields.png" alt="The sidebar of the Content Editor shows an object in an array with fields for Name, Description, and Image." title="An object within an array" type="ui-snippet"/>
-
 <comp.Notice info_type="info">
   In this example, the inputs called “name”, “description”, and “image” should also be configured somewhere in the [configuration cascade](/documentation/articles/using-the-configuration-cascade/). For more information, read our documentation on [configuring your inputs](/documentation/articles/configure-your-inputs/).
 </comp.Notice>
 
-### Object example
+## Reference a structure in an array or object input
 
-If we wanted our input `example` to have a maximum of one value, we can use an object input rather than an array.
+We can reference a structure in any number of array or object inputs. Referencing the same structure in many inputs allows you to:
 
-Here is our structure configuration:
+* Maintain consistency across your site.
+* Configure context specific input names and descriptions without affecting the underlying structure
 
-<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="Global Configuration File">
+To reference a structure in an input:
+
+1. Navigate to your global configuration file and open it in the Source Editor.
+2. Identify the `_inputs` key and the input you want to reference the structure from, or create them.
+3. Reference your structure using the `options.structures` key within your array or object input.
+4. Save your changes to the global configuration file.
+
+Here is an example of an array input referencing a structure:
+
+<comp.CodeBlock language="YAML" source="cloudcannon.config.yml">
 ```
-_structures:
-  example:
+_inputs: #1
+  array_one: #2
+    type: array
+    options: #3
+      structures: _structures.example #4
+```
+<comp.Annotation number="1">
+  The `_inputs` key contains all the inputs defined at a given level of the configuration cascade.
+</comp.Annotation> <comp.Annotation number="2">
+  The key name of your array or object input. In this code we have called our input `array_one`. You can call your structure anything you want.
+</comp.Annotation> <comp.Annotation number="3">
+  The `options` key contains configuration options for this input. For more information on configuring your inputs, read our documentation on [configuring your inputs](/documentation/articles/configure-your-inputs/).
+</comp.Annotation> <comp.Annotation number="4">
+  The `options.structures` key is set to `_structures.example`, referencing the structure named “example”.
+</comp.Annotation></comp.CodeBlock>
+
+Once you save the global configuration file, clicking the *\+ Add* button below the array will add an item with the same fields as your structure.
+
+<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/structures/2024-Q1/CloudCannon-Documentation-Empty-Array-Example.png" alt="An empty array with the option to add an item." title="An empty array" type="ui-snippet"/>
+
+Let’s go over an example.
+
+We want to create a single structure for storing links. The “links” structure will contain fields for `url`, `logo`, and `text`. Every time a team member adds a new item to an array which references the structure `links`, the structure will populate the new item with the fields for `url`, `logo`, and `text`.
+
+In this example, there are two arrays which we want to add links to. The first array input is called `header_social_media`, and lists all the social media platforms we want to link to from our website header. The second array input is called `footer_affliate_links`, and lists our affiliate links in the website footer.
+
+Here is an example of how we might create the structure for `links` and reference it in the input configuration for `header_social_media` and `footer_affliate_links`:
+
+<comp.CodeBlock language="YAML" source="cloudcannon.config.yml">
+```
+_structures: #1
+  links: #2
     values:
-      - value:
-          name:
-          description:
-          image:
-
-_inputs:
-    example:
-      type: object
+       - value: #3
+          url:
+					logo:
+          text:
 ```
-</comp.MultiCodeBlock>
-
-Here is the front matter of the file containing our object:
-
-<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="">
-```
-example: []
-```
-</comp.MultiCodeBlock>
+</comp.CodeBlock>
 
 ## Add multiple structures to the same key
 
