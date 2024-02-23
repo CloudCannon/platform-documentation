@@ -52,12 +52,12 @@ Because the default behavior clones existing array items, CloudCannon will preve
 You can overcome these limitations by configuring data structures to add to your arrays.
 
 <comp.Notice info_type="info">
-  Alternatively, [configure inline array inputs](/documentation/articles/using-arrays-to-edit-your-data/#inline-values) to set which input is used for array items. This also allows array to be empty.
+  Alternatively, [configure inline array inputs](/documentation/articles/using-arrays-to-edit-your-data/#inline-values) to set which input is used for array items. Inline array inputs also allow an array to be empty.
 </comp.Notice>
 
 ### Structures and objects
 
-Structures also work for individual objects. The [object input](/documentation/articles/editing-objects-in-your-data/) can contain a maximum of one value. When a structure is applied to an object input, team members can select which structure they want to add to that object. Once a value is selected, you cannot add more until the value is replaced or deleted.
+Structures also work for individual objects. The [object input](/documentation/articles/editing-objects-in-your-data/) can contain a maximum of one value. After you reference a structure key from an object input, team members can select which structure they want to add to that object. Once a value is selected, you cannot add more until the value is replaced or deleted.
 
 ## Create a structure
 
@@ -93,11 +93,11 @@ _structures: #1
 <comp.Annotation number="1">
   The `_structures` key contains all the structures defined at a given level of the configuration cascade.
 </comp.Annotation> <comp.Annotation number="2">
-  The key name of your structure. In this code we have called our structure `example`. You can call your structure anything you want.
+  The key name of your structure. In this code, we have called our structure `example`. You can name your structure anything you want.
 </comp.Annotation> <comp.Annotation number="3">
-  The `example.values` key contains an array of options for this structure. We will cover [multiple structures](documentation/articles/create-a-structure/#add-multiple-structures) stored under a single key later in this article.
+  The `example.values` key can contain an array of structures. We will cover [multiple structures](documentation/articles/create-a-structure/#add-multiple-structures) stored under a single key later in this article.
 </comp.Annotation> <comp.Annotation number="4">
-  A structure in the group called `example`. This structure contains fields for `name`, `description`, and `image`.
+  This is the first structure in the group named `example`. Each structure must contain a `value` key defining what fields should populate new items of this type. This structure contains fields for `name`, `description`, and `image`. For more information on keys available for structure configuration, please read our reference documentation for [structures](/documentation/articles/array-structures-reference/).
 </comp.Annotation></comp.CodeBlock>
 
 In the above code, we have created a simple structure under the key `example`. This structure contains the fields for `name`, `description`, and `image`. This structure can be referenced in any array or object input.
@@ -134,7 +134,7 @@ _inputs: #1
 <comp.Annotation number="1">
   The `_inputs` key contains all the inputs defined at a given level of the configuration cascade.
 </comp.Annotation> <comp.Annotation number="2">
-  The key name of your array or object input. In this code we have called our input `array_one`. You can call your structure anything you want.
+  The key name of your array or object input. In this code, we have called our input `array_one`. You can name your structure anything you want.
 </comp.Annotation> <comp.Annotation number="3">
   The `options` key contains configuration options for this input. For more information on configuring your inputs, read our documentation on [configuring your inputs](/documentation/articles/configure-your-inputs/).
 </comp.Annotation> <comp.Annotation number="4">
@@ -147,7 +147,7 @@ Once you save the global configuration file, clicking the *\+ Add* button below 
 
 Let’s go over an example.
 
-We want to create a single structure for storing links. The “links” structure will contain fields for `url`, `logo`, and `text`. Every time a team member adds a new item to an array which references the structure `links`, the structure will populate the new item with the fields for `url`, `logo`, and `text`.
+We want to create a single structure for storing links. The “links” structure will contain fields for `url`, `logo`, and `text`. Every time a team member adds a new item to an array that references the structure `links`, the structure will populate the new item with the fields for `url`, `logo`, and `text`.
 
 In this example, there are two arrays which we want to add links to. The first array input is called `header_social_media`, and lists all the social media platforms we want to link to from our website header. The second array input is called `footer_affliate_links`, and lists our affiliate links in the website footer.
 
@@ -166,7 +166,7 @@ _structures: #1
 <comp.Annotation number="1">
   The `_structures` key contains all the structures defined at a given level of the configuration cascade.
 </comp.Annotation> <comp.Annotation number="2">
-  This structure is stored under the key `links`.
+  The key name for our structure group is `links`.
 </comp.Annotation> <comp.Annotation number="3">
   The structure within `links`. This structure contains fields for `url`, `logo`, and `text`.
 </comp.Annotation></comp.CodeBlock>
@@ -197,25 +197,25 @@ _inputs: #1
 
 Let’s populate both arrays to see the `links` structure in action.
 
-We’ve added the link for “cloudcannon.com” to the `header_social_media` array and “example.com” the `footer_affliate_links` array.
+We’ve added the link for “cloudcannon.com” to the `header_social_media` array and “example.com” to the `footer_affliate_links` array.
 
 Here is how the arrays look in the sidebar of the Content Editor.
 
 <comp.DocsImage path="" alt="" title=""/>
 
-In this example, the arrays for `header_social_media` and `footer_affliate_links` are in the same file, however this does not have to be the case. You can add an array or object input to one file, define those inputs in a second file, and define the structure in a third, provided that all definitions have access to one another in the configuration cascade.
+The arrays for `header_social_media` and `footer_affliate_links` are in the same file in this example. However, this does not have to be the case. You can add an array or object input to one file, define those inputs in a second file, and define the structure in a third, provided that all definitions have access to one another in the configuration cascade.
 
 For more information on this topic, read our reference documentation on [structures in the configuration cascade](/documentation/articles/structures-in-the-configuration-cascade/).
 
 <comp.Notice info_type="info">
-  If your structure and input key names happen to match, CloudCannon will automatically reference the structure for you, provided that the structure and input are defined in the correct levels of the configurations cascade. This behavior is convenient if you do not want to configure you inputs to reference a structure. However, we recommend choosing different names due to the benefits outlined at the beginning of this section.
+  If your structure and input key names happen to match, CloudCannon will automatically reference the structure for you, provided that the structure and input are defined in the correct levels of the configurations cascade. This behavior is convenient if you do not want to configure your inputs to reference a structure. However, we recommend choosing different names due to the benefits outlined at the beginning of this section.
 </comp.Notice>
 
 ## Add multiple structures to the same key
 
 CloudCannon can store multiple structures under a single key. By creating an array of structures under a single key, you can provide your team with a selection of object templates for any array or object input.
 
-When referencing a key which contains multiple structures, all the structures within that key are available. Therefore, the key becomes the name of a groups of structures, rather than a single structure.
+When referencing a key that contains multiple structures, all the structures within that key are available. Therefore, the key becomes the name of a group of structures rather than a single structure.
 
 Here is an example of multiple structures under one key:
 
@@ -235,13 +235,13 @@ _structures:
           subtext:
 ```
 <comp.Annotation number="1">
-  The key name of your group of structures. In this code we have called our structure `example`.
+  The key name of your group of structures. In this code, we have called our structure `example`.
 </comp.Annotation> <comp.Annotation number="2">
   The `example.values` key contains an array of structures. Each structure in this array is named using the `label` key.
 </comp.Annotation> <comp.Annotation number="3">
-  The first structure in the group called `example`. This structure contains fields for `name`, `description`, and `image`.
+  The first structure in the group named `example`. This structure contains fields for `name`, `description`, and `image`.
 </comp.Annotation> <comp.Annotation number="4">
-  The second structure in the group called `example`. This structure is different from the first, containing fields for `heading` and `subtext`.
+  The second structure in the group named `example`. This structure is different from the first, containing fields for `heading` and `subtext`.
 </comp.Annotation></comp.CodeBlock>
 
 You can have as many structures under one key as you want. As you create multiple structures, it is important to add a label to each one. Define your label on the same level as the `value` key using the `label` key.
