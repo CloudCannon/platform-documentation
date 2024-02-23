@@ -17,6 +17,8 @@ explicit_canonical:
 ---
 You can alter how your [structures](/documentation/articles/create-a-structure/) appear by configuring the preview for each structure. When you have [many structures under the same key](/documentation/articles/create-a-structure/#add-multiple-structures-to-the-same-key), configuring the appearance of these structures is a good way to differentiate between them and create an intuitive experience for your team members.
 
+<comp.DocsImage path="" alt="" title=""/>
+
 CloudCannon uses a [data card](/documentation/articles/configure-your-card-previews/) to represent each structure in [objects](/documentation/articles/editing-objects-in-your-data/) and [arrays](/documentation/articles/using-arrays-to-edit-your-data). These cards are configurable UI elements that give you a preview of that data. Cards representing your structures appear in the dropdown menu, [pop-up modal](/documentation/articles/create-a-structure/#add-multiple-structures-to-the-same-key), and in the [Data Editor](/documentation/articles/introducing-the-data-editor) or sidebar of the [Visual](/documentation/articles/introducing-the-visual-editor) or [Content Editor](/documentation/articles/introducing-the-content-editor).
 
 You can configure how card previews look using the `preview` key. For each structure, you can configure the values for the text, subtext, image, and icon within the `preview` key. The `text`, `subtext`, `image`, and `icon` keys can contain a string, a key, or an array of strings or keys.
@@ -43,7 +45,7 @@ Here is our structure configuration:
 
 <comp.CodeBlock language="YAML" source="cloudcannon.config.yml">
 ```
-_inputs:
+_inputs: #1
   staff:
     type: array
   profile_picture:
@@ -51,11 +53,16 @@ _inputs:
   job_description:
     type: textarea
 
-_structures:
-  staff:
+_structures: #2
+  staff: #3
     style: modal
     values:
-      - preview:
+      - value: #4
+          _type: Employee
+          name:
+          job_description:
+          profile_picture:
+        preview: #5
           text:
             - key: name
             - Employee
@@ -65,12 +72,13 @@ _structures:
           image:
             - key: profile_picture
           icon: support_agent
-        value:
-          _type: Employee
+      - value: #6
+          _type: Manager
           name:
           job_description:
           profile_picture:
-      - preview:
+          url:
+        preview: #7
           text:
             - key: name
             - Manager
@@ -80,12 +88,6 @@ _structures:
           image:
             - key: profile_picture
           icon: face
-        value:
-          _type: Manager
-          name:
-          job_description:
-          profile_picture:
-          url:
 ```
 </comp.CodeBlock>
 
