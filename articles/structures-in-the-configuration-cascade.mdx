@@ -29,12 +29,12 @@ To configure for an individual collection, use the `_structures` key under your 
 
 Here is a structure configuration for the collection Blog:
 
-<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="">
+<comp.CodeBlock language="YAML" source="cloudcannon.config.yml">
 ```
-collections_config:
-  blog:
-    _structures:
-      example:
+collections_config: #1
+  blog: #2
+    _structures: #3
+      example: #4
         style: select
         values:
           - label: Product
@@ -43,7 +43,17 @@ collections_config:
               description:
               image:
 ```
-</comp.MultiCodeBlock>
+<comp.Annotation number="1">
+  The `collections_config` key contains all the collections and any configuration for those collections.
+</comp.Annotation> <comp.Annotation number="2">
+  The `blog` key matches out collection “Blog”.
+</comp.Annotation> <comp.Annotation number="3">
+  The `_structures` key contains all the structures defined at a given level of the configuration cascade. In this code, structures defined here will only be available inside the collection “blog”.
+</comp.Annotation> <comp.Annotation number="4">
+  The key name for our structure group is `example`. Under example we have defined a single structure labelled “Product” with the fields for `name`, `description`, and `image`.
+</comp.Annotation></comp.CodeBlock>
+
+The structures defined under the key `example` will only be available for array or object inputs in the collection "Blog".
 
 ## Define a structure within another structure
 
@@ -53,12 +63,12 @@ For this example, we want to create a page builder called `page_sections`. Withi
 
 Here is our structure configuration:
 
-<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="Global Configuration File">
+<comp.CodeBlock language="YAML" source="cloudcannon.config.yml">
 ```
 page_sections: []
 
-_structures:
-  page_sections:
+_structures: #1
+  page_sections: #2
     values:
       - label: Hero
         icon: title
@@ -66,13 +76,13 @@ _structures:
           _type: hero
           title:
           description:
-      - label: Content
+      - label: Content #3
         icon: subject
         value:
           _type: content
           elements: []
-        _structures:
-          elements:
+        _structures: #4
+          elements: #5
             values:
               - label: Text
                 icon: article
@@ -90,7 +100,17 @@ _structures:
           url:
           content:
 ```
-</comp.MultiCodeBlock>
+<comp.Annotation number="1">
+  The `_structures` key contains all the structures defined at a given level of the configuration cascade.
+</comp.Annotation> <comp.Annotation number="2">
+  The key name of your structure. In this code, we have called our structure `page_sections`. 
+</comp.Annotation> <comp.Annotation number="3">
+  Under the key `page_sections` we have defined two structures. The second structure is labelled "Content".
+</comp.Annotation> <comp.Annotation number="4">
+  Within the structure labelled "Content", we have defined another structure.
+</comp.Annotation> <comp.Annotation number="5">
+  The key name of your sub-structure. In this code, we have called our sub-structure `elements`. The structures defined under `elements` will only be available within the item "Content" where `page_sections` is used in an aray or object input.
+</comp.Annotation></comp.CodeBlock>
 
 Let’s populate the arrays for `page_sections` and `elements` with sample content to see this substructure in action. Here is how the arrays look in the sidebar of the Content Editor.
 
