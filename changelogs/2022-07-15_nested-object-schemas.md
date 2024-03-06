@@ -8,7 +8,7 @@ Earlier we released a set of major improvements to the CloudCannon Editors on op
 
 **Features:**
 
-* [Collection schemas](/documentation/articles/creating-collection-schemas/) now support nested objects
+* [Collection schemas](/documentation/articles/create-a-schema/) now support nested objects
 * Installed [Pipenv](https://pipenv.pypa.io/en/latest/) on the build server
 
 **Fixes:**
