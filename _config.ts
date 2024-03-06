@@ -269,8 +269,6 @@ site.process([".html"], async (page) => {
     page.document?.querySelectorAll('a').forEach((el) => {
         appendTargetBlank(page, el);
     });
-
-    annotateCodeBlocks(page);
 });
 
 // These MUST appear after our custom site.process([".html"] handling,
@@ -278,6 +276,12 @@ site.process([".html"], async (page) => {
 // and processing runs in the order it was instantiated.
 site.use(inline());
 site.use(prism());
+
+// This annotation process relies on the syntax highlighting,
+// so needs to run after prism
+site.process([".html"], async (page) => {
+    annotateCodeBlocks(page);
+});
 
 // TODO: Redo docnav as JSX and move this logic into the component
 const bubble_up_nav = (obj) => {
