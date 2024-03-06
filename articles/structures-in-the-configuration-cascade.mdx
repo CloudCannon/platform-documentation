@@ -63,18 +63,24 @@ For this example, we want to create a page builder called `page_sections`. Withi
 
 Here is our structure configuration:
 
+<comp.CodeBlock language="markdown" source="home.md">
+```
+---
+page_sections: []
+---
+```
+</comp.CodeBlock>
+
 <comp.CodeBlock language="YAML" source="cloudcannon.config.yml">
 ```
-page_sections:[]
-
 _inputs: #1
-  content: #2
+  page_sections: #2
     type: array
     options:
-      structures: _structures.elements #3
+      structures: _structures.page_sections
 
-_structures: #4
-  page_sections: #5
+_structures: #3
+  page_sections: #4
     values:
       - label: Hero
         icon: title
@@ -82,13 +88,16 @@ _structures: #4
           _type: hero
           title:
           description:
-      - label: Content #6
+      - label: Content #5
         icon: subject
         value:
           _type: content
-          content: [] #7
-        _inputs:
-          content: []
+          content: [] #6
+        _inputs: #7
+          content:
+            type: array
+            options:
+              structures: _structures.elements
         _structures: #8
           elements: #9
             values:
@@ -114,17 +123,17 @@ _structures: #4
 <comp.Annotation number="1">
   The `_inputs` key contains all the inputs defined at a given level of the configuration cascade.
 </comp.Annotation> <comp.Annotation number="2">
-  The key name of the array or object input which contains the sub-structure. In this code, we have called our input `content`.
+  The key name of the array or object input which contains the sub-structure. In this code, we have called our input `page_sections`. The `options.structures` key is set to `_structures.page_sections`.
 </comp.Annotation> <comp.Annotation number="3">
-  The `options.structures` key is set to `_structures.elements`, referencing the sub-structure named “elements”.
-</comp.Annotation> <comp.Annotation number="4">
   The `_structures` key contains all the structures defined at a given level of the configuration cascade.
-</comp.Annotation> <comp.Annotation number="5">
+</comp.Annotation> <comp.Annotation number="4">
   The key name of your structure. In this code, we have called our structure `page_sections`.
+</comp.Annotation> <comp.Annotation number="5">
+  Under the key `page_sections` we have defined three structures. The second structure is labelled "Content", and contains a sub-structure.
 </comp.Annotation> <comp.Annotation number="6">
-  Under the key `page_sections` we have defined two structures. The second structure is labelled "Content".
+  The Structure labelled "Content" contains an array named `content`. We will populate this array with a structure defined within a structure.
 </comp.Annotation> <comp.Annotation number="7">
-  The Structure labelled "Content" contains an array named `elements`. We will populate this array with a structure
+  The `_inputs` key contains all the inputs defined at a given level of the configuration cascade. In this case, inputs defined here are only available within the item "content".
 </comp.Annotation> <comp.Annotation number="8">
   Within the structure labelled "Content", we have defined another structure.
 </comp.Annotation> <comp.Annotation number="9">
