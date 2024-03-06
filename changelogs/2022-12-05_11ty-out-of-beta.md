@@ -2,7 +2,7 @@
 title: Full support for Eleventy
 type: major
 ---
-This release adds full support for Eleventy in CloudCannon. Try Eleventy with your own custom site or with [one of our templates](https://app.cloudcannon.com/editor#sites/templates/eleventy). Read our documentation for details on how to [configure your Eleventy site for CloudCannon](/documentation/articles/introduction-to-editing/).
+This release adds full support for Eleventy in CloudCannon. Try Eleventy with your own custom site or with [one of our templates](https://app.cloudcannon.com/editor#sites/templates/eleventy). Read our documentation for details on how to [configure your Eleventy site for CloudCannon](/documentation/guides/eleventy-starter-guide).
 
 We've made some updates to the flow for creating a new site. Helpful suggestions are displayed prominently if the first build fails. Terminal output has been replaced with configuration tips for non-technical editors. Build options are sorted more neatly into accordions.
 
