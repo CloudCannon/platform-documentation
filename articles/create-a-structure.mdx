@@ -1,0 +1,279 @@
+---
+_schema: default
+_uuid: 0b858151-b890-4d71-a54a-8eadeee951b1
+_created_at: '2021-09-15 23:13:40 +0000'
+title: Create a structure
+nav_title: Create a structure
+published: true
+image: >-
+  https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+description: >-
+  Learn how to create a structure for arrays or objects in CloudCannon.
+  Structures are predefined, custom templates that determine what should
+  populate an array or object.
+tags: []
+related_articles:
+  - using-arrays-to-edit-your-data
+related_links: []
+---
+## What is a structure?
+
+A structure is a predefined, custom template that determines what should populate an [array](/documentation/articles/using-arrays-to-edit-your-data/) or [object input](/documentation/articles/editing-objects-in-your-data/). With the click of a button, you can easily add fields to an array or object from your list of predefined structures.
+
+Structures are excellent for creating items you want to repeat across your site. An image gallery structure might contain fields for an image, an author, and a caption. A testimonial structure might contain fields for a quote and an author. An array using page-building components might reference several structures for common content blocks, such as a hero image, call to action, or video block.
+
+Once you have defined your structures, your team members can easily add, remove, reorder, and update structure content using the [Data Editor](/documentation/articles/introducing-the-data-editor/) or the sidebar of the [Visual](/documentation/articles/introducing-the-visual-editor/) or [Content Editor](/documentation/articles/introducing-the-content-editor/).
+
+In this article, we’ll cover how to:
+
+* Create a basic structure
+* Reference a structure in an array or object input
+* Add multiple structures to the same key
+
+<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/structures/2024-Q1/CloudCannon-Documentation-Structure-in-Array.png" alt="The sidebar of the Content Editor shows an array with the options for Manager and Employee configured in the structure." title="An array with dropdown options" type="ui-snippet"/>
+
+For more information, including a list of all keys available for structure configuration, please read our reference documentation for [structures](/documentation/articles/array-structures-reference/).
+
+### Structures and arrays
+
+Structures and arrays go hand-in-hand. The [array input](/documentation/articles/using-arrays-to-edit-your-data/) contains an ordered list of related items, while a structure is a template that determines what data CloudCannon should add to new array items. By creating structures, you can define different objects that your team members can add to arrays within your site.
+
+When you first connect your site files and make them editable in the Data Editor, CloudCannon will automatically detect arrays in your front matter and data files.
+
+You can add new items to your arrays without the need for configuration. Clicking the *\+ Add* button for an array will clone the last array item and clear the data from the new item to create a blank array object. This behavior is convenient if you have simple arrays, or do not want to configure structures.
+
+The default array behavior may not be right for you if:
+
+* Your array does not contain at least one object.
+* You want to have different object types in your array.
+
+Because the default behavior clones existing array items, CloudCannon will prevent you from removing the last item from an array if you do not have a structure configured. Additionally, cloning existing items does not allow for variation of object types. You can add different objects to the array manually using the [Source Editor](/documentation/articles/introducing-the-source-editor/). However, this can become inefficient to maintain.
+
+You can overcome these limitations by configuring data structures to add to your arrays.
+
+<comp.Notice info_type="info">
+  Alternatively, [configure inline array inputs](/documentation/articles/using-arrays-to-edit-your-data/#inline-values) to set which input is used for array items. Inline array inputs also allow an array to be empty.
+</comp.Notice>
+
+### Structures and objects
+
+Structures also work for individual objects. The [object input](/documentation/articles/editing-objects-in-your-data/) can contain a maximum of one value. After you reference a structure key from an object input, team members can select which structure they want to add to that object. Once a value is selected, you cannot add more until the value is replaced or deleted.
+
+## Create a structure
+
+In CloudCannon, you can configure structures under the key called `_structures`.
+
+You can configure `_structures` at any level of the [configuration cascade](/documentation/articles/using-the-configuration-cascade/). Global structures, which you can reference from any array or object input on your site, are configured in your [global configuration file](/documentation/articles/create-a-global-configuration-file/). For more information about how to define structures at other levels of the configuration cascade, read our reference documentation on [structures in the configuration cascade](/documentation/articles/structures-in-the-configuration-cascade/).
+
+Let’s create a structure in the global configuration file.
+
+<comp.Notice info_type="important">
+  Currently, you cannot configure the values for your structures in the Configuration GUI.
+</comp.Notice>
+
+To create a structure:
+
+1. Navigate to your global configuration file and open it in the Source Editor.
+2. Identify the `_structures` key, or create one.
+3. Add your structure within the `_structures` key.
+4. [Save your changes](/documentation/articles/save-your-changes/) to the global configuration file.
+
+Here is an example of a basic structure:
+
+<comp.CodeBlock language="yaml" source="cloudcannon.config.yml">
+```
+_structures: #1
+  example: #2
+    values: #3
+      - value: #4
+          name:
+          description:
+          image:
+```
+<comp.Annotation number="1">
+  The `_structures` key contains all the structures defined at a given level of the configuration cascade.
+</comp.Annotation> <comp.Annotation number="2">
+  The key name of your structure. In this code, we have called our structure `example`. You can name your structure anything you want.
+</comp.Annotation> <comp.Annotation number="3">
+  The `example.values` key can contain an array of structures. We will cover [multiple structures](documentation/articles/create-a-structure/#add-multiple-structures) stored under a single key later in this article.
+</comp.Annotation> <comp.Annotation number="4">
+  This is the first structure in the group named `example`. Each structure must contain a `value` key defining what fields should populate new items of this type. This structure contains fields for `name`, `description`, and `image`. For more information on keys available for structure configuration, please read our reference documentation for [structures](/documentation/articles/array-structures-reference/).
+</comp.Annotation></comp.CodeBlock>
+
+In the above code, we have created a simple structure under the key `example`. This structure contains the fields for `name`, `description`, and `image`. This structure can be referenced in any array or object input.
+
+<comp.Notice info_type="info">
+  In this example, the inputs called “name”, “description”, and “image” should also be configured somewhere in the [configuration cascade](/documentation/articles/using-the-configuration-cascade/). For more information, read our documentation on [configuring your inputs](/documentation/articles/configure-your-inputs/).
+</comp.Notice>
+
+## Reference a structure in an array or object input
+
+We can reference a structure in any number of array or object inputs. The benefits of referencing the same structure in many inputs are:
+
+* It allows you to maintain consistency and reduce repetition across your site.
+* There is no need to rename your existing inputs or structures.
+* When you want to update a structure, you only need to do so in one place.
+
+To reference a structure in an input:
+
+1. Navigate to your global configuration file and open it in the Source Editor.
+2. Identify the `_inputs` key and the input you want to reference the structure from, or create them.
+3. Reference your structure using the `options.structures` key within your array or object input.
+4. Save your changes to the global configuration file.
+
+Here is an example of an array input referencing a structure:
+
+<comp.CodeBlock language="YAML" source="cloudcannon.config.yml">
+```
+_inputs: #1
+  array_one: #2
+    type: array
+    options: #3
+      structures: _structures.example #4
+```
+<comp.Annotation number="1">
+  The `_inputs` key contains all the inputs defined at a given level of the configuration cascade.
+</comp.Annotation> <comp.Annotation number="2">
+  The key name of your array or object input. In this code, we have called our input `array_one`.
+</comp.Annotation> <comp.Annotation number="3">
+  The `options` key contains configuration options for this input. For more information on configuring your inputs, read our documentation on [configuring your inputs](/documentation/articles/configure-your-inputs/).
+</comp.Annotation> <comp.Annotation number="4">
+  The `options.structures` key is set to `_structures.example`, referencing the structure named “example”.
+</comp.Annotation></comp.CodeBlock>
+
+Once you save the global configuration file, clicking the *\+ Add* button below the array will add an item with the same fields as your structure.
+
+<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/structures/2024-Q1/CloudCannon-Documentation-Empty-Array-Example.png" alt="An empty array with the option to add an item." title="An empty array" type="ui-snippet"/>
+
+Let’s go over an example.
+
+We want to create a single structure for storing links. The “links” structure will contain fields for `url`, `logo`, and `text`. Every time a team member adds a new item to an array that references the structure `links`, the structure will populate the new item with the fields for `url`, `logo`, and `text`.
+
+In this example, there are two arrays which we want to add links to. The first array input is called `header_social_media`, and lists all the social media platforms we want to link to from our website header. The second array input is called `footer_affliate_links`, and lists our affiliate links in the website footer.
+
+Here is an example of how we might create the structure for `links` and reference it in the input configuration for `header_social_media` and `footer_affliate_links`:
+
+<comp.CodeBlock language="YAML" source="cloudcannon.config.yml">
+```
+_structures: #1
+  links: #2
+    values:
+       - value: #3
+          url:
+          logo:
+          text:
+```
+<comp.Annotation number="1">
+  The `_structures` key contains all the structures defined at a given level of the configuration cascade.
+</comp.Annotation> <comp.Annotation number="2">
+  The key name for our structure group is `links`.
+</comp.Annotation> <comp.Annotation number="3">
+  The structure within `links`. This structure contains fields for `url`, `logo`, and `text`.
+</comp.Annotation></comp.CodeBlock>
+
+<comp.CodeBlock language="YAML" source="cloudcannon.config.yml">
+```
+_inputs: #1
+  header_social_media: #2
+    type: array
+    options:
+      structures: _structures.links #3
+  footer_affliate_links: #4
+    type: array
+    options:
+      structures: _structures.links #5
+```
+<comp.Annotation number="1">
+  The `_inputs` key containing our two arrays.
+</comp.Annotation> <comp.Annotation number="2">
+  The key for the array `header_social_media`.
+</comp.Annotation> <comp.Annotation number="3">
+  The `options.structures` key is set to `_structures.links`.
+</comp.Annotation> <comp.Annotation number="4">
+  The key for the array `footer_affliate_links`.
+</comp.Annotation> <comp.Annotation number="5">
+  As with #3, the `options.structures` key is set to `_structures.links`.
+</comp.Annotation></comp.CodeBlock>
+
+Let’s populate both arrays to see the `links` structure in action.
+
+We’ve added the link for “cloudcannon.com” to the `header_social_media` array and “example.com” to the `footer_affliate_links` array.
+
+Here is how the arrays look in the sidebar of the Content Editor.
+
+<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/structures/2024-Q1/CloudCannon-Documentation-References-Structures-Multiple-Inputs.png" alt="The sidebar of the Content Editor shows two arrays using the same structure." title="Two arrays referencing the same structure" type="ui-snippet"/>
+
+The arrays for `header_social_media` and `footer_affliate_links` are in the same file in this example. However, this does not have to be the case. You can add an array or object input to one file, define those inputs in a second file, and define the structure in a third, provided that all definitions have access to one another in the configuration cascade.
+
+For more information on this topic, read our reference documentation on [structures in the configuration cascade](/documentation/articles/structures-in-the-configuration-cascade/).
+
+<comp.Notice info_type="info">
+  If your structure and input key names happen to match, CloudCannon will automatically reference the structure for you, provided that the structure and input are defined in the correct levels of the configurations cascade. This behavior is convenient if you do not want to configure your inputs to reference a structure. However, we recommend choosing different names due to the benefits outlined at the beginning of this section.
+</comp.Notice>
+
+## Add multiple structures to the same key
+
+CloudCannon can store multiple structures under a single key. By creating an array of structures under a single key, you can provide your team with a selection of object templates for any array or object input.
+
+When referencing a key that contains multiple structures, all the structures within that key are available. Therefore, the key becomes the name of a group of structures rather than a single structure.
+
+Here is an example of multiple structures under one key:
+
+<comp.CodeBlock language="YAML" source="cloudcannon.config.yml">
+```
+_structures:
+  example: #1
+    values: #2
+      - label: First #3
+        value:
+          name:
+          description:
+          image:
+      - label: Second #4
+        value:
+          heading:
+          subtext:
+```
+<comp.Annotation number="1">
+  The key name of your group of structures. In this code, we have called our structure `example`.
+</comp.Annotation> <comp.Annotation number="2">
+  The `example.values` key contains an array of structures. Each structure in this array is named using the `label` key. You can also name a structure by [configuring your structure previews](/documentation/articles/configure-your-structure-previews/).
+</comp.Annotation> <comp.Annotation number="3">
+  The first structure in the group named `example`. This structure contains fields for `name`, `description`, and `image`.
+</comp.Annotation> <comp.Annotation number="4">
+  The second structure in the group named `example`. This structure is different from the first, containing fields for `heading` and `subtext`.
+</comp.Annotation></comp.CodeBlock>
+
+You can have as many structures under one key as you want. As you create multiple structures, it is important to name each one. In this example, we will use the `label` key. Define your `label` on the same level as the `value` key using the `label`. You can also name your structures by [configuring your structure previews](/documentation/articles/configure-your-structure-previews/).
+
+Multiple structures appear as a dropdown menu when you click the *\+ Add* button below an array or object.
+
+<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/structures/2024-Q1/CloudCannon-Documentation-Multiple-Structure-Options.png" alt="An empty array with the option to add an item from a list of options defined in the structure." title="An empty array" type="ui-snippet"/>
+
+However, as you create more structures, a dropdown may not be the best way to view them. You can create a searchable pop-up modal to view your structures using the `style` key.
+
+<comp.CodeBlock language="YAML" source="cloudcannon.config.yml">
+```
+_structures:
+  example:
+    style: modal #1
+    values:
+      - label: First
+        value:
+          name:
+          description:
+          image:
+      - label: Second
+        value:
+          heading:
+          subtext:
+```
+<comp.Annotation number="1">
+  The `style` key is set to `modal`. Define the style key on the same level as the `values` key under the name of your structures group.
+</comp.Annotation></comp.CodeBlock>
+
+The `style` key has two values: “select” and “modal”. When the `style` key is not configured, CloudCannon sets the style to `select` by default.
+
+When set to `select`, clicking the *\+ Add* button for an array or object creates a dropdown menu. When set to `modal`, the *\+ Add* button will create a pop-up modal. To switch to a modal, set the `style` key to `modal`.
+
+You can [configure your structure previews](/documentation/articles/configure-your-structure-previews) to alter how each structure appears in the dropdown menu or pop-up modal. For more information, including how to use images, icons, and descriptions to customize your structures, read our documentation on [configuring your structure previews](/documentation/articles/configure-your-structure-previews/).
