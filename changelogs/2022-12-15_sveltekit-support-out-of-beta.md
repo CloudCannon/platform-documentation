@@ -2,7 +2,7 @@
 title: SvelteKit support out of beta
 type: major
 ---
-This release provides increased support for SvelteKit, marking the end of our beta. We've included a fully featured SvelteKit template called Sendit. Along with number of general features and fixes, we've added a feature called [Create Paths](/documentation/articles/choosing-where-to-create-new-files/) to control where new content files are created, and how they are named.
+This release provides increased support for SvelteKit, marking the end of our beta. We've included a fully featured SvelteKit template called Sendit. Along with number of general features and fixes, we've added a feature called [Create Paths](/documentation/articles/set-the-path-for-new-files/) to control where new content files are created, and how they are named.
 
 **Features:**
 
@@ -12,7 +12,7 @@ This release provides increased support for SvelteKit, marking the end of our be
 * Organizations for new user accounts now use the first name provided when created.
 * Sendit template for SvelteKit.
 * Improved performance during the opening and closing parts of the build process.
-* New [Create Path](/documentation/articles/choosing-where-to-create-new-files/) configuration for collections and schemas to control where new collection files are created and named.
+* New [Create Path](/documentation/articles/set-the-path-for-new-files/) configuration for collections and schemas to control where new collection files are created and named.
 
 **Fixes:**
 

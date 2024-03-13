@@ -13,7 +13,7 @@ With this release we’re also launching a restructure of the [documentation web
 * Hugo updated to 0.88.1
 * Added support for *NVM* on [build hooks](/documentation/articles/extending-your-build-process-with-hooks/)
 * Added support for *yarn* on [build hooks](/documentation/articles/extending-your-build-process-with-hooks/)
-* Added support for creating new items on the default *Pages* [collection](/documentation/articles/defining-your-collections/)
+* Added support for creating new items on the default *Pages* [collection](/documentation/articles/define-your-collections/)
 * Added support to *tar.gz* file format when uploading a zip
 * Reworked the collection navigation to be key-based rather than path-based
 * Incresed limit of [redirect paths](/documentation/articles/configuring-custom-routing/) to 10000
