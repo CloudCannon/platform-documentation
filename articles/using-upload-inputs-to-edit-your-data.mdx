@@ -104,22 +104,28 @@ File path inputs are configured with `options` inside an `_inputs` entry.
 
 <comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="Input configuration">
 ```
-image_file: ye_olde_images/image.png
+image_file: /uploads/image.png
+_retina_image_file: /uploads/image-2x.png
+
 _inputs:
   image_file:
-    type: file
+    type: image
     options:
-      uploads: uploads
+      paths:
+        uploads: uploads
       accepts_mime_types:
         - image/png
         - image/svg+xml
         - image/jpeg
       width: 400
       height: 300
-      resize_style: cover
+      resize_style: crop
       mime_type: image/jpeg
       expandable: true
-      correct_orientation: false
+      prevent_resize_existing_files: false
+      sizes:
+        - size: 2x
+          target: _retina_image_file
 ```
 </comp.MultiCodeBlock>
 
@@ -146,7 +152,7 @@ File path inputs have the following options available:
 
     If set as an array, each item should be a string of a single [mime type](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types) you want to filter by.
  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="empty_type" type_markdown="string">
+  <comp.DataReferenceRow label="empty_type" type_markdown="String">
     Set how an ‘empty’ value will be saved. Does not apply to existing empty values. Can be one of the following:
 
     * `string` - an empty value for this input will be stored as `""`.
@@ -171,22 +177,35 @@ If the input allows for images, the following options are also available:
     Defines the height of the bounding box used in the resizing process defined with `resize_style`.
  </comp.DataReferenceRow>
   <comp.DataReferenceRow label="resize_style" type_markdown="String">
-    Sets how uploaded image files are resized with a bounding box defined by `width` and `height` prior to upload. Defaults to `contain`. Must be `contain`, `cover` or `stretch`\:
+    Sets how uploaded image files are resized with a bounding box defined by `width` and `height` prior to upload. Defaults to `contain`. Must be `crop`, `contain`, `cover` or `stretch`:
 
+    * `crop` prompts the user to choose a region of the image that matches the bounding box
     * `cover` keeps aspect ratio and ensures the image covers the bounding box
     * `contain` keeps aspect ratio and ensures the image fits inside the bounding box
     * `stretch` ignores aspect ratio and resizes the image to the bounding box
 
-    Has no effect when selecting existing images, or if `width` and `height` are not set.
+    If `width` and `height` are not set, `contain`, `cover` and `stretch` have no effect. For `crop`, `width` and `height` are both optional, controlling the minimum size of the crop region and resulting image. The aspect ratio of the crop region is also matched to these values.
  </comp.DataReferenceRow>
   <comp.DataReferenceRow label="mime_type" type_markdown="String">
-    Sets what format the image is converted to prior to upload. The extension of the file is updated to match. Defaults to keeping the mime type of the uploaded file. Must be one of `image/jpeg` or `image/png`.
+    Sets what format the image is converted to prior to upload. The extension of the file is updated to match. Defaults to keeping the mime type of the uploaded file. Must be one of:
+
+    * `image/jpeg`
+    * `image/png`
+    * `image/webp`
  </comp.DataReferenceRow>
   <comp.DataReferenceRow label="expandable" type_markdown="Boolean">
     Controls whether or not images can be upscaled to fit the bounding box during resize prior to upload. Defaults to `false`. Has no effect if files are not resized.
  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="correct_orientation" type_markdown="Boolean">
-    Controls whether or not the JPEG headers defining how an image should be rotated before being displayed is baked into the image prior to upload. Defaults to `true`.
+  <comp.DataReferenceRow label="prevent_resize_existing_files" type_markdown="Boolean">
+    Enable to skip the image resizing process configured for this input when selecting existing images. Defaults to false.
+ </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="sizes" type_markdown="Array of objects">
+    Definitions for creating additional images of different sizes when uploading or selecting existing files. Has no default. Each entry contains the following fields:
+
+    * `size` is a number suffixed with "x" (relative size) or "w" (fixed width) for setting the dimensions of the image (e.g. 2x, 3x, 100w, 360w)
+    * `target` is a reference to another input that is given the path to this additional image file
+
+    If the additional image cannot be created (i.e. the uploaded image is too small and would need to be upscaled), the `target` input's value is unset so references to previous files aren't mixed with new ones.
  </comp.DataReferenceRow>
 </comp.DataReference>
 
