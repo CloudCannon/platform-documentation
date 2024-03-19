@@ -16,6 +16,105 @@ related_articles:
   - defining-your-collections
 related_links:
 ---
+## What is a schema?
+
+A schema is a predefined template that determines what should populate a collection file. You can configure several schemas for each collection, creating a list of file templates for you and your team.
+
+Schemas are excellent for creating files with consistent content and populating the initial contents of a new file. Schemas can contain front matter and Markdown content. When you use a schema to populate a new file, you can be sure that the inputs you need are available in the sidebar of the Visual or Content Editor.
+
+A blog schema might contain title, author, and hero image inputs in the front matter. A changelog schema for a technical documentation site might contain a date input in the front matter and headings for “Features” and “Fixes” in the Markdown content. A review schema might contain inputs for title, author, and rating, and “Today, we are reviewing the…” as the opening line in the Markdown content.
+
+Once you have configured your schemas, your team members can easily create new files for a collection by clicking the *\+ Add* button in the top right of the collection browser and selecting the file template they want from a dropdown menu.
+
+### Default behavior for new collection files
+
+You can add new files to your collection without configuring a schema. Clicking the *\+ Add* button in the top right of the collection browser will clone the last file in the collection and clear the Markdown content and values for any inputs in the front matter. This behavior is convenient if you have simple collection files or do not want to configure schemas.
+
+The default behavior may not be right for you if:
+
+* Your collection does not contain at least one file.
+* You want to have different file types in your collection.
+
+Because the default behavior clones existing files in a collection, CloudCannon cannot create a new file if the collection is empty. Additionally, cloning existing files does not allow for variation in file structure. You can manually add different inputs and content to your files. However, this can become inefficient to maintain.
+
+You can overcome these limitations by configuring schemas for your collections.
+
+## Create a schema
+
+There are two steps to creating a schema: creating a schema file and referencing your schema in your collection configuration.
+
+<comp.Notice info_type="">
+  Currently, only team members with Technical Editor, Developer, or Owner permissions can create a schema file, as it requires access to the file browser.
+</comp.Notice>
+
+To create a schema file:
+
+1. Navigate to the folder where you would like to store your schema using the file browser. We recommend creating a “Schemas” folder in your `.cloudcannon` folder.
+2. Create a schema file with the same file extension as your collection files.
+3. Add front matter and Markdown content to create a template.
+4. Save your file.
+
+Here is an example of a schema file for a blog:
+
+<comp.CodeBlock language="Markdown" source="post.md">
+```
+---
+title:
+author:
+image:
+---
+Hi, everyone. Welcome back to my blog!
+```
+</comp.CodeBlock>
+
+To reference a schema in your collection configuration:
+
+1. Navigate to your global configuration file and open it in the Source Editor.
+2. Within the `collections_config` key, find the key for the collection where you want to reference this schema.
+3. Identify the `schemas` key, or create one.
+4. Add the path to your schema file under `default`, then `path`.
+5. [Save your changes](https://cloudcannon.com/documentation/articles/save-your-changes/) to the global configuration file.
+
+Here is an example schema configuration:
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json", "JavaScript"]} source="cloudcannon.config.yml">
+```
+collections_config:
+  blog:
+    schemas:
+      default:
+        path: .cloudcannon/schemas/post.md
+```
+</comp.MultiCodeBlock>
+
+The above code references the schema `post.md` from the collection `blog`. This schema will populate new collection files with the `title`, `author`, and `image` inputs. It will also start the Markdown content with the sentence: “Hi, everyone. Welcome back to my blog!”
+
+Once you save the global configuration file, clicking the *\+ Add* button in the top right of your collection browser will show that schema as an option in the dropdown menu.
+
+<comp.DocsImage path="" alt="" title=""/>
+
+When you create a file using a schema, a hidden `_schema` input is added to the front matter of that file. This input is visible in the Source Editor but hidden in the sidebar of the Visual or Content Editor, and contains the name of the schema a file uses.
+
+<comp.CodeBlock language="Markdown" source="post.md">
+```
+---
+_schema: default
+title:
+author:
+image:
+---
+Hi, everyone. Welcome back to my blog!
+```
+</comp.CodeBlock>
+
+If you add a file to a collection with no schema referenced in the front matter, editing that file in an editing interface will add `_schema: default` to the front matter.
+
+## Referencing multiple schemas in a collection
+
+x
+
+---
+
 Collection schemas are used to:
 
 * [Populate the initial contents of new files](/documentation/articles/define-your-default-file-contents/)
@@ -63,40 +162,41 @@ collections_config:
 </comp.MultiCodeBlock>
 
 ### Options
+
 Each entry in `schemas` has the following options available:
 
 <comp.DataReference>
-  <comp.DataReferenceRow label="create" type_markdown="Object or string">
+ <comp.DataReferenceRow label="create" type_markdown="Object or string">
     The create path definition to control where new files are saved to inside this collection. Defaults to `[relative_base_path]/{title|slugify}.md`.
 
     Read more details for `create` when [choosing where to create new files](/documentation/articles/set-the-path-for-new-files/).
-  </comp.DataReferenceRow>
+ </comp.DataReferenceRow>
   <comp.DataReferenceRow label="hide_extra_inputs" type_markdown="Boolean">
     Sets the behavior when editing existing files with inputs not present in the schema with `remove_extra_inputs` set to `false`. Defaults to `false`. Has no effect if `remove_extra_inputs` is `true`.
 
     If `true`, non-schema inputs are hidden in the Data Editor.
 
     If `false`, non-schema inputs are visible in the Data Editor.
-  </comp.DataReferenceRow>
+ </comp.DataReferenceRow>
   <comp.DataReferenceRow label="icon" type_markdown="String">
     Displayed in the add menu when creating new files, also used as the icon for collection files if no other preview is found. Must be a [Material Icon](https://material.io/resources/icons/) name. Defaults to `notes`.
-  </comp.DataReferenceRow>
+ </comp.DataReferenceRow>
   <comp.DataReferenceRow label="name" type_markdown="String">
     Displayed in the add menu when creating new files. Defaults to a formatted version of the key.
-  </comp.DataReferenceRow>
+ </comp.DataReferenceRow>
   <comp.DataReferenceRow label="new_preview_url" type_markdown="String">
     Preview your unbuilt pages (e.g. drafts) to another page’s output URL. The Visual Editor will load that set preview URL and use the Data Bindings and Previews to render your new page without saving.
 
     For example `new_preview_url: /about/` will load the `/about/` URL on new or unbuilt pages in the Visual Editor.
-  </comp.DataReferenceRow>
+ </comp.DataReferenceRow>
   <comp.DataReferenceRow label="path" type_markdown="String">
     The path to the schema file. Relative to the root folder of the site. Required.
-  </comp.DataReferenceRow>
+ </comp.DataReferenceRow>
   <comp.DataReferenceRow label="reorder_inputs" type_markdown="Boolean">
     Controls whether or not inputs are sorted to match the schema when editing existing files. Defaults to `true`.
 
     Non-schema inputs are ordered after schema inputs if not removed with `remove_extra_inputs`.
-  </comp.DataReferenceRow>
+ </comp.DataReferenceRow>
   <comp.DataReferenceRow label="remove_empty_inputs" type_markdown="Boolean">
     Sets the behavior when saving files with empty inputs. Defaults to `false`.
 
@@ -105,7 +205,7 @@ Each entry in `schemas` has the following options available:
     If `false`, empty inputs are persisted in the source file.
 
     Removed inputs are available for editing again provided they are in the matching schema file. Inputs are considered empty if the value is `null`, `undefined` or `''`.
-  </comp.DataReferenceRow>
+ </comp.DataReferenceRow>
   <comp.DataReferenceRow label="remove_extra_inputs" type_markdown="Boolean">
     Sets the behavior when editing existing files with inputs not present in the schema. Defaults to `true`.
 
@@ -114,7 +214,7 @@ Each entry in `schemas` has the following options available:
     If `false`, non-schema inputs are either hidden or visible in the editor depending on `hide_extra_inputs`, but still kept in the source file on save.
 
     If any inputs conflict with schema (e.g. a file's `title` is a string and the schema's `title` is an object), the schema version takes priority.
-  </comp.DataReferenceRow>
+ </comp.DataReferenceRow>
   <comp.DataReferenceRow label="preview" type_markdown="Object">
     The preview definition for changing the way collection items with this schema are previewed across the editor. Defaults to using the collection's `preview`.
 
@@ -128,7 +228,7 @@ Each entry in `schemas` has the following options available:
     * `text`
 
     See the [preview options documentation](/documentation/articles/configure-your-card-previews/) for detailed information on setting this option.
-  </comp.DataReferenceRow>
+ </comp.DataReferenceRow>
 </comp.DataReference>
 
 <comp.Notice info_type="info">
