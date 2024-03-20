@@ -195,14 +195,31 @@ To learn more about linking to different views in CloudCannon, [read this articl
 <comp.CodeBlock language="HTML" source="">
 ```
 <div class="editable">
-  <h1>Welcome</h1>
+  <p>Welcome. The time is</p>
 </div>
 
 <script>
-  const heading = document.querySelector('h1');
-  heading.classList.add('animated');
+  const timeMessage = document.querySelector('p');
+  timeMessage.innerHTML = timeMessage.innerHTML + ' ' + new Date().toString();
 </script>
 ```
 </comp.CodeBlock>
 
-This
+The script on this page will add the current time to the `<p>` within the editable region. The Visual Editor will recognize this as a change to the content of the editable region and will save it back to the source code, breaking the intended behaviour.
+
+#### How to fix
+
+It's important to make sure no dynamic content is being added to an editable region. In this case, we could simply move the "editable" class onto the static text.
+
+<comp.CodeBlock language="HTML" source="">
+```
+<div>
+  <p><span class="editable">Welcome. The time is<span></p>
+</div>
+
+<script>
+  const timeMessage = document.querySelector('p');
+  timeMessage.innerHTML = timeMessage.innerHTML + ' ' + new Date().toString();
+</script>
+```
+</comp.CodeBlock>
