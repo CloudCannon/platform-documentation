@@ -161,7 +161,7 @@ const codeBlock = (str, lang, source) => {
       <div className="c-code-block__code">
         <figure className="highlight">
           <pre><code className={`language-${lang}`}>
-            {str}
+            {str.replace(/💃💃💃/g, "```")}
           </code></pre>
         </figure>
       </div>
