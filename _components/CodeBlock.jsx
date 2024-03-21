@@ -14,7 +14,7 @@ export default function ({ comp, language, source, content, children }) {
     );
   }
 
-  const code_str = code_block?.props?.children?.props?.children;
+  const code_str = code_block?.props?.children?.props?.children.replace(/💃💃💃/g, "```");
   const codeEncoded = btoa(encodeURIComponent(code_str))
 
   return (
@@ -36,7 +36,7 @@ export default function ({ comp, language, source, content, children }) {
           <figure className="highlight">
             <pre>
               <code className={`language-${language}`}>
-                {code_str.replace(/💃💃💃/g, "```")}
+                {code_str}
               </code>
             </pre>
           </figure>
