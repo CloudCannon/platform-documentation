@@ -14,7 +14,7 @@ export default function ({ comp, language, source, content, children }) {
     );
   }
 
-  const code_str = code_block?.props?.children?.props?.children.replace(/💃💃💃/g, "```");
+  const code_str = code_block?.props?.children?.props?.children;
   const codeEncoded = btoa(encodeURIComponent(code_str))
 
   return (

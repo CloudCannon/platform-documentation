@@ -142,8 +142,7 @@ const tabPane = ([lang, codeBlock]) => {
 
 const codeBlock = (str, lang, source) => {
   source = source ? <div className="c-code-block__source">{source}</div> : <></>;
-  const code_str = str.replace(/💃💃💃/g, "```");
-  const codeEncoded = btoa(encodeURIComponent(code_str))
+  const codeEncoded = btoa(encodeURIComponent(str))
   return (
     <div className="c-code-block">
       <div className="c-code-block__heading">
@@ -162,7 +161,7 @@ const codeBlock = (str, lang, source) => {
       <div className="c-code-block__code">
         <figure className="highlight">
           <pre><code className={`language-${lang}`}>
-            {code_str}
+            {str}
           </code></pre>
         </figure>
       </div>
