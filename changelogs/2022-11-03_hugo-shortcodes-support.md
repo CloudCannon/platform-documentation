@@ -8,8 +8,8 @@ CloudCannon automatically supports all built-in Hugo shortcodes. Over the coming
 
 **Features:**
 
-* Added support for [Hugo shortcodes with Snippets](/documentation/articles/editing-with-hugo-shortcodes/)
-* [Updated structures to use the new `preview` options](/documentation/articles/changing-how-cards-preview-your-data/)
+* Added support for [Hugo shortcodes with Snippets](/documentation/articles/snippets-using-hugo-shortcodes/)
+* [Updated structures to use the new `preview` options](/documentation/articles/configure-your-card-previews/)
 * Update to the login screen
 * Trial accounts can add additional shares above base plan limits
 

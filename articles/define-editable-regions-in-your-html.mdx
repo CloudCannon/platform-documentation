@@ -1,0 +1,242 @@
+---
+_schema: default
+_uuid: 7db69808-3698-44b0-a1a7-920ec59dc61f
+_created_at: '2021-09-15 05:03:07 +0000'
+title: Define editable regions in your HTML
+nav_title: Define editable regions in your HTML
+published: true
+image: >-
+  https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+description: >-
+  Editable Regions let you edit parts of your HTML visually and with live
+  updates.
+tags:
+  - editor
+related_articles:
+  - introducing-the-visual-editor
+related_links: []
+---
+Editable Regions enable you to visually edit content in your source HTML in place on your output HTML.
+
+Editable Regions are HTML elements that you define as editable. Define broad sections to provide flexibility, or define separate regions to retain fine control over images and text elements. Editable Regions display yellow borders in the [Visual Editor](/documentation/edit/interfaces/visual-editor/)&nbsp;to indicate areas that can be updated.
+
+Depending on the element an editable is applied to, editors see different options in the editor. There are four types available for editing content in place:
+
+* Inline regions for editing plain text
+* Image regions for editing image elements
+* Block regions for editing rich text
+* Content for editing rich text populated from file content sections
+
+To define an Editable Region:
+
+1. Identify the HTML element you want to be editable
+2. Add `class="editable"` to the HTML element, or append `editable` to `class` if the attribute is already defined
+
+<comp.DocsImage path="ye_olde_images/editing-editable-regions-block-editable.png" alt="Screenshot of the Visual Editor with multiple Editable Regions defined" title="" type="screenshot"/>
+
+<comp.Notice info_type="info">
+  JavaScript is supported in the [Visual Editor](/documentation/edit/interfaces/visual-editor/). However, HTML rendered with JavaScript on page load is not editable.
+</comp.Notice>
+
+For more information, read our documentation on how to [configure your rich text toolbars](/documentation/articles/configuring-toolbars/).
+
+## Best practices for Editable Regions
+
+Not all HTML elements can be edited safely in the Visual Editor. It’s important to think carefully about what you want to be edited, and add the "editable" class only to those elements.
+
+Improperly applied Editable Regions allow team members to break the layout of your site, in ways that can only be fixed in the Source Editor. To prevent this, CloudCannon automatically detects problem cases and disables editing.
+
+Here are some examples of common misuses of Editable Regions, why they don’t conform to best practices, and how to refactor them.
+
+### Unsupported elements
+
+<comp.CodeBlock language="HTML" source="">
+```
+<input type="checkbox" class="editable">
+```
+</comp.CodeBlock>
+
+Some elements are simply not editable in the Visual Editor. It’s unclear what it would mean to edit an `<input>`, and this probably was not the developer’s intention. Only the following HTML elements should be given the editable class:
+
+* Blocks: `div`, `section`, `article`, `aside`, `main`, `footer`, `header`, `nav`
+* Block text: `p`, `h1`, `h2`, `h3`, `h4`, `h5`, `h6`, `blockquote`, `li`, `dd`, `dt`
+* Inline text: `span`, `small`, `strong`, `em`, `i`, `b`, `sub`, `sup`, `td`, `th`, `cite`
+* Image: `img`
+* Link: `a`
+
+#### How to fix this
+
+Remove the "editable" class.
+
+If you need this element to be editable, you can configure a Snippet. Depending on your SSG, there are libraries of Snippets available, or you can create custom Snippets.
+
+### Editable regions containing unsupported elements
+
+<comp.CodeBlock language="HTML" source="">
+```
+<div class="editable">
+  <input type="email" name="email" id="email" />
+  <p>Enter your email</p>
+</div>
+```
+</comp.CodeBlock>
+
+This would create an editable region containing an uneditable element (`input`). If someone on your team backspaces too many times in this Editable Region, they could delete the `<input>` with no way to restore it.
+
+#### How to fix this
+
+Move the "editable" class directly onto the text you want to edit.
+
+<comp.CodeBlock language="HTML" source="">
+```
+<form>
+  <input type="email" name="email" id="email" />
+  <p class="editable">Enter your email</p>
+</form>
+```
+</comp.CodeBlock>
+
+### Editable regions containing custom classes
+
+<comp.CodeBlock language="HTML" source="">
+```
+<div class="editable">
+  <p class="big">This text is big</p>
+  <p class="small">This text is small<p>
+</div>
+```
+</comp.CodeBlock>
+
+If you have used the `styles` configuration option to include the "big" and "small" classes for &lt;p&gt; elements in this Rich Text input, this code will work perfectly!
+
+Otherwise, this poses a problem. If an editor removes all the text in `p.small`, they will have no way to restore it, since there is no way to add arbitrary class names in the editor.
+
+#### How to fix this
+
+One way to fix this would be to add the `styles` configuration to include these class names. [Read more about this option here](https://cloudcannon.com/documentation/articles/using-rich-text-inputs-to-edit-your-data/#styles-and-alignment).
+
+<comp.CodeBlock language="YAML" source="cloudcannon.config.yml">
+```
+_editables:
+  block:
+    options:
+      styles:  paragraph-styles.css
+```
+</comp.CodeBlock>
+
+<comp.CodeBlock language="CSS" source="paragraph-styles.css">
+```
+p.big {
+  font-size: 2em;
+}
+
+p.small {
+  font-size: 0.5em;
+}
+```
+</comp.CodeBlock>
+
+Another way would be to move the "editable" class down a level, assuming you always want 1 line of each kind of text:
+
+<comp.CodeBlock language="HTML" source="">
+```
+<div>
+  <p class="big editable">This text is big</p>
+  <p class="small editable">This text is small<p>
+</div>
+```
+</comp.CodeBlock>
+
+### Editable regions containing templating code
+
+<comp.CodeBlock language="HTML" source="">
+```
+<div class="editable">
+  <h3>Blog posts</h3>
+  <ul>
+  {% for post in collections.posts %}
+    <li>{{ post.title }}</li>
+  {% endfor %}
+  </ul>
+</div>
+```
+</comp.CodeBlock>
+
+This editable region contains templating code that will be run by an SSG when the site is built. The Visual Editor shows the built output of a page, so this editable region might look like a normal list of blog post titles. However, it would be very destructive to edit this `<div>` since the templating code (invisible on the page) could easily be destroyed.
+
+Using templating code inside an editable region is an anti-pattern and should be avoided in all cases.
+
+#### How to fix
+
+Move the editable region so that it doesn’t contain any templating code. In this example, we can still allow the user to edit the titles of blog posts, by providing in-editor links to the posts themselves. This is much safer, and removes repetition of content from the site.
+
+To learn more about showing links only in the Visual Editor, [read this article]().
+
+To learn more about linking to different views in CloudCannon, [read this article]().
+
+<comp.CodeBlock language="HTML" source="">
+```
+<div>
+  <h3 class="editable">Blog posts</h3>
+  <ul>
+  {% for post in collections.posts %}
+		<li>{{ post.title }}</li>
+		<a href="cloudcannon:collections/posts/{{ post.path }}" class="show-in-cms-only">
+			Edit this post
+		</a>
+	{% endfor %}
+	</ul>
+</div>
+```
+</comp.CodeBlock>
+
+### Editable regions modified with JavaScript
+
+<comp.CodeBlock language="HTML" source="">
+```
+<div class="editable">
+  <p>Welcome. The time is</p>
+</div>
+
+<script>
+  const timeMessage = document.querySelector('p');
+  timeMessage.innerHTML = timeMessage.innerHTML + ' ' + new Date().toString();
+</script>
+```
+</comp.CodeBlock>
+
+The script on this page will add the current time to the `<p>` within the editable region. The Visual Editor will recognize this as a change to the content of the editable region and will save it back to the source code, breaking the intended behaviour.
+
+#### How to fix
+
+It's important to make sure no dynamic content is being added to an editable region. In this case, we could simply move the "editable" class onto the static text.
+
+<comp.CodeBlock language="HTML" source="">
+```
+<div>
+  <p><span class="editable">Welcome. The time is<span></p>
+</div>
+
+<script>
+  const timeMessage = document.querySelector('p');
+  timeMessage.innerHTML = timeMessage.innerHTML + ' ' + new Date().toString();
+</script>
+```
+</comp.CodeBlock>
+
+Another solution would be to prevent the script running inside the Visual Editor. See [this article for more information](/documentation/articles/detecting-your-site-is-loaded-in-the-visual-editor/) about checking whether a page is being loaded inside CloudCannon.
+
+<comp.CodeBlock language="HTML" source="">
+```
+<div class="editable">
+  <p>Welcome. The time is</p>
+</div>
+
+<script>
+  if (!window.inEditorMode) {
+    const timeMessage = document.querySelector('p');
+    timeMessage.innerHTML = timeMessage.innerHTML + ' ' + new Date().toString();
+  }
+</script>
+```
+</comp.CodeBlock>

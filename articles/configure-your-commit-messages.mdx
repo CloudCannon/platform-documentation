@@ -1,0 +1,169 @@
+---
+_schema: default
+_uuid: 0224189e-8e58-471c-8b9e-9edc666f1150
+_created_at: '2022-12-19 23:26:16 +0000'
+title: Configure your commit messages
+nav_title: Configure your commit messages
+published: true
+image: >-
+  https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+description: >-
+  When you save changes, you can provide a message describing the changes to
+  refer back to later.
+tags: []
+related_articles: []
+related_links:
+---
+When you save changes, you can provide a message describing the changes to refer back to later. To help maintain a consistent format in these messages, you can configure **commit templates** in your [global configuration](/documentation/articles/create-a-global-configuration-file/).
+
+Commit templates are configured with template strings. See [this article](/documentation/articles/configuring-with-placeholders/) for more information about this.
+
+To add a commit template, open your global configuration file and add an entry in `commit_templates`.
+
+### Options
+
+Commit templates have the following options available:
+
+<comp.DataReference>
+ <comp.DataReferenceRow label="label" type_markdown="String">
+    Used to identify the commit template, for cases where multiple templates have been made available to the user.
+ </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="template_path" type_markdown="String">
+    The path to a file from your site's source files, relative to the root directory. The contents of this file will be used as the template.
+ </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="template_string" type_markdown="String">
+    Use this string as the template. This will only be used if `template_path` is not set.
+ </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="_inputs" type_markdown="Object">
+    Specify input fields that will be available to the committer. Read more about configuring inputs [here](/documentation/articles/configure-your-inputs/). Values from these inputs can be used to populate placeholders within the template.
+ </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="extra_data" type_markdown="Object">
+    Define variables which can be used a data placeholders. Values are template strings, so you can use this to build nested templates. Values are processed sequentially, before `template_string` or `template_path`.
+ </comp.DataReferenceRow>
+</comp.DataReference>
+
+### Placeholders in commit templates
+
+Commit templates can contain a combination of plain text and placeholders. Each placeholder is replaced with data. For example, your commit template might look like this:
+
+```plaintext
+{type}: {subject}
+Committed by [author] at [date]
+```
+
+**Data placeholders** are always surrounded by `{ }` brackets, and are populated with values from inputs with matching keys (as configured with the `_inputs` key).
+
+In this example, the editor might choose a "type" from a select box, and enter a summary in a text input labelled "subject".
+
+**Commit placeholders** insert data related to the commit, and are always surrounded by `[ ]` brackets. The available commit placeholders are:
+
+* `changes` is a bulleted list of all changes (edits, additions and deletions)
+* `date` is the current date
+* `author` is the email address of the person making the commit
+* `default_commit_message` is the default commit message that CloudCannon would generate. This will resolve to a sentence like "Added/Updated X file(s)".
+
+<comp.Notice info_type="info">
+  If your commit template contains no placeholders, its contents will be loaded directly into a textarea, so the user can edit the whole thing before saving.
+</comp.Notice>
+
+### Filters
+
+Placeholders support a number of **filters**. Filters are placed after a `|`, and multiple filters can be applied in sequence. For example, `{title|trim|uppercase}` will trim, then uppercase, a placeholder called "title". Read more about all the available placeholders [here](/documentation/articles/configuring-with-placeholders/).
+
+### Examples
+
+The default configuration simply uses the `default_commit_message`&nbsp;placeholder. This will be used if you don't have any configured commit templates.
+
+<comp.CodeBlock language="yaml" source="/cloudcannon.config.yaml">
+```
+commit_templates:
+  - template_string: "[default_commit_message]"
+```
+</comp.CodeBlock>
+
+In the example below, the user can type into a text field labelled "Message", and leading/trailing whitespace will be trimmed off.
+
+<comp.CodeBlock language="yaml" source="/cloudcannon.config.yaml">
+```
+commit_templates:
+  - template_string: "{message|trim}"
+```
+</comp.CodeBlock>
+
+In this third example, the template string is loaded from a file in the `.git` directory. Assuming the file contains no placeholders, its contents will be loaded into a text input for the user to edit, before saving.
+
+This example most closely matches the `git --template=<file>` \[flag behaviour\](If your commit template contains no placeholders, its contents will be loaded directly into a textarea, so the user can edit the whole thing before saving.).
+
+<comp.CodeBlock language="yaml" source="/cloudcannon.config.yaml">
+```
+commit_templates:
+  - template_path: /.git/commit-message.txt
+```
+</comp.CodeBlock>
+
+The `commit_templates` option takes an array, supporting multiple commit templates. The committer will be able to select the template they want from a dropdown.
+
+Make sure to use the label field to help differentiate each template.
+
+<comp.CodeBlock language="yaml" source="/cloudcannon.config.yaml">
+```
+commit_templates:
+  - label: Trimmed message
+    template_string: "{message|trim}"
+  - label: Commit message from file
+    template_path: /.git/commit-message.txt
+```
+</comp.CodeBlock>
+
+You can use [input configuration](/documentation/articles/configure-your-inputs/) to take greater control over the data. In the example below, the committer will be able to select a "commit type" from a dropdown with three predefined options.
+
+This commit template might result in a message like:
+
+```
+fix: removed security vulnerability
+```
+
+<comp.CodeBlock language="yaml" source="/cloudcannon.config.yaml">
+```
+commit_templates:
+  - template_string: "{commit_type}: {message|trim}"
+    _inputs:
+      commit_type:
+        type: select
+        options:
+          values:
+            - feature
+            - fix
+            - refactor
+```
+</comp.CodeBlock>
+
+You might want to have some specific formatting around an optional part of the commit message.
+
+In the example below, the committer can fill in a text field called "Breaking Change Message". This message will appear after a blank line, and will be prepended with a ⚠️ warning emoji. However, thanks to the `if` filter, the blank line and emoji won't be added if `breaking_change_message` is left empty.
+
+This commit template might result in either of the following messages:
+
+```
+Updated dependencies
+```
+
+```
+Removed insecure endpoint
+
+⚠️ /passwords is no longer available
+```
+
+<comp.CodeBlock language="yaml" source="/cloudcannon.config.yaml">
+```
+commit_templates:
+  - template_string: "{message}{breaking_change|if=breaking_change_message}"
+    _inputs:
+      breaking_change_message:
+        type: text
+    extra_data:
+      breaking_change: |-
+
+        ⚠️ {breaking_change_message}
+```
+</comp.CodeBlock>

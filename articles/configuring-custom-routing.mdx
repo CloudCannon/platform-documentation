@@ -1,16 +1,22 @@
 ---
+_schema: default
 _uuid: 9c25997c-8237-4f48-a474-037304cd3982
-_created_at: "2021-09-15 23:13:40 +0000"
-title: "Configuring Custom Routing"
-nav_title: "Custom Routing"
+_created_at: '2021-09-15 23:13:40 +0000'
+title: Configuring Custom Routing
+nav_title: Custom Routing
 published: true
-image: "/documentation/static/CloudCannonDocumentationog.jpg"
-description: "Configure your CloudCannon's hosting by configuring a single json file."
-tags: ["Hosting","Sites","Redirects","Custom Headers","Guides"]
-related_articles: null
-related_links: [{"name":"RE2","url":"https://github.com/uhop/node-re2"}]
+image: /documentation/static/CloudCannonDocumentationog.jpg
+description: Configure your CloudCannon's hosting by configuring a single json file.
+tags:
+  - Hosting
+  - Sites
+  - Redirects
+  - Custom Headers
+  - Guides
+related_links:
+  - name: RE2
+    url: https://github.com/uhop/node-re2
 ---
-
 Configure your CloudCannon's hosting by configuring a single JSON file. Create a `routing.json` file in the `.cloudcannon` folder at the root of your file structure. When URLs are loaded through the file server, this file is loaded to extend the default behaviour. Add [custom headers](#custom-headers) and [configure redirects](#redirects) all in one place.
 
 <comp.Notice info_type="info">
@@ -18,33 +24,32 @@ Configure your CloudCannon's hosting by configuring a single JSON file. Create a
 </comp.Notice>
 
 ### Routes
+
 Routes are useful in two cases:
 
-1. **Redirects**\: When you change your website’s structure, you should redirect the old URLs to the new pages. This ensures external links pointing to the old content and search engines can be redirected.
-2. **Push state routing**\: Certain SSGs output a single html file that is expected to load on multiple routes. JavaScript on that page will load different content based on the url.
+1. **Redirects**: When you change your website’s structure, you should redirect the old URLs to the new pages. This ensures external links pointing to the old content and search engines can be redirected.
+2. **Push state routing**: Certain SSGs output a single html file that is expected to load on multiple routes. JavaScript on that page will load different content based on the url.
 
 Configure your `routing.json` to include an array under the `routes` key with the following keys:
 
 <comp.DataReference>
-  <comp.DataReferenceRow label="from" type_markdown="Regex (Implemented using [re2](https://github.com/uhop/node-re2))">
+ <comp.DataReferenceRow label="from" type_markdown="Regex (Implemented using [re2](https://github.com/uhop/node-re2))">
     A regular expression or plain string defining the url to match. The urls will always start with a / character. Implicit ^ and $ on each value.
-  </comp.DataReferenceRow>
+ </comp.DataReferenceRow>
   <comp.DataReferenceRow label="to" type_markdown="String">
     The new URL to replace the current path including [regex parameters](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/replace#specifying_a_string_as_a_parameter).
-  </comp.DataReferenceRow>
+ </comp.DataReferenceRow>
   <comp.DataReferenceRow label="status" type_markdown="Number">
-    One of 200, 301, 302, 307, 308 or 410. Used to define the [HTTP status code](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status) to use on the route.
+    One of 200, 301, 302, 307, 308, 404, or 410. Used to define the [HTTP status code](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status) to use on the route.
 
-    301, 302, 307 and 308 codes trigger a redirect to a new location resulting in two requests. 200 and 410 change the URL that is served resulting in a single request.
-  </comp.DataReferenceRow>
+    301, 302, 307 and 308 codes trigger a redirect to a new location resulting in two requests. 200, 404, and 410 change the URL that is served resulting in a single request.
+ </comp.DataReferenceRow>
   <comp.DataReferenceRow label="forced" type_markdown="Boolean">
     If forced is true (default), the redirect will take priority. If forced is false, the redirect will only run if no file exists on that route. This is useful if you have a greedy regex that you don't want interfering with existing routes.
-
-    200 and 410 status codes are always forced.
-  </comp.DataReferenceRow>
+ </comp.DataReferenceRow>
   <comp.DataReferenceRow label="substitutions" type_markdown="Boolean">
     If substitutions is true (default), the `to` option can use regex parameters. If substitutions is false, the `to` option will be used as is. This is useful if you have a URL with characters that resemble the regex parameters.
-  </comp.DataReferenceRow>
+ </comp.DataReferenceRow>
 </comp.DataReference>
 
 <comp.CodeBlock language="json" source=".cloudcannon/routing.json">
@@ -78,15 +83,16 @@ Redirects will only occur if the `from` url doesn't resolve to a file. Rules are
 </comp.Notice>
 
 ### Custom Headers
+
 Configure extra headers on any route. Meet security needs or change some behaviour. Configure your `routing.json` to include an array under the `headers` key with the following keys:
 
 <comp.DataReference>
-  <comp.DataReferenceRow label="match" type_markdown="Regex (Implemented using [re2](https://github.com/uhop/node-re2))">
+ <comp.DataReferenceRow label="match" type_markdown="Regex (Implemented using [re2](https://github.com/uhop/node-re2))">
     A regular expression or plain string defining the url to match. The urls will always start with a / character. Implicit ^ and $ on each value.
-  </comp.DataReferenceRow>
+ </comp.DataReferenceRow>
   <comp.DataReferenceRow label="headers" type_markdown="Array">
     A list of header names and values to add to the matching request
-  </comp.DataReferenceRow>
+ </comp.DataReferenceRow>
   <comp.DataReferenceRow label="headers.name" type_markdown="String">
     The name of the header to configure. Allowed values are
 
@@ -121,10 +127,10 @@ Configure extra headers on any route. Meet security needs or change some behavio
     * 'referrer-policy'
 
     * 'permissions-policy'
-  </comp.DataReferenceRow>
+ </comp.DataReferenceRow>
   <comp.DataReferenceRow label="headers.value" type_markdown="String">
     The value to return in the header
-  </comp.DataReferenceRow>
+ </comp.DataReferenceRow>
 </comp.DataReference>
 
 <comp.CodeBlock language="json" source=".cloudcannon/routing.json">
@@ -148,6 +154,7 @@ Configure extra headers on any route. Meet security needs or change some behavio
 Headers are processed at the beginning of all calls. Rules are read in order and combined on all matching rules similar to how CSS works.
 
 ### Generated redirects
+
 Create dynamic redirects from pages and data of your site.
 
 During your build process, generate a file on `_cloudcannon/routing.json` and this will be used instead of `.cloudcannon/routing.json` from your source.
