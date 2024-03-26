@@ -189,3 +189,54 @@ To learn more about linking to different views in CloudCannon, [read this articl
 </div>
 ```
 </comp.CodeBlock>
+
+### Editable regions modified with JavaScript
+
+<comp.CodeBlock language="HTML" source="">
+```
+<div class="editable">
+  <p>Welcome. The time is</p>
+</div>
+
+<script>
+  const timeMessage = document.querySelector('p');
+  timeMessage.innerHTML = timeMessage.innerHTML + ' ' + new Date().toString();
+</script>
+```
+</comp.CodeBlock>
+
+The script on this page will add the current time to the `<p>` within the editable region. The Visual Editor will recognize this as a change to the content of the editable region and will save it back to the source code, breaking the intended behaviour.
+
+#### How to fix
+
+It's important to make sure no dynamic content is being added to an editable region. In this case, we could simply move the "editable" class onto the static text.
+
+<comp.CodeBlock language="HTML" source="">
+```
+<div>
+  <p><span class="editable">Welcome. The time is<span></p>
+</div>
+
+<script>
+  const timeMessage = document.querySelector('p');
+  timeMessage.innerHTML = timeMessage.innerHTML + ' ' + new Date().toString();
+</script>
+```
+</comp.CodeBlock>
+
+Another solution would be to prevent the script running inside the Visual Editor. See [this article for more information](/documentation/articles/detecting-your-site-is-loaded-in-the-visual-editor/) about checking whether a page is being loaded inside CloudCannon.
+
+<comp.CodeBlock language="HTML" source="">
+```
+<div class="editable">
+  <p>Welcome. The time is</p>
+</div>
+
+<script>
+  if (!window.inEditorMode) {
+    const timeMessage = document.querySelector('p');
+    timeMessage.innerHTML = timeMessage.innerHTML + ' ' + new Date().toString();
+  }
+</script>
+```
+</comp.CodeBlock>
