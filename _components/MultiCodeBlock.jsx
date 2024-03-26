@@ -142,7 +142,8 @@ const tabPane = ([lang, codeBlock]) => {
 
 const codeBlock = (str, lang, source, annotations) => {
   source = source ? <div className="c-code-block__source">{source}</div> : <></>;
-  const codeEncoded = btoa(encodeURIComponent(str))
+  const strippedStr = str.replace(/___\d+___/g, '');
+  const codeEncoded = btoa(encodeURIComponent(strippedStr))
   return (
     <div x-data="{ highlighedAnnotation: null }">
       <div className={`c-code-block${annotations ? ` c-code-block--annotated` : ``}`}>
