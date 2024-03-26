@@ -169,7 +169,7 @@ const annotateCodeBlocks = (page) => {
     // Any text for MultiCodeBlocks, annotations are inserted any time
     // a digit surrounded by three underscores on either side is encountered
     page.document?.querySelectorAll('.highlight > pre > code').forEach((codeEl) => {
-        codeEl.childNodes.forEach((tokenEl) => {
+        [...codeEl.childNodes].reverse().forEach((tokenEl) => {
             const is_text = tokenEl.nodeName === "#text";
             if (!tokenAnnotationRegex.test(is_text ? tokenEl.nodeValue : tokenEl.innerText)) return;
 
