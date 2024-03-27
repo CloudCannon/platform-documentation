@@ -40,7 +40,7 @@ Structures and arrays go hand-in-hand. The [array input](/documentation/articles
 
 When you first connect your site files and make them editable in the Data Editor, CloudCannon will automatically detect arrays in your front matter and data files.
 
-You can add new items to your arrays without the need for configuration. Clicking the *\+ Add* button for an array will clone the last array item and clear the data from the new item to create a blank array object. This behavior is convenient if you have simple arrays, or do not want to configure structures.
+You can add new items to your arrays without the need for configuration. Clicking the *+ Add* button for an array will clone the last array item and clear the data from the new item to create a blank array object. This behavior is convenient if you have simple arrays, or do not want to configure structures.
 
 The default array behavior may not be right for you if:
 
@@ -80,16 +80,16 @@ To create a structure:
 
 Here is an example of a basic structure:
 
-<comp.CodeBlock language="yaml" source="cloudcannon.config.yml">
-```
-_structures: #1
-  example: #2
-    values: #3
-      - value: #4
+<comp.MultiCodeBlock language="YAML" translate_into={["json", "JavaScript"]} source="cloudcannon.config.yml">
+``````````
+_structures___1___:
+  example___2___:
+    values___3___:
+      - value___4___:
           name:
           description:
           image:
-```
+``````````
 <comp.Annotation number="1">
   The `_structures` key contains all the structures defined at a given level of the configuration cascade.
 </comp.Annotation> <comp.Annotation number="2">
@@ -98,7 +98,9 @@ _structures: #1
   The `example.values` key can contain an array of structures. We will cover [multiple structures](documentation/articles/create-a-structure/#add-multiple-structures) stored under a single key later in this article.
 </comp.Annotation> <comp.Annotation number="4">
   This is the first structure in the group named `example`. Each structure must contain a `value` key defining what fields should populate new items of this type. This structure contains fields for `name`, `description`, and `image`. For more information on keys available for structure configuration, please read our reference documentation for [structures](/documentation/articles/array-structures-reference/).
-</comp.Annotation></comp.CodeBlock>
+</comp.Annotation>
+</comp.MultiCodeBlock>
+
 
 In the above code, we have created a simple structure under the key `example`. This structure contains the fields for `name`, `description`, and `image`. This structure can be referenced in any array or object input.
 
@@ -123,14 +125,14 @@ To reference a structure in an input:
 
 Here is an example of an array input referencing a structure:
 
-<comp.CodeBlock language="YAML" source="cloudcannon.config.yml">
-```
-_inputs: #1
-  array_one: #2
+<comp.MultiCodeBlock language="YAML" translate_into={["json", "JavaScript"]} source="cloudcannon.config.yml">
+``````````
+_inputs___1___:
+  array_one___2___:
     type: array
-    options: #3
-      structures: _structures.example #4
-```
+    options___3___:
+      structures___4___: _structures.example
+``````````
 <comp.Annotation number="1">
   The `_inputs` key contains all the inputs defined at a given level of the configuration cascade.
 </comp.Annotation> <comp.Annotation number="2">
@@ -139,7 +141,8 @@ _inputs: #1
   The `options` key contains configuration options for this input. For more information on configuring your inputs, read our documentation on [configuring your inputs](/documentation/articles/configure-your-inputs/).
 </comp.Annotation> <comp.Annotation number="4">
   The `options.structures` key is set to `_structures.example`, referencing the structure named “example”.
-</comp.Annotation></comp.CodeBlock>
+</comp.Annotation>
+</comp.MultiCodeBlock>
 
 Once you save the global configuration file, clicking the *\+ Add* button below the array will add an item with the same fields as your structure.
 
@@ -153,36 +156,26 @@ In this example, there are two arrays which we want to add links to. The first a
 
 Here is an example of how we might create the structure for `links` and reference it in the input configuration for `header_social_media` and `footer_affliate_links`:
 
-<comp.CodeBlock language="YAML" source="cloudcannon.config.yml">
-```
-_structures: #1
-  links: #2
+<comp.MultiCodeBlock language="YAML" translate_into={["json", "JavaScript"]} source="cloudcannon.config.yml">
+``````````
+_inputs___1___:
+  header_social_media___2___:
+    type: array
+    options:
+      structures___3___: _structures.links
+  footer_affliate_links___4___:
+    type: array
+    options:
+      structures___5___: _structures.links
+
+_structures___6___:
+  links___7___:
     values:
-       - value: #3
+       - value___8___:
           url:
           logo:
           text:
-```
-<comp.Annotation number="1">
-  The `_structures` key contains all the structures defined at a given level of the configuration cascade.
-</comp.Annotation> <comp.Annotation number="2">
-  The key name for our structure group is `links`.
-</comp.Annotation> <comp.Annotation number="3">
-  The structure within `links`. This structure contains fields for `url`, `logo`, and `text`.
-</comp.Annotation></comp.CodeBlock>
-
-<comp.CodeBlock language="YAML" source="cloudcannon.config.yml">
-```
-_inputs: #1
-  header_social_media: #2
-    type: array
-    options:
-      structures: _structures.links #3
-  footer_affliate_links: #4
-    type: array
-    options:
-      structures: _structures.links #5
-```
+``````````
 <comp.Annotation number="1">
   The `_inputs` key containing our two arrays.
 </comp.Annotation> <comp.Annotation number="2">
@@ -193,7 +186,14 @@ _inputs: #1
   The key for the array `footer_affliate_links`.
 </comp.Annotation> <comp.Annotation number="5">
   As with #3, the `options.structures` key is set to `_structures.links`.
-</comp.Annotation></comp.CodeBlock>
+</comp.Annotation><comp.Annotation number="6">
+  The `_structures` key contains all the structures defined at a given level of the configuration cascade.
+</comp.Annotation> <comp.Annotation number="7">
+  The key name for our structure group is `links`.
+</comp.Annotation> <comp.Annotation number="8">
+  The structure within `links`. This structure contains fields for `url`, `logo`, and `text`.
+</comp.Annotation>
+</comp.MultiCodeBlock>
 
 Let’s populate both arrays to see the `links` structure in action.
 
@@ -219,21 +219,21 @@ When referencing a key that contains multiple structures, all the structures wit
 
 Here is an example of multiple structures under one key:
 
-<comp.CodeBlock language="YAML" source="cloudcannon.config.yml">
-```
+<comp.MultiCodeBlock language="YAML" translate_into={["json", "JavaScript"]} source="cloudcannon.config.yml">
+``````````
 _structures:
-  example: #1
-    values: #2
-      - label: First #3
+  example___1___:
+    values___2___:
+      - label___3___: First
         value:
           name:
           description:
           image:
-      - label: Second #4
+      - label___4___: Second
         value:
           heading:
           subtext:
-```
+``````````
 <comp.Annotation number="1">
   The key name of your group of structures. In this code, we have called our structure `example`.
 </comp.Annotation> <comp.Annotation number="2">
@@ -242,7 +242,8 @@ _structures:
   The first structure in the group named `example`. This structure contains fields for `name`, `description`, and `image`.
 </comp.Annotation> <comp.Annotation number="4">
   The second structure in the group named `example`. This structure is different from the first, containing fields for `heading` and `subtext`.
-</comp.Annotation></comp.CodeBlock>
+</comp.Annotation>
+</comp.MultiCodeBlock>
 
 You can have as many structures under one key as you want. As you create multiple structures, it is important to name each one. In this example, we will use the `label` key. Define your `label` on the same level as the `value` key using the `label`. You can also name your structures by [configuring your structure previews](/documentation/articles/configure-your-structure-previews/).
 
@@ -252,11 +253,11 @@ Multiple structures appear as a dropdown menu when you click the *\+ Add* button
 
 However, as you create more structures, a dropdown may not be the best way to view them. You can create a searchable pop-up modal to view your structures using the `style` key.
 
-<comp.CodeBlock language="YAML" source="cloudcannon.config.yml">
-```
+<comp.MultiCodeBlock language="YAML" translate_into={["json", "JavaScript"]} source="cloudcannon.config.yml">
+``````````
 _structures:
   example:
-    style: modal #1
+    style___1___: modal
     values:
       - label: First
         value:
@@ -267,10 +268,11 @@ _structures:
         value:
           heading:
           subtext:
-```
+``````````
 <comp.Annotation number="1">
   The `style` key is set to `modal`. Define the style key on the same level as the `values` key under the name of your structures group.
-</comp.Annotation></comp.CodeBlock>
+</comp.Annotation>
+</comp.MultiCodeBlock>
 
 The `style` key has two values: “select” and “modal”. When the `style` key is not configured, CloudCannon sets the style to `select` by default.
 
