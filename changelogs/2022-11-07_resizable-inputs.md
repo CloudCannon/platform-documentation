@@ -6,8 +6,8 @@ This release provides a number of useful options for controlling the size of som
 
 **Features:**
 
-* Resize options for [Rich Text](/documentation/articles/using-rich-text-inputs-to-edit-your-data/) inputs.
-* Resize options for [Code](/documentation/articles/using-code-inputs-to-edit-your-data/) inputs.
+* Resize options for [Rich Text](/documentation/articles/rich-text-inputs/) inputs.
+* Resize options for [Code](/documentation/articles/code-inputs/) inputs.
 * Allow JPEG profile images.
 * Improve slugify behavior for new filenames.
 * Improved initialization of new Hugo shortcodes in the Content Editor.
