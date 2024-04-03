@@ -6,7 +6,7 @@ This release introduces our new collection schema feature that provides: initial
 
 **Features:**
 
-* Collection-level option called [schemas](/documentation/articles/create-a-schema/) to define one or more types in a collection. Used for the [contents of new files](/documentation/articles/define-your-default-file-contents/), and [keeping existing files up to date](/documentation/articles/keeping-content-consistent-across-files-in-a-collection/).
+* Collection-level option called [schemas](/documentation/articles/create-a-schema/) to define one or more types in a collection. Used for the initial contents of new files, and keeping existing files up to date.
 * Schema-level configuration for changing the file preview in the collection file list.
 * [Extended options](/documentation/articles/configure-the-add-button-in-collections/) for non-default `add_options`.
 * Default `add_options` in the collection file list +Add menu generated from schemas if set.
