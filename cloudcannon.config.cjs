@@ -65,6 +65,8 @@ const _snippets = {
   ...require(snip("system_version_default")),
   ...require(snip("system_version_list")),
   ...require(snip("slot")),
+  // Make sure fallbacks comes last ! ! !
+  ...require(snip("fallbacks")),
 };
 
 module.exports = {
