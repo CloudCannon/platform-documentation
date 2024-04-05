@@ -15,28 +15,33 @@ tags: []
 related_articles: []
 related_links:
 ---
-Some CloudCannon configuration allows you to use **template strings**, which are a mixture of literal text and dynamic placeholders.
+## What are template strings?
 
-Placeholders are defined with `[ ]` and `{ }` brackets, and are replaced with data when the template is read by CloudCannon.
+Template strings are a mixture of literal text and dynamic placeholders that are replaced with data. You can use template strings to populate complex strings.
 
-For example, template strings are used for:
+Template strings are commonly used in:
 
-* [Defining where new content files are created](/documentation/articles/set-the-path-for-new-files/)
-* [Defining where new assets are uploaded](/documentation/articles/adjusting-the-uploads-path/)
-* [Formatting your commit messages](/documentation/articles/configure-your-commit-messages/)
+* [Configuring your Create paths for new files](/documentation/articles/set-the-path-for-new-files/)
+* [Configuring your Uploads paths for new assets](/documentation/articles/adjusting-the-uploads-path/)
 * [Configuring your card previews](/documentation/articles/configure-your-card-previews/)
+* [Configuring your commit messages](/documentation/articles/configure-your-commit-messages/)
 
-<comp.Notice info_type="info">
-  See these articles for more specific information about which placeholders are best for these use cases.
-</comp.Notice>
+Please read these articles for more specific information about the best placeholders for each use case.
 
-### Data placeholders
+## Placeholders
 
-Data placeholders are populated from front matter or data values in the editor. They are surrounded with `{ }` brackets.
+Placeholders reference front matter or data values. When CloudCannon reads a placeholder, it will replace the content with the data it references.
 
-### Filters
+There are two types of placeholders.
 
-Data placeholders support a number of filters. These are placed after a `|` character. Multiple filters can be applied in a sequence.
+* **Data placeholder** — Reads data you defined in your front matter or other data values. These placeholders use `{ }` brackets.
+* **Fixed placeholder** — Reads fixed data defined by CloudCannon. These placeholders use `[ ]` brackets.
+
+## Filters
+
+Placeholders support several filters. Filters occur after the placeholder key, with a `|` character separating each key and filter. You can use multiple filters in sequence.
+
+### Generic filters
 
 * `uppercase` transforms text to uppercase
 * `lowercase` transforms text to lowercase
@@ -44,7 +49,7 @@ Data placeholders support a number of filters. These are placed after a `|` char
 * `slugify` converts non-alphanumeric characters into hyphens, then collapses sequential hyphens, then removes leading/trailing and hyphens.
 * `trim` removes leading and trailing whitespace
 
-The following placeholders can only be applied to dates:
+### Date filters
 
 * `year` gets a 4-digit year from a date
 * `month` gets a 2-digit month from a date
@@ -61,9 +66,13 @@ The following placeholders can only be applied to dates:
 * `time_long` gets a long time format (e.g. 1:00:00 pm NZDT)
 * `time_full` gets a longer time format (e.g. 1:00:00 pm New Zealand Daylight Time)
 
-Note that all the time and date filters format dates with the site's timezone and the user's locale.
+<comp.Notice info_type="info">
+  All the time and date filters format the date using the site's timezone and the user's locale.
+</comp.Notice>
 
-Some filters can be given parameters for more flexibility. These are placed after a `=` after the filter name.
+### Filters with parameters
+
+For some filters, you can provide extra parameters for more flexibility. Add extra parameters by including a `=` character after the filter name.
 
 * `truncate` removes and extra characters beyond a specified number. For example, `{title|truncate=10}` will resolve to the first 10 characters of a message.
 * `default` allows you to provide a fallback value, in case the data is empty
@@ -72,11 +81,10 @@ Some filters can be given parameters for more flexibility. These are placed afte
 
 ### Filtering examples
 
-Let's assume the following data is being used:
+Let's go through some examples for the following file:
 
-<comp.CodeBlock language="yaml" source="">
+<comp.CodeBlock language="yaml" source="short-message.mdx">
 ```
-timezone: 'Etc/UTC'
 date: 2020-01-02
 empty_value:
 message: "Hello World"
@@ -84,33 +92,49 @@ draft: false
 ```
 </comp.CodeBlock>
 
-Here are some examples of how this data could be transformed by different filters:
+In the above file we have four keys containing different data types: `date`, `empty_value`, `message`, and `draft`.
 
-<comp.CodeBlock language="text" source="">
+Here are some examples of how we can transform this data using different filters:
+
+<comp.CodeBlock language="annotated" source="">
 ```
-{date|day}-{date|month}-{date|year} {date|time} ({date|timezone})
+{date|day}-{date|month}-{date|year} {date|time} ({date|timezone}) #1
 // 01-02-2020 00:00am (Etc/UTC)
 
-{message|uppercase|truncate=5}
+{message|uppercase|truncate=5} #2
 // HELLO
 
-{message|if=message}
+{message|if=message} #3
 // Hello World
 
-{message|unless=empty_value}
+{message|unless=empty_value} #4
 // Hello World
 
-{empty_value|default="Nothing here!"}
+{empty_value|default="Nothing here!"} #5
 // Nothing here!
 
-{"Unpublished"|if=draft|default="Published"}
+{"Unpublished"|if=draft|default="Published"} #6
 // Published
 ```
-</comp.CodeBlock>
+<comp.Annotation number="1">
+  We can use multiple date filters to control the output string. This template string uses dynamic data placeholders and literal text characters, such as `-` and `()`.
+</comp.Annotation> <comp.Annotation number="2">
+  We can convert text strings to `uppercase` and `truncate` the number of characters to five.
+</comp.Annotation> <comp.Annotation number="3">
+  We can print the value of a key if a value exists using the `if` filter.
+</comp.Annotation> <comp.Annotation number="4">
+  We can print the value of a key based on the value of another key using the `unless` filter. In this case, we print the value of `message` because `empty_key` is falsy.
+</comp.Annotation> <comp.Annotation number="5">
+  We can create a fallback option when a placeholder resolves to an empty result using the `default` filter. In this case, "Nothing here!" is printed because `empty_key` contains no value.
+</comp.Annotation> <comp.Annotation number="6">
+  We can use multiple filters to check if a key contains a value and create a fallback string if that key is falsy.
+</comp.Annotation></comp.CodeBlock>
 
-### Accessing data examples
+### Filtering nested keys and arrays
 
-You can access nested keys and items within arrays. Let's assume the following data is being used:
+Data placeholders can reference nested keys in your front matter or other data values.
+
+Here is an example file:
 
 <comp.CodeBlock language="YAML" source="">
 ```
@@ -129,24 +153,34 @@ seo:
 ```
 </comp.CodeBlock>
 
-Here are some examples of how this data could be accessed and manipulated. Note that when an array is indexed with `[*]`, each item will be joined with a comma and space.
+In the above file, we have several nested keys and arrays. You can reference these keys in a template string by using the relative path of the key, by specifying the position within an array, or by searching each item in an array using `[*]`.
 
-<comp.CodeBlock language="YAML" source="">
+Here are some examples of how we can transform this data using different filters:
+
+<comp.Notice info_type="info">
+  When you use `[*]` to reference each item within an array, CloudCannon will join the final output into a single string, separating each value with a comma and a space.
+</comp.Notice>
+
+<comp.CodeBlock language="annotated" source="">
 ```
-{seo.description}
+{seo.description} #1
 // Description goes here
 
-{links[1].text}
-// Read more
+{links.text[0].description} #2
+// Learn more
 
-{seo.tags[*]|uppercase}
+{seo.tags[*]|uppercase} #3
 // SALES, DOCUMENTATION
 
-{links[*].text|default="No text"}
+{links[*].text|default="No text"} #4
 // Learn more, Read more, No text
 ```
-</comp.CodeBlock>
-
-&nbsp;
-
-&nbsp;
+<comp.Annotation number="1">
+  We can print the value of a nested key.
+</comp.Annotation> <comp.Annotation number="2">
+  We can print the value of a specific key within an array.
+</comp.Annotation> <comp.Annotation number="3">
+  We can print the value of every item within an array and filter the result with `uppercase`. CloudCannon automatically joins the final output into a single string.
+</comp.Annotation> <comp.Annotation number="4">
+  We can search an array using and print the value of a key each time it appears in that array. If one key is empty, we can use a fallback value using the `default` filter.
+</comp.Annotation></comp.CodeBlock>
