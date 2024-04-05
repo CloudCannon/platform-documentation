@@ -26,12 +26,11 @@ Cards appear in different places across the app, including:
    * [Hugo Shortcodes](/documentation/articles/snippets-using-hugo-shortcodes/)
    * [Eleventy Shortcodes](/documentation/articles/snippets-using-eleventy-shortcodes/)
 2. Snippet Picker
-3. [Structures](/documentation/articles/create-a-structure/) inside [Array inputs](/documentation/articles/array-inputs/)
+3. [Structures](/documentation/articles/create-a-structure/)
 4. [Structure Picker](/documentation/articles/create-a-structure/)
 5. [Select-style inputs](/documentation/articles/select-and-multiselect-inputs/)
 6. [Object inputs](/documentation/articles/object-inputs/)
-7. Non-structure items inside [Array inputs](/documentation/articles/array-inputs/)
-8. [Collection](/documentation/articles/define-your-collections/) file lists
+7. [Collection](/documentation/articles/define-your-collections/) file lists
 
 These cards are configurable using the `preview` key.
 
@@ -161,13 +160,19 @@ preview:
 ```
 </comp.CodeBlock>
 
-### Templating in previews
+### Template strings in previews
 
-When using the `template` key in a preview's cascading options, you can reference keys from the object. If **any** placeholder resolves to an empty result, the whole preview entry is skipped, and the next preview entry is run.
+You can use [template strings](/documentation/articles/configure-your-template-strings/) in your card preview. Template strings are a mixture of literal text and dynamic placeholders that are replaced with data when CloudCannon reads them. You can use template strings to populate your card previews with more complex strings.
 
-See [this article for more information about using template strings](/documentation/articles/configuring-with-placeholders/), as well as a list of available filters.
+The `template` key can reference keys from within the object you want to preview.
 
-Take the following config for example. The preview will show 1 line of metadata with the "person" icon. The text for this metadata will show "By Ella" if the object has an object `author` with a `name` field set to "Ella". If `author.name` isn't set, the text will show "No author".
+<comp.Notice info_type="info">
+  When using a template string, all placeholders within the string must resolve to an output. If any placeholder resolves to an empty result, CloudCannon cannot display that template string. In this case, CloudCannon will use the next item in the array.
+</comp.Notice>
+
+Let's walk through an example. We want to add the author of a file to the card metadata field. We want the metadata field to have a person icon and the text "By \[author name\]". If no author name is available, the text should read "No author".
+
+To achieve this, we will create an array of `metadata.text` options. The first array item is our template string, with the value of `template` set to `By {author.name}`. The second array item is the string `No author`.
 
 <comp.CodeBlock language="YAML" source="cloudcannon.config.yml">
 ```
@@ -179,6 +184,10 @@ preview:
       icon: person
 ```
 </comp.CodeBlock>
+
+In the above example, if the `author.name` key in our object is set to "Heather", the card preview will display "By Heather" in the metadata field.
+
+For more information, including a list of all available placeholder values, read our documentation on [template strings](/documentation/articles/configure-your-template-strings/).
 
 ## Picker specific options
 
