@@ -37,6 +37,7 @@ import "npm:prismjs@1.29.0/components/prism-jsx.js";
 
 // Custom highlights
 import "./_config/prism-tree.js";
+import "./_config/prism-annotated.js";
 
 import { DOMParser } from "https://deno.land/x/deno_dom@v0.1.38/deno-dom-wasm.ts";
 import { Page } from "lume/core.ts";

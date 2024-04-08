@@ -1,0 +1,186 @@
+---
+_schema: default
+_uuid: 281bd649-3d81-48c1-bce4-b09b44f6842a
+_created_at: '2023-01-31 02:22:28 +0000'
+title: Configure your template strings
+nav_title: Configure your template strings
+published: true
+image: >-
+  https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+description: >-
+  Learn how to configure your template strings in CloudCannon. Template strings
+  are a mix of literal text and placeholders which are replaced with data when
+  read by CloudCannon.
+tags: []
+related_articles: []
+related_links:
+---
+## What are template strings?
+
+Template strings are a mixture of literal text and dynamic placeholders that are replaced with data. You can use template strings to populate complex strings.
+
+Template strings are commonly used in:
+
+* [Configuring your Create paths for new files](/documentation/articles/set-the-path-for-new-files/)
+* [Configuring your Uploads paths for new assets](/documentation/articles/adjusting-the-uploads-path/)
+* [Configuring your card previews](/documentation/articles/configure-your-card-previews/)
+* [Configuring your commit messages](/documentation/articles/configure-your-commit-messages/)
+
+Please read these articles for more specific information about the best placeholders for each use case.
+
+## Placeholders
+
+Placeholders reference front matter or data values. When CloudCannon reads a placeholder, it will replace the content with the data it references.
+
+There are two types of placeholders.
+
+* **Data placeholder** — Reads data you defined in your front matter or other data values. These placeholders use `{ }` brackets.
+* **Fixed placeholder** — Reads fixed data defined by CloudCannon. These placeholders use `[ ]` brackets.
+
+## Filters
+
+Placeholders support several filters. Filters occur after the placeholder key, with a `|` character separating each key and filter. You can use multiple filters in sequence.
+
+### Generic filters
+
+* `uppercase` transforms text to uppercase
+* `lowercase` transforms text to lowercase
+* `deburr` converts Latin-1 Supplement and Latin Extended-A letters to basic Latin letters and removes combining diacritical marks.
+* `slugify` converts non-alphanumeric characters into hyphens, then collapses sequential hyphens, then removes leading/trailing and hyphens.
+* `trim` removes leading and trailing whitespace
+
+### Date filters
+
+* `year` gets a 4-digit year from a date
+* `month` gets a 2-digit month from a date
+* `day` gets a 4-digit day from a date
+* `time` gets the time from a date, in a 12-hour format (e.g. 12:30pm)
+* `timezone` gets the timezone from a date
+* `date_short` gets a short date format (e.g. 7/07/22)
+* `date_medium` gets a medium date format (e.g. 7/07/2022)
+* `date_long` gets a long date format (e.g. 7 June 2022)
+* `date_full` gets a longer date format (e.g. Tuesday, 7 June 2022)
+* `time` gets the time (e.g. 1:00pm)
+* `time_short` gets a short time format (e.g. 1:00 pm)
+* `time_medium` gets a medium time format (e.g. 1:00:00 pm)
+* `time_long` gets a long time format (e.g. 1:00:00 pm NZDT)
+* `time_full` gets a longer time format (e.g. 1:00:00 pm New Zealand Daylight Time)
+
+<comp.Notice info_type="info">
+  All the time and date filters format the date using the site's timezone and the user's locale.
+</comp.Notice>
+
+### Filters with parameters
+
+For some filters, you can provide extra parameters for more flexibility. Add extra parameters by including a `=` character after the filter name.
+
+* `truncate` removes and extra characters beyond a specified number. For example, `{title|truncate=10}` will resolve to the first 10 characters of a message.
+* `default` allows you to provide a fallback value, in case the data is empty
+* `if` resolves to the data, if the parameter is "truthy"
+* `unless` resolves to the data, if the parameter is "falsy"
+
+### Filtering examples
+
+Let's go through some examples for the following file:
+
+<comp.CodeBlock language="yaml" source="short-message.mdx">
+```
+date: 2020-01-02
+empty_value:
+message: "Hello World"
+draft: false
+```
+</comp.CodeBlock>
+
+In the above file we have four keys containing different data types: `date`, `empty_value`, `message`, and `draft`.
+
+Here are some examples of how we can transform this data using different filters:
+
+<comp.CodeBlock language="annotated" source="">
+```
+{date|day}-{date|month}-{date|year} {date|time} ({date|timezone}) #1
+// 01-02-2020 00:00am (Etc/UTC)
+
+{message|uppercase|truncate=5} #2
+// HELLO
+
+{message|if=message} #3
+// Hello World
+
+{message|unless=empty_value} #4
+// Hello World
+
+{empty_value|default="Nothing here!"} #5
+// Nothing here!
+
+{"Unpublished"|if=draft|default="Published"} #6
+// Published
+```
+<comp.Annotation number="1">
+  We can use multiple date filters to control the output string. This template string uses dynamic data placeholders and literal text characters, such as `-` and `()`.
+</comp.Annotation> <comp.Annotation number="2">
+  We can convert text strings to `uppercase` and `truncate` the number of characters to five.
+</comp.Annotation> <comp.Annotation number="3">
+  We can print the value of a key if a value exists using the `if` filter.
+</comp.Annotation> <comp.Annotation number="4">
+  We can print the value of a key based on the value of another key using the `unless` filter. In this case, we print the value of `message` because `empty_value` is falsy.
+</comp.Annotation> <comp.Annotation number="5">
+  We can create a fallback option when a placeholder resolves to an empty result using the `default` filter. In this case, "Nothing here!" is printed because `empty_value` contains no value.
+</comp.Annotation> <comp.Annotation number="6">
+  We can use multiple filters to check if a key contains a value and create a fallback string if that key is falsy.
+</comp.Annotation></comp.CodeBlock>
+
+### Filtering nested keys and arrays
+
+Data placeholders can reference nested keys in your front matter or other data values.
+
+Here is an example file:
+
+<comp.CodeBlock language="YAML" source="">
+```
+links:
+  - url: /documentation
+    text: Learn more
+  - url: /blog
+    text: Read more
+  - url:
+    text:
+seo:
+  description: Description goes here
+  tags:
+    - 'sales'
+    - 'documentation'
+```
+</comp.CodeBlock>
+
+In the above file, we have several nested keys and arrays. You can reference these keys in a template string by using the relative path of the key, by specifying the position within an array, or by searching each item in an array using `[*]`.
+
+Here are some examples of how we can transform this data using different filters:
+
+<comp.Notice info_type="info">
+  When you use `[*]` to reference each item within an array, CloudCannon will join the final output into a single string, separating each value with a comma and a space.
+</comp.Notice>
+
+<comp.CodeBlock language="annotated" source="">
+```
+{seo.description} #1
+// Description goes here
+
+{links.text[0].description} #2
+// Learn more
+
+{seo.tags[*]|uppercase} #3
+// SALES, DOCUMENTATION
+
+{links[*].text|default="No text"} #4
+// Learn more, Read more, No text
+```
+<comp.Annotation number="1">
+  We can print the value of a nested key.
+</comp.Annotation> <comp.Annotation number="2">
+  We can print the value of a specific key within an array.
+</comp.Annotation> <comp.Annotation number="3">
+  We can print the value of every item within an array and filter the result with `uppercase`. CloudCannon automatically joins the final output into a single string.
+</comp.Annotation> <comp.Annotation number="4">
+  We can search an array using and print the value of a key each time it appears in that array. If one key is empty, we can use a fallback value using the `default` filter.
+</comp.Annotation></comp.CodeBlock>
