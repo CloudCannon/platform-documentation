@@ -46,7 +46,7 @@ const stringifyToJavascript = (obj) => {
 const parseLanguageExtension = (lang) => {
   switch (lang.toLowerCase()){ 
     case "javascript":
-      return "js";
+      return "cjs";
     default:
       return lang
   }
@@ -122,7 +122,7 @@ const tabButton = (tab) => {
       {...{ ":aria-selected": `selectedTab === '${tab}'` }}
       role="tab"
       key={tab}>
-      {tabNames[tab] || tab.toUpperCase()}
+      {tabNames[tab.toLowerCase()] || tab.toUpperCase()}
     </button>
   )
 }
