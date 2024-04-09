@@ -122,7 +122,7 @@ const tabButton = (tab) => {
       {...{ ":aria-selected": `selectedTab === '${tab}'` }}
       role="tab"
       key={tab}>
-      {tabNames[tab] || tab.toUpperCase()}
+      {tabNames[tab.toLowerCase()] || tab.toUpperCase()}
     </button>
   )
 }
