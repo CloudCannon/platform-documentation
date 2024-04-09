@@ -46,7 +46,7 @@ const stringifyToJavascript = (obj) => {
 const parseLanguageExtension = (lang) => {
   switch (lang.toLowerCase()){ 
     case "javascript":
-      return "js";
+      return "cjs";
     default:
       return lang
   }
