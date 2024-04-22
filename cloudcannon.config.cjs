@@ -266,6 +266,8 @@ module.exports = {
     },
     article_category: {
       type: "multiselect",
+      comment:
+        "Choose a [Diataxis category](https://diataxis.fr/compass/) based on whether this article informs action or understanding, and acquiring or applying skill.",
       options: {
         values: [
           "Explanation",
