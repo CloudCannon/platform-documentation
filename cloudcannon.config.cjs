@@ -265,13 +265,15 @@ module.exports = {
         "Optionally reference a different page or URL that this page should set as its canonical URL",
     },
     article_category: {
-      type: multiselect
-      options:
-        values:
+      type: "multiselect",
+      options: {
+        values: [
           - Explanation
           - Reference
           - Tutorial
           - Instructions
+        ],
+      },
     },
   },
   commit_templates: [{ template_string: "{message}" }],
