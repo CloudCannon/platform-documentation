@@ -268,10 +268,10 @@ module.exports = {
       type: "multiselect",
       options: {
         values: [
-          - Explanation
-          - Reference
-          - Tutorial
-          - Instructions
+          "Explanation",
+          "Reference",
+          "Tutorial",
+          "Instructions"
         ],
       },
     },
