@@ -267,13 +267,29 @@ module.exports = {
     article_category: {
       type: "multiselect",
       comment:
-        "Choose a [Diataxis category](https://diataxis.fr/compass/) based on whether this article informs action or understanding, and acquiring or applying skill.",
+        "Choose a [Diataxis category](https://diataxis.fr/compass/) based on whether this article informs action or understanding, and acquiring or applying skill. If more than one category applies, consider splitting this article into multiple smaller articles.",
       options: {
         values: [
           "Explanation",
           "Reference",
           "Tutorial",
           "Instructions"
+        ],
+      },
+    },
+    article_topic: {
+      type: "multiselect",
+      comment:
+        "Select which topics apply to this article.",
+      options: {
+        values: [
+          "Client Sharing",
+          "Organizations",
+          "Permission Groups",
+          "Projects",
+          "Sites",
+          "Site Sharing",
+          "Team members"
         ],
       },
     },
