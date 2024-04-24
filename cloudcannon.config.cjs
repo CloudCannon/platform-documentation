@@ -265,7 +265,7 @@ module.exports = {
         "Optionally reference a different page or URL that this page should set as its canonical URL",
     },
     article_category: {
-      type: "multiselect",
+      type: "multichoice",
       comment:
         "Choose a [Diataxis category](https://diataxis.fr/compass/) based on whether this article informs action or understanding, and acquiring or applying skill. If more than one category applies, consider splitting this article into multiple smaller articles.",
       options: {
