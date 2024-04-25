@@ -275,6 +275,11 @@ module.exports = {
           "Tutorial",
           "Instructions"
         ],
+        preview: {
+          icon: {
+            Explanation: lightbulb
+          },
+        },
       },
     },
     article_topic: {
