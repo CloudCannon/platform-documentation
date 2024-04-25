@@ -277,7 +277,9 @@ module.exports = {
         ],
         preview: {
           icon: {
-            Explanation: lightbulb
+            Explanation: {
+              lightbulb
+            },
           },
         },
       },
