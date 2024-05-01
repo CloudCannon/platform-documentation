@@ -289,6 +289,7 @@ module.exports = {
           "Projects",
           "Sites",
           "Site Sharing",
+          "SSO/SAML",
           "Team members"
         ],
       },
