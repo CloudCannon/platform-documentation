@@ -285,6 +285,7 @@ module.exports = {
         values: [
           "Client Sharing",
           "Custom Permission Groups",
+          "Introduction",
           "Organizations",
           "Permission Groups",
           "Projects",
