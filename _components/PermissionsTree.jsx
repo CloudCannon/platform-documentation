@@ -27,9 +27,9 @@ const getPermissionDocs = (permissions) => {
 
 const formatScopes = (scopes, helpers) => scopes.map((s, i) => {
   if (i) {
-    return (<>, <i>{helpers.unslug(s)}</i> </>);
+    return (<>, <i>{helpers.unslug(s)}</i></>);
   } else {
-    return (<> <i>{helpers.unslug(s)}</i> </>);
+    return (<> <i>{helpers.unslug(s)}</i></>);
   }
 });
 
