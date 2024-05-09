@@ -25,22 +25,28 @@ const getPermissionDocs = (permissions) => {
 	return outputs;
 }
 
-const formatScopes = (scopes) => scopes.map(s => (<> <code>{s}</code> </>));
+const formatScopes = (scopes, helpers) => scopes.map((s, i) => {
+  if (i) {
+    return (<>, <i>{helpers.unslug(s)}</i> </>);
+  } else {
+    return (<> <i>{helpers.unslug(s)}</i> </>);
+  }
+});
 
 const formatDocs = (docs) => docs.map(([action, doc]) => (<li key={action}><code>{action}</code> → {doc}</li>));
 
-const formatRow = (comp, perm) => {
+const formatRow = (perm, comp, helpers) => {
   return (
    <comp.DataReferenceRow label={perm.key}>
-      <p>Available scopes: {formatScopes(perm.scopes)}</p>
+      <p>Available scopes: {formatScopes(perm.scopes, helpers)}</p>
       <ul> {formatDocs(perm.docs)} </ul>
     </comp.DataReferenceRow>
   );
 }
 
-export default function ({comp, permissions}) {
+export default function ({comp, permissions}, helpers) {
   const rowsObjects = getPermissionDocs(permissions);
-  const rows = rowsObjects.map(r => formatRow(comp, r));
+  const rows = rowsObjects.map(r => formatRow(r, comp, helpers));
 
   return (
     <comp.DataReference>
