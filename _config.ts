@@ -387,6 +387,10 @@ site.filter("index_of", (block, item) => {
     return block.indexOf(item);
 });
 
+site.filter("unslug", (str) => {
+    return str.replace(/(^|_)(\w)/g, (_, u, c) => `${u.replace('_', ' ')}${c.toUpperCase()}`);
+})
+
 const summaryMarker = '</p>';
 site.filter("changelog_summary", (block, item) => {
     return block.substring(0, block.indexOf(summaryMarker) + summaryMarker.length);
