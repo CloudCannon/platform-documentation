@@ -35,54 +35,63 @@ Using Custom Permission Groups, you can:
 * Select which resources are available to each Group and define what actions are allowed (Read, Write, or Create).
 * Alter the scope of a permission from Global to Project, Site, Group, or Base Domain.
 * Define exceptions for each Group for more precise permissions.
+* Add multiple permissions and exceptions at different scopes.
 
 The maximum number of Custom Permission Groups you can create will depend on your [pricing plan](/pricing/). For more information on Permission Groups in general, please read our documentation on [Permission Groups](/documentation/articles/what-are-permission-groups/).
 
 ### Selecting resources
 
-Custom Permission Groups use the same list of resources as default Groups. A resource is something you can interact with in CloudCannon, such as a Site, Pull Requests, Settings, or Billing. Each resource has one or more associated actions: Read, Write, or Create.
+Custom Permission Groups use the same list of resources as [Default Groups](/documentation/articles/what-are-default-permission-groups/). A resource is something you can interact with in CloudCannon, such as an individual Site, Pull Request settings, or billing information. Each resource has one or more associated actions: Read, Write, or Create.
 
-When you create a Custom Permission Group, you must select which resources you want to add and what actions you want to allow for each resource. Adding a resource to your Custom Permission Group will allow all members of that Group to interact with that resource.
+Custom Permission Groups can have multiple permissions, each with their own scope, resources, and allowed actions. When you create a Custom Permission Group, you must select which resources you want to add and what actions you want to allow for each resource. Adding a resource to a permission will allow all members of that Group to interact with that resource.
 
-<comp.DocsImage path="" alt="" title=""/>
+<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/sharing/permission-groups/2024-05/CloudCannon-Documentation-Add-Permission-Modal.png" alt="A screenshot of the Add Permission modal shows the option to select resources and scope for a Custom Permission Group." title="The Add Permission modal" type="screenshot"/>
 
-CloudCannon uses a tree structure to define resources. When you select a resource for your Custom Permission Group, you can choose a broad resource heading (e.g., `site:write`), or drill down to more specific resources (e.g., `site:settings:site-mounting:write` or `site:publish:pull-requests:merge:write`). Adding more specific resources allows your Permission Groups to be as fine-grained as you require.
+CloudCannon uses a tree structure to define resources. When you select a resource for your Custom Permission Group, you can choose a broad resource heading (e.g., `site:write`), or drill down to more specific resources (e.g., `site:settings:site-mounting:write` or `site:publish:pull-requests:merge:write`). Adding more specific resources allows your Permission Group to be as fine-grained as you require.
 
 Let’s walk through an example.
 
-We want to create a Permission Group where members cannot see any existing Sites in the Organization but can add new Sites, which they can then see and edit. This type of Permission Group might work well to keep teams within your Organization from accessing each other’s content. In this case, we should add the resource `site:create` but not `site:read` to our Permission Group.
+We want to create a Permission Group where members cannot see any existing Sites in the Organization but can add new Sites, which they can then see and edit. This type of Permission Group might work well to keep teams within your Organization from accessing each other’s content. In this case, we should add the resource `site:create` but not `site:read` to our permission.
 
-The create action allows you to create new instances of a resource (in this example, Sites). When you create an instance of a resource, CloudCannon will automatically give you permission to Read and Write that instance.
+The create action allows you to create new instances of a resource (in this example, Sites). When you create an instance of a resource, CloudCannon will automatically give you permission to Read and Write that instance. By choosing not to add `site:read` to this permission, existing Sites in our Organization will not appear in the CloudCannon interface.
 
 For more information, including a complete list of resources available, please read our reference documentation on [permissions](/documentation/articles/permissions-reference/).
 
 ### Permission scope
 
-The scope of a permission defines how broadly it is applied. Permissions in the [Default Permission Groups](/documentation/articles/what-are-default-permission-groups/) have a Global scope. Permission Groups for [Site Sharing](/documentation/articles/share-a-site-with-site-sharing/) or [Client Sharing](/documentation/articles/share-a-site-with-client-sharing/) have a Site scope.
+The scope of a permission defines how broadly it is applied. Permissions in the [Default Permission Groups](/documentation/articles/what-are-default-permission-groups/) have a Global scope. Permissions for [Site Sharing](/documentation/articles/share-a-site-with-site-sharing/) or [Client Sharing](/documentation/articles/share-a-site-with-client-sharing/) Groups have a Site scope.
 
 With Custom Permission Groups, you can set a permission at one of five scopes: Global, Project, Site, Group, and Base Domain.
 
-* Global — This scope encompasses your entire Organization (e.g., the resource `project:create` with the scope Global will allow all members of the Permission Group to create new Projects in your Organization, which they then have permission to edit).
-* Project — This scope encompasses a specific Project (e.g., the resource `site:publish:pull-request:open:write` with a Project scope will allow all members of the Permission Group to create Pull Requests for any site within the Project, but not merge them).
-* Site — This scope encompasses a specific Site (e.g., the resource `site:analytics:read` with a Site scope will allow all members of the Permission Group to view the hosting and building analytics for a single Site).
-* Group — This scope encompasses a specific Group (e.g., the resource `group:member:write` with a Group scope will allow all members of the Permission Group to edit the members of a specific Group).
-* Base Domain — This scope encompasses a specific Base Domain (e.g., the resource `base-domain:settings:dns:write` with a Domain scope will allow all members of the Permission Group to edit DNS records for a specific domain).
+* **Global** — This scope encompasses your entire Organization (e.g., the resource `project:create` with the scope Global will allow all members of the Permission Group to create new Projects in your Organization, which they then have permission to edit).
+* **Project** — This scope encompasses a specific Project (e.g., the resource `site:publish:pull-request:open:write` with a Project scope will allow all members of the Permission Group to create Pull Requests for any site within the chosen Project, but not merge them).
+* **Site** — This scope encompasses a specific Site (e.g., the resource `site:analytics:read` with a Site scope will allow all members of the Permission Group to view the hosting and building analytics for the chosen Site).
+* **Group** — This scope encompasses a specific Group (e.g., the resource `group:member:write` with a Group scope will allow all members of the Permission Group to edit the members of a specific Group).
+* **Base Domain** — This scope encompasses a specific Base Domain (e.g., the resource `base-domain:settings:dns:write` with a Domain scope will allow all members of the Permission Group to edit DNS records for a specific domain).
 
-Custom Permission Groups can contain more than one scope. For example, you might want to create a Group that can approve Pull Requests for a specific Project and manage the Domain associated with one Site in that Project. This Permission Group would contain the resources `site:publish:pull-request:merge:write` with a Project scope and `base-domain:write` at the Site scope.
+<comp.DocsImage path="" alt="" title=""/>
 
-When you select Project, Site, Group, or Base Domain as a scope, CloudCannon will prompt you to select which instance(s) you want the scope to cover (e.g., name the Sites or Permission Groups).
+Custom Permission Groups can include permissions with different scopes. For example, you might want to create a Group that can approve Pull Requests for a specific Project and manage the Domain associated with one Site in that Project. This Permission Group would contain two permissions: one with a Project scope and the resource `site:publish:pull-request:merge:write`, and one with a Base Domain scope and the resource `base-domain:write`.
 
-Not all resources work with all scopes. For example, you can’t give someone the resource `project:delete:write` with a Site scope, as Sites cannot contain Projects, or `org:billing:write` with a Group scope, as you control billing at the Organization level. When you create a Custom Permission Group, CloudCannon will filter out the resources that don’t apply to your scope.
+When you select Project, Site, Group, or Base Domain as a scope, CloudCannon will prompt you to select the Target of that scope.
+
+* **Target** — Which instance you want a scope to pertain to (e.g., name the specific Site or Permission Group).
+
+Not all resources work with all scopes. For example, you can’t give someone the resource `project:delete:write` with a Site scope, as Sites cannot contain Projects, or `org:billing:write` with a Group scope, as you cannot control billing at the Group level. When you create a Custom Permission Group, CloudCannon will filter out the resources that don’t apply to your scope.
 
 ### Exceptions
 
-Exceptions allow you to set broad permissions and then remove specific permissions from a Group. For example, a team member might have permission to edit Sites within a Project except for the Production Site.
+Exceptions allow you to set broad permissions and then remove specific permissions from a Group. For example, a team member might have permission to edit all Sites within a Project except for the Production Site.
+
+You can add multiple exceptions to a Custom Permission Group. For each exception you must select a scope and a list of resources.
+
+<comp.DocsImage path="" alt="" title=""/>
 
 Permission Groups are always additive. In other words, permissions or exceptions in  one Group do not negate permissions or exceptions in another. If one Group allows an action, an exception in a second Permission Group does not prevent access to that resource.
 
 Exceptions are more efficient than explicitly providing permission for many resources. Let’s walk through an example.
 
-We want to limit a team member from editing the Production site but enable editing for all other Sites within the Project. We could explicitly give permission for all those Sites. However, each time someone adds a new Site to the Project, we would need to update the Permission Group. Using an exception, we can remove permission for a single site and set the scope of the Permission Group as “Project” to allow editing permissions for all future Sites.
+We want to prevent a team member from editing the Production site but enable editing for all other Sites within the Project. We could explicitly give permission for all those Sites. However, each time someone adds a new Site to the Project, we would need to update the Permission Group. Using an exception, we can remove permission for a single site and set the scope of the Permission Group as “Project” to allow editing permissions for all future Sites.
 
 ## Default vs. Custom Permission Groups
 
@@ -93,7 +102,6 @@ The Default Permission Groups may not be right for you if:
 * You want non-hierarchical Permission Groups.
 * You want to define a subset of your Sites that team members can access (e.g., a project, all sites except the production Site, or a specific Site).
 * You want to define who can perform specific actions (e.g., making vs approving pull requests, reading vs editing content, branching, inbox management).
-* You want to define which files within a Site a team member can edit (e.g., a collection, specific file types, or a single file).
 * You want to limit which other Organization members a team member can see (e.g., only members they share a Permission Group with).
 * You want to prevent a team member from accessing existing Sites but allow them to create new Sites in your Organization, which they can edit.
 
@@ -103,7 +111,7 @@ You can overcome these limitations by creating Custom Permission Groups.
 
 ## Custom Permission Groups vs. Site Sharing
 
-Using Default Permission Groups, you cannot limit access to an individual Site. You can address this problem using [Site Sharing](/documentation/articles/sharing-on-a-per-site-basis/) or using Custom Permission Groups.
+Using the four Global Default Permission Groups, you cannot limit access to an individual Site. You can address this problem using [Site Sharing](/documentation/articles/sharing-on-a-per-site-basis/) or using Custom Permission Groups.
 
 Site Sharing allows you to invite a team member to view, edit, and publish content for a specific Site. Each Site has two permission groups for Site Sharing, identical to the Technical Editor and Editor Default Permission Groups except with a Site scope.
 
