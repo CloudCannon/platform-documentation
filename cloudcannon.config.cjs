@@ -283,6 +283,7 @@ module.exports = {
         "Select which topics apply to this article.",
       options: {
         values: [
+          "Editing interfaces",
           "Client Sharing",
           "Custom Permission Groups",
           "Introduction",
