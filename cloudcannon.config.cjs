@@ -55,6 +55,7 @@ const _snippets = {
   ...require(snip("conditional")),
   ...require(snip("data_reference")),
   ...require(snip("docs_image")),
+  ...require(snip("docs_video")),
   ...require(snip("multi_code_block")),
   ...require(snip("notice")),
   ...require(snip("tabs")),
@@ -269,18 +270,12 @@ module.exports = {
       comment:
         "Choose a [Diataxis category](https://diataxis.fr/compass/) based on whether this article informs action or understanding, and acquiring or applying skill. If more than one category applies, consider splitting this article into multiple smaller articles.",
       options: {
-        values: [
-          "Explanation",
-          "Reference",
-          "Tutorial",
-          "Instructions"
-        ],
+        values: ["Explanation", "Reference", "Tutorial", "Instructions"],
       },
     },
     article_topic: {
       type: "multiselect",
-      comment:
-        "Select which topics apply to this article.",
+      comment: "Select which topics apply to this article.",
       options: {
         values: [
           "Editing interfaces",
@@ -293,7 +288,7 @@ module.exports = {
           "Sites",
           "Site Sharing",
           "SSO/SAML",
-          "Team members"
+          "Team members",
         ],
       },
     },
