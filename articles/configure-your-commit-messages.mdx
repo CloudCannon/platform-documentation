@@ -12,6 +12,7 @@ description: >-
   record of the changes to your website.
 article_category:
   - Explanation
+  - Reference
   - Instructions
 tags: []
 related_articles: []
@@ -57,33 +58,43 @@ Once you have saved the changes to your global configuration file, the *Review c
 
 <comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/save-changes/2024-03/CloudCannon-Documentation-Save-Changes-Commit-Message.png" alt="The Review changes modal with a commit message describing the changes made to the site." title="Commit messages in the Review changes modal with commit message field" type="ui-snippet"/>
 
-&nbsp;
+You can configure multiple commit message template strings in your global configuration file. When you or a team member save changes to your website, the *Review changes* modal will prompt you to select which template to use. In this case, adding a `label` to each template string is important.
+
+Here is an example of multiple commit message templates.
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json", "JavaScript"]} source="cloudcannon.config.yml">
+```
+commit_templates:
+  - label___1___: Custom message
+    template_string: "{message}"
+  - label___2___: Structured message
+    template_string___3___: "{commit_type}: {message|trim}"
+    _inputs:
+    commit_type___4___:
+      type: select
+      options:
+        values:
+          - feature
+          - fix
+          - refactor
+```
+<comp.Annotation number="1">
+  The `label` key provides a name for the first template in the array.
+</comp.Annotation>
+<comp.Annotation number="2">
+  The `label` key provides a name for the second template in the array.
+</comp.Annotation>
+<comp.Annotation number="3">
+  This templae uses two placeholders and a filter. The key `commit_type` is defined below. The key `message` is undefined and will appear as a text input with the trim filter applied to the content.
+</comp.Annotation>
+<comp.Annotation number="4">
+  `_inputs.commit_type` defines this key as a select input with three options, "feature", "fix", or "refactor".
+</comp.Annotation>
+</comp.MultiCodeBlock>
 
 &nbsp;
 
 &nbsp;
-
-### Options
-
-Commit templates have the following options available:
-
-<comp.DataReference>
-  <comp.DataReferenceRow label="label" type_markdown="String">
-    Used to identify the commit template, for cases where multiple templates have been made available to the user.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="template_path" type_markdown="String">
-    The path to a file from your site's source files, relative to the root directory. The contents of this file will be used as the template.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="template_string" type_markdown="String">
-    Use this string as the template. This will only be used if `template_path` is not set.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="_inputs" type_markdown="Object">
-    Specify input fields that will be available to the committer. Read more about configuring inputs [here](/documentation/articles/configure-your-inputs/). Values from these inputs can be used to populate placeholders within the template.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="extra_data" type_markdown="Object">
-    Define variables which can be used a data placeholders. Values are template strings, so you can use this to build nested templates. Values are processed sequentially, before `template_string` or `template_path`.
-  </comp.DataReferenceRow>
-</comp.DataReference>
 
 ### Placeholders in commit templates
 
@@ -115,7 +126,7 @@ Placeholders support a number of **filters**. Filters are placed after a `|`, an
 
 ### Examples
 
-The default configuration simply uses the `default_commit_message`&nbsp;placeholder. This will be used if you don't have any configured commit templates.
+The default configuration simply uses the `default_commit_message` placeholder. This will be used if you don't have any configured commit templates.
 
 <comp.CodeBlock language="yaml" source="/cloudcannon.config.yaml">
 ```
@@ -210,3 +221,29 @@ commit_templates:
         ⚠️ {breaking_change_message}
 ```
 </comp.CodeBlock>
+
+&nbsp;
+
+### Options
+
+Commit templates have the following options available:
+
+<comp.DataReference>
+  <comp.DataReferenceRow label="label" type_markdown="String">
+    Used to identify the commit template, for cases where multiple templates have been made available to the user.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="template_path" type_markdown="String">
+    The path to a file from your site's source files, relative to the root directory. The contents of this file will be used as the template.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="template_string" type_markdown="String">
+    Use this string as the template. This will only be used if `template_path` is not set.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="_inputs" type_markdown="Object">
+    Specify input fields that will be available to the committer. Read more about configuring inputs [here](/documentation/articles/configure-your-inputs/). Values from these inputs can be used to populate placeholders within the template.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="extra_data" type_markdown="Object">
+    Define variables which can be used a data placeholders. Values are template strings, so you can use this to build nested templates. Values are processed sequentially, before `template_string` or `template_path`.
+  </comp.DataReferenceRow>
+</comp.DataReference>
+
+&nbsp;
