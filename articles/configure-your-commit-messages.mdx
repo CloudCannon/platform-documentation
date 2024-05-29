@@ -58,6 +58,53 @@ Once you have saved the changes to your global configuration file, the *Review c
 
 <comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/save-changes/2024-03/CloudCannon-Documentation-Save-Changes-Commit-Message.png" alt="The Review changes modal with a commit message describing the changes made to the site." title="Commit messages in the Review changes modal with commit message field" type="ui-snippet"/>
 
+### Placeholders in commit templates
+
+Commit templates can use placeholders. When CloudCannon reads a placeholder in a commit message, it will replace it with the data it references before sending the commit message to your Git repository.
+
+There are two types of placeholders:
+
+* **Data placeholders** — Replaced with data you have defined. These placeholders use `{ }` brackets.
+* **Fixed placeholders** — Replaced with data defined by CloudCannon. These placeholders use `[ ]` brackets.
+
+In the above code, `{message}` and `{commit_type}` are examples of data placeholders. For commit message templates, data placeholders reference inputs you have defined in your global configuration file under `commit_templates._inputs`. If you do not define a data placeholder used by your commit template, CloudCannon will make it an empty text input by default (i.e., the `{message}` placeholder).
+
+CloudCannon recognizes the following fixed placeholders in commit templates:
+
+* `[changes]` creates a bulleted list of all changes in the commit (edits, additions, and deletions).
+* `[date]` reads as the current date
+* `[author]` reads as the email address of the person making the commit
+* `[default_commit_message]` creates the default commit message that CloudCannon would generate. This will resolve to a sentence like "Added/Updated X file(s)".
+
+You can use a mix of data and fixed placeholders in your commit templates.
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json", "JavaScript"]} source="cloudcannon.config.yml">
+```
+commit_templates:
+  - template_string___1___: |
+     {ticket_number}: {subject}
+     Committed by [author] at [date]
+    _inputs:
+      ticket_number:
+        type: number
+```
+<comp.Annotation number="1">
+  The `template_string` contains two data placeholders, one defined and one undefined, and two fixed placeholders.
+</comp.Annotation>
+</comp.MultiCodeBlock>
+
+<comp.Notice info_type="info">
+  If your commit template does not include any placeholders, any literal text in the template string will appear in a text area on the *Review changes* modal.
+</comp.Notice>
+
+For more information on placeholders in general, please read our documentation on [configuring your template strings](/documentation/articles/configure-your-template-strings/).
+
+### Filters in commit templates
+
+Commit templates can use filters to modify placeholders. Filters should occur after the placeholder name, separated by a `|` character. You can apply multiple filters to a single placeholder. For example, `{title|trim|uppercase}` will trim, then uppercase, a data placeholder called "title".
+
+For more information, including a full list of filters, please read our documentation on [configuring your template strings](/documentation/articles/configure-your-template-strings/).
+
 ### Multiple commit templates
 
 You can configure multiple commit message template strings in your global configuration file. When you or a team member save changes to your website, the *Review changes* modal will prompt you to select which template to use. In this case, adding a `label` to each template string is important.
@@ -99,6 +146,10 @@ commit_templates:
 
 <comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/commit-messages/2024-05/CloudCannon-Documentation-Review-Changes-Modal-Commit-Template.png" alt="The Review changes modal shows a commit message with a select and a text input." title="The Review changes modal" type="ui-snippet"/>
 
+### Commit templates from a file
+
+x
+
 ### Extra data
 
 &nbsp;
@@ -128,60 +179,11 @@ commit_templates:
   We have defined the `{breaking_change_message}` placeholder as a text input.
 </comp.Annotation>
 <comp.Annotation number="3">
-  The `breaking_change` placeholder functions as a nested template string, containing literal text and a `{breaking_change_message}` data placeholder. 
+  The `breaking_change` placeholder functions as a nested template string, containing literal text and a `{breaking_change_message}` data placeholder.
 </comp.Annotation>
 </comp.MultiCodeBlock>
 
-## Placeholders in commit templates
-
-Commit templates can use placeholders. When CloudCannon reads a placeholder in a commit message, it will replace it with the data it references before sending the commit message to your Git repository.
-
-There are two types of placeholders:
-
-* **Data placeholders** — Replaced with data you have defined. These placeholders use `{ }` brackets.
-* **Fixed placeholders** — Replaced with data defined by CloudCannon. These placeholders use `[ ]` brackets.
-
-In the above code, `{message}` and `{commit_type}` are examples of data placeholders. For commit message templates, data placeholders reference inputs you have defined in your global configuration file under `commit_templates._inputs`. If you do not define a data placeholder used by your commit template, CloudCannon will make it an empty text input by default (i.e., the `{message}` placeholder).
-
-CloudCannon recognizes the following fixed placeholders in commit templates:
-
-* `[changes]` creates a bulleted list of all changes in the commit (edits, additions, and deletions).
-* `[date]` reads as the current date
-* `[author]` reads as the email address of the person making the commit
-* `[default_commit_message]` creates the default commit message that CloudCannon would generate. This will resolve to a sentence like "Added/Updated X file(s)".
-
-You can use a mix of data and fixed placeholders in your commit templates.
-
-<comp.MultiCodeBlock language="YAML" translate_into={["json", "JavaScript"]} source="cloudcannon.config.yml">
-```
-commit_templates:
-  - template_string___1___: |
-     {ticket_number}: {subject}
-     Committed by [author] at [date]
-    _inputs:
-      ticket_number:
-        type: number
-```
-<comp.Annotation number="1">
-  The `template_string` contains two data placeholders, one defined and one undefined, and two fixed placeholders.
-</comp.Annotation>
-</comp.MultiCodeBlock>
-
-<comp.Notice info_type="info">
-  If your commit template does not include any placeholders, any literal text in the template string will appear in a text area on the *Review changes* modal.
-</comp.Notice>
-
-For more information on placeholders in general, please read our documentation on [configuring your template strings](/documentation/articles/configure-your-template-strings/).
-
-## Filters in commit templates
-
-Commit templates can use filters to modify placeholders. Filters should occur after the placeholder name, separated by a `|` character. You can apply multiple filters to a single placeholder. For example, `{title|trim|uppercase}` will trim, then uppercase, a data placeholder called "title".
-
-For more information, including a full list of filters, please read our documentation on [configuring your template strings](/documentation/articles/configure-your-template-strings/).
-
-## Commit templates from a file
-
-x
+&nbsp;
 
 ## Options
 
