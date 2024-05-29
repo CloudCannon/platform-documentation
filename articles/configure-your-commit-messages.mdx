@@ -99,35 +99,51 @@ commit_templates:
 
 ## Placeholders in commit templates
 
-&nbsp;
+Commit templates can use placeholders. When CloudCannon reads a placeholder in a commit message, it will replace it with the data it references before sending the commit message to your Git repository.
 
-&nbsp;
+There are two types of placeholders:
 
-&nbsp;
+* **Data placeholders** — Replaced with data you have defined. These placeholders use `{ }` brackets.
+* **Fixed placeholders** — Replaced with data defined by CloudCannon. These placeholders use `[ ]` brackets.
 
-### Placeholders in commit templates
+In the above code, `{message}` and `{commit_type}` are examples of data placeholders. For commit message templates, data placeholders reference inputs you have defined in your global configuration file under `commit_templates._inputs`. If you do not define a data placeholder used by your commit template, CloudCannon will make it an empty text input by default (i.e., the `{message}` placeholder).
 
-Commit templates can contain a combination of plain text and placeholders. Each placeholder is replaced with data. For example, your commit template might look like this:
+CloudCannon recognizes the following fixed placeholders in commit templates:
 
-```plaintext
-{type}: {subject}
-Committed by [author] at [date]
+* `[changes]` creates a bulleted list of all changes in the commit (edits, additions, and deletions).
+* `[date]` reads as the current date
+* `[author]` reads as the email address of the person making the commit
+* `[default_commit_message]` creates the default commit message that CloudCannon would generate. This will resolve to a sentence like "Added/Updated X file(s)".
+
+You can use a mix of data and fixed placeholders in your commit templates.
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json", "JavaScript"]} source="cloudcannon.config.yml">
 ```
-
-**Data placeholders** are always surrounded by `{ }` brackets, and are populated with values from inputs with matching keys (as configured with the `_inputs` key).
-
-In this example, the editor might choose a "type" from a select box, and enter a summary in a text input labelled "subject".
-
-**Commit placeholders** insert data related to the commit, and are always surrounded by `[ ]` brackets. The available commit placeholders are:
-
-* `changes` is a bulleted list of all changes (edits, additions and deletions)
-* `date` is the current date
-* `author` is the email address of the person making the commit
-* `default_commit_message` is the default commit message that CloudCannon would generate. This will resolve to a sentence like "Added/Updated X file(s)".
+commit_templates:
+  - template_string: |
+     {ticket_number}: {subject} ___1___
+     Committed by [author] at [date] ___2___
+    _inputs:
+      ticket_number:
+        type: number
+```
+<comp.Annotation number="1">
+  The `commit_templates` key contains all the commit message templates in an array.
+</comp.Annotation>
+<comp.Annotation number="2">
+  The `template_string` key contains the template for your commit. In this example the template string uses the dynamic placeholder `{message}`. As the key "message" is undefined, CloudCannon will provide a text input.
+</comp.Annotation>
+</comp.MultiCodeBlock>
 
 <comp.Notice info_type="info">
-  If your commit template contains no placeholders, its contents will be loaded directly into a textarea, so the user can edit the whole thing before saving.
+  If your commit template does not include any placeholders, any literal text in the template string will appear in a text area on the *Review changes* modal.
 </comp.Notice>
+
+For more information on placeholders in general, please read our documentation on [configuring your template strings](/documentation/articles/configure-your-template-strings/).
+
+## Filters in commit templates
+
+&nbsp;
 
 ### Filters
 
@@ -135,7 +151,7 @@ Placeholders support a number of **filters**. Filters are placed after a `|`, an
 
 ### Examples
 
-The default configuration simply uses the `default_commit_message`&nbsp;placeholder. This will be used if you don't have any configured commit templates.
+The default configuration simply uses the `default_commit_message` placeholder. This will be used if you don't have any configured commit templates.
 
 <comp.CodeBlock language="yaml" source="/cloudcannon.config.yaml">
 ```
