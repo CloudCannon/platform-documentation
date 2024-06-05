@@ -1,0 +1,91 @@
+---
+_schema: default
+_uuid: 00bba99b-45ca-4415-85bb-93fbf76c7313
+_created_at: 2024-05-30T15:06:53+12:00
+title: Best practices for Custom Permission Groups
+nav_title: Best practices for Custom Permission Groups
+published: true
+image: >-
+  https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+description: >-
+  Learn about common pitfalls and best practices for creating Custom Permission
+  Groups.
+article_category:
+  - Explanation
+article_topic:
+  - Custom Permission Groups
+  - Permission Groups
+tags: []
+related_articles: []
+related_links: []
+explicit_canonical:
+---
+<comp.Notice info_type="important">
+  This feature is available to customers on our [Team and Enterprise plans](/pricing/). Want to chat about whether this feature is right for you? Our support team is always <a href="mailto:success@cloudcannon.com?subject=A%20question%20about%20custom%20Permission%20Groups" rel="noreferrer">happy to hear from you</a>.
+</comp.Notice>
+
+[Custom Permission Groups](/documentation/articles/what-are-custom-permission-groups/) give you fine-grained control over the permissions in your Organizations. When [creating a Custom Permission Group](/documentation/articles/create-a-custom-permission-group/), there are some common pitfalls you can fall into. In this article, we will go over a few examples.
+
+## Resources
+
+A resource is something you can interact with in CloudCannon, such as an individual Site, Pull Request settings, or billing information. Each resource has one or more associated actions: Read, Write, or Create. In CloudCannon, you select which resources you want members to have access to using the resource permission tree.
+
+### Minimum set of resources required to view a Site in CloudCannon
+
+There is a minimum set of resources required to view a Site in CloudCannon.
+
+Groups will need a permission containing the following resources for each Site you want members to access: `site:details:read`, `site:build:details:read`, and `site:sync:details:read`. If you have connected your Site to a DAM, you will also need `site:dam:read`.
+
+<comp.Notice info_type="info">
+  **Why is there not a single resource for viewing a Site in CloudCannon?**
+
+  We separated the resources required to view a Site to support future API access. The CloudCannon API will be able to access any subset of resources without loading everything. The CloudCannon API is currently in early access.
+</comp.Notice>
+
+## File globs
+
+A file glob is a pattern used to identify matching files. Files globs look similar to a file path with a mix of literal text and special characters such as `*` and `{ }`. In CloudCannon, you can specify read or write access to specific file globs in a Custom Permission Group for fine-grain control over reading and editing site files.
+
+<comp.Notice info_type="info">
+  If you need assistance setting-up file globs in your Organization, our <a href="/support/" target="_blank" rel="noopener">support team</a> is always happy to help.
+</comp.Notice>
+
+Here are some common pitfalls when creating file globs.
+
+### Adding a file glob overrides the resource tree
+
+Specifying a file glob in a permission or an exception will override any selections made in the resource tree. This is because adding globs enables the *site:file* resource at a more specific level.
+
+By selecting `site:files:read` or `site:files:write` in the resource tree, you allow Group members to read or write all files within your permission scope. However, as soon as you specify a file glob, CloudCannon will override the resource tree and limit access to only files that match your file glob.
+
+You may unintentionally lose access to files by specifying a file glob.
+
+For example, suppose we add the file glob `posts/**` with write access to a Custom Permission Group. Members of this Group will be able to see and edit any files within the collection “Posts” (as permission to write implicitly includes permission to read). Because we have not included any other file globs, members of this Group will lose read access to all files that do not match this file glob. Without permission to read other files, all other collections on your Site will not appear in the app.
+
+To avoid this pitfall, carefully consider what files your Group members need access to and include a file glob for all these files.
+
+### Multiple file globs are necessary to edit a single file
+
+When giving access to a small number of files on your Site, you should consider how many file globs you need to achieve your goal. Some file globs are not immediately obvious but are required for CloudCannon to function as intended.
+
+You should also allow access to:
+
+* The Site icon file.
+* The Schemas folder or specific Schema for any files you want Group members to be able to edit or create.
+* Any folders in your repository for storing or uploading images and videos.
+
+### File globs in an exception but none specified in a permission
+
+Adding a file glob to an exception and none to permissions will prevent members of this Group from accessing any Site files, even if you selected `site:files:read` or `site:files:write` in the permission resource tree. This is because specifying a file glob in a permission or an exception will override any selections made in the resource tree.
+
+In this case, a file glob in an exception overrides the permission tree, and because no permissions file globs are specified, the members of this Group cannot access any files.
+
+To avoid this pitfall, add a permission with the file glob `**/*` for access to all files, or create a more specific file glob to allow access to some files. Your exception will now function.
+
+### Specifying files but not subfolders
+
+File globs include special characters such as&nbsp;`*` and&nbsp;`{ }`. The&nbsp;`*` character denotes any file, while&nbsp;`/**/` denotes any number of folders. When you want to specify any file, it is important to account for any subfolders within your collection.
+
+For example, the file glob `/posts/*` will match any file located immediately within the “Posts” collection. The glob `/posts/*/*` will match any file located exactly one subfolder deep in your collection.
+
+To account for files within any number of subfolders, we recommend using a file glob that contains `/**/*`. In the above example, this would be `/posts/**/*`, which matches any file immediately within the “Posts” collection or within any number of subfolders under “Posts.”
