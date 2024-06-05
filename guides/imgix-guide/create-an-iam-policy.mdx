@@ -13,4 +13,40 @@ tags: []
 related_links: []
 explicit_canonical:
 ---
-x
+Identity and Access Management (IAM) policies determine what actions are allowed for content in your S3 bucket. We must create a policy allowing CloudCannon to perform specific actions for your bucket and any object stored within it.
+
+For more information about Amazon S3 policies, please see their <a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/access-policy-language-overview.html" target="_blank" rel="noopener">documentation</a>.
+
+1. Open AWS and navigate to *Policies* under *Access management*.
+2. Click the *Create Policy* button.
+3. Open the *JSON* tab of the new policy and paste the following JSON code. Make sure to replace “PlaceholderBucketName” with your S3 bucket name.
+
+<comp.CodeBlock language="JSON" source="policy.json">
+```
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:PutObject",
+        "s3:GetObjectAcl",
+        "s3:GetObject",
+        "s3:ListBucketMultipartUploads",
+        "s3:AbortMultipartUpload",
+        "s3:ListBucket",
+        "s3:PutObjectAcl",
+        "s3:ListMultipartUploadParts"
+      ],
+      "Resource": [
+        "arn:aws:s3:::<PlaceholderBucketName>",
+        "arn:aws:s3:::<PlaceholderBucketName>/*"
+      ]
+    }
+  ]
+}
+```
+</comp.CodeBlock>
+
+4. Click Next to Tags, then click Next again.
+5. Give your policy a name, then click *Create policy*.
