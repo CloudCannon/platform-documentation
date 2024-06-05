@@ -1,0 +1,561 @@
+---
+_schema: default
+_uuid: 3d52826f-6103-40d1-89ff-33f8450e7877
+_created_at: '2022-11-21 02:00:59 +0000'
+title: Snippets using Eleventy Shortcodes
+nav_title: Eleventy Shortcodes
+published: true
+image: >-
+  https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+description: >-
+  Learn how to add and edit Snippets in the content of your Eleventy website via
+  CloudCannon.
+tags:
+  - content editor
+  - snippets
+  - eleventy
+related_articles:
+  - /articles/introducing-the-content-editor
+related_links:
+---
+CloudCannon supports embedding rich Snippets in Markdown content when using the CloudCannon Content Editor. Once configured,  Snippets in your content will be presented as blocks in rich text views, with the ability to add them  as Snippets via the toolbar:
+
+<comp.DocsImage path="ye_olde_images/snippet-toolbar.png" alt={"The CloudCannon Content Editor toolbar with a cursor hovering over the \"Snippet\" button"} title="" type="regular"/>
+
+To start configuring Snippets in your Eleventy content, a Snippet configuration must be imported using the `_snippets_imports` key in your CloudCannon global configuration file.
+
+Currently, CloudCannon supports Snippets in the Nunjucks and Liquid templating languages, which can imported with the `eleventy_nunjucks` and `eleventy_liquid` keys:
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json", "JavaScript"]} source="cloudcannon.config.yml">
+```
+_snippets_imports:
+  eleventy_nunjucks___1___: true
+  eleventy_liquid___2___: true
+```
+<comp.Annotation number="1">
+  Import the Eleventy Nunjucks Snippets.
+</comp.Annotation>
+<comp.Annotation number="2">
+  Import the Eleventy Liquid Snippets.
+</comp.Annotation>
+</comp.MultiCodeBlock>
+
+CloudCannon provides support for the `raw` tag out of the box for both the `eleventy_nunjucks` and `eleventy_liquid` Snippet imports.  If this isn't desired, you can exclude this snippet like so:
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json", "JavaScript"]} source="cloudcannon.config.yml">
+```
+_snippets_imports:
+  eleventy_nunjucks___1___:
+    exclude:
+      - eleventy_nunjucks_raw
+  eleventy_liquid___2___:
+    exclude:
+      - eleventy_liquid_raw
+```
+<comp.Annotation number="1">
+  Exclude the Nunjucks raw tag.
+</comp.Annotation>
+<comp.Annotation number="2">
+  Exclude the Liquid raw tag.
+</comp.Annotation>
+</comp.MultiCodeBlock>
+
+## Enabling snippets in the toolbar
+
+By default, CloudCannon will show the `snippet` toolbar action in the content editor if snippets are available.
+
+<comp.Notice info_type="important">
+  If you have already customized which options are available via `_editables` in your CloudCannon config, you will need to include `snippet: true` for Snippets to be available. See the [Editables options documentation](/documentation/articles/configuring-toolbars) for more details.
+</comp.Notice>
+
+## Custom Eleventy Shortcodes
+
+After importing the `eleventy_liquid` Snippets configurations, any custom liquid tags in your content will be displayed in the Content Editor as an `Unknown Shortcode` or `Unknown shortcode pair`. The same is true for `eleventy_nunjucks` and nunjuck tags. This allows an editor to move and delete a Snippet, but prevents editing of its arguments or content:
+
+<comp.DocsImage path="ye_olde_images/unknown-shortcode.png" alt="A screenshot of an unknown Snippet displayed as a block in the CloudCannon Content Editor" title="" type="regular"/>
+
+To enable editing and provide the custom Snippet in the toolbar, your custom Snippet must be configured using the `_snippets` object in your CloudCannon global config file. CloudCannon Snippets can be built from scratch to support nearly any syntax or SSG, but importing a Snippet configuration provides a set of snippet templates for common use cases in Eleventy.
+
+To help illustrate configuring custom Snippets, we will first cover a few examples. First, let's look a custom `tint` Snippet on our Eleventy site that takes a string and applies a color to it:
+
+<comp.CodeBlock language="markdown" source="post.md">
+```
+# My Post
+
+{% tint "#ff0000" %}This text should be red{% endtint %}
+
+```
+</comp.CodeBlock>
+
+The first thing we need to do is decide which Snippet template to use, which we can determine from the following aspects:
+
+* First, we want to configure this shortcode for the `Nunjucks` templating language
+* Next, this is an Eleventy "shortcode" rather than an "include" or other tag
+* Lastly, in Eleventy terms this is a "paired" shortcode, since it has a start and an end tag that wrap some content.
+
+Looking at the list of [snippet templates](#eleventy-snippet-templates) further down this page, this means we should configure this snippet using the `eleventy_nunjucks_paired_shortcode_positional_args` template. A full example configuration for this Snippet thus might look like the following:
+
+<comp.MultiCodeBlock language="yaml" translate_into={["json", "javascript"]} source="cloudcannon.config.yml">
+```
+# Import the Eleventy Nunjucks Snippet templates
+_snippets_imports:
+  eleventy_nunjucks: true
+
+_snippets:
+  eleventy_tint:
+    template: eleventy_nunjucks_paired_shortcode_positional_args
+    inline: true
+    preview:
+      text: Tint
+    definitions:
+      shortcode_name: tint
+      content_key: inner_text
+      positional_args:
+        - editor_key: tint_color
+          type: string
+    _inputs:
+      tint_color:
+        type: color
+      inner_text:
+        comment: This text will be tinted
+```
+</comp.MultiCodeBlock>
+
+Each snippet definition lives under a top level key, `eleventy_tint` in this example. This is the unique name that CloudCannon uses to identify this snippet, but is otherwise unused in the shortcode configuration itself.
+
+We specify the template that this snippet should inherit from, and also specify that it is an `inline` snippet, since it can live anywhere in the content (such as in the middle of a sentence).
+
+In the `preview` object we configure how this snippet is displayed while editing, using the [CloudCannon card preview options](/documentation/articles/configure-your-card-previews/).
+
+In `definitions` we need to specify some values that are required for the template we picked. For the `eleventy_nunjucks_paired_shortcode_positional_args` template, we need to specify:
+
+* The `shortcode_name` — in this case we're configuring our `tint` shortcode
+* The `content_key` — this controls the key that CloudCannon will use to edit the text in between the start and end tags of the shortcode.
+* The `positional_args` — for our `tint` shortcode we need to configure that the first argument should be captured with the key `tint_color`
+
+Finally, we can specify any other keys from the [CloudCannon configuration cascade](/documentation/articles/using-the-configuration-cascade/) here. In this example, we configure the inputs for the keys that this snippet will generate. With that in place, we can now add and edit our tint shortcode anywhere on our site.
+
+<comp.DocsImage path="ye_olde_images/tint-shortcode.png" alt={"A screenshot of the \"tint\" shortcode in the Content Editor, with the editing panel open showing the snippet data"} title="" type="regular"/>
+
+Next, let's quickly look at a shortcode with a different syntax:
+
+<comp.CodeBlock language="markdown" source="post.md">
+```
+# My Post
+
+{% include 'callout' type: 'info' message: 'This is my shortcode' %}
+
+```
+</comp.CodeBlock>
+
+This time, we have an unpaired Liquid include that takes `type` and `message` argument keys. This syntax matches the `eleventy_liquid_include` template.
+
+In CloudCannon, we could configure this snippet using the following global configuration:
+
+<comp.MultiCodeBlock language="yaml" translate_into={["json", "javascript"]} source="cloudcannon.config.yml">
+```
+# Import the Eleventy Liquid Snippets:
+_snippets_imports:
+  eleventy_liquid: true
+
+_snippets:
+  callout:
+    template: eleventy_liquid_include
+    inline: false
+    preview:
+      text: Callout
+    definitions:
+      include_name: callout
+      named_args:
+        - source_key: type
+          editor_key: label
+          type: string
+        - editor_key: message
+          type: string
+    _inputs:
+      label:
+        type: select
+        options:
+          values:
+            - info
+            - warning
+            - error
+```
+</comp.MultiCodeBlock>
+
+This should now be familiar, but with a few changes:
+
+* We want this snippet to be a block-level element in the editor, so we set `inline` to `false`.
+* Since this include does not have an end tag, we have no `content_key`
+* Instead of `positional_args`, we now have `named_args`
+
+Configuring named arguments uses most of the same options as the positional arguments earlier, but here we can additionally specify `source_key` and `editor_key` separately. In this example, we want the key in our shortcode to be `type`, but tell CloudCannon to treat that value as the `label` key, which we then configure using our inputs configuration.
+
+<comp.DocsImage path="ye_olde_images/callout-shortcode.png" alt={"A screenshot of the \"callout\" include in the Content Editor, with the editing panel open showing the snippet data"} title="" type="regular"/>
+
+## Snippet options
+
+The following options are available for Eleventy snippets:
+
+<comp.DataReference>
+  <comp.DataReferenceRow label="template" type_markdown="String">
+    The template that this snippet should inherit, out of the available [Eleventy Snippet Templates](#eleventy-snippet-templates).
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="definitions" type_markdown="Object">
+    The variables required for the selected template.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="inline" type_markdown="Boolean">
+    Whether this Snippet can appear inline (within a sentence). Defaults to `false`, which will treat this Snippet as a block-level element in the content editor.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="preview" type_markdown="Object">
+    A preview definition for displaying this Snippet in the CloudCannon editor. See the [preview options documentation](/documentation/articles/configure-your-card-previews/).
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="_inputs" type_markdown="Object">
+    Input configurations for the keys contained in this Snippet. See the [input configuration documentation](/documentation/articles/configure-your-inputs/).
+  </comp.DataReferenceRow>
+</comp.DataReference>
+
+## Eleventy Snippet Templates
+
+The first step to configure your custom Snippet is to identify which Snippet template to use, as each Snippet template requires a set of `definitions` keys to be configured. The following Snippet templates are available:
+
+### Shortcode with positional arguments
+
+<comp.CodeBlock language="markdown" source="example.md">
+```
+# eleventy_nunjucks_shortcode_positional_args
+{% custom_shortcode arg1 arg2 %}
+
+# eleventy_liquid_shortcode_positional_args
+{% custom_shortcode arg1, arg2 %}
+```
+</comp.CodeBlock>
+
+#### Example config
+
+<comp.MultiCodeBlock language="yaml" translate_into={["json", "javascript"]} source="cloudcannon.config.yml">
+```
+_snippets:
+  custom_snippet:
+    template: eleventy_nunjucks_shortcode_positional_args
+    inline: false
+    preview:
+      text: My Custom Snippet
+    definitions:
+      shortcode_name: custom_shortcode
+      positional_args:
+        - editor_key: argument_one
+          type: string
+        - editor_key: argument_two
+          type: string
+```
+</comp.MultiCodeBlock>
+
+#### Definitions
+
+<comp.DataReference>
+  <comp.DataReferenceRow label="shortcode_name" type_markdown="String">
+    The name of your shortcode, as used in your Eleventy content files.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="positional_args" type_markdown="Array of [argument options](#argument-options)">
+    An ordered list of each argument the shortcode takes.
+  </comp.DataReferenceRow>
+</comp.DataReference>
+
+### Paired shortcode with positional arguments
+
+<comp.CodeBlock language="markdown" source="example.md">
+```
+# eleventy_nunjucks_paired_shortcode_positional_args
+{% custom_shortcode arg1, arg2 %} content {% endcustom_shortcode %}
+
+# eleventy_liquid_paired_shortcode_positional_args
+{% custom_shortcode arg1 arg2 %} content {% endcustom_shortcode %}
+```
+</comp.CodeBlock>
+
+#### Example config
+
+<comp.MultiCodeBlock language="yaml" translate_into={["json", "javascript"]} source="cloudcannon.config.yml">
+```
+_snippets:
+  custom_snippet:
+    template: eleventy_liquid_paired_shortcode_positional_args
+    inline: false
+    preview:
+      text: My Custom Snippet
+    definitions:
+      shortcode_name: custom_shortcode
+      content_key: custom_key
+      positional_args:
+        - editor_key: argument_one
+          type: string
+        - editor_key: argument_two
+          type: string
+```
+</comp.MultiCodeBlock>
+
+#### Definitions
+
+<comp.DataReference>
+  <comp.DataReferenceRow label="shortcode_name" type_markdown="String">
+    The name of your shortcode, as used in your Eleventy content files.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="content_key" type_markdown="String">
+    The key to use in the data panel for editing the inner contents of the shortcode.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="positional_args" type_markdown="Array of [argument options](#argument-options)">
+    An ordered list of each argument the shortcode takes.
+  </comp.DataReferenceRow>
+</comp.DataReference>
+
+### Shortcode with named arguments
+
+<comp.CodeBlock language="markdown" source="example.md">
+```
+# Only supported in Nunjucks
+# eleventy_nunjucks_shortcode_named_args
+{% custom_shortcode arg="value" %}
+```
+</comp.CodeBlock>
+
+#### Example config
+
+<comp.MultiCodeBlock language="yaml" translate_into={["json", "javascript"]} source="cloudcannon.config.yml">
+```
+_snippets:
+  custom_snippet:
+    template: eleventy_nunjucks_shortcode_named_args
+    inline: false
+    preview:
+      text: My Custom Snippet
+    definitions:
+      shortcode_name: custom_shortcode
+      named_args:
+        - editor_key: arg
+          type: string
+```
+</comp.MultiCodeBlock>
+
+#### Definitions
+
+<comp.DataReference>
+  <comp.DataReferenceRow label="shortcode_name" type_markdown="String">
+    The name of your shortcode, as used in your Eleventy content files.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="named_args" type_markdown="Array of [argument options](#argument-options)">
+    A list of each key-value pair the shortcode takes.
+  </comp.DataReferenceRow>
+</comp.DataReference>
+
+### Paired shortcode with named arguments
+
+<comp.CodeBlock language="markdown" source="example.md">
+```
+# Only supported in Nunjucks
+# eleventy_nunjucks_paired_shortcode_named_args
+{% custom_shortcode arg="value" %} content {% endcustom_shortcode %}
+```
+</comp.CodeBlock>
+
+#### Example config
+
+<comp.MultiCodeBlock language="yaml" translate_into={["json", "javascript"]} source="cloudcannon.config.yml">
+```
+_snippets:
+  custom_snippet:
+    template: eleventy_nunjucks_paired_shortcode_named_args
+    inline: false
+    preview:
+      text: My Custom Snippet
+    definitions:
+      shortcode_name: custom_shortcode
+      content_key: custom_key
+      named_args:
+        - editor_key: arg
+          type: string
+```
+</comp.MultiCodeBlock>
+
+#### Definitions
+
+<comp.DataReference>
+  <comp.DataReferenceRow label="shortcode_name" type_markdown="String">
+    The name of your shortcode, as used in your Eleventy content files.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="content_key" type_markdown="String">
+    The key to use in the data panel for editing the inner contents of the shortcode.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="named_args" type_markdown="Array of [argument options](#argument-options)">
+    A list of each key-value pair the shortcode takes.
+  </comp.DataReferenceRow>
+</comp.DataReference>
+
+### Eleventy Include
+
+<comp.CodeBlock language="markdown" source="example.md">
+```
+# eleventy_liquid_include
+{% include 'custom_include' arg="value" %}
+
+# eleventy_nunjucks_include
+{% include 'custom_include.njk' %}
+```
+</comp.CodeBlock>
+
+#### Example config
+
+<comp.MultiCodeBlock language="yaml" translate_into={["json", "javascript"]} source="cloudcannon.config.yml">
+```
+_snippets:
+  custom_snippet:
+    template: eleventy_liquid_include
+    inline: false
+    preview:
+      text: My Custom Include
+    definitions:
+      include_name: custom_include
+      named_args:
+        - editor_key: arg
+          type: string
+```
+</comp.MultiCodeBlock>
+
+#### Definitions
+
+<comp.DataReference>
+  <comp.DataReferenceRow label="include_name" type_markdown="String">
+    The name of the file being included.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="named_args" type_markdown="Array of [argument options](#argument-options)">
+    Supported in liquid only, a list of each key-value pair the include takes.
+  </comp.DataReferenceRow>
+</comp.DataReference>
+
+### Eleventy Render
+
+<comp.CodeBlock language="markdown" source="example.md">
+```
+# eleventy_liquid_render
+{% render 'custom_render' arg="value" %}
+```
+</comp.CodeBlock>
+
+#### Example config
+
+<comp.MultiCodeBlock language="yaml" translate_into={["json", "javascript"]} source="cloudcannon.config.yml">
+```
+_snippets:
+  custom_snippet:
+    template: eleventy_liquid_render
+    inline: false
+    preview:
+      text: My Custom Render
+    definitions:
+      render_name: custom_render
+      named_args:
+        - editor_key: arg
+          type: string
+```
+</comp.MultiCodeBlock>
+
+#### Definitions
+
+<comp.DataReference>
+  <comp.DataReferenceRow label="render_name" type_markdown="String">
+    The name of the file being rendered.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="named_args" type_markdown="Array of [argument options](#argument-options)">
+    A list of each key-value pair the render takes.
+  </comp.DataReferenceRow>
+</comp.DataReference>
+
+### Eleventy Bookshop Tags
+
+<comp.CodeBlock language="markdown" source="example.md">
+```
+# eleventy_liquid_bookshop_component
+{% bookshop 'my_component' arg="value" %}
+
+# eleventy_liquid_bookshop_include
+{% bookshop_include 'my_helper' arg="value" %}
+```
+</comp.CodeBlock>
+
+#### Example config
+
+<comp.MultiCodeBlock language="yaml" translate_into={["json", "javascript"]} source="cloudcannon.config.yml">
+```
+_snippets:
+  custom_snippet:
+    template: eleventy_liquid_bookshop_component
+    inline: false
+    preview:
+      text: My Custom Render
+    definitions:
+      component_name: my_component
+      named_args:
+        - editor_key: arg
+          type: string
+```
+</comp.MultiCodeBlock>
+
+#### Definitions
+
+<comp.DataReference>
+  <comp.DataReferenceRow label="component_name" type_markdown="String">
+    For components, the name of the component.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="include_name" type_markdown="String">
+    For includes, the name of the include.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="named_args" type_markdown="Array of [argument options](#argument-options)">
+    A list of each key-value pair the tag takes.
+  </comp.DataReferenceRow>
+</comp.DataReference>
+
+## Argument options
+
+The following options are available for positional and named argument option objects:
+
+<comp.DataReference>
+  <comp.DataReferenceRow label="editor_key" type_markdown="String">
+    Determines the key that will be used for this argument in the CloudCannon data panel.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="source_key" type_markdown="String">
+    Determines the key of the key-value pair as it appears in the shortcode.
+
+    Only used for named arguments, and will default to the `editor_key` if unset.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="default" type_markdown="Any">
+    The default value that should be used for this argument when creating a new snippet in the CloudCannon editor.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="type" type_markdown="String">
+    Restrict this argument to parse as the specified type. Useful to ensure booleans get parsed as the boolean value, rather than a string such as "true".
+
+    One of:
+
+    * string
+    * boolean
+    * number
+    * array
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="optional" type_markdown="Boolean">
+    Whether this argument is required for the shortcode. If `false`, shortcodes in your templates missing this argument will not match this snippet definition.
+
+    Defaults to `false`.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="remove_empty" type_markdown="Boolean">
+    Whether this argument should be omitted from the output shortcode if the value is empty.
+
+    Only used for named arguments, defaults to `false`.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="allowed_values" type_markdown="Array of values">
+    A list of values that this argument must be in order to match this snippet definition. Allows you to match different usages of the same shortcode to separate snippet definitions based on the value of an argument.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="implied_boolean" type_markdown="Boolean">
+    Output a boolean for whether this argument is present, rather than the value of the argument itself.
+
+    Only used for positional arguments.
+  </comp.DataReferenceRow>
+</comp.DataReference>

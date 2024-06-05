@@ -37,8 +37,12 @@ import "npm:prismjs@1.29.0/components/prism-jsx.js";
 
 // Custom highlights
 import "./_config/prism-tree.js";
+import "./_config/prism-annotated.js";
 
 import { DOMParser } from "https://deno.land/x/deno_dom@v0.1.38/deno-dom-wasm.ts";
+import { Page } from "lume/core.ts";
+import { Element, Node } from "lume/deps/dom.ts";
+import { extract } from "lume/deps/front_matter.ts";
 
 function stripHTML(html) {
     const doc = new DOMParser().parseFromString(html, 'text/html');
@@ -54,6 +58,8 @@ const site = lume({
         port: 9010,
     }
 });
+
+const injectedSections: Promise<string>[] = [];
 
 const mdFilter = site.renderer.helpers.get('md')[0];
 
@@ -93,24 +99,22 @@ site.formats.get(".md").engines[0].engine.disable("code");
 // Disable builtin Pagefind instance while we're pinned to a beta version,
 // which must be pulled from a different repository.
 // Remove from .cloudcannon/postbuild when enabling this.
-/*
-site.use(pagefind({
-    binary: {
-        version: "v0.11.0",
-    },
-    indexing: {
-        bundleDirectory: "documentation/_pagefind",
-    },    
-}));
-*/
+
+// site.use(pagefind({
+//     binary: {
+//         version: "v1.0.3",
+//     },
+//     indexing: {
+//         bundleDirectory: "documentation/_pagefind",
+//     },    
+// }));
+
 
 site.use(jsx());
 site.use(mdx());
-site.use(prism());
 site.use(esbuild());
 site.use(sass());
 site.use(date());
-site.use(inline());
 site.use(sitemap({
     filename: '/documentation/sitemap.xml'
 }));
@@ -141,15 +145,17 @@ function appendTargetBlank(page, el) {
     }
 }
 
-const codeAnnotationRegex = /^\/\*\s*(\d+|\*)\s*\*\/$|^(?:\/\/|#)\s*(\d+|\*)\s*|^<!--\s*(\d+|\*)\s*-->$/;
+const commentAnnotationRegex = /^\/\*\s*(\d+|\*)\s*\*\/$|^(?:\/\/|#)\s*(\d+|\*)\s*|^<!--\s*(\d+|\*)\s*-->$/;
+const tokenAnnotationRegex = /___(\d+|\*)___/g;
 const annotateCodeBlocks = (page) => {
     page.document?.querySelectorAll('.token.comment').forEach((commentEl) => {
-        if (!codeAnnotationRegex.test(commentEl.innerText)) return;
+        if (!commentAnnotationRegex.test(commentEl.innerText)) return;
 
-        const matches = commentEl.innerText.match(codeAnnotationRegex);
+        const matches = commentEl.innerText.match(commentAnnotationRegex);
         const annotationId = matches[1] ?? matches[2] ?? matches[3];
         if (!annotationId) return;
         
+        // Empty the comment token and replace it with a clickable annotation box
         commentEl.innerText = "";
         commentEl.classList.add("annotation", "code-annotation");
         if (annotationId === "*") {
@@ -159,9 +165,107 @@ const annotateCodeBlocks = (page) => {
             commentEl.setAttribute("@click", `highlighedAnnotation = ${annotationId}`);
         }
     });
+
+
+    // Any text for MultiCodeBlocks, annotations are inserted any time
+    // a digit surrounded by three underscores on either side is encountered
+    page.document?.querySelectorAll('.highlight > pre > code').forEach((codeEl) => {
+        [...codeEl.childNodes].reverse().forEach((tokenEl) => {
+            const is_text = tokenEl.nodeName === "#text";
+            if (!tokenAnnotationRegex.test(is_text ? tokenEl.nodeValue : tokenEl.innerText)) return;
+
+            const matches = (is_text ? tokenEl.nodeValue : tokenEl.innerText).match(tokenAnnotationRegex);
+            for (const match of matches) {
+                const annotationId = match.replace(/___/g, "");
+                if (!annotationId) continue;
+
+                // Create a new empty comment token as a clickable annotation box
+                const commentEl = page.document?.createElement('span');
+                commentEl.classList.add("token", "comment", "annotation", "code-annotation");
+                if (annotationId === "*" || annotationId === "0") {
+                    commentEl.setAttribute("data-annotation-number", "★");
+                } else {
+                    commentEl.setAttribute("data-annotation-number", annotationId);
+                    commentEl.setAttribute("@click", `highlighedAnnotation = ${annotationId}`);
+                }
+
+                // To insert after the token containing the annotation
+                // const insert_before_el = tokenEl.nextSibling || tokenEl;
+
+                // To insert at the end of the line containing the annotation
+                let next_newline = null;
+                let next_el = tokenEl;
+                while (next_el && !next_newline) {
+                    if (/\n/.test(next_el?.nodeValue ?? "") || /\n/.test(next_el?.innerText ?? "")) {
+                        next_newline = next_el;
+                        break;
+                    }
+                    next_el = next_el.nextSibling;
+                }
+                let insert_before_el = next_newline || tokenEl;
+
+                // Text nodes might span multiple lines, so we split it on newlines
+                // and re-add each as independent text nodes, so that we can add an element before
+                // the newline.
+                if (/\n/.test(insert_before_el?.nodeValue || "")) {
+                    const chunks = insert_before_el?.nodeValue
+                                    .split("\n")
+                                    .map(chunk => page.document.createTextNode(chunk));
+                    for (let i = 0; i < chunks.length; i += 1) {
+                        insert_before_el.parentNode.insertBefore( chunks[i], insert_before_el);
+                        if (i !== chunks.length-1) {
+                            insert_before_el.parentNode.insertBefore(page.document.createTextNode("\n"), insert_before_el);
+                        }
+                    }
+                    insert_before_el.remove();
+                    insert_before_el = chunks[0].nextSibling;
+                }
+                insert_before_el.parentNode.insertBefore(commentEl, insert_before_el);
+            }
+
+            if (is_text) {
+                tokenEl.nodeValue = tokenEl.nodeValue.replace(tokenAnnotationRegex, "");
+            } else {
+                tokenEl.innerText = tokenEl.innerText.replace(tokenAnnotationRegex, "");
+            }
+        });
+    });
 }
 
-site.process([".html"], (page) => {
+const injectReusableContent = async (el: Element) => {
+    const reusableContent = el.querySelectorAll(`:scope [data-common-content-id]`);
+
+    for (const node of reusableContent) {
+        const injectionEl = node as Element;
+        const injectionSlots: Record<string, string> = {};
+        for (const slotContentEl of injectionEl.querySelectorAll(`:scope [data-common-content-slot-content]`)) {
+            const slotName = (slotContentEl as Element).getAttribute("data-common-content-slot-content");
+            if (!slotName) continue;
+
+            injectionSlots[slotName] = (slotContentEl as Element).innerHTML;
+        }
+
+        const content_id = parseInt(injectionEl.getAttribute("data-common-content-id")!);
+        const content = await injectedSections[content_id];
+        injectionEl.innerHTML = content?.toString() || content;
+
+        for (const slotEl of injectionEl.querySelectorAll(`:scope [data-common-content-slot]`)) {
+            
+            const slotName = (slotEl as Element).getAttribute("data-common-content-slot");
+            if (!slotName) continue;
+
+            if (injectionSlots[slotName]) {
+                (slotEl as Element).innerHTML = injectionSlots[slotName];
+            }
+        }
+
+        injectReusableContent(injectionEl);
+    }
+}
+
+site.process([".html"], async (page) => {
+    if (page.document) await injectReusableContent(page.document.body);
+
     for (const [attr, newattr] of Object.entries(alpineRemaps)) {
         page.document?.querySelectorAll(`[${attr}]`).forEach((el) => {
             el.setAttribute(newattr, el.getAttribute(attr));
@@ -197,6 +301,8 @@ site.process([".html"], (page) => {
 
     let hasItems = false;
     page.document?.querySelectorAll(`main h1, main h2, main h3`).forEach((el) => {
+        if (el.hasAttribute("data-skip-anchor")) return;
+
         const text = el.innerText;
         const slugPrefix = el.getAttribute('id') || slugify(text);
         if (!slugPrefix) {
@@ -231,7 +337,17 @@ site.process([".html"], (page) => {
     page.document?.querySelectorAll('a').forEach((el) => {
         appendTargetBlank(page, el);
     });
+});
 
+// These MUST appear after our custom site.process([".html"] handling,
+// as in that function we inject content that should then be processed by the inline plugin,
+// and processing runs in the order it was instantiated.
+site.use(inline());
+site.use(prism());
+
+// This annotation process relies on the syntax highlighting,
+// so needs to run after prism
+site.process([".html"], async (page) => {
     annotateCodeBlocks(page);
 });
 
@@ -248,19 +364,46 @@ const bubble_up_nav = (obj) => {
     }
 }
 
+site.filter("render_page_content", async (page: Page) => {
+    return await site.renderer.render(page.data.content, page.data, `${page.src.path}.${page.src.ext || "mdx"}`);
+}, true)
+
 site.filter("bubble_up_nav", (blocks) => {
     blocks.forEach(bubble_up_nav);
     return blocks
+});
+
+site.filter("nav_contains", (nav, url) => {
+    nav.headings.forEach(bubble_up_nav);
+    for (const block of nav.headings) {
+        if (block._bubbled.includes(url)) {
+            return true;
+        }
+    }
+    return false;
 });
 
 site.filter("index_of", (block, item) => {
     return block.indexOf(item);
 });
 
+site.filter("unslug", (str) => {
+    return str.replace(/(^|_)(\w)/g, (_, u, c) => `${u.replace('_', ' ')}${c.toUpperCase()}`);
+})
+
 const summaryMarker = '</p>';
 site.filter("changelog_summary", (block, item) => {
     return block.substring(0, block.indexOf(summaryMarker) + summaryMarker.length);
 });
+
+site.filter("render_common", (file: string, data: object = {}) => {
+    // TODO: Remove the `/usr/local/__site/src/` replacement after fixing path selection
+    const file_content = Deno.readTextFileSync(file.replace("/usr/local/__site/src/", ""));
+    const {body, attrs} = extract(file_content);
+    const content_id = injectedSections.push(site.renderer.render(body, data, file));
+
+    return content_id - 1;
+})
 
 /* Environment data */
 

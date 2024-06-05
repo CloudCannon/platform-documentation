@@ -1,0 +1,112 @@
+---
+_schema: default
+_uuid: 565af7ec-f857-47ee-80b9-310c51f736b1
+_created_at: 2023-06-07T00:00:00Z
+title: Emulate Hugo Modules with Site Mounting
+nav_title: Emulate Hugo Modules with Site Mounting
+order: 2
+published: true
+image: >-
+  https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+description: Learn how to use CloudCannon's Site Mounting feature to emulate Hugo Modules.
+tags: []
+related_articles: []
+related_links:
+---
+With CloudCannon's [Site Mounting](/documentation/articles/site-mounting/) feature, you can make one site dependent on one or more other CloudCannon sites. Files from a remote site are accessible to the local site at build time. For Hugo sites, you can use Site Mounting to emulate [Hugo Modules](https://gohugo.io/hugo-modules/).
+
+Site Mounting may be preferable to Hugo Modules, especially if your site would benefit from the ability to:
+
+* Trigger an automatic build whenever your modules are updated.
+* Access your private module repository without the need to generate an authentication token.
+
+In Site Mounting, CloudCannon refers to the donor site as the *Remote Site* and the site that receives files as the *Local Site*. In this example, the remote site will contain your modules. The local site is your main site.
+
+<comp.Notice info_type="important">
+  This setup requires that you own your site repository and the repositories for your modules. These repositories should be in the same GitHub organization. If you use a public repository owned by someone else, you must fork it into your GitHub organization.
+</comp.Notice>
+
+## Disable the default Hugo Module import
+
+To emulate Hugo Modules with Site Mounting, you must disable the default Hugo Module behavior in CloudCannon. The simplest method of disabling this behavior is to create a second Hugo configuration file for use in CloudCannon, which does not contain your module import.
+
+Your configuration file will look something like this:
+
+<comp.CodeBlock language="toml" source="hugo.cloudcannon.toml">
+```
+baseURL = 'https://example.com/'
+
+# ... all other config
+
+# module.imports commented out or removed
+# [[module.imports]]
+# path = 'github.com/my/module'
+
+```
+</comp.CodeBlock>
+
+<comp.Notice info_type="info">
+  If your site uses a <a rel="noopener noreferrer" href="https://gohugo.io/getting-started/configuration/">configuration directory</a> for Hugo, another option is to add a `cloudcannon` environment.
+</comp.Notice>
+
+## Turn your Hugo Module repository into a CloudCannon site
+
+Site Mounting works between two CloudCannon sites. Add a new site to your CloudCannon account and connect it to your module repository.
+
+The build settings for this site do not matter, as we will only mount the source files to our local site.
+
+On the *Build Site* page, select Static from the SSG dropdown menu. This will allow your build to succeed without configuring a build command.
+
+<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/guides/hugo-modules/2024-03/CloudCannon-Documentation-Build-Site-Page-Static.png" alt="A screenshot of the Build Site page with the SSG Static selected from the dropdown menu." title="The Build Site page" type="screenshot"/>
+
+By default, these files are accessible on this site's <a href="https://cloudcannon.com/documentation/articles/viewing-your-site-on-a-testing-domain/" rel="noreferrer">.cloudvent.net testing domain</a>. To prevent access to the testing domain, switch the module site to <a href="https://cloudcannon.com/documentation/articles/adding-password-authentication-to-your-site/" rel="noreferrer">password authentication</a> and do not set a password.
+
+## Mount the module site to your main site
+
+Open your main site in CloudCannon. To configure your Site Mounting settings, navigate to the *Site Mountings* page under *Site Settings*, then *Builds*.
+
+<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/guides/hugo-modules/2024-03/CloudCannon-Documentation-Site-Settings-Site-Mounting.png" alt="A screenshot of the CloudCannon app shows the Site Mountings page, with a section to add a mounted site to the local site." title="Add a mounted site" type="screenshot"/>
+
+In the *Remote site* field, select the CloudCannon site that contains your module files.
+
+Leave the *Remote artifact* field set to "Source files".
+
+Enter the paths you want your module to mount for your *Remote* and *Local paths*. For example, given the following Hugo configuration:
+
+<comp.CodeBlock language="yaml" source="module/config.yml">
+```
+module:
+  mounts:
+    - source: theme/layouts
+      target: layouts
+```
+</comp.CodeBlock>
+
+If your module configuration were the code above, you would enter "theme/layouts" into the *Remote path* field and "layouts" in the *Local path* field.
+
+Once you have completed your configuration, click the *Mount site* button.
+
+## New build of your main site
+
+In your main site on CloudCannon, navigate to the *Status* page. Click the *Rebuild* button. CloudCannon will mount the module content at the your specified path before running your Hugo build command.
+
+Any changes to your module repository will trigger a new build of any site to which the content is mounted. You don't have to worry about keeping your sites up to date.
+
+## Mounting multiple paths
+
+In some cases, you may want to mount your module to multiple paths. For example, given the following Hugo configuration:
+
+<comp.CodeBlock language="yaml" source="module/config.yml">
+```
+module:
+  mounts:
+    - source: layouts
+      target: layouts
+    - source: assets
+      target: assets
+```
+</comp.CodeBlock>
+
+In CloudCannon, you can mount the same remote site multiple times at different paths. Repeat the above steps and specify a different *Remote* and *Local path* to mount it again.
+
+If the paths you want to mount are more complicated or there are many paths, you can mount the entire module to a temporary location and use [CloudCannon's Build Hooks](https://cloudcannon.com/documentation/articles/extending-your-build-process-with-hooks/) to move your module files to the correct location.

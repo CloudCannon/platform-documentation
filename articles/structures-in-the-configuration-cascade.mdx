@@ -1,0 +1,151 @@
+---
+_schema: default
+_uuid: 01c59e18-05f5-4e8d-8f57-e0e53b2064a0
+_created_at: 2024-02-13T14:20:26+13:00
+title: Structures in the configuration cascade
+nav_title: Structures in the configuration cascade
+published: true
+image: >-
+  https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+description: Learn how to create a structure at any level of the configuration cascade.
+tags: []
+related_articles: []
+related_links: []
+explicit_canonical:
+---
+[Structures](/documentation/articles/create-a-structure/) are part of the CloudCannon [configuration cascade](/documentation/articles/using-the-configuration-cascade/). You can configure them for your site as a whole and for a specific page or collection. You can define your structures in the following places:
+
+1. [The global configuration file](/documentation/articles/create-a-global-configuration-file)
+2. [Collection configuration](/documentation/articles/define-your-collections/)
+3. [Schema configuration](/documentation/articles/create-a-schema)
+4. File front matter
+5. Within another [structure](/documentation/articles/create-a-structure/)
+
+When you define a structure in multiple places, CloudCannon uses the highest priority source and does not merge the structures. For example, a structure defined in the front matter of a file will take priority over one defined in collections.
+
+## Define a structure at the collection level
+
+To configure for an individual collection, use the `_structures` key under your collection in `collections_config`.
+
+Here is a structure configuration for the collection Blog:
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json", "JavaScript"]} source="cloudcannon.config.yml">
+``````````
+collections_config___1___:
+  blog___2___:
+    _structures___3___:
+      example___4___:
+        style: select
+        values:
+          - label: Product
+            value:
+              name:
+              description:
+              image:
+``````````
+<comp.Annotation number="1">
+  The `collections_config` key contains all the collections and any configuration for those collections.
+</comp.Annotation> <comp.Annotation number="2">
+  The `blog` key matches our collection “Blog”.
+</comp.Annotation> <comp.Annotation number="3">
+  The `_structures` key contains all the structures defined at a given level of the configuration cascade. In this code, structures defined here will only be available inside the collection “blog”.
+</comp.Annotation> <comp.Annotation number="4">
+  The key name for our structure group is `example`. Under example we have defined a single structure labelled “Product” with the fields for `name`, `description`, and `image`.
+</comp.Annotation>
+</comp.MultiCodeBlock>
+
+The structures defined under the key `example` will only be available for array or object inputs in the collection "Blog".
+
+## Define a structure within another structure
+
+You can nest structures by defining a structure within another structure. These “sub-structures” will only affect arrays within the containing structure.
+
+For this example, we want to create a page builder called `page_sections`. Within the structure for the `page_sections` array, let’s create an option for a hero, content, and call-to-action section. Then, within the option for `content`, let’s define a second structure for the array `elements`. The `elements` structure will have the options for text and image.
+
+Here is our structure configuration:
+
+<comp.CodeBlock language="markdown" source="home.md">
+```
+---
+page_sections: []
+---
+```
+</comp.CodeBlock>
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json", "JavaScript"]} source="cloudcannon.config.yml">
+``````````
+_inputs___1___:
+  page_sections___2___:
+    type: array
+    options:
+      structures: _structures.page_sections
+
+_structures___3___:
+  page_sections___4___:
+    values:
+      - label: Hero
+        icon: title
+        value:
+          _type: hero
+          title:
+          description:
+      - label___5___: Content
+        icon: subject
+        value:
+          _type: content
+          content___6___: []
+        _inputs___7___:
+          content:
+            type: array
+            options:
+              structures: _structures.elements
+        _structures___8___:
+          elements___9___:
+            values:
+              - label: Text
+                icon: article
+                value:
+                  content:
+                _inputs:
+                  content:
+                    type: textarea
+              - label: Image
+                icon: image
+                value:
+                  image:
+                  description:
+      - label: Call to action
+        icon: smart_button
+        value:
+          _type: cta
+          url:
+          content:
+``````````
+<comp.Annotation number="1">
+  The `_inputs` key contains all the inputs defined at a given level of the configuration cascade.
+</comp.Annotation> <comp.Annotation number="2">
+  The key name of the array or object input which contains the sub-structure. In this code, we have called our input `page_sections`. The `options.structures` key is set to `_structures.page_sections`.
+</comp.Annotation> <comp.Annotation number="3">
+  The `_structures` key contains all the structures defined at a given level of the configuration cascade.
+</comp.Annotation> <comp.Annotation number="4">
+  The key name of your structure. In this code, we have called our structure `page_sections`.
+</comp.Annotation> <comp.Annotation number="5">
+  Under the key `page_sections` we have defined three structures. The second structure is labelled "Content", and contains a sub-structure.
+</comp.Annotation> <comp.Annotation number="6">
+  The Structure labelled "Content" contains an array named `content`. We will populate this array with a structure defined within a structure.
+</comp.Annotation> <comp.Annotation number="7">
+  The `_inputs` key contains all the inputs defined at a given level of the configuration cascade. In this case, inputs defined here are only available within the item "content".
+</comp.Annotation> <comp.Annotation number="8">
+  Within the structure labelled "Content", we have defined another structure.
+</comp.Annotation> <comp.Annotation number="9">
+  The key name of your sub-structure. In this code, we have called our sub-structure `elements`. The structures defined under `elements` will only be available within the item "Content" where `page_sections` is used in an aray or object input.
+</comp.Annotation>
+</comp.MultiCodeBlock>
+
+Let’s populate the arrays for `page_sections` and `elements` with sample content to see this substructure in action. Here is how the arrays look in the sidebar of the Content Editor.
+
+<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/structures/2024-Q1/CloudCannon-Documentation-Structures-Page-Builder.png" alt="The sidebar of the Content Editor shows a structure with options for Hero, Content, and Call to action." title="An array with dropdown options" type="ui-snippet"/>
+
+<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/structures/2024-Q1/CloudCannon-Documentation-Substructure-Within-Structure.png" alt="The sidebar of the Content Editor shows a structure within a structure with options for Text and Image." title="A structure within a structure" type="ui-snippet"/>
+
+For more information, read our reference documentation on [using the configuration cascade](/documentation/articles/using-the-configuration-cascade/).

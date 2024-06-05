@@ -1,0 +1,244 @@
+---
+_schema: default
+_uuid: 30c752ad-a024-4782-a07a-f444ffe92a56
+_created_at: '2022-04-19 03:08:59 +0000'
+title: Create a schema
+nav_title: Create a schema
+published: true
+image: >-
+  https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+description: >-
+  Learn how to create collection schemas for managing content across files in a
+  collection.
+tags:
+  - editor
+related_articles:
+  - defining-your-collections
+related_links:
+---
+## What is a schema?
+
+A schema is a predefined template that determines what should populate a [collection](/documentation/articles/define-your-collections/) file. You can configure several schemas for each collection, creating a list of file templates for you and your team.
+
+Schemas are excellent for creating files with consistent content and populating the initial contents of a new file. Schemas can apply to structured, markup, and combination files by containing both front matter and markup content or only data or markup content. When you use a schema to populate a new file, you can be sure that the inputs you need are available in the sidebar of the [Visual](/documentation/articles/the-visual-editor/) or [Content Editor](/documentation/articles/the-content-editor/).
+
+A blog schema might contain title, author, and hero image inputs in the front matter. A changelog schema for a technical documentation site might contain a date input in the front matter and headings for “Features” and “Fixes” in the Markdown content. A review schema might contain inputs for title, author, and rating, and “Today, we are reviewing the…” as the opening line in the Markdown content.
+
+Once you have configured your schemas, your team members can easily create new files for a collection by clicking the *\+ Add* button in the top right of the collection browser and selecting the file template they want from a dropdown menu.
+
+<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/schemas/2024-03/CloudCannon-Documentation-Add-Button-Multiple-Schemas.png" alt="A closeup of the Collection Browser shows multiple options in the Add dropdown." title="Multiple schemas in the collection Add menu" type="ui-snippet"/>
+
+<comp.Notice info_type="info">
+  Schemas are a good place to [configure your inputs](/documentation/articles/configure-your-inputs/). Inputs configured in your schema will only affect files created with that schema.
+</comp.Notice>
+
+For more information, including a list of all keys available for schema configuration, please read our reference documentation for [schemas](/documentation/articles/schemas-reference/).
+
+### Default behavior for new collection files
+
+You can add new files to your collection without configuring a schema. Clicking the *\+ Add* button in the top right of the collection browser will clone the last file in the collection and clear the content and values for any inputs in the front matter. This behavior is convenient if you have simple collection files or do not want to configure schemas.
+
+The default behavior may not be right for you if:
+
+* Your collection does not contain at least one file.
+* You want to have different file types in your collection.
+
+Because the default behavior clones existing files in a collection, CloudCannon cannot create a new file if the collection is empty. Additionally, cloning existing files does not allow for variation in file structure. You can manually add different inputs and content to your files. However, this can become inefficient to maintain.
+
+You can overcome these limitations by configuring schemas for your collections.
+
+## Create a schema
+
+There are two steps to creating a schema: creating a schema file and referencing your schema in your collection configuration.
+
+<comp.Notice info_type="important">
+  Only team members with Technical Editor, Developer, or Owner permissions can create a schema file, as it requires access to edit source files directly.
+</comp.Notice>
+
+To create a schema file:
+
+1. Navigate to the folder where you would like to store your schema using the file browser. We recommend creating a “Schemas” folder in your `.cloudcannon` folder.
+2. Create a schema file with the same file extension as your collection files.
+3. Add front matter and Markdown content to create a template.
+4. [Save your file](/documentation/articles/save-your-changes/).
+
+Here is an example of a schema file for an article:
+
+<comp.CodeBlock language="Markdown" source=".cloudcannon/schemas/post.md">
+```
+---
+title:
+author:
+image: /images/header.png
+---
+In this article, we will discuss...
+```
+</comp.CodeBlock>
+
+To reference a schema in your collection configuration:
+
+1. Navigate to your global configuration file and open it in the Source Editor.
+2. Within the `collections_config` key, find the key for the collection where you want to reference this schema.
+3. Identify the `schemas` key, or create one.
+4. Add the path to your schema file under `default`, then `path`.
+5. [Save your changes](/documentation/articles/save-your-changes/) to the global configuration file.
+
+Here is an example schema configuration:
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json", "JavaScript"]} source="cloudcannon.config.yml">
+```
+collections_config:
+  articles:
+    schemas:
+      default:
+        path: .cloudcannon/schemas/post.md
+```
+</comp.MultiCodeBlock>
+
+The above code references the schema `post.md` from the collection `articles`. This schema will populate new collection files with the `title`, `author`, and `image` inputs. The image input already references an image path as part of the initial file contents. It will also start the Markdown content with the sentence: “In this article, we will discuss...”
+
+Once you save the global configuration file, clicking the *\+ Add* button in the top right of your collection browser will show that schema as an option in the dropdown menu.
+
+<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/schemas/2024-03/CloudCannon-Documentation-Add-Button-Schema.png" alt="A closeup of the Collection Browser Add menu shows a schema for creating new articles." title="A schema in the collection Add menu" type="ui-snippet"/>
+
+Here is how the new article looks in the Content Editor.
+
+<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/schemas/2024-03/CloudCannon-Documentation-Schema-New-Article.png" alt="The Content Editor in CloudCannon shows a file with content populated by a schema." title="New article made using a schema" type="screenshot"/>
+
+When you create a file using a schema, a hidden `_schema` input is added to the front matter of that file. This input is visible in the [Source Editor](/documentation/articles/the-source-editor/) but hidden in the sidebar of the Visual or Content Editor, and contains the name of the schema a file uses.
+
+<comp.CodeBlock language="Markdown" source="post.md">
+```
+---
+_schema: default
+title:
+author:
+image: /images/header.png
+---
+In this article, we will discuss...
+```
+</comp.CodeBlock>
+
+If you add a file to a collection with no schema referenced in the front matter, editing that file in an editing interface will add `_schema: default` to the front matter.
+
+<comp.Notice info_type="info">
+  Configuring a default schema is optional. If you do not want files with no defined schemas to update, do not configure a default schema.
+</comp.Notice>
+
+## Reference multiple schemas in a collection
+
+You can create and reference multiple schemas in a single collection. Multiple schemas will appear as more options in the *\+ Add* button dropdown menu. By referencing multiple schemas in the same collection, you can create a list of file templates for you and your team.
+
+You can also reference a schema in multiple collections. This will help you to keep content that uses the same template consistent across collections.
+
+Here is an example:
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json", "JavaScript"]} source="cloudcannon.config.yml">
+```
+collections_config:
+  posts:
+    schemas:
+      default:
+        path: .cloudcannon/schemas/news.md
+        name: Newsletter Entry
+      events:
+        path: .cloudcannon/schemas/events.md
+        name: Upcoming Event
+      announcements:
+        path: .cloudcannon/schemas/announcement.md
+        name: Important Announcement
+  staff:
+    schemas:
+      default:
+        path: .cloudcannon/schemas/announcement.md
+        name: New Staff Announcement
+```
+</comp.MultiCodeBlock>
+
+In this example, we have the schemas for `news.md`, `events.md`, and `announcements.md` available for the collection called `posts`. The `announcements.md` schema is also available for the collection `staff`, where it is the default schema.
+
+We have also used the `name` key to modify the name of the schema in the *\+ Add* button dropdown menu. You can use the `name` key to provide context if you use the same schema in different collections.
+
+<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/schemas/2024-03/CloudCannon-Documentation-Add-Button-Multiple-Schemas.png" alt="A closeup of the Collection Browser shows multiple options in the Add dropdown." title="Multiple schemas in the collection Add menu" type="ui-snippet"/>
+
+<comp.Notice info_type="info">
+  Schemas create new files with the same file extension as the schema file. If you need to, you can reference schemas with different file extensions from the same collection to create different file types.
+</comp.Notice>
+
+## Update an existing schema
+
+Schemas help you keep your collection files consistent. When you edit a file in a collection, CloudCannon checks that the inputs in the front matter match its defined schema. Updating a schema file by adding, removing, or reordering inputs will also update your collection files the next time you open them in an editing interface.
+
+<comp.Notice info_type="info">
+  CloudCannon does not update all existing collection files automatically when a schema changes. Each collection file will be updated when you next open it in an editing interface (excluding the Source Editor).
+</comp.Notice>
+
+Let’s go over an example.
+
+We run a local news website. Our news collection has a default schema with inputs for each post's category, author, and title. Here is our default schema and an existing news post:
+
+<comp.CodeBlock language="Markdown" source="post.md">
+```
+---
+category: news
+author:
+title: My post
+---
+Add news story here...
+```
+</comp.CodeBlock>
+
+<comp.CodeBlock language="Markdown" source="holding_breath_record.md">
+```
+---
+_schema: default
+category: news
+author: John Simms
+title: Local woman breaks the world record
+---
+Today, Irma Fisher broke the world record for holding her breath.
+
+Ms Fisher, who has lived in the local area since birth, credits her achievement to swimming practice in the nearby lake.
+```
+</comp.CodeBlock>
+
+We want to improve our posts by adding an image input and reordering the inputs for title and author. We have also noticed that our old schema has an input we no longer use.
+
+In this example we want to add the input for `image` to our default schema, reorder our inputs so that `title` appears before `author`, and remove the input for `category`.
+
+<comp.CodeBlock language="Markdown" source="post.md">
+```
+---
+title: My updated post
+author:
+image: /images/posts/header.png
+---
+Add news story here...
+```
+</comp.CodeBlock>
+
+<comp.CodeBlock language="Markdown" source="holding_breath_record.md">
+```
+---
+_schema: default
+title: Local woman breaks the world record
+author: John Simms
+image: /images/posts/header.png
+---
+Today, Irma Fisher broke the world record for holding her breath.
+
+Ms Fisher, who has lived in the local area since birth, credits her achievement to swimming practice in the nearby lake.
+```
+</comp.CodeBlock>
+
+When we save our updates to the default schema and open our news story in an editing interface, we see that CloudCannon has updated the front matter to match our schema.
+
+The inputs for `title`, `author`, and `image` now appear in the updated order, and `category` has been removed. Reordering the `author` key has not affected its value in the collection file.
+
+<comp.Notice info_type="info">
+  You can customize this behavior using the `remove_extra_inputs`, `hide_extra_inputs`, `reorder_inputs` keys. For more information, please read our reference documentation for [schemas](/documentation/articles/schemas-reference/).
+</comp.Notice>
+
+<comp.Notice info_type="important">
+  If you change the type of data stored in an input (e.g., switch from an object to a string or a string to a number), placeholder values in your schema will overwrite the values in your collection file.
+</comp.Notice>
