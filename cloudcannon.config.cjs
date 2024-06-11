@@ -55,6 +55,7 @@ const _snippets = {
   ...require(snip("conditional")),
   ...require(snip("data_reference")),
   ...require(snip("docs_image")),
+  ...require(snip("docs_video")),
   ...require(snip("multi_code_block")),
   ...require(snip("notice")),
   ...require(snip("tabs")),
@@ -65,6 +66,8 @@ const _snippets = {
   ...require(snip("system_version_default")),
   ...require(snip("system_version_list")),
   ...require(snip("slot")),
+  // Make sure fallbacks comes last ! ! !
+  ...require(snip("fallbacks")),
 };
 
 module.exports = {
@@ -261,6 +264,33 @@ module.exports = {
       type: "url",
       comment:
         "Optionally reference a different page or URL that this page should set as its canonical URL",
+    },
+    article_category: {
+      type: "multichoice",
+      comment:
+        "Choose a [Diataxis category](https://diataxis.fr/compass/) based on whether this article informs action or understanding, and acquiring or applying skill. If more than one category applies, consider splitting this article into multiple smaller articles.",
+      options: {
+        values: ["Explanation", "Reference", "Tutorial", "Instructions"],
+      },
+    },
+    article_topic: {
+      type: "multiselect",
+      comment: "Select which topics apply to this article.",
+      options: {
+        values: [
+          "Editing interfaces",
+          "Client Sharing",
+          "Custom Permission Groups",
+          "Introduction",
+          "Organizations",
+          "Permission Groups",
+          "Projects",
+          "Sites",
+          "Site Sharing",
+          "SSO/SAML",
+          "Team members",
+        ],
+      },
     },
   },
   commit_templates: [{ template_string: "{message}" }],

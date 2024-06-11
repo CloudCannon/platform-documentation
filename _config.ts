@@ -37,6 +37,7 @@ import "npm:prismjs@1.29.0/components/prism-jsx.js";
 
 // Custom highlights
 import "./_config/prism-tree.js";
+import "./_config/prism-annotated.js";
 
 import { DOMParser } from "https://deno.land/x/deno_dom@v0.1.38/deno-dom-wasm.ts";
 import { Page } from "lume/core.ts";
@@ -169,7 +170,7 @@ const annotateCodeBlocks = (page) => {
     // Any text for MultiCodeBlocks, annotations are inserted any time
     // a digit surrounded by three underscores on either side is encountered
     page.document?.querySelectorAll('.highlight > pre > code').forEach((codeEl) => {
-        codeEl.childNodes.forEach((tokenEl) => {
+        [...codeEl.childNodes].reverse().forEach((tokenEl) => {
             const is_text = tokenEl.nodeName === "#text";
             if (!tokenAnnotationRegex.test(is_text ? tokenEl.nodeValue : tokenEl.innerText)) return;
 
@@ -385,6 +386,10 @@ site.filter("nav_contains", (nav, url) => {
 site.filter("index_of", (block, item) => {
     return block.indexOf(item);
 });
+
+site.filter("unslug", (str) => {
+    return str.replace(/(^|_)(\w)/g, (_, u, c) => `${u.replace('_', ' ')}${c.toUpperCase()}`);
+})
 
 const summaryMarker = '</p>';
 site.filter("changelog_summary", (block, item) => {
