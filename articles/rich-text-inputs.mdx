@@ -34,9 +34,7 @@ The HTML rich text input stores all markup values as HTML. There are two ways to
 
 <comp.DocsImage path="/documentation/static/inputs/rich-text/html.png" alt="Screenshot of HTML Rich text input field" title="" type="screenshot-snippet"/>
 
-Using the `type` key, you can define your input as an HTML rich text input with the “html” value. Define the type key under your input key name within `_inputs`.
-
-For more information, please read our documentation on [configuring your inputs](/documentation/articles/configure-your-inputs/).
+Using the `type` key, you can define your input as an HTML rich text input with the “html” value. Define the type key under your input key name within `_inputs`. For more information, please read our documentation on [configuring your inputs](/documentation/articles/configure-your-inputs/).
 
 <comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="cloudcannon.config.yml">
 ```
@@ -56,7 +54,7 @@ content: |
     <li>Run</li>
   </ol>
   <p>Linking to <a href="/">index</a>.</p>
-  ---
+---
 ```
 </comp.CodeBlock>
 
@@ -76,14 +74,33 @@ sidebar_html: |
 
 ## Markdown
 
-Rich text WYSIWYG input for Markdown values.
-
-Markdown inputs are shown for inputs configured with the type `markdown`. or for input keys matching:
-
-* `markdown`
-* `*_markdown`
+The Markdown rich text input stores all markup values as Markdown. There are two ways to configure an HTML rich text input: using the `type` key or the CloudCannon naming convention.
 
 <comp.DocsImage path="/documentation/static/inputs/rich-text/markdown.png" alt="Screenshot of Markdown Rich text input field" title="" type="screenshot-snippet"/>
+
+Using the `type` key, you can define your input as an HTML rich text input with the “markdown” value. Define the type key under your input key name within `_inputs`. For more information, please read our documentation on [configuring your inputs](/documentation/articles/configure-your-inputs/).
+
+<comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="cloudcannon.config.yml">
+```
+_inputs:
+  top_copy:
+    type: markdown
+```
+</comp.MultiCodeBlock>
+
+<comp.CodeBlock language="Markdown" source="about.md">
+```
+---
+top_copy: |
+  # Animals
+
+  - Dogs
+  - Cats
+---
+```
+</comp.CodeBlock>
+
+Using the key naming convention, CloudCannon will interpret any input key named `markdown` or that ends in `_markdown` as an HTML rich text input.
 
 <comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="Naming convention">
 ```
@@ -95,20 +112,7 @@ markdown: |
 ```
 </comp.MultiCodeBlock>
 
-<comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="Input configuration">
-```
-top_copy: |
-  # Animals
-
-  - Dogs
-  - Cats
-_inputs:
-  top_copy:
-    type: markdown
-```
-</comp.MultiCodeBlock>
-
-You'll likely need to convert the Markdown value into HTML to use it on your site:
+You may need to convert the Markdown value into HTML to use it on your site:
 
 <comp.Conditional ssgs={["Jekyll"]}>
   In your layout, use the `markdownify` function to render Markdown from front matter.
@@ -171,13 +175,16 @@ Rich Text inputs have the following options available:
 
     The available keys are:
 
-    * `uploads` for the default location of newly uploaded site files.
-    * `dam_uploads` for the default location of newly uploaded [DAM](/documentation/articles/introduction-to-assets-and-dams/) files.
     * `dam_static` for the location of statically copied assets for [DAM](/documentation/articles/introduction-to-assets-and-dams/) files.
+    * `dam_uploads` for the default location of newly uploaded [DAM](/documentation/articles/introduction-to-assets-and-dams/) files.
+    * `dam_uploads_filename` for the name of the uploaded file, when uploading [DAM](/documentation/articles/introduction-to-assets-and-dams/) files.
+    * `static` for the location of statically copied assets.
+    * `uploads` for the default location of newly uploaded site files.
+    * `uploads_filename` for the name of the uploaded file.
 
     These paths control where new asset files are uploaded to. They also set the default path when choosing existing images, and linking to existing files.
 
-    `uploads` and `dam_uploads` have a [number of dynamic placeholders available](/documentation/articles/adjusting-the-uploads-path/).
+    You can use [dynamic placeholders](/documentation/articles/configure-your-template-strings/) for `uploads` and `dam_uploads`. For more information, please read our documentation on [adjusting file upload paths](/documentation/articles/adjusting-the-uploads-path/).
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="empty_type" type_markdown="string">
     Set how an ‘empty’ value will be saved. Does not apply to existing empty values. Can be one of the following:
@@ -192,3 +199,50 @@ Rich Text inputs have the following options available:
 Documented below are the valid formats for **html** and **markdown** inputs.
 
 The lists of examples are non-exhaustive.
+
+<comp.Tabs label="Languages">
+  <comp.Tab name="YAML">
+    Empty/null value:
+    * `html: `
+
+    Any valid string (quoted or unquoted):
+    * `html: ""`
+    * `html: ''`
+    * `html: any string`
+    * `html: "any string"`
+    * `html: 'any string'`
+
+    Any valid multiline string:
+    * <code>html: ><br/>  multiline string</code>
+    * <code>html: >-<br/>  multiline string</code>
+    * <code>html: >+<br/>  multiline string</code>
+    * <code>html: |<br/>  multiline string</code>
+    * <code>html: |-<br/>  multiline string</code>
+    * <code>html: |+<br/>  multiline string</code>
+  </comp.Tab>
+  <comp.Tab name="TOML">
+    Any valid string:
+    * `html = ""`
+    * `html = "any string"`
+
+    Any valid escaped string:
+    * `html = ''`
+    * `html = 'any string (literal)'`
+
+    Any valid multiline string:
+    * <code>html = """<br/>  multiline string"""</code>
+    * <code>html = """\\<br/>  multiline string (trimmed) \\<br/>  """</code>
+    * <code>html = '''<br/>  literal multiline string'''</code>
+  </comp.Tab>
+  <comp.Tab name="JSON">
+    Null value:
+    * `"html": null`
+
+    Any valid string:
+    * `"html": ""`
+    * `"html": "any string"`
+
+    Any valid multiline string:
+    * `"html": "multiline \n string"`
+  </comp.Tab>
+</comp.Tabs>
