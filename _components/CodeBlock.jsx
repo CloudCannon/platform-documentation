@@ -36,7 +36,7 @@ export default function ({ comp, language, source, content, children }) {
           <figure className="highlight">
             <pre>
               <code className={`language-${language}`}>
-                {code_block}
+                {code_str}
               </code>
             </pre>
           </figure>
