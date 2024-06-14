@@ -1,0 +1,221 @@
+---
+_schema: default
+_uuid: 0224189e-8e58-471c-8b9e-9edc666f1150
+_created_at: '2022-12-19 23:26:16 +0000'
+title: Configure your commit messages
+nav_title: Configure your commit messages
+published: true
+image: >-
+  https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+description: >-
+  Learn how to configure commit messages to describe each commit and provide a
+  record of the changes to your website.
+article_category:
+  - Explanation
+  - Reference
+  - Instructions
+tags: []
+related_articles: []
+related_links:
+---
+A commit message is a short piece of text used to describe changes you make to you website. Commit messages provide a record of your changes for you and your team members. If you have commit messages configured, the *Review changes* modal will prompt you to add a commit message every time you [save your changes](/documentation/articles/save-your-changes/).
+
+Commit messages in CloudCannon use predefined templates to maintain a consistent format. These templates use template strings to populate the commit message with a mix of text and data. For more information, please read our documentation on [template strings](/documentation/articles/configure-your-template-strings/).
+
+You can configure a commit message by adding the array key `commit_templates` to your [global configuration file](/documentation/articles/create-a-global-configuration-file/).
+
+### Commit messages and external integrations
+
+Depending on your Git provider, some external programs can integrate with your repository and read your commit messages. For example, the Jira and GitHub integration enables commits to your repository that use a specific commit message format to close Jira tickets.
+
+It is important to configure your template string correctly if you need your commit message to match a particular format for an integration.
+
+## Configure a commit template
+
+To configure a basic commit message:
+
+1. Navigate to your global configuration file and open it in the Source Editor.
+2. Identify the `commit_templates` key, or create one at the top level of your configuration file.
+3. Add a `template_string` item within the `commit_templates` array.
+4. Save your changes to the global configuration file.
+
+Here is an example of a simple commit message using a text string.
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json", "JavaScript"]} source="cloudcannon.config.yml">
+```
+commit_templates___1___:
+  - template_string___2___: "{message}"
+```
+<comp.Annotation number="1">
+  The `commit_templates` key contains all the commit message templates in an array.
+</comp.Annotation>
+<comp.Annotation number="2">
+  The `template_string` key contains the template for your commit. In this example the template string uses the dynamic placeholder `{message}`. As the key "message" is undefined, CloudCannon will provide a text input.
+</comp.Annotation>
+</comp.MultiCodeBlock>
+
+Once you have saved the changes to your global configuration file, the *Review changes* modal in CloudCannon will update to include a commit message.
+
+<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/save-changes/2024-03/CloudCannon-Documentation-Save-Changes-Commit-Message.png" alt="The Review changes modal with a commit message describing the changes made to the site." title="Commit messages in the Review changes modal with commit message field" type="ui-snippet"/>
+
+### Placeholders in commit templates
+
+Commit templates can use placeholders. When CloudCannon reads a placeholder in a commit message, it will replace it with the data it references before sending the commit message to your Git repository.
+
+There are two types of placeholders:
+
+* **Data placeholders** — Replaced with data you have defined. These placeholders use `{ }` brackets.
+* **Fixed placeholders** — Replaced with data defined by CloudCannon. These placeholders use `[ ]` brackets.
+
+For commit message templates, data placeholders reference inputs you have defined in your global configuration file under `commit_templates._inputs`. If you do not define a data placeholder used by your commit template, CloudCannon will use the default input type based on the placeholder name (e.g., a date picker for `{date}`, or a text input for `{message}`).
+
+CloudCannon recognizes the following fixed placeholders in commit templates:
+
+* `[changes]` creates a bulleted list of all changes in the commit (edits, additions, and deletions).
+* `[date]` reads as the current date.
+* `[author]` reads as the email address of the person making the commit.
+* `[default_commit_message]` creates the default commit message that CloudCannon would generate. This will resolve to a sentence like "Added/Updated X file(s)".
+
+You can use a mix of data and fixed placeholders in your commit templates.
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json", "JavaScript"]} source="cloudcannon.config.yml">
+```
+commit_templates:
+  - template_string___1___: |
+     {ticket_number}: {subject}
+     Committed by [author] at [date]
+    _inputs:
+      ticket_number:
+        type: number
+```
+<comp.Annotation number="1">
+  The `template_string` contains two data placeholders, one defined and one undefined, and two fixed placeholders.
+</comp.Annotation>
+</comp.MultiCodeBlock>
+
+<comp.Notice info_type="info">
+  If your commit template does not include any placeholders, any literal text in the template string will appear in a text area on the *Review changes* modal.
+</comp.Notice>
+
+For more information on placeholders in general, please read our documentation on [configuring your template strings](/documentation/articles/configure-your-template-strings/).
+
+### Filters in commit templates
+
+Commit templates can use filters to modify placeholders. Filters should occur after the placeholder name, separated by a `|` character. You can apply multiple filters to a single placeholder. For example, `{title|trim|uppercase}` will remove leading and trailing whitespace, then uppercase, a data placeholder called "title".
+
+For more information, including a full list of filters, please read our documentation on [configuring your template strings](/documentation/articles/configure-your-template-strings/).
+
+### Multiple commit templates
+
+You can configure multiple commit message template strings in your global configuration file. When you or a team member save changes to your website, the *Review changes* modal will prompt you to select which template to use. In this case, adding a `label` to each template string is important.
+
+Here is an example of multiple commit message templates.
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json", "JavaScript"]} source="cloudcannon.config.yml">
+```
+commit_templates:
+  - label___1___: Custom message
+    template_string: "{message}"
+  - label___2___: Structured message
+    template_string___3___: "{commit_type}: {message|trim}"
+    _inputs___4___:
+      commit_type___5___:
+        type: select
+        options:
+          values:
+            - feature
+            - fix
+            - refactor
+```
+<comp.Annotation number="1">
+  The `label` key provides a name for the first template in the array.
+</comp.Annotation>
+<comp.Annotation number="2">
+  The `label` key provides a name for the second template in the array.
+</comp.Annotation>
+<comp.Annotation number="3">
+  This template uses two placeholders and a filter. The key `commit_type` is defined below. The key `message` is undefined and will appear as a text input with the trim filter applied to the content.
+</comp.Annotation>
+<comp.Annotation number="4">
+  All data placeholders used in the commit template must be defined under the `_inputs` key. If a placeholder is not defined, CloudCannon will use the default input type for that placeholder name, falling back to an empty text input.
+</comp.Annotation>
+<comp.Annotation number="5">
+  `commit_type` defines this key as a select input with three options, "feature", "fix", or "refactor".
+</comp.Annotation>
+</comp.MultiCodeBlock>
+
+<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/commit-messages/2024-05/CloudCannon-Documentation-Review-Changes-Modal-Multiple-Commit-Templates.png" alt="The Review changes modal shows a commit message with a select and a text input." title="The Review changes modal" type="ui-snippet"/>
+
+### Commit templates from a file
+
+Rather than configure a template string in your global configuration file, you can configure a `template_path` to point at a file containing your commit template. CloudCannon will use the content of this file as your template string.
+
+This could be a better option if you already have a file containing your commit message template or want to prevent a long commit template from taking up space in your global configuration file.
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json", "JavaScript"]} source="cloudcannon.config.yml">
+```
+commit_templates:
+  - label: Commit message from file
+    template_path___1___: /.git/commit-message.txt
+```
+<comp.Annotation number="1">
+  The `template_path` key value is the path of the file containing your commit template, relative to the root directory.
+</comp.Annotation>
+</comp.MultiCodeBlock>
+
+### Extra data
+
+In some cases, you may need to create nested template strings. You can define another template string using the `extra_data` key. Anything defined under `extra_data` is processed sequentially and before `template_path` or `template_string`.
+
+Let’s walk through an example.
+
+We want to create an optional text field called “Breaking Change Message” for our team members to fill out when they commit a breaking change to our repository. To draw attention to the breaking change message, want the message to appear after a blank line and a ⚠️ warning emoji. When the breaking change input contains no text, we do not want any formatting associated with this message to appear in the commit.
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json", "JavaScript"]} source="cloudcannon.config.yml">
+```
+commit_templates:
+  - template_string___1___: "{message}{breaking_change|if=breaking_change_message}"
+    _inputs:
+      breaking_change_message___2___:
+        type: text
+    extra_data:
+      breaking_change___3___: |-
+
+        ⚠️ {breaking_change_message}
+```
+<comp.Annotation number="1">
+  This `template_string` contains an `{message}` data placeholder (defaults to a text input) and a `{breaking_change}` and `{breaking_change_message}` data placeholder. An `if` filter means that `{breaking_change}` will not appear if `{breaking_change_message}` is empty.
+</comp.Annotation>
+<comp.Annotation number="2">
+  We have defined the `{breaking_change_message}` placeholder as a text input.
+</comp.Annotation>
+<comp.Annotation number="3">
+  The `breaking_change` placeholder functions as a nested template string, containing literal text and a `{breaking_change_message}` data placeholder.
+</comp.Annotation>
+</comp.MultiCodeBlock>
+
+In the *Review changes* modal, this will appear as two text fields. If no text is entered into the field for *Breaking Change Message*, then the extra formatting does not appear in the commit message.
+
+<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/commit-messages/2024-05/CloudCannon-Documentation-Commit-Messages-Extra-Data.png" alt="The Review Changes modal shows two fields for Message and Breaking Changes Message." title="The Review Changes modal" type="ui-snippet"/>
+
+## Options
+
+Commit templates have the following configuration options available:
+
+<comp.DataReference>
+  <comp.DataReferenceRow label="extra_data" type_markdown="Object">
+    Define extra variable which function as additional template strings. Use extra data to build nested templates. Extra data values are processed sequentially, before `template_string` or `template_path`.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="_inputs" type_markdown="Object">
+    Define inputs used to populate data placeholders in your commit template. For more information, please read our documentation on [configuring your inputs](/documentation/articles/configure-your-inputs/).
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="label" type_markdown="String">
+    Used to identify a commit template when multiple commit templates are available.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="template_path" type_markdown="String">
+    Sets the path for a file containing your commit template. The file path should be relative to your root directory. CloudCannon will use the contents of this file as the commit template.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="template_string" type_markdown="String">
+    Set the string for the commit template. This will only be used if `template_path` is not set.
+  </comp.DataReferenceRow>
+</comp.DataReference>

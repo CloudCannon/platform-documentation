@@ -37,6 +37,7 @@ import "npm:prismjs@1.29.0/components/prism-jsx.js";
 
 // Custom highlights
 import "./_config/prism-tree.js";
+import "./_config/prism-annotated.js";
 
 import { DOMParser } from "https://deno.land/x/deno_dom@v0.1.38/deno-dom-wasm.ts";
 import { Page } from "lume/core.ts";
@@ -144,15 +145,17 @@ function appendTargetBlank(page, el) {
     }
 }
 
-const codeAnnotationRegex = /^\/\*\s*(\d+|\*)\s*\*\/$|^(?:\/\/|#)\s*(\d+|\*)\s*|^<!--\s*(\d+|\*)\s*-->$/;
+const commentAnnotationRegex = /^\/\*\s*(\d+|\*)\s*\*\/$|^(?:\/\/|#)\s*(\d+|\*)\s*|^<!--\s*(\d+|\*)\s*-->$/;
+const tokenAnnotationRegex = /___(\d+|\*)___/g;
 const annotateCodeBlocks = (page) => {
     page.document?.querySelectorAll('.token.comment').forEach((commentEl) => {
-        if (!codeAnnotationRegex.test(commentEl.innerText)) return;
+        if (!commentAnnotationRegex.test(commentEl.innerText)) return;
 
-        const matches = commentEl.innerText.match(codeAnnotationRegex);
+        const matches = commentEl.innerText.match(commentAnnotationRegex);
         const annotationId = matches[1] ?? matches[2] ?? matches[3];
         if (!annotationId) return;
         
+        // Empty the comment token and replace it with a clickable annotation box
         commentEl.innerText = "";
         commentEl.classList.add("annotation", "code-annotation");
         if (annotationId === "*") {
@@ -161,6 +164,71 @@ const annotateCodeBlocks = (page) => {
             commentEl.setAttribute("data-annotation-number", annotationId);
             commentEl.setAttribute("@click", `highlighedAnnotation = ${annotationId}`);
         }
+    });
+
+
+    // Any text for MultiCodeBlocks, annotations are inserted any time
+    // a digit surrounded by three underscores on either side is encountered
+    page.document?.querySelectorAll('.highlight > pre > code').forEach((codeEl) => {
+        [...codeEl.childNodes].reverse().forEach((tokenEl) => {
+            const is_text = tokenEl.nodeName === "#text";
+            if (!tokenAnnotationRegex.test(is_text ? tokenEl.nodeValue : tokenEl.innerText)) return;
+
+            const matches = (is_text ? tokenEl.nodeValue : tokenEl.innerText).match(tokenAnnotationRegex);
+            for (const match of matches) {
+                const annotationId = match.replace(/___/g, "");
+                if (!annotationId) continue;
+
+                // Create a new empty comment token as a clickable annotation box
+                const commentEl = page.document?.createElement('span');
+                commentEl.classList.add("token", "comment", "annotation", "code-annotation");
+                if (annotationId === "*" || annotationId === "0") {
+                    commentEl.setAttribute("data-annotation-number", "★");
+                } else {
+                    commentEl.setAttribute("data-annotation-number", annotationId);
+                    commentEl.setAttribute("@click", `highlighedAnnotation = ${annotationId}`);
+                }
+
+                // To insert after the token containing the annotation
+                // const insert_before_el = tokenEl.nextSibling || tokenEl;
+
+                // To insert at the end of the line containing the annotation
+                let next_newline = null;
+                let next_el = tokenEl;
+                while (next_el && !next_newline) {
+                    if (/\n/.test(next_el?.nodeValue ?? "") || /\n/.test(next_el?.innerText ?? "")) {
+                        next_newline = next_el;
+                        break;
+                    }
+                    next_el = next_el.nextSibling;
+                }
+                let insert_before_el = next_newline || tokenEl;
+
+                // Text nodes might span multiple lines, so we split it on newlines
+                // and re-add each as independent text nodes, so that we can add an element before
+                // the newline.
+                if (/\n/.test(insert_before_el?.nodeValue || "")) {
+                    const chunks = insert_before_el?.nodeValue
+                                    .split("\n")
+                                    .map(chunk => page.document.createTextNode(chunk));
+                    for (let i = 0; i < chunks.length; i += 1) {
+                        insert_before_el.parentNode.insertBefore( chunks[i], insert_before_el);
+                        if (i !== chunks.length-1) {
+                            insert_before_el.parentNode.insertBefore(page.document.createTextNode("\n"), insert_before_el);
+                        }
+                    }
+                    insert_before_el.remove();
+                    insert_before_el = chunks[0].nextSibling;
+                }
+                insert_before_el.parentNode.insertBefore(commentEl, insert_before_el);
+            }
+
+            if (is_text) {
+                tokenEl.nodeValue = tokenEl.nodeValue.replace(tokenAnnotationRegex, "");
+            } else {
+                tokenEl.innerText = tokenEl.innerText.replace(tokenAnnotationRegex, "");
+            }
+        });
     });
 }
 
@@ -269,8 +337,6 @@ site.process([".html"], async (page) => {
     page.document?.querySelectorAll('a').forEach((el) => {
         appendTargetBlank(page, el);
     });
-
-    annotateCodeBlocks(page);
 });
 
 // These MUST appear after our custom site.process([".html"] handling,
@@ -278,6 +344,12 @@ site.process([".html"], async (page) => {
 // and processing runs in the order it was instantiated.
 site.use(inline());
 site.use(prism());
+
+// This annotation process relies on the syntax highlighting,
+// so needs to run after prism
+site.process([".html"], async (page) => {
+    annotateCodeBlocks(page);
+});
 
 // TODO: Redo docnav as JSX and move this logic into the component
 const bubble_up_nav = (obj) => {
@@ -314,6 +386,10 @@ site.filter("nav_contains", (nav, url) => {
 site.filter("index_of", (block, item) => {
     return block.indexOf(item);
 });
+
+site.filter("unslug", (str) => {
+    return str.replace(/(^|_)(\w)/g, (_, u, c) => `${u.replace('_', ' ')}${c.toUpperCase()}`);
+})
 
 const summaryMarker = '</p>';
 site.filter("changelog_summary", (block, item) => {

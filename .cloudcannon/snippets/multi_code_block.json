@@ -1,6 +1,6 @@
 {
   "multi_code_block": {
-    "snippet": "<comp.MultiCodeBlock [[args]]>\n```\n[[inner]]\n```\n</comp.MultiCodeBlock>",
+    "snippet": "<comp.MultiCodeBlock [[args]]>\n[[backticks]]\n[[inner]]\n[[backticks]]\n[[annotations]]</comp.MultiCodeBlock>",
     "inline": false,
     "preview": {
       "text": [
@@ -19,16 +19,66 @@
     "_inputs": {
       "content": {
         "type": "code"
+      },
+      "annotations": {
+        "type": "array",
+        "comment": "Optional annotations to show below the code block. Link them to a key containing `___1___` or `___2___` (which will be removed from the key before display)",
+        "options": {
+          "structures": {
+            "values": [
+              {
+                "_inputs": {
+                  "annotation_content": {
+                    "type": "markdown"
+                  },
+                  "number": {
+                    "comment": "Match to a key containing `___1___` or `___2___` in the code block",
+                    "type": "text"
+                  }
+                },
+                "preview": {
+                  "icon": "campaign",
+                  "text": [
+                    {
+                      "key": "number"
+                    },
+                    "Unconfigured"
+                  ],
+                  "subtext": [
+                    {
+                      "key": "annotation_content"
+                    },
+                    "Empty"
+                  ]
+                },
+                "value": {
+                  "number": "1",
+                  "annotation_content": ""
+                }
+              }
+            ]
+          }
+        }
       }
     },
     "params": {
+      "backticks": {
+        "parser": "repeating_literal",
+        "options": {
+          "literal": "`",
+          "minimum": 3,
+          "default": 10
+        }
+      },
       "args": {
         "parser": "key_values",
         "options": {
           "models": [
             {
               "editor_key": "language",
-              "type": "string"
+              "type": "string",
+              "default": "",
+              "optional": true
             },
             {
               "editor_key": "translate_into",
@@ -39,7 +89,9 @@
             },
             {
               "editor_key": "source",
-              "type": "string"
+              "type": "string",
+              "default": "",
+              "optional": true
             }
           ],
           "format": {
@@ -51,7 +103,70 @@
         "parser": "content",
         "options": {
           "editor_key": "content",
-          "allow_nested": false
+          "allow_nested": false,
+          "raw": true,
+          "forbidden_tokens": [
+            "```"
+          ],
+          "style": {
+            "output": "block",
+            "block": {
+              "leading": "\n",
+              "trailing": "\n",
+              "indent": ""
+            }
+          }
+        }
+      },
+      "annotations": {
+        "parser": "optional",
+        "options": {
+          "snippet": "[[annotation_repeat]]"
+        }
+      },
+      "annotation_repeat": {
+        "parser": "repeating",
+        "options": {
+          "default_length": 0,
+          "editor_key": "annotations",
+          "snippet": "<comp.Annotation [[annotation_args]]>[[annotation_content]]</comp.Annotation>",
+          "style": {
+            "between": "\n",
+            "block": {
+              "leading": "",
+              "trailing": "\n"
+            }
+          }
+        }
+      },
+      "annotation_args": {
+        "parser": "key_values",
+        "options": {
+          "models": [
+            {
+              "editor_key": "number",
+              "type": "string"
+            }
+          ],
+          "format": {
+            "ref": "mdx_format"
+          }
+        }
+      },
+      "annotation_content": {
+        "parser": "content",
+        "options": {
+          "editor_key": "annotation_content",
+          "allow_nested": false,
+          "raw": true,
+          "style": {
+            "output": "block",
+            "block": {
+              "leading": "\n",
+              "trailing": "\n",
+              "indent": "  "
+            }
+          }
         }
       }
     }

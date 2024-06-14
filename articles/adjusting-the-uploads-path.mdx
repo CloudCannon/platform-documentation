@@ -11,7 +11,7 @@ related_articles: null
 related_links: null
 ---
 
-Uploads paths are locations where new asset files are uploaded to within the editor. There are 4 options:
+Upload paths control the location that new asset files are uploaded to. You can configure your upload paths using these options:
 
 <comp.DataReference>
  <comp.DataReferenceRow label="paths.uploads" type_markdown="String">
@@ -21,6 +21,17 @@ Uploads paths are locations where new asset files are uploaded to within the edi
   Determines the name of the uploaded file, for site files.
   
   The default value is `[asset_filename_without_ext|slugify|deburr][count].[asset_ext|lowercase]`.
+ </comp.DataReferenceRow>
+ <comp.DataReferenceRow label="paths.uploads_use_relative_path" type_markdown="Boolean">
+  If this is set, files will be referenced relative to the path of the file they were uploaded to.
+
+  For example, if `paths.uploads` is configured as `[base_path]/images` and you upload `image.jpg` to `/blog/my-post.md`, the path will be saved as `images/image.jpg`.
+  In the same scenario, if you select an existing image `/siteicon.png`, the path will be saved as `../siteicon.png`.
+  
+  The default value is `false`.
+ </comp.DataReferenceRow>
+ <comp.DataReferenceRow label="paths.static" type_markdown="String">
+  Determines the location of statically copied site assets.
  </comp.DataReferenceRow>
  <comp.DataReferenceRow label="paths.dam_uploads" type_markdown="String">
   Determines the directory to upload to, when uploading [DAM](/documentation/articles/introduction-to-assets-and-dams/) files.
@@ -34,12 +45,12 @@ Uploads paths are locations where new asset files are uploaded to within the edi
 
 Uploads paths are configured alongside other paths in a number of places:
 
-* Globally in the [global configuration file](/documentation/articles/setting-global-configuration/).
-* Per Content Editor or Editable Region with [editables configuration options](/documentation/articles/defining-editable-regions-in-your-html/#options).
+* Globally in the [global configuration file](/documentation/articles/create-a-global-configuration-file/).
+* Per Content Editor or Editable Region with [editables configuration options](/documentation/articles/define-editable-regions-in-your-html/#options).
 * Per input with inputs configuration:
-  * [File input options](/documentation/articles/using-upload-inputs-to-edit-your-data/#options).
-  * [URL input options](/documentation/articles/using-url-inputs-to-edit-your-data/#options).
-  * [Rich Text input options](/documentation/articles/using-rich-text-inputs-to-edit-your-data/#options).
+  * [File input options](/documentation/articles/file-inputs/#options).
+  * [URL input options](/documentation/articles/url-inputs/#options).
+  * [Rich Text input options](/documentation/articles/rich-text-inputs/#options).
 
 Here's an example for a fixed path:
 
@@ -101,7 +112,7 @@ The placeholders are processed when the new asset is added. This means that chan
 * `[asset_ext]` is the file's extension without a "." (e.g. "png").
 * `[count]` becomes a hyphen and number if the processed file path clashes with an existing file (e.g. `my-document-1.pdf`)
 
-You can use filters to transform these placeholders. For example `[asset_filename|slugify].[asset_ext]` will convert "My Document.pdf" into "my-document.pdf". You can read more about using placeholders, and see a list of all available filters, [in this article](/documentation/articles/configuring-with-placeholders/).
+You can use filters to transform these placeholders. For example `[asset_filename|slugify].[asset_ext]` will convert "My Document.pdf" into "my-document.pdf". You can read more about using placeholders, and see a list of all available filters, [in this article](/documentation/articles/configure-your-template-strings/).
 
 <comp.Notice info_type="info">
   Placeholders that result in empty values may result in sequential slashes — these are collapsed into one after applying placeholders.
