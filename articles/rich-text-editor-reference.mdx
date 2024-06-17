@@ -21,6 +21,50 @@ Rich text editors are editing interfaces that enable you to create and format co
 
 This article covers all keys available in CloudCannon for configuring your rich text editors. For more information, please read our documentation on [rich text editors](/documentation/articles/what-are-rich-text-editors/) in general, [configuring rich text editors](/documentation/articles/configure-your-rich-text-editors/), and [best practices for custom markup in rich text](/documentation/articles/best-practices-for-rich-text/).
 
+<comp.MultiCodeBlock language="YAML" translate_into={["json", "JavaScript"]} source="cloudcannon.config.yml">
+``````````
+
+_editables:
+  text:
+    italic: true
+  block:
+    format: p h3
+    undo: true
+    redo: true
+  content:
+    blockquote: true
+    bold: true
+    format: p h1 h2 h3 h4 h5 h6 pre address div
+    italic: true
+    strike: true
+    subscript: true
+    superscript: true
+    underline: true
+    link: true
+    bulletedlist: true
+    indent: true
+    numberedlist: true
+    outdent: true
+    code: true
+    embed: true
+    horizontalrule: true
+    image: true
+    table: true
+    undo: true
+    redo: true
+    removeformat: true
+    copyformatting: true
+    styles: /css/editor.css
+    left: align-left
+    center: align-center
+    right: align-right
+    justify: align-justify
+    image_size_attributes: true
+    snippet: true
+
+``````````
+</comp.MultiCodeBlock>
+
 ## WYSIWYG toolbar
 
 Not all WYSIWYG tools are available for every rich text editor.
@@ -79,33 +123,75 @@ The following options are available in the WYSIWYG toolbar for text formatting:
 
 ### Style and alignment options
 
+The following options are available in the WYSIWYG toolbar for text style and alignment:
+
 <comp.DataReference>
   <comp.DataReferenceRow label="styles" type_markdown="String">
-    Enables a drop down menu for editors to style selected text or blocks or text. Styles are the combination of an element and class name. The value for this option is the path (either source or build output) to the CSS file containing the styles.
+    This key enables a dropdown menu to apply a style to selected text. Styles are the combination of an element and class name. The value for this option is the path (either source or build output) for the CSS file containing styles.
 
-    Available for `_editables.block` and `_editables.content`.
+    Available for the Content Editor (`_editables.content`), the Block editable region (`_editables.block`), and Rich Text inputs (`_inputs.key_name.options`).
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="left" type_markdown="String">
-    Enables a control to left align text by toggling a class name for a block of text. The value is the class name the editor should add to align the text. The styles for this class need to be listed in the `styles` file to take effect outside of the Visual Editor.
+    This key enables a tool to left align selected text by toggling a class name for that text block. The value is the class name to align the text. The styles for this class must be in the `styles` file to work outside of the Visual Editor.
 
-    Available for `_editables.block` and `_editables.content`.
+    Available for the Content Editor (`_editables.content`), the Block editable region (`_editables.block`), and Rich Text inputs (`_inputs.key_name.options`).
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="center" type_markdown="String">
-    Enables a control to center align text by toggling a class name for a block of text. The value is the class name the editor should add to align the text. The styles for this class need to be listed in the `styles` file to take effect outside of the Visual Editor.
+    This key enables a tool to center align selected text by toggling a class name for that text block. The value is the class name to align the text. The styles for this class must be in the `styles` file to work outside of the Visual Editor.
 
-    Available for `_editables.block` and `_editables.content`.
+    Available for the Content Editor (`_editables.content`), the Block editable region (`_editables.block`), and Rich Text inputs (`_inputs.key_name.options`).
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="right" type_markdown="String">
-    Enables a control to right align text by toggling a class name for a block of text. The value is the class name the editor should add to align the text. The styles for this class need to be listed in the `styles` file to take effect outside of the Visual Editor.
+    This key enables a tool to right align selected text by toggling a class name for that text block. The value is the class name to align the text. The styles for this class must be in the `styles` file to work outside of the Visual Editor.
 
-    Available for `_editables.block` and `_editables.content`.
+    Available for the Content Editor (`_editables.content`), the Block editable region (`_editables.block`), and Rich Text inputs (`_inputs.key_name.options`).
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="justify" type_markdown="String">
-    Enables a control to justify text by toggling a class name for a block of text. The value is the class name the editor should add to justify the text. The styles for this class need to be listed in the `styles` file to take effect outside of the Visual Editor.
+    This key enables a tool to justify selected text by toggling a class name for that text block. The value is the class name to align the text. The styles for this class must be in the `styles` file to work outside of the Visual Editor.
 
-    Available for `_editables.block` and `_editables.content`.
+    Available for the Content Editor (`_editables.content`), the Block editable region (`_editables.block`), and Rich Text inputs (`_inputs.key_name.options`).
   </comp.DataReferenceRow>
 </comp.DataReference>
+
+Add predefined styles in plain CSS for your clients and team members to use in the Visual Editor and Content Editor.
+
+The `styles` CSS file can be either a source or output file. The source CSS file is used if both exist. In either case, it must contain plain CSS.
+
+Selectors must specify an element and one class in order to be included in the styles drop down. Styles with incompatible selectors are applied to the editor, but not shown as options.
+
+The alignment classes for `left`, `right`, `center` and `justify` must be defined in the `styles` CSS file to give the editor access to those styles.
+
+<comp.CodeBlock language="css" source="css/editor.css">
+```
+/* Can be applied to blocks of content */
+p.callout {
+  margin: 10px;
+  border: 1px solid #f5f5f5;
+  background-color: #eee;
+}
+
+/* Can be applied to inline content */
+span.big-blue-text {
+  font-size: 2rem;
+  color: blue;
+}
+
+/* Applied to content, excluded from style dropdown */
+h2 {
+  font-family: cursive;
+}
+
+/* Applied to content, excluded from style dropdown */
+.align-left { text-align: left; }
+.align-center { text-align: center; }
+.align-right { text-align: right; }
+.align-justify { text-align: justify; }
+```
+</comp.CodeBlock>
+
+<comp.Notice info_type="info">
+  Custom styles in the *Visual Editor* require the same styles on your live site. If you don’t have the same styles on your live site, the class will be there but it won’t change the styling.
+</comp.Notice>
 
 ### List options
 
@@ -330,44 +416,4 @@ The following options are available for
   </comp.DataReferenceRow>
 </comp.DataReference>
 
-### Styles and alignment
-
-Add predefined styles in plain CSS for your clients and team members to use in the Visual Editor and Content Editor.
-
-The `styles` CSS file can be either a source or output file. The source CSS file is used if both exist. In either case, it must contain plain CSS.
-
-Selectors must specify an element and one class in order to be included in the styles drop down. Styles with incompatible selectors are applied to the editor, but not shown as options.
-
-The alignment classes for `left`, `right`, `center` and `justify` must be defined in the `styles` CSS file to give the editor access to those styles.
-
-<comp.CodeBlock language="css" source="css/editor.css">
-```
-/* Can be applied to blocks of content */
-p.callout {
-  margin: 10px;
-  border: 1px solid #f5f5f5;
-  background-color: #eee;
-}
-
-/* Can be applied to inline content */
-span.big-blue-text {
-  font-size: 2rem;
-  color: blue;
-}
-
-/* Applied to content, excluded from style dropdown */
-h2 {
-  font-family: cursive;
-}
-
-/* Applied to content, excluded from style dropdown */
-.align-left { text-align: left; }
-.align-center { text-align: center; }
-.align-right { text-align: right; }
-.align-justify { text-align: justify; }
-```
-</comp.CodeBlock>
-
-<comp.Notice info_type="info">
-  Custom styles in the *Visual Editor* require the same styles on your live site. If you don’t have the same styles on your live site, the class will be there but it won’t change the styling.
-</comp.Notice>
+###
