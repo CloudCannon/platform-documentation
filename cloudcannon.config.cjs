@@ -281,6 +281,7 @@ module.exports = {
           "Editing interfaces",
           "Client Sharing",
           "Custom Permission Groups",
+          "Inputs",
           "Introduction",
           "Organizations",
           "Permission Groups",
