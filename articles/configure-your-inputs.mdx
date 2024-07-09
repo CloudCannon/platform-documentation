@@ -44,6 +44,8 @@ To configure your inputs:
 4. Add any keys you want to configure under your input key.
 5. [Save your changes](/documentation/articles/save-your-changes/) to the global configuration file.
 
+## Example
+
 Let’s walk through an example.
 
 We want to create a tag system for our blog articles so that users can filter our articles by tag for better search results. For this to work, we want to add a list containing relevant tags to the front matter of each blog file. When a content creator writes a new blog, they can select which tags apply using a [Multiselect input](/documentation/articles/select-and-multiselect-inputs/) in the sidebar of the Content Editor.
@@ -52,7 +54,6 @@ Here's out input configuration:
 
 <comp.MultiCodeBlock language="YAML" translate_into={["json", "JavaScript"]} source="cloudcannon.config.yml">
 ``````````
-
 _inputs___1___:
   blog_tags___2___:
     type___3___: multiselect
@@ -97,7 +98,7 @@ _inputs___1___:
 </comp.Annotation>
 </comp.MultiCodeBlock>
 
-Once we save the above code to our global configuration file, we need to add the input to our blog file front matter.
+Once we add the above code to our global configuration file, we need to add the input to our blog file front matter.
 
 <comp.CodeBlock language="Markdown" source="blog.md">
 ``````````
@@ -109,9 +110,92 @@ The content of the blog goes here.
 ``````````
 </comp.CodeBlock>
 
-&nbsp;
+Once we save our changes to both files, opening our blog file will show the input `blog_tags` we configured in the Data Editor or in the sidebar of the Content Editor.
 
 <comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/inputs/select/2024-07/CloudCannon-Documentation-Multiselect-Input.png" alt="A Multiselect input in the Data Editor shows three tags for a blog." title="A Multiselect input" type="ui-snippet"/>
+
+## Options
+
+You can configure inputs under your input key, inside of `_inputs`.
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json", "JavaScript"]} source="cloudcannon.config.yml">
+``````````
+_inputs:
+  example:
+    type: datetime
+    label: Publication date
+    comment: The 
+    context:
+      open: false
+      title: Help
+      icon: help
+      content: This field will automatically populate when you create an article.
+    hidden: false
+    instance_value: NOW
+    cascade:
+    options:
+
+``````````
+</comp.MultiCodeBlock>
+
+All inputs have the following options available:
+
+<comp.DataReference>
+  <comp.DataReferenceRow label="type" type_markdown="String">
+    Changes the editing interface for an input. Each input appears and behave differently, takes different `options`, and processes different values. See more details in the [type section](#type) below.
+
+    For unknown types, or if the input contains an unsupported value (e.g. an array value in a text input), the `disabled` type is used instead.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="label" type_markdown="String">
+    Changes the text above an input. Defaults to generating the label from the input key (e.g. "Page Title" for `page_title`).
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="comment" type_markdown="String">
+    Changes the subtext below the `label`. Has no default. Supports a limited set of Markdown: links, bold, italic, subscript, superscript and inline code elements are allowed.
+
+    Useful for adding reminders or additional context for your team members on a specific input.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="context" type_markdown="Object">
+    x
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="context.open" type_markdown="Boolean">
+    x
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="context.title" type_markdown="String">
+    x
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="context.icon" type_markdown="String">
+    x
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="context.content" type_markdown="String">
+    x
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="options" type_markdown="Object">
+    Configuration settings passed on to the input when displayed. These are specific to each input. The [available types and their options](#types-reference) are listed below.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="instance_value" type_markdown="String">
+    Controls if and how the value of this input is instantiated when created. This occurs when creating files, or adding array items containing the configured input. Has no default. Must be one of `UUID` or `NOW`.
+
+    * `UUID` generates a uuidv4 ([extremely unlikely to generate duplicates)](https://softwareengineering.stackexchange.com/a/130298), useful for identifying unique items (e.g. `6ec0bd7f-11c0-43da-975e-2a8ad9ebae0b`)
+    * `NOW` generates the current datetime in the site's configured timezone
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="hidden" type_markdown="Boolean or string">
+    Toggles the visibility of this input. Useful for when you need an input to exist, but don't want it edited or seen. Defaults to the naming convention, `true` for input keys starting with an underscore and `false` otherwise.
+
+    If set as a boolean, the input is hidden based if `true`.
+
+    If set as a string, the input is hidden based on the value of another input. This can start with a `!` to reverse the value. For reverse values in `YAML` files, the string should be in `'` or `"` quotation marks.
+
+    * `published` hides an input when the sibling input `published` is truthy
+    * `!published` hides an input when the sibling input `published` is falsy
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="cascade" type_markdown="Boolean">
+    Specifies whether or not this input configuration should be merged with any matching, less specific configuration. Defaults to `true`.
+
+    The [configuration cascade](/documentation/articles/using-the-configuration-cascade/) works by finding the most specific `_inputs` entry. Usually, once an option is found in the cascade, there's no reason to keep looking.
+
+    When this is `true`, the cascade continues looking and each entry found is merged. This allows you to define a `comment` globally, then a different `label` for inputs in a collection without redefining the `comment`. You can stop the cascade at any given point by setting `cascade` to `false`.
+  </comp.DataReferenceRow>
+</comp.DataReference>
 
 ---
 
@@ -247,48 +331,6 @@ These selector-style keys can be as targeted as you need them to be:
 ### Options
 
 Each entry in `_inputs` has the following options available:
-
-<comp.DataReference>
-  <comp.DataReferenceRow label="type" type_markdown="String">
-    Changes the editing interface for an input. Each input appears and behave differently, takes different `options`, and processes different values. See more details in the [type section](#type) below.
-
-    For unknown types, or if the input contains an unsupported value (e.g. an array value in a text input), the `disabled` type is used instead.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="label" type_markdown="String">
-    Changes the text above an input. Defaults to generating the label from the input key (e.g. "Page Title" for `page_title`).
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="comment" type_markdown="String">
-    Changes the subtext below the `label`. Has no default. Supports a limited set of Markdown: links, bold, italic, subscript, superscript and inline code elements are allowed.
-
-    Useful for adding reminders or additional context for your team members on a specific input.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="options" type_markdown="Object">
-    Configuration settings passed on to the input when displayed. These are specific to each input. The [available types and their options](#types-reference) are listed below.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="instance_value" type_markdown="String">
-    Controls if and how the value of this input is instantiated when created. This occurs when creating files, or adding array items containing the configured input. Has no default. Must be one of `UUID` or `NOW`.
-
-    * `UUID` generates a uuidv4 ([extremely unlikely to generate duplicates)](https://softwareengineering.stackexchange.com/a/130298), useful for identifying unique items (e.g. `6ec0bd7f-11c0-43da-975e-2a8ad9ebae0b`)
-    * `NOW` generates the current datetime in the site's configured timezone
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="hidden" type_markdown="Boolean or string">
-    Toggles the visibility of this input. Useful for when you need an input to exist, but don't want it edited or seen. Defaults to the naming convention, `true` for input keys starting with an underscore and `false` otherwise.
-
-    If set as a boolean, the input is hidden based if `true`.
-
-    If set as a string, the input is hidden based on the value of another input. This can start with a `!` to reverse the value. For reverse values in `YAML` files, the string should be in `'` or `"` quotation marks.
-
-    * `published` hides an input when the sibling input `published` is truthy
-    * `!published` hides an input when the sibling input `published` is falsy
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="cascade" type_markdown="Boolean">
-    Specifies whether or not this input configuration should be merged with any matching, less specific configuration. Defaults to `true`.
-
-    The [configuration cascade](/documentation/articles/using-the-configuration-cascade/) works by finding the most specific `_inputs` entry. Usually, once an option is found in the cascade, there's no reason to keep looking.
-
-    When this is `true`, the cascade continues looking and each entry found is merged. This allows you to define a `comment` globally, then a different `label` for inputs in a collection without redefining the `comment`. You can stop the cascade at any given point by setting `cascade` to `false`.
-  </comp.DataReferenceRow>
-</comp.DataReference>
 
 ### Type
 
