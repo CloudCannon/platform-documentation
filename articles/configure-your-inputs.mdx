@@ -46,6 +46,10 @@ To configure your inputs:
 
 Once you have configured your input, you must add the input key to a data file or the front matter of a markup file. CloudCannon will display the input when you open this file with the [Data Editor](/documentation/articles/the-data-editor/) or the sidebar of the [Visual](/documentation/articles/the-visual-editor/) or [Content Editor](/documentation/articles/the-content-editor/).
 
+<comp.Notice info_type="info">
+  Misconfigured inputs appear as an orange warning box in the Data Editor or the sidebar of the Visual or Content Editor. Please make sure that your input type and values are correct.
+</comp.Notice>
+
 ## Example
 
 Let’s walk through an example.
@@ -127,10 +131,10 @@ To configure inputs, add configuration keys nested under your input key name, in
 ``````````
 
 _inputs:
-  example:
+  date_created:
     type: datetime
-    label: Publication date
-    comment: The
+    label: Date of article creation
+    comment: UTC +0 timezone
     context:
       open: false
       title: Help
@@ -138,8 +142,9 @@ _inputs:
       content: This field will automatically populate when you create an article.
     hidden: false
     instance_value: NOW
-    cascade:
+    cascade: true
     options:
+      timezone: Etc/UTC
 
 ``````````
 </comp.MultiCodeBlock>
@@ -168,46 +173,52 @@ All inputs have the following options available:
     * `open`
     * `title`
     * `icon`
-    * `content`
+    * `content` (required)
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="context.open" type_markdown="Boolean">
     This key determines whether the context box is open to display text content by default. Defaults to `false` (i.e., closed).
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="context.title" type_markdown="String">
-    x
+    This key determines the title of the context box. Defaults to "Context".
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="context.icon" type_markdown="String">
-    x
+    This key determines which icon appears next to the context box title. Icon names must match Google’s <a href="https://fonts.google.com/icons?icon.set=Material+Icons" target="_blank" rel="noopener">Material Icons</a> list. This key has no default.
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="context.content" type_markdown="String">
-    x
+    This key determines the text content inside the context box. CloudCannon supports a limited selection of Markdown formatting in value text: links, heading, bold, italic, subscript, superscript, and inline code.
 
-    This key supports a limited selection of Markdown formatting in value text: links, heading, bold, italic, subscript, superscript, and inline code.
+    This key is required for the `context` object to function.
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="hidden" type_markdown="Boolean or string">
-    Toggles the visibility of this input. Useful for when you need an input to exist, but don't want it edited or seen. Defaults to the naming convention, `true` for input keys starting with an underscore and `false` otherwise.
+    This key toggles the visibility of an input in the Data Editor or the sidebar of the Visual or Content Editor. Hidden inputs are useful when you want an input to exist, but not be visible or editable outside of the Source Editor. Defaults to the naming convention: input key names beginning with an underscore are hidden `true` and `false` otherwise.
 
-    If set as a boolean, the input is hidden based if `true`.
+    This key accepts boolean or string values. A boolean value of `true` will hide the input.
 
-    If set as a string, the input is hidden based on the value of another input. This can start with a `!` to reverse the value. For reverse values in `YAML` files, the string should be in `'` or `"` quotation marks.
+    A string value can hide an input based on the value of another input. You can reverse the value with a `!` character at the beginning.
 
     * `published` hides an input when the sibling input `published` is truthy
     * `!published` hides an input when the sibling input `published` is falsy
+
+    For reverse values in `YAML` files, the string should be in `'` or `"` quotation marks.
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="instance_value" type_markdown="String">
-    Controls if and how the value of this input is instantiated when created. This occurs when creating files, or adding array items containing the configured input. Has no default. Must be one of `UUID` or `NOW`.
+    This key determines whether this input is automatically populated with a value when the input is created. This occurs when creating a new file, or adding array items containing this input. This key has no default.
 
-    * `UUID` generates a uuidv4 ([extremely unlikely to generate duplicates)](https://softwareengineering.stackexchange.com/a/130298), useful for identifying unique items (e.g. `6ec0bd7f-11c0-43da-975e-2a8ad9ebae0b`)
-    * `NOW` generates the current datetime in the site's configured timezone
+    Valid values are `UUID` or `NOW`.
+
+    * `UUID` generates a uuidv4 key ([extremely unlikely to generate duplicates)](https://softwareengineering.stackexchange.com/a/130298), useful for identifying unique items (e.g. `6ec0bd7f-11c0-43da-975e-2a8ad9ebae0b`)
+    * `NOW` generates the current datetime in the Site's configured timezone
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="cascade" type_markdown="Boolean">
-    Specifies whether or not this input configuration should be merged with any matching, less specific configuration. Defaults to `true`.
+    This key determines whether CloudCannon should merge this input configuration with any matching, less specific configurations elsewhere in the configuration cascade. Defaults to `true`.
 
-    The [configuration cascade](/documentation/articles/using-the-configuration-cascade/) works by finding the most specific `_inputs` entry. Usually, once an option is found in the cascade, there's no reason to keep looking.
+    The [configuration cascade](/documentation/articles/using-the-configuration-cascade/) works by finding the most specific `_inputs` entry. Usually, once an option is found in the cascade, there's no reason to keep looking. When this key is `true`, the cascade continues looking and each entry found is merged.
 
-    When this is `true`, the cascade continues looking and each entry found is merged. This allows you to define a `comment` globally, then a different `label` for inputs in a collection without redefining the `comment`. You can stop the cascade at any given point by setting `cascade` to `false`.
+    This key allows you to define some options globally while using specific options for other keys at different levels of the cascade. For example, define a `comment` globally, but use collection-specific `label` for inputs in different collections. You can stop the cascade at any point in the configuration cascade by setting `cascade` to `false`.
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="options" type_markdown="Object">
-    Configuration settings passed on to the input when displayed. These are specific to each input. The [available types and their options](#types-reference) are listed below.
+    This key determines the configuration specific to each input type. If this key and nested keys are not defined, CloudCannon will use the default configuration options for that input type.
+
+    For more information on options, please read our documentation on each input type.
   </comp.DataReferenceRow>
 </comp.DataReference>
