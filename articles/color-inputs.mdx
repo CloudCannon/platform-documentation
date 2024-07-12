@@ -20,100 +20,78 @@ related_articles:
   - using-the-configuration-cascade
 related_links: []
 ---
-Color picker input with spectrum and transparency controls for editing color values in your data.
+A Color input lets your team members store color information in your data files or the front matter of markup files. Color inputs have a color picker with spectrum and transparency controls for editing color values.
 
-Color inputs are shown for inputs configured with the type `color`, or for input keys matching:
+For each input, you can configure the format of the color value, enable transparency controls, and determine how to handle null values. You can also use the [general configuration options](/documentation/articles/configure-your-inputs/#general-configuration-options) available for all inputs.
 
-* `color`
-* `*_color`
-* `colour`
-* `*_colour`
-* `rgb`
-* `*_rgb`
-* `rgba`
-* `*_rgba`
-* `hex`
-* `*_hex`
-* `hsv`
-* `*_hsv`
-* `hsva`
-* `*_hsva`
-* `hsl`
-* `*_hsl`
-* `hsla`
-* `*_hsla`
+## Color
 
-Each variation specified by the matching pattern in its key defines the preferred format of the color. The `color` and `colour` variations default to hex.
+The Color input provides an editing interface for color values.
 
-Variations ending in `a` have an additional transparency control.
+<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/inputs/color/2024-07/CloudCannon-Documentation-RGB-Color-Input.png" alt="A screenshot of two Color inputs in the Data Editor, showing RGB and RGBA data." title="The Color input" type="ui-snippet"/>
 
-<comp.DocsImage path="/documentation/static/inputs/color/color.png" alt="Screenshot of color input unfocused" title="" type="screenshot-snippet"/>
+You can configure a Color input using the `type` key with the value `color`. Define the `type` key under your input key name within `_inputs`. For more information, please read our documentation on [configuring your inputs](/documentation/articles/configure-your-inputs/).
 
-<comp.DocsImage path="/documentation/static/inputs/color/color-picker.png" alt="Screenshot of color input field focused" title="" type="screenshot-snippet"/>
-
-<comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="Naming convention">
+<comp.MultiCodeBlock language="yaml" translate_into={["json", "JavaScript"]} source="cloudcannon.config.yml">
 ```
 
-brand_color: '#f05f40'
+_inputs___1___:
+  gradient_stop___2___:
+    type___3___: color
 
 ```
+<comp.Annotation number="1">
+  All inputs are defined under the `_inputs` key, regardless of where they are in the [configuration cascade](/documentation/articles/using-the-configuration-cascade/).
+</comp.Annotation>
+<comp.Annotation number="2">
+  This Color input is called `gradient_stop`.
+</comp.Annotation>
+<comp.Annotation number="3">
+  The value of the `type` key determines the input type. This is a `color` input.
+</comp.Annotation>
 </comp.MultiCodeBlock>
 
-<comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="Input configuration">
+Once configured, the Checkbox Boolean input will appear in the Data Editor or sidebar of the Visual or Content Editor when you add it to a data file or the front matter of a markup file.
+
+<comp.CodeBlock language="Markdown" source="blog.md">
 ```
+---
+gradient_stop: rgb(3, 74, 216)
+---
 
-top_gradient_stop: '#f05f40'
-_inputs:
-  top_gradient_stop:
-    type: color
-
+Blog content goes here.
 ```
-</comp.MultiCodeBlock>
+</comp.CodeBlock>
 
-### Options
+## Options
 
-Color inputs are configured with `options` inside an `_inputs` entry.
+x
 
-<comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="Input configuration">
-```
+## Unconfigured Color inputs
 
-top_gradient_stop: '#f05f40'
-_inputs:
-  top_gradient_stop:
-    type: color
-    options:
-      format: rgb
-      alpha: true
+In some cases, CloudCannon can still detect a Color input even if you have not configured it.
 
-```
-</comp.MultiCodeBlock>
+CloudCannon will interpret any unconfigured input with the key name `color`, `colour`, `rgb`, `rgba`, `hex`, `hsv`, `hsva`, `hsl`, or `hsla`, or that ends in `_color`, `_colour`, `_rgb`, `_rgba`, `_hex`, `_hsv`, `_hsva`, `_hsl`, or `_hsla`, as a Color input.
 
-Color inputs have the following options available:
+<comp.CodeBlock language="Markdown" source="about.md">
+``````````
+---
+main_hex: "#034AD8"
+---
 
-<comp.DataReference>
-  <comp.DataReferenceRow label="format" type_markdown="String">
-    Sets what format the color value is saved as. Optional, defaults to the naming convention, then `hex` if that is unset. Must be `rgb`, `hex`, `hsl`  or `hsv`.
+Content goes here.
+``````````
+</comp.CodeBlock>
 
-    Alternatively, you can configure `format` with the naming convention as well. If an input key ends with a valid `format` (and optionally `alpha`), it is used (e.g. the input keys `rgba` or `my_rgb` result in format `rgb`).
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="alpha" type_markdown="Boolean">
-    Toggles showing a control for adjusting the transparency of the selected color. Optional, defaults to using the naming convention.
+This behavior is convenient if you have simple inputs, or do not want to configure inputs. It is also beneficial for new websites on CloudCannon where you have yet to create any CloudCannon-specific configuration.
 
-    Alternatively, you can configure `alpha` with the naming convention as well. `alpha` is set to `true` if the input key ends with `a`.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="empty_type" type_markdown="string">
-    Set how an ‘empty’ value will be saved. Does not apply to existing empty values. Can be one of the following:
-
-    * `string` - an empty value for this input will be stored as `""`.
-    * `null` - an empty value for this input will be stored as a null value (default). This does not apply to TOML files.
-  </comp.DataReferenceRow>
-</comp.DataReference>
+<comp.Notice info_type="info">
+  We recommend configuring your inputs for greater control over their functionality and appearance.
+</comp.Notice>
 
 ## Valid values
 
-Documented below are the valid formats for **color** inputs.
-
-The lists of examples are non-exhaustive.
+x
 
 <comp.Notice info_type="info">
   * Hex colours with an alpha value will be converted to `rgba`.
@@ -203,3 +181,94 @@ The lists of examples are non-exhaustive.
     * `"color": "hsva(220, 98.6, 84.7, 0.5)"`
   </comp.Tab>
 </comp.Tabs>
+
+---
+
+Color picker input with spectrum and transparency controls for editing color values in your data.
+
+Color inputs are shown for inputs configured with the type `color`, or for input keys matching:
+
+* `color`
+* `*_color`
+* `colour`
+* `*_colour`
+* `rgb`
+* `*_rgb`
+* `rgba`
+* `*_rgba`
+* `hex`
+* `*_hex`
+* `hsv`
+* `*_hsv`
+* `hsva`
+* `*_hsva`
+* `hsl`
+* `*_hsl`
+* `hsla`
+* `*_hsla`
+
+Each variation specified by the matching pattern in its key defines the preferred format of the color. The `color` and `colour` variations default to hex.
+
+Variations ending in `a` have an additional transparency control.
+
+<comp.DocsImage path="/documentation/static/inputs/color/color.png" alt="Screenshot of color input unfocused" title="" type="screenshot-snippet"/>
+
+<comp.DocsImage path="/documentation/static/inputs/color/color-picker.png" alt="Screenshot of color input field focused" title="" type="screenshot-snippet"/>
+
+<comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="Naming convention">
+```
+
+brand_color: '#f05f40'
+
+```
+</comp.MultiCodeBlock>
+
+<comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="Input configuration">
+```
+
+top_gradient_stop: '#f05f40'
+_inputs:
+  top_gradient_stop:
+    type: color
+
+```
+</comp.MultiCodeBlock>
+
+### Options
+
+Color inputs are configured with `options` inside an `_inputs` entry.
+
+<comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="Input configuration">
+```
+
+top_gradient_stop: '#f05f40'
+_inputs:
+  top_gradient_stop:
+    type: color
+    options:
+      format: rgb
+      alpha: true
+
+```
+</comp.MultiCodeBlock>
+
+Color inputs have the following options available:
+
+<comp.DataReference>
+  <comp.DataReferenceRow label="format" type_markdown="String">
+    Sets what format the color value is saved as. Optional, defaults to the naming convention, then `hex` if that is unset. Must be `rgb`, `hex`, `hsl`  or `hsv`.
+
+    Alternatively, you can configure `format` with the naming convention as well. If an input key ends with a valid `format` (and optionally `alpha`), it is used (e.g. the input keys `rgba` or `my_rgb` result in format `rgb`).
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="alpha" type_markdown="Boolean">
+    Toggles showing a control for adjusting the transparency of the selected color. Optional, defaults to using the naming convention.
+
+    Alternatively, you can configure `alpha` with the naming convention as well. `alpha` is set to `true` if the input key ends with `a`.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="empty_type" type_markdown="string">
+    Set how an ‘empty’ value will be saved. Does not apply to existing empty values. Can be one of the following:
+
+    * `string` - an empty value for this input will be stored as `""`.
+    * `null` - an empty value for this input will be stored as a null value (default). This does not apply to TOML files.
+  </comp.DataReferenceRow>
+</comp.DataReference>
