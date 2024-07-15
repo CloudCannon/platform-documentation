@@ -65,13 +65,48 @@ Blog content goes here.
 
 ## Options
 
-x
+You can configure Color inputs using the `options` key under your input key, inside of `_inputs`.
+
+<comp.MultiCodeBlock language="yaml" translate_into={["json", "JavaScript"]} source="cloudcannon.config.yml">
+```
+
+_inputs:
+  background:
+    type: color
+    options:
+      format: rgb
+      alpha: true
+      empty_type: null
+
+```
+</comp.MultiCodeBlock>
+
+Color inputs have the following options available:
+
+<comp.DataReference>
+  <comp.DataReferenceRow label="format" type_markdown="String">
+    This key determines what format the color picker uses. Does not update existing values. Defaults to follow the input naming convention, or `hex`.
+
+    Value must be one of `rgb`, `hex`, `hsl`  or `hsv`.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="alpha" type_markdown="Boolean">
+    This key toggles the transparency controls for the color picker. Defaults to follow the input naming convention.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="empty_type" type_markdown="string">
+    This key determines how CloudCannon handles an empty value. This key does not apply to existing empty values.
+
+    Value must be one of the following:
+
+    * `string` - an empty value for this input will be stored as `""`.
+    * `null` - an empty value for this input will be stored as a null value (default). This does not apply to TOML files.
+  </comp.DataReferenceRow>
+</comp.DataReference>
 
 ## Unconfigured Color inputs
 
 In some cases, CloudCannon can still detect a Color input even if you have not configured it.
 
-CloudCannon will interpret any unconfigured input with the key name `color`, `colour`, `rgb`, `rgba`, `hex`, `hsv`, `hsva`, `hsl`, or `hsla`, or that ends in `_color`, `_colour`, `_rgb`, `_rgba`, `_hex`, `_hsv`, `_hsva`, `_hsl`, or `_hsla`, as a Color input.
+CloudCannon will interpret any unconfigured input with the key name `color`, `colour`, `rgb`, `rgba`, `hex`, `hsv`, `hsva`, `hsl`, or `hsla`, or that ends in `_color`, `_colour`, `_rgb`, `_rgba`, `_hex`, `_hsv`, `_hsva`, `_hsl`, or `_hsla`, as a Color input. Key name variations ending with "a" will enable the `alpha` option automatically.
 
 <comp.CodeBlock language="Markdown" source="about.md">
 ``````````
@@ -91,17 +126,7 @@ This behavior is convenient if you have simple inputs, or do not want to configu
 
 ## Valid values
 
-x
-
-<comp.Notice info_type="info">
-  * Hex colours with an alpha value will be converted to `rgba`.
-
-  * Colors will be converted to the specified `format` input
-  option when loaded into the Data Editor
-
-  * Quotes will be stripped from non-hex colors when loaded into the Data
-  Editor
-</comp.Notice>
+Here are some examples of valid values for the key `color`.
 
 <comp.Tabs label="Languages">
   <comp.Tab name="YAML">
@@ -182,93 +207,12 @@ x
   </comp.Tab>
 </comp.Tabs>
 
----
+<comp.Notice info_type="info">
+  * Hex colours with an alpha value will be converted to `rgba`.
 
-Color picker input with spectrum and transparency controls for editing color values in your data.
+  * Colors will be converted to the specified `format` input
+  option when loaded into the Data Editor
 
-Color inputs are shown for inputs configured with the type `color`, or for input keys matching:
-
-* `color`
-* `*_color`
-* `colour`
-* `*_colour`
-* `rgb`
-* `*_rgb`
-* `rgba`
-* `*_rgba`
-* `hex`
-* `*_hex`
-* `hsv`
-* `*_hsv`
-* `hsva`
-* `*_hsva`
-* `hsl`
-* `*_hsl`
-* `hsla`
-* `*_hsla`
-
-Each variation specified by the matching pattern in its key defines the preferred format of the color. The `color` and `colour` variations default to hex.
-
-Variations ending in `a` have an additional transparency control.
-
-<comp.DocsImage path="/documentation/static/inputs/color/color.png" alt="Screenshot of color input unfocused" title="" type="screenshot-snippet"/>
-
-<comp.DocsImage path="/documentation/static/inputs/color/color-picker.png" alt="Screenshot of color input field focused" title="" type="screenshot-snippet"/>
-
-<comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="Naming convention">
-```
-
-brand_color: '#f05f40'
-
-```
-</comp.MultiCodeBlock>
-
-<comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="Input configuration">
-```
-
-top_gradient_stop: '#f05f40'
-_inputs:
-  top_gradient_stop:
-    type: color
-
-```
-</comp.MultiCodeBlock>
-
-### Options
-
-Color inputs are configured with `options` inside an `_inputs` entry.
-
-<comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="Input configuration">
-```
-
-top_gradient_stop: '#f05f40'
-_inputs:
-  top_gradient_stop:
-    type: color
-    options:
-      format: rgb
-      alpha: true
-
-```
-</comp.MultiCodeBlock>
-
-Color inputs have the following options available:
-
-<comp.DataReference>
-  <comp.DataReferenceRow label="format" type_markdown="String">
-    Sets what format the color value is saved as. Optional, defaults to the naming convention, then `hex` if that is unset. Must be `rgb`, `hex`, `hsl`  or `hsv`.
-
-    Alternatively, you can configure `format` with the naming convention as well. If an input key ends with a valid `format` (and optionally `alpha`), it is used (e.g. the input keys `rgba` or `my_rgb` result in format `rgb`).
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="alpha" type_markdown="Boolean">
-    Toggles showing a control for adjusting the transparency of the selected color. Optional, defaults to using the naming convention.
-
-    Alternatively, you can configure `alpha` with the naming convention as well. `alpha` is set to `true` if the input key ends with `a`.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="empty_type" type_markdown="string">
-    Set how an ‘empty’ value will be saved. Does not apply to existing empty values. Can be one of the following:
-
-    * `string` - an empty value for this input will be stored as `""`.
-    * `null` - an empty value for this input will be stored as a null value (default). This does not apply to TOML files.
-  </comp.DataReferenceRow>
-</comp.DataReference>
+  * Quotes will be stripped from non-hex colors when loaded into the Data
+  Editor
+</comp.Notice>
