@@ -20,7 +20,7 @@ related_links:
   - name: List of tz database time zones
     url: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
 ---
-A Date or Time input lets your team members add date or time values to your data files or the front matter of markup files. Date inputs have a calendar to select date values.
+A Date or Time input lets your team members add date or time values to your data files or the front matter of markup files. Date and time inputs have a calendar to select date values and a 12-hour time field.
 
 There are three types of Date and Time input:
 
@@ -101,12 +101,18 @@ Once configured, the Date input will appear in the Data Editor or sidebar of the
 <comp.CodeBlock language="Markdown" source="blog.md">
 ```
 ---
-due: 2024-07-16
+due: 2024-07-16T00:00:00Z
 ---
 
 Blog content goes here.
 ```
 </comp.CodeBlock>
+
+<comp.Notice info_type="info">
+  Even though the input does not display the time, CloudCannon will automatically add `00:00:00` to the end of Date values, separated by a "T" character. This is for consistency with Datetime inputs, and to store timezone information necessary for determining the current date.
+
+  The time value is always added for Date inputs as `00:00:00` for consistency with Datetime inputs.
+</comp.Notice>
 
 ## Time
 
@@ -143,11 +149,47 @@ event_opens: 12:00 pm
 ```
 </comp.CodeBlock>
 
+<comp.Notice info_type="info">
+  There may be some minor differences in input behavior depending on your browser and device.
+</comp.Notice>
+
 ## Options
 
-x
+You can configure Date and Time inputs using the `options` key under your input key, inside of `_inputs`.
 
-If `timezone` is set in your global configuration, date values are saved with the matching offset suffix. If unset, date values are saved without an offset suffix in UTC.
+<comp.MultiCodeBlock language="yaml" translate_into={["json", "JavaScript"]} source="cloudcannon.config.yml">
+```
+
+_inputs:
+  background:
+    type: color
+    options:
+      format: rgb
+      alpha: true
+      empty_type: null
+
+```
+</comp.MultiCodeBlock>
+
+Date and Time inputs have the following options available:
+
+<comp.DataReference>
+  <comp.DataReferenceRow label="timezone" type_markdown="String">
+    This key determines which timezone to use when displaying and editing dates. This will also change the suffix of the date value. Defaults to the `timezone` configured in your [global configuration file](/documentation/articles/create-a-global-configuration-file/), which defaults to `Etc/UTC`.
+
+    Values must be in [tz database name](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones) format (e.g. `Pacific/Auckland` or `America/New_York`).
+
+    Available for Datetime and Date inputs only.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="empty_type" type_markdown="string">
+    This key determines how CloudCannon handles an empty value. This key does not apply to existing empty values.
+
+    Value must be one of the following:
+
+    * `string` - an empty value for this input will be stored as `""`.
+    * `null` - an empty value for this input will be stored as a null value (default). This does not apply to TOML files.
+  </comp.DataReferenceRow>
+</comp.DataReference>
 
 ## Unconfigured Date and Time inputs
 
@@ -259,10 +301,6 @@ _inputs:
 ```
 </comp.MultiCodeBlock>
 
-<comp.Notice info_type="info">
-  The time value is always added for Date inputs as `00:00:00` for consistency with Datetime inputs.
-</comp.Notice>
-
 ## Time
 
 Single line 12-hour time input for strings of time values.
@@ -300,20 +338,6 @@ _inputs:
 ## Options
 
 Date, Datetime and Time input options are configured with `options` inside an `_inputs` entry.
-
-<comp.DataReference>
-  <comp.DataReferenceRow label="timezone" type_markdown="String">
-    Specifies the time zone that dates are displayed and edited in. Also changes the suffix the date is persisted to the file with. Must be in the [tz database name](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones) format (e.g. `Pacific/Auckland` or `America/New_York`). Defaults to the `timezone` configured in your [global configuration file](/documentation/articles/create-a-global-configuration-file/), which defaults to `Etc/UTC`.
-
-    Available on Date and Datetime inputs, has no effect on Time inputs.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="empty_type" type_markdown="string">
-    Set how an ‘empty’ value will be saved. Does not apply to existing empty values. Can be one of the following:
-
-    * `string` - an empty value for this input will be stored as `""`.
-    * `null` - an empty value for this input will be stored as a null value (default). This does not apply to TOML files.
-  </comp.DataReferenceRow>
-</comp.DataReference>
 
 ## Valid values
 
