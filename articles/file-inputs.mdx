@@ -163,9 +163,9 @@ _inputs:
       allowed_sources:
         - site-files
       empty_type: null
-      resize_style:
-      width:
-      height:
+      resize_style: crop
+      width: 400
+      height: 300
       expandable:
       prevent_resize_existing_files: false
       mime_type:
@@ -211,29 +211,20 @@ File inputs have the following options available:
 
     * `dam_static`
     * `dam_uploads`
-    * `dam_uploads_filename`
-    * `static`
     * `uploads`
-    * `uploads_filename`
-
-    Available for the Content Editor (`_editables.content`), the Block editable region (`_editables.block`), the Image editable region (`_editables.image`), the Text editable region (`_editables.text`), and Rich Text inputs (`_inputs.key_name.options`).
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="paths.dam_static" type_markdown="String">
     This key enables you to define the path for the location of statically copied assets for [DAM](/documentation/articles/introduction-to-assets-and-dams/) files.
-
-    Available for the Content Editor (`_editables.content`), the Block editable region (`_editables.block`), the Image editable region (`_editables.image`), the Text editable region (`_editables.text`), and Rich Text inputs (`_inputs.key_name.options`).
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="paths.dam_uploads" type_markdown="String">
     This key enables you to define the path for the default location of newly uploaded [DAM](/documentation/articles/introduction-to-assets-and-dams/) files.
 
     You can use [dynamic placeholders](/documentation/articles/configure-your-template-strings/) for `uploads` and `dam_uploads`. For more information, please read our documentation on [adjusting file upload paths](/documentation/articles/adjusting-the-uploads-path/).
-
-    Available for the Content Editor (`_editables.content`), the Block editable region (`_editables.block`), the Image editable region (`_editables.image`), the Text editable region (`_editables.text`), and Rich Text inputs (`_inputs.key_name.options`).
   </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="paths.static" type_markdown="String">
-    This key enables you to define the path for the location of statically copied assets.
+  <comp.DataReferenceRow label="paths.uploads" type_markdown="String">
+    This key enables you to define the paths for the default location of newly uploaded site files.
 
-    Available for the Content Editor (`_editables.content`), the Block editable region (`_editables.block`), the Image editable region (`_editables.image`), the Text editable region (`_editables.text`), and Rich Text inputs (`_inputs.key_name.options`).
+    You can use [dynamic placeholders](/documentation/articles/configure-your-template-strings/) for `uploads` and `dam_uploads`. For more information, please read our documentation on [adjusting file upload paths](/documentation/articles/adjusting-the-uploads-path/).
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="accepts_mime_types" type_markdown="String or array of strings">
     This key restricts which file types you are allowed to select or upload through an input. Each File input type has a different default:
@@ -265,41 +256,49 @@ If the input accepts images, the following options are also available:
 
 <comp.DataReference>
   <comp.DataReferenceRow label="resize_style" type_markdown="String">
-    Sets how uploaded image files are resized with a bounding box defined by `width` and `height` prior to upload. Defaults to `contain`. Must be `crop`, `contain`, `cover` or `stretch`:
+    This key determines how CloudCannon resizes images prior to uploading them to your repository or DAM. CloudCannon resizes images using a bounding box defined by the `width` and `height` options. Defaults to `contain`, if `width` and `height` are defined.
 
-    * `crop` prompts the user to choose a region of the image that matches the bounding box
-    * `cover` keeps aspect ratio and ensures the image covers the bounding box
-    * `contain` keeps aspect ratio and ensures the image fits inside the bounding box
-    * `stretch` ignores aspect ratio and resizes the image to the bounding box
+    Value must be one of the following:
 
-    If `width` and `height` are not set, `contain`, `cover` and `stretch` have no effect. For `crop`, `width` and `height` are both optional, controlling the minimum size of the crop region and resulting image. The aspect ratio of the crop region is also matched to these values.
+    * `crop` — Prompts the user to choose a region of the image that matches the dimensions of the bounding box.
+    * `cover` — Keeps the original aspect ratio of the uploaded image but enlarges the image to match the largest dimension of the bounding box.
+    * `contain` — Keeps the original aspect ratio of the uploaded image but reduces the image to match the smallest dimension of the bounding box.
+    * `stretch` — Ignores the original aspect ratio and resizes the image to match the dimensions of the bounding box.
+
+    If either `width` or `height` are not defined, the `contain`, `cover` and `stretch` options will not work. For the `crop`option, `width` and `height` are optional, and control the minimum size and aspect ratio of the crop region.
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="width" type_markdown="Integer">
-    Defines the width of the bounding box used in the resizing process defined with `resize_style`.
+    This key determines the width of the bounding box CloudCannon uses to resize image prior to upload. Works in conjunction with the `resize_style` option.
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="height" type_markdown="Integer">
-    Defines the height of the bounding box used in the resizing process defined with `resize_style`.
+    This key determines the height of the bounding box CloudCannon uses to resize image prior to upload. Works in conjunction with the `resize_style` option.
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="mime_type" type_markdown="String">
-    Sets what format the image is converted to prior to upload. The extension of the file is updated to match. Defaults to keeping the mime type of the uploaded file. Must be one of:
+    This key determines what format CloudCannon will convert an image to prior to uploading it. CloudCannon also updates the file extension. Defaults to keeping an image's original MIME type.
+
+    Value must be one of:
 
     * `image/jpeg`
     * `image/png`
     * `image/webp`
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="expandable" type_markdown="Boolean">
-    Controls whether or not images can be upscaled to fit the bounding box during resize prior to upload. Defaults to `false`. Has no effect if files are not resized.
+    This key determines whether you can expand an image to fit the bounding box when resizing an image prior to upload. Defaults to `false`. Has no effect if files are not resized.
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="prevent_resize_existing_files" type_markdown="Boolean">
-    Enable to skip the image resizing process configured for this input when selecting existing images. Defaults to false.
+    This key determines whether CloudCannon will prompt you to resize an existing image when you select it through this input. Defaults to false.
+
+    When resizing an existing image, CloudCannon will save the resized copy without overwriting the original file.
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="sizes" type_markdown="Array of objects">
-    Definitions for creating additional images of different sizes when uploading or selecting existing files. Has no default. Each entry contains the following fields:
+    This key determines whether CloudCannon will create additional images of different sizes  when uploading or selecting an image through this input. This key has no default.
 
-    * `size` is a number suffixed with "x" (relative size) or "w" (fixed width) for setting the dimensions of the image (e.g. 2x, 3x, 100w, 360w)
-    * `target` is a reference to another input that is given the path to this additional image file
+    Each entry in the array contains the following fields:
 
-    If the additional image cannot be created (i.e. the uploaded image is too small and would need to be upscaled), the `target` input's value is unset so references to previous files aren't mixed with new ones.
+    * `size` — Set the dimensions for the additional image file. Value must be a number with the "x" suffix for relative size or "w" suffix for fixed width (e.g., 2x, 3x, 100w, 360w).
+    * `target` — References another input. CloudCannon sets the value of this target input to the file path of the additional image file.
+
+    If CloudCannon cannot create an additional image (e.g., the image you uploaded is too small), CloudCannon does not set the value of the target input.
   </comp.DataReferenceRow>
 </comp.DataReference>
 
