@@ -18,7 +18,17 @@ tags: []
 related_articles: []
 related_links: []
 ---
-x
+A file input lets your team members upload a file to your repository or [DAM](/documentation/articles/integrating-your-dam-with-cloudcannon/), and reference the filepath for existing assets. File inputs have a file preview in the Data Editor and sidebar of the Visual and Content Editors, as well as a repository or DAM browser for searching assets.
+
+There are three types of File input:
+
+* File
+* Document
+* Image
+
+For each input, you can configure the default path for uploading assets, which MIME types an input will accept, which DAMs you are allowed to upload to and browse, and determine how to handle null values. For inputs which accept images, you can configure how CloudCannon resizes images, MIME type, and whether additional images of different sizes are created when you upload a new asset.
+
+You can also use the [general configuration options](/documentation/articles/configure-your-inputs/#general-configuration-options) available for all inputs.
 
 ## File
 
@@ -198,30 +208,22 @@ File path inputs have the following options available:
 
     If set as an array, each item should be a string of a single [mime type](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types) you want to filter by.
   </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="allowed_sources" type_markdown="Array">
+    This key lists which DAMs you are allowed to upload to and browse. Valid values include `site-files` and the reference key for any DAM connected to your site.
+
+    If `site-files` is omitted from the array, site files will not be available as an asset source for this input.
+  </comp.DataReferenceRow>
   <comp.DataReferenceRow label="empty_type" type_markdown="String">
     Set how an ‘empty’ value will be saved. Does not apply to existing empty values. Can be one of the following:
 
     * `string` - an empty value for this input will be stored as `""`.
     * `null` - an empty value for this input will be stored as a null value (default). This does not apply to TOML files.
   </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="allowed_sources" type_markdown="Array">
-    If you have one or more DAMs connected to your site, you can use this key to list which asset sources can be uploaded to and selected from.
-
-    You can refer to a DAM with the **Reference Key** field from the site-level DAM configuration.
-
-    You can refer to your site files with `site-files`. If this is omitted from the array, site files will not be available as an asset source for this input.
-  </comp.DataReferenceRow>
 </comp.DataReference>
 
 If the input allows for images, the following options are also available:
 
 <comp.DataReference>
-  <comp.DataReferenceRow label="width" type_markdown="Integer">
-    Defines the width of the bounding box used in the resizing process defined with `resize_style`.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="height" type_markdown="Integer">
-    Defines the height of the bounding box used in the resizing process defined with `resize_style`.
-  </comp.DataReferenceRow>
   <comp.DataReferenceRow label="resize_style" type_markdown="String">
     Sets how uploaded image files are resized with a bounding box defined by `width` and `height` prior to upload. Defaults to `contain`. Must be `crop`, `contain`, `cover` or `stretch`:
 
@@ -231,6 +233,12 @@ If the input allows for images, the following options are also available:
     * `stretch` ignores aspect ratio and resizes the image to the bounding box
 
     If `width` and `height` are not set, `contain`, `cover` and `stretch` have no effect. For `crop`, `width` and `height` are both optional, controlling the minimum size of the crop region and resulting image. The aspect ratio of the crop region is also matched to these values.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="width" type_markdown="Integer">
+    Defines the width of the bounding box used in the resizing process defined with `resize_style`.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="height" type_markdown="Integer">
+    Defines the height of the bounding box used in the resizing process defined with `resize_style`.
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="mime_type" type_markdown="String">
     Sets what format the image is converted to prior to upload. The extension of the file is updated to match. Defaults to keeping the mime type of the uploaded file. Must be one of:
