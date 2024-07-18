@@ -20,6 +20,122 @@ related_articles:
   - using-the-configuration-cascade
 related_links: []
 ---
+A URL input lets your team members write
+
+in your data files or the front matter of markup files.
+
+For each input, you can configure
+
+You can also use the [general configuration options](/documentation/articles/configure-your-inputs/#general-configuration-options) available for all inputs.
+
+## URL
+
+x
+
+<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/inputs/url/2024-07/CloudCannon-Documentation-URL-Input-External.png" alt="" title="The URL input" type="ui-snippet"/>
+
+<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/inputs/url/2024-07/CloudCannon-Documentation-URL-Input-Internal.png" alt="" title="The URL input" type="ui-snippet"/>
+
+&nbsp;
+
+## Options
+
+You can configure URL inputs using the `options` key under your input key, inside of `_inputs`.
+
+<comp.MultiCodeBlock language="yaml" translate_into={["json", "JavaScript"]} source="cloudcannon.config.yml">
+```
+
+_inputs:
+  background:
+    type: url
+    options:
+      paths:
+        uploads: uploads
+      empty_type: null
+
+```
+</comp.MultiCodeBlock>
+
+URL inputs have the following options available:
+
+<comp.DataReference>
+  <comp.DataReferenceRow label="paths" type_markdown="Object">
+    Paths to common folders. Each path is relative to [global](/documentation/articles/create-a-global-configuration-file/) site `source`. If unset, the paths default to those configured in the [global configuration](/documentation/articles/create-a-global-configuration-file/). The available keys are:
+
+    * `uploads` for the default path when linking to an existing site file.
+    * `dam_uploads` for the default path when linking to an existing [DAM](/documentation/articles/introduction-to-assets-and-dams/) file.
+    * `dam_static` for the location of statically copied assets for [DAM](/documentation/articles/introduction-to-assets-and-dams/) files.
+
+    `uploads` and `dam_uploads` have a [number of dynamic placeholders available](/documentation/articles/adjusting-the-uploads-path/).
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="empty_type" type_markdown="string">
+    This key determines how CloudCannon handles an empty value. This key does not apply to existing empty values.
+
+    Value must be one of the following:
+
+    * `string` - an empty value for this input will be stored as "".
+    * `null` - an empty value for this input will be stored as a null value (default). This does not apply to TOML files.
+  </comp.DataReferenceRow>
+</comp.DataReference>
+
+## Unconfigured URL inputs
+
+In some cases, CloudCannon can still detect a URL input even if you have not configured it.
+
+CloudCannon will interpret any unconfigured input with the key name `url` or `link`, or that ends in `_url` or `_link`, as a URL input.
+
+<comp.CodeBlock language="YAML" source="data.yml">
+``````````
+external_link: https://cloudcannon.com/
+``````````
+</comp.CodeBlock>
+
+This behavior is convenient if you have simple inputs, or do not want to configure inputs. It is also beneficial for new websites on CloudCannon where you have yet to create any CloudCannon-specific configuration.
+
+<comp.Notice info_type="info">
+  We recommend configuring your inputs for greater control over their functionality and appearance.
+</comp.Notice>
+
+## Valid values
+
+Here are some examples of valid values for the key `url`.
+
+<comp.Tabs label="Languages">
+  <comp.Tab name="YAML">
+    Empty/null value:
+    * `url: `
+
+    Any valid string (quoted or unquoted):
+    * `url: ""`
+    * `url: ''`
+    * `url: example.com`
+    * `url: "example.com"`
+    * `url: 'example.com'`
+    * `url: "https://example.com"`
+
+    URLs containing `:` must be surrounded by quotes
+  </comp.Tab>
+  <comp.Tab name="TOML">
+    Any valid string:
+    * `url = ""`
+    * `url = ''`
+    * `url = "example.com"`
+    * `url = 'example.com'`
+    * `url = "https://example.com"`
+  </comp.Tab>
+  <comp.Tab name="JSON">
+    Null value:
+    * `"url": null`
+
+    Any valid string:
+    * `"url": ""`
+    * `"url": "example.com"`
+    * `"url": "https://example.com"`
+  </comp.Tab>
+</comp.Tabs>
+
+---
+
 Single line input for relative, absolute and fully qualified URLs. URL inputs show a preview of the target. Previews for URLs without a protocol are requested prefixed with `http://`
 
 URL inputs are shown for inputs configured with the type `url`, or for keys matching:
@@ -55,65 +171,3 @@ _inputs:
 
 ```
 </comp.MultiCodeBlock>
-
-### Options
-
-URL inputs have the following available options:
-
-<comp.DataReference>
-  <comp.DataReferenceRow label="paths" type_markdown="Object">
-    Paths to common folders. Each path is relative to [global](/documentation/articles/create-a-global-configuration-file/) site `source`. If unset, the paths default to those configured in the [global configuration](/documentation/articles/create-a-global-configuration-file/). The available keys are:
-
-    * `uploads` for the default path when linking to an existing site file.
-    * `dam_uploads` for the default path when linking to an existing [DAM](/documentation/articles/introduction-to-assets-and-dams/) file.
-    * `dam_static` for the location of statically copied assets for [DAM](/documentation/articles/introduction-to-assets-and-dams/) files.
-
-    `uploads` and `dam_uploads` have a [number of dynamic placeholders available](/documentation/articles/adjusting-the-uploads-path/).
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="empty_type" type_markdown="string">
-    Set how an ‘empty’ value will be saved. Does not apply to existing empty values. Can be one of the following:
-
-    * `string` - an empty value for this input will be stored as `""`.
-    * `null` - an empty value for this input will be stored as a null value (default). This does not apply to TOML files.
-  </comp.DataReferenceRow>
-</comp.DataReference>
-
-## Valid values
-
-Documented below are the valid formats for **url** inputs.
-
-The lists of examples are non-exhaustive.
-
-<comp.Tabs label="Languages">
-  <comp.Tab name="YAML">
-    Empty/null value:
-    * `url: `
-
-    Any valid string (quoted or unquoted):
-    * `url: ""`
-    * `url: ''`
-    * `url: example.com`
-    * `url: "example.com"`
-    * `url: 'example.com'`
-    * `url: "https://example.com"`
-
-    URLs containing `:` must be surrounded by quotes
-  </comp.Tab>
-  <comp.Tab name="TOML">
-    Any valid string:
-    * `url = ""`
-    * `url = ''`
-    * `url = "example.com"`
-    * `url = 'example.com'`
-    * `url = "https://example.com"`
-  </comp.Tab>
-  <comp.Tab name="JSON">
-    Null value:
-    * `"url": null`
-
-    Any valid string:
-    * `"url": ""`
-    * `"url": "example.com"`
-    * `"url": "https://example.com"`
-  </comp.Tab>
-</comp.Tabs>
