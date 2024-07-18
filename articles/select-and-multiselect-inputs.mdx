@@ -18,7 +18,22 @@ tags: []
 related_articles: []
 related_links: []
 ---
-x
+A Number input lets your team members
+
+in your data files or the front matter of markup files.
+
+There are four types of Select input:
+
+* Select
+* Multiselect
+* Choice
+* Multichoice
+
+For each input, you can configure
+
+You can also use the [general configuration options](/documentation/articles/configure-your-inputs/#general-configuration-options) available for all inputs.
+
+...Data sets
 
 ## Select
 
@@ -180,15 +195,111 @@ Content goes here.
 ```
 </comp.CodeBlock>
 
+## Data sets
+
+x
+
 ## Options
 
-x
+You can configure Select and Multiselect inputs using the `options` key under your input key, inside of `_inputs`.
+
+<comp.MultiCodeBlock language="yaml" translate_into={["json", "JavaScript"]} source="cloudcannon.config.yml">
+```
+
+_inputs:
+  tags:
+    type: multichoice
+    options:
+      allow_create:
+      allow_empty:
+      empty_type: null
+      preview:
+        text:
+        icon:
+        image:
+      values:
+      value_key:
+
+```
+</comp.MultiCodeBlock>
+
+Number inputs have the following options available:
+
+<comp.DataReference>
+  <comp.DataReferenceRow label="allow_create" type_markdown="Boolean">
+    This key determines whether you are allowed to enter a new text value that does not appear in the data set. CloudCannon does not add new text values to the data set. Defaults to `false`.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="allow_empty" type_markdown="Boolean">
+    This key toggles the presence of an empty option alongside the options listed under `values`. Defaults to `true`. When `false`, CloudCannon will use the first value in the data set by default.
+
+    This key has no effect on Multiselect inputs.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="empty_type" type_markdown="string">
+    This key determines how CloudCannon handles an empty value. This key does not apply to existing empty values.
+
+    Value must be one of the following:
+
+    * `string` - an empty value for this input will be stored as "".
+    * `null` - an empty value for this input will be stored as a null value (default). This does not apply to TOML files.
+
+    Available for Multiselect and Multichoice inputs.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="preview" type_markdown="Object">
+    This key enables you to define the appearance of input values in the Data Editor or sidebar of the Visual or Content Editor. The following nested keys are available:
+
+    * `text`
+    * `icon` (Choice/Multichoice only)
+    * `image` (Choice/Multichoice only)
+
+    Defaults to:
+
+    <comp.CodeBlock language="YAML" source="cloudcannon.config.yml">
+    ``````````
+    preview:
+      text:
+        - key: title
+        - key: name
+      icon:
+        - key: icon
+    ``````````
+    </comp.CodeBlock>
+
+    For more information about previews, please read our documentation on [configuring card previews](/documentation/articles/configure-your-card-previews/).
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="preview.text" type_markdown="Array, string or boolean">
+    Controls the main text shown for selected and available options. Has no effect unless the available or selected option is an object.
+
+    If the value is a primitive type, it is used directly.
+
+    If set to `false`, no text is displayed.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="preview.icon" type_markdown="Array, string or boolean">
+    Controls the icon shown for selected and available options. Must match a [Material Icon](https://material.io/tools/icons/) name.
+
+    If set to `false`, no icon is displayed.
+
+    Available to Choice and Multichoice inputs.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="values" type_markdown="Array, object or string">
+    This key determines the available values for your input. If this key contains an object or array, CloudCannon will use the listed values. If this key contains a string, CloudCannon will fetch the values from the [data set](#data-sets) referenced.
+
+    Defaults to fetching values from a data set following the naming convention (e.g. `colors` or `my_colors` for [data set](#data-sets) `colors`).
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="value_key" type_markdown="String or array of strings">
+    Defines the key used for mapping between saved values and objects in `values`. This changes how the input saves selected values to match. Defaults to `['id', 'uuid', 'path', 'title', 'name']`. Has no effect unless `values` is an array of objects, the key is used instead for objects, and the value itself is used for primitive types.
+
+    If set as an array, keys are tried in order, until a non-empty value is found. If no keys are set for a value available, the value available is not included.
+
+    If set as a string, this key is used directly. Values available are excluded if they don't have a value for this key.
+  </comp.DataReferenceRow>
+</comp.DataReference>
+
+<comp.Notice info_type="important">
+  Sites created before 25 November 2021 have a different default for saving collection items in order to keep existing sites working.
+  Create a new site, or use the [Legacy Collections Value Key](/documentation/articles/activating-flags/#legacy-collections-value-key) flag to update this for your site.
+</comp.Notice>
 
 ## Unconfigured Select and Multiselect inputs
-
-x
-
-## Valid values
 
 x
 
@@ -364,74 +475,6 @@ _select_data:
 </comp.MultiCodeBlock>
 
 Select, Multiselect, Choice and Multichoice inputs have the following options available:
-
-<comp.DataReference>
-  <comp.DataReferenceRow label="allow_create" type_markdown="Boolean">
-    Allows new text values to be created at edit time. Defaults to `false`.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="allow_empty" type_markdown="Boolean">
-    Provides an empty option alongside the options provided by `values`. Defaults to `true`. Has no effect on multiselect inputs.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="empty_type" type_markdown="string">
-    **Multiselect** and **multichoice** only.
-
-    Set how an 'empty' value will be saved. Does not apply to existing empty values. Can be one of the following:
-
-    * `array` - an empty value for this input will be stored as `[]` (default).
-    * `null` - an empty value for this input will be stored as a null value. This does not apply to TOML files.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="preview" type_markdown="Object">
-    The preview definition for changing the way selected and available options are displayed. The options available for select-style inputs are:
-
-    * `text`
-    * `icon` (Choice/Multichoice only)
-    * `image` (Choice/Multichoice only)
-
-    See the [preview options documentation](/documentation/articles/configure-your-card-previews/) for detailed information on setting this option. Defaults to:
-
-    ```yaml
-    preview:
-      text:
-        - key: title
-        - key: name
-      icon:
-        - key: icon
-    ```
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="preview.text" type_markdown="Array, string or boolean">
-    Controls the main text shown for selected and available options. Has no effect unless the available or selected option is an object.
-
-    If the value is a primitive type, it is used directly.
-
-    If set to `false`, no text is displayed.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="preview.icon" type_markdown="Array, string or boolean">
-    Controls the icon shown for selected and available options. Must match a [Material Icon](https://material.io/tools/icons/) name.
-
-    If set to `false`, no icon is displayed.
-
-    Available to Choice and Multichoice inputs.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="values" type_markdown="Array, object or string">
-    Defines the values available to choose from. Optional, defaults to fetching values from the naming convention (e.g. `colors` or `my_colors` for [data set](#data-sets) `colors`).
-
-    If set as an object or an array, the values are used directly.
-
-    If set as a string, the values are fetched from the [referenced data set](#data-sets).
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="value_key" type_markdown="String or array of strings">
-    Defines the key used for mapping between saved values and objects in `values`. This changes how the input saves selected values to match. Defaults to `['id', 'uuid', 'path', 'title', 'name']`. Has no effect unless `values` is an array of objects, the key is used instead for objects, and the value itself is used for primitive types.
-
-    If set as an array, keys are tried in order, until a non-empty value is found. If no keys are set for a value available, the value available is not included.
-
-    If set as a string, this key is used directly. Values available are excluded if they don't have a value for this key.
-  </comp.DataReferenceRow>
-</comp.DataReference>
-
-<comp.Notice info_type="important">
-  Sites created before 25 November 2021 have a different default for saving collection items in order to keep existing sites working.
-  Create a new site, or use the [Legacy Collections Value Key](/documentation/articles/activating-flags/#legacy-collections-value-key) flag to update this for your site.
-</comp.Notice>
 
 ## Data sets
 
