@@ -16,119 +16,99 @@ tags: []
 related_articles: []
 related_links:
 ---
-To store and edit Markdown content in CloudCannon, we need to process it into HTML to make it editable. You can use any Markdown engine you want when building your site, this only covers the Markdown content you edit inside CloudCannon.
+To store and edit Markdown content in CloudCannon, we need to process it into HTML to make it editable. It's important for CloudCannon to save Markdown in the same format expected by your SSG, so that your content is built correctly. CloudCannon supports the CommonMark and Kramdown specifications. The implementations for these are `markdown-it` (JavaScript) and `kramdown` (Ruby).
 
-CloudCannon supports the CommonMark and Kramdown specifications. The implementations for these are `markdown-it` (JavaScript) and `kramdown` (Ruby).
-
-
+You can use any Markdown engine you want when building your site. This article only concerns the way CloudCannon parses and saves your Markdown while you're editing. 
 
 <comp.Conditional ssgs={["Jekyll"]}>
   CloudCannon automatically reads your settings from `_config.yml` to match editing and builds.
-
-  To use Kramdown:
-
-  1. Remove or set the `markdown` field to `kramdown` in `_config.yml`
-  2. Set your [options](https://kramdown.gettalong.org/options.html) in the `kramdown` field in `_config.yml`
-
-  <comp.CodeBlock language="yaml" source="_config.yml">
-  ```
-  kramdown:
-    input: GFM
-    auto_ids: true
-  ```
-  </comp.CodeBlock>
-
-  To use CommonMark:
-
-  1. Add the `jekyll-commonmark` gem to your `Gemfile`
-  2. Set the `markdown` field to `CommonMark` in `_config.yml`
-  3. Set your options in the `commonmark` field in `_config.yml`
-
-  <comp.CodeBlock language="ruby" source="Gemfile">
-  ```
-  source 'https://rubygems.org'
-
-  gem 'jekyll', '3.8.5'
-
-  group :jekyll_plugins do
-    gem 'jekyll-commonmark', '1.3.1'
-  end
-  ```
-  </comp.CodeBlock>
-
-  <comp.CodeBlock language="yaml" source="_config.yml">
-  ```
-  markdown: CommonMark
-
-  commonmark:
-    options: ["SMART", "UNSAFE"]
-    extensions: ["strikethrough", "table"]
-  ```
-  </comp.CodeBlock>
-
-  The `UNSAFE` option is required for HTML content inside your Markdown files to render correctly.
 </comp.Conditional>
-
-
 
 <comp.Conditional ssgs={["Hugo"]}>
-  CloudCannon automatically reads your Goldmark settings from Hugo to match editing and builds. The settings you set for Goldmark are automatically mapped across to `markdown-it`.
-
-  See the [Hugo Documentation](https://gohugo.io/getting-started/configuration-markup#goldmark) for information on how to configure Goldmark. Other engines set with `defaultMarkdownHandler` are not officially supported.
-
-  The `UNSAFE` option is required for HTML content inside your Markdown files to render correctly.
+  CloudCannon automatically reads your Goldmark settings from Hugo to match editing and builds.
 </comp.Conditional>
 
 
 
-<comp.Conditional ssgs={["Eleventy"]}>
-  CloudCannon uses the Eleventy default settings for `markdown-it` to match editing and builds.
+<comp.Conditional not_ssgs={["Jekyll", "Hugo"]}>
+  MarkdownIt is the default Markdown processor in CloudCannon. See the default configuration below:
 
-  The default configuration is `{ html: true }` to match the Eleventy default, but you can update this to match your site by setting the `generator.metadata` in your global configuration file:
+  The default configuration uses `{ html: true }` to allow Rich Text editors to create images with width and height attributes. You can update this to match your site by setting the `generator.metadata` in your global configuration file.
 
   <comp.MultiCodeBlock language="json" translate_into={["yaml", "javascript"]} source="cloudcannon.config.json">
   ```
   {
-    "generator": {
-      "metadata": {
-        "markdown": "markdown-it",
-        "markdown-it": {
-          "html": true,
-          "linkify": true
-        }
-      }
+    "markdown": {
+        "engine": "commonmark",
+        "options": {
+          "html": true
+        },
+        "extensions": {}
     }
   }
   ```
   </comp.MultiCodeBlock>
 </comp.Conditional>
 
+<comp.DataReference>
+ <comp.DataReferenceRow label="engine" type_markdown="string">
+  Determines which Markdown engine to use while editing in CloudCannon.
 
+  Supported values are "kramdown" and "commonmark". Defaults to "commonmark".
+ </comp.DataReferenceRow>
 
-<comp.Conditional not_ssgs={["Jekyll", "Eleventy", "Hugo"]}>
-  `markdown-it` is the default Markdown processor in CloudCannon.
+ <comp.DataReferenceRow label="options.html" type_markdown="boolean">
+  Allows HTML content to be rendered in the editor and be saved back to your file.
+ </comp.DataReferenceRow>
+ <comp.DataReferenceRow label="options.xhtml" type_markdown="boolean">
+  Ensure '/' is added to self-closing HTML tags (e.g. <br />)
+ </comp.DataReferenceRow>
+ <comp.DataReferenceRow label="options.breaks" type_markdown="boolean">
+  This option determines how single newlines are handled. Normally these are ignored in Markdown.
 
-  The default configuration is `{ html: true }` to allow the images with width and height attributes the Rich Text editors create, but you can update this to match your site by setting the `generator.metadata` in your global configuration file:
+  `breaks: false` indicates to CloudCannon that your Markdown engine will not handle single newlines. CloudCannon will insert `<br>` elements to preserve the linebreak.
 
-  <comp.MultiCodeBlock language="json" translate_into={["yaml", "javascript"]} source="cloudcannon.config.json">
-  ```
-  {
-    "generator": {
-      "metadata": {
-        "markdown": "markdown-it",
-        "markdown-it": {
-          "html": true,
-          "linkify": true
-        }
-      }
-    }
-  }
-  ```
-  </comp.MultiCodeBlock>
-</comp.Conditional>
+  `breaks: true` indicates that your chosen Markdown engine will handle single newlines, so CloudCannon will not change them.
+ </comp.DataReferenceRow>
+ <comp.DataReferenceRow label="options.linkify" type_markdown="boolean">
+  Enables MarkdownIt's linkify behavior, which automatically converts URL-like text to links.
+ </comp.DataReferenceRow>
+ <comp.DataReferenceRow label="options.typographer" type_markdown="boolean">
+  Enables MarkdownIt's typographer behavior, which automatically converts URL-like text to links.
+ </comp.DataReferenceRow>
+ <comp.DataReferenceRow label="options.quotes" type_markdown="string or array">
+  This should be either a string with 4 characters, or an array of 4 characters.
 
+  This will be passed to MarkdownIt or Kramdown to replace opening/closing, single/double quotes with your chosen characters.
+ </comp.DataReferenceRow>
+ <comp.DataReferenceRow label="options.spaced_lists" type_markdown="boolean">
+  If `true`, lists will be saved with an extra trailing newline.
+ </comp.DataReferenceRow>
+ <comp.DataReferenceRow label="options.code_block_fences" type_markdown="string">
+  This should be either `~~~` or `\\``\\``.
+  If set, this determines which styles for fences to use for code blocks in your Markdown.
+ </comp.DataReferenceRow>
+ <comp.DataReferenceRow label="extensions.table" type_markdown="boolean">
+  If `true`, tables are saved in Markdown format, instead of being converted to HTML.
+ </comp.DataReferenceRow>
+ <comp.DataReferenceRow label="extensions.strikethrough" type_markdown="boolean">
+  If `true`, strikethrough elements (`<del>`, `<s>`, `<strike>`) are wrapped with double tildes (e.g. ~~example~~), instead of being output as HTML.
+ </comp.DataReferenceRow>
+ <comp.DataReferenceRow label="extensions.subscript" type_markdown="boolean">
+  If `true`, subscript elements (`<sub>`) are wrapped with tildes (e.g. ~example~), instead of being output as HTML.
+ </comp.DataReferenceRow>
+ <comp.DataReferenceRow label="extensions.superscript" type_markdown="boolean">
+  If `true`, subscript elements (`<sup>`) are wrapped with carets (e.g. ^example^), instead of being output as HTML.
+ </comp.DataReferenceRow>
+ <comp.DataReferenceRow label="extensions.heading_ids" type_markdown="boolean">
+  If your configured `engine` is `kramdown` and `heading_ids: true`, Kramdown's automatic heading ID generation will be used to save IDs to your headings.
+ </comp.DataReferenceRow>
+ <comp.DataReferenceRow label="extensions.attributes" type_markdown="boolean">
+  If `true`, HTML attributes will be saved in Markdown format. Otherwise, elements with attributes may be converted to HTML to preserve the attributes.
+  <comp.Notice info_type="info">
+    CommonMark does not support a syntax to define attributes on elements. In order to preserve attributes, that content saves as HTML within your Markdown files.
+    `extensions.attributes` should not be `true` unless your SSG's Markdown engine supports the syntax.
+  </comp.Notice>
+ </comp.DataReferenceRow>
 
-
-<comp.Notice info_type="info">
-  CommonMark does not support a syntax to define attributes on elements. In order to preserve attributes, that content saves as HTML within your Markdown files.
-</comp.Notice>
+</comp.DataReference>
