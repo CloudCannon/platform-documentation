@@ -278,6 +278,8 @@ module.exports = {
       comment: "Select which topics apply to this article.",
       options: {
         values: [
+          "2FA",
+          "Account Settings",
           "Editing interfaces",
           "Client Sharing",
           "Custom Permission Groups",
