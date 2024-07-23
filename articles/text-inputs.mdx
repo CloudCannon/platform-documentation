@@ -99,7 +99,7 @@ Once configured, the Textarea input will appear in the Data Editor or sidebar of
 <comp.CodeBlock language="Markdown" source="about.md">
 ```
 ---
-page_description: Learn how static sites are better for the environment!
+page_description: This page is about how to configure your inputs.
 ---
 
 Page content goes here.
@@ -147,120 +147,6 @@ Page content goes here.
 
 ## Disabled?
 
-x
-
-## Options
-
-x
-
-## Unconfigured Text inputs
-
-x
-
-## Valid values
-
-x
-
----
-
-These inputs are for editing plain text in your data.
-
-## Text
-
-Single line input for short text values.
-
-Text inputs are shown for inputs configured with the type `text`, or for inputs not matching any other naming convention.
-
-<comp.DocsImage path="/documentation/static/inputs/text/text.png" alt="Screenshot of text input field" title="" type="screenshot-snippet"/>
-
-<comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="Naming convention">
-```
-
-tagline: Hand-crafted clothing.
-
-```
-</comp.MultiCodeBlock>
-
-<comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="Input configuration">
-```
-
-footer_message: Look up!
-_inputs:
-  footer_message:
-    type: text
-
-```
-</comp.MultiCodeBlock>
-
-## Textarea
-
-Expanded text input for longer and/or multi-line text.
-
-Textarea inputs are shown for inputs configured with the type `textarea`, or for input keys matching:
-
-* `textarea`
-* `*_textarea`
-* `description`
-* `*_description`
-
-<comp.DocsImage path="/documentation/static/inputs/text/textarea.png" alt="Screenshot of large text input field" title="" type="screenshot-snippet"/>
-
-<comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="Naming convention">
-```
-
-description: Products are crafted in-house by hand, making each piece a labor of love and an exercise in craftsmanship.
-
-```
-</comp.MultiCodeBlock>
-
-<comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="Input configuration">
-```
-
-footer_copy: |-
-  We hope you love our products.
-  We are proud of them!
-_inputs:
-  footer_copy:
-    type: textarea
-
-```
-</comp.MultiCodeBlock>
-
-## Email
-
-Single line input for email addresses.
-
-Email inputs are shown for inputs configured with the type `email`, or for input keys matching:
-
-* `email`
-* `*_email`
-* `email_address`
-* `*_email_address`
-
-<comp.DocsImage path="/documentation/static/inputs/text/email.png" alt="Screenshot of two email input fields using the email and email_address keys" title="" type="screenshot-snippet"/>
-
-<comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="Naming convention">
-```
-
-email: support@cloudcannon.com
-email_address: support@cloudcannon.com
-
-```
-</comp.MultiCodeBlock>
-
-<comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="Input configuration">
-```
-
-to: support@cloudcannon.com
-_inputs:
-  to:
-    type: email
-
-```
-</comp.MultiCodeBlock>
-
-## Disabled
-
 Single line input that cannot be edited for any value.
 
 Disabled inputs are shown for inputs configured with an unknown `type`, or for inputs with values that cannot be edited with the configured `type`.
@@ -269,24 +155,67 @@ Disabled inputs are shown for inputs configured with an unknown `type`, or for i
   Text is stored unquoted if possible. Unquoted text containing only numbers with commas may require a [workaround in Jekyll](/documentation/articles/patching-yaml-number-parsing-for-jekyll/).
 </comp.Notice>
 
-### Options
+## Options
 
-Text inputs have the following available options:
+You can configure Text inputs using the `options` key under your input key, inside of `_inputs`.
+
+<comp.MultiCodeBlock language="yaml" translate_into={["json", "JavaScript"]} source="cloudcannon.config.yml">
+```
+
+_inputs:
+  image:
+    type: image
+    options:
+      show_count: true
+      empty_type: null
+
+```
+</comp.MultiCodeBlock>
+
+Text inputs have the following options available:
 
 <comp.DataReference>
-  <comp.DataReferenceRow label="empty_type" type_markdown="string">
-    Set how an ‘empty’ value will be saved. Does not apply to existing empty values. Can be one of the following:
+  <comp.DataReferenceRow label="show_count" type_markdown="Boolean">
+    This key toggles a character counter.
 
-    * `string` - an empty value for this input will be stored as `""`.
+    Available for Textarea input only.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="empty_type" type_markdown="string">
+    This key determines how CloudCannon handles an empty value. This key does not apply to existing empty values.
+
+    Value must be one of the following:
+
+    * `string` - an empty value for this input will be stored as "".
     * `null` - an empty value for this input will be stored as a null value (default). This does not apply to TOML files.
   </comp.DataReferenceRow>
 </comp.DataReference>
 
+## Unconfigured Text inputs
+
+In some cases, CloudCannon can still detect a Text input even if you have not configured it.
+
+CloudCannon will interpret any unconfigured input with the key name:
+
+* `textarea` or `description`, or that ends in `_textarea` or `_description`, as a Textarea input.
+* `email` or `email_address`, or that ends in `_email` or `_email_address`, as a Textarea input.
+
+<comp.CodeBlock language="YAML" source="data.yml">
+``````````
+image_description: /images/forest.jpeg
+``````````
+</comp.CodeBlock>
+
+CloudCannon will interpret any unconfigured input with a string value as a Text input, provided that the key name does not match the naming convention for any other input type.
+
+This behavior is convenient if you have simple inputs, or do not want to configure inputs. It is also beneficial for new websites on CloudCannon where you have yet to create any CloudCannon-specific configuration.
+
+<comp.Notice info_type="info">
+  We recommend configuring your inputs for greater control over their functionality and appearance.
+</comp.Notice>
+
 ## Valid values
 
-Documented below are the valid formats for **text**, **textarea**, and **email** inputs.
-
-The lists of examples are non-exhaustive.
+Text inputs can have multiple valid values for empty, single line, and multiline content. Here are some examples of valid values for the key `text`. These work for Text, Textarea, and Email inputs
 
 <comp.Tabs label="Languages">
   <comp.Tab name="YAML">
