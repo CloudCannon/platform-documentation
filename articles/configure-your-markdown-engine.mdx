@@ -28,87 +28,95 @@ You can use any Markdown engine you want when building your site. This article o
   CloudCannon automatically reads your Goldmark settings from Hugo to match editing and builds.
 </comp.Conditional>
 
-
-
-<comp.Conditional not_ssgs={["Jekyll", "Hugo"]}>
-  MarkdownIt is the default Markdown processor in CloudCannon. See the default configuration below:
-
-  The default configuration uses `{ html: true }` to allow Rich Text editors to create images with width and height attributes. You can update this to match your site by setting the `generator.metadata` in your global configuration file.
-
-  <comp.MultiCodeBlock language="json" translate_into={["yaml", "javascript"]} source="cloudcannon.config.json">
-  ```
-  {
-    "markdown": {
-        "engine": "commonmark",
-        "options": {
-          "html": true
-        },
-        "extensions": {}
-    }
-  }
-  ```
-  </comp.MultiCodeBlock>
-</comp.Conditional>
-
 <comp.DataReference>
  <comp.DataReferenceRow label="engine" type_markdown="string">
-  Determines which Markdown engine to use while editing in CloudCannon.
+  Determines which Markdown engine to use while editing in CloudCannon. Supported values are `kramdown` and `commonmark`.
+  
+  <comp.Conditional ssgs={["Jekyll"]}>
+    Defaults to `kramdown` when using Jekyll.
+  </comp.Conditional>
+  <comp.Conditional not_ssgs={["Jekyll"]}>
+    Defaults to `commonmark`.
+  </comp.Conditional>
 
-  Supported values are "kramdown" and "commonmark". Defaults to "commonmark".
- </comp.DataReferenceRow>
-
- <comp.DataReferenceRow label="options.html" type_markdown="boolean">
-  Allows HTML content to be rendered in the editor and be saved back to your file.
  </comp.DataReferenceRow>
  <comp.DataReferenceRow label="options.xhtml" type_markdown="boolean">
-  Ensure '/' is added to self-closing HTML tags (e.g. <br />)
+  Ensure '/' is added to self-closing HTML tags (e.g. `<br />`) when saved back to your file. 
  </comp.DataReferenceRow>
  <comp.DataReferenceRow label="options.breaks" type_markdown="boolean">
-  This option determines how single newlines are handled. Normally these are ignored in Markdown.
+  **Supported for CommonMark only.**
 
-  `breaks: false` indicates to CloudCannon that your Markdown engine will not handle single newlines. CloudCannon will insert `<br>` elements to preserve the linebreak.
+  If `true`, newlines within paragraphs will be rendered as linebreaks (`<br>`) in the Visual Editor. If `false`, these newlines will appear as single whitespace characters.
 
-  `breaks: true` indicates that your chosen Markdown engine will handle single newlines, so CloudCannon will not change them.
+  If `true`, CloudCannon will change all `<br>` tags in the file back into newline characters before saving, to preserve your original formatting. If your file already contained `<br>` tags, these will also be converted.
  </comp.DataReferenceRow>
- <comp.DataReferenceRow label="options.linkify" type_markdown="boolean">
-  Enables MarkdownIt's linkify behavior, which automatically converts URL-like text to links.
- </comp.DataReferenceRow>
- <comp.DataReferenceRow label="options.typographer" type_markdown="boolean">
-  Enables MarkdownIt's typographer behavior, which automatically converts URL-like text to links.
- </comp.DataReferenceRow>
- <comp.DataReferenceRow label="options.quotes" type_markdown="string or array">
-  This should be either a string with 4 characters, or an array of 4 characters.
 
-  This will be passed to MarkdownIt or Kramdown to replace opening/closing, single/double quotes with your chosen characters.
- </comp.DataReferenceRow>
  <comp.DataReferenceRow label="options.spaced_lists" type_markdown="boolean">
-  If `true`, lists will be saved with an extra trailing newline.
+  If `true`, list items will be saved with an extra trailing newline.
  </comp.DataReferenceRow>
  <comp.DataReferenceRow label="options.code_block_fences" type_markdown="string">
-  This should be either <code>~~~</code> or <code>```</code>
+  This should be either <code>~~~</code> or <code>```</code>.
   If set, this determines which styles for fences to use for code blocks in your Markdown.
+
+  Defaults to <code>```</code>.
  </comp.DataReferenceRow>
- <comp.DataReferenceRow label="extensions.table" type_markdown="boolean">
+ <comp.DataReferenceRow label="options.table" type_markdown="boolean">
   If `true`, tables are saved in Markdown format, instead of being converted to HTML.
+  
+  Enable this option only if your SSG's Markdown engine recognizes this syntax.
  </comp.DataReferenceRow>
- <comp.DataReferenceRow label="extensions.strikethrough" type_markdown="boolean">
+ <comp.DataReferenceRow label="options.strikethrough" type_markdown="boolean">
   If `true`, strikethrough elements (`<del>`, `<s>`, `<strike>`) are wrapped with double tildes (e.g. \~\~example\~\~), instead of being output as HTML.
+  
+  Enable this option only if your SSG's Markdown engine recognizes this syntax.
  </comp.DataReferenceRow>
- <comp.DataReferenceRow label="extensions.subscript" type_markdown="boolean">
+ <comp.DataReferenceRow label="options.subscript" type_markdown="boolean">
   If `true`, subscript elements (`<sub>`) are wrapped with tildes (e.g. \~example\~), instead of being output as HTML.
+  
+  Enable this option only if your SSG's Markdown engine recognizes this syntax.
  </comp.DataReferenceRow>
- <comp.DataReferenceRow label="extensions.superscript" type_markdown="boolean">
+ <comp.DataReferenceRow label="options.superscript" type_markdown="boolean">
   If `true`, subscript elements (`<sup>`) are wrapped with carets (e.g. ^example^), instead of being output as HTML.
- </comp.DataReferenceRow>
- <comp.DataReferenceRow label="extensions.heading_ids" type_markdown="boolean">
-  If your configured `engine` is `kramdown` and `heading_ids: true`, Kramdown's automatic heading ID generation will be used to save IDs to your headings.
- </comp.DataReferenceRow>
- <comp.DataReferenceRow label="extensions.attributes" type_markdown="boolean">
-  If `true`, HTML attributes will be saved in Markdown format. Otherwise, elements with attributes may be converted to HTML to preserve the attributes.
-  <comp.Notice info_type="info">
-    CommonMark does not support a syntax to define attributes on elements. In order to preserve attributes, that content saves as HTML within your Markdown files.
-    `extensions.attributes` should not be `true` unless your SSG's Markdown engine supports the syntax.
-  </comp.Notice>
+  
+  Enable this option only if your SSG's Markdown engine recognizes this syntax.
  </comp.DataReferenceRow>
 
+ <comp.DataReferenceRow label="options.attributes" type_markdown="boolean">
+  If `true`, HTML attributes will be saved in Markdown format. Otherwise, elements with attributes may be converted to HTML to preserve the attributes.
+  
+  Enable this option only if your SSG's Markdown engine recognizes this syntax.
+ </comp.DataReferenceRow>
+</comp.DataReference>
+
+### Display-only options
+
+Some Markdown options perform transformations of your content which make sense when rendering for display, but which you wouldn't want to save back to your content files. For this reason, some options within `markdown.options` are used for display, but are deliberately ignored when saving content back to your files.
+
+These options are used for the [Visual Editor](/documentation/articles/the-visual-editor/), and [comments](/documentation/articles/configure-your-inputs/#comment) on inputs.
+
+<comp.DataReference>
+   <comp.DataReferenceRow label="options.linkify" type_markdown="boolean">
+    **Supported for CommonMark only.**
+
+    Automatically converts URL-like text to links.
+ </comp.DataReferenceRow>
+ <comp.DataReferenceRow label="options.typographer" type_markdown="boolean">
+    **Supported for CommonMark only.**
+
+    Enables automatic typograhic replacement. For example "(c)" becomes "©", and "1/2" becomes "½".
+ </comp.DataReferenceRow>
+ <comp.DataReferenceRow label="options.quotes" type_markdown="string">
+    This should be a string with 4 characters, representing (in order) your desired opening double quote, closing double quote, opening single quote, and closing single quote characters. Normal quote characters will be replaced with these when rendered.
+
+    For example, `„“‚‘`.
+
+    <comp.Notice info_type="info">
+      If using CommonMark, this option will only work if `typographer` is also enabled.
+    </comp.Notice>
+ </comp.DataReferenceRow>
+   <comp.DataReferenceRow label="options.heading_ids" type_markdown="boolean">
+    **Supported for Kramdown only.**
+
+    If your configured `engine` is `kramdown` and `heading_ids: true`, Kramdown's automatic heading ID generation will be used to save IDs to your headings.
+ </comp.DataReferenceRow>
 </comp.DataReference>
