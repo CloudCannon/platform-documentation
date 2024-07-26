@@ -24,24 +24,23 @@ related_links:
   - name: Material Icons
     url: https://material.io/tools/icons/
 ---
-An Object input lets your team members
+An Object input lets your team members group other inputs. Object inputs can contain nested inputs, including other Objects and [Arrays](/documentation/articles/array-inputs/). There is no limit to how many layers of nested Objects you can create in CloudCannon. Grouping inputs under an Object is useful for organizing your data.
 
-There are two subtypes of Object input:
+Additionally, you can create sets of different keys to populate an Object, allowing your team to choose from several predefined structures, or create their own as needed.
 
-* Structured Object
-* Mutable Object
+&nbsp;
 
-For each input type, you can configure
+For each input you can configure the input subtype, which structures are associated with the input, groups of nested inputs with headings and subheadings, the appearance of the preview card, and how CloudCannon handles empty values. For Mutable Objects you can configure which keys and structures are allowed, add comments and documentation links, and determine label formatting.
 
 You can also use the [general configuration options](/documentation/articles/configure-your-inputs/#general-configuration-options) available for all inputs.
 
 ## Object
 
-The Object input provides an user interface for nested keys.
+The Object input provides an user interface for nested keys. Object inputs appear as a [card](/documentation/articles/configure-your-card-previews/) in the Data Editor or sidebar of the Visual or Content Editor, previewing some of the content it contains.
 
 <comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/inputs/object/2024-07/CloudCannon-Documentation-Object-Input-Closed.png" alt="" title="" type="ui-snippet"/>
 
-&nbsp;
+When you click on the Object card, it will open to show the nested inputs within that Object. The *Back* button at the top of the input will return you to the parent input.
 
 <comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/inputs/object/2024-07/CloudCannon-Documentation-Object-Input-Open.png" alt="" title="" type="ui-snippet"/>
 
@@ -66,6 +65,10 @@ _inputs___1___:
 </comp.Annotation>
 </comp.MultiCodeBlock>
 
+<comp.Notice info_type="important">
+  For Object Inputs to function correctly, they must contain nested inputs. You can add nested inputs using the [Source Editor](/documentation/articles/the-source-editor/). Alternatively, you can use a structure or a mutable object with defined value types to allow team members to populate the Object.
+</comp.Notice>
+
 Once configured, the Object input will appear in the Data Editor or sidebar of the Visual or Content Editor when you add it to a data file or the front matter of a markup file.
 
 <comp.CodeBlock language="Markdown" source="blog.md">
@@ -89,15 +92,202 @@ x
 
 x
 
+reorder, delete and add nested keys
+
+all nested keys appear on the top scope
+
 ## Options
 
-x
+You can configure Object inputs using the `options` key under your input key, inside of `_inputs`.
+
+<comp.MultiCodeBlock language="yaml" translate_into={["json", "JavaScript"]} source="cloudcannon.config.yml">
+```
+
+_inputs:
+  image:
+    type: image
+    options:
+      subtype:
+
+```
+</comp.MultiCodeBlock>
+
+Object inputs have the following options available:
+
+<comp.DataReference>
+  <comp.DataReferenceRow label="subtype" type_markdown="boolean">
+    Changes how this is object input is displayed and interacted with. Defaults to `object`.
+
+    If set to `object`, data entries appear as standard inputs, nested one layer deeper.
+
+    If set to `mutable`, data entries within an object input can be added, renamed, removed and reordered. This also changes the appearance of the input, by listing entries as a sequential group with controls for adding, removing, renaming and reordering.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="structures" type_markdown="string or object">
+    Provides data formats for value of this object. When choosing an item, team members are prompted to choose from [a number of values you have defined](/documentation/articles/create-a-structure/). Has no default.
+
+    If set as an object, the structures value is used directly.
+
+    If set as a string, the structures value is fetched from the [configuration cascade](/documentation/articles/using-the-configuration-cascade/). This allows you to define `_structures` elsewhere and reference it from here.
+
+    <comp.Notice info_type="info">
+                                      This looks similar to, and shares same format as `entries.structures`. However, `structures` applies to the object itself, and `entries.structures` applies to the entries within the object.
+                                    </comp.Notice>
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="groups" type_markdown="array of Group">
+    Allows you to group the inputs inside this object together without changing the data structure.
+
+    Groups are labelled with a heading and description. They can start collapsed or expanded (default). The inputs that belong to each group are referred to by key. Groups can only contain inputs inside this object.
+
+    Ungrouped inputs are displayed after the groups by default, but you can reverse this with `place_groups_below`.
+
+    *Does not apply to mutable or structured objects*.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="groups[*].heading" type_markdown="text">
+    The main text displayed at the top of a group. Visible when open or collapsed.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="groups[*].comment" type_markdown="text">
+    The supporting text displayed at the top of a group, below the heading. Visible when open or expanded.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="groups[*].collapsed" type_markdown="boolean">
+    Whether the group starts open or collapsed. Defaults to `false` (open).
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="groups[*].inputs" type_markdown="array of string">
+    The input keys included in this group. These keys must reference keys within this object input's data. Defaults to `[]`.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="groups[*].documentation" type_markdown="object">
+    Provides a custom link for documentation for editors shown below the heading of the group. Contains the following fields:
+
+    * `url` for the `href` value of the link (String, *required*).
+    * `text` for the visible text used in the link (String). Defaults to `Documentation`.
+    * `icon` for the icon displayed next to the link. Must be a Material Icon name. Defaults to `auto_stories`.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="place_groups_below" type_markdown="boolean">
+    Controls which order input groups and ungrouped inputs appear in. Defaults to `false`. Inputs are grouped with the `groups` options.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="preview" type_markdown="object">
+    The preview definition for changing the way data within an object input is previewed before being expanded. The options available for object inputs are:
+
+    * `text`
+    * `subtext`
+    * `icon`
+    * `image`
+
+    See the [preview options documentation](/documentation/articles/configure-your-card-previews/) for detailed information on setting this option.
+
+    If the input has `structures`, the `preview` from the structure definition is used instead.
+
+    <comp.Notice info_type="info">
+                                      Object inputs now support the new `preview` option. [Read our migration guide](/documentation/articles/migrating-to-preview-options/) if you are still using the old options: `text_key`, `subtext_key`, `image_key` and `icon`.
+                                    </comp.Notice>
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="preview.icon" type_markdown="array, string or boolean">
+    Controls the icon shown on the unopened input. Must match a [Material Icon](https://material.io/tools/icons/) name. Defaults checking the `icon` key, then falls back to `notes`.
+
+    If set to `false`, no icon is displayed.
+
+    If `image` is set, it will cover `icon` when loaded successfully.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="preview.image" type_markdown="array, string or boolean">
+    Controls the image shown on the unopened input. Has no default, falls back to `thumbnail_image`, `thumbnail_image_path`, `image`, and `image_path` in that order.
+
+    If set to `false`, no image is displayed.
+
+    If no image is found, `icon` is displayed instead.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="preview.text" type_markdown="array, string or boolean">
+    Controls the main text shown on the unopened input. Has no default, falls back to the first value found (prioritizing text-based values).
+
+    If set to `false`, no text is displayed.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="preview.subtext" type_markdown="array, string or boolean">
+    Controls the supporting text shown on the unopened input. Has no default, falls back to listing the `label` of each input inside the object value.
+
+    If set to `false`, no text is displayed.
+
+    Subtext is hidden if text and subtext is the same. If there's no text, subtext is used instead.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="empty_type" type_markdown="String">
+    This key determines how CloudCannon handles an empty value. This key does not apply to existing empty values.
+
+    Value must be one of the following:
+
+    * `string` - an empty value for this input will be stored as "".
+    * `null` - an empty value for this input will be stored as a null value (default). This does not apply to TOML files.
+  </comp.DataReferenceRow>
+</comp.DataReference>
+
+If the input is a Mutable Object, the following options are also available:
+
+<comp.MultiCodeBlock language="yaml" translate_into={["json", "JavaScript"]} source="cloudcannon.config.yml">
+```
+
+_inputs:
+  image:
+    type: object
+    options:
+      subtype: mutable
+      entries:
+        allowed_keys:
+        structures:
+        assigned_structures:
+        comment:
+        documentation:
+          url:
+          text:
+          icon:
+        allow_label_formatting: true
+
+```
+</comp.MultiCodeBlock>
+
+<comp.DataReference>
+  <comp.DataReferenceRow label="entries.allowed_keys" type_markdown="array">
+    Defines a limited set of keys that can exist on the data within an object input. This set is used when entries are added and renamed with `subtype: mutable`. Defaults to `[]`.
+
+    Available for Mutable Objects only.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="entries.structures" type_markdown="string or object">
+    Provides data formats when adding entries to the data within this object input. When adding an entry, team members are prompted to choose from [a number of values you have defined](/documentation/articles/create-a-structure/). Has no default.
+
+    Available for Mutable Objects only.
+
+    If set as an object, the structures value is used directly.
+
+    If set as a string, the structures value is fetched from the [configuration cascade](/documentation/articles/using-the-configuration-cascade/). This allows you to define `_structures` elsewhere and reference it from here.
+
+    <comp.Notice info_type="info">
+                  This looks similar to, and shares same format as `structures`. However, `entries.structures` applies to the entries within the object, and `structures` applies to the object itself.
+                </comp.Notice>
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="entries.assigned_structures" type_markdown="object">
+    Reduces the set of structure values available for entries with specific keys within a mutable object input. This set is used when entries are added with `subtype: mutable`. Structure values are referred to by their `id`.
+
+    Available for Mutable Objects only.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="entries.comment" type_markdown="text">
+    Used to supply help text above the key input when adding/renaming within a mutable object input. Has no default. Supports a limited set of Markdown: links, bold, italic, subscript, superscript and inline code elements are allowed.
+
+    Available for Mutable Objects only.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="entries.documentation" type_markdown="object">
+    Provides a custom link for documentation for editors shown above the key input when adding/renaming within a mutable object input. Contains the following fields:
+
+    * `url` for the `href` value of the link (String, *required*).
+    * `text` for the visible text used in the link (String). Defaults to `Documentation`.
+    * `icon` for the icon displayed next to the link. Must be a Material Icon name. Defaults to `auto_stories`.
+
+    Available for Mutable Objects only.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="allow_label_formatting" type_markdown="boolean">
+    Controls whether or not labels on mutable object entries are formatted. Defaults to `false`.
+
+    Available for Mutable Objects only.
+  </comp.DataReferenceRow>
+</comp.DataReference>
 
 ## Unconfigured Object inputs
 
 x
-
-&nbsp;
 
 ---
 
@@ -431,161 +621,3 @@ _structures:
 
 ```
 </comp.MultiCodeBlock>
-
-## Options
-
-Object inputs have the following options available within `options` inside an `_inputs` entry:
-
-<comp.DataReference>
-  <comp.DataReferenceRow label="subtype" type_markdown="boolean">
-    Changes how this is object input is displayed and interacted with. Defaults to `object`.
-
-    If set to `object`, data entries appear as standard inputs, nested one layer deeper.
-
-    If set to `mutable`, data entries within an object input can be added, renamed, removed and reordered. This also changes the appearance of the input, by listing entries as a sequential group with controls for adding, removing, renaming and reordering.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="entries.allowed_keys" type_markdown="array">
-    Defines a limited set of keys that can exist on the data within an object input. This set is used when entries are added and renamed with `subtype: mutable`. Defaults to `[]`.
-
-    Has no effect if `subtype` anything but `mutable`. *Only applies to mutable objects*.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="entries.structures" type_markdown="string or object">
-    Provides data formats when adding entries to the data within this object input. When adding an entry, team members are prompted to choose from [a number of values you have defined](/documentation/articles/create-a-structure/). Has no default.
-
-    Has no effect if `subtype` anything but `mutable`. *Only applies to mutable objects*.
-
-    If set as an object, the structures value is used directly.
-
-    If set as a string, the structures value is fetched from the [configuration cascade](/documentation/articles/using-the-configuration-cascade/). This allows you to define `_structures` elsewhere and reference it from here.
-
-    <comp.Notice info_type="info">
-                          This looks similar to, and shares same format as `structures`. However, `entries.structures` applies to the entries within the object, and `structures` applies to the object itself.
-                        </comp.Notice>
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="entries.assigned_structures" type_markdown="object">
-    Reduces the set of structure values available for entries with specific keys within a mutable object input. This set is used when entries are added with `subtype: mutable`. Structure values are referred to by their `id`.
-
-    Has no effect if `subtype` anything but `mutable`. *Only applies to mutable objects*.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="entries.comment" type_markdown="text">
-    Used to supply help text above the key input when adding/renaming within a mutable object input. Has no default. Supports a limited set of Markdown: links, bold, italic, subscript, superscript and inline code elements are allowed.
-
-    Has no effect if `subtype` anything but `mutable`. *Only applies to mutable objects*.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="entries.documentation" type_markdown="object">
-    Provides a custom link for documentation for editors shown above the key input when adding/renaming within a mutable object input. Contains the following fields:
-
-    * `url` for the `href` value of the link (String, *required*).
-    * `text` for the visible text used in the link (String). Defaults to `Documentation`.
-    * `icon` for the icon displayed next to the link. Must be a Material Icon name. Defaults to `auto_stories`.
-
-    ```yaml
-    _inputs:
-      my_object:
-        type: object
-        options:
-          subtype: mutable
-          entries:
-            documentation:
-              url: 'https://example.com/documentation/'
-              text: Read more about adding/renaming this key
-    ```
-
-    Has no effect if `subtype` anything but `mutable`. *Only applies to mutable objects*.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="empty_type" type_markdown="string">
-                        Set how an empty value will be saved. Does not apply to existing empty values. Can be one of the following:
-
-                        * `object` - an empty value for this input will be stored as `{}` (default).
-                        * `null` - an empty value for this input will be stored as a null value. This does not apply to TOML files.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="allow_label_formatting" type_markdown="boolean">
-    Controls whether or not labels on mutable object entries are formatted. Defaults to `false`.
-
-    *Only applies to mutable objects*.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="groups" type_markdown="array of Group">
-    Allows you to group the inputs inside this object together without changing the data structure.
-
-    Groups are labelled with a heading and description. They can start collapsed or expanded (default). The inputs that belong to each group are referred to by key. Groups can only contain inputs inside this object.
-
-    Ungrouped inputs are displayed after the groups by default, but you can reverse this with `place_groups_below`.
-
-    *Does not apply to mutable or structured objects*.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="groups[*].heading" type_markdown="text">
-    The main text displayed at the top of a group. Visible when open or collapsed.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="groups[*].comment" type_markdown="text">
-    The supporting text displayed at the top of a group, below the heading. Visible when open or expanded.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="groups[*].collapsed" type_markdown="boolean">
-    Whether the group starts open or collapsed. Defaults to `false` (open).
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="groups[*].inputs" type_markdown="array of string">
-    The input keys included in this group. These keys must reference keys within this object input's data. Defaults to `[]`.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="groups[*].documentation" type_markdown="object">
-    Provides a custom link for documentation for editors shown below the heading of the group. Contains the following fields:
-
-    * `url` for the `href` value of the link (String, *required*).
-    * `text` for the visible text used in the link (String). Defaults to `Documentation`.
-    * `icon` for the icon displayed next to the link. Must be a Material Icon name. Defaults to `auto_stories`.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="place_groups_below" type_markdown="boolean">
-    Controls which order input groups and ungrouped inputs appear in. Defaults to `false`. Inputs are grouped with the `groups` options.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="preview" type_markdown="object">
-    The preview definition for changing the way data within an object input is previewed before being expanded. The options available for object inputs are:
-
-    * `text`
-    * `subtext`
-    * `icon`
-    * `image`
-
-    See the [preview options documentation](/documentation/articles/configure-your-card-previews/) for detailed information on setting this option.
-
-    If the input has `structures`, the `preview` from the structure definition is used instead.
-
-    <comp.Notice info_type="info">
-                          Object inputs now support the new `preview` option. [Read our migration guide](/documentation/articles/migrating-to-preview-options/) if you are still using the old options: `text_key`, `subtext_key`, `image_key` and `icon`.
-                        </comp.Notice>
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="preview.icon" type_markdown="array, string or boolean">
-    Controls the icon shown on the unopened input. Must match a [Material Icon](https://material.io/tools/icons/) name. Defaults checking the `icon` key, then falls back to `notes`.
-
-    If set to `false`, no icon is displayed.
-
-    If `image` is set, it will cover `icon` when loaded successfully.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="preview.image" type_markdown="array, string or boolean">
-    Controls the image shown on the unopened input. Has no default, falls back to `thumbnail_image`, `thumbnail_image_path`, `image`, and `image_path` in that order.
-
-    If set to `false`, no image is displayed.
-
-    If no image is found, `icon` is displayed instead.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="preview.text" type_markdown="array, string or boolean">
-    Controls the main text shown on the unopened input. Has no default, falls back to the first value found (prioritizing text-based values).
-
-    If set to `false`, no text is displayed.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="preview.subtext" type_markdown="array, string or boolean">
-    Controls the supporting text shown on the unopened input. Has no default, falls back to listing the `label` of each input inside the object value.
-
-    If set to `false`, no text is displayed.
-
-    Subtext is hidden if text and subtext is the same. If there's no text, subtext is used instead.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="structures" type_markdown="string or object">
-    Provides data formats for value of this object. When choosing an item, team members are prompted to choose from [a number of values you have defined](/documentation/articles/create-a-structure/). Has no default.
-
-    If set as an object, the structures value is used directly.
-
-    If set as a string, the structures value is fetched from the [configuration cascade](/documentation/articles/using-the-configuration-cascade/). This allows you to define `_structures` elsewhere and reference it from here.
-
-    <comp.Notice info_type="info">
-                          This looks similar to, and shares same format as `entries.structures`. However, `structures` applies to the object itself, and `entries.structures` applies to the entries within the object.
-                        </comp.Notice>
-  </comp.DataReferenceRow>
-</comp.DataReference>
