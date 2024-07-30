@@ -24,7 +24,7 @@ related_links:
   - name: Material Icons
     url: https://material.io/tools/icons/
 ---
-An Object input lets your team members group other inputs. Object inputs can contain nested inputs, including other Objects and [Arrays](/documentation/articles/array-inputs/). There is no limit to how many layers of nested Objects you can create in CloudCannon. Grouping inputs under an Object is useful for organizing your data.
+An Object input lets your team members group other inputs. Object inputs contain nested inputs, including other Objects and [Arrays](/documentation/articles/array-inputs/). There is no limit to how many layers of nested Objects you can create in CloudCannon. Grouping inputs under an Object is useful for organizing your data.
 
 Additionally, you can create sets of different keys to populate an Object, allowing your team to choose from several predefined structures, or create their own as needed.
 
@@ -84,17 +84,47 @@ Blog content goes here.
 ```
 </comp.CodeBlock>
 
-## Structured Object
+## Input variations
+
+There are two variations of the Object Input: Structured Objects and Mutable Objects. These variations are mutually exclusive and have different keys available for configuration.
+
+### Structured Object
 
 x
 
-## Mutable Object
+### Mutable Object
 
-x
+A Mutable Object allows your team to add, delete, clone, rename, and reorder nested keys.
 
-reorder, delete and add nested keys
+Mutable Object inputs have a different appearance in the Data Editor and the sidebar of the Visual or Content Editor to default Object inputs. Rather than clicking on the Object input card to view the nested inputs, all the nested inputs are visible at the top scope of the input.
 
-all nested keys appear on the top scope
+<comp.DocsImage path="" alt="" title=""/>
+
+You can configure an Object input using the `subtype` key with the value `mutable`. Define the `subtype` key under `options` within your input key name.
+
+<comp.MultiCodeBlock language="yaml" translate_into={["json", "JavaScript"]} source="cloudcannon.config.yml">
+```
+
+_inputs:
+  staff___1___:
+    type___2___: object
+    options:
+      subtype___3___: mutable
+      entries:
+        allowed_keys___4___:
+        structures___5___:
+        assigned_structures___6___:
+        comment___7___:
+        documentation___8___:
+          url:
+          text:
+          icon:
+      allow_label_formatting___9___: true
+
+```
+</comp.MultiCodeBlock>
+
+Adding a new entry to the
 
 ## Options
 
@@ -107,7 +137,7 @@ _inputs:
   image:
     type: image
     options:
-      subtype:
+      subtype: object
 
 ```
 </comp.MultiCodeBlock>
@@ -130,8 +160,8 @@ Object inputs have the following options available:
     If set as a string, the structures value is fetched from the [configuration cascade](/documentation/articles/using-the-configuration-cascade/). This allows you to define `_structures` elsewhere and reference it from here.
 
     <comp.Notice info_type="info">
-                                      This looks similar to, and shares same format as `entries.structures`. However, `structures` applies to the object itself, and `entries.structures` applies to the entries within the object.
-                                    </comp.Notice>
+                                          This looks similar to, and shares same format as `entries.structures`. However, `structures` applies to the object itself, and `entries.structures` applies to the entries within the object.
+                                        </comp.Notice>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="groups" type_markdown="array of Group">
     Allows you to group the inputs inside this object together without changing the data structure.
@@ -177,8 +207,8 @@ Object inputs have the following options available:
     If the input has `structures`, the `preview` from the structure definition is used instead.
 
     <comp.Notice info_type="info">
-                                      Object inputs now support the new `preview` option. [Read our migration guide](/documentation/articles/migrating-to-preview-options/) if you are still using the old options: `text_key`, `subtext_key`, `image_key` and `icon`.
-                                    </comp.Notice>
+                                          Object inputs now support the new `preview` option. [Read our migration guide](/documentation/articles/migrating-to-preview-options/) if you are still using the old options: `text_key`, `subtext_key`, `image_key` and `icon`.
+                                        </comp.Notice>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="preview.icon" type_markdown="array, string or boolean">
     Controls the icon shown on the unopened input. Must match a [Material Icon](https://material.io/tools/icons/) name. Defaults checking the `icon` key, then falls back to `notes`.
@@ -218,28 +248,6 @@ Object inputs have the following options available:
 
 If the input is a Mutable Object, the following options are also available:
 
-<comp.MultiCodeBlock language="yaml" translate_into={["json", "JavaScript"]} source="cloudcannon.config.yml">
-```
-
-_inputs:
-  image:
-    type: object
-    options:
-      subtype: mutable
-      entries:
-        allowed_keys:
-        structures:
-        assigned_structures:
-        comment:
-        documentation:
-          url:
-          text:
-          icon:
-        allow_label_formatting: true
-
-```
-</comp.MultiCodeBlock>
-
 <comp.DataReference>
   <comp.DataReferenceRow label="entries.allowed_keys" type_markdown="array">
     Defines a limited set of keys that can exist on the data within an object input. This set is used when entries are added and renamed with `subtype: mutable`. Defaults to `[]`.
@@ -256,8 +264,8 @@ _inputs:
     If set as a string, the structures value is fetched from the [configuration cascade](/documentation/articles/using-the-configuration-cascade/). This allows you to define `_structures` elsewhere and reference it from here.
 
     <comp.Notice info_type="info">
-                  This looks similar to, and shares same format as `structures`. However, `entries.structures` applies to the entries within the object, and `structures` applies to the object itself.
-                </comp.Notice>
+                      This looks similar to, and shares same format as `structures`. However, `entries.structures` applies to the entries within the object, and `structures` applies to the object itself.
+                    </comp.Notice>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="entries.assigned_structures" type_markdown="object">
     Reduces the set of structure values available for entries with specific keys within a mutable object input. This set is used when entries are added with `subtype: mutable`. Structure values are referred to by their `id`.
