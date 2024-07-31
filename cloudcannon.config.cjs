@@ -268,9 +268,15 @@ module.exports = {
     article_category: {
       type: "multichoice",
       comment:
-        "Choose a [Diataxis category](https://diataxis.fr/compass/) based on whether this article informs action or understanding, and acquiring or applying skill. If more than one category applies, consider splitting this article into multiple smaller articles.",
+        "Choose a [Diataxis category](https://diataxis.fr/compass/).",
+      context: {
+        open: false,
+        title: "Help",
+        icon: help,
+        content: "Acquire skill and understand: Explanation /n Acquire skill and act: Guide /n Apply skill and understand: Reference /n Apply skill and act: Instructions",
+      },
       options: {
-        values: ["Explanation", "Reference", "Tutorial", "Instructions"],
+        values: ["Explanation", "Reference", "Guide", "Instructions"],
       },
     },
     article_topic: {
