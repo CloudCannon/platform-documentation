@@ -273,7 +273,7 @@ module.exports = {
         open: false,
         title: "Help",
         icon: "help",
-        content: "Acquire skill and understand: Explanation /n Acquire skill and act: Guide /n Apply skill and understand: Reference /n Apply skill and act: Instructions",
+        content: "Acquire skill and understand: Explanation \n Acquire skill and act: Guide \n Apply skill and understand: Reference \n Apply skill and act: Instructions",
       },
       options: {
         values: ["Explanation", "Reference", "Guide", "Instructions"],
