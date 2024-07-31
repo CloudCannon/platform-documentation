@@ -24,7 +24,7 @@ related_links:
   - name: Material Icons
     url: https://material.io/tools/icons/
 ---
-An Object input lets your team members group other inputs. Object inputs contain nested inputs, including other Objects and [Arrays](/documentation/articles/array-inputs/). There is no limit to how many layers of nested Objects you can create in CloudCannon. Grouping inputs under an Object is useful for organizing your data.
+An Object input lets your team members group other inputs. Object inputs contain nested inputs, including other Objects and [Arrays](/documentation/articles/array-inputs/). There is no limit to how many layers of nested Objects you can create in CloudCannon. Grouping inputs under an Object is useful for organizing your data, or hiding complicated or infrequently edited data.
 
 Additionally, you can create sets of different keys to populate an Object, allowing your team to choose from several predefined structures, or create their own as needed.
 
@@ -40,7 +40,7 @@ The Object input provides an user interface for nested keys. Object inputs appea
 
 <comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/inputs/object/2024-07/CloudCannon-Documentation-Object-Input-Closed.png" alt="" title="" type="ui-snippet"/>
 
-When you click on the Object card, it will open to show the nested inputs within that Object. The *Back* button at the top of the input will return you to the parent input.
+When you click on the Object card, it will open to show the nested inputs within that Object. The *Back* button at the top of the input will return you to the parent scope.
 
 <comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/inputs/object/2024-07/CloudCannon-Documentation-Object-Input-Open.png" alt="" title="" type="ui-snippet"/>
 
@@ -66,7 +66,7 @@ _inputs___1___:
 </comp.MultiCodeBlock>
 
 <comp.Notice info_type="important">
-  For Object Inputs to function correctly, they must contain nested inputs. You can add nested inputs using the [Source Editor](/documentation/articles/the-source-editor/). Alternatively, you can use a structure or a mutable object with defined value types to allow team members to populate the Object.
+  For Object inputs to function correctly, they must contain nested inputs. You can add nested inputs using the [Source Editor](/documentation/articles/the-source-editor/). Alternatively, you can use a structure or a mutable object with defined value types to allow team members to populate the Object.
 </comp.Notice>
 
 Once configured, the Object input will appear in the Data Editor or sidebar of the Visual or Content Editor when you add it to a data file or the front matter of a markup file.
@@ -86,7 +86,7 @@ Blog content goes here.
 
 ## Input variations
 
-There are two variations of the Object Input: Structured Objects and Mutable Objects. These variations are mutually exclusive and have different keys available for configuration.
+There are two variations of the Object input: structured Objects and mutable Objects. These variations are mutually exclusive and have different keys available for configuration.
 
 ### Structured Object
 
@@ -94,7 +94,7 @@ x
 
 ### Mutable Object
 
-A Mutable Object allows your team to add, delete, clone, rename, and reorder nested keys.
+A mutable Object allows your team to add, delete, clone, rename, and reorder nested keys.
 
 Mutable Object inputs have a different appearance in the Data Editor and the sidebar of the Visual or Content Editor to default Object inputs. Rather than clicking on the Object input card to view the nested inputs, all the nested inputs are visible at the top scope of the input.
 
@@ -110,16 +110,6 @@ _inputs:
     type___2___: object
     options:
       subtype___3___: mutable
-      entries:
-        allowed_keys___4___:
-        structures___5___:
-        assigned_structures___6___:
-        comment___7___:
-        documentation___8___:
-          url:
-          text:
-          icon:
-      allow_label_formatting___9___: true
 
 ```
 </comp.MultiCodeBlock>
@@ -134,10 +124,26 @@ You can configure Object inputs using the `options` key under your input key, in
 ```
 
 _inputs:
-  image:
-    type: image
+  homepage_feature:
+    type: object
     options:
       subtype: object
+      structures: _structures.feature_template
+      groups:
+        - heading: SEO
+          comment: Values for search engines to read
+          inputs:
+            - title
+            - description
+            - image
+      place_groups_below: false
+      preview:
+        text: Homepage Feature Image
+        subtext: Edit the main image in the header of the homepage.
+        icon: photo_library
+        image:
+          - key: image
+      empty_type: string
 
 ```
 </comp.MultiCodeBlock>
@@ -161,8 +167,8 @@ Object inputs have the following options available:
     If configured as a string, CloudCannon will use the matching structures value defined under `_structures` in the [configuration cascade](/documentation/articles/using-the-configuration-cascade/).
 
     <comp.Notice info_type="info">
-                          This key looks similar to `entries.structures`. However, the `structures` key applies to the Object input itself, while `entries.structures` applies to the entries within the object.
-                        </comp.Notice>
+                                  This key looks similar to `entries.structures`. However, the `structures` key applies to the Object input itself, while `entries.structures` applies to the entries within the object.
+                                </comp.Notice>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="groups" type_markdown="array of keys">
     This key allows you to group nested inputs within the Object Input together without changing the data structure. The following nested keys are available:
@@ -212,8 +218,8 @@ Object inputs have the following options available:
     For more information about previews, please read our documentation on [configuring card previews](/documentation/articles/configure-your-card-previews/).
 
     <comp.Notice info_type="info">
-                      Object inputs now support the new `preview` option. [Read our migration guide](/documentation/articles/migrating-to-preview-options/) if you are still using the old options: `text_key`, `subtext_key`, `image_key` and `icon`.
-                    </comp.Notice>
+                              Object inputs now support the new `preview` option. [Read our migration guide](/documentation/articles/migrating-to-preview-options/) if you are still using the old options: `text_key`, `subtext_key`, `image_key` and `icon`.
+                            </comp.Notice>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="preview.text" type_markdown="array, string or boolean">
     This key determines the title text displayed on a default Object Input card. This key has no default, and falls back to the first nested value found (prioritizing text-based values).
@@ -247,7 +253,7 @@ Object inputs have the following options available:
   </comp.DataReferenceRow>
 </comp.DataReference>
 
-If the input is a Mutable Object, the following options are also available:
+If the input is a mutable Object, the following options are also available:
 
 <comp.MultiCodeBlock language="yaml" translate_into={["json", "JavaScript"]} source="cloudcannon.config.yml">
 ```
@@ -321,8 +327,8 @@ _inputs:
     Available for Mutable Objects only.
 
     <comp.Notice info_type="info">
-                  This key looks similar to `structures`. However, the `structures` key applies to the Object input itself, while `entries.structures` applies to the entries within the object.
-                </comp.Notice>
+                          This key looks similar to `structures`. However, the `structures` key applies to the Object input itself, while `entries.structures` applies to the entries within the object.
+                        </comp.Notice>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="entries.assigned_structures" type_markdown="object">
     This key enables you to assign structures to specific key names for entries in the Object Input. When selecting an entry key name, CloudCannon will prompt to to choose one of the assigned structures for that allowed key. Structure values are referred to by their `id`.
@@ -385,70 +391,6 @@ Alternatively, object inputs can be configured to behave differently:
 ## Examples
 
 Here are a number of examples demonstrating how to use and configure object inputs.
-
-### Object
-
-Object inputs are shown for inputs configured with the type `object`, or for object data values.
-
-<comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="Value convention">
-```
-
-seo:
-  title: How to contact us
-  image: /images/staff.png
-  description: These are all the ways to contact us.
-
-```
-</comp.MultiCodeBlock>
-
-<comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="Input configuration">
-```
-
-seo:
-  title: How to contact us
-  image: /images/staff.png
-  description: These are all the ways to contact us.
-_inputs:
-  seo:
-    type: object
-
-```
-</comp.MultiCodeBlock>
-
-In the Data Editor, this example appears as a button with a preview of the data inside:
-
-<comp.DocsImage path="ye_olde_images/object-link.png" alt="Screenshot of unopened object input field" title="" type="screenshot-snippet"/>
-
-Clicking that button opens a new level in the editor showing the inputs for the entries inside the object:
-
-<comp.DocsImage path="ye_olde_images/object-open.png" alt="Screenshot of active Object input field" title="" type="screenshot-snippet"/>
-
-### Object with configured preview
-
-An object input with configuration to adjust which data is used to generate the preview on the button.
-
-<comp.MultiCodeBlock language="yaml" translate_into={["json"]} source="Input configuration">
-```
-
-seo:
-  title: How to contact us
-  image: /images/staff.png
-  description: These are all the ways to contact us.
-_inputs:
-  seo:
-    type: object
-    options:
-      preview:
-        text:
-          - key: description
-        subtext:
-          - key: title
-          - No title
-        image: false
-        icon: travel_explore
-
-```
-</comp.MultiCodeBlock>
 
 ### Object with grouped inputs
 
