@@ -272,7 +272,7 @@ module.exports = {
       context: {
         open: false,
         title: "Help",
-        icon: help,
+        icon: "help",
         content: "Acquire skill and understand: Explanation /n Acquire skill and act: Guide /n Apply skill and understand: Reference /n Apply skill and act: Instructions",
       },
       options: {
