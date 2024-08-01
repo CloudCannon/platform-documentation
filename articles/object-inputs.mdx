@@ -11,6 +11,7 @@ description: >-
   Learn how to configure an Object input to store structured data in your data
   files or front matter.
 article_category:
+  - Explanation
   - Reference
 article_topic:
   - Inputs
@@ -34,11 +35,11 @@ You can also use the [general configuration options](/documentation/articles/con
 
 The Object input provides an user interface for nested keys. Object inputs appear as a [card](/documentation/articles/configure-your-card-previews/) in the Data Editor or sidebar of the Visual or Content Editor, previewing some of the content it contains.
 
-<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/inputs/object/2024-07/CloudCannon-Documentation-Object-Input-Closed.png" alt="" title="The Object input" type="ui-snippet"/>
+<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/inputs/object/2024-07/CloudCannon-Documentation-Object-Input-Closed.png" alt="A screenshot of the Object input in the Data Editor, showing a preview of the content within the Object." title="The Object input" type="ui-snippet"/>
 
 When you click on the Object card, it will open to show the nested inputs within that Object. The *Back* button at the top of the input will return you to the parent scope.
 
-<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/inputs/object/2024-07/CloudCannon-Documentation-Object-Input-Open.png" alt="" title="" type="ui-snippet"/>
+<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/inputs/object/2024-07/CloudCannon-Documentation-Object-Input-Open.png" alt="A screenshot of the Object input in the Data Editor, showing the nested inputs within the Object." title="The Object input expanded" type="ui-snippet"/>
 
 You can configure an Object input using the `type` key with the value `object`. Define the `type` key under your input key name within `_inputs`. For more information, please read our documentation on [configuring your inputs](/documentation/articles/configure-your-inputs/).
 
@@ -86,47 +87,53 @@ There are two variations of the Object input: structured Objects and mutable Obj
 
 ### Structured Object
 
-A structured Object allows your team
+A structured Object allows your team to select a predefined template to populate the input. This input type relies on structures. For more information about how to configure structures, please read our [structures documentation](/documentation/articles/create-a-structure/).
 
-<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/inputs/object/2024-07/CloudCannon-Documentation-Structured-Object-Input-Empty.png" alt="" title="" type="ui-snippet"/>
-
-<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/inputs/object/2024-07/CloudCannon-Documentation-Structured-Object-Input-Closed.png" alt="" title="" type="ui-snippet"/>
-
-<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/inputs/object/2024-07/CloudCannon-Documentation-Structured-Object-Input-Open.png" alt="" title="" type="ui-snippet"/>
-
-You can configure an Object input using the `structures` key.
+Structured Object inputs appear similar to the default input.
 
 &nbsp;
 
-with the value `mutable`. Define the `structures` key under `options` within your input key name.
+&nbsp;
+
+Structured Object inputs
+
+Because structured Object inputs have a list of predefined templates, CloudCannon
+
+However, unlike the default Object input, a structured Object input
+
+appear as a [card](https://bubblegum-dugong.cloudvent.net/documentation/articles/configure-your-card-previews/) in the Data Editor or sidebar of the Visual or Content Editor, previewing some of the content it contains.
+
+<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/inputs/object/2024-07/CloudCannon-Documentation-Structured-Object-Input-Empty.png" alt="A screenshot of an empty Object input in the Data Editor, showing a dropdown to select a structure to populate the Object." title="An empty Object input" type="ui-snippet"/>
+
+<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/inputs/object/2024-07/CloudCannon-Documentation-Structured-Object-Input-Closed.png" alt="A screenshot of the Object input in the Data Editor, showing a preview of the content within the Object." title="The Object input" type="ui-snippet"/>
+
+<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/inputs/object/2024-07/CloudCannon-Documentation-Structured-Object-Input-Open.png" alt="A screenshot of the Object input in the Data Editor, showing the nested inputs within the Object." title="The Object input expanded" type="ui-snippet"/>
+
+You can configure an Object input using the `structures` key. The value of the `structures` key can be a string or an object. If you have defined your structures elsewhere, under the `_structures` key, you can reference
+
+&nbsp;
+
+Define the `structures` key under `options` within your input key name.
 
 <comp.MultiCodeBlock language="yaml" translate_into={["json", "JavaScript"]} source="cloudcannon.config.yml">
 ```
 
-feature_section:
-  image: /uploads/cat.png
-  caption: Tabby cat jumping off a wooden fence.
 _inputs:
-  feature_section:
-    type: object
+  feature_section___1___:
+    type___2___: object
     options:
-      structures: _structures.gallery
-_structures:
-  gallery:
-    values:
-      - label: Image
-        icon: image
-        value:
-          image:
-          caption:
-      - label: External link
-        icon: link
-        value:
-          url:
-          title:
-
+      structures___3___: _structures.gallery
 
 ```
+<comp.Annotation number="1">
+  This Object input is called `feature_section`.
+</comp.Annotation>
+<comp.Annotation number="2">
+  The value of the `type` key determines the input type. This is an `object` input.
+</comp.Annotation>
+<comp.Annotation number="3">
+  The `structures` option determines what should populate the input. In this case, it references the structure called `gallery` defined under `_structures` elsewhere in the [configuration cascade](/documentation/articles/using-the-configuration-cascade/).
+</comp.Annotation>
 </comp.MultiCodeBlock>
 
 x
@@ -151,6 +158,15 @@ _inputs:
       subtype___3___: mutable
 
 ```
+<comp.Annotation number="1">
+  This Object input is called `staff`.
+</comp.Annotation>
+<comp.Annotation number="2">
+  The value of the `type` key determines the input type. This is an `object` input.
+</comp.Annotation>
+<comp.Annotation number="3">
+  The `subtype` option determines whether you are allowed to manipulate keys in the Object input. In this case, the value is set to `mutable` to allow this behavior.
+</comp.Annotation>
 </comp.MultiCodeBlock>
 
 By default, adding a new nested input to a mutable Object input will clone the last input within the object. Additionally, CloudCannon will allow your team members to name keys anything they like. These behaviors can be beneficial for simple inputs, however it can limit the complexity of your Object inputs and quickly lead to data inconsistency.
@@ -208,8 +224,8 @@ Object inputs have the following options available:
     If configured as a string, CloudCannon will use the matching structures value defined under `_structures` in the [configuration cascade](/documentation/articles/using-the-configuration-cascade/).
 
     <comp.Notice info_type="info">
-                                      This key looks similar to `entries.structures`. However, the `structures` key applies to the Object input itself, while `entries.structures` applies to the entries within the object.
-                                    </comp.Notice>
+                                                      This key looks similar to `entries.structures`. However, the `structures` key applies to the Object input itself, while `entries.structures` applies to the entries within the object.
+                                                    </comp.Notice>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="groups" type_markdown="array of keys">
     This key allows you to group nested inputs within the Object Input together without changing the data structure. The following nested keys are available:
@@ -259,27 +275,27 @@ Object inputs have the following options available:
     For more information about previews, please read our documentation on [configuring card previews](/documentation/articles/configure-your-card-previews/).
 
     <comp.Notice info_type="info">
-                                  Object inputs now support the new `preview` option. [Read our migration guide](/documentation/articles/migrating-to-preview-options/) if you are still using the old options: `text_key`, `subtext_key`, `image_key` and `icon`.
-                                </comp.Notice>
+                                                  Object inputs now support the new `preview` option. [Read our migration guide](/documentation/articles/migrating-to-preview-options/) if you are still using the old options: `text_key`, `subtext_key`, `image_key` and `icon`.
+                                                </comp.Notice>
   </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="preview.text" type_markdown="array, string or boolean">
+  <comp.DataReferenceRow label="preview.text" type_markdown="array, string, or boolean">
     This key determines the title text displayed on a default Object Input card. This key has no default, and falls back to the first nested value found (prioritizing text-based values).
 
     If set to `false`, no text is displayed.
   </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="preview.subtext" type_markdown="array, string or boolean">
+  <comp.DataReferenceRow label="preview.subtext" type_markdown="array, string, or boolean">
     This key determines the subtitle text displayed on a default Object Input card. This key has no default, and falls back to listing the `label` of each nested input. `subtext` is hidden if text and subtext are the same. If there is no text, subtext will appear in the place of text.
 
     If set to `false`, no text is displayed.
   </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="preview.icon" type_markdown="array, string or boolean">
+  <comp.DataReferenceRow label="preview.icon" type_markdown="array, string, or boolean">
     This key determines the icon displayed on a default Object Input card. The value must match a name from the [Material Icons](https://fonts.google.com/icons?icon.set=Material+Icons) list. Defaults checking the `icon` key, then falls back to the `notes` icon.
 
     If set to `false`, no icon is displayed.
 
     If `image` is defined, the image replace `icon` when loaded successfully.
   </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="preview.image" type_markdown="array, string or boolean">
+  <comp.DataReferenceRow label="preview.image" type_markdown="array, string, or boolean">
     This key determines the image displayed on a default Object Input card. This key has no default, and falls back to `thumbnail_image`, `thumbnail_image_path`, `image`, and `image_path` in that order. If no image is found, `icon` is displayed instead.
 
     If set to `false`, no image is displayed.
@@ -368,8 +384,8 @@ _inputs:
     Available for Mutable Objects only.
 
     <comp.Notice info_type="info">
-                              This key looks similar to `structures`. However, the `structures` key applies to the Object input itself, while `entries.structures` applies to the entries within the object.
-                            </comp.Notice>
+                                              This key looks similar to `structures`. However, the `structures` key applies to the Object input itself, while `entries.structures` applies to the entries within the object.
+                                            </comp.Notice>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="entries.assigned_structures" type_markdown="object">
     This key enables you to assign structures to specific key names for entries in the Object Input. When selecting an entry key name, CloudCannon will prompt to to choose one of the assigned structures for that allowed key. Structure values are referred to by their `id`.
