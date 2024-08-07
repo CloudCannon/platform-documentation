@@ -26,6 +26,100 @@ related_links:
   - name: Material Icons
     url: https://material.io/tools/icons/
 ---
+x
+
+You can also use the [general configuration options](/documentation/articles/configure-your-inputs/#general-configuration-options) available for all inputs.
+
+## Array
+
+x
+
+## Options
+
+You can configure Array inputs using the `options` key under your input key, inside of `_inputs`.
+
+<comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="Input configuration">
+```
+
+page_sections:
+_inputs:
+  page_sections:
+    type: array
+    options:
+      structures: _structures.components
+      preview:
+        text:
+          - key: name
+        subtext:
+          - key: description
+        image:
+          - key: my_image
+        icon: article
+      empty_type: string
+
+```
+</comp.MultiCodeBlock>
+
+Array inputs have the following options available:
+
+<comp.DataReference>
+  <comp.DataReferenceRow label="structures" type_markdown="String or object">
+    This key determines which predefined templates to use for populating the Object Input. When configured, team members can select a [structure](/documentation/articles/create-a-structure/) to populate the Object with input/input groups. This key has no default.
+
+    If configured as an object, CloudCannon will use the values directly.
+
+    If configured as a string, CloudCannon will use the matching structures value defined under `_structures` in the [configuration cascade](/documentation/articles/using-the-configuration-cascade/).
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="preview" type_markdown="object">
+    This key enables you to define the appearance of the input in the Data Editor or sidebar of the Visual or Content Editor. The following nested keys are available:
+
+    * `text`
+    * `subtext`
+    * `icon`
+    * `image`
+
+    If the Object Input uses `structures`, CloudCannon will use the `preview` key from the structure instead.
+
+    For more information about previews, please read our documentation on [configuring card previews](/documentation/articles/configure-your-card-previews/).
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="preview.text" type_markdown="array, string, or boolean">
+    This key determines the title text displayed on a default Object Input card. This key has no default, and falls back to the first nested value found (prioritizing text-based values).
+
+    If set to `false`, no text is displayed.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="preview.subtext" type_markdown="array, string, or boolean">
+    This key determines the subtitle text displayed on a default Object Input card. This key has no default, and falls back to listing the `label` of each nested input. `subtext` is hidden if text and subtext are the same. If there is no text, subtext will appear in the place of text.
+
+    If set to `false`, no text is displayed.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="preview.icon" type_markdown="array, string, or boolean">
+    This key determines the icon displayed on a default Object Input card. The value must match a name from the [Material Icons](https://fonts.google.com/icons?icon.set=Material+Icons) list. Defaults checking the `icon` key, then falls back to the `notes` icon.
+
+    If set to `false`, no icon is displayed.
+
+    If `image` is defined, the image replace `icon` when loaded successfully.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="preview.image" type_markdown="array, string, or boolean">
+    This key determines the image displayed on a default Object Input card. This key has no default, and falls back to `thumbnail_image`, `thumbnail_image_path`, `image`, and `image_path` in that order. If no image is found, `icon` is displayed instead.
+
+    If set to `false`, no image is displayed.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="empty_type" type_markdown="String">
+    This key determines how CloudCannon handles an empty value. This key does not apply to existing empty values.
+
+    Value must be one of the following:
+
+    * `string` - an empty value for this input will be stored as "".
+    * `null` - an empty value for this input will be stored as a null value (default). This does not apply to TOML files.
+  </comp.DataReferenceRow>
+</comp.DataReference>
+
+## Unconfigured Array inputs
+
+x
+
+---
+
 These inputs are for editing ordered lists of values in your data.
 
 Array inputs are grouped lists of inputs in the data editor. They are used for a wide range of use cases, ranging from small text lists to full component builders. Array inputs give your editors:
@@ -136,80 +230,3 @@ quotes:
 ### Options
 
 Array inputs are configured with `options` inside an `_inputs` entry.
-
-<comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="Input configuration">
-```
-
-page_sections:
-_inputs:
-  page_sections:
-    type: array
-    options:
-      structures: _structures.components
-      preview:
-        text:
-          - key: name
-        subtext:
-          - key: description
-        image:
-          - key: my_image
-        icon: article
-
-```
-</comp.MultiCodeBlock>
-
-Array inputs have the following options available:
-
-<comp.DataReference>
-  <comp.DataReferenceRow label="empty_type" type_markdown="string">
-    Set how an 'empty' value will be saved. Does not apply to existing empty values. Can be one of the following:
-
-    * `array` - an empty value for this input will be stored as `[]` (default).
-    * `null` - an empty value for this input will be stored as a null value. This does not apply to TOML files.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="preview" type_markdown="Object">
-    The preview definition for changing the way data within an Array input's items are previewed before being expanded. The options available for Array inputs are:
-
-    * `text`
-    * `subtext`
-    * `icon`
-    * `image`
-
-    See the [preview options documentation](/documentation/articles/configure-your-card-previews/) for detailed information on setting this option.
-
-    If the input has `structures`, the `preview` from the structure definition is used instead for those items.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="preview.icon" type_markdown="Array, string or boolean">
-    Controls the icon shown on the unopened item inputs. Must match a [Material Icon](https://material.io/tools/icons/) name. Defaults checking the keys `thumbnail_image`, `thumbnail_image_path`, `image`, and `image_path` in that order, then falls back to `notes`.
-
-    If set to `false`, no icon is displayed.
-
-    If `image` is set, it will cover `icon` when loaded successfully.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="preview.image" type_markdown="Array, string or boolean">
-    Controls the image shown on the unopened item inputs. Has no default, falls back to `thumbnail_image`, `thumbnail_image_path`, `image`, and `image_path` in that order.
-
-    If set to `false`, no image is displayed.
-
-    If no image is found, `icon` is displayed instead.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="preview.subtext" type_markdown="Array, string or boolean">
-    Controls the supporting text shown on the unopened item inputs. Has no default, falls back to listing the `label` of each input inside the object value.
-
-    If set to `false`, no text is displayed.
-
-    Subtext is hidden if text and subtext is the same. If there’s no text, subtext is used instead.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="preview.text" type_markdown="Array, string or boolean">
-    Controls the main text shown on the unopened item inputs. Has no default, falls back to the first value found (prioritizing text-based values).
-
-    If set to `false`, no text is displayed.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="structures" type_markdown="String or object">
-    Provides options for creating new items. When adding a new item, team members are prompted to choose from [a number of values you have defined](/documentation/articles/create-a-structure/). Defaults to fetching from `_structures` using the naming convention (e.g. `_structures.blocks` for an input key `blocks`).
-
-    If set as an object, the structures value is used directly.
-
-    if set as a string, the structures value is fetched from the [configuration cascade](/documentation/articles/using-the-configuration-cascade/). This allows you to define `_structures` elsewhere and reference it from here.
-  </comp.DataReferenceRow>
-</comp.DataReference>
