@@ -165,17 +165,35 @@ Display-only options facilitate [visual data previews](/documentation/articles/w
   </comp.DataReferenceRow>
 </comp.DataReference>
 
-### Common use cases
+### Configuring line breaks
 
-If your SSG requires a particular format of linebreak within paragraphs, you can use the `breaks` and `xhtml` options to configure this.
+If your SSG requires a particular format of line break within paragraphs, you can use the `breaks` and `xhtml` options to configure this.
 
 <comp.CodeBlock language="md" source="about.md">
 ```
 This is a single paragraph
-with a linebreak in the middle.
+with a line break in the middle.
 ```
 </comp.CodeBlock>
 
 * `breaks: false` means that the newline will be preserved as `\n`.
 * `breaks: true` and `xhtml: false` means that the newline will be changed to `<br>`.
 * `breaks: true` and `xhtml: true` means that the newline will be changed to `<br />`.
+
+### Constraints on Markdown tables
+
+The GitHub Flavored Markdown (GFM) specification allows tables to be rendered in Markdown format, but requires all tables to have exactly one header row (Kramdown's implementation of GFM is an exception to this).
+
+If you have configured CloudCannon to use GFM and to render tables as Markdown, CloudCannon will automatically add a header row when you add a table in the rich text editor. Controls for removing this header row will be disabled.
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json", "JavaScript"]} source="cloudcannon.config.yml">
+```
+markdown:
+  engine: 'commonmark'
+  options:
+    table: true
+    gfm: true
+```
+</comp.MultiCodeBlock>
+
+With this configuration, tables will be rendered as HTML if they violate this constraint, to preserve your content.
