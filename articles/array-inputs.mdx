@@ -27,31 +27,35 @@ related_links:
   - name: Material Icons
     url: https://material.io/tools/icons/
 ---
-An Array input lets your team members create a list of inputs, or grouped inputs. Array inputs contain nested inputs of any type, including other Arrays and [Objects](/documentation/articles/object-inputs/). There is no limit to how many nested layers you can create within an Array. Creating a list of inputs, or groups of inputs, is useful for organizing your data.
+An Array input lets your team members create a list of inputs, or grouped inputs. Array inputs contain nested inputs of any type, including other Arrays and [Objects](/documentation/articles/object-inputs/). There is no limit to how many nested layers you can create within an Array. Creating a list of inputs, or inputs groups, is useful for organizing your data.
 
-You can create several predefined [structures](/documentation/articles/create-a-structure/) for your team to use
+You can populate an Array input using predefined templates called structures. For more information on structures, please read our [structures](/documentation/articles/create-a-structure/) documentation.
 
 For each input you can configure which structures are associated with the input, the appearance of the preview card, and how CloudCannon handles empty values. You can also use the [general configuration options](/documentation/articles/configure-your-inputs/#general-configuration-options) available for all inputs.
 
 ## Array
 
-The Array input provides a user interface for lists of nested inputs. Array inputs appear as a series of [cards](/documentation/articles/configure-your-card-previews/) in the Data Editor or sidebar of the Visual or Content Editor. Each card previews some of the content the input, or input group, contains.
+The Array input provides a user interface for lists of entries. Each "entry" in an Array can be a single value, an input, or an [Object](/documentation/articles/object-inputs/) containing several inputs. Array inputs appear as a series of [cards](/documentation/articles/configure-your-card-previews/) in the Data Editor or sidebar of the Visual or Content Editor.
 
 <comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/inputs/array/2024-08/CloudCannon-Documentation-Array-Input-Closed.png" alt="A screenshot of the Array input in the Data Editor, showing a preview of the content within multiple entries." title="The Array input" type="ui-snippet"/>
 
-You can reorder, clone, and add new entries in the list using the *Context menu*. You can also add new entries using the *\+ Add* button below the Array — the text on this button will differ depending on the key name of your input.
+For entries that use a key name (i.e., Objects or single inputs), the card will preview some of the content within the key.  This can include images, strings, and key names. You can configure the preview settings for these cards.
 
-By default, adding a new entry to an Array input will clone the last input in the Array.
+Simpler entires, such as text, number, or boolean values, do not use cards. Instead, they appear as editable inline fields.
 
-<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/inputs/array/2024-08/CloudCannon-Documentation-Array-Input-Context-Menu.png" alt="" title="" type="ui-snippet"/>
+Array inputs can contain a mixture of inline fields and cards simultaneously.
 
-When you click on a card in the Array, it will open to show the nested inputs within that Array entry. The *Back* button at the top of the input will return you to the parent scope.
+<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/inputs/array/2024-08/CloudCannon-Documentation-Array-Input-Value-Types.png" alt="A screenshot of the Array input in the Data Editor, showing multiple types of entries." title="The Array input" type="ui-snippet"/>
 
-<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/inputs/array/2024-08/CloudCannon-Documentation-Array-Input-Open.png" alt="" title="" type="ui-snippet"/>
+You can reorder, clone, add, and delete new entries in the list using the *Context menu*. You can also add new entries using the *\+ Add* button below the Array — the text on this button will differ depending on the key name of your input.
 
-Array inputs can contain a mixture of inline and nested values simultaneously. By default, text, number, and boolean values are inline fields. Other values, including nested inputs, Objects, or Arrays appear as cards.
+By default, adding a new entry to an Array input will clone the last entry in the Array.
 
-<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/inputs/array/2024-08/CloudCannon-Documentation-Array-Input-Value-Types.png" alt="" title="" type="ui-snippet"/>
+<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/inputs/array/2024-08/CloudCannon-Documentation-Array-Input-Context-Menu.png" alt="A screenshot of the Array input in the Data Editor, showing the Context Menu with Add, Clone, Move, and Delete options." title="The Array input" type="ui-snippet"/>
+
+When you click on a card in the Array, it will open to show the nested inputs within that Array entry. The *Back* button at the top of the entry will return you to the parent scope.
+
+<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/inputs/array/2024-08/CloudCannon-Documentation-Array-Input-Open.png" alt="A screenshot of an open entry in an Array input in the Data Editor, showing the nested keys within this Object." title="An open entry in an Array input" type="ui-snippet"/>
 
 You can configure an Array input using the `type` key with the value `array`. Define the `type` key under your input key name within `_inputs`. For more information, please read our documentation on [configuring your inputs](/documentation/articles/configure-your-inputs/).
 
@@ -75,7 +79,9 @@ _inputs___1___:
 </comp.MultiCodeBlock>
 
 <comp.Notice info_type="important">
-  For Array inputs to function correctly, they must contain nested inputs. You can add nested inputs using the [Source Editor](/documentation/articles/the-source-editor/). Alternatively, you can use a structure to allow team members to populate the Array.
+  Unconfigured Array inputs cannot be empty.
+
+  For Array inputs to function correctly, they must contain at least one entry. You can add entries to an unconfigured Array using the [Source Editor](/documentation/articles/the-source-editor/). Alternatively, you can configure an entry input type or a structure to allow team members to populate the Array.
 </comp.Notice>
 
 Once configured, the Array input will appear in the Data Editor or sidebar of the Visual or Content Editor when you add it to a data file or the front matter of a markup file.
@@ -98,15 +104,17 @@ Page content goes here.
 
 ## Populating an Array input
 
+If your default Array input becomes empty, it is misconfigured. To add a new entry to an unconfigured Array, CloudCannon will normally clone the last entry in the Array. This is not possible with an empty Array.
+
 There are two ways to tell CloudCannon how to populate your Array input, by configuring the entry input type, or creating a structure.
 
 ### Entry input type
 
-By defining the entry input type, each new entry added to the Array will match the input type specified.
+The entry input type specifies what type of input each new entry should be. Defining the entry input type for an Array input allows the Array to be empty with becoming misconfigured. All new entries added to an Array input will match the input type specified by the entry input type.
 
-You can configure the entry input type for your Array input by specifying the input name and entry types under the `_inputs` key. To specify future entries within a particular Array, use the key name of the Array followed by the `[*]` characters. Define the type of input for those entries with the `type` key.
+You can configure the entry input type for your Array input under the `_inputs` key. To specify future entries within a particular Array, use the key name of the Array followed by the `[*]` characters. Define the type of input for those entries with the `type` key.
 
-<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/inputs/array/2024-08/CloudCannon-Documentation-Array-Input-of-Images.png" alt="" title="" type="ui-snippet"/>
+<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/inputs/array/2024-08/CloudCannon-Documentation-Array-Input-of-Images.png" alt="A screenshot of an Array input in the Data Editor, containing only Image inputs." title="An Array input" type="ui-snippet"/>
 
 <comp.MultiCodeBlock language="yaml" translate_into={["json", "JavaScript"]} source="cloudcannon.config.yml">
 ```
@@ -224,94 +232,11 @@ animals:
 
 This behavior is convenient if you have simple inputs, or do not want to configure inputs. It is also beneficial for new websites on CloudCannon where you have yet to create any CloudCannon-specific configuration.
 
-If an Array input
-
 <comp.Notice info_type="info">
   We recommend configuring your inputs for greater control over their functionality and appearance.
 </comp.Notice>
 
 ---
-
-These inputs are for editing ordered lists of values in your data.
-
-Array inputs are grouped lists of inputs in the data editor. They are used for a wide range of use cases, ranging from small text lists to full component builders. Array inputs give your editors:
-
-* Drag and drop reordering
-* Configurable add options at any index
-* Intuitive editing
-* Easy removal of items
-
-## Array
-
-Grouped list of inputs with controls to add, remove and reorder items.
-
-Array inputs are shown for inputs configured with the type `array`, or for array input values.
-
-### Inline values
-
-Inline values in Array inputs are displayed and edited with inputs directly in the list. By default, text, number and boolean values are displayed inline as text, number and checkbox inputs.
-
-<comp.DocsImage path="/documentation/static/inputs/array/array.png" alt="The array editor with draggable handles, individual menus, and a button at the bottom to add a new item." title="" type="screenshot-snippet"/>
-
-<comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="Value convention">
-```
-
-staff:
-  - Karen
-  - Billy
-  - Holly
-
-```
-</comp.MultiCodeBlock>
-
-<comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="Input configuration">
-```
-
-sections:
-  _inputs:
-    sections:
-      type: array
-
-```
-</comp.MultiCodeBlock>
-
-You can configure arrays to use different inputs for inline values with [input configuration](/documentation/articles/configure-your-inputs/). Each value is still stored as either a text, number or boolean value — but is now edited with a more suitable input.
-
-Here's an example for an array of Image File inputs:
-
-<comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="Input configuration">
-```
-
-gallery:
-  - /uploads/mountain.png
-  - /uploads/beach.png
-_inputs:
-  gallery:
-    type: array
-  gallery[*]:
-    type: image
-
-```
-</comp.MultiCodeBlock>
-
-Here's another example for an array of Select inputs, populated from a `posts` collection:
-
-<comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="Input configuration">
-```
-
-other_posts:
-  - /posts/top-10-things.md
-  - /posts/yesterday-i-found.md
-_inputs:
-  other_posts:
-    type: array
-  other_posts[*]:
-    type: select
-    options:
-      values: collections.posts
-
-```
-</comp.MultiCodeBlock>
 
 ### Structured or nested values
 
@@ -338,7 +263,3 @@ quotes:
 
 ```
 </comp.MultiCodeBlock>
-
-### Options
-
-Array inputs are configured with `options` inside an `_inputs` entry.
