@@ -27,7 +27,7 @@ related_links:
   - name: Material Icons
     url: https://material.io/tools/icons/
 ---
-An Array input lets your team members create a list of inputs, or grouped inputs. Array inputs contain nested inputs of any type, including other Arrays and [Objects](/documentation/articles/object-inputs/). There is no limit to how many nested layers you can create within an Array. Creating a list of inputs, or inputs groups, is useful for organizing your data.
+An Array input lets your team members create a list of inputs or grouped inputs. Array inputs contain nested inputs of any type, including other Arrays and [Objects](/documentation/articles/object-inputs/). There is no limit to how many nested layers you can create within an Array. Creating a list of inputs, or input groups, is useful for organizing your data.
 
 You can populate an Array input using predefined templates called structures. For more information on structures, please read our [structures](/documentation/articles/create-a-structure/) documentation.
 
@@ -39,9 +39,9 @@ The Array input provides a user interface for lists of entries. Each "entry" in 
 
 <comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/inputs/array/2024-08/CloudCannon-Documentation-Array-Input-Closed.png" alt="A screenshot of the Array input in the Data Editor, showing a preview of the content within multiple entries." title="The Array input" type="ui-snippet"/>
 
-For entries that use a key name (i.e., Objects or single inputs), the card will preview some of the content within the key.  This can include images, strings, and key names. You can configure the preview settings for these cards.
+For entries that use a key name (i.e., Objects or single inputs), the card will preview some of the content within the key. This can include images, strings, and key names. You can configure the preview settings for these cards.
 
-Simpler entires, such as text, number, or boolean values, do not use cards. Instead, they appear as editable inline fields.
+Simpler entries, such as text, number, or boolean values, do not use cards. Instead, they appear as editable inline fields.
 
 Array inputs can contain a mixture of inline fields and cards simultaneously.
 
@@ -102,17 +102,19 @@ Page content goes here.
 
 ## Populating an Array input
 
-If your default Array input becomes empty, it is misconfigured. To add a new entry to an unconfigured Array, CloudCannon will normally clone the last entry in the Array. This is not possible with an empty Array.
+Without additional configuration, default Array inputs become misconfigured when empty.
 
-There are two ways to tell CloudCannon how to populate your Array input, by configuring the entry input type, or creating a structure.
+In default Array inputs, CloudCannon will clone the last entry in the Array to add a new entry. This method is not possible with an empty Array. You can configure the entry input type or create a structure to avoid this issue and support empty Arrays.
 
 ### Entry input type
 
 The entry input type specifies what type of input each new entry should be. Defining the entry input type for an Array input allows the Array to be empty without becoming misconfigured. All new entries added to an Array input will match the input type specified by the entry input type.
 
-You can configure the entry input type for your Array input under the `_inputs` key. To specify future entries within a particular Array, use the key name of the Array followed by the `[*]` characters. Define the type of input for those entries with the `type` key.
+Array inputs with a defined entry input type avoid the issue of becoming misconfigured when empty. Because you have specified which input type to use in the Array, CloudCannon can repopulate the input if you delete the contents of the Array or create a new instance of that input.
 
 <comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/inputs/array/2024-08/CloudCannon-Documentation-Array-Input-of-Images.png" alt="A screenshot of an Array input in the Data Editor, containing only Image inputs." title="An Array input" type="ui-snippet"/>
+
+You can configure the entry input type for your Array input under the `_inputs` key. To specify future entries within a particular Array, use the key name of the Array followed by the `[*]` characters. Define the type of input for those entries with the `type` key.
 
 <comp.MultiCodeBlock language="yaml" translate_into={["json", "JavaScript"]} source="cloudcannon.config.yml">
 ```
@@ -141,9 +143,7 @@ Structured Array inputs appear similar to the default input. However, unlike the
 
 <comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/inputs/array/2024-08/CloudCannon-Documentation-Structured-Array-Input.png" alt="A screenshot of a structured Array input in the Data Editor, showing a dropdown menu to select the structure for a new entry." title="A structured Array input" type="ui-snippet"/>
 
-Normally, Array inputs are misconfigured when empty as CloudCannon doesn't know what to populate them with. Structured Arrays avoid this issue. In configuring a structured Array, you will create at least one predefined structure to populate it.
-
-If you delete the contents of the Array input or create a new instance of that input, you can repopulate it with any of the structures you have configured.
+Structured Array inputs avoid the issue of becoming misconfigured when empty. Because you have configured at least one structure and linked it to your input, CloudCannon can repopulate the input if you delete the contents of the Array or create a new instance of that input.
 
 <comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/inputs/array/2024-08/CloudCannon-Documentation-Empty-Structured-Array-Input.png" alt="A screenshot of an empty structured Array input in the Data Editor, showing a dropdown menu to select the structure for a new entry." title="An empty Array input" type="ui-snippet"/>
 
@@ -172,7 +172,7 @@ _inputs:
 </comp.Annotation>
 </comp.MultiCodeBlock>
 
-Alternatively, you create the an Array called `values` to define your structures directly within your input configuration.
+Alternatively, you create an Array called `values` to define your structures directly within your input configuration.
 
 <comp.MultiCodeBlock language="yaml" translate_into={["json", "JavaScript"]} source="cloudcannon.config.yml">
 ```
@@ -307,36 +307,8 @@ animals:
 ```
 </comp.CodeBlock>
 
-This behavior is convenient if you have simple inputs, or do not want to configure inputs. It is also beneficial for new websites on CloudCannon where you have yet to create any CloudCannon-specific configuration.
+This behavior is convenient if you have simple inputs or do not want to configure inputs. It is also beneficial for new websites on CloudCannon where you have yet to create any CloudCannon-specific configuration.
 
 <comp.Notice info_type="info">
   We recommend configuring your inputs for greater control over their functionality and appearance.
 </comp.Notice>
-
----
-
-### Structured or nested values
-
-Array inputs containing object or array values are shown as a list of [Object](/documentation/articles/object-inputs/) inputs. Team members add, remove or reorder items directly on this input. Item values are edited after opening each item.
-
-This allows your team members to intuitively manage complex data. When your data can be deeply nested, there is no end to what can be achieved. Rendering the array value from this input with a loop on your site creates powerful editing opportunities for your team members.
-
-<comp.DocsImage path="/documentation/static/inputs/structures/structure.png" alt="The array editor with a list of staff members including their thumbnail image and name" title="" type="screenshot-snippet"/>
-
-<comp.DocsImage path="/documentation/static/inputs/structures/structure-item-menu.png" alt="The array editor with a list of staff members including their thumbnail image and name" title="" type="screenshot-snippet"/>
-
-<comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="Value convention">
-```
-
-quotes:
-  - name: 'Betty Jefferson'
-    position: 'Jamstack Developer'
-    image: /images/betty.svg
-    quote_markdown: '“This quotation can be edited via the front matter textarea input.”'
-  - name: 'Jamie Mills'
-    position: 'Jamstack Developer'
-    image: /images/jamie.svg
-    quote_markdown: '“You can also reorder quotations via the front matter arrays input.”'
-
-```
-</comp.MultiCodeBlock>
