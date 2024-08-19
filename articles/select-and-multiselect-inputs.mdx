@@ -11,6 +11,7 @@ description: >-
   Learn how to configure Select and Multiselect inputs to store fixed or dynamic
   lists in your data files or front matter.
 article_category:
+  - Explanation
   - Reference
 article_topic:
   - Inputs
@@ -18,9 +19,7 @@ tags: []
 related_articles: []
 related_links: []
 ---
-A Number input lets your team members
-
-in your data files or the front matter of markup files.
+A  Select or Multiselect input lets your team members select a value (or values) for data from a predefined list of options. Select inputs allow a single value, whereas Multiselect inputs allow multiple values.
 
 There are four types of Select input:
 
@@ -29,15 +28,19 @@ There are four types of Select input:
 * Choice
 * Multichoice
 
-For each input, you can configure
+For each input, you can configure whether users can create their own values, if inputs can be empty, the appearance of input values, a list of options for data values, add ID keys to each value option, and how CloudCannon handles empty values. You can also use the [general configuration options](/documentation/articles/configure-your-inputs/#general-configuration-options) available for all inputs.
 
-You can also use the [general configuration options](/documentation/articles/configure-your-inputs/#general-configuration-options) available for all inputs.
+You must configure how the value options in your Select or Multiselect input are populated for the input to function. There are three ways to populate the list of options for a Select or Multiselect input:
 
-...Data sets
+* Fixed data sets
+* Collection items
+* Data files
 
 ## Select
 
-The Select input provides an editing interface for
+The Select input provides an editing interface for data with multiple predefined options, but where only one value is allowed at a time. In the Data Editor, predefined options appear in a dropdown menu.
+
+This input has the same function as a Choice input, but a different appearance.
 
 <comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/inputs/select/2024-07/CloudCannon-Documentation-Select-Input.png" alt="A screenshot of the Select input in the Data Editor." title="The Select input" type="ui-snippet"/>
 
@@ -76,7 +79,9 @@ Content goes here.
 
 ## Multiselect
 
-The Multiselect input provides an editing interface for
+The Multiselect input provides an editing interface for data with multiple predefined options, where any number of values are allowed at a time. In the Data Editor, predefined options appear in a dropdown menu.
+
+This input has the same function as a Multichoice input, but a different appearance.
 
 <comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/inputs/select/2024-07/CloudCannon-Documentation-Multiselect-Input.png" alt="A screenshot of the Multiselect input in the Data Editor." title="The Multiselect input" type="ui-snippet"/>
 
@@ -117,7 +122,9 @@ Content goes here.
 
 ## Choice
 
-The Choice input provides an editing interface for
+The Choice input provides an editing interface for data with multiple predefined options, but where only one value is allowed at a time. In the Data Editor, predefined options appear as buttons.
+
+This input has the same function as a Select input, but a different appearance.
 
 <comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/inputs/select/2024-07/CloudCannon-Documentation-Choice-Input.png" alt="A screenshot of the Choice input in the Data Editor." title="The Choice input" type="ui-snippet"/>
 
@@ -156,7 +163,9 @@ Content goes here.
 
 ## Multichoice
 
-The Multichoice input provides an editing interface for
+The Multichoice input provides an editing interface for data with multiple predefined options, where any number of values are allowed at a time. In the Data Editor, predefined options appear as buttons.
+
+This input has the same function as a Multiselect input, but a different appearance.
 
 <comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/inputs/select/2024-07/CloudCannon-Documentation-Multichoice-Input.png" alt="A screenshot of the Multichoice input in the Data Editor." title="The Multichoice input" type="ui-snippet"/>
 
@@ -195,9 +204,146 @@ Content goes here.
 ```
 </comp.CodeBlock>
 
-## Data sets
+## Populating the value options
 
-x
+Without a list of options for the input value, Select and Multiselect inputs become misconfigured.
+
+You can configure a fixed data set, or reference a Collection or data file to populate the list of value options.
+
+### Fixed data sets
+
+A fixed data set is an array of predefined value options for your Select or Multiselect input. Fixed data sets are best suited to inputs with values that do not change often.
+
+There are two ways to define a fixed data set: within the input configuration using the `options.values` key or anywhere in the [configuration cascade](/documentation/articles/using-the-configuration-cascade/) using the `_select_data` key.
+
+To define the fixed data set within your input configuration, and your array of value options within the `values` key in the input `options`.
+
+<comp.MultiCodeBlock language="yaml" translate_into={["json", "JavaScript"]} source="cloudcannon.config.yml">
+```
+
+_inputs:
+  pets___1____:
+    type: multichoice
+    options:
+      values___2___:
+        - Dog
+        - Cat
+        - Rabbit
+
+```
+<comp.Annotation number="1">
+  This Multichoice input is called `pets`.
+</comp.Annotation>
+<comp.Annotation number="2">
+  You can configure a fixed data set directly inside your input under the `options.values` key. This fixed data set contains the options "Dog", "Cat", and "Rabbit".
+</comp.Annotation>
+</comp.MultiCodeBlock>
+
+To define your fixed data set elsewhere in the configuration cascade, create a nested key and array of value options within `_select_data`.
+
+<comp.MultiCodeBlock language="yaml" translate_into={["json", "JavaScript"]} source="cloudcannon.config.yml">
+```
+
+_select_data___1___:
+  animals___2___:
+    - Dog
+    - Cat
+    - Rabbit
+
+```
+<comp.Annotation number="1">
+  You can configure a fixed data set anywhere in the configuration cascade using the `_select_data` key.
+</comp.Annotation>
+<comp.Annotation number="2">
+  The fixed data set called `animals` contains the options "Dog", "Cat", and "Rabbit".
+</comp.Annotation>
+</comp.MultiCodeBlock>
+
+You can reference a fixed data set defined elsewhere in the configuration cascade using the `values` key in the input `options`. Use the value `_select_data.key_name`, where `key_name` is replaced with the key name of your data set.
+
+<comp.MultiCodeBlock language="yaml" translate_into={["json", "JavaScript"]} source="cloudcannon.config.yml">
+```
+
+_inputs:
+  pets___1____:
+    type: multichoice
+    options:
+      values___2___: _select_data.animals
+
+```
+<comp.Annotation number="1">
+  This Multichoice input is called `pets`.
+</comp.Annotation>
+<comp.Annotation number="2">
+  You can reference a fixed data set configured elsewhere in the configuration cascade using the `options.values` key. This input references a fixed data set called `animals`.
+</comp.Annotation>
+</comp.MultiCodeBlock>
+
+### Collections
+
+<comp.Notice info_type="info">
+  You must have [defined your Collections](/documentation/articles/define-your-collections/) for this configuration to work.
+</comp.Notice>
+
+A [Collection](/documentation/articles/define-your-collections/) is a single folder of files with a similar format. You can find your Collections in the *Site Navigation* sidebar. Using a Collection to populate your value options is useful when you want to reference pages or other content files created by team members (e.g., blogs, staff pages, or products).
+
+You can reference a Collection for your Select or Multiselect input using the `values` key in the input `options`. Use the value `collections.key_name`, where `key_name` is replaced with the key name of your Collections.
+
+<comp.MultiCodeBlock language="yaml" translate_into={["json", "JavaScript"]} source="cloudcannon.config.yml">
+```
+
+_inputs:
+  product_carousel___1____:
+    type: multiselect
+    options:
+      values___2___: collections.products
+
+```
+<comp.Annotation number="1">
+  This Multiselect input is called `product_carousel`.
+</comp.Annotation>
+<comp.Annotation number="2">
+  This input references a Collection called `products`.
+</comp.Annotation>
+</comp.MultiCodeBlock>
+
+### Data files
+
+<comp.Notice info_type="info">
+  You must have [defined your Data](/documentation/articles/define-your-data/) for this configuration to work.
+</comp.Notice>
+
+You can reference a data file for your Select or Multiselect input using the `values` key in the input `options`. Use the value `data.key_name`, where `key_name` is replaced with the key name of your Collections.
+
+<comp.MultiCodeBlock language="yaml" translate_into={["json", "JavaScript"]} source="cloudcannon.config.yml">
+```
+
+_inputs:
+  product_carousel___1____:
+    type: select
+    options:
+      values___2___: collections.products
+
+```
+<comp.Annotation number="1">
+  This Select input is called `blog_author`.
+</comp.Annotation>
+<comp.Annotation number="2">
+  The value of the `type` key determines the input type. This is a `select` input.
+</comp.Annotation>
+</comp.MultiCodeBlock>
+
+&nbsp;
+
+**Data files are similar to collections, usually a reserved collection for your SSG. Best suited when you need the available options editable by team members.**
+
+**Processed data file sets must be arrays of strings, or objects. The value saved is either the string for arrays, or the key for objects.**
+
+**By default, CloudCannon does not read data files during your build. To use this option source, instruct CloudCannon to read it by** [**defining your data**](https://bubblegum-dugong.cloudvent.net/documentation/articles/define-your-data/)**.**
+
+&nbsp;
+
+&nbsp;
 
 ## Options
 
@@ -210,14 +356,17 @@ _inputs:
   tags:
     type: multichoice
     options:
-      allow_create:
-      allow_empty:
-      empty_type: null
+      allow_create: true
+      allow_empty: true
+      empty_type: string
       preview:
         text:
         icon:
         image:
       values:
+        - Pink
+        - Blue
+        - Orange
       value_key:
 
 ```
@@ -254,15 +403,15 @@ Number inputs have the following options available:
     Defaults to:
 
     <comp.CodeBlock language="YAML" source="cloudcannon.config.yml">
-    ``````````
-    preview:
-      text:
-        - key: title
-        - key: name
-      icon:
-        - key: icon
-    ``````````
-    </comp.CodeBlock>
+                                                ``````````
+                                                preview:
+                                                  text:
+                                                    - key: title
+                                                    - key: name
+                                                  icon:
+                                                    - key: icon
+                                                ``````````
+                                                </comp.CodeBlock>
 
     For more information about previews, please read our documentation on [configuring card previews](/documentation/articles/configure-your-card-previews/).
   </comp.DataReferenceRow>
@@ -303,9 +452,9 @@ Number inputs have the following options available:
 
 x
 
----
+date set naming conventions...
 
-These inputs are for values from a fixed or dynamic set of options. Useful for linking across pages, collections and data sets.
+---
 
 ## Select
 
@@ -313,168 +462,11 @@ Single value select input for values from a set of options.
 
 Select inputs are shown for inputs configured with the type `select`, or for input keys matching or ending with **the singular form** of a data set key (e.g. `color` or `my_color` for data set `colors`).
 
-<comp.DocsImage path="/documentation/static/inputs/select/color-select.png" alt="Color select input" title="" type="screenshot-snippet"/>
-
-<comp.DocsImage path="/documentation/static/inputs/select/ssg-select.png" alt="SSG select input" title="" type="screenshot-snippet"/>
-
-<comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="Naming convention">
-```
-
-color: Red
-ssg: jekyll
-_select_data:
-  colors:
-    - Red
-    - Blue
-  ssgs:
-    jekyll: Jekyll
-    hugo: Hugo
-    11ty: Eleventy
-
-```
-</comp.MultiCodeBlock>
-
-<comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="Input configuration">
-```
-
-spare_part: Bolt
-_inputs:
-  spare_part:
-    type: select
-    options:
-      values:
-        - Bolt
-        - Nut
-        - Gear
-
-```
-</comp.MultiCodeBlock>
-
 ## Multiselect
 
 Multiple value select input for values from a set of options.
 
 Multiselect inputs are shown for inputs configured with the type `multiselect`, or for input keys matching or ending with a data set key (e.g. `colors` or `my_colors` for data set `colors`).
-
-<comp.DocsImage path="/documentation/static/inputs/select/colors-multiselect.png" alt="Color multiselect input" title="" type="screenshot-snippet"/>
-
-<comp.DocsImage path="/documentation/static/inputs/select/colors-multiselect.png" alt="Ssg multiselect input" title="" type="screenshot-snippet"/>
-
-<comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="Naming convention">
-```
-
-colors:
-  - Red
-ssgs:
-- hugo
-- 11ty
-_select_data:
-  colors:
-    - Red
-    - Blue
-  ssgs:
-    jekyll: Jekyll
-    hugo: Hugo
-    11ty: Eleventy
-
-```
-</comp.MultiCodeBlock>
-
-<comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="Input configuration">
-```
-
-spare_parts:
-  - Bolt
-_inputs:
-  spare_parts:
-    type: multiselect
-    options:
-      values:
-        - Bolt
-        - Nut
-        - Gear
-
-```
-</comp.MultiCodeBlock>
-
-## Choice
-
-Segmented controls input for selecting a single value from a set of options. Functionally equivalent to a [Select](#select) input.
-
-Choice inputs are shown for inputs configured with the type `choice`.​​​​​​
-
-<comp.DocsImage path="/documentation/static/inputs/select/choice.png" alt="" title=""/>
-
-<comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="Input configuration">
-```
-
-spare_part: Bolt
-_inputs:
-  spare_part:
-    type: choice
-    options:
-      values:
-        - Bolt
-        - Nut
-        - Gear
-
-```
-</comp.MultiCodeBlock>
-
-## Multichoice
-
-Segmented controls input for selecting multiple values from a set of options. Functionally equivalent to a [Multiselect](#multiselect) input.
-
-Multichoice inputs are shown for inputs configured with the type `multichoice`.
-
-<comp.DocsImage path="/documentation/static/inputs/select/multichoice.png" alt="" title=""/>
-
-<comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="Input configuration">
-```
-
-spare_parts:
-  - Bolt
-  - Gear
-_inputs:
-  spare_parts:
-    type: multichoice
-    options:
-      values:
-        - Bolt
-        - Nut
-        - Gear
-
-```
-</comp.MultiCodeBlock>
-
-## Options
-
-Select, Multiselect, Choice and Multichoice input options are configured with `options` inside an `_inputs` entry.
-
-<comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="Input configuration">
-```
-
-items:
-  - P1
-_inputs:
-  items:
-    type: multiselect
-    options:
-      values: _select_data.inventory
-      value_key: key
-      preview:
-        text:
-          - key: display_name
-_select_data:
-  inventory:
-    - key: P1
-      display_name: Potion
-      kind: consumable
-
-```
-</comp.MultiCodeBlock>
-
-Select, Multiselect, Choice and Multichoice inputs have the following options available:
 
 ## Data sets
 
