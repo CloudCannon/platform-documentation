@@ -407,15 +407,15 @@ Number inputs have the following options available:
     Defaults to:
 
     <comp.CodeBlock language="YAML" source="cloudcannon.config.yml">
-                                                        ``````````
-                                                        preview:
-                                                          text:
-                                                            - key: title
-                                                            - key: name
-                                                          icon:
-                                                            - key: icon
-                                                        ``````````
-                                                        </comp.CodeBlock>
+                                                                ``````````
+                                                                preview:
+                                                                  text:
+                                                                    - key: title
+                                                                    - key: name
+                                                                  icon:
+                                                                    - key: icon
+                                                                ``````````
+                                                                </comp.CodeBlock>
 
     For more information about previews, please read our documentation on [configuring card previews](/documentation/articles/configure-your-card-previews/).
   </comp.DataReferenceRow>
@@ -454,41 +454,34 @@ Number inputs have the following options available:
 
 ## Unconfigured Select and Multiselect inputs
 
-x
-
-date set naming conventions...
-
-
 In some cases, CloudCannon can still detect an Object input even if you have not configured it.
 
-CloudCannon will interpret any unconfigured input with nested keys as an Object input. You cannot create structured or mutable Object inputs without configuration.
+CloudCannon will interpret any key as a Select input if the key name ends in the singular form of a fixed data set you have defined under `_select_data` (e.g., `author` or `blog_author` for the fixed data set `authors`).
 
-<comp.CodeBlock language="YAML" source="data.yml">
+<comp.CodeBlock language="Markdown" source="blog.md">
 ```
-company_photo:
-  image:
-  date:
-  description:
+---
+blog_author: Karen Key
+---
+
+Blog content goes here.
 ```
 </comp.CodeBlock>
 
-This behavior is convenient if you have simple inputs or do not want to configure inputs. It is also beneficial for new websites on CloudCannon where you have yet to create any CloudCannon-specific configuration.
+<comp.MultiCodeBlock language="yaml" translate_into={["json", "JavaScript"]} source="cloudcannon.config.yml">
+```
+
+_select_data:
+  authors:
+    - Karen Key
+    - Billy Mills
+    - Holly James
+
+```
+</comp.MultiCodeBlock>
+
+This behavior is convenient if you have simple inputs or do not want to configure inputs.
 
 <comp.Notice info_type="info">
   We recommend configuring your inputs for greater control over their functionality and appearance.
 </comp.Notice>
-
-
----
-
-## Select
-
-Single value select input for values from a set of options.
-
-Select inputs are shown for inputs configured with the type `select`, or for input keys matching or ending with **the singular form** of a data set key (e.g. `color` or `my_color` for data set `colors`).
-
-## Multiselect
-
-Multiple value select input for values from a set of options.
-
-Multiselect inputs are shown for inputs configured with the type `multiselect`, or for input keys matching or ending with a data set key (e.g. `colors` or `my_colors` for data set `colors`).
