@@ -281,10 +281,6 @@ _inputs:
 
 ### Collections
 
-<comp.Notice info_type="info">
-  You must have [defined your Collections](/documentation/articles/define-your-collections/) for this configuration to work.
-</comp.Notice>
-
 A [Collection](/documentation/articles/define-your-collections/) is a single folder of files with a similar format. You can find your Collections in the *Site Navigation* sidebar. Using a Collection to populate your value options is useful when you want to reference pages or other content files created by team members (e.g., blogs, staff pages, or products).
 
 You can reference a Collection for your Select or Multiselect input using the `values` key in the input `options`. Use the value `collections.key_name`, where `key_name` is replaced with the key name of your Collections.
@@ -307,11 +303,27 @@ _inputs:
 </comp.Annotation>
 </comp.MultiCodeBlock>
 
+<comp.Notice info_type="important">
+  You must have [defined your Collections](/documentation/articles/define-your-collections/) for this configuration to work.
+</comp.Notice>
+
 ### Data files
 
+You can populate your input using a dedicated data file which you can open and edit this file using the CloudCannon file browser. Using a data file to populate your value options is useful when you want you team members to be able to edit the available options.
+
 <comp.Notice info_type="info">
-  You must have [defined your Data](/documentation/articles/define-your-data/) for this configuration to work.
+  Your Site may encounter issues if a team member removes an option from your data file that is in use by an input.
 </comp.Notice>
+
+Data files must contain arrays of strings or objects. The Select or Multiselect input will use the strings if the data file contains an array, and the key names if the data file contains objects.
+
+<comp.CodeBlock language="YAML" source="data.yml">
+``````````
+- Blue
+- Green
+- Red
+``````````
+</comp.CodeBlock>
 
 You can reference a data file for your Select or Multiselect input using the `values` key in the input `options`. Use the value `data.key_name`, where `key_name` is replaced with the key name of your Collections.
 
@@ -333,17 +345,9 @@ _inputs:
 </comp.Annotation>
 </comp.MultiCodeBlock>
 
-&nbsp;
-
-**Data files are similar to collections, usually a reserved collection for your SSG. Best suited when you need the available options editable by team members.**
-
-**Processed data file sets must be arrays of strings, or objects. The value saved is either the string for arrays, or the key for objects.**
-
-**By default, CloudCannon does not read data files during your build. To use this option source, instruct CloudCannon to read it by** [**defining your data**](https://bubblegum-dugong.cloudvent.net/documentation/articles/define-your-data/)**.**
-
-&nbsp;
-
-&nbsp;
+<comp.Notice info_type="important">
+  You must have [defined your Data](/documentation/articles/define-your-data/) for this configuration to work.
+</comp.Notice>
 
 ## Options
 
@@ -403,15 +407,15 @@ Number inputs have the following options available:
     Defaults to:
 
     <comp.CodeBlock language="YAML" source="cloudcannon.config.yml">
-                                                ``````````
-                                                preview:
-                                                  text:
-                                                    - key: title
-                                                    - key: name
-                                                  icon:
-                                                    - key: icon
-                                                ``````````
-                                                </comp.CodeBlock>
+                                                        ``````````
+                                                        preview:
+                                                          text:
+                                                            - key: title
+                                                            - key: name
+                                                          icon:
+                                                            - key: icon
+                                                        ``````````
+                                                        </comp.CodeBlock>
 
     For more information about previews, please read our documentation on [configuring card previews](/documentation/articles/configure-your-card-previews/).
   </comp.DataReferenceRow>
@@ -454,6 +458,27 @@ x
 
 date set naming conventions...
 
+
+In some cases, CloudCannon can still detect an Object input even if you have not configured it.
+
+CloudCannon will interpret any unconfigured input with nested keys as an Object input. You cannot create structured or mutable Object inputs without configuration.
+
+<comp.CodeBlock language="YAML" source="data.yml">
+```
+company_photo:
+  image:
+  date:
+  description:
+```
+</comp.CodeBlock>
+
+This behavior is convenient if you have simple inputs or do not want to configure inputs. It is also beneficial for new websites on CloudCannon where you have yet to create any CloudCannon-specific configuration.
+
+<comp.Notice info_type="info">
+  We recommend configuring your inputs for greater control over their functionality and appearance.
+</comp.Notice>
+
+
 ---
 
 ## Select
@@ -467,66 +492,3 @@ Select inputs are shown for inputs configured with the type `select`, or for inp
 Multiple value select input for values from a set of options.
 
 Multiselect inputs are shown for inputs configured with the type `multiselect`, or for input keys matching or ending with a data set key (e.g. `colors` or `my_colors` for data set `colors`).
-
-## Data sets
-
-There are currently three sources for populating the options for a select or multiselect input:
-
-* Fixed data sets
-* Collection items
-* Data files
-
-You can populate the available options for a Select, Multiselect, Choice or Multichoice input with a naming convention or set it explicitly with the input configuration `options.values`.
-
-The saved value when an option is chosen in the editor depends on your data set and the `value_key` options.
-
-<comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="Input configuration">
-```
-
-spare_part: Bolt
-_inputs:
-  spare_part:
-    type: select
-    options:
-      values:
-        - Bolt
-        - Nut
-        - Gear
-
-```
-</comp.MultiCodeBlock>
-
-In addition to having `options.values` contain values directly as seen above, you can refer to one of the three available sources. Here's how you can refer to a collection called `bits_and_pieces`:
-
-<comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="Input configuration">
-```
-
-spare_part: Bolt
-_inputs:
-  spare_part:
-    type: select
-    options:
-      values: collections.bits_and_pieces
-
-```
-</comp.MultiCodeBlock>
-
-<comp.Notice info_type="info">
-  You can refer to fixed data sets and data files in a similar way by changing the prefix. For example: `data.inventory` and `_select_data.spare_parts`.
-</comp.Notice>
-
-### Fixed data sets
-
-Fixed data sets are defined in `_select_data` from the [configuration cascade](/documentation/articles/using-the-configuration-cascade/). Best suited when providing options that do not change as content is added or removed.
-
-### Collection items
-
-Collection items are files from your [defined collections](/documentation/articles/define-your-collections/). Best suited when you need to select from pages or other content files created by team members.
-
-### Data files
-
-Data files are similar to collections, usually a reserved collection for your SSG. Best suited when you need the available options editable by team members.
-
-Processed data file sets must be arrays of strings, or objects. The value saved is either the string for arrays, or the key for objects.
-
-By default, CloudCannon does not read data files during your build. To use this option source, instruct CloudCannon to read it by [defining your data](/documentation/articles/define-your-data/).
