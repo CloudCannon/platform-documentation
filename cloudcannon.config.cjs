@@ -82,18 +82,22 @@ module.exports = {
       {
         name: 'Explanation',
         icon: 'lightbulb',
+        icon_color: '#008000',
       },
       {
         name: 'Guide',
         icon: 'handshake',
+        icon_color: '#0000FF',
       },
       {
         name: 'Instructions',
         icon: 'info',
+        icon_color: '#FFA500',
       },
       {
         name: 'Reference',
         icon: 'fact_check',
+        icon_color: '#FFFF00',
       },
     ]
   },
@@ -295,6 +299,13 @@ module.exports = {
       },
       options: {
         values: "_select_data.diataxis_category",
+        preview: {
+          icon_color: [
+            {
+              key: 'icon_color',
+            },
+          ],
+        },
       },
     },
     article_topic: {
