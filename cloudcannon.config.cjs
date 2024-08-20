@@ -82,22 +82,22 @@ module.exports = {
       {
         name: 'Explanation',
         icon: 'lightbulb',
-        icon_color: '#008000',
+        icon_color: '#06d6a0',
       },
       {
         name: 'Guide',
         icon: 'handshake',
-        icon_color: '#0000FF',
+        icon_color: '#26547c',
       },
       {
         name: 'Instructions',
         icon: 'info',
-        icon_color: '#FFA500',
+        icon_color: '#ef476f',
       },
       {
         name: 'Reference',
         icon: 'fact_check',
-        icon_color: '#FFFF00',
+        icon_color: '#ffd166',
       },
     ]
   },
