@@ -78,6 +78,24 @@ module.exports = {
   _select_data: {
     docs_ssgs: ssg_data.ssgs,
     docs_guide_series: guide_series_data.series,
+    diataxis_category: [
+      {
+        name: 'Explanation',
+        icon: 'lightbulb',
+      },
+      {
+        name: 'Guide',
+        icon: 'handshake',
+      },
+      {
+        name: 'Instructions',
+        icon: 'info',
+      },
+      {
+        name: 'Reference',
+        icon: 'fact_check',
+      },
+    ]
   },
   collections_config: {
     common_content: {
@@ -276,7 +294,7 @@ module.exports = {
         content: "Acquire skill and understand: Explanation \n\n Acquire skill and act: Guide \n\n Apply skill and understand: Reference \n\n Apply skill and act: Instructions",
       },
       options: {
-        values: ["Explanation", "Reference", "Guide", "Instructions"],
+        values: "_select_data.diataxis_category",
       },
     },
     article_topic: {
