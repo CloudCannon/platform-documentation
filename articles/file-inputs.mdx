@@ -11,6 +11,7 @@ description: >-
   Learn how to configure a File input to store file paths or links external
   files in your data files or front matter.
 article_category:
+  - Instructions
   - Reference
 article_topic:
   - Inputs
@@ -26,7 +27,7 @@ There are three types of File input:
 * Document
 * Image
 
-For each input, you can configure the default path for uploading assets, which MIME types an input will accept, which DAMs you can upload to and browse, and determine how to handle null values. For inputs that accept images, you can configure how CloudCannon resizes images, MIME type, and whether CloudCannon creates additional images of different sizes when you upload a new asset.
+For each input, you can configure the default path for uploading assets, which MIME types an input will accept, which DAMs you can upload to and browse, and how CloudCannon handles empty values. For inputs that accept images, you can configure how CloudCannon resizes images, MIME type, and whether CloudCannon creates additional images of different sizes when you upload a new asset.
 
 You can also use the [general configuration options](/documentation/articles/configure-your-inputs/#general-configuration-options) available for all inputs.
 
@@ -34,7 +35,7 @@ You can also use the [general configuration options](/documentation/articles/con
 
 The File input provides an editing interface for uploading files to your repository or DAM and browsing existing assets.
 
-<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/inputs/file-path/2024-07/CloudCannon-Documentation-File-Input.png" alt="A screenshot of the File input in the Data Editor, showing a dropdown menu to upload or browse assets." title="The File input" type="ui-snippet"/>
+<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/inputs/file-path/2024-08/CloudCannon-Documentation-File-Input.png" alt="A screenshot of the File input in the Data Editor, showing a dropdown menu to upload or browse assets." title="The File input" type="ui-snippet"/>
 
 You can configure a File input using the `type` key with the value `file`. Define the `type` key under your input key name within `_inputs`. For more information, please read our documentation on [configuring your inputs](/documentation/articles/configure-your-inputs/).
 
@@ -73,7 +74,7 @@ Blog content goes here.
 
 The Document input provides an editing interface for uploading documents to your repository or DAM and browsing existing assets.
 
-<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/inputs/file-path/2024-07/CloudCannon-Documentation-Document-Input.png" alt="A screenshot of the Document input in the Data Editor, showing a dropdown menu to upload or browse assets." title="The Document input" type="ui-snippet"/>
+<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/inputs/file-path/2024-08/CloudCannon-Documentation-Document-Input.png" alt="A screenshot of the Document input in the Data Editor, showing a dropdown menu to upload or browse assets." title="The Document input" type="ui-snippet"/>
 
 You can configure a Document input using the `type` key with the value `document`. Define the `type` key under your input key name within `_inputs`. For more information, please read our documentation on [configuring your inputs](/documentation/articles/configure-your-inputs/).
 
@@ -112,7 +113,7 @@ Page content goes here.
 
 The Image input provides an editing interface for uploading images to your repository or DAM and browsing existing assets.
 
-<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/inputs/file-path/2024-07/CloudCannon-Documentation-Image-Input.png" alt="A screenshot of the Image input in the Data Editor, showing a dropdown menu to upload or browse assets." title="The Image input" type="ui-snippet"/>
+<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/inputs/file-path/2024-08/CloudCannon-Documentation-Image-Input.png" alt="A screenshot of the Image input in the Data Editor, showing a dropdown menu to upload or browse assets." title="The Image input" type="ui-snippet"/>
 
 You can configure an Image input using the `type` key with the value `image`. Define the `type` key under your input key name within `_inputs`. For more information, please read our documentation on [configuring your inputs](/documentation/articles/configure-your-inputs/).
 
@@ -184,7 +185,7 @@ File inputs have the following options available:
 
 <comp.DataReference>
   <comp.DataReferenceRow label="paths" type_markdown="Object">
-    This key enables you to define paths for your rich text editors. Each path is relative to global site `source`. If undefined, the paths default to those configured in the [global configuration file](/documentation/articles/create-a-global-configuration-file/). The following nested keys are available:
+    This key enables you to define the default paths for your assets. Each path is relative to global site `source`. If undefined, the paths default to those configured in the [global configuration file](/documentation/articles/create-a-global-configuration-file/). The following nested keys are available:
 
     * `dam_static`
     * `dam_uploads`
@@ -226,9 +227,9 @@ File inputs have the following options available:
     * Image: `image/x-icon,image/gif,image/jpeg,image/jpeg,image/png,image/webp,image/bmp,image/svg+xml`
     * Document: `application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation`
 
-    If this key uses a string value, the value format should be a comma-separated (no spaces) list of [MIME types](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types) you want to accept. The string `*` allows any type.
+    If this key uses a string value, the value format should be a comma-separated (no spaces) list of accepted [MIME types](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types). The string `*` allows any type.
 
-    If this key uses an array of values, each item in the array should be a string containing a single [MIME type](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types) you want to accept.
+    If this key uses an array of values, each item in the array should be a string containing a single accepted [MIME type](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types).
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="allowed_sources" type_markdown="Array">
     This key lists which DAMs you are allowed to upload to and browse. Valid values include `site-files` and the reference key for any DAM connected to your site.
@@ -261,10 +262,10 @@ If the input accepts images, the following options are also available:
     If either `width` or `height` are not defined, the `contain`, `cover` and `stretch` options will not work. For the `crop`option, `width` and `height` are optional, and control the minimum size and aspect ratio of the crop region.
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="width" type_markdown="Integer">
-    This key determines the width of the bounding box CloudCannon uses to resize image prior to upload. Works in conjunction with the `resize_style` option.
+    This key determines the width of the bounding box CloudCannon uses to resize images prior to upload. Works in conjunction with the `resize_style` option.
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="height" type_markdown="Integer">
-    This key determines the height of the bounding box CloudCannon uses to resize image prior to upload. Works in conjunction with the `resize_style` option.
+    This key determines the height of the bounding box CloudCannon uses to resize images prior to upload. Works in conjunction with the `resize_style` option.
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="mime_type" type_markdown="String">
     This key determines what format CloudCannon will convert an image to prior to uploading it. CloudCannon also updates the file extension. Defaults to keeping an image's original MIME type.
