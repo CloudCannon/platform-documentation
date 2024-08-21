@@ -7,96 +7,187 @@ nav_title: Number inputs
 published: true
 image: >-
   https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
-description: These inputs are for editing numerical values in your data.
+description: >-
+  Learn how to configure a Number input to store numerical values in your data
+  files or front matter.
+article_category:
+  - Reference
+article_topic:
+  - Inputs
 tags: []
 related_articles:
   - how-to-choose-what-input-is-used-in-the-data-editor
   - using-the-configuration-cascade
 related_links:
 ---
-These inputs are for editing numerical values in your data.
+A Number input lets your team members store numerical information in your data files or the front matter of markup files.
+
+There are two types of Number input:
+
+* Number
+* Range
+
+For each input, you can configure the minimum and maximum permitted value, the step value for increasing or decreasing the value, and how CloudCannon handles empty values.
+
+You can also use the [general configuration options](/documentation/articles/configure-your-inputs/#general-configuration-options) available for all inputs.
 
 ## Number
 
-Single line input field for integers or decimals.
+The Number input provides an editing interface for numerical data.
 
-Number inputs are shown for inputs configured with the type `number`, or input keys matching:
+<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/inputs/number/2024-08/CloudCannon-Documentation-Number-Input.png" alt="A screenshot of the Number input in the Data Editor." title="The Number input" type="ui-snippet"/>
 
-* `number`
-* `*_number`
+You can configure a Number input using the `type` key with the value `number`. Define the `type` key under your input key name within `_inputs`. For more information, please read our documentation on [configuring your inputs](/documentation/articles/configure-your-inputs/).
 
-<comp.DocsImage path="ye_olde_images/number-2.png" alt="Screenshot of a number input field with decimals" title="" type="screenshot-snippet"/>
-
-<comp.DocsImage path="ye_olde_images/number-1.png" alt="Screenshot of a number input field" title="" type="screenshot-snippet"/>
-
-<comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="Naming convention">
+<comp.MultiCodeBlock language="yaml" translate_into={["json", "JavaScript"]} source="cloudcannon.config.yml">
 ```
-number: 3.14
-sort_number: 2
+
+_inputs___1___:
+  series___2___:
+    type___3___: number
+
 ```
+<comp.Annotation number="1">
+  All inputs are defined under the `_inputs` key, regardless of where they are in the [configuration cascade](/documentation/articles/using-the-configuration-cascade/).
+</comp.Annotation>
+<comp.Annotation number="2">
+  This Number input is called `series`.
+</comp.Annotation>
+<comp.Annotation number="3">
+  The value of the `type` key determines the input type. This is a `number` input.
+</comp.Annotation>
 </comp.MultiCodeBlock>
 
-<comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="Input configuration">
+Once configured, the Number input will appear in the Data Editor or sidebar of the Visual or Content Editor when you add it to a data file or the front matter of a markup file.
+
+<comp.CodeBlock language="Markdown" source="guide.md">
 ```
-order: 1
-_inputs:
-  order:
-    type: number
+---
+series: 5
+---
+
+Content goes here.
 ```
-</comp.MultiCodeBlock>
+</comp.CodeBlock>
 
 ## Range
 
-A combination number and range input field for integers or decimals.
+The Range input provides an editing interface for numerical data, using a sliding scale to adjust a number within a defined range.
 
-Range inputs are shown for inputs configured with the type `range`. This input requires `step`, `min` and `max` options.
+<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/inputs/number/2024-07/CloudCannon-Documentation-Range-Input.png" alt="A screenshot of the Range input in the Data Editor, showing a sliding scale between 0 and 20." title="The Range input" type="ui-snippet"/>
 
-<comp.DocsImage path="ye_olde_images/range-input.png" alt="Screenshot of a range input field" title="" type="screenshot-snippet"/>
+You can configure a Range input using the `type` key with the value `range`. Define the `type` key under your input key name within `_inputs`. You must also define the `min`, `max`, and `step` options for this input to function.
 
-<comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="Input configuration">
+For more information, please read our documentation on [configuring your inputs](/documentation/articles/configure-your-inputs/).
+
+<comp.MultiCodeBlock language="yaml" translate_into={["json", "JavaScript"]} source="cloudcannon.config.yml">
 ```
-order: 12
-_inputs:
-  order:
-    type: range
-    options:
-      step: 2
-      max: 20
-      min: 0
+
+_inputs___1___:
+  priority___2___:
+    type___3___: range
+    options___4___:
+      min: 1
+      max: 5
+      step: 1
+
 ```
+<comp.Annotation number="1">
+  All inputs are defined under the `_inputs` key, regardless of where they are in the [configuration cascade](/documentation/articles/using-the-configuration-cascade/).
+</comp.Annotation>
+<comp.Annotation number="2">
+  This Range input is called `priority`.
+</comp.Annotation>
+<comp.Annotation number="3">
+  The value of the `type` key determines the input type. This is a `range` Number input.
+</comp.Annotation>
+<comp.Annotation number="4">
+  Unlike many other input types, some options must be defined for this input to work. The Range input requires `min`, `max`, and `step` options.
+</comp.Annotation>
 </comp.MultiCodeBlock>
+
+Once configured, the Range input will appear in the Data Editor or sidebar of the Visual or Content Editor when you add it to a data file or the front matter of a markup file.
+
+<comp.CodeBlock language="Markdown" source="guide.md">
+```
+---
+priority: 4
+---
+
+Content goes here.
+```
+</comp.CodeBlock>
 
 ## Options
 
-Number input options are configured with `options` inside an `_inputs` entry.
+You can configure Number inputs using the `options` key under your input key, inside of `_inputs`.
+
+<comp.MultiCodeBlock language="yaml" translate_into={["json", "JavaScript"]} source="cloudcannon.config.yml">
+```
+
+_inputs:
+  background:
+    type: number
+    options:
+      min: 0
+      max: 10
+      step: 2
+      empty_type: null
+
+```
+</comp.MultiCodeBlock>
+
+Number inputs have the following options available:
 
 <comp.DataReference>
- <comp.DataReferenceRow label="min" type_markdown="Float">
-    The lowest value in the range of permitted values.
- </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="min" type_markdown="Float">
+    This key determines the lowest numerical value permitted by this input. If you enter a value lower than this number, CloudCannon will highlight the input with a red border.
+  </comp.DataReferenceRow>
   <comp.DataReferenceRow label="max" type_markdown="Float">
-    The greatest value in the range of permitted values.
- </comp.DataReferenceRow>
+    This key determines the highest numerical value permitted by this input. If you enter a value higher than this number, CloudCannon will highlight the input with a red border.
+  </comp.DataReferenceRow>
   <comp.DataReferenceRow label="step" type_markdown={"Float or \"any\""}>
-    A number that specifies the granularity that the value must adhere to, or the special value `any`, which allows any decimal value between `max` and `min`.
- </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="empty_type" type_markdown="string">
-    Set how an 'empty' value will be saved. Does not apply to existing empty values. Can be one of the following:
+    This key determines how granular changes to the value can be.
 
-    * `number` - an empty value for this input will be stored as `0` (default).
-    * `null` - an empty value for this input will be stored as a null value. This does not apply to TOML files.
- </comp.DataReferenceRow>
+    Value must be either:
+
+    * a number.
+    * `any`, which allows any decimal value between `max` and `min` values.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="empty_type" type_markdown="string">
+    This key determines how CloudCannon handles an empty value. This key does not apply to existing empty values.
+
+    Value must be one of the following:
+
+    * `string` - an empty value for this input will be stored as "".
+    * `null` - an empty value for this input will be stored as a null value (default). This does not apply to TOML files.
+  </comp.DataReferenceRow>
 </comp.DataReference>
+
+## Unconfigured Number inputs
+
+In some cases, CloudCannon can still detect a Number input even if you have not configured it.
+
+CloudCannon will interpret any unconfigured input with the key name `number`, or that ends in `_number`, as a Number input. Additionally, CloudCannon will interpret any unconfigured input with a numerical value as a Number input.
+
+CloudCannon cannot detect unconfigured Range inputs as the `min`, `max`, and `step` options are required for this input to function.
+
+<comp.CodeBlock language="YAML" source="data.yml">
+``````````
+page_number: 7
+days: 50
+``````````
+</comp.CodeBlock>
+
+This behavior is convenient if you have simple inputs or do not want to configure inputs. It is also beneficial for new websites on CloudCannon where you have yet to create any CloudCannon-specific configuration.
+
+<comp.Notice info_type="info">
+  We recommend configuring your inputs for greater control over their functionality and appearance.
+</comp.Notice>
 
 ## Valid values
 
-Documented below are the valid formats for **number** and **range** inputs.
-
-The lists of examples are non-exhaustive.
-
-<comp.Notice info_type="info">
-  Binary and hexadecimal numbers will be converted to base-10 integers when loaded into the Data Editor
-</comp.Notice>
+Here are some examples of valid values for the key `number`. These work for both Number and Range inputs.
 
 <comp.Tabs label="Languages">
   <comp.Tab name="YAML">
@@ -122,7 +213,6 @@ The lists of examples are non-exhaustive.
 
     Hexadecimal integers (unquoted):
     * `number: 0x1E240`
-
   </comp.Tab>
   <comp.Tab name="TOML">
     Whole base-10 integers (unquoted):
@@ -151,7 +241,6 @@ The lists of examples are non-exhaustive.
 
     Hexadecimal numbers (unquoted):
     * `number = 0b11110001001000000`
-
   </comp.Tab>
   <comp.Tab name="JSON">
     Null value:
@@ -170,6 +259,9 @@ The lists of examples are non-exhaustive.
     * `"number": 123.456E78`
     * `"number": 123.456e+78`
     * `"number": -123.456e78`
-
   </comp.Tab>
 </comp.Tabs>
+
+<comp.Notice info_type="info">
+  When loaded in the Data Editor, binary and hexadecimal numbers will be converted to base-10 integers.
+</comp.Notice>

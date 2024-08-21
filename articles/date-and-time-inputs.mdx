@@ -7,167 +7,263 @@ nav_title: Date and Time inputs
 published: true
 image: >-
   https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
-description: These inputs are for editing date and time values in your data.
+description: >-
+  Learn how to configure Date and Time inputs to store date and time values in
+  your data files or front matter.
+article_category:
+  - Instructions
+  - Reference
+article_topic:
+  - Inputs
 tags: []
 related_articles: []
-related_links:
-  - name: List of tz database time zones
-    url: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+related_links: []
 ---
-These inputs are for editing date and time values in your data.
+A Date or Time input lets your team members add date or time values to your data files or the front matter of markup files. Date and time inputs have a calendar to select date values and a 12-hour time field.
 
-If `timezone` is set in your global configuration, date values are saved with the matching offset suffix. If unset, date values are saved without an offset suffix in UTC.
+There are three types of Date and Time input:
 
-For Jekyll sites, date values are saved in the Jekyll-expected format (e.g. `2021-01-09 00:00:00`) rather than standard ISO 8601.
+* Datetime
+* Date
+* Time
+
+For each input, you can configure the timezone and how CloudCannon handles empty values. You can also use the [general configuration options](/documentation/articles/configure-your-inputs/#general-configuration-options) available for all inputs.
 
 ## Datetime
 
-Combination date picker and 12-hour time input.
+The Datetime input provides an editing interface for date and time values.
 
-Datetime inputs are shown for inputs configured with the type `datetime`, for date input values, or for input keys matching:
+<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/inputs/date-and-time/2024-07/CloudCannon-Documentation-Datetime-Input.png" alt="A screenshot of the Datetime input in the Data Editor, showing a calendar for date values." title="The Datetime input" type="ui-snippet"/>
 
-* `date`
-* `datetime`
-* `*_datetime`
-* `at`
-* `*_at`
+You can configure a Datetime input using the `type` key with the value `datetime`. Define the `type` key under your input key name within `_inputs`. For more information, please read our documentation on [configuring your inputs](/documentation/articles/configure-your-inputs/).
 
-<comp.DocsImage path="/documentation/static/inputs/date-and-time/datetime.png" alt="Screenshot of datetime input field unfocused" title="" type="screenshot-snippet"/>
-
-<comp.DocsImage path="/documentation/static/inputs/date-and-time/date-picker.png" alt="Screenshot of datetime input field with date picker open" title=""/>
-
-&nbsp;
-
-<comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="Naming convention">
+<comp.MultiCodeBlock language="yaml" translate_into={["json", "JavaScript"]} source="cloudcannon.config.yml">
 ```
-date: 2020-07-15T12:00:00Z
+
+_inputs___1___:
+  published___2___:
+    type___3___: datetime
+
 ```
+<comp.Annotation number="1">
+  All inputs are defined under the `_inputs` key, regardless of where they are in the [configuration cascade](/documentation/articles/using-the-configuration-cascade/).
+</comp.Annotation>
+<comp.Annotation number="2">
+  This Datetime input is called `published`.
+</comp.Annotation>
+<comp.Annotation number="3">
+  The value of the `type` key determines the input type. This is a `datetime` input.
+</comp.Annotation>
 </comp.MultiCodeBlock>
 
-<comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="Input configuration">
+Once configured, the Datetime input will appear in the Data Editor or the Visual or Content Editor sidebar when you add it to a data file or the front matter of a markup file.
+
+<comp.CodeBlock language="Markdown" source="blog.md">
 ```
-when: 2020-07-15T12:00:00Z
-_inputs:
-  when:
-    type: datetime
+---
+published: 2024-07-16T12:00:00Z
+---
+
+Blog content goes here.
 ```
-</comp.MultiCodeBlock>
+</comp.CodeBlock>
 
 ## Date
 
-Date picker input for date values with year, month, and day.
+The Date input provides an editing interface for date values.
 
-Date inputs are shown for inputs configured with the type date, or for inputs keys matching:
+<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/inputs/date-and-time/2024-07/CloudCannon-Documentation-Date-Input.png" alt="A screenshot of the Date input in the Data Editor, showing a calendar for date values." title="The Date input" type="ui-snippet"/>
 
-* `*_date`
+You can configure a Date input using the `type` key with the value `date`. Define the `type` key under your input key name within `_inputs`. For more information, please read our documentation on [configuring your inputs](/documentation/articles/configure-your-inputs/).
 
-<comp.DocsImage path="/documentation/static/inputs/date-and-time/date.png" alt="Screenshot of date input field unfocused" title="" type="screenshot-snippet"/>
-
-<comp.DocsImage path="ye_olde_images/date-open.png" alt="Screenshot of date input field focused" title="" type="screenshot-snippet"/>
-
-<comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="Naming convention">
+<comp.MultiCodeBlock language="yaml" translate_into={["json", "JavaScript"]} source="cloudcannon.config.yml">
 ```
-sale_start_date: 2021-01-09T00:00:00Z
+
+_inputs___1___:
+  due___2___:
+    type___3___: date
+
 ```
+<comp.Annotation number="1">
+  All inputs are defined under the `_inputs` key, regardless of where they are in the [configuration cascade](/documentation/articles/using-the-configuration-cascade/).
+</comp.Annotation>
+<comp.Annotation number="2">
+  This Date input is called `due`.
+</comp.Annotation>
+<comp.Annotation number="3">
+  The value of the `type` key determines the input type. This is a `date` input.
+</comp.Annotation>
 </comp.MultiCodeBlock>
 
-<comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="Input configuration">
+Once configured, the Date input will appear in the Data Editor or the Visual or Content Editor sidebar when you add it to a data file or the front matter of a markup file.
+
+<comp.CodeBlock language="Markdown" source="blog.md">
 ```
-due_by: 2021-01-09T00:00:00Z
-_inputs:
-  due_by:
-    type: date
+---
+due: 2024-07-16T00:00:00Z
+---
+
+Blog content goes here.
 ```
-</comp.MultiCodeBlock>
+</comp.CodeBlock>
 
 <comp.Notice info_type="info">
-  The time value is always added for Date inputs as `00:00:00` for consistency with Datetime inputs.
+  Even though the input does not display the time, CloudCannon will automatically add `00:00:00` to the end of Date values, separated by a "T" character. This is for consistency with Datetime inputs, and to store timezone information necessary for determining the current date.
 </comp.Notice>
 
 ## Time
 
-Single line 12-hour time input for strings of time values.
+The Time input provides an editing interface for time values.
 
-Time inputs are shown for inputs configured with the type `time`, or for input keys matching:
+<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/inputs/date-and-time/2024-07/CloudCannon-Documentation-Time-Input.png" alt="A screenshot of the Time input in the Data Editor." title="The Time input" type="ui-snippet"/>
 
-* `time`
-* `*_time`
+You can configure a Time input using the `type` key with the value `time`. Define the `type` key under your input key name within `_inputs`. For more information, please read our documentation on [configuring your inputs](/documentation/articles/configure-your-inputs/).
 
-<comp.DocsImage path="/documentation/static/inputs/date-and-time/time.png" alt="Screenshot of time input field" title="" type="screenshot-snippet"/>
+<comp.MultiCodeBlock language="yaml" translate_into={["json", "JavaScript"]} source="cloudcannon.config.yml">
+```
+
+_inputs___1___:
+  event_opens___2___:
+    type___3___: time
+
+```
+<comp.Annotation number="1">
+  All inputs are defined under the `_inputs` key, regardless of where they are in the [configuration cascade](/documentation/articles/using-the-configuration-cascade/).
+</comp.Annotation>
+<comp.Annotation number="2">
+  This Time input is called `event_opens`.
+</comp.Annotation>
+<comp.Annotation number="3">
+  The value of the `type` key determines the input type. This is a `time` input.
+</comp.Annotation>
+</comp.MultiCodeBlock>
+
+Once configured, the Time input will appear in the Data Editor or the Visual or Content Editor sidebar when you add it to a data file or the front matter of a markup file.
+
+<comp.CodeBlock language="YAML" source="data.yml">
+```
+event_opens: 12:00 pm
+```
+</comp.CodeBlock>
 
 <comp.Notice info_type="info">
-  The editing interface shown here is dependent on your browser and device. CloudCannon uses the default interface from your browser for time inputs.
+  There may be some minor differences in input behavior depending on your browser and device.
 </comp.Notice>
-
-<comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="Naming convention">
-```
-opening_time: 8:00 am
-```
-</comp.MultiCodeBlock>
-
-<comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="Input configuration">
-```
-doors_open: 8:00 am
-_inputs:
-  doors_open:
-    type: time
-```
-</comp.MultiCodeBlock>
 
 ## Options
 
-Date, Datetime and Time input options are configured with `options` inside an `_inputs` entry.
+You can configure Date and Time inputs using the `options` key under your input key, inside of `_inputs`.
+
+<comp.MultiCodeBlock language="yaml" translate_into={["json", "JavaScript"]} source="cloudcannon.config.yml">
+```
+
+_inputs:
+  event_datetime:
+    type: datetime
+    options:
+      timezone: America/New_York
+      empty_type: null
+
+```
+</comp.MultiCodeBlock>
+
+Date and Time inputs have the following options available:
 
 <comp.DataReference>
- <comp.DataReferenceRow label="timezone" type_markdown="String">
-    Specifies the time zone that dates are displayed and edited in. Also changes the suffix the date is persisted to the file with. Must be in the [tz database name](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones) format (e.g. `Pacific/Auckland` or `America/New_York`). Defaults to the `timezone` configured in your [global configuration file](/documentation/articles/create-a-global-configuration-file/), which defaults to `Etc/UTC`.
+  <comp.DataReferenceRow label="timezone" type_markdown="String">
+    This key determines which timezone to use when displaying and editing dates. This will also change the suffix of the date value. Defaults to the `timezone` configured in your [configuration file](/documentation/articles/create-a-global-configuration-file/), which defaults to `Etc/UTC`.
 
-    Available on Date and Datetime inputs, has no effect on Time inputs.
- </comp.DataReferenceRow>
+    Values must be in [tz database name](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones) format (e.g. `Pacific/Auckland` or `America/New_York`).
+
+    Available for Datetime and Date inputs only.
+  </comp.DataReferenceRow>
   <comp.DataReferenceRow label="empty_type" type_markdown="string">
-    Set how an ‘empty’ value will be saved. Does not apply to existing empty values. Can be one of the following:
+    This key determines how CloudCannon handles an empty value. This key does not apply to existing empty values.
+
+    Value must be one of the following:
 
     * `string` - an empty value for this input will be stored as `""`.
     * `null` - an empty value for this input will be stored as a null value (default). This does not apply to TOML files.
- </comp.DataReferenceRow>
+  </comp.DataReferenceRow>
 </comp.DataReference>
+
+<comp.Notice info_type="info">
+  A common use of Date and Time inputs is recording the time when you create a new file. To record the date and time of file creation (i.e., TODAY), add `instance_value: NOW` under your input key name.
+
+  For more information about the `instance_value` key, please read our documentation on [general configuration options](/documentation/articles/configure-your-inputs/#general-configuration-options).
+</comp.Notice>
+
+## Unconfigured Date and Time inputs
+
+In some cases, CloudCannon can still detect a Date or Time input even if you have not configured it.
+
+CloudCannon will interpret any unconfigured input with the key name:
+
+* `datetime` or `at`, or that ends in `_datetime` or `_at`, as a Datetime input.
+* `date`, or that ends in `_date`, as a Date input.
+* `time`, or that ends in `_time`, as a Time input.
+
+<comp.CodeBlock language="Markdown" source="about.md">
+``````````
+---
+at: 2024-07-16T12:00:00Z
+---
+
+Content goes here.
+``````````
+</comp.CodeBlock>
+
+This behavior is convenient if you have simple inputs or do not want to configure inputs. It is also beneficial for new websites on CloudCannon where you have yet to create any CloudCannon-specific configuration.
+
+<comp.Notice info_type="info">
+  We recommend configuring your inputs for greater control over their functionality and appearance.
+</comp.Notice>
 
 ## Valid values
 
-Documented below are the valid formats for **date**, **datetime**, and **time** inputs.
+<comp.Conditional ssgs={["Jekyll"]}>
+  For Jekyll sites, date values are saved in the Jekyll-expected format (e.g. `2021-01-09 00:00:00`) rather than standard ISO 8601.
+</comp.Conditional>
 
-The lists of examples are non-exhaustive.
-
-<comp.Notice info_type="info">
-  * Date, time, and datetime inputs surrounded by quotation marks will be automatically unquoted when loaded into the Data Editor.
-
-  * 24hr times will be converted to 12hr times when loaded into the Data Editor.
-</comp.Notice>
-
-#### Date and Datetime
+Here are some examples of valid values for the keys `datetime` and `time`. All datetime values also work for Date inputs.
 
 <comp.Tabs label="Languages">
- <comp.Tab name="YAML">
+  <comp.Tab name="YAML">
     Empty/null value:
 
     * `datetime: `
+    * `time: `
 
     Empty string:
 
     * `datetime: ""`
     * `datetime: ''`
+    * `time: ""`
+    * `time: ''`
 
     ISO 8601 formatted datetime (quoted or unquoted):
 
     * `datetime: 2020-07-15T12:00:00Z`
     * `datetime: '2020-07-15T12:00:00Z'`
     * `datetime: "2020-07-15T12:00:00Z"`
- </comp.Tab>
+
+    12hr time (quoted or unquoted):
+    * `time: 1:23 pm`
+    * `time: '1:23 pm'`
+    * `time: "1:23 pm"`
+
+    24hr time (quoted or unquoted):
+    * `time: 13:23:00`
+    * `time: '13:23:00'`
+    * `time: "13:23:00"`
+  </comp.Tab>
   <comp.Tab name="TOML">
     Empty string:
 
     * `datetime = ""`
     * `datetime = ''`
+    * `time = ""`
+    * `time = ''`
 
     ISO 8601 formatted datetime (quoted or unquoted):
 
@@ -180,45 +276,7 @@ The lists of examples are non-exhaustive.
     * `datetime = 2020-07-15 12:00:00Z`
     * `datetime = "2020-07-15 12:00:00Z"`
 
-    The space will be converted to a T when loaded into the Data Editor
- </comp.Tab>
-  <comp.Tab name="JSON">
-    Null value:
-    * `"datetime": null`
-
-    Empty string:
-    * `"datetime": ""`
-
-    ISO 8601 formatted datetime:
-    * `"datetime": "2020-07-15T12:00:00Z"`
- </comp.Tab>
-</comp.Tabs>
-
-#### Time
-
-<comp.Tabs label="Languages">
- <comp.Tab name="YAML">
-    Empty/null value:
-    * `time: `
-
-    Empty string:
-    * `time: ""`
-    * `time: ''`
-
-    12hr time (quoted or unquoted):
-    * `time: 1:23 pm`
-    * `time: '1:23 pm'`
-    * `time: "1:23 pm"`
-
-    24hr time (quoted or unquoted):
-    * `time: 13:23:00`
-    * `time: '13:23:00'`
-    * `time: "13:23:00"`
- </comp.Tab>
-  <comp.Tab name="TOML">
-    Empty string:
-    * `time = ""`
-    * `time = ''`
+    The space will be converted to a T when loaded into the Data Editor.
 
     12hr time:
     * `time = "1:23 pm"`
@@ -227,18 +285,30 @@ The lists of examples are non-exhaustive.
     24hr time:
     * `time = "13:23:00"`
     * `time = '13:23:00'`
- </comp.Tab>
+  </comp.Tab>
   <comp.Tab name="JSON">
     Null value:
+    * `"datetime": null`
     * `"time": null`
 
     Empty string:
+    * `"datetime": ""`
     * `"time": ""`
+
+    ISO 8601 formatted datetime:
+    * `"datetime": "2020-07-15T12:00:00Z"`
 
     12hr time:
     * `"time": "1:23 pm"`
 
     24hr time:
     * `"time": "13:23:00"`
- </comp.Tab>
+  </comp.Tab>
 </comp.Tabs>
+
+<comp.Notice info_type="info">
+  CloudCannon may alter your input value under the following circumstances:
+
+  * When loaded in the Data Editor, date, time, and datetime inputs surrounded by quotation marks will be automatically unquoted.
+  * When loaded in the Data Editor, 24hr times will be converted to 12hr times.
+</comp.Notice>
