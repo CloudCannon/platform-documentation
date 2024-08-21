@@ -78,6 +78,28 @@ module.exports = {
   _select_data: {
     docs_ssgs: ssg_data.ssgs,
     docs_guide_series: guide_series_data.series,
+    diataxis_category: [
+      {
+        name: 'Explanation',
+        icon: 'lightbulb',
+        icon_color: '#06d6a0',
+      },
+      {
+        name: 'Guide',
+        icon: 'handshake',
+        icon_color: '#26547c',
+      },
+      {
+        name: 'Instructions',
+        icon: 'info',
+        icon_color: '#ef476f',
+      },
+      {
+        name: 'Reference',
+        icon: 'fact_check',
+        icon_color: '#ffd166',
+      },
+    ]
   },
   collections_config: {
     common_content: {
@@ -268,9 +290,22 @@ module.exports = {
     article_category: {
       type: "multichoice",
       comment:
-        "Choose a [Diataxis category](https://diataxis.fr/compass/) based on whether this article informs action or understanding, and acquiring or applying skill. If more than one category applies, consider splitting this article into multiple smaller articles.",
+        "Choose a [Diataxis category](https://diataxis.fr/compass/).",
+      context: {
+        open: false,
+        title: "Help",
+        icon: "help",
+        content: "Acquire skill and understand: Explanation \n\n Acquire skill and act: Guide \n\n Apply skill and understand: Reference \n\n Apply skill and act: Instructions",
+      },
       options: {
-        values: ["Explanation", "Reference", "Tutorial", "Instructions"],
+        values: "_select_data.diataxis_category",
+        preview: {
+          icon_color: [
+            {
+              key: 'icon_color',
+            },
+          ],
+        },
       },
     },
     article_topic: {
@@ -282,6 +317,7 @@ module.exports = {
           "Editing interfaces",
           "Client Sharing",
           "Custom Permission Groups",
+          "Inputs",
           "Introduction",
           "Multi-factor Authentication",
           "Organizations",

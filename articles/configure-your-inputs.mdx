@@ -8,14 +8,17 @@ published: true
 image: >-
   https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
 description: >-
-  The Data Editor uses a wide range of different inputs. Each input corresponds
-  to a field in your front matter or data file, providing an editing interface
-  for those values. Inputs have a type, label and a comment.
+  Learn how to your inputs for storing structured data in data files or front
+  matter.
+article_category:
+  - Instructions
+  - Reference
+article_topic:
+  - Inputs
 tags: []
 related_articles:
   - text-inputs
   - rich-text-inputs
-  - social-inputs
   - code-inputs
   - boolean-inputs
   - color-inputs
@@ -29,211 +32,194 @@ related_articles:
   - using-the-configuration-cascade
 related_links:
 ---
-<comp.Youtube id="L5nUbtAsIpM"/>
+You can configure your inputs to determine the editing interface for structured data in your data files or the front matter of markup files. You can also customize the appearance and functionality of each input to improve the experience for your team members.
+
+You can configure your [inputs](/documentation/articles/what-are-inputs/) anywhere in the [configuration cascade](/documentation/articles/using-the-configuration-cascade/). In this article, we will show you how to configure an input at the global level in your [configuration file](/documentation/articles/create-a-global-configuration-file/).
+
+To configure your inputs:
+
+1. Navigate to your CloudCannon configuration file and open it in the [Source Editor](/documentation/articles/the-source-editor/).
+2. Identify the `_inputs` key, or create one at the top level of your configuration file.
+3. Add the key name of your input under `_inputs`.
+4. Add the `type` key nested under your input key, with an appropriate value for the type of input you want.
+5. Add any other keys you want to configure under your input key (e.g., `label`, `comment`, `context`, `options`).
+6. [Save your changes](/documentation/articles/save-your-changes/) to the CloudCannon configuration file.
+
+Once you have configured your input, you must add the input key to a data file or the front matter of a markup file. CloudCannon will display the input in the [Data Editor](/documentation/articles/the-data-editor/) or the sidebar of the [Visual](/documentation/articles/the-visual-editor/) or [Content Editor](/documentation/articles/the-content-editor/) when you open this file.
 
 <comp.Notice info_type="info">
-  We've recently changed the way you configure inputs. [Check out our migration guide here](/documentation/articles/migrating-to-input-configuration/).
+  Misconfigured inputs appear as an orange warning box in the Data Editor or the sidebar of the Visual or Content Editor. If this occurs, please ensure that your input type and values are correct.
 </comp.Notice>
 
-The [Data Editor](/documentation/edit/interfaces/data-editor/) uses a wide range of different inputs. Each input corresponds to a field in your front matter or data file, providing an editing interface for those values. Inputs have a type, label and a comment.
+## Example
 
-<comp.DocsImage path="ye_olde_images/input-diagram.svg" alt="Diagram showcasing parts of a text input" title="" type="screenshot-snippet"/>
+Let’s walk through an example.
 
-## Configuration
+We want to create a tag system for our blog articles so that users can filter our articles by tag for better search results. For this to work, we need to add a list containing relevant tags to the front matter of each blog file. When content creators write a new blog, they can select which tags apply using a [Multiselect input](/documentation/articles/select-and-multiselect-inputs/) in the sidebar of the Content Editor.
 
-Use the `_inputs` configuration to change types, labels, comments, instance values, and specific type options. Some configuration (notably [input type](#type)) is automatically set for you based on the input key.
+Here’s our input configuration:
 
-<comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="Input configuration">
-```
+<comp.MultiCodeBlock language="YAML" translate_into={["json", "JavaScript"]} source="cloudcannon.config.yml">
+``````````
+
+_inputs___1___:
+  blog_tags___2___:
+    type___3___: multiselect
+    label___4___: Blog type
+    comment___5___: Select a blog type
+    context___6___:
+      open: false
+      title: Help
+      icon: help
+      content: |
+        Blog tags help our users filter articles by topic.
+    options___7___:
+      values___8___:
+        - Opinion
+        - Feature
+        - Resource
+
+``````````
+<comp.Annotation number="1">
+  Configure all inputs under the `_inputs` key anywhere in the [configuration cascade](/documentation/articles/using-the-configuration-cascade/).
+</comp.Annotation>
+<comp.Annotation number="2">
+  Enter the key name of the input here. In this example, the input name is `blog_tags`.
+</comp.Annotation>
+<comp.Annotation number="3">
+  This input is a Multiselect input. For more information, please read our documentation on [Multiselect inputs](/documentation/articles/select-and-multiselect-inputs/).
+</comp.Annotation>
+<comp.Annotation number="4">
+  The title of this input is “Blog type”. If no label is configured, CloudCannon will use the key name in title case.
+</comp.Annotation>
+<comp.Annotation number="5">
+  The subtitle of this input is “Select a blog type”.
+</comp.Annotation>
+<comp.Annotation number="6">
+  To help our team members use this input, we have configured a context dropdown with extra information.
+</comp.Annotation>
+<comp.Annotation number="7">
+  Configuration options for inputs are nested keys under `options`.
+</comp.Annotation>
+<comp.Annotation number="8">
+  This input has three possible values in an array under the values key: “Opinion”, “Feature”, and “Resource”.
+</comp.Annotation>
+</comp.MultiCodeBlock>
+
+Once we add the above code to our configuration file, we need to add the input to the front matter of our blog file.
+
+<comp.CodeBlock language="Markdown" source="blog.md">
+``````````
+---
+blog_tags:
+---
+
+The content of the blog goes here.
+``````````
+</comp.CodeBlock>
+
+CloudCannon will show the `blog_tags` input in the Data Editor and the sidebar of the Visual or Content Editor.
+
+<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/inputs/select/2024-07/CloudCannon-Documentation-Multiselect-Input-with-Context.png" alt="A Multiselect input in the Data Editor shows three tags for a blog." title="A Multiselect input" type="ui-snippet"/>
+
+## General configuration options
+
+You can configure the appearance and functionality of inputs in CloudCannon. Some configuration keys apply to all inputs; however, CloudCannon also has default configuration options specific to each input type. For more information about configuring different input types, please see our documentation for each input type.
+
+To configure your inputs, add configuration keys nested under your input key name inside of `_inputs`.
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json", "JavaScript"]} source="cloudcannon.config.yml">
+``````````
+
 _inputs:
-  my_custom_input:
-    type: image
-    label: Hero Image
-    comment: Appears at the top of the page
+  date_created:
+    type: datetime
+    label: Date of article creation
+    comment: UTC +0 timezone
+    context:
+      open: false
+      title: Help
+      icon: help
+      content: This field will automatically populate when you create an article.
+    hidden: false
+    instance_value: NOW
+    cascade: true
     options:
-      width: 720
-      height: 480
-      resize_style: cover
-```
+      timezone: Etc/UTC
+
+``````````
 </comp.MultiCodeBlock>
 
-<comp.Notice info_type="info">
-  The above code shows the `_inputs` configuration set in the same file, but you can choose where to set this for inputs across your site in the [configuration cascade](/documentation/articles/using-the-configuration-cascade/).
-</comp.Notice>
-
-Each key inside `_inputs` targets one or more inputs in the [Data Editor](/documentation/articles/the-data-editor/). These keys can target inputs directly by key name, or the nested path to the input.
-
-This configuration applies to `title` inputs:
-
-<comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="Input configuration">
-```
-title: Main page title
-
-_inputs:
-  title:
-    type: text
-    comment: Large text at the top of the page
-```
-</comp.MultiCodeBlock>
-
-This configuration applies to `title` inputs at the root level of your data only:
-
-<comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="Input configuration">
-```
-title: Main page title
-nested:
-  title: This input does not have the comment
-
-_inputs:
-  $.title:
-    comment: Large text at the top of the page
-```
-</comp.MultiCodeBlock>
-
-This configuration applies to `title` inputs directly inside `seo` objects:
-
-<comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="Input configuration">
-```
-title: This input does not have the comment
-seo:
-  title: Longer title for search engines
-
-_inputs:
-  seo.title:
-    comment: Summary of this page for search engines
-```
-</comp.MultiCodeBlock>
-
-This configuration applies to `image` inputs inside `card` array items:
-
-<comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="Input configuration">
-```
-cards:
-  - image: /uploads/jane.png
-
-_inputs:
-  cards[*].image:
-    type: image
-    options:
-      width: 100
-      height: 100
-```
-</comp.MultiCodeBlock>
-
-This configuration applies to inline `images` array items:
-
-<comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="Input configuration">
-```
-images:
-  - /uploads/jane.png
-
-_inputs:
-  images[*]:
-    type: image
-    options:
-      width: 100
-      height: 100
-```
-</comp.MultiCodeBlock>
-
-<comp.Notice info_type="info">
-  Read more on [configuring inline array inputs](/documentation/articles/array-inputs/#inline-values).
-</comp.Notice>
-
-These selector-style keys can be as targeted as you need them to be:
-
-* `author` targets `author` inputs anywhere.
-* `seo.another.title` targets `title` inputs, directly inside `another` objects, directly inside `seo` objects.
-* `$.blocks[*].author.title` targets `title` inputs, directly inside `author` objects, directly inside `blocks` array items, where `blocks` is at the root level.
-
-### Options
-
-Each entry in `_inputs` has the following options available:
+All inputs have the following options available:
 
 <comp.DataReference>
   <comp.DataReferenceRow label="type" type_markdown="String">
-    Changes the editing interface for an input. Each input appears and behave differently, takes different `options`, and processes different values. See more details in the [type section](#type) below.
+    This key changes the type of editing interface used for an input. Each input has a different appearance and functionality, processes and accepts different types of values, and has different configuration options.
 
-    For unknown types, or if the input contains an unsupported value (e.g. an array value in a text input), the `disabled` type is used instead.
+    If the type or value of an input is misconfigured, CloudCannon will display an orange warning instead of an input.
+
+    If type is not configured for an input, CloudCannon will attempt to determine input type based on value or key name conventions.
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="label" type_markdown="String">
-    Changes the text above an input. Defaults to generating the label from the input key (e.g. "Page Title" for `page_title`).
+    This key changes the bold title text above an input. Defaults to generating a label from the input key name, in title case (e.g., `page_title` will become "Page Title").
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="comment" type_markdown="String">
-    Changes the subtext below the `label`. Has no default. Supports a limited set of Markdown: links, bold, italic, subscript, superscript and inline code elements are allowed.
+    This key changes the subtitle text above an input. This key has no default.
 
-    Useful for adding reminders or additional context for your team members on a specific input.
+    CloudCannon supports a limited selection of Markdown formatting for the value of this key: links, bold, italic, subscript, superscript, and inline code.
   </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="options" type_markdown="Object">
-    Configuration settings passed on to the input when displayed. These are specific to each input. The [available types and their options](#types-reference) are listed below.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="instance_value" type_markdown="String">
-    Controls if and how the value of this input is instantiated when created. This occurs when creating files, or adding array items containing the configured input. Has no default. Must be one of `UUID` or `NOW`.
+  <comp.DataReferenceRow label="context" type_markdown="Object">
+    This key enables you to define a context box for extra information about an input. The following nested keys are available:
 
-    * `UUID` generates a uuidv4 ([extremely unlikely to generate duplicates)](https://softwareengineering.stackexchange.com/a/130298), useful for identifying unique items (e.g. `6ec0bd7f-11c0-43da-975e-2a8ad9ebae0b`)
-    * `NOW` generates the current datetime in the site's configured timezone
+    * `open`
+    * `title`
+    * `icon`
+    * `content` (required)
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="context.open" type_markdown="Boolean">
+    This key determines whether the context box is open to display text content by default. Defaults to `false` (i.e., closed).
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="context.title" type_markdown="String">
+    This key determines the title of the context box. Defaults to "Context".
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="context.icon" type_markdown="String">
+    This key determines which icon appears next to the context box title. The value must match an icon name from Google’s <a href="https://fonts.google.com/icons?icon.set=Material+Icons" target="_blank" rel="noopener">Material Icons</a> list. This key has no default.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="context.content" type_markdown="String">
+    This key determines the text content inside the context box. CloudCannon supports a limited selection of Markdown formatting for the value of this key: links, headings, bold, italic, subscript, superscript, and inline code.
+
+    This key is required for the `context` object to function.
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="hidden" type_markdown="Boolean or string">
-    Toggles the visibility of this input. Useful for when you need an input to exist, but don't want it edited or seen. Defaults to the naming convention, `true` for input keys starting with an underscore and `false` otherwise.
+    This key toggles the visibility of an input in the Data Editor or the sidebar of the Visual or Content Editor. Hidden inputs are useful when you want an input to exist, but not be visible or editable outside of the Source Editor. Defaults to the naming convention: input key names beginning with an underscore are hidden `true`.
 
-    If set as a boolean, the input is hidden based if `true`.
+    This key accepts boolean or string values. A boolean value of `true` will hide the input.
 
-    If set as a string, the input is hidden based on the value of another input. This can start with a `!` to reverse the value. For reverse values in `YAML` files, the string should be in `'` or `"` quotation marks.
+    A string value can hide an input based on the value of another input. You can reverse the value with a `!` character at the beginning.
 
     * `published` hides an input when the sibling input `published` is truthy
     * `!published` hides an input when the sibling input `published` is falsy
+
+    For reverse values in `YAML` files, the string should be in `'` or `"` quotation marks.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="instance_value" type_markdown="String">
+    This key determines whether an input is automatically populated with a value when the input is created. This occurs when creating a new file, or adding array items containing this input. This key has no default.
+
+    Valid values are `UUID` or `NOW`.
+
+    * `UUID` generates a uuidv4 key ([extremely unlikely to generate duplicates)](https://softwareengineering.stackexchange.com/a/130298), useful for identifying unique items (e.g. `6ec0bd7f-11c0-43da-975e-2a8ad9ebae0b`)
+    * `NOW` generates the current datetime in the Site's configured timezone
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="cascade" type_markdown="Boolean">
-    Specifies whether or not this input configuration should be merged with any matching, less specific configuration. Defaults to `true`.
+    This key determines whether CloudCannon should merge this input configuration with any matching, less specific configurations elsewhere in the configuration cascade. Defaults to `true`.
 
-    The [configuration cascade](/documentation/articles/using-the-configuration-cascade/) works by finding the most specific `_inputs` entry. Usually, once an option is found in the cascade, there's no reason to keep looking.
+    The [configuration cascade](/documentation/articles/using-the-configuration-cascade/) works by finding the most specific `_inputs` entry. Usually, once an option is found in the cascade, there's no reason to keep looking. When this key is `true`, the cascade continues looking and each entry found is merged.
 
-    When this is `true`, the cascade continues looking and each entry found is merged. This allows you to define a `comment` globally, then a different `label` for inputs in a collection without redefining the `comment`. You can stop the cascade at any given point by setting `cascade` to `false`.
+    This key allows you to define some options globally while using specific options for other keys at different levels of the cascade. For example, define a `comment` globally, but use collection-specific `label` for inputs in different collections. You can stop the cascade at any point in the configuration cascade by setting `cascade` to `false`.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="options" type_markdown="Object">
+    This key determines the configuration specific to each input type. If this key and nested keys are not defined, CloudCannon will use the default configuration options for that input type.
+
+    For more information on options, please read our documentation on each input type.
   </comp.DataReferenceRow>
 </comp.DataReference>
-
-### Type
-
-The type defines how inputs appear and behave. The type used for each field is based on (in order):
-
-1. `type` in `_inputs` for that key
-2. Value (e.g. boolean values show as a checkbox)
-3. Key name (e.g. `color` will give you a color picker)
-
-This results in good defaults for unconfigured inputs, without hindering configured inputs. To change the type for an input you can use the `_inputs` configuration, or the naming conventions:
-
-<comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="Input configuration">
-```
-my_custom_input:
-_inputs:
-  my_custom_input:
-    type: image
-```
-</comp.MultiCodeBlock>
-
-<comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="Naming convention">
-```
-color: '#efefef'
-some_text: Hello
-```
-</comp.MultiCodeBlock>
-
-<comp.Notice info_type="info">
-  The naming conventions support `snake_case`, `camelCase`, `PascalCase` and `kebab-case`.
-</comp.Notice>
-
-Here are all the available input types, each with their own available options:
-
-* [Plain text](/documentation/articles/text-inputs/) `text` `textarea` `email` `disabled`
-* [Social](/documentation/articles/social-inputs/) `pinterest` `facebook` `twitter` `github` `instagram`
-* [Code](/documentation/articles/code-inputs/) `code`
-* [Boolean](/documentation/articles/boolean-inputs/) `checkbox` `switch`
-* [Color](/documentation/articles/color-inputs/) `color`
-* [Number](/documentation/articles/number-inputs) `number` `range`
-* [URL](/documentation/articles/url-inputs/) `url`
-* [Rich text](/documentation/articles/rich-text-inputs/) `html` `markdown`
-* [Date](/documentation/articles/date-and-time-inputs/) `date` `datetime` `time`
-* [File](/documentation/articles/file-inputs/) `file` `image` `document`
-* [Select](/documentation/articles/select-and-multiselect-inputs/) `select` `multiselect` `choice` `multichoice`
-* [Objects](/documentation/articles/object-inputs/) `object`
-* [Arrays](/documentation/articles/array-inputs/) `array`

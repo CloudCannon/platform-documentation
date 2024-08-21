@@ -11,8 +11,10 @@ description: >-
   Learn how to configure a Rich Text input to store HTML or Markdown content in
   your data files or front matter.
 article_category:
-  - Explanation
+  - Instructions
   - Reference
+article_topic:
+  - Inputs
 tags: []
 related_articles: []
 related_links: []
@@ -26,21 +28,23 @@ There are two types of Rich Text input:
 * HTML
 * Markdown
 
-For each input, you can configure the type (HTML or Markdown), whether your team members are allowed to resize the text area, how CloudCannon saves an empty value, the initial height of the text area, and the upload paths or filenames for any assets uploaded through this input.
+For each input, you can configure whether your team members are allowed to resize the text area, the initial height of the text area, the upload paths or filenames for any assets uploaded through this input, and how CloudCannon handles empty values. You can also use the [general configuration options](/documentation/articles/configure-your-inputs/#general-configuration-options) available for all inputs.
 
 ## HTML
 
-The HTML Rich Text input stores all markup values as HTML. There are two ways to configure an HTML Rich Text input: using the `type` key or the CloudCannon key naming convention.
+The HTML Rich Text input provides an editing interface for HTML markup content.
 
 <comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/inputs/rich-text/2024-06/CloudCannon_Documentation_HTML_Rich_Text_Input.png" alt="A screenshot of an HTML Rich Text input in the Data Editor." title="A Rich Text input" type="screenshot-snippet"/>
 
-Using the `type` key, you can define your input as an HTML Rich Text input with the “html” value. Define the type key under your input key name within `_inputs`. For more information, please read our documentation on [configuring your inputs](/documentation/articles/configure-your-inputs/).
+You can configure a HTML input using the `type` key with the value `html`. Define the `type` key under your input key name within `_inputs`. For more information, please read our documentation on [configuring your inputs](/documentation/articles/configure-your-inputs/).
 
-<comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="cloudcannon.config.yml">
+<comp.MultiCodeBlock language="yaml" translate_into={["json", "JavaScript"]} source="cloudcannon.config.yml">
 ```
+
 _inputs___1___:
   content___2___:
     type___3___: html
+
 ```
 <comp.Annotation number="1">
   All inputs are defined under the `_inputs` key, regardless of where they are in the [configuration cascade](/documentation/articles/using-the-configuration-cascade/).
@@ -52,6 +56,8 @@ _inputs___1___:
   The value of the `type` key determines the input type. This is an `html` Rich Text input.
 </comp.Annotation>
 </comp.MultiCodeBlock>
+
+Once configured, the HTML Rich Text input will appear in the Data Editor or sidebar of the Visual or Content Editor when you add it to a data file or the front matter of a markup file.
 
 <comp.CodeBlock language="Markdown" source="about.md">
 ```
@@ -67,35 +73,21 @@ content: |
 ```
 </comp.CodeBlock>
 
-Using the key naming convention, CloudCannon will interpret any input key named `html` or that ends in `_html` as an HTML Rich Text input.
-
-<comp.CodeBlock language="Markdown" source="about.md">
-```
----
-sidebar_html: |
-  <p>This paragraph has <em>emphasis</em> and <strong>strength</strong>.</p>
-  <ol>
-    <li>Walk</li>
-    <li>Run</li>
-  </ol>
-  <p>Linking to <a href="/">index</a>.</p>
----
-```
-</comp.CodeBlock>
-
 ## Markdown
 
-The Markdown Rich Text input stores all markup values as Markdown. There are two ways to configure a Markdown Rich Text input: using the `type` key or the CloudCannon naming convention.
+The Markdown Rich Text input provides an editing interface for Markdown markup content.
 
 <comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/inputs/rich-text/2024-06/CloudCannon_Documentation_Markdown_Rich_Text_Input.png" alt="A screenshot of a Markdown Rich Text input in the Data Editor." title="A Rich Text input" type="screenshot-snippet"/>
 
-Using the `type` key, you can define your input as an HTML Rich Text input with the “markdown” value. Define the type key under your input key name within `_inputs`. For more information, please read our documentation on [configuring your inputs](/documentation/articles/configure-your-inputs/).
+You can configure a Markdown input using the `type` key with the value `markdown`. Define the `type` key under your input key name within `_inputs`. For more information, please read our documentation on [configuring your inputs](/documentation/articles/configure-your-inputs/).
 
-<comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="cloudcannon.config.yml">
+<comp.MultiCodeBlock language="yaml" translate_into={["json", "JavaScript"]} source="cloudcannon.config.yml">
 ```
+
 _inputs___1___:
   top_copy___2___:
     type___3___: markdown
+
 ```
 <comp.Annotation number="1">
   All inputs are defined under the `_inputs` key, regardless of where they are in the [configuration cascade](/documentation/articles/using-the-configuration-cascade/).
@@ -107,6 +99,8 @@ _inputs___1___:
   The value of the `type` key determines the input type. This is a `markdown` Rich Text input.
 </comp.Annotation>
 </comp.MultiCodeBlock>
+
+Once configured, the Markdown Rich Text input will appear in the Data Editor or sidebar of the Visual or Content Editor when you add it to a data file or the front matter of a markup file.
 
 <comp.CodeBlock language="Markdown" source="about.md">
 ```
@@ -122,23 +116,7 @@ top_copy: |
 ```
 </comp.CodeBlock>
 
-Using the key naming convention, CloudCannon will interpret any input key named `markdown` or that ends in `_markdown` as an Markdown Rich Text input.
-
-<comp.CodeBlock language="Markdown" source="about.md">
-```
----
-markdown: |
-  # Animals
-
-  - Dogs
-  - Cats
-
-  ***Its raining cats and dogs.***
----
-```
-</comp.CodeBlock>
-
-You may need to convert the Markdown value into HTML to use it on your site:
+You may need to convert the Markdown value into HTML to use it on your site.
 
 <comp.Conditional ssgs={["Jekyll"]}>
   In your layout, use the `markdownify` function to render Markdown from front matter.
@@ -172,12 +150,15 @@ You may need to convert the Markdown value into HTML to use it on your site:
   SSGs vary in processing Markdown, so using the value from this input depends on your specific implementation.
 </comp.Conditional>
 
+For more information, please read our documentation on [configuring your markdown engine](/documentation/articles/configure-your-markdown-engine/).
+
 ## Options
 
 You can configure Rich Text inputs using the `options` key under your input key, inside of `_inputs`.
 
 <comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="cloudcannon.config.yml">
 ```
+
 _inputs:
   description:
     type: markdown
@@ -188,6 +169,7 @@ _inputs:
       paths:
         dam_uploads: assets/images
         dam_uploads_filename: "[filename].[extension]"
+
 ```
 </comp.MultiCodeBlock>
 
@@ -195,34 +177,96 @@ Rich Text inputs have the following options available:
 
 <comp.DataReference>
   <comp.DataReferenceRow label="allow_resize" type_markdown="Boolean">
-    Shows or hides the resize handler to vertically resize the input. Defaults to `true`.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="empty_type" type_markdown="string">
-    Set how an ‘empty’ value will be saved. Does not apply to existing empty values. Can be one of the following:
-
-    * `string` - an empty value for this input will be stored as `""`.
-    * `null` - an empty value for this input will be stored as a null value (default). This does not apply to TOML files.
+    This key toggles the resize handler to vertically resize the text area of the input. Defaults to `true`.
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="initial_height" type_markdown="Integer">
-    Defines the initial height of this input in pixels (`px`). Defaults to `320`. Supports values between `135` and `1200`.
+    This key defines the initial height of the input text area in pixels (`px`). Defaults to `320`. Supports values between `135` and `1200`.
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="paths" type_markdown="Object">
-    Paths to common folders. Each path is relative to [global](/documentation/articles/create-a-global-configuration-file/) site `source`. If unset, the paths default to those configured in the [global configuration](/documentation/articles/create-a-global-configuration-file/).
+    This key enables you to define the default paths for your assets. Each path is relative to global site `source`. If undefined, the paths default to those configured in the [configuration file](/documentation/articles/create-a-global-configuration-file/). The following nested keys are available:
 
-    The available keys are:
-
-    * `dam_static` for the location of statically copied assets for [DAM](/documentation/articles/introduction-to-assets-and-dams/) files.
-    * `dam_uploads` for the default location of newly uploaded [DAM](/documentation/articles/introduction-to-assets-and-dams/) files.
-    * `dam_uploads_filename` for the name of the uploaded file, when uploading [DAM](/documentation/articles/introduction-to-assets-and-dams/) files.
-    * `static` for the location of statically copied assets.
-    * `uploads` for the default location of newly uploaded site files.
-    * `uploads_filename` for the name of the uploaded file.
-
-    These paths control where new asset files are uploaded to. They also set the default path when choosing existing images, and linking to existing files.
+    * `dam_static`
+    * `dam_uploads`
+    * `dam_uploads_filename`
+    * `static`
+    * `uploads`
+    * `uploads_filename`
+    * `uploads_use_relative_paths`
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="paths.dam_static" type_markdown="String">
+    This key enables you to define the path for the location of statically copied assets for [DAM](/documentation/articles/introduction-to-assets-and-dams/) files.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="paths.dam_uploads" type_markdown="String">
+    This key enables you to define the path for the default location of newly uploaded [DAM](/documentation/articles/introduction-to-assets-and-dams/) files.
 
     You can use [dynamic placeholders](/documentation/articles/configure-your-template-strings/) for `uploads` and `dam_uploads`. For more information, please read our documentation on [adjusting file upload paths](/documentation/articles/adjusting-the-uploads-path/).
   </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="paths.dam_uploads_filename" type_markdown="String">
+    This key enables you to define the name of a file, after uploading it to a [DAM](/documentation/articles/introduction-to-assets-and-dams/).
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="paths.static" type_markdown="String">
+    This key enables you to define the path for the location of statically copied assets.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="paths.uploads" type_markdown="String">
+    This key enables you to define the path for the default location of newly uploaded files.
+
+    You can use [dynamic placeholders](/documentation/articles/configure-your-template-strings/) for `uploads` and `dam_uploads`. For more information, please read our documentation on [adjusting file upload paths](/documentation/articles/adjusting-the-uploads-path/).
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="paths.uploads_filename" type_markdown="String">
+    This key enables you to define the name of a file, after uploading it.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="paths.uploads_use_relative_paths" type_markdown="Boolean">
+    This key enables you to use a file path relative to the current file when uploading through this input. File inputs in data files or front matter will also use relative file paths when selecting an existing file.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="empty_type" type_markdown="string">
+    This key determines how CloudCannon handles an empty value. This key does not apply to existing empty values.
+
+    Value must be one of the following:
+
+    * `string` - an empty value for this input will be stored as "".
+    * `null` - an empty value for this input will be stored as a null value (default). This does not apply to TOML files.
+  </comp.DataReferenceRow>
 </comp.DataReference>
+
+## Unconfigured Rich Text inputs
+
+In some cases, CloudCannon can still detect a Rich Text input even if you have not configured it.
+
+CloudCannon will interpret any unconfigured input with the key name `html` or `markdown`, or that ends in `_html` or `_markdown`, as a Rich Text input.
+
+<comp.CodeBlock language="Markdown" source="about.md">
+```
+---
+sidebar_html: |
+  <p>This paragraph has <em>emphasis</em> and <strong>strength</strong>.</p>
+  <ol>
+    <li>Walk</li>
+    <li>Run</li>
+  </ol>
+  <p>Linking to <a href="/">index</a>.</p>
+---
+```
+</comp.CodeBlock>
+
+<comp.CodeBlock language="Markdown" source="about.md">
+```
+---
+markdown: |
+  # Animals
+
+  - Dogs
+  - Cats
+
+  ***Its raining cats and dogs.***
+---
+```
+</comp.CodeBlock>
+
+This behavior is convenient if you have simple inputs, or do not want to configure inputs. It is also beneficial for new websites on CloudCannon where you have yet to create any CloudCannon-specific configuration.
+
+<comp.Notice info_type="info">
+  We recommend configuring your inputs for greater control over their functionality and appearance.
+</comp.Notice>
 
 ## Valid values
 
