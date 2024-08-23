@@ -315,6 +315,7 @@ module.exports = {
         values: [
           "Account Settings",
           "Editing interfaces",
+          "Cards",
           "Client Sharing",
           "Custom Permission Groups",
           "Inputs",
