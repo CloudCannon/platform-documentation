@@ -314,6 +314,7 @@ module.exports = {
       options: {
         values: [
           "Account Settings",
+          "Builds",
           "Editing interfaces",
           "Client Sharing",
           "Custom Permission Groups",
