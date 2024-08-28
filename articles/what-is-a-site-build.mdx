@@ -1,0 +1,69 @@
+---
+_schema: default
+_uuid: 4ec69df4-a6d9-4ff1-8d1e-19781acd55b0
+_created_at: 2024-08-28T13:07:32+12:00
+title: What is a Site build?
+nav_title: What is a Site build?
+published: true
+image: >-
+  https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+description:
+article_category:
+  - Explanation
+tags: []
+related_articles: []
+related_links: []
+explicit_canonical:
+---
+x
+
+---
+
+Once your files are synced to CloudCannon the next step is to run your build. This mirrors your local development environment: Every time your files change, a build is run to produce your website. This workflow allows you to have complete control over how your website looks and functions.
+
+## Setting up your build
+
+When setting up a site you will be asked how to build your static site from your source files. This includes options for:
+
+1. Selecting your SSG and its CLI options
+2. Setting environment variables
+3. Setting the folder that will contain your built site
+4. CloudCannon specific options
+
+If you have any questions about the options in your build, see the [Configuring your build](/documentation/articles/configuring-your-build/) document or contact support.
+
+## What happens during a build
+
+CloudCannon has a CI/CD (Continuous Integration/Continuous Delivery) system built into the core of the product. Every build runs as follows:
+
+1. Your files are downloaded to the server
+2. Your selected install commands are run (e.g. `npm install`, `bundle install`)
+3. Your selected build commands are run (e.g. `npm run build`)
+4. The output files are indexed for editing
+5. Your files are uploaded to CloudCannon hosting for [previewing](/documentation/articles/viewing-your-site-on-a-testing-domain/) and/or delivery
+
+Additionally you can [hook into steps to your build to run extra commands](/documentation/articles/extending-your-build-process-with-hooks/). This is useful for downloading external data, running testing commands and much more.
+
+The build commands are run using `bash` in an isolated environment powered by `Ubuntu` which has a comprehensive list of build tools and programming languages installed. Most software installed comes with a version manager which allows you to keep consistency between builds. This is covered in the build environment section of the documentation.
+
+## Reading the output of builds
+
+As builds run they produce logs which are crucial for understanding what is happening. These logs are available live in a terminal within your Site / Status page. From here you can also dig into your previous builds. This can be useful for tracking down when issues started occurring.
+
+These logs come with timing metrics which can assist with improving your build speed. If your build fails for any reason, be sure to check the build logs first. We also provide some automated suggestions for common build errors to help you get back to a successful build quicker.
+
+## Caching between builds
+
+Build speed is very important for the experience of editing your website. CloudCannon attempts to send your consecutive builds to the same server. This allows you to configure caching of files between each build to skip expensive repetitive operations. This is great for image optimization, installation steps and external data fetching. Look at the build caching section for more information.
+
+## How builds are started
+
+Builds can be started by:
+
+1. Files being changed from Git or within the editing interfaces
+2. Changing build configuration (e.g. CLI options, SSG Choice, caching options or toggling building locked)
+3. Triggering a rebuild from the Site / Status page
+4. Using [automatic scheduling](/documentation/articles/scheduling-your-next-build-automatically/) or [manual scheduling](/documentation/articles/scheduling-your-builds-manually/)
+5. Using our API currently on private beta
+
+Sites can be prevented from building by turning on ‘Building Locked’ within the site settings. This is useful when you want to manage a deployment more manually. Most editing configuration is read at build time, so changes to configuration may be delayed while building is locked.
