@@ -18,3 +18,56 @@ related_articles: []
 related_links: []
 explicit_canonical:
 ---
+## Setting your SSG version
+
+It's good practice to specify which version of your static site generator you use to avoid errors and unexpected behavior. CloudCannon offers different methods to manage this based on which generator you use.
+
+<comp.Conditional ssgs={["Jekyll"]}>
+  CloudCannon supports Jekyll versions after **2\.4.0**. New sites without the version set use a default version. The version is displayed in the *Status* section after each build.
+
+  <comp.Notice info_type="info">
+    Set the version to avoid future breaking changes and version clashes across environments.
+  </comp.Notice>
+
+  To set the version:
+
+  1. Add a `Gemfile` to the root folder
+  2. Add the `jekyll` dependency to your `Gemfile`
+  3. Set the version as required
+
+  <comp.CodeBlock language="ruby" source="Gemfile">
+  ```
+  source "https://rubygems.org"
+  gem "jekyll", "~> 4.1.1"
+  ```
+  </comp.CodeBlock>
+
+  By default, CloudCannon uses `/Gemfile` as the gem source. To change this you can set the `BUNDLE_GEMFILE` environment variable (e.g. `BUNDLE_GEMFILE=src/Gemfile`).
+
+  <comp.Notice info_type="important">
+    Setting the `BUNDLE_GEMFILE` environment variable requires that your gems are specified in the `_config.yml` file.
+  </comp.Notice>
+</comp.Conditional>
+
+<comp.Conditional ssgs={["Hugo"]}>
+  By default CloudCannon builds using Hugo version <comp.SystemVersionDefault language="go" item="hugo"/>. You can change which version of Hugo your build uses by running the `install-hugo` command in a [preinstall hook](/documentation/articles/extending-your-build-process-with-hooks/).
+
+  For example, to build your site using an older version of Hugo:
+  <comp.CodeBlock language="shell" source=".cloudcannon/preinstall">
+  ```
+  install-hugo 0.100.2
+  ```
+  </comp.CodeBlock>
+
+  Do not include `_extended` or `+extended` in your version. CloudCannon will automatically use the [extended](https://gohugo.io/installation/linux/#editions) release of the specified version.
+</comp.Conditional>
+
+<comp.Conditional ssgs={["Eleventy"]}>
+  CloudCannon builds with any version of Eleventy, although is focused from version **v0.12.1** onward.
+
+  Since we build Eleventy sites with `npx`, the latest version is run unless specified otherwise in `package.json`.
+</comp.Conditional>
+
+<comp.Conditional not_ssgs={["Jekyll", "Eleventy", "Hugo"]}>
+  CloudCannon uses the version you specify for your SSG with `npm` or another package manager.
+</comp.Conditional>
