@@ -282,6 +282,11 @@ module.exports = {
     _uuid: {
       instance_value: "UUID",
     },
+    description: {
+      options: {
+        show_count: true,
+      },
+    },
     explicit_canonical: {
       type: "url",
       comment:
