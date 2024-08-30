@@ -118,6 +118,56 @@ CloudCannon supports CommonMark and Kramdown using `markdown-it` (JavaScript) an
   
   Enable this option only if your SSG's Markdown engine recognizes this syntax.
  </comp.DataReferenceRow>
+ <comp.DataReferenceRow label="options.attributes" type_markdown="boolean">
+  If `true`, HTML attributes will be saved in Markdown format. Otherwise, elements with attributes may be converted to HTML to preserve the attributes.
+  
+  Enable this option only if your SSG's Markdown engine recognizes this syntax.
+ </comp.DataReferenceRow>
+ <comp.DataReferenceRow label="options.attributes_elements" type_markdown="object">
+  This key determines how to save Markdown format attributes for different elements. For example, different SSGs may require Markdown attributes to appear on a newline for paragraphs, but on the same line for images.In most cases you should not need to set this option.
+
+  Allowed keys are:
+
+  * `p`, `h1`, `h2`, `h3`, `h4`, `h5`, `h6`, `hr`, `ul`, `ol`, `li`, `table`, `blockquote`, and `img`: These specify how to save Markdown attributes for specific HTML elements.
+  * `inline`: specifies how to save "inline" HTML elements, when not overridden by a more specific key.
+  * `block`: specifies how to save "block" HTML elements, when not overridden by a more specific key.
+
+  Allowed values are: 
+  
+  * `none`: don't allow Markdown attributes to be saved on this element type
+  * `right`: Markdown attributes are saved directly following the element
+  * `space right`: Markdown attributes are saved directly following the element, with a space in-between
+  * `below`: Markdown attributes are saved after a newline
+  * `newline below`: Markdown attributes are saved after two newlines
+  * `right-of-prefix`: This option only relates to list items (`li`). Markdown attributes are saved after the list prefix.
+  
+  For example:
+  
+  <comp.CodeBlock language="Markdown" source="example.md">
+  ```
+  This example shows how different options would impact attributes on list items.
+
+  * None
+  * Right{.red}
+  * Space Right {.red}
+  * Below
+  {.red}
+  * Space Below
+
+  {.red}
+  * {.red} Right of prefix
+  ```
+  </comp.CodeBlock>
+  
+  Read the section below to learn more about how to configure this, and the default values for different SSGs.
+ </comp.DataReferenceRow>
+ <comp.DataReferenceRow label="options.attributes_elements.inline" type_markdown="string">
+  This key determines how to save Markdown format attributes for inline elements.
+
+  
+  
+  Read the section below to learn more about how to configure this, and the default values for different SSGs.
+ </comp.DataReferenceRow>
  <comp.DataReferenceRow label="options.gfm" type_markdown="boolean">
   Enables extra parsing options consistent with GitHub Flavored Markdown. 
   
@@ -198,3 +248,66 @@ markdown:
 </comp.MultiCodeBlock>
 
 With this configuration, tables will be rendered as HTML if they violate this constraint, to preserve your content.
+
+### Default element attribute options
+
+CloudCannon uses sensible defaults for `markdown.options.attributes_elements` based on your SSG. You should only override these if you're using an SSG that requires a different syntax for Markdown attributes than these defaults.
+
+If your `markdown.engine` is `kramdown`, `markdown.options.attributes_elements` will default to:
+
+<comp.CodeBlock language="YAML" source="cloudcannon.config.yml">
+```
+markdown:
+  options:
+    attributes_elements:
+      inline: right
+      block: below
+      li: right-of-prefix
+```
+</comp.CodeBlock>
+
+<comp.Conditional ssgs={["Hugo"]}>    
+  If your `markdown.engine` is `commonmark` and you're using Hugo, `markdown.options.attributes_elements` will default to:
+
+  <comp.CodeBlock language="YAML" source="cloudcannon.config.yml">
+  ```
+  markdown:
+    options:
+      attributes_elements:
+        inline: none
+        block: space right
+        ul: below
+        ol: below
+        blockquote: below
+        p: below
+        img: below
+        hr: below
+        table: below
+        li: none
+  ```
+  </comp.CodeBlock>
+
+  CloudCannon gives different defaults for Hugo to account for differences in syntax between Goldmark and other CommonMark parsers.
+</comp.Conditional>
+<comp.Conditional not_ssgs={["Hugo"]}>    
+  If your `markdown.engine` is `commonmark` (and you're not using Hugo), `markdown.options.attributes_elements` will default to:
+
+  <comp.CodeBlock language="YAML" source="cloudcannon.config.yml">
+  ```
+  markdown:
+    options:
+      attributes_elements:
+        inline: none
+        block: space right
+        img: right
+        ul: below
+        ol: below
+        li: space right
+        table: newline below
+        blockquote: below
+  ```
+  </comp.CodeBlock>
+</comp.Conditional>
+
+
+
