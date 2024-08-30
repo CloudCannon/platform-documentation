@@ -319,6 +319,7 @@ module.exports = {
       options: {
         values: [
           "Account Settings",
+          "Beta",
           "Builds",
           "Editing interfaces",
           "Client Sharing",
