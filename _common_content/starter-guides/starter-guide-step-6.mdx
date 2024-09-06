@@ -3,131 +3,234 @@ _schema: default
 content_name: Starter Guide Step 6
 parameters: {}
 ---
-## Reopen your global configuration file
+## The global configuration file
 
-In the previous section of this guide, we created our [CloudCannon configuration file](/documentation/articles/create-a-global-configuration-file/), `cloudcannon.config.yml`. The sidebar prompt to create the configuration file has disappeared.
+<comp.Slot name="SSG_Configuration_Paragraph"></comp.Slot>
 
-To edit your configuration file further, you can do so manually through the *Files* tab or by reopening the configuration GUI.
+The global configuration file is one of many places to set your website’s configuration. This file is the broadest in scope and the lowest priority - configurations setting specified here affect the entire site, but more specific settings from other sources can override these. This <a href="https://cloudcannon.com/documentation/articles/using-the-configuration-cascade/" target="_blank" rel="noopener">configuration cascade</a> allows you to have fine control over your site configuration.
 
-Access the configuration GUI by navigating to the *Editing* tab, under *Site Settings*. Click the *Edit your global configuration file* button.
+The configuration cascade sources are as follows, from lowest priority to highest:
 
-### Markdown WYSIWYG toolbar
+* [Global configuration](/documentation/articles/create-a-global-configuration-file/)
+* [Collection configuration](/documentation/articles/define-your-collections/)
+* [Schema configuration](/documentation/articles/what-is-a-schema/)
+* Front matter
+* Containing [structure](/documentation/articles/what-is-a-structure/)
 
-Markdown is used in the Content, Visual, and Data Editors. The Content Editor is a rich text editor for Markdown files. The Visual Editor can edit Markdown files if they are wrapped in an HTML element. Markdown is also used in the Data Editor if you have a rich text area for one of your inputs. To customize your experience using these editors, you should configure your [WYSIWYG toolbar](/documentation/articles/configuring-toolbars).
+The CloudCannon global configuration file can be one of several file types. When CloudCannon searches the root directory for your config file, it will use the first matching file from this list.
 
-Let’s go over an example of how you would customize the toolbar. We want to allow our content team to add a table to Markdown files. In our global configuration file, we have complete control over the WYSIWYG toolbar.
+1. `cloudcannon.config.json`
+2. `cloudcannon.config.yaml`
+3. `cloudcannon.config.yml`
+4. `cloudcannon.config.js`
+5. `cloudcannon.config.cjs`
 
-You can define the `_editables` for each editor type in the global configuration file. These sections look like this in the configuration GUI:
+Let’s set up a `cloudcannon.config.yml` global configuration file in your source directory using the CloudCannon configuration GUI.
 
-<comp.DocsImage path="https://cc-dam.imgix.net/documentation/CloudCannon-Getting-Started-Configure-Editables.png" alt="A screenshot of the CloudCannon configuration GUI shows the section allowing users to configure the toolbar for each editor." title="Configuration GUI Editables Section" type="ui-snippet"/>
+Once you have created your site, CloudCannon will automatically detect if you do not have a configuration file. In your sidebar, you will see the *Get started* button, which will prompt you to *Generate your global configuration file*.
 
-Select all the editable options you would like in your WYSIWYG toolbar.
+<comp.DocsImage path="https://cc-dam.imgix.net/documentation/ConfigGUI_sidebar_prompt.png" alt="The sidebar in CloudCannon app shows a prompt to create your CloudCannon configuration file with a Get Started button." title="Configuration GUI Sidebar Prompt" type="ui-snippet"/>
 
-When you have created your CloudCannon global configuration file, your `_editables` will look something like this:
+<comp.DocsImage path="https://cc-dam.imgix.net/documentation/ConfigGUI_popup.png" alt="The CloudCannon app pop-up explains how a configuration file is used and shows a button to Generate your global configuration file." title="Configuration GUI Pop-up" type="ui-snippet"/>
+
+The CloudCannon configuration GUI will direct you through creating a configuration file for your website.
+
+### Defining your collections
+
+We’ve talked about collections earlier in this guide — these are groups of related content. This could be pages, blog posts, data files, or any other file type.
+
+Defining your collections is an important step in setting up your CloudCannon site. By defining your collections, you can navigate to them easily using the app sidebar and customize unique settings for each collection’s content (such as choosing a default editing interface).
+
+The first section of the configuration GUI will help you <a href="https://cloudcannon.com/documentation/articles/define-your-collections/" target="_blank" rel="noopener">define your collections</a>. Each section of the GUI links to the CloudCannon documentation for that feature.
+
+For each collection, you can:
+
+* Specify the Path, URL, and Output for the Visual Editor.
+* Customize icons, names, descriptions, and documentation links.
+* Filter and Sort files.
+* Choose how to group collections in the navigation sidebar.
+* Enable or disable specific editors.
+
+<comp.Slot name="SSG_Plugin_Paragraph"></comp.Slot>
+
+When you have created your CloudCannon global configuration file, your collections will look something like this:
 
 <comp.MultiCodeBlock language="YAML" translate_into={["json", "JavaScript"]} source="cloudcannon.config.yml">
 ```
-_editables:
-  content:
-    bold: true
-    italic: true
-    bulletedlist: true
-    numberedlist: true
-    image: true
-    table: true
-    undo: true
-    redo: true
+collections_config:
+  posts:
+    path: content/blog
+    output: true
+    url: "/blog/[slug]/"
+    _enabled_editors:
+      - content
+  pages:
+    path: content/pages
+    output: true
+    url: "/[slug]/"
+    _enabled_editors:
+      - visual
 ```
 </comp.MultiCodeBlock>
 
-As you can see, we have enabled many of the common functions your team would expect in a content editor. But that’s not all! Check out our documentation for many more ways to [configure the WYSIWYG toolbar](/documentation/articles/configuring-toolbars).
+While configuring your collections, you will see sections that refer to Inputs, Structures, and Schemas. We’ll discuss each of these in this section of the guide.
 
-### Front matter
+### Inputs
 
-Inputs in the front matter are automatically available in the sidebar in the Visual Editor, Content Editor, and the dedicated Data Editor. Your content team will interact with these often, so let’s explicitly configure the front matter.
+You can edit all your site data and front matter using Inputs in the Data Editor. Each input corresponds to a field in your front matter or data file, providing an editing interface for those values.
 
-<comp.CodeBlock language="markdown" source="blog_post.html">
-```
----
-background: "#ff0000"
-hero_content: "Everything you need"
-sidebar: true
----
-```
-</comp.CodeBlock>
+You can customize the `_inputs` for your site and for each collection in the global configuration file. These sections look like this in the configuration GUI:
 
-We want team members to have the following inputs for each of these keys:
+<comp.DocsImage path="https://cc-dam.imgix.net/documentation/CloudCannon-Getting-Started-Configure-Inputs.png" alt="A screenshot of the CloudCannon configuration GUI shows the section allowing users to configure inputs for each collection." title="Configuration GUI Inputs Section" type="ui-snippet"/>
 
-* **background** — color picker
-* **hero\_content** — WYSIWYG Markdown editor
-* **sidebar** — checkbox
+Inputs come in various types linked to your keys and values (such as text, date picker, color picker, etc.). Defining your inputs means you can design the best editing experience for your team.
 
-To achieve this, we should add the following to our global configuration file using the configuration GUI:
+Each input should have a label, a comment, and a type.
+
+* **Label** — The name of the input, as displayed in the Data Editor.
+* **Comment** — A short description of what this input does.
+* **Type** — What type of input (e.g., text, number, image, select).
+
+<comp.DocsImage path="/ye_olde_images/input-diagram.svg" alt="The diagram shows the elements of an input, with arrows pointing to the Label, Comment, and Type." title="Input Element Diagram" type="ui-snippet"/>
+
+You can further configure your input by adding the following options if required:
+
+* **Instance Value** — Initialize a field with a unique UUID or today’s date.
+* **Options** — Specify the settings for your inputs, where applicable.
+* **Hidden** — Hide a field you don’t want your content team to change.
+* **Cascade** — Specifies whether or not this input configuration should be merged with any matching, less specific configuration.
+
+For more examples, visit our documentation on <a href="https://cloudcannon.com/documentation/articles/configure-your-inputs/" target="_blank" rel="noopener">customizing your inputs</a>.
+
+If you already have input keys in your site, CloudCannon will automatically detect any inputs that match our naming conventions. For example, if your site has a front matter field ending with `_image`, like `background_image`, CloudCannon will assign that input to the file upload/selector type. While creating your global configuration file, reviewing all the inputs for each collection to ensure they were assigned the correct type is a good idea.
+
+Read our documentation on <a href="https://cloudcannon.com/documentation/articles/configure-your-inputs/#type" target="_blank" rel="noopener">input types</a> for a complete list of our naming conventions.
+
+When you have created your CloudCannon global configuration file, your inputs will look something like this:
 
 <comp.MultiCodeBlock language="YAML" translate_into={["json", "JavaScript"]} source="cloudcannon.config.yml">
 ```
 _inputs:
-  background:
-    type: color
-    comment: Defines the background for the entire page
-  hero_content:
-    type: markdown
-    label: Hero text
-  sidebar:
-    type: checkbox
-    hidden: true
+  hero_image:
+    type: image
+    label: Hero Image
+    comment: Appears at the top of the page
+    options:
+      width: 720
+      height: 480
+      resize_style: cover
 ```
 </comp.MultiCodeBlock>
 
-You will also see that we added some other elements to our keys:
+We’ll talk about inputs some more in the next section of the guide when we cover front matter and data files.
 
-* A comment to describe the function of the input.
-* A label to name the input in the Data Editor.
-* A hidden status to prevent the input from appearing in the Data Editor.
+### Structures
 
-Adding a label and a comment to each input is considered best practice.
+CloudCannon [structures](/documentation/articles/what-is-a-structure/) are an easy way to support a set of predefined objects. For example, you might have a structure that allows your content team to add photo galleries, testimonials, image and text blocks, or CTAs to a page.
 
-We covered inputs in the previous section of our guide, and you can always check out our documentation for [customizing your inputs](/documentation/articles/configure-your-inputs/) to see more options.
+You can customize the `_structures` for your site and for each collection in the global configuration file. These sections look like this in the configuration GUI:
 
-Here’s what our new inputs will look in the Data Editor:
+<comp.DocsImage path="https://cc-dam.imgix.net/documentation/CloudCannon-Getting-Started-Configure-Structures.png" alt="A screenshot of the CloudCannon configuration GUI shows the section allowing users to configure structures for each collection." title="Configuration GUI Structures Section" type="ui-snippet"/>
 
-<comp.DocsImage path="https://cc-dam.imgix.net/documentation/CloudCannon-Getting-Started-Front-Matter.png" alt="A screenshot of the CloudCannon app shows a blog in the Content Editor with configured inputs from the front matter visible." title="Adding inputs to front matter" type="screenshot"/>
+Structures and arrays go hand-in-hand. Configuring your structures will allow you to create predefined objects which to add to your arrays.
 
-If you want to update front matter content in the Visual Editor rather than the Data Editor sidebar, you can set up [Visual Data binding](/documentation/articles/what-are-visual-data-bindings/). Visual Data binding is an HTML attribute indicating which front matter property populates an HTML element. For example, the HTML class below will open an overlay to edit the title property in the front matter.
+Arrays are one of the most powerful parts of any static site generator. For example, you might use an array to create:
 
-<comp.CodeBlock language="HTML" source="homepage.html">
-```
-<h1 data-cms-bind="#title">{{title}}</h1>
-```
-</comp.CodeBlock>
+* Lists of related content, such as a list of staff members.
+* Any repeated component or content block, such as testimonials or a gallery.
 
-### Data files
+<comp.DocsImage path="https://cc-dam.imgix.net/documentation/CloudCannon-Getting-Started-Array-Structures.png" alt="A screenshot of the CloudCannon app shows a Staff Members web page with a configured structure to add new staff to the array." title="Structures add to arrays" type="screenshot"/>
 
-Data files are automatically available to update in the [Data Editor](/documentation/articles/the-data-editor/). The same [inputs configuration](/documentation/articles/configure-your-inputs/) you used for the front matter will also work on data files.
+CloudCannon will automatically detect your arrays when you connect your site files and make them editable in the Data Editor. You can add new items to your arrays without the need for configuration, which will clone the previous array item and clear the data. However, this behavior can be limiting if you do not have at least one entry in your array or want to have different data types in the array. You can overcome these limitations with structures by configuring how new array items are added.
 
-<comp.Slot name="SSG_Configure_Snippets_Paragraph"></comp.Slot>
+Structures are perfect for creating your own page builder.
 
-## Markdown engine
+You can configure your site structures to empower your content team, providing them with page components and letting them add, remove, reorder, and update these components to build pages.
 
-Your Markdown engine will process Markdown into HTML, making it editable. You can use any Markdown engine when building your site; this only covers the Markdown content you edit inside CloudCannon.
+You can choose a dropdown select menu or a modal pop-up window option to add structures to a page.
 
-CloudCannon supports the CommonMark and Kramdown specifications. These implementations are `markdown-it` (JavaScript) and `kramdown` (Ruby). `markdown-it` is the default Markdown processor in CloudCannon.
+<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/getting-started/2024-Q1/CloudCannon-Documentation-Structures-Modal.png" alt="A screenshot of the CloudCannon app shows a pop-up modal for selecting a structure to add to the Content Block array." title="Structure modal for adding snippets" type="screenshot"/>
 
-Currently, you cannot configure the Markdown engine through the Configuration GUI, however, it is easy to do manually. Navigate to your CloudCannon global configuration file through the Files tab in your navigation sidebar. The configuration file will be in the root of your directory.
+Currently, you cannot configure the values for your Structures in the Configuration GUI, however, it is easy to do manually. Navigate to your CloudCannon global configuration file through the Files tab in your navigation sidebar. The configuration file will be in the root of your directory.
 
-Your `generator` code should look something like this:
+For more examples, visit our documentation on [structures](/documentation/articles/what-is-a-structure/).
+
+When you have created your CloudCannon global configuration file, your structures will look something like this:
 
 <comp.MultiCodeBlock language="YAML" translate_into={["json", "JavaScript"]} source="cloudcannon.config.yml">
 ```
-generator:
-  metadata:
-    markdown: markdown-it
-    markdown-it:
-      html: true
-      linkify: true
+_structures:
+  example:
+    values:
+      - label: First
+        value:
+          name:
+          description:
+          image:
+      - label: Second
+        value:
+          heading:
+          subtext:
 ```
 </comp.MultiCodeBlock>
 
-The default configuration is `{ html: true }` to allow the images with width and height attributes the Rich Text editors create. However, you can update this to match your site by setting the `generator.metadata` in your global configuration file as shown above.
+### Schemas
 
-<comp.Slot name="SSG_Visual_Previews_Paragraph"></comp.Slot>
+Use [schemas](/documentation/articles/what-is-a-schema/) to keep your files consistent. Configuring your schemas for each collection will help you to:
+
+* Populate the front matter of a new file created in the CloudCannon app.
+* Update the front matter for existing files in your collection.
+* Customize the types of content you can add to a collection through the *\+ Add* button in the top right.
+
+You can define the `schemas` for each collection in the global configuration file. These sections look like this in the configuration GUI:
+
+<comp.DocsImage path="https://cc-dam.imgix.net/documentation/CloudCannon-Getting-Started-Configure-Schemas.png" alt="A screenshot of the CloudCannon configuration GUI shows the section allowing users to configure schemas for each collection." title="Configuration GUI Schemas Section" type="ui-snippet"/>
+
+Schema files are the same file type as the file you want to create. For example, you must use a Markdown schema to create a new Markdown file in your collection. You can have multiple schemas for each collection, each with a different file type and contents.
+
+In your schema, you define the inputs for the front matter of all files using this schema.
+
+Here is a simple example of a Markdown schema:
+
+<comp.CodeBlock language="Markdown" source="blog.md">
+```
+---
+title:
+author:
+image:
+---
+```
+</comp.CodeBlock>
+
+Once you have created your schemas, you can configure each collection to reference a particular schema in the configuration GUI. New files in that collection will automatically have the correct front matter. When you edit an existing file in a collection with a defined schema, the front matter will update to keep data consistent.
+
+<comp.Notice info_type="important">
+  Updating your schema file will alter the inputs for all the files that use that schema. This means you will only have to make changes in one place! Be careful, however, as unintended changes will overwrite the front matter of many files.
+</comp.Notice>
+
+CloudCannon will automatically display the schemas available for your collection as a drop-down menu from the *\+ Add* button.
+
+<comp.DocsImage path="https://cc-dam.imgix.net/documentation/CloudCannon-Getting-Started-Add-Schemas.png" alt="A screenshot of the Collections view in the CloudCannon app shows a drop-down menu with multiple schema options for new content." title="Add content using multiple schemas" type="ui-snippet"/>
+
+You can further <a href="https://cloudcannon.com/documentation/articles/configure-the-add-button-in-collections/" target="_blank" rel="noopener">customize your + Add button</a> through `add_options`; however, this isn’t necessary to get started on CloudCannon.
+
+When you have created your CloudCannon global configuration file, your schemas will look something like this:
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json", "JavaScript"]} source="cloudcannon.config.yml">
+```
+collections_config:
+  posts:
+    schemas:
+      default:
+        path: schemas/posts/default.md
+      news:
+        path: schemas/posts/news.md
+        name: Newsletter Entry
+```
+</comp.MultiCodeBlock>
+
+### Finish the Configuration GUI
+
+Once you have finished making edits to your <a href="https://cloudcannon.com/documentation/articles/create-a-global-configuration-file/" target="_blank" rel="noopener">CloudCannon configuration file</a>, you can save your changes using the *Save* button in the top right corner of the configuration GUI.
+
+CloudCannon will push your `cloudcannon.config.yml` file back to your repository, and your site will rebuild automatically!
