@@ -15,19 +15,43 @@ explicit_canonical:
 ---
 ## Migration preparation
 
-branch
+We recommend creating a new branch of your Site for this migration to avoid any misconfiguration affecting your live Site.
 
-check flag
+To enable Unified Configuration:
+
+1. Navigate to the *Flags* page under *Site Settings*.
+2. Check the *Use unified configuration* flag under *General*.
+3. Click the *Update* button.
+
+CloudCannon now expects your Site to use the Unified Configuration file format.
+
+<comp.DocsImage path="" alt="" title=""/>
+
+In the short term, depending on how closely your Site configuration matches the Unified Configuration format, your Site may become misconfigured in CloudCannon. This could look like your collections displaying incorrectly or data sets in Select and Multiselect inputs working incorrectly. You will resolve this temporary state once you complete this migration guide.
+
+One source of misconfiguration is opening your CloudCannon configuration file in the configuration GUI. As CloudCannon expects your configuration file to be in the Unified Configuration format, opening the file in the configuration GUI will strip content from your file (e.g., defunct keys). We highly recommend completing your migration in CloudCannon's Source Editor or your local development environment without using the configuration GUI.
 
 ## Checklist
 
 ### CloudCannon configuration file type
 
-x
+Your CloudCannon configuration file must be a YAML (recommended) or JSON file, rather than Javascript.
 
-### Add a path to every collection
+### Explicitly configure a path for every collection
 
-x
+Prior to Unified Configuration, CloudCannon could infer the path for each collection during your Site build step (e.g., Jekyll Sites automatically assume your posts collect are in the `_posts` folder).
+
+Please ensure that each collection defined in `collections_config` has the `path` key defined. The below codeblock shows how to explicitly configure a path:
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+``````````
+
+collections_config:
+  blog:
+    path: content/blog
+
+``````````
+</comp.MultiCodeBlock>
 
 ### s
 
@@ -51,16 +75,25 @@ x
 
 ### Defunct configuration options
 
+CloudCannon no longer uses some configuration options in the Unified Configuration file format. Although leaving these keys in your Site files will not harm your Site, they also will not function.
+
+We recommend updating the following keys to their new counterparts:
+
+x
+
+We recommend deleting the following keys:
+
 x
 
 1. `data_config.*.parser`
 2. &nbsp;`collections_config.*.parser`
-3. `collections_config.*.singular_key`
+3. `collections_config_override`
+4. `collections_config.*.singular_key`
    1. Use configured `_inputs.*.options.values` rather than relying on the naming conventions.
-4. `paths.data`
-5. `paths.collections`
-6. `paths.layouts`
-7. `paths.includes`
+5. `paths.data`
+6. `paths.collections`
+7. `paths.layouts`
+8. `paths.includes`
 
 ### Replace collection filters with collection globs
 
@@ -73,3 +106,11 @@ x
 ### Explicitly configure attributes for Editable Regions
 
 x
+
+## Migration conclusion
+
+Once you have completed the migration checklist,
+
+Then, you can save your changes and merge your branch with your main Site branch.
+
+If you have any question about thie migration guide, or need
