@@ -205,13 +205,24 @@ Before Unified Configuration, CloudCannon could use build data to populate the <
 
 For example, `value_key: path` and `value_key: url` will continue to work, however Hugo's `value_key: content_path` and Jekyll's `value_key: id` will not work as CloudCannon generates these values during build time and Unified Configuration Sites no longer use information from build integrations.
 
-### Explicitly configure attributes for Editable Regions
+### Explicitly configure attributes for file content Editable Regions
 
-CloudCannon no longer automatically applies Editable Regions to data that uses file content without an explicit attribute. Ensure that all Editable regions include the `data-cms-edit="content"` attribute.
+CloudCannon no longer automatically applies Editable Regions to file content without an explicit attribute.
+Previously, CloudCannon would attempt to discover these regions automatically when it encountered a content variable as the only child of an element, for example:
 
-The below code shows how to configure the `data-cms-edit="content"` attribute for your Editable Regions:
+<comp.CodeBlock language="HTML" source="layout.html">
+``````````
+<div>{{ content }}</div>
+``````````
+</comp.CodeBlock>
 
-<comp.CodeBlock language="HTML" source="page.html">
+This markup detection was fragile in certain circumstances, and couldn't be explicitly toggled on or off. 
+
+For sites using Unified Configuration, CloudCannon will no longer discover these regions automatically. Instead, an explicit attribute now exists to add an Editable Region for the content of a file.
+
+The below code shows how to configure the `data-cms-edit="content"` attribute to configure Editable Regions for your content:
+
+<comp.CodeBlock language="HTML" source="layout.html">
 ``````````
 <div data-cms-edit="content">{{ content }}</div>
 ``````````
