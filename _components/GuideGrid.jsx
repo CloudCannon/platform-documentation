@@ -22,12 +22,12 @@ export default function ({comp, search, series = "starters", card_type = "intera
                 suggested_guides: []
             })}
             x-init="
-                selected_name = $store.conditionals.selected('ssg-name');
+                selected_name = $store.conditionals.selected('ssg-label');
                 suggested_guides = guides.filter(g => g.ssgs.includes(selected_name));
                 misc_guides = guides.filter(g => !g.ssgs.includes(selected_name));
                 "
             alpine:ssgchange="
-                selected_name = $store.conditionals.selected('ssg-name');
+                selected_name = $store.conditionals.selected('ssg-label');
                 suggested_guides = guides.filter(g => g.ssgs.includes(selected_name));
                 misc_guides = guides.filter(g => !g.ssgs.includes(selected_name));
             ">
