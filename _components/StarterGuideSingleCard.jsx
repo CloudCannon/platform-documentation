@@ -20,11 +20,11 @@ export default function ({comp, search}, helpers) {
                 guide: null
             })}
             x-init="
-                selected_name = $store.conditionals.selected('ssg-name');
+                selected_name = $store.conditionals.selected('ssg-label');
                 guide = guides.filter(g => g.ssgs.includes(selected_name))[0] ?? null;
                 "
             alpine:ssgchange="
-                selected_name = $store.conditionals.selected('ssg-name');
+                selected_name = $store.conditionals.selected('ssg-label');
                 guide = guides.filter(g => g.ssgs.includes(selected_name))[0] ?? null;
             ">
             <img loading="lazy" className="c-interactive-card__image" {...{":src": "guide?.image || '/documentation/static/hand.png'", ":alt": "`${guide.title} logo`"}} width="50" height="50" />

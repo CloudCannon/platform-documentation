@@ -55,8 +55,8 @@ Alpine.store("conditionals", {
     )[0];
     if (!matching_value) return;
 
-    this.select("ssg-name", matching_value.name);
-    this.select("ssg-icon", matching_value.icon);
+    this.select("ssg-label", matching_value.name);
+    this.select("ssg-icon-url", matching_value.icon);
 
     document
       .querySelector(".c-docs-ssg-selector")

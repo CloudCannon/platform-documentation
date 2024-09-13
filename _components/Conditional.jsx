@@ -11,16 +11,16 @@ export default function ({comp, ssgs = [], not_ssgs = [], children}) {
                 show: false
             }`}
             x-init="
-                icon = $store.conditionals.selected('ssg-icon');
-                selected_name = $store.conditionals.selected('ssg-name');
+                icon = $store.conditionals.selected('ssg-icon-url');
+                selected_name = $store.conditionals.selected('ssg-label');
                 if (ssgs.length) {
                     show = ssgs.includes(selected_name);
                 } else {
                     show = !not_ssgs.includes(selected_name);
                 }"
             alpine:ssgchange="
-                icon = $store.conditionals.selected('ssg-icon');
-                selected_name = $store.conditionals.selected('ssg-name');
+                icon = $store.conditionals.selected('ssg-icon-url');
+                selected_name = $store.conditionals.selected('ssg-label');
                 if (ssgs.length) {
                     show = ssgs.includes(selected_name);
                 } else {
