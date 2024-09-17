@@ -48,7 +48,9 @@ One source of misconfiguration is opening your CloudCannon configuration file in
 
 Your CloudCannon configuration file must be a YAML (recommended) or JSON file rather than JavaScript.
 
-### Explicitly configure a path for every collection
+### Collections
+
+#### Explicitly configure a path for every collection
 
 CloudCannon no longer detects collections during your build step.
 
@@ -78,7 +80,7 @@ By default, Hugo sites will have a pages collection defined with a path of `cont
 
 CloudCannon now uses files globs to determine which files belong to a collection and are visible in the collection browser. You can add a negative glob to the `collections_config.*.glob` key by prefixing your file name with the `!` character.
 
-The below code shows how to configure the `glob` key to exclude the \`\_index.md file for your collection:
+The below code shows how to configure the `glob` key to exclude the `_index.md` file for your collection:
 
 <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
 ``````````
@@ -201,8 +203,7 @@ For example, `value_key: path` and `value_key: url` will continue to work, howev
 
 ### Explicitly configure attributes for file content Editable Regions
 
-CloudCannon no longer automatically applies Editable Regions to file content without an explicit attribute.
-Previously, CloudCannon would attempt to discover these regions automatically when it encountered a content variable as the only child of an element, for example:
+CloudCannon no longer automatically applies Editable Regions to file content without an explicit attribute. Previously, CloudCannon would attempt to discover these regions automatically when it encountered a content variable as the only child of an element, for example:
 
 <comp.CodeBlock language="HTML" source="layout.html">
 ``````````
@@ -210,7 +211,7 @@ Previously, CloudCannon would attempt to discover these regions automatically wh
 ``````````
 </comp.CodeBlock>
 
-This markup detection was fragile in certain circumstances, and couldn't be explicitly toggled on or off. 
+This markup detection was fragile in certain circumstances, and couldn't be explicitly toggled on or off.
 
 For sites using Unified Configuration, CloudCannon will no longer discover these regions automatically. Instead, an explicit attribute now exists to add an Editable Region for the content of a file.
 
@@ -221,3 +222,48 @@ The below code shows how to configure the `data-cms-edit="content"` attribute to
 <div data-cms-edit="content">{{ content }}</div>
 ``````````
 </comp.CodeBlock>
+
+### Explicitly configure your data collection
+
+<comp.Notice info_type="info">
+  This step of the migration guide is only relevant to Sites using Eleventy, Hugo, or Jekyll as their SSG.
+</comp.Notice>
+
+CloudCannon no longer uses build integrations to set the following keys in `collections_config.data`:
+
+1. `disable_url`
+2. `disable_file_actions`
+3. `disable_add_folder`
+4. `disable_add`
+
+You must explicitly set these keys.
+
+### Configure \_inputs for Jekyll tags and collections
+
+<comp.Notice info_type="info">
+  This step of the migration guide is only relevant to Sites using Jekyll as their SSG.
+</comp.Notice>
+
+CloudCannon no longer uses naming conventions and build integrations to create inputs for tags and collections.
+
+The below code shows how to configure the categories and tags inputs:
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+``````````
+
+_inputs:
+     categories:
+       type: multiselect
+       options:
+         values: collections.posts[*].categories
+         allow_create: true
+     tags:
+       type: multiselect
+       options:
+         values: collections.posts[*].tags
+         allow_create: true
+
+``````````
+</comp.MultiCodeBlock>
+
+&nbsp;
