@@ -8,8 +8,8 @@ published: true
 image: >-
   https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
 description: >-
-  Learn how to pre-configure your site with code, before uploading it to
-  CloudCannon.
+  Learn how to configure the SSG, hosting mode, and build configuration in an
+  initial Site settings file.
 article_category:
 article_topic:
 tags:
@@ -17,9 +17,24 @@ tags:
 related_articles:
 related_links:
 ---
-When you create a new Site on CloudCannon, the
+When you create a new Site on CloudCannon, the syncing and building steps require you to provide values for your Site configuration (e.g., SSG, hosting mode, and build commands). Rather than enter these details during Site creation, you can configure them in an initial site settings file.
 
-&nbsp;
+The `/.cloudcannon/initial-site-settings.json` file is useful for streamlining your Site creation process.
+
+template or a site that might be added to CloudCannon multiple times with the same build configuration, you might prefer to specify these details in the code.
+
+To create an initial Site settings file:
+
+1. Using the CloudCannon file browser or your local development environment, navigate to the `.cloudcannon` folder in your root directory, or create one.
+2. Create a new file named `initial-site-settings.json`.
+3. Configure your
+4. Save your initial Site settings file to you Git repository.
+
+The next time you use this repository to create a Site, CloudCannon will skip the
+
+<comp.Notice info_type="info">
+  If you create a Site by branching an existing one, CloudCannon will copy the Site settings from the original branch and ignore the initial Site settings file.
+</comp.Notice>
 
 ## Options
 
@@ -34,13 +49,13 @@ When you create a new Site on CloudCannon, the
     "output_path": "",
     "environment_variables": [],
     "preserved_paths": "",
-    "preserveOutput": false,
-    "includeGit": false,
+    "preserve_output": false,
+    "include_git": false,
     "manually_configure_urls": false,
-    "hugoVersion": "",
-    "rubyVersion": "",
-    "nodeVersion": "",
-    "denoVersion": "",
+    "hugo_version": "",
+    "ruby_version": "",
+    "node_version": "",
+    "deno_version": "",
   }
 }
 ``````````
@@ -50,26 +65,61 @@ Your initial site settings file have the following options available:
 
 <comp.DataReference>
   <comp.DataReferenceRow label="ssg" type_markdown="String">
-    This key determines which predefined templates to use for populating the Object Input. When configured, team members can select a [structure](/documentation/articles/what-is-a-structure/) to populate the Object with input/input groups. This key has no default.
+    This key determines
 
-    If configured as an object, CloudCannon will use the values directly.
+    Value must be one of:
 
-    If configured as a string, CloudCannon will use the matching structures value defined under `_structures` in the [configuration cascade](/documentation/articles/using-the-configuration-cascade/).
+    `astro` `bridgetown` `docusaurus` `eleventy` `gatsby` `hugo` `jekyll` `legacy` `lume` `mkdocs` `nextjs` `nuxtjs` `other`\* `static` `sveltekit`
+
+    Note: other is custom.
   </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="mode" type_markdown="String"></comp.DataReferenceRow>
-  <comp.DataReferenceRow label="build" type_markdown="Array"></comp.DataReferenceRow>
-  <comp.DataReferenceRow label="build.install_command" type_markdown="String"></comp.DataReferenceRow>
-  <comp.DataReferenceRow label="build.build_command" type_markdown="String"></comp.DataReferenceRow>
-  <comp.DataReferenceRow label="build.output_path" type_markdown="String"></comp.DataReferenceRow>
-  <comp.DataReferenceRow label="build.environment_variables" type_markdown="Array"></comp.DataReferenceRow>
-  <comp.DataReferenceRow label="build.preserved_paths" type_markdown="String"></comp.DataReferenceRow>
-  <comp.DataReferenceRow label="build.preserveOutput" type_markdown="Boolean"></comp.DataReferenceRow>
-  <comp.DataReferenceRow label="build.includeGit" type_markdown="Boolean"></comp.DataReferenceRow>
-  <comp.DataReferenceRow label="build.manually_configure_urls" type_markdown="Boolean"></comp.DataReferenceRow>
-  <comp.DataReferenceRow label="build.hugoVersion" type_markdown="String"></comp.DataReferenceRow>
-  <comp.DataReferenceRow label="build.rubyVersion" type_markdown="String"></comp.DataReferenceRow>
-  <comp.DataReferenceRow label="build.nodeVersion" type_markdown="String"></comp.DataReferenceRow>
-  <comp.DataReferenceRow label="build.denoVersion" type_markdown="String"></comp.DataReferenceRow>
+  <comp.DataReferenceRow label="mode" type_markdown="String">
+    This key determines
+
+    Value must be either:
+
+    * `hosted`
+    * `headless`
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="build" type_markdown="Array">
+    This key determines the initial build configuration settings for your Site.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="build.install_command" type_markdown="String">
+    This key determines the command to install any dependencies required for your Site to build.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="build.build_command" type_markdown="String">
+    This key determines the command to build your Site.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="build.output_path" type_markdown="String">
+    This key determines the location your Site will build to.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="build.environment_variables" type_markdown="Array">
+    This key determines
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="build.preserved_paths" type_markdown="String">
+    This key determines
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="build.preserve_output" type_markdown="Boolean">
+    This key determines
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="build.include_git" type_markdown="Boolean">
+    This key determines
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="build.manually_configure_urls" type_markdown="Boolean">
+    This key determines
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="build.hugo_version" type_markdown="String">
+    This key determines
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="build.ruby_version" type_markdown="String">
+    This key determines
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="build.node_version" type_markdown="String">
+    This key determines
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="build.deno_version" type_markdown="String">
+    This key determines
+  </comp.DataReferenceRow>
 </comp.DataReference>
 
 ---
@@ -81,10 +131,6 @@ If you're working with a template or a site that might be added to CloudCannon m
 ### Initial settings file
 
 You can add a `/.cloudcannon/initial-site-settings.json` file to the root of your site. When CloudCannon syncs and builds the site for the first time, the configuration details from this file will be used. You won't be asked to specify build configuration manually.
-
-<comp.Notice info_type="info">
-  If you are creating a site by [branching from a project](/documentation/articles/create-a-project/), site settings will be copied from the branched site, and the initial settings file will not be used.
-</comp.Notice>
 
 <comp.CodeBlock language="json" source="/.cloudcannon/initial-site-settings.json">
 ```
