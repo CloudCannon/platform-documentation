@@ -42,15 +42,15 @@ In the short term, depending on how closely your Site configuration matches the 
 
 One source of misconfiguration is opening your CloudCannon configuration file in the configuration GUI. As CloudCannon expects your configuration file to be in the Unified Configuration format, opening the file in the configuration GUI will strip content from your file (e.g., defunct keys). We highly recommend completing your migration in CloudCannon's Source Editor or your local development environment without using the configuration GUI.
 
-## Checklist
-
 ### CloudCannon configuration file type
 
 Your CloudCannon configuration file must be a YAML (recommended) or JSON file rather than JavaScript.
 
-### Collections
+&nbsp;
 
-#### Explicitly configure a path for every collection
+## Collection configuration
+
+### Explicitly configure a path for every collection
 
 CloudCannon no longer detects collections during your build step.
 
@@ -95,6 +95,68 @@ collections_config:
 </comp.MultiCodeBlock>
 
 The above example ensures that all files within the blog folder are included in the blog collection, with the exception of `_index.md`.
+
+### Replace collection filters with globs
+
+CloudCannon no longer uses the `collections_config.*.filter` key to filter which files to show in a collection browser, including the nested keys `base`, `include`, and `exclude`. All collections now show only collection-like files that explicitly belong to a collection, as per the old `filter.base: strict` configuration (i.e., will not show collection-like files from a different collection that are stored at the same collection path).
+
+CloudCannon now uses file globs to determine which files belong to a collection and are visible in the collection browser. A file glob is a pattern used to identify matching files. The `collections_config.*.glob` key is an Array. Each entry in the array is a pattern that controls which files are visible in CloudCannon's collection browser. The glob pattern is relative to your collection path and can include negative values by adding the `!` character as a prefix.
+
+The below code shows how to configure the `glob` key for your collection:
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+``````````
+
+collections_config:
+  blog:
+    path: content/blog
+    glob:
+      - '!*.yml'
+
+``````````
+</comp.MultiCodeBlock>
+
+The above example ensures that all YAML files within the blog folder are not included in the blog collection.
+
+### Explicitly configure your data collection
+
+<comp.Notice info_type="info">
+  This step of the migration guide is only relevant to Sites using Eleventy, Hugo, or Jekyll as their SSG.
+</comp.Notice>
+
+CloudCannon no longer uses build integrations to set the following keys in `collections_config.data`:
+
+1. `disable_url`
+2. `disable_file_actions`
+3. `disable_add_folder`
+4. `disable_add`
+
+You must explicitly set these keys.
+
+### Defunct configuration options
+
+CloudCannon no longer uses some configuration options in the Unified Configuration file format. Although leaving these keys in your Site files will not harm your Site, they also will not function. If you want to maintain a clean configuration file, we recommend removing defunct configuration options.
+
+We recommend updating the following keys to their new counterparts:
+
+1. `collections_config.*.singular_key`
+
+Please use `_inputs.*.options.values` rather than relying on naming conventions.
+
+2. `collections_config.*.output_url`
+
+Collections now default to being output if CloudCannon can determine an output URL. If you need to configure `output: false`, please use the `collections_config.*.disable_url` key set to `true`.
+
+We recommend deleting the following keys:
+
+1. `collections_config.*.parser`
+2. `collections_config_override`
+3. `paths.data`
+4. `paths.collections`
+5. `paths.layouts`
+6. `paths.includes`
+
+## Data configuration
 
 ### Update the format of your data sets
 
@@ -153,90 +215,17 @@ data_config:
 
 CloudCannon no longer uses some configuration options in the Unified Configuration file format. Although leaving these keys in your Site files will not harm your Site, they also will not function. If you want to maintain a clean configuration file, we recommend removing defunct configuration options.
 
-We recommend updating the following keys to their new counterparts:
-
-1. `collections_config.*.singular_key`
-
-Please use `_inputs.*.options.values` rather than relying on naming conventions.
-
-2. `collections_config.*.output_url`
-
-Collections now default to being output if CloudCannon can determine an output URL. If you need to configure `output: false`, please use the `collections_config.*.disable_url` key set to `true`.
-
 We recommend deleting the following keys:
 
 1. `data_config.*.parser`
-2. `collections_config.*.parser`
-3. `collections_config_override`
-4. `paths.data`
-5. `paths.collections`
-6. `paths.layouts`
-7. `paths.includes`
 
-### Replace collection filters with globs
-
-CloudCannon no longer uses the `collections_config.*.filter` key to filter which files to show in a collection browser, including the nested keys `base`, `include`, and `exclude`. All collections now show only collection-like files that explicitly belong to a collection, as per the old `filter.base: strict` configuration (i.e., will not show collection-like files from a different collection that are stored at the same collection path).
-
-CloudCannon now uses file globs to determine which files belong to a collection and are visible in the collection browser. A file glob is a pattern used to identify matching files. The `collections_config.*.glob` key is an Array. Each entry in the array is a pattern that controls which files are visible in CloudCannon's collection browser. The glob pattern is relative to your collection path and can include negative values by adding the `!` character as a prefix.
-
-The below code shows how to configure the `glob` key for your collection:
-
-<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
-``````````
-
-collections_config:
-  blog:
-    path: content/blog
-    glob:
-      - '!*.yml'
-
-``````````
-</comp.MultiCodeBlock>
-
-The above example ensures that all YAML files within the blog folder are not included in the blog collection.
+## Input configuration
 
 ### Define the values for Select input value\_key
 
 Before Unified Configuration, CloudCannon could use build data to populate the <a href="/documentation/articles/select-and-multiselect-inputs/#options" target="_blank" rel="noopener">Select and Multiselect input</a> option `value_key` values. As a successful build is no longer required to edit your files, you must define all values for the `value_key` option in the configuration cascade rather than use values generated by a build integration.
 
 For example, `value_key: path` and `value_key: url` will continue to work, however Hugo's `value_key: content_path` and Jekyll's `value_key: id` will not work as CloudCannon generates these values during build time and Unified Configuration Sites no longer use information from build integrations.
-
-### Explicitly configure attributes for file content Editable Regions
-
-CloudCannon no longer automatically applies Editable Regions to file content without an explicit attribute. Previously, CloudCannon would attempt to discover these regions automatically when it encountered a content variable as the only child of an element, for example:
-
-<comp.CodeBlock language="HTML" source="layout.html">
-``````````
-<div>{{ content }}</div>
-``````````
-</comp.CodeBlock>
-
-This markup detection was fragile in certain circumstances, and couldn't be explicitly toggled on or off.
-
-For sites using Unified Configuration, CloudCannon will no longer discover these regions automatically. Instead, an explicit attribute now exists to add an Editable Region for the content of a file.
-
-The below code shows how to configure the `data-cms-edit="content"` attribute to configure Editable Regions for your content:
-
-<comp.CodeBlock language="HTML" source="layout.html">
-``````````
-<div data-cms-edit="content">{{ content }}</div>
-``````````
-</comp.CodeBlock>
-
-### Explicitly configure your data collection
-
-<comp.Notice info_type="info">
-  This step of the migration guide is only relevant to Sites using Eleventy, Hugo, or Jekyll as their SSG.
-</comp.Notice>
-
-CloudCannon no longer uses build integrations to set the following keys in `collections_config.data`:
-
-1. `disable_url`
-2. `disable_file_actions`
-3. `disable_add_folder`
-4. `disable_add`
-
-You must explicitly set these keys.
 
 ### Configure \_inputs for Jekyll tags and collections
 
@@ -266,4 +255,30 @@ _inputs:
 ``````````
 </comp.MultiCodeBlock>
 
-&nbsp;
+## Other configuration
+
+### Explicitly configure attributes for file content Editable Regions
+
+CloudCannon no longer automatically applies Editable Regions to file content without an explicit attribute. Previously, CloudCannon would attempt to discover these regions automatically when it encountered a content variable as the only child of an element, for example:
+
+<comp.CodeBlock language="HTML" source="layout.html">
+``````````
+<div>{{ content }}</div>
+``````````
+</comp.CodeBlock>
+
+This markup detection was fragile in certain circumstances, and couldn't be explicitly toggled on or off.
+
+For sites using Unified Configuration, CloudCannon will no longer discover these regions automatically. Instead, an explicit attribute now exists to add an Editable Region for the content of a file.
+
+The below code shows how to configure the `data-cms-edit="content"` attribute to configure Editable Regions for your content:
+
+<comp.CodeBlock language="HTML" source="layout.html">
+``````````
+<div data-cms-edit="content">{{ content }}</div>
+``````````
+</comp.CodeBlock>
+
+###
+
+###
