@@ -1,0 +1,125 @@
+---
+_schema: default
+_uuid: c0008253-503f-4023-99cf-2170eb7ee1a0
+_created_at: '2022-12-01 22:20:50 +0000'
+title: Configure your initial Site settings
+nav_title: Configure your initial Site settings
+published: true
+image: >-
+  https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+description: >-
+  Learn how to configure the SSG, hosting mode, and build configuration in an
+  initial Site settings file.
+article_category:
+article_topic:
+tags:
+  - builds
+related_articles:
+related_links:
+---
+When you create a new Site on CloudCannon, the syncing and building steps require you to provide values for your Site configuration (e.g., SSG, hosting mode, and build commands). Rather than enter these details during Site creation, you can configure them in an initial site settings file.
+
+The `/.cloudcannon/initial-site-settings.json` file is useful for streamlining your Site creation process. If you manage website templates or a Site repository that you might upload to CloudCannon multiple times, specifying your build configuration in advance will make this process more efficient.
+
+To create an initial Site settings file:
+
+1. Using your local development environment, navigate to the `.cloudcannon` folder in your root of your repository, or create one.
+2. Create a new file named `initial-site-settings.json`.
+3. Configure your settings.
+4. Save your initial Site settings file to you Git repository.
+
+The next time you use this repository to create a Site, CloudCannon will skip the relevant steps during syncing and build configuration.
+
+You can update these values in your *Site Settings* at any time. CloudCannon only uses the initial Site settings file during Site creation.
+
+<comp.Notice info_type="info">
+  If you create a Site by branching an existing one, CloudCannon will copy the Site settings from the original branch and ignore the initial Site settings file.
+</comp.Notice>
+
+## Options
+
+<comp.CodeBlock language="JSON" source="/.cloudcannon/initial-site-settings.json">
+``````````
+{
+  "ssg": "hugo",
+  "mode": "hosted",
+  "build": {
+    "install_command": "[ -f package.json ] && npm i",
+    "build_command": "hugo -b /",
+    "output_path": "public",
+    "environment_variables": [{
+      "HUGO_CACHEDIR": "/usr/local/__site/src/.hugo_cache/"
+    }],
+    "preserved_paths": "resources/,.hugo_cache/",
+    "preserve_output": false,
+    "include_git": false,
+    "manually_configure_urls": false,
+    "hugo_version": "0.128.1",
+    "ruby_version": "2.7.3",
+    "node_version": "18",
+    "deno_version": "1.40.2",
+  }
+}
+``````````
+</comp.CodeBlock>
+
+Your initial Site settings file has the following options available:
+
+<comp.DataReference>
+  <comp.DataReferenceRow label="ssg" type_markdown="String">
+    This key determines which Static Site Generator CloudCannon uses to provide build suggestions.
+
+    Value must be one of:
+
+    `astro` `bridgetown` `docusaurus` `eleventy` `gatsby` `hugo` `jekyll` `legacy` `lume` `mkdocs` `nextjs` `nuxtjs` `other`\* `static` `sveltekit`
+
+    Note: The `other` value is called Custom SSG in the CloudCannon interface.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="mode" type_markdown="String">
+    This key determines the hosting mode for your Site.
+
+    Value must be either:
+
+    * `hosted` - enables builds, visual editing, the Testing and Custom Domains, and page previews in the collection browser.
+    * `headless` - disables builds for dynamic and externally-hosted Sites.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="build" type_markdown="Object">
+    This key determines the initial build configuration settings for your Site. These options are ignored if `mode` is set to `headless`.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="build.install_command" type_markdown="String">
+    This key determines the command to install any dependencies required for your Site to build.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="build.build_command" type_markdown="String">
+    This key determines the command to build your Site.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="build.output_path" type_markdown="String">
+    This key determines the location your Site will build to.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="build.environment_variables" type_markdown="Array">
+    This key determines the environment variables required for your Site to build.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="build.preserved_paths" type_markdown="String">
+    This key determines which paths to cache between builds. Value must be a comma separated list of path prefixes.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="build.preserve_output" type_markdown="Boolean">
+    This key toggles whether CloudCannon will cache the files in your output directory between builds. Defaults to `false`.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="build.include_git" type_markdown="Boolean">
+    This key toggles whether CloudCannon will include your Git folder in your build. Defaults to `false`.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="build.manually_configure_urls" type_markdown="Boolean">
+    This key toggles whether CloudCannon will skip automatic URL detection and rely on the URLs specified in your CloudCannon configuration file. Defaults to `false`.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="build.hugo_version" type_markdown="String">
+    This key determines which version of Hugo is installed in your build environment.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="build.ruby_version" type_markdown="String">
+    This key determines which version of Ruby is installed in your build environment.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="build.node_version" type_markdown="String">
+    This key determines which version of Node is installed in your build environment.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="build.deno_version" type_markdown="String">
+    This key determines which version of Deno is installed in your build environment.
+  </comp.DataReferenceRow>
+</comp.DataReference>
