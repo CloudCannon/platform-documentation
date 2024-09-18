@@ -1,0 +1,88 @@
+---
+_schema: default
+_uuid: dafe4618-7097-42a8-a8b0-f84e4be81131
+_created_at: 2024-08-28T16:21:57+12:00
+title: Other configuration updates
+nav_title: Other configuration updates
+order: 7
+published: true
+image: >-
+  https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+description: >-
+  Learn how to migrate your existing Site to CloudCannon's Unified Configuration
+  file format.
+tags: []
+related_articles:
+related_links: []
+explicit_canonical:
+---
+<comp.Notice info_type="info">
+  Migrating your existing Site is optional. You can use CloudCannon's [live configuration and data editing feature](/documentation/guides/unified-configuration-migration-guide/live-configuration-and-data-editing/) without migrating your Site.
+</comp.Notice>
+
+## 1\. Explicitly configure attributes for file content Editable Regions
+
+CloudCannon no longer automatically applies Editable Regions to file content without an explicit attribute. Previously, CloudCannon would attempt to discover these regions automatically when it encountered a content variable as the only child of an element, for example:
+
+<comp.CodeBlock language="HTML" source="layout.html">
+``````````
+<div>{{ content }}</div>
+``````````
+</comp.CodeBlock>
+
+This markup detection was fragile in certain circumstances, and couldn't be explicitly toggled on or off.
+
+For sites using Unified Configuration, CloudCannon will no longer discover these regions automatically. Instead, an explicit attribute now exists to add an Editable Region for the content of a file.
+
+The below code shows how to configure the `data-cms-edit="content"` attribute to configure Editable Regions for your content:
+
+<comp.CodeBlock language="HTML" source="layout.html">
+``````````
+<div data-cms-edit="content">{{ content }}</div>
+``````````
+</comp.CodeBlock>
+
+## 2\. Configure \_snippets\_imports
+
+<comp.Notice info_type="info">
+  This step of the migration guide is only relevant to Sites using Hugo or Jekyll as their SSG.
+</comp.Notice>
+
+Add the `_snippets_imports` corresponding to your SSG:
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+``````````
+
+_snippets_imports:
+  jekyll: true
+
+``````````
+</comp.MultiCodeBlock>
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+``````````
+
+_snippets_imports:
+  hugo:
+    exclude:
+      - hugo_instagram
+
+``````````
+</comp.MultiCodeBlock>
+
+## 3\. Configure path.static
+
+<comp.Notice info_type="info">
+  This step of the migration guide is only relevant to Sites using Hugo as their SSG.
+</comp.Notice>
+
+Set `path.static` to `static`.
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+``````````
+
+paths:
+  static: static
+
+``````````
+</comp.MultiCodeBlock>
