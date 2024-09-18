@@ -106,13 +106,7 @@ The above example ensures that all files within the blog folder are included in 
 
 ### Replace collection filters with globs
 
-\_unlisted inside files no longer used - use collections\_config.\*.glob to filter files instead
-
-&nbsp;
-
-&nbsp;
-
-CloudCannon no longer uses the `collections_config.*.filter` key to filter which files to show in a collection browser, including the nested keys `base`, `include`, and `exclude`. All collections now show only collection-like files that explicitly belong to a collection, as per the old `filter.base: strict` configuration (i.e., will not show collection-like files from a different collection that are stored at the same collection path).
+CloudCannon no longer uses the `_unlisted` or `collections_config.*.filter` keys to filter which files to show in a collection browser. All collections now show only collection-like files that explicitly belong to a collection, as per the old `filter.base: strict` configuration (i.e., will not show collection-like files from a different collection that are stored at the same collection path).
 
 CloudCannon now uses file globs to determine which files belong to a collection and are visible in the collection browser. A file glob is a pattern used to identify matching files. The `collections_config.*.glob` key is an Array. Each entry in the array is a pattern that controls which files are visible in CloudCannon's collection browser. The glob pattern is relative to your collection path and can include negative values by adding the `!` character as a prefix.
 
@@ -178,6 +172,10 @@ collection_groups:
   Add non-output collections here.
 </comp.Annotation>
 </comp.MultiCodeBlock>
+
+### Filter \_defaults.md with a glob or schema
+
+If you still use the deprecated  `_defaults.md` file, CloudCannon will no longer filter this file from your collection by default. Please use a collection glob (i.e., `collections_config.*.glob`) or a schema to filter the `_defaults.md` file from your collection browser.
 
 ### Defunct configuration options
 
@@ -297,6 +295,38 @@ _inputs:
        options:
          values: collections.posts[*].tags
          allow_create: true
+
+``````````
+</comp.MultiCodeBlock>
+
+### Configure tabbed Object inputs
+
+CloudCannon no longer automatically tab object inputs. You can configure a tabbed Object input using the new `tabbed` value for the `subtype` key.
+
+The below code shows how to configure the `subtype` key for Object inputs:
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+``````````
+
+_inputs:
+  example:
+    type: object
+    options:
+      subtype: tabbed
+
+``````````
+</comp.MultiCodeBlock>
+
+If you want to  configure a tabs at the top-level of the Data Editor for multiple Object inputs, you can specify all Object inputs using the `$` key.
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+``````````
+
+_inputs:
+  $:
+    type: object
+    options:
+      subtype: tabbed
 
 ``````````
 </comp.MultiCodeBlock>
