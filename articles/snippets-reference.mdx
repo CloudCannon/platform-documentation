@@ -314,38 +314,6 @@ Parses a single argument, optionally delimited by characters. Useful for matchin
       empty `video_id` value will save it as `<<video>>` rather than `<<video "">>` or `<<video ''>>`.
     </comp.Example>
   </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="model.forbidden_tokens" type_markdown="array of strings">
-    Stops parsing as soon as one of these tokens is encountered.
-    Useful when the parser is being greedy and consuming more input than intended, or when the parser doesn't seem to be functioning.
-
-
-    <comp.Example>
-
-      <comp.MultiCodeBlock language="yaml" translate_into={["json"]} source="cloudcannon.config.yml">
-      ```
-      _snippets:
-        video:
-          snippet: "<<video [[video_arg]]>>"
-          params:
-            video_arg:
-              parser: "argument"
-              options:
-                model:
-                  editor_key: video_id
-                  forbidden_tokens:
-                    - "<"
-                format:
-                  string_boundary: 
-                    - ""
-      ```
-      </comp.MultiCodeBlock>
-
-      This example sets the string boundary to nothing, with the intention of matching the source `<<video CZcNgDN81Sw>>`.
-
-      Without specifying a forbidden token of `<`, the above configuration would _not_ match the Snippet,
-      as the argument parser is not able to determine the end of the argument.
-    </comp.Example>
-  </comp.DataReferenceRow>
   <comp.DataReferenceRow label="format" type_markdown="object">
     This should be an object containing keys from the available Format keys.
 
@@ -370,6 +338,33 @@ Parses a single argument, optionally delimited by characters. Useful for matchin
       </comp.MultiCodeBlock>
 
       This would make our snippet match `<<video "CZcNgDN81Sw">>` or `` <<video `CZcNgDN81Sw`>> `` but not `<<video 'CZcNgDN81Sw'>>` or `<<video CZcNgDN81Sw>>`.
+
+      Another common requirement is specifying `forbidden_tokens`,
+      especially when defining an argument with no string boundary.
+
+      <comp.MultiCodeBlock language="yaml" translate_into={["json"]} source="cloudcannon.config.yml">
+      ```
+      _snippets:
+        video:
+          snippet: "<<video [[video_arg]]>>"
+          params:
+            video_arg:
+              parser: "argument"
+              options:
+                model:
+                  editor_key: video_id
+                format:
+                  forbidden_tokens:
+                    - ">"
+                  string_boundary: 
+                    - ""
+      ```
+      </comp.MultiCodeBlock>
+
+      This example sets the string boundary to nothing, with the intention of matching the source `<<video CZcNgDN81Sw>>`.
+
+      Without specifying a forbidden token of `>`, the above configuration would _not_ match the Snippet,
+      as the argument parser is not able to determine the end of the argument.
     </comp.Example>
   </comp.DataReferenceRow>
 </comp.DataReference>
