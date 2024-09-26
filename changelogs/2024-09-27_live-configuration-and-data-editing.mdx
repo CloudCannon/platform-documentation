@@ -6,25 +6,31 @@ This release added UI improvements to the *Status* and *Flags* pages,
 
 It also released the live data and configuration editing feature and the Unified Configuration file format. Thank you to everyone who assisted in our September 2024 Live Configuration Beta. Your feedback is always valuable to our team.
 
-&nbsp;
-
-The new CloudCannon Site creation and onboarding experience is now the default for all new Organizations.
-
-&nbsp;
+All new Organizations will now use the Unified Configuration file format by default. Existing Organizations can opt into live data and configuration editing or Unified Configuration on the Org-level or Site-level by following the [Unified Configuration Migration Guide](/documentation/guides/unified-configuration-migration-guide/).
 
 The Legacy version of CloudCannon (which does not support live data and configuration editing or Unified Configuration) is still available for a short amount of time. CloudCannon will provide support for the Legacy app until October 31st, 2024. If you have any feedback about this change, please get in touch with our [support team](/support/) or contact us through your dedicated Slack channel.
 
-This release also addressed...
+This release also addressed several issues, including those affecting Object inputs and the CloudCannon configuration file.
 
 ## Features & Improvements
 
-* You can now configure whether an Object input is tabbed using `options.subtype: tabbed` value. Tabbed objects...
-
-&nbsp;
-
-* Groups within Structures are now configured using the `values.groups` key to avoid a common source of misconfiguration.
 * CloudCannon will now warn you if you have a `/.gitattributes` file, but Git LFS is not enabled on the *Source Syncing* page in your *Site Settings*. This warning will appear in the new *Needs attention* section on the *Status* page.
+* Groups within Structures are now configured using the `values.groups` key to avoid a common source of misconfiguration.
+* You can now configure whether an Object input is tabbed using `options.subtype: tabbed` value.
 * Added a *Clear* button, a loading spinner, and icons to Select and Multiselect inputs.
+* You can now populate Select and Multiselect inputs with a filtered subset of values from Collections, data file, or data sets. For example, the following Multiselect input will only provide values from the Posts collection where the `author` key is equal to `james`.
+
+<comp.CodeBlock language="YAML" source="james-author-profile.yml">
+``````````
+_inputs:
+  james_posts:
+    type: multiselect
+    label: James
+    options:
+      values: "collections.posts[?(@.author == 'james')].title"
+``````````
+</comp.CodeBlock>
+
 * Partner Organizations can select whether new Client Organizations use the Legacy app by default during Organization creation.
 * Client Sharing users can control if they are in the Legacy environment using the *Enter Legacy* button in the *App Navigation* sidebar.
   * This button enables a Site-wide flag which affects all Client Sharing users.
@@ -36,6 +42,7 @@ This release also addressed...
   * Flag available under the *Input naming conventions* section include the *Infer Select values from input key* and *Infer Structure from input key* flags.
   * Flag available under the *Legacy options* section include the *Image size attributes default behavior* and *Legacy collections value key* flags.
 * &nbsp;Better messaging when discarding unsaved changes.
+* Better messaging in the Data Editor when you set your source in the CloudCannon configuration file.
 
 ### Live data and configuration editing
 
@@ -51,6 +58,12 @@ You can enable live data and configuration editing on your existing Sites using 
 ### The Unified Configuration file format
 
 x
+
+* &nbsp;
+
+&nbsp;
+
+&nbsp;
 
 * site creation and onboarding
 * headless mode
@@ -84,9 +97,4 @@ You can migrate to the Unified Configuration file format on your existing Sites 
 * Fixed an issue where CloudCannon incorrectly showed an error for undefined mutable Object inputs.
 * Fixed a spacing issue for Object inputs with a context box.
 * Fixed an issue where CloudCannon did not display the correct icons in the CloudCannon configuration file.
-
-&nbsp;
-
-&nbsp;
-
-* Fixed an issue where CloudCannon did not automatically...
+* Fixed an issue causing inputs with an undefined `input.type` in your CloudCannon configuration file to break when you open your file in the Data Editor.
