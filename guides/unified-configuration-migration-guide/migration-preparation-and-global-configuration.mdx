@@ -59,3 +59,34 @@ Your CloudCannon configuration file must be a YAML (recommended) or JSON file ra
 </comp.Notice>
 
 CloudCannon no longer detects your source folder at build time. Ensure the `source` key is configured in your CloudCannon configuration file, especially if your Site files are in a subfolder within your repository.
+
+### 3\. Update your initial Site settings file
+
+If your Site uses an [initial Site settings file](/documentation/articles/configure-your-initial-site-settings/), you must update the format of the file to use the `build` key instead of the `build_configuration` key. We have also added new configuration options such as `mode` and `manually_configure_urls`.
+
+The below code shows an example `initial-site-settings.json` file:
+
+<comp.CodeBlock language="JSON" source="/.cloudcannon/initial-site-settings.json">
+``````````
+{
+  "ssg": "hugo",
+  "mode": "hosted",
+  "build": {
+    "install_command": "[ -f package.json ] && npm i",
+    "build_command": "hugo -b /",
+    "output_path": "public",
+    "environment_variables": [{
+      "HUGO_CACHEDIR": "/usr/local/__site/src/.hugo_cache/"
+    }],
+    "preserved_paths": "resources/,.hugo_cache/",
+    "preserve_output": false,
+    "include_git": false,
+    "manually_configure_urls": false,
+    "hugo_version": "0.128.1",
+    "ruby_version": "2.7.3",
+    "node_version": "18",
+    "deno_version": "1.40.2",
+  }
+}
+``````````
+</comp.CodeBlock>
