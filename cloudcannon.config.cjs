@@ -324,6 +324,7 @@ module.exports = {
           "Editing interfaces",
           "Client Sharing",
           "Custom Permission Groups",
+          "Headless Mode",
           "Inputs",
           "Introduction",
           "Multi-factor Authentication",

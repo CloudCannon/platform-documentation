@@ -1,0 +1,86 @@
+---
+_schema: default
+content_name: Configure markup editing
+parameters: {}
+---
+The other type of content you can edit in CloudCannon is markup. Markup is in Markup files (HTML, Markdown, MDX), or combination files (HTML, Markdown, or MDX with front matter).
+
+In this step of the guide we'll focus on configuring the appearance and functionality of markup editing interfaces in the [Visual Editor](/documentation/articles/the-visual-editor/), the [Content Editor](/documentation/articles/the-content-editor/), the [Data Editor](/documentation/articles/the-data-editor/).
+
+<comp.Notice info_type="info">
+  You can familiarize yourself these settings by browsing your CloudCannon configuration file in the Data Editor. If you want to undertake some self-directed exploration you can open your CloudCannon configuration file by clicking on *Site Settings* in your *Site Navigation*, opening the *Editing* page, and clicking the *Edit your configuration file* button.
+</comp.Notice>
+
+We'll cover how to configure the WYSIWYG toolbar for Rich Text editors, the markdown engine, Snippets, and visual previews.
+
+<comp.Slot name="WYSIWYG-Toolbar-configuration">
+  ## WYSIWYG toolbar configuration
+
+  Markdown is used in the Content, Visual, and Data Editors. The Content Editor is a rich text editor for Markdown files. The Visual Editor can edit Markdown files if they are wrapped in an HTML element. Markdown is also used in the Data Editor if you have a rich text area for one of your inputs. To customize your experience using these editors, you should configure your [WYSIWYG toolbar](/documentation/articles/configuring-toolbars).
+
+  Let’s go over an example of how you would customize the toolbar. We want to allow our content team to add a table to Markdown files. In our global configuration file, we have complete control over the WYSIWYG toolbar.
+
+  You can define the `_editables` for each editor type in the global configuration file. These sections look like this in the configuration GUI:
+
+  <comp.DocsImage path="https://cc-dam.imgix.net/documentation/CloudCannon-Getting-Started-Configure-Editables.png" alt="A screenshot of the CloudCannon configuration GUI shows the section allowing users to configure the toolbar for each editor." title="Configuration GUI Editables Section" type="ui-snippet"/>
+
+  Select all the editable options you would like in your WYSIWYG toolbar.
+
+  When you have created your CloudCannon global configuration file, your `_editables` will look something like this:
+
+  <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+        ```
+
+        _editables:
+          content:
+            bold: true
+            italic: true
+            bulletedlist: true
+            numberedlist: true
+            image: true
+            table: true
+            undo: true
+            redo: true
+
+        ```
+        </comp.MultiCodeBlock>
+
+  As you can see, we have enabled many of the common functions your team would expect in a content editor. But that’s not all! Check out our documentation for many more ways to [configure the WYSIWYG toolbar](/documentation/articles/configuring-toolbars).
+</comp.Slot>
+
+<comp.Slot name="Markdown-Engine-configuration">
+        ## Markdown engine configuration
+
+        Your Markdown engine will process Markdown into HTML, making it editable. You can use any Markdown engine when building your site; this only covers the Markdown content you edit inside CloudCannon.
+
+        CloudCannon supports the CommonMark and Kramdown specifications. These implementations are `markdown-it` (JavaScript) and `kramdown` (Ruby). `markdown-it` is the default Markdown processor in CloudCannon.
+
+        Currently, you cannot configure the Markdown engine through the Configuration GUI, however, it is easy to do manually. Navigate to your CloudCannon global configuration file through the Files tab in your navigation sidebar. The configuration file will be in the root of your directory.
+
+        Your `generator` code should look something like this:
+
+  <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+        ```
+
+        generator:
+          metadata:
+            markdown: markdown-it
+            markdown-it:
+              html: true
+              linkify: true
+
+        ```
+        </comp.MultiCodeBlock>
+
+        The default configuration is `{ html: true }` to allow the images with width and height attributes the Rich Text editors create. However, you can update this to match your site by setting the `generator.metadata` in your global configuration file as shown above.
+</comp.Slot>
+
+<comp.Slot name="SSG_Configure_Snippets_Paragraph"></comp.Slot>
+
+<comp.Slot name="SSG_Visual_Previews_Paragraph"></comp.Slot>
+
+## Save your markup editing configuration
+
+Once you have finished editing your <a href="/documentation/articles/create-a-global-configuration-file/" target="_blank" rel="noopener">CloudCannon configuration file</a>, you can save your changes using the *Save* button at the top right of the Data Editor.
+
+CloudCannon will push your `cloudcannon.config.yml` file back to your repository.
