@@ -1,0 +1,54 @@
+---
+_schema: default
+_uuid: c25d50c8-bc44-4e59-86c9-cc86bebb3696
+_created_at: '2021-09-15 23:13:40 +0000'
+title: Configure caching between builds
+nav_title: Configure caching between builds
+published: true
+image: /documentation/static/CloudCannonDocumentationog.jpg
+description: >-
+  Learn how to choose specific files and folders to cache between builds with
+  CloudCannon. This can let you bypass install steps, speeding up subsequent
+  builds.
+tags:
+  - build
+  - performance
+related_articles: []
+related_links:
+---
+CloudCannon lets you choose certain files and folders to cache between builds. This can let you bypass install steps, speeding up subsequent builds.
+
+### Preserved paths
+
+Preserved Paths let you set a comma-separated list of paths that should not be deleted in subsequent builds. These can be folders or full filenames.
+
+Be careful caching files, as this could result in files sticking around after deleting them from the repo. A good rule is that these paths should also be good examples of paths for your `.gitignore` file.
+
+If you are doing any image processing or plugin-level caching, specify that directory, or the full filename. A specific example would be caching your `node_modules/` directory, which would allow `npm install` commands to run more quickly on subsequent builds.
+
+To update your preserved paths:
+
+1. Navigate to the *Configuration* tab under *Site Settings*, and *Builds*.
+2. Click on the *Caching Options* card to expand it.
+3. Enter a comma-separated list of file paths you want to preserve between builds.
+4. Click the *Update Configuration* button.
+
+<comp.Notice info_type="info">
+  Your preserved paths may not be retrieved from cache if your build is allocated to a different server, or if the server has been restarted since your last build.
+</comp.Notice>
+
+## Caching Gem installs
+
+Installing your Gems can take quite some time.
+
+To save time on consecutive builds CloudCannon does the following:
+
+1. Installs your gems to a local folder
+2. Caches that folder based on your `Gemfile.lock`
+3. When no local gems are found, CloudCannon will build your site using the cached installs from your previous build
+
+To disable this feature, go to *Site Settings* / *Build*.
+
+<comp.Notice info_type="info">
+  Older Jekyll sites on CloudCannon will have this caching disabled to prevent changes to their build environment. Enabling this can greatly improve editing experience.
+</comp.Notice>
