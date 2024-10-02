@@ -1,0 +1,159 @@
+---
+_schema: default
+_uuid: dafe4618-7097-42a8-a8b0-f84e4be81131
+_created_at: 2024-08-28T16:21:57+12:00
+title: Collection configuration
+nav_title: Collection configuration
+order: 4
+published: true
+image: >-
+  https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+description: >-
+  Learn how to migrate your existing Site to CloudCannon's Unified Configuration
+  file format.
+tags: []
+related_articles:
+related_links: []
+explicit_canonical:
+---
+<comp.Notice info_type="info">
+  You may not need to complete every step in this guide but please carefully review each step to see if it is applicable to your Site's configuration.
+</comp.Notice>
+
+## 1\. Explicitly configure a path for every collection
+
+CloudCannon no longer detects collections during your build step.
+
+Previously, CloudCannon could infer the path for each collection during the Site build step (e.g., Jekyll Sites automatically assume your posts collection is in the `_posts` folder). Additionally, some build integrations could discover collections at build time (e.g., posts, page, and drafts on Jekyll Sites). CloudCannon no longer uses this behavior.
+
+Please ensure that each collection in `collections_config` has the `path` key defined. The below code shows how to configure a path explicitly:
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+``````````
+
+collections_config:
+  blog:
+    path: content/blog
+
+``````````
+</comp.MultiCodeBlock>
+
+## 2\. Replace parse\_branch\_index with a glob
+
+<comp.Notice info_type="info">
+  This step of the migration guide is only relevant to Sites using Hugo as their SSG.
+</comp.Notice>
+
+CloudCannon no longer uses `parse_branch_index: true` to add index files from one collection to a pages collection. Instead, you can define a file glob to exclude your index files from their initial collection.
+
+Most Hugo sites will have a pages collection defined with a path of `content`. Pages excluded from any collections that are subdirectories will be assigned to this pages collection.
+
+By default, all content files within a specific path are included in the associated collection, unless they also fall under a more specific path. CloudCannon now uses files globs to customize which files belong to a collection and are visible in the collection browser. You can add a negative glob to the `collections_config.*.glob` key by prefixing your file name with the `!` character.
+
+The below code shows how to configure the `glob` key to exclude the `_index.md` file for your collection:
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+``````````
+
+collections_config:
+  blog:
+    path: content/blog
+    glob:
+      - '!_index.md'
+
+``````````
+</comp.MultiCodeBlock>
+
+The above example ensures that all files within the blog folder are included in the blog collection, with the exception of `_index.md`.
+
+## 3\. Replace collection filters with globs
+
+CloudCannon no longer uses the `_unlisted` or `collections_config.*.filter` keys to filter which files to show in a collection browser. All collections now show only collection-like files that explicitly belong to a collection, as per the old `filter.base: strict` configuration (i.e., will not show collection-like files from a different collection that are stored at the same collection path).
+
+CloudCannon now uses file globs to determine which files belong to a collection and are visible in the collection browser. A file glob is a pattern used to identify matching files. The `collections_config.*.glob` key is an Array. Each entry in the array is a pattern that controls which files are visible in CloudCannon's collection browser. The glob pattern is relative to your collection path and can include negative values by adding the `!` character as a prefix.
+
+The below code shows how to configure the `glob` key for your collection:
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+``````````
+
+collections_config:
+  blog:
+    path: content/blog
+    glob:
+      - '!**/*.yml'
+
+``````````
+</comp.MultiCodeBlock>
+
+The above example ensures that all YAML files within the blog folder and all subfolders are not included in the blog collection.
+
+## 4\. Explicitly configure your data collection
+
+<comp.Notice info_type="info">
+  This step of the migration guide is only relevant to Sites using Eleventy, Hugo, or Jekyll as their SSG.
+</comp.Notice>
+
+CloudCannon no longer uses build integrations to set the following keys in `collections_config.data`:
+
+1. `disable_url`
+2. `disable_file_actions`
+3. `disable_add_folder`
+4. `disable_add`
+
+You must explicitly set these keys.
+
+## 5\. Configure collection groups
+
+CloudCannon no longer groups collections in your *Site Navigation* by default. If you want to retain your original grouping, add the `collection_groups` key to your CloudCannon configuration file.
+
+The below code shows how to configure the `collection_groups` key:
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+``````````
+
+collection_groups:
+ - heading: Pages
+   collections___1___:
+     - pages
+     # other output collections here
+ - heading: Blogging
+   collections:
+     - posts
+     - drafts
+ - heading: Data
+   collections___2___:
+     - data
+     # other non-output collections here
+
+``````````
+<comp.Annotation number="1">
+  Add output collections here.
+</comp.Annotation>
+<comp.Annotation number="2">
+  Add non-output collections here.
+</comp.Annotation>
+</comp.MultiCodeBlock>
+
+## 6\. Filter \_defaults.md with a glob or schema
+
+If you still use the deprecated  `_defaults.md` file, CloudCannon will no longer filter this file from your collection by default. Please replace these files with the Schema feature, or use a collection glob (i.e., `collections_config.*.glob`) to filter the `_defaults.md` file from your collection browser.
+
+## 7\. Defunct configuration options
+
+CloudCannon no longer uses some configuration options in the Unified Configuration file format. Although leaving these keys in your Site files will not harm your Site, they also will not function. If you want to maintain a clean configuration file, we recommend removing defunct configuration options.
+
+We recommend updating the following keys to their new counterparts:
+
+1. `collections_config.*.singular_key`
+
+Please use `_inputs.*.options.values` rather than relying on naming conventions.
+
+2. `collections_config.*.output`
+
+Collections now default to being output if CloudCannon can determine an output URL. If you need to configure `output: false`, please use the `collections_config.*.disable_url` key set to `true`.
+
+We recommend deleting the following keys:
+
+1. `collections_config.*.parser`
+2. `collections_config_override`

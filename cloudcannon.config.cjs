@@ -282,6 +282,11 @@ module.exports = {
     _uuid: {
       instance_value: "UUID",
     },
+    description: {
+      options: {
+        show_count: true,
+      },
+    },
     explicit_canonical: {
       type: "url",
       comment:
@@ -314,9 +319,12 @@ module.exports = {
       options: {
         values: [
           "Account Settings",
+          "Beta",
+          "Builds",
           "Editing interfaces",
           "Client Sharing",
           "Custom Permission Groups",
+          "Headless Mode",
           "Inputs",
           "Introduction",
           "Multi-factor Authentication",

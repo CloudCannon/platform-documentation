@@ -1,0 +1,82 @@
+---
+_schema: default
+_uuid: dafe4618-7097-42a8-a8b0-f84e4be81131
+_created_at: 2024-08-28T16:21:57+12:00
+title: Data configuration
+nav_title: Data configuration
+order: 5
+published: true
+image: >-
+  https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+description: >-
+  Learn how to migrate your existing Site to CloudCannon's Unified Configuration
+  file format.
+tags: []
+related_articles:
+related_links: []
+explicit_canonical:
+---
+<comp.Notice info_type="info">
+  You may not need to complete every step in this guide but please carefully review each step to see if it is applicable to your Site's configuration.
+</comp.Notice>
+
+## 1\. Update the format of your data sets
+
+<comp.Notice info_type="info">
+  This step of the migration guide is only relevant to Sites using Eleventy, Hugo, or Jekyll as their SSG.
+</comp.Notice>
+
+CloudCannon no longer exclusively reads data sets at build time. You must update your data configuration to allow CloudCannon to read your data sets at any time.
+
+CloudCannon no longer uses the following data configurations:
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+``````````
+
+data_config: true
+
+``````````
+</comp.MultiCodeBlock>
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+``````````
+
+data_config:
+  locations: true
+
+``````````
+</comp.MultiCodeBlock>
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+``````````
+
+data_config:
+  locations:
+    path: data/locations.yml
+    parser___1___: yaml
+
+``````````
+<comp.Annotation number="1">
+  The key `data_config.*.parser` is now defunct.
+</comp.Annotation>
+</comp.MultiCodeBlock>
+
+Please update `data_config` to:
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+``````````
+
+data_config:
+  locations:
+    path: data/locations.yml
+
+``````````
+</comp.MultiCodeBlock>
+
+## 2\. Defunct configuration options
+
+CloudCannon no longer uses some configuration options in the Unified Configuration file format. Although leaving these keys in your Site files will not harm your Site, they also will not function. If you want to maintain a clean configuration file, we recommend removing defunct configuration options.
+
+We recommend deleting the following keys:
+
+1. `data_config.*.parser`

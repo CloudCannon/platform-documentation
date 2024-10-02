@@ -6,11 +6,11 @@ export default function ({comp}, helpers) {
             selected_name: null,
             show_message: true
         }" x-init="
-            $store.conditionals.register('ssg-name');
-            selected_name = $store.conditionals.selected('ssg-name') || selected_name;
+            $store.conditionals.register('ssg-label');
+            selected_name = $store.conditionals.selected('ssg-label') || selected_name;
             initial_selected_name = selected_name;
         "  alpine:ssgchange="
-            selected_name = $store.conditionals.selected('ssg-name') || selected_name;
+            selected_name = $store.conditionals.selected('ssg-label') || selected_name;
         "
         x-show="!initial_selected_name">
 
