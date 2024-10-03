@@ -52,7 +52,6 @@ const snip = (name) =>
 
 const _snippets = {
   ...require(snip("code_block")),
-  ...require(snip("conditional")),
   ...require(snip("data_reference")),
   ...require(snip("docs_image")),
   ...require(snip("docs_video")),
@@ -61,7 +60,6 @@ const _snippets = {
   ...require(snip("tabs")),
   ...require(snip("youtube")),
   ...require(snip("common_content")),
-  ...require(snip("starter_guide_deflector")),
   ...require(snip("common_content_param")),
   ...require(snip("system_version_default")),
   ...require(snip("system_version_list")),

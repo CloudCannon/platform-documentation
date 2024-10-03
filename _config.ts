@@ -124,7 +124,6 @@ site.use(sitemap({
 const alpineRemaps = {
     "alpine:class": ":class",
     "alpine:click": "@click",
-    "alpine:ssgchange": "@ssgchange.window",
 }
 
 function createLink(page, text, href) {
