@@ -139,134 +139,24 @@ Front matter Editor Links are prefixed with `cloudcannon:#` and use a common syn
 </comp.CodeBlock>
 
 ### Posts Example
-To have edit links for posts in a list, add an Editor Link in the blog post loop:
+To insert edit links for posts in a list, add an Editor Link in the blog post loop
 
-
-
-<comp.Conditional ssgs={["Jekyll"]}>
-  <comp.CodeBlock language="html" source="posts.html">
-  ```
-  <ul class="blog-posts">
-    {% for post in site.posts %}
-      <li class="blog-post">
-        <h3>{{ post.title }}</h3>
-        <!-- Editor Link -->
-        <a href="cloudcannon:collections/{{ post.path }}" class="editor-link">Edit post</a>
-        <p>{{ post.excerpt }}</p>
-        <a href="{{ post.url }}">Read more</a>
-      </li>
-    {% endfor %}
-  </ul>
-  ```
-  </comp.CodeBlock>
-</comp.Conditional>
-
-
-
-<comp.Conditional ssgs={["Hugo"]}>
-  <comp.CodeBlock language="html" source="posts.html">
-  ```
-  <ul class="blog-posts">
-    {{ range .Pages }}
-      <li class="blog-post">
-        <h3>{{ .Title }}</h3>
-        <!-- Editor Link -->
-        <a href="cloudcannon:/collections/content/{{ .File.Path }}" class="editor-link">Edit post</a>
-        <p>{{ .Summary }}</p>
-        <a href="{{ .RelPermalink }}">Read more</a>
-      </li>
-    {{ end }}
-  </ul>
-  ```
-  </comp.CodeBlock>
-</comp.Conditional>
-
-
-
-<comp.Conditional ssgs={["Eleventy"]}>
-  <comp.CodeBlock language="html" source="posts.njk">
-  ```
-  <ul class="blog-posts">
-    {% for post in collections.posts %}
-      <li class="blog-post">
-        <h3>{{ post.title }}</h3>
-        <!-- Editor Link -->
-        <a href="cloudcannon:/collections/content/{{ .File.Path }}" class="editor-link">Edit post</a>
-        <p>{{ post.excerpt }}</p>
-        <a href="{{ post.url }}">Read more</a>
-
-        <!-- Editor Link -->
-        <a href="cloudcannon:collections/{{ post.inputPath | replace('./', '') }}" class="editor-link">Edit post</a>
-      </li>
-    {% endfor %}
-  </ul>
-  ```
-  </comp.CodeBlock>
-</comp.Conditional>
-
-
-
-<comp.Conditional not_ssgs={["Jekyll", "Eleventy", "Hugo"]}>
-  See other SSG examples and implement with your SSG's templating.
-</comp.Conditional>
-
+For example, a Hugo site would implement this as:
+<comp.CodeBlock language="html" source="posts.html">
+```
+<ul class="blog-posts">
+  {{ range .Pages }}
+    <li class="blog-post">
+      <h3>{{ .Title }}</h3>
+      <!-- Editor Link -->
+      <a href="cloudcannon:/collections/content/{{ .File.Path }}" class="editor-link">Edit post</a>
+      <p>{{ .Summary }}</p>
+      <a href="{{ .RelPermalink }}">Read more</a>
+    </li>
+  {{ end }}
+</ul>
+```
+</comp.CodeBlock>
 
 
 <comp.DocsImage path="ye_olde_images/editing-editor-links-blog-posts.png" alt="Screenshot of visual editor with editor links to edit blog posts" type="screenshot" />
-
-### Collection example
-To have an edit link on a collection item page, add the following to the page:
-
-
-
-<comp.Conditional ssgs={["Jekyll"]}>
-  <comp.CodeBlock language="html" source="item.html">
-  ```
-  <a href="cloudcannon:collections/{{ page.relative_path }}" class="editor-link">Edit</a>
-  ```
-  </comp.CodeBlock>
-
-  If you are using a custom `collections_dir` include `site.collections_dir` in your editor link:
-
-  <comp.CodeBlock language="html" source="item.html">
-  ```
-  <a href="cloudcannon:collections/{{ site.collections_dir }}/{{ page.relative_path }}" class="editor-link">Edit</a>
-  ```
-  </comp.CodeBlock>
-
-  <comp.Notice info_type="info">
-    When generating Editor Links in Jekyll, collection items should use relative\_path, while posts and pages should use path.
-  </comp.Notice>
-</comp.Conditional>
-
-
-
-<comp.Conditional ssgs={["Hugo"]}>
-  <comp.CodeBlock language="html" source="item.html">
-  ```
-  <a href="cloudcannon:collections/content/{{ .File.Path }}" class="editor-link">Edit</a>
-  ```
-  </comp.CodeBlock>
-
-  Replace 'content' in the `href` above with the name of your content directory.
-</comp.Conditional>
-
-
-
-<comp.Conditional ssgs={["Eleventy"]}>
-  <comp.CodeBlock language="html" source="item.njk">
-  ```
-  <a href="cloudcannon:collections/{{ page.inputPath | replace('./', '') }}" class="editor-link">Edit</a>
-  ```
-  </comp.CodeBlock>
-</comp.Conditional>
-
-
-
-<comp.Conditional not_ssgs={["Jekyll", "Eleventy", "Hugo"]}>
-  See other SSG examples and implement with your SSG's templating.
-</comp.Conditional>
-
-
-
-<comp.DocsImage path="ye_olde_images/editing-editor-links-collection-items.png" alt="Screenshot of a blog post in CloudCannon with an editor link" type="screenshot" />
