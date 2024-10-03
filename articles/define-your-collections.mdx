@@ -26,109 +26,23 @@ You can define the collections themselves, change how you add new files, and cha
 
 ## Configuration
 
-<comp.Conditional ssgs={["Jekyll"]}>
-  CloudCannon reads the pages, collections and data from your Jekyll site and automatically defines collections by default. The automatically defined collections match your Jekyll collections defined in `_config.yml`.
+Define collections and configuration in your [global configuration](/documentation/articles/create-a-global-configuration-file/) under `collections_config`.
 
-  The automatic configuration is a good start, but we recommend adding collections and/or extending configuration for automatically discovered collections in your [global configuration](/documentation/articles/create-a-global-configuration-file/) under `collections_config`.
+Here's a minimal configuration for two collections:
 
-  Here's a minimal configuration for two collections, with path and URL details automatically configured based on your Jekyll settings:
-
-  <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
-  ```
-  collections_config:
-    posts:
-      icon: event_available
-    staff:
-      icon: people
-  ```
-  </comp.MultiCodeBlock>
-
-  <comp.Notice info_type="info">
-    If required, you can prevent CloudCannon from automatically discovering collections by enabling the `collections_config_override` settings in your [global configuration](/documentation/articles/create-a-global-configuration-file/).
-  </comp.Notice>
-</comp.Conditional>
-
-<comp.Conditional ssgs={["Hugo"]}>
-  CloudCannon reads the files in the content and data folders from your Hugo site and automatically defines collections by default. The automatically defined collections are your top-level content sections keyed by folder name.
-
-  The automatic configuration is a good start, but we recommend adding collections and/or extending configuration for automatically discovered collections in your [global configuration](/documentation/articles/create-a-global-configuration-file/) under `collections_config`.
-
-  Here's a minimal configuration for two collections, with path and URL details automatically configured based on your Hugo settings:
-
-  <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
-  ```
-  collections_config:
-    posts:
-      icon: event_available
-    staff:
-      icon: people
-  ```
-  </comp.MultiCodeBlock>
-
-  <comp.Notice info_type="info">
-    If required, you can prevent CloudCannon from automatically discovering collections by enabling the `collections_config_override` settings in your [global configuration](/documentation/articles/create-a-global-configuration-file/).
-  </comp.Notice>
-
-  ### Including the collection index file
-
-  Your collection's index file is named `_index.[extension]` and exists at the root of the collection's directory. It is usually used to list the files within that collection, and is sometimes referred to as a list page. For example, you might have a `/posts/` page which lists all your blog posts. This page would get its content from your `posts` collection's index file, i.e. `content/posts/_index.md`.
-
-  **By default, CloudCannon does not apply collection configuration to the index file.** This is because index files are often structured differently to the rest of the collection. For example, your `posts` index file probably does not need front matter fields for `author` and `publish_date`.
-
-  There may be some circumstances where you want to apply your collection configuration to  the index file. To do this, use the `parse_branch_index` option:
-
-  <comp.MultiCodeBlock language="yaml" translate_into={["json", "toml"]} source="cloudcannon.config.yml">
-  ```
-  collections_config:
-     posts:
-       parse_branch_index: true
-  ```
-  </comp.MultiCodeBlock>
-</comp.Conditional>
-
-<comp.Conditional ssgs={["Eleventy"]}>
-  CloudCannon reads the pages, collections and data from your Eleventy site and automatically defines collections by default. The automatically defined collections match your Eleventy collections with files, keyed by name.
-
-  The automatic configuration is a good start, but we recommend adding collections and/or extending configuration for automatically discovered collections in your [global configuration](/documentation/articles/create-a-global-configuration-file/) under `collections_config`.
-
-  Here's a minimal configuration for two collections, with path and URL details automatically configured based on your Eleventy settings:
-
-  <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
-  ```
-  collections_config:
-    posts:
-      icon: event_available
-    staff:
-      icon: people
-  ```
-  </comp.MultiCodeBlock>
-
-  <comp.Notice info_type="info">
-    If required, you can prevent CloudCannon from automatically discovering collections by enabling the `collections_config_override` settings in your [global configuration](/documentation/articles/create-a-global-configuration-file/).
-  </comp.Notice>
-</comp.Conditional>
-
-<comp.Conditional not_ssgs={["Jekyll", "Eleventy", "Hugo"]}>
-  Define collections and configuration in your [global configuration](/documentation/articles/create-a-global-configuration-file/) under `collections_config`.
-
-  Here's a minimal configuration for two collections:
-
-  <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
-  ```
-  collections_config:
-    posts:
-      path: content/posts
-      output: true
-      url: '/posts/{category|slugify}/[slug].html'
-      icon: event_available
-    staff:
-      path: content/staff_members
-      parser: yaml
-      output: false
-      icon: people
-  ```
-  </comp.MultiCodeBlock>
-</comp.Conditional>
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+```
+collections_config:
+  posts:
+    path: content/posts
+    url: '/posts/{category|slugify}/[slug].html'
+    icon: event_available
+  staff:
+    path: content/staff_members
+    disable_url: true
+    icon: people
+```
+</comp.MultiCodeBlock>
 
 ## Examples
 
@@ -167,10 +81,6 @@ collections_config:
 ```
 </comp.MultiCodeBlock>
 
-<comp.Notice info_type="info">
-  Collection configuration now supports the new `preview` option. [Read our migration guide](/documentation/articles/migrating-to-preview-options/) if you are still using the old options: `text_key`, `subtext_key` and `image_size`.
-</comp.Notice>
-
 Adding descriptive text and an external link to documentation above the collection file list:
 
 <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
@@ -190,10 +100,10 @@ Hiding certain files in the collection file list:
 ```
 collections_config:
   staff:
-    filter:
-      exclude:
-        - secret.yml
-        - external/mysterious-stranger.md
+    path: content/staff_members
+    glob:
+      - "**/*.yml"
+      - "!secret.yml"
 ```
 </comp.MultiCodeBlock>
 
@@ -224,66 +134,9 @@ collections_config:
 ```
 </comp.MultiCodeBlock>
 
-Changing how items in this collection are referenced when relying on unconfigured defaults for other options:
-
-<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
-```
-collections_config:
-  staff:
-    singular_name: Staff Member
-    singular_key: staff_member
-```
-</comp.MultiCodeBlock>
-
 ## Options
 
 Collection configuration entries have the following options available:
-
-<comp.Conditional not_ssgs={["Jekyll", "Hugo", "Eleventy"]}>
-  <comp.DataReference>
-    <comp.DataReferenceRow label="url" type_markdown="String or Function">
-      Used to build the `url` field for items in the collection. Similar to permalink in many SSGs. Defaults to `''`.
-
-      Functions are are supported with `cloudcannon.config.js` or `cloudcannon.config.cjs` files. Given file path, parsed file content and an object with filters as arguments. The return value should be the slash-prefixed URL string.
-
-      Strings are used as a template to build the URL. There are two types of placeholders available, file and data. Placeholders resulting in empty values are supported. Sequential slashes in URLs are condensed to one.
-
-      File placeholders are always available:
-
-      * `[path]` is the full path of the file, relative to `source`.
-      * `[base_path]` is the path of the file excluding filename, relative to site `source`.
-      * `[slug]` is the filename, excluding extension. Is an empty string if this results in "index".
-      * `[filename]` is the filename, including extension.
-      * `[ext]` is the last extension, including `.`.
-      * `[relative_path]` is the full path of the file, relative to the collection `path`.
-      * `[relative_base_path]` is the path of the file excluding filename, relative to the collection `path`.
-      * `[full_slug]` is an alias for `[relative_base_path]/[slug]`
-
-      Data placeholders are populated from front matter or data values in the file, and support a number of filters:
-
-      * `{title}` is the `title` from inside the file.
-      * `{id}` is the `id` from inside the file.
-      * `{title|lowercase}` is `title` from inside the file, lower cased.
-      * `{category|slugify}` is `category` from inside the file, slugified.
-      * `{tag|slugify|uppercase}` is `tag` from inside the file, slugified, then upper cased.
-      * `{date|year}` is `date` from inside the file, with the 4-digit year extracted.
-      * `{date|month}` is `date` from inside the file, with the 2-digit month extracted.
-      * `{date|day}` is `date` from inside the file, with the 2-digit day extracted.
-    </comp.DataReferenceRow>
-    <comp.DataReferenceRow label="parser" type_markdown="String or Function">
-      Define how [reader](https://github.com/CloudCannon/reader) processes your files into the JSON written to `_cloudcannon/info.json`. These are the available parsers and default file extensions covered:
-
-      * `csv` (`.csv`)
-      * `front-matter` (`.md`, `.mkd`, `.markdown`, `.html`, `.htm`)
-      * `json` (`.json`)
-      * `properties` (`.properties`)
-      * `toml` (`.toml`)
-      * `yaml` (`.yaml`, `.yml`)
-
-      Functions are are supported with `cloudcannon.config.js` or `cloudcannon.config.cjs` files. Given file path, raw file content and an object with parsers and filters as arguments. The return value should be an object representing this file.
-    </comp.DataReferenceRow>
-  </comp.DataReference>
-</comp.Conditional>
 
 <comp.DataReference>
   <comp.DataReferenceRow label="add_options" type_markdown="Array of objects">
@@ -329,49 +182,46 @@ Collection configuration entries have the following options available:
           text: Read more about your data collection
     ```
   </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="filter" type_markdown="Object">
-    Controls which files are displayed in the collection list. Contains the following fields:
-
-    * `base` defines the initial set of visible files in the collection file list. Defaults to `all`, or `strict` for the auto-discovered `pages` collection in Jekyll, Hugo and Eleventy. Must be one of:
-      * `all` shows all collection-like files
-      * `none` hides all files
-      * `strict` shows the files found in the last build for this collection
-    * `exclude` is a set of paths for files to be hidden. Paths here take priority over those listed in `include`.
-    * `include` is a set of paths for files to be included. Has no effect if the files are already visible.
-
-    Both `include` and `exclude` override the initial set of visible files set with `base`. The paths for both are relative to the containing collection `path`.
-
-    It is **unlikely** you will ever need to set `base` to `strict`, unless it's on a collection that contains other collection folders (e.g. pages in the root folder, and other collections in sub-folders).
-
-    ```yaml
-    collections_config:
-      data:
-        path: data
-        filter:
-          base: none
-          include:
-            - authors.csv
-            - locations/offices.yml
-      secrets:
-        path: content/secrets
-        filter:
-          exclude:
-            - top-secret.yml
-    ```
-  </comp.DataReferenceRow>
   <comp.DataReferenceRow label="icon" type_markdown="String">
     Sets an icon to use alongside references to this collection. Must match [Material Icon](https://material.io/tools/icons/) name. Defaults to the processed value of `preview.icon` if set, then falls back to `wysiwyg` for pages, `event_available` for posts, `data_usage` for data, and `notes` otherwise.
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="name" type_markdown="String">
     The display name of this collection. Used in headings and in the context menu for items in the collection. This is optional as CloudCannon auto-generates this from the collection key.
   </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="url" type_markdown="String">
+    Used to specify the output URL for files in the collection. This is used when opening the Visual Editor, or copying the output URL for a file in the CloudCannon interface.
+
+    Strings are used as a template to build the URL. There are two types of placeholders available, file and data. Placeholders resulting in empty values are supported. Sequential slashes in URLs are condensed to one.
+
+    File placeholders are always available:
+
+    * `[path]` is the full path of the file, relative to `source`.
+    * `[base_path]` is the path of the file excluding filename, relative to site `source`.
+    * `[slug]` is the filename, excluding extension. Is an empty string if this results in "index".
+    * `[filename]` is the filename, including extension.
+    * `[ext]` is the last extension, including `.`.
+    * `[relative_path]` is the full path of the file, relative to the collection `path`.
+    * `[relative_base_path]` is the path of the file excluding filename, relative to the collection `path`.
+    * `[full_slug]` is an alias for `[relative_base_path]/[slug]`
+
+    Data placeholders are populated from front matter or data values in the file, and support a number of filters:
+
+    * `{title}` is the `title` from inside the file.
+    * `{id}` is the `id` from inside the file.
+    * `{title|lowercase}` is `title` from inside the file, lower cased.
+    * `{category|slugify}` is `category` from inside the file, slugified.
+    * `{tag|slugify|uppercase}` is `tag` from inside the file, slugified, then upper cased.
+    * `{date|year}` is `date` from inside the file, with the 4-digit year extracted.
+    * `{date|month}` is `date` from inside the file, with the 2-digit month extracted.
+    * `{date|day}` is `date` from inside the file, with the 2-digit day extracted.
+  </comp.DataReferenceRow>
   <comp.DataReferenceRow label="new_preview_url" type_markdown="String">
     Preview your unbuilt pages (e.g. drafts) to another page’s output URL. The Visual Editor will load that set preview URL and use the Data Bindings and Previews to render your new page without saving.
 
     For example `new_preview_url: /about/` will load the `/about/` URL on new or unbuilt pages in the Visual Editor.
   </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="output" type_markdown="Boolean">
-    Whether or not files in this collection produce files in the build output. Changes the default grouping for this collection in the navigation, and is used in consideration for the default `_enabled_editors` from the [configuration cascade](/documentation/articles/using-the-configuration-cascade/).
+  <comp.DataReferenceRow label="disable_url" type_markdown="Boolean">
+    By default, CloudCannon will attempt to discover URLs within a collection automatically. This can be disabled to ensure files in a collection never have an output URL assigned.
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="path" type_markdown="String">
     The top-most folder where the files in this collection are stored. It is relative to `source`. **Each collection must have a unique path**.
@@ -379,6 +229,48 @@ Collection configuration entries have the following options available:
     If the collection is automatically discovered (Jekyll, Hugo and Eleventy only), **this is set for you**. Automatically discovered collections are only created if their paths are not used by a manually configured collection.
 
     If the collection is not automatically discovered (all SSGs excluding Jekyll, Hugo and Eleventy), this is **required**.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="glob" type_markdown="Array of Strings">
+    Applies glob filtering to this collection, relative to the path.
+
+    Globs can be positive (e.g. `*.yml`), or negative (e.g. `!**/*.json`).
+
+    Files will be included in the collection if they match any positive glob, and do not match any negative glob.
+    If no positive globs are provided, all files will be included unless they match a negative glob.
+
+    For example, to include all files in the `data` folder except for the `secret.yml` file:
+    ```yaml
+    collections_config:
+      data:
+        path: data
+        glob:
+          - '!secret.yml'
+    ```
+
+    To include only `.yml` files within the `data` folder or any nested folders:
+    ```yaml
+    collections_config:
+      data:
+        path: data
+        glob:
+          - '**/*.yml'
+    ```
+
+    To include only `.yml` files, except for the `secret.yml` file:
+    ```yaml
+    collections_config:
+      data:
+        path: data
+        glob:
+          - '**/*.yml'
+          - '!secret.yml'
+    ```
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="include_developer_files" type_markdown="Boolean">
+    By default, CloudCannon excludes files that probably shouldn't be edited in a CMS, for example files like `.gitignore`s or `Dockerfiles`.
+    These files will be excluded even if globs are configured.
+
+    Setting `include_developer_files` to `true` will include these files in the collection, assuming they aren't filtered out by any configured globs.
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="preview" type_markdown="Object">
     The preview definition for changing the way collection items are previewed across the editor.
@@ -431,9 +323,6 @@ Collection configuration entries have the following options available:
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="schema_key" type_markdown="String">
     The key used in each file to identify the schema that file uses. The value this key represents in each of this collection's files should match the keys in `schemas`. Defaults to `_schema`.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="singular_key" type_markdown="String">
-    Overrides the default singular input key of the collection. This is used for naming conventions for [select and multiselect inputs](/documentation/articles/select-and-multiselect-inputs/).
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="singular_name" type_markdown="String">
     Overrides the default singular display name of the collection. This is displayed in the collection add menu and file context menu.
