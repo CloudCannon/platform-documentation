@@ -92,15 +92,15 @@ paths:
   To configure `paths.uploads`, you must also have configured `paths.static` first.
 </comp.Notice>
 
-## 4\. Configure your markdown engine
+## 4\. Configure your Markdown engine
 
 <comp.Notice info_type="info">
-  This step of the migration guide is only relevant to Sites using Jekyll as their SSG.
+  This step of the migration guide is only relevant to Sites using Jekyll or Hugo as their SSG.
 </comp.Notice>
 
-CloudCannon supports two markdown engines: CommonMark and Kramdown. Because most SSGs use CommonMark, CloudCannon assumes you are using this engine by default in the Unified Configuration file format.
+CloudCannon supports two Markdown engines: CommonMark and Kramdown. Because most SSGs use CommonMark, CloudCannon assumes you are using this engine by default in the Unified Configuration file format.
 
-Jekyll is on of the few SSGs which use Kramdown by default. If your Site uses Kramdown, you must specify your markdown engine in your CloudCannon configuration file.
+Jekyll is on of the few SSGs which use Kramdown by default. If your Site uses Kramdown, you must specify your Markdown engine in your CloudCannon configuration file.
 
 <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
 ``````````
@@ -108,27 +108,27 @@ Jekyll is on of the few SSGs which use Kramdown by default. If your Site uses Kr
 markdown:
   engine: kramdown
   options:
-    xhtml: false
-    breaks: false
-    linkify: false
-    typographer: false
-    quotes:
-    spaced_lists: false
-    sentence_per_line: false
-    gfm: false
-    code_block_fences: '```'
-    escape_snippets_in_code_blocks: false
-    treat_indentation_as_code: false
-    table: false
-    strikethrough: false
-    subscript: false
-    superscript: false
-    heading_ids: false
-    attributes: false
-    attribute_elements:
+    treat_indentation_as_code: true
+    table: true
+    attributes: true
 
 ``````````
 </comp.MultiCodeBlock>
+
+Previously CloudCannon used your SSG configuration and build to infer which `markdown.options` you would want. With Unified Configuration, this needs to be configured explicitly. Below is a list of suggestions about options that you might want to enable.
+
+* For Hugo sites, check your Hugo config file
+  * `xhtml` should match `markup.goldmark.renderer.xhtml`.
+  * `breaks` should match `markup.goldmark.renderer.hardWraps`.
+  * `table` should match `markup.goldmark.extensions.table`.
+  * `strikethrough` should match `markup.goldmark.extensions.strikethrough`.
+  * `treat_indentation_as_code` should be set to `true`
+* For Jekyll sites
+  * `breaks` should match `kramdown.hard_wrap` from your Jekyll config file
+  * `treat_indentation_as_code` should be set to `true`
+  * `table` should be set to `true`
+  * `attributes` should be set to `true`
+
 
 ## 5\. Defunct configuration options
 
