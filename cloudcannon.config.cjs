@@ -98,6 +98,33 @@ module.exports = {
         icon_color: '#ffd166',
       },
     ]
+    glossary_key_value_type: [
+      {
+        name: 'Array',
+        icon: 'lightbulb',
+        icon_color: '#06d6a0',
+      },
+      {
+        name: 'Boolean',
+        icon: 'handshake',
+        icon_color: '#26547c',
+      },
+      {
+        name: 'Object',
+        icon: 'info',
+        icon_color: '#ef476f',
+      },
+      {
+        name: 'String',
+        icon: 'fact_check',
+        icon_color: '#ffd166',
+      },
+      {
+        name: 'Array of Strings',
+        icon: 'lightbulb',
+        icon_color: '#06d6a0',
+      },
+    ]
   },
   collections_config: {
     common_content: {
@@ -245,6 +272,29 @@ module.exports = {
       schemas: {
         default: {
           path: ".cloudcannon/schemas/glossary.yml",
+          _inputs: {
+            key_name: {
+              type: "text",
+            },
+            key_value_type: {
+              type: "multichoice",
+              options: {
+                values: "_select_data.glossary_key_value_type",
+                value_key: "name",
+                preview: {
+                  label: {
+                    key: "name",
+                  },
+                },
+              },
+            },
+            key_description: {
+              type: "text",
+            },
+            key_hierachy: {
+              type: "text",
+            },
+          },
         },
       },
     },
