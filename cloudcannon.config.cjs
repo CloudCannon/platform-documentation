@@ -297,7 +297,7 @@ module.exports = {
             },
             key_description: {
               type: "markdown",
-              options: [
+              options: {
                 format: "p h1 h2 h3 h4 h5 h6",
                 blockquote: true,
                 bold: true,
@@ -314,7 +314,7 @@ module.exports = {
                 horizontalrule: true,
                 table: true,
                 snippet: true,
-              ],
+              },
             },
             key_hierachy: {
               type: "select",
