@@ -239,6 +239,15 @@ module.exports = {
         include: ["navigation.yml", "meta.yml", "headingnav.yml", "ssgs.yml"],
       },
     },
+    glossary: {
+      path: "_glossary",
+      icon: "abc",
+      schemas: {
+        default: {
+          path: ".cloudcannon/schemas/glossary.yml",
+        },
+      },
+    },
   },
   _editables: {
     content: {
