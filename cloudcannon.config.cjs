@@ -131,7 +131,13 @@ module.exports = {
         name: 'Array of Strings',
         icon: 'abc',
       },
-    ]
+    ],
+    glossary_key_hierachy: [
+      {
+        name: 'Test',
+        icon: 'data_array',
+      },
+    ],
   },
   collections_config: {
     common_content: {
@@ -296,10 +302,31 @@ module.exports = {
               },
             },
             key_description: {
-              type: "text",
+              type: "markdown",
             },
             key_hierachy: {
-              type: "text",
+              type: "select",
+              options: {
+                values: "_select_data.glossary_key_hierachy",
+                value_key: "name",
+                preview: {
+                  label: {
+                    key: "name",
+                  },
+                },
+              },
+            },
+            subkeys: {
+              type: "multiselect",
+              options: {
+                values: "collections.glossary",
+                value_key: "name",
+                preview: {
+                  label: {
+                    key: "name",
+                  },
+                },
+              },
             },
           },
         },
