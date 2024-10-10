@@ -65,11 +65,9 @@ You can configure more options at the root level of your configuration file.
 <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
 ``````````
 
-source___1___: src
-
-
-
-collections_config___2___:
+source___1___: /
+paths___2___:
+collections_config___3___:
   pages:
     path: content
     name: Pages
@@ -78,56 +76,59 @@ collections_config___2___:
     path: content/blog
     name: Blog
     icon: post_add
-  products:
-    path: content/products
-    name: Products
-    icon: inventory_2
+    _enabled_editors:
+      - content
+      - data
   data:
     path: data
     name: Site Elements
     icon: important_devices
-  staff_members:
-    path: content/staff-members
-    name: Staff Members
-    icon: groups
-collection_groups___3___:
+collection_groups___4___:
   - heading: Content
     collections:
       - pages
       - blog
-      - products
   - heading: Data Files
     collections:
-      - staff_members
       - data
-
-
-
-
-
-
-
-
-
-
-
-
-collections_config:
-  people:
-    path: 'content/people'
-    name: Personnel
-    _enabled_editors: ['data']
-  posts:
-    path: 'content/blog'
-    # Configure inputs per collection
+_inputs___5___:
+_structures___6___:
+data_config___7___:
+file_config___8___:
+  - glob: pages/blog.md
     _inputs:
-      title:
-        comment: Used for Blog SEO
-  pages:
-    path: 'content'
-    glob:
-      - "*.html"
-    _enabled_editors: ['visual', 'data']
+      permalink:
+        hidden: true
+timezone:
+commit_templates:
+
+
+
+_schema:
+source:
+paths:
+collections_config:
+collection_groups:
+file_config:
+data_config:
+_inputs:
+_select_data
+_structures:
+_editables:
+timezone:
+_snippets_imports:
+_snippets:
+markdown:
+source_editor:
+editor:
+base_url:
+commit_templates:
+
+
+
+
+
+
 
 # Configure inputs across your site
 _inputs:
@@ -150,70 +151,11 @@ data_config:
 ``````````
 </comp.MultiCodeBlock>
 
-<comp.CodeBlock language="yaml" source="cloudcannon.config.yml">
-```
-# Use the given folder as the root for the site
-# Collections will be relative to this path
-source: src
-
-# Determines the collections shown in the CMS sidebar
-collections_config:
-  people:
-    path: 'content/people'
-    name: Personnel
-    _enabled_editors: ['data']
-  posts:
-    path: 'content/blog'
-    # Configure inputs per collection
-    _inputs:
-      title:
-        comment: Used for Blog SEO
-  pages:
-    path: 'content'
-    glob:
-      - "*.html"
-    _enabled_editors: ['visual', 'data']
-
-# Configure inputs across your site
-_inputs:
-  title:
-    type: text
-    comment: The title of your page
-
-# Specify custom data for select and multiselect inputs
-_select_data:
-  colors:
-    - Red
-    - Green
-    - Blue
-
-# Generate data for select and multiselect inputs from data files
-data_config:
-  authors:
-    path: data/authors.csv
-```
-</comp.CodeBlock>
-
 Your CloudCannon configuration file has the following options available:
 
 <comp.DataReference>
-  <comp.DataReferenceRow label="base_url" type_markdown="String">
-    The subpath your output files are mounted at.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="collections_config" type_markdown="Object">
-    Contains definitions for your collections, the related sets of content files for your site grouped by folder. Entries are keyed by your collection key, and contain configuration specific to that collection. Read more about [defining your collections](/documentation/articles/define-your-collections/) and the available configuration.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="collection_groups" type_markdown="Array of objects">
-    Controls which collections are displayed in the site navigation and how those collections are grouped. Defaults to splitting all available collections between *Pages*, *Blogging* and *Data* groups. Read more about [configuring your navigation section](/documentation/articles/configure-your-site-navigation/#configurable-navigation-section).
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="data_config" type_markdown="Object or boolean">
-    Controls what data sets are available to populate [select and multiselect inputs](/documentation/articles/select-and-multiselect-inputs/).
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="file_config" type_markdown="Object">
-    Provides scope to configure settings at a file level, without configuring a collection, or modifying files.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="editor" type_markdown="Object">
-    Contains settings for the default editor actions on your site. The only available option is `default_path`, which [sets what URL the editor opens from the dashboard](/documentation/articles/introducing-your-site-navigation/).
+  <comp.DataReferenceRow label="source" type_markdown="String">
+    Base path to your site source files, relative to the root folder of your site.
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="paths" type_markdown="Object">
     Global paths to common folders. These are often automatically populated from your SSG, and not all paths are relevant to all SSGs. Each path is relative to `source`. The available keys are:
@@ -225,19 +167,36 @@ Your CloudCannon configuration file has the following options available:
 
     `uploads` and `dam_uploads` have a [number of dynamic placeholders available](/documentation/articles/adjusting-the-uploads-path/).
   </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="source" type_markdown="String">
-    Base path to your site source files, relative to the root folder of your site.
+  <comp.DataReferenceRow label="collections_config" type_markdown="Object">
+    Contains definitions for your collections, the related sets of content files for your site grouped by folder. Entries are keyed by your collection key, and contain configuration specific to that collection. Read more about [defining your collections](/documentation/articles/define-your-collections/) and the available configuration.
   </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="source_editor" type_markdown="Object">
-    Contains settings for the behavior and appearance of the [Source Editor](/documentation/articles/configuring-code-editors/).
+  <comp.DataReferenceRow label="collection_groups" type_markdown="Array of objects">
+    Controls which collections are displayed in the site navigation and how those collections are grouped. Defaults to splitting all available collections between *Pages*, *Blogging* and *Data* groups. Read more about [configuring your navigation section](/documentation/articles/configure-your-site-navigation/#configurable-navigation-section).
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="_inputs" type_markdown=""></comp.DataReferenceRow>
+  <comp.DataReferenceRow label="_structures" type_markdown=""></comp.DataReferenceRow>
+  <comp.DataReferenceRow label="data_config" type_markdown="Object or boolean">
+    Controls what data sets are available to populate [select and multiselect inputs](/documentation/articles/select-and-multiselect-inputs/).
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="file_config" type_markdown="Object">
+    Provides scope to configure settings at a file level, without configuring a collection, or modifying files.
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="timezone" type_markdown="String">
     Timezone of your site in IANA format. Used by [date and datetime inputs](/documentation/articles/date-and-time-inputs/). Defaults to `Etc/UTC`.
   </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="markdown" type_markdown="Object">
-    Contains settings for various Markdown engines. See the [Configure your Markdown engine documentation](/documentation/articles/configure-your-markdown-engine/).
-  </comp.DataReferenceRow>
   <comp.DataReferenceRow label="commit_templates" type_markdown="Array of objects">
     Templates for commit messages when saving changes. See the [Configure your commit templates documentation](/documentation/articles/configure-your-commit-messages/).
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="base_url" type_markdown="String">
+    The subpath your output files are mounted at.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="editor" type_markdown="Object">
+    Contains settings for the default editor actions on your site. The only available option is `default_path`, which [sets what URL the editor opens from the dashboard](/documentation/articles/introducing-your-site-navigation/).
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="source_editor" type_markdown="Object">
+    Contains settings for the behavior and appearance of the [Source Editor](/documentation/articles/configuring-code-editors/).
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="markdown" type_markdown="Object">
+    Contains settings for various Markdown engines. See the [Configure your Markdown engine documentation](/documentation/articles/configure-your-markdown-engine/).
   </comp.DataReferenceRow>
 </comp.DataReference>
