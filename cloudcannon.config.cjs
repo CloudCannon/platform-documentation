@@ -295,8 +295,12 @@ module.exports = {
                 },
               },
             },
+            defined_elsewhere_in_the_cascade: {
+              type: "checkbox",
+            },
             key_description: {
               type: "markdown",
+              hidden: "!defined_elsewhere_in_the_cascade",
               options: {
                 format: "p h1 h2 h3 h4 h5 h6",
                 blockquote: true,
