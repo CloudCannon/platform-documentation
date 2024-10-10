@@ -132,12 +132,6 @@ module.exports = {
         icon: 'abc',
       },
     ],
-    glossary_key_hierachy: [
-      {
-        name: 'Test',
-        icon: 'data_array',
-      },
-    ],
   },
   collections_config: {
     common_content: {
