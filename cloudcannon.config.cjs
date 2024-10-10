@@ -97,7 +97,7 @@ module.exports = {
         icon: 'fact_check',
         icon_color: '#ffd166',
       },
-    ]
+    ],
     glossary_key_value_type: [
       {
         name: 'Array',
