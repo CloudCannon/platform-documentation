@@ -101,28 +101,27 @@ module.exports = {
     glossary_key_value_type: [
       {
         name: 'Array',
-        icon: 'lightbulb',
-        icon_color: '#06d6a0',
+        icon: 'data_array',
       },
       {
         name: 'Boolean',
-        icon: 'handshake',
-        icon_color: '#26547c',
+        icon: 'check_box',
+      },
+      {
+        name: 'Number',
+        icon: '123',
       },
       {
         name: 'Object',
-        icon: 'info',
-        icon_color: '#ef476f',
+        icon: 'add_box',
       },
       {
         name: 'String',
-        icon: 'fact_check',
-        icon_color: '#ffd166',
+        icon: 'abc',
       },
       {
         name: 'Array of Strings',
-        icon: 'lightbulb',
-        icon_color: '#06d6a0',
+        icon: 'data_array',
       },
     ]
   },
@@ -277,7 +276,7 @@ module.exports = {
               type: "text",
             },
             key_value_type: {
-              type: "multichoice",
+              type: "multiselect",
               options: {
                 values: "_select_data.glossary_key_value_type",
                 value_key: "name",
