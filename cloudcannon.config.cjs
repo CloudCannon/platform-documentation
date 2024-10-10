@@ -120,8 +120,16 @@ module.exports = {
         icon: 'abc',
       },
       {
+        name: 'Array of Numbers',
+        icon: '123',
+      },
+      {
+        name: 'Array of Objects',
+        icon: 'add_box',
+      },
+      {
         name: 'Array of Strings',
-        icon: 'data_array',
+        icon: 'abc',
       },
     ]
   },
