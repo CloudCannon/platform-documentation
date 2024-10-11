@@ -277,7 +277,8 @@ module.exports = {
       path: "_glossary",
       icon: "abc",
       preview: {
-        text: "key_name",
+        text: 
+          - key: "key_name",
       },
       schemas: {
         default: {
