@@ -321,11 +321,6 @@ module.exports = {
               type: "multiselect",
               options: {
                 values: "collections.glossary",
-                value_key: "name",
-                preview: {
-                  label: {
-                    key: "name",
-                  },
                 },
               },
             },
@@ -333,11 +328,6 @@ module.exports = {
               type: "multiselect",
               options: {
                 values: "collections.glossary",
-                value_key: "name",
-                preview: {
-                  label: {
-                    key: "name",
-                  },
                 },
               },
             },
