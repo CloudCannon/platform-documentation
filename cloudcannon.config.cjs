@@ -276,6 +276,9 @@ module.exports = {
     glossary: {
       path: "_glossary",
       icon: "abc",
+      preview: {
+        text: "key_name",
+      },
       schemas: {
         default: {
           path: ".cloudcannon/schemas/glossary.yml",
