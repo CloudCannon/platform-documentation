@@ -320,12 +320,24 @@ module.exports = {
               type: "multiselect",
               options: {
                 values: "collections.glossary",
+                value_key: "key_name",
+                preview: {
+                  label: {
+                    key: "key_name",
+                  },
+                },
               },
             },
             subkeys: {
               type: "multiselect",
               options: {
                 values: "collections.glossary",
+                value_key: "key_name",
+                preview: {
+                  label: {
+                    key: "key_name",
+                  },
+                },
               },
             },
           },
