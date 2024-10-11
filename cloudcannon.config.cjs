@@ -295,9 +295,6 @@ module.exports = {
                 },
               },
             },
-            defined_elsewhere_in_the_cascade: {
-              type: "checkbox",
-            },
             key_description: {
               type: "markdown",
               hidden: "defined_elsewhere_in_the_cascade",
@@ -320,10 +317,10 @@ module.exports = {
                 snippet: true,
               },
             },
-            key_hierachy: {
-              type: "select",
+            parent_keys: {
+              type: "multiselect",
               options: {
-                values: "_select_data.glossary_key_hierachy",
+                values: "collections.glossary",
                 value_key: "name",
                 preview: {
                   label: {
