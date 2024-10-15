@@ -98,7 +98,7 @@ module.exports = {
         icon_color: '#ffd166',
       },
     ],
-    glossary_key_value_type: [
+    key_value_type: [
       {
         name: 'Array',
         icon: 'data_array',
@@ -273,9 +273,9 @@ module.exports = {
         include: ["navigation.yml", "meta.yml", "headingnav.yml", "ssgs.yml"],
       },
     },
-    glossary: {
-      path: "_glossary",
-      icon: "abc",
+    keys: {
+      path: "_keys",
+      icon: "key",
       preview: {
         text: {
           key: "key_name",
@@ -283,7 +283,7 @@ module.exports = {
       },
       schemas: {
         default: {
-          path: ".cloudcannon/schemas/glossary.yml",
+          path: ".cloudcannon/schemas/key-definition.yml",
           _inputs: {
             key_name: {
               type: "text",
@@ -291,7 +291,7 @@ module.exports = {
             key_value_type: {
               type: "multiselect",
               options: {
-                values: "_select_data.glossary_key_value_type",
+                values: "_select_data.key_value_type",
                 value_key: "name",
                 preview: {
                   label: {
@@ -324,7 +324,7 @@ module.exports = {
             parent_keys: {
               type: "multiselect",
               options: {
-                values: "collections.glossary",
+                values: "collections.keys",
                 value_key: "key_name",
                 preview: {
                   label: {
@@ -336,7 +336,7 @@ module.exports = {
             subkeys: {
               type: "multiselect",
               options: {
-                values: "collections.glossary",
+                values: "collections.keys",
                 value_key: "key_name",
                 preview: {
                   label: {
