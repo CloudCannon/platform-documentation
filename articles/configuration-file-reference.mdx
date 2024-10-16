@@ -1,0 +1,294 @@
+---
+_schema: default
+_uuid: 07c3cc54-9cd7-4101-9bf9-d1daa972e0f1
+_created_at: 2024-10-16T13:18:05+13:00
+title: Configuration file reference
+nav_title: Configuration file reference
+published: true
+image: >-
+  https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+description:
+article_category:
+  - Reference
+article_topic:
+  - Configuration file
+tags: []
+related_articles: []
+related_links: []
+explicit_canonical:
+---
+You can configure more options at the root level of your configuration file.
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+``````````
+
+source: /
+paths:
+  uploads: /assets/uploads
+collections_config:
+  pages:
+    path: content
+    name: Pages
+    icon: wysiwyg
+  blog:
+    path: content/blog
+    name: Blog
+    icon: post_add
+    _enabled_editors:
+      - content
+      - data
+  data:
+    path: data
+    name: Site Elements
+    icon: important_devices
+collection_groups:
+  - heading: Content
+    collections:
+      - pages
+      - blog
+  - heading: Data Files
+    collections:
+      - data
+_enabled_editors:
+  - data
+  - content
+  - visual
+_inputs:
+  blog_tags:
+    type: multiselect
+    options:
+      values: _select_data.blog_topics
+_select_data:
+  blog_topics:
+    - Opinion
+    - Feature
+    - Resource
+_structures:
+  example:
+    values:
+      - value:
+          name:
+          description:
+          image:
+_editables:
+  content:
+    bold: true
+    italics: true
+    underline: true
+_snippets_imports:
+  hugo:
+    include:
+      - hugo_youtube
+      - hugo_vimeo
+_snippets:
+base_url: documentation
+data_config:
+  authors:
+    path: data/authors.csv
+file_config:
+  - glob: pages/blog.md
+    _inputs:
+      permalink:
+        hidden: true
+editor:
+  default_path: /en/
+source_editor:
+  tab_size: 2
+  show_gutter: false
+  theme: pastel_on_dark
+timezone: Etc/UTC
+commit_templates:
+  - template_string: '{message}'
+markdown:
+  engine: commonmark
+
+``````````
+</comp.MultiCodeBlock>
+
+<comp.Notice info_type="info">
+  Many of these configuration options have dedicated documentation. For more information, please read the documentation linked under each key description in the reference table.
+</comp.Notice>
+
+Your CloudCannon configuration file has the following options available:
+
+<comp.DataReference>
+  <comp.DataReferenceRow label="source" type_markdown="String">
+    This key defines the base path for your source files, relative to the root folder of your repository. Unless you use a nested folder as the source for your Site you can leave this key empty or set it to `/`.
+
+    By default, this key is empty.
+
+    For more information, please read our documentation on the [Site source](/documentation/articles/what-is-the-cloudcannon-configuration-file/#the-source-folder) folder in your configuration file.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="paths" type_markdown="Object">
+    This key enables you to define paths for your rich text editors. Each path is relative to global site `source`. The following nested keys are available:
+
+    * `dam_static`
+    * `dam_uploads`
+    * `dam_uploads_filename`
+    * `static`
+    * `uploads`
+    * `uploads_filename`
+
+    This key has no default. If undefined at higher levels of the [configuration cascade](/documentation/articles/using-the-configuration-cascade/), `paths` will default to any values configured in the [CloudCannon configuration file](/documentation/articles/what-is-the-cloudcannon-configuration-file/).
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="collections_config" type_markdown="Array of Objects">
+    This key defines your Collections. The following nested keys are available for each Collection:
+
+    * `path`
+    * `glob`
+    * `name`
+    * `singular_name`
+    * `icon`
+    * `url`
+    * `disable_url`
+    * `documentation`
+    * `description`
+    * `preview`
+    * `sort`
+    * `sort_options`
+    * `_editables`
+    * `_enabled_editors`
+    * `_inputs`
+    * `_select_data`
+    * `_structures`
+    * `add_options`
+    * `create`
+    * `disable_add`
+    * `disable_add_folder`
+    * `disable_file_actions`
+    * `new_preview_url`
+    * `schemas`
+    * `schema_key`
+    * `include_developer_files`
+
+    By default, CloudCannon uses your `source` key to make assumptions about your Collections.
+
+    For more information, please read our documentation on [Collections](/documentation/articles/define-your-collections/).
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="collection_groups" type_markdown="Array of Objects">
+    This key defines the groups and order of Collections in your *Site Navigation*. Each item in the array must contain the `heading` and `collections` keys.
+
+    The following nested keys are available:
+
+    * `heading`
+    * `collections`
+
+    This key has no default. If undefined, CloudCannon will sort your Collections in the following order: the *Pages* Collection, all output Collections in alphabetical order, then all non-output Collections in alphabetical order.
+
+    For more information, please read our documentation on [configuring your Site Navigation](/documentation/articles/configure-your-site-navigation/).
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="_enabled_editors" type_markdown="Array">
+    This key defines which editing interfaces are available by default for files in your Site. Whether an editing interface is available for a specific file is determined by other factors.
+
+    Values can be one of the following: `visual`, `content`, or `data`. Specifying one or more editing interfaces will disable all unspecified editing interfaces. You cannot disable the Source Editor with this key.
+
+    By default, this key is set to `visual`, `content`, and `data`.
+
+    For more information, please read our documentation on the [Visual Editor](/documentation/articles/the-visual-editor/), [Content Editor](/documentation/articles/the-content-editor/), [Data Editor](/documentation/articles/the-data-editor/), and [Source Editor](/documentation/articles/the-source-editor/).
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="_inputs" type_markdown="Object">
+    This key defines which inputs are available by default for all files. The following nested keys are available for each input:
+
+    * `type`
+    * `label`
+    * `comment`
+    * `context`
+    * `hidden`
+    * `instance_value`
+    * `cascade`
+    * `options`
+
+    This key has no defaults.
+
+    For more information, please read our documentation on [inputs](/documentation/articles/configure-your-inputs/).
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="_select_data" type_markdown="Object">
+    This key defines data to populate to populate Select and Multiselect inputs within the CloudCannon configuration file.
+
+    This key has no default.
+
+    For more information, please read our documentation on [Select and Multiselect inputs](/documentation/articles/select-and-multiselect-inputs/).
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="_structures" type_markdown="">
+    For more information, please read our documentation on x.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="_editables" type_markdown="Object">
+    This key defines which Rich Text editors have custom configuration for the associated WYSIWYG toolbar.
+
+    The following nested keys are available:
+
+    * `content`
+    * `block`
+    * `link`
+    * `text`
+
+    This key has no default.
+
+    For more information, please read our documentation on [Rich Text editors](/documentation/articles/what-are-rich-text-editors/).
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="_snippets_imports" type_markdown="">
+    For more information, please read our documentation on x.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="_snippets" type_markdown="">
+    For more information, please read our documentation on x.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="base_url" type_markdown="String">
+    This key defines the base URL (or subpath) when generating output URLs for your Site. The base URL will prefix the output URL of each file.
+
+    This key has no default.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="data_config" type_markdown="Object">
+    This key defines which file or folder data in your Site is available to populate [Select and Multiselect inputs](/documentation/articles/select-and-multiselect-inputs/).
+
+    This key has no default.
+
+    For more information, please read our documentation on [defining your data](/documentation/articles/define-your-data/).
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="file_config" type_markdown="Object">
+    Provides scope to configure settings at a file level, without configuring a collection, or modifying files.
+
+    For more information, please read our documentation on x.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="editor.default_path" type_markdown="Object">
+    This key defines the link for the *Home* button on the *Dashboard* page.
+
+    By default, this key is set to `/` (i.e., your index output URL).
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="source_editor" type_markdown="Object">
+    This key defines the appearance and behavior of the Source Editor. The following nested keys are available:
+
+    * `tab_size`
+    * `show_gutter`
+    * `theme`
+
+    This key has no default.
+
+    For more information, please read our documentation on the [Source Editor](/documentation/articles/the-source-editor/).
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="timezone" type_markdown="String">
+    This key defines the timezone for your Site. Value must be in IANA timezone format.
+
+    By default, this key is `Etc/UTC`.
+
+    For more information, please read our documentation on [Date and Time inputs](/documentation/articles/date-and-time-inputs/).
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="commit_templates" type_markdown="Array of Objects">
+    This key defines your commit message templates. Commit messages appear on the *Review changes* modal when you save your changes.
+
+    This key has no default.
+
+    For more information, please read our documentation on [commit templates](/documentation/articles/configure-your-commit-messages/).
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="markdown" type_markdown="Object">
+    This key defines your markdown engine for parsing Markdown content into HTML and any configuration options for your engine.
+
+    The following nested keys are available:
+
+    * `engine`
+    * `options`
+
+    This key has no default.
+
+    For more information, please read our documentation on [configuring your markdown engine](/documentation/articles/configure-your-markdown-engine/).
+  </comp.DataReferenceRow>
+</comp.DataReference>
