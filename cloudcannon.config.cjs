@@ -349,6 +349,82 @@ module.exports = {
         },
       },
     },
+    glossary: {
+      path: "_glossary",
+      icon: "abc",
+      preview: {
+        text: {
+          key: "key_name",
+        },
+      },
+      schemas: {
+        default: {
+          path: ".cloudcannon/schemas/glossary-term.yml",
+          _inputs: {
+            key_name: {
+              type: "text",
+            },
+            key_value_type: {
+              type: "multiselect",
+              options: {
+                values: "_select_data.key_value_type",
+                value_key: "name",
+                preview: {
+                  label: {
+                    key: "name",
+                  },
+                },
+              },
+            },
+            key_description: {
+              type: "markdown",
+              options: {
+                format: "p h1 h2 h3 h4 h5 h6",
+                blockquote: true,
+                bold: true,
+                italic: true,
+                strike: true,
+                subscript: true,
+                superscript: true,
+                underline: true,
+                link: true,
+                bulletedlist: true,
+                numberedlist: true,
+                code: true,
+                embed: true,
+                horizontalrule: true,
+                table: true,
+                snippet: true,
+              },
+            },
+            parent_keys: {
+              type: "multiselect",
+              options: {
+                values: "collections.keys",
+                value_key: "key_name",
+                preview: {
+                  label: {
+                    key: "key_name",
+                  },
+                },
+              },
+            },
+            subkeys: {
+              type: "multiselect",
+              options: {
+                values: "collections.keys",
+                value_key: "key_name",
+                preview: {
+                  label: {
+                    key: "key_name",
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
   },
   _editables: {
     content: {
