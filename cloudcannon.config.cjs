@@ -361,64 +361,20 @@ module.exports = {
         default: {
           path: ".cloudcannon/schemas/glossary-term.yml",
           _inputs: {
-            key_name: {
+            glossary_term_name: {
               type: "text",
             },
-            key_value_type: {
-              type: "multiselect",
-              options: {
-                values: "_select_data.key_value_type",
-                value_key: "name",
-                preview: {
-                  label: {
-                    key: "name",
-                  },
-                },
+            term_description: {
+              type: "textarea",
+              comment: "Keep this as short as possible (i.e., 125 characters).",
+              context: {
+                open: false,
+                title: "Help",
+                icon: "help",
+                content: "Try not to use the term name in the description."
               },
-            },
-            key_description: {
-              type: "markdown",
               options: {
-                format: "p h1 h2 h3 h4 h5 h6",
-                blockquote: true,
-                bold: true,
-                italic: true,
-                strike: true,
-                subscript: true,
-                superscript: true,
-                underline: true,
-                link: true,
-                bulletedlist: true,
-                numberedlist: true,
-                code: true,
-                embed: true,
-                horizontalrule: true,
-                table: true,
-                snippet: true,
-              },
-            },
-            parent_keys: {
-              type: "multiselect",
-              options: {
-                values: "collections.keys",
-                value_key: "key_name",
-                preview: {
-                  label: {
-                    key: "key_name",
-                  },
-                },
-              },
-            },
-            subkeys: {
-              type: "multiselect",
-              options: {
-                values: "collections.keys",
-                value_key: "key_name",
-                preview: {
-                  label: {
-                    key: "key_name",
-                  },
-                },
+                show_count: true,
               },
             },
           },
