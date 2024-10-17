@@ -463,6 +463,7 @@ module.exports = {
           "Builds",
           "Editing interfaces",
           "Client Sharing",
+          "Collections",
           "Configuration file",
           "Custom Permission Groups",
           "Headless Mode",
