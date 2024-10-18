@@ -1,6 +1,6 @@
 import LanguageIcon from "./LanguageIcon.jsx";
 
-export default function ({ comp, language, source, content, children }) {
+export default function ({ comp, language, source, frameless = false, content, children }) {
   source = source ? <div className="c-code-block__source">{source}</div> : <></>;
 
   let code_block = children;
@@ -15,12 +15,11 @@ export default function ({ comp, language, source, content, children }) {
   }
 
   const code_str = code_block?.props?.children?.props?.children;
-  const codeEncoded = btoa(encodeURIComponent(code_str))
-
-  return (
-    <div x-data="{ highlighedAnnotation: null }">
-      <div className={`c-code-block${annotations ? ` c-code-block--annotated` : ``}`}>
-        <div className="c-code-block__heading">
+  const codeEncoded = btoa(encodeURIComponent(code_str));
+  let header = null;
+  if (!frameless) {
+    header = (
+      <div className="c-code-block__heading">
           <LanguageIcon lang={language} />
           {source}
           <div className="c-code-block__copy">
@@ -32,7 +31,14 @@ export default function ({ comp, language, source, content, children }) {
             <div className="c-code-block__copy__toast">copied</div>
           </div>
         </div>
-        <div className="c-code-block__code">
+    );
+  }
+
+  return (
+    <div x-data="{ highlighedAnnotation: null }">
+      <div className={`c-code-block${annotations ? ` c-code-block--annotated` : ``}`}>
+        {header}
+        <div className={`c-code-block__code${frameless ? ` --frameless` : ``}`}>
           <figure className="highlight">
             <pre>
               <code className={`language-${language}`}>
