@@ -20,7 +20,7 @@ CloudCannon needs to parse Markdown content into HTML to preview and edit it. Ad
 
 You can use the top-level `markdown` key in your [global configuration file](/documentation/articles/create-a-global-configuration-file/) to define how CloudCannon should parse and save your Markdown content.
 
-<comp.MultiCodeBlock language="YAML" translate_into={["json", "JavaScript"]} source="cloudcannon.config.yml">
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
 ```
 markdown:
   engine: 'commonmark'
@@ -32,25 +32,9 @@ markdown:
 
 CloudCannon supports CommonMark and Kramdown using `markdown-it` (JavaScript) and `kramdown` (Ruby). You can use any Markdown engine you want when building your site. This article only concerns the way CloudCannon parses and saves your Markdown while you're editing.
 
-<comp.Conditional ssgs={["Jekyll"]}>
-  CloudCannon automatically reads your settings from `_config.yml` to match the Markdown formatting of your SSG.
-</comp.Conditional>
-
-<comp.Conditional ssgs={["Hugo"]}>
-  CloudCannon automatically reads your Goldmark settings from Hugo to match the Markdown formatting of your SSG.
-</comp.Conditional>
-
 <comp.DataReference>
  <comp.DataReferenceRow label="engine" type_markdown="string">
-  Determines which Markdown engine to use while editing in CloudCannon. Supported values are `kramdown` and `commonmark`.
-  
-  <comp.Conditional ssgs={["Jekyll"]}>
-    Defaults to `kramdown` when using Jekyll.
-  </comp.Conditional>
-  <comp.Conditional not_ssgs={["Jekyll"]}>
-    Defaults to `commonmark`.
-  </comp.Conditional>
-
+  Determines which Markdown engine to use while editing in CloudCannon. Supported values are `kramdown` and `commonmark`. Defaults to `commonmark`.
  </comp.DataReferenceRow>
  <comp.DataReferenceRow label="options.xhtml" type_markdown="boolean">
   Ensure '/' is added to self-closing HTML tags (e.g. `<br />`) when saved back to your file. 
@@ -79,9 +63,9 @@ CloudCannon supports CommonMark and Kramdown using `markdown-it` (JavaScript) an
   
   If `true`, text indented with 4 spaces will be treated as a code block.
 
-  <comp.Conditional ssgs={["Jekyll, Hugo"]}>
-    Defaults to `true`.
-  </comp.Conditional>
+<comp.Notice info_type="info">
+  Most Jekyll and Hugo sites will want to set this to `true`.
+</comp.Notice>
  </comp.DataReferenceRow>
  <comp.DataReferenceRow label="options.escape_snippets_in_code_blocks" type_markdown="boolean">
   If `true`, snippets inside code blocks will be always rendered as plain text instead of editable elements.
@@ -93,9 +77,9 @@ CloudCannon supports CommonMark and Kramdown using `markdown-it` (JavaScript) an
   
   Enable this option only if your SSG's Markdown engine recognizes this syntax.
 
-  <comp.Conditional ssgs={["Jekyll"]}>
-    Defaults to `true` for Jekyll.
-  </comp.Conditional>
+<comp.Notice info_type="info">
+  Most Jekyll sites will want to set this to `true`.
+</comp.Notice>
  </comp.DataReferenceRow>
  <comp.DataReferenceRow label="options.strikethrough" type_markdown="boolean">
   If `true`, strikethrough elements (`<del>`, `<s>`, `<strike>`) are wrapped with double tildes (e.g. \~\~example\~\~), instead of being output as HTML.
@@ -237,7 +221,7 @@ The GitHub Flavored Markdown (GFM) specification allows tables to be rendered in
 
 If you have configured CloudCannon to use GFM and to render tables as Markdown, CloudCannon will automatically add a header row when you add a table in the rich text editor. Controls for removing this header row will be disabled.
 
-<comp.MultiCodeBlock language="YAML" translate_into={["json", "JavaScript"]} source="cloudcannon.config.yml">
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
 ```
 markdown:
   engine: 'commonmark'
@@ -251,7 +235,7 @@ With this configuration, tables will be rendered as HTML if they violate this co
 
 ### Default element attribute options
 
-CloudCannon uses sensible defaults for `markdown.options.attributes_elements` based on your SSG. You should only override these if you're using an SSG that requires a different syntax for Markdown attributes than these defaults.
+CloudCannon uses sensible defaults for `markdown.options.attributes_elements` based on the configured engine.
 
 If your `markdown.engine` is `kramdown`, `markdown.options.attributes_elements` will default to:
 
@@ -266,12 +250,33 @@ markdown:
 ```
 </comp.CodeBlock>
 
-<comp.Conditional ssgs={["Hugo"]}>    
-  If your `markdown.engine` is `commonmark` and you're using Hugo, `markdown.options.attributes_elements` will default to:
+If your `markdown.engine` is `commonmark`, `markdown.options.attributes_elements` will default to:
 
+<comp.CodeBlock language="YAML" source="cloudcannon.config.yml">
+```
+markdown:
+  options:
+    attributes_elements:
+      inline: none
+      block: space right
+      img: right
+      ul: below
+      ol: below
+      li: space right
+      table: newline below
+      blockquote: below
+```
+</comp.CodeBlock>
+
+<comp.Notice info_type="info">
+  Hugo sites use Goldmark for Markdown processing, which has different behavior to other CommonMark parsers. 
+
+  If you encounter issues with attributes on Hugo sites, we recommend the following configuration:
+  
   <comp.CodeBlock language="YAML" source="cloudcannon.config.yml">
   ```
   markdown:
+    engine: 'commonmark'
     options:
       attributes_elements:
         inline: none
@@ -286,28 +291,4 @@ markdown:
         li: none
   ```
   </comp.CodeBlock>
-
-  CloudCannon gives different defaults for Hugo to account for differences in syntax between Goldmark and other CommonMark parsers.
-</comp.Conditional>
-<comp.Conditional not_ssgs={["Hugo"]}>    
-  If your `markdown.engine` is `commonmark` (and you're not using Hugo), `markdown.options.attributes_elements` will default to:
-
-  <comp.CodeBlock language="YAML" source="cloudcannon.config.yml">
-  ```
-  markdown:
-    options:
-      attributes_elements:
-        inline: none
-        block: space right
-        img: right
-        ul: below
-        ol: below
-        li: space right
-        table: newline below
-        blockquote: below
-  ```
-  </comp.CodeBlock>
-</comp.Conditional>
-
-
-
+</comp.Notice>

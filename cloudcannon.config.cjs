@@ -52,7 +52,6 @@ const snip = (name) =>
 
 const _snippets = {
   ...require(snip("code_block")),
-  ...require(snip("conditional")),
   ...require(snip("data_reference")),
   ...require(snip("docs_image")),
   ...require(snip("docs_video")),
@@ -62,7 +61,6 @@ const _snippets = {
   ...require(snip("youtube")),
   ...require(snip("example")),
   ...require(snip("common_content")),
-  ...require(snip("starter_guide_deflector")),
   ...require(snip("common_content_param")),
   ...require(snip("system_version_default")),
   ...require(snip("system_version_list")),
@@ -283,6 +281,11 @@ module.exports = {
     _uuid: {
       instance_value: "UUID",
     },
+    description: {
+      options: {
+        show_count: true,
+      },
+    },
     explicit_canonical: {
       type: "url",
       comment:
@@ -315,9 +318,12 @@ module.exports = {
       options: {
         values: [
           "Account Settings",
+          "Beta",
+          "Builds",
           "Editing interfaces",
           "Client Sharing",
           "Custom Permission Groups",
+          "Headless Mode",
           "Inputs",
           "Introduction",
           "Multi-factor Authentication",
