@@ -40,10 +40,11 @@ CloudCannon supports CommonMark and Kramdown using `markdown-it` (JavaScript) an
   Ensure '/' is added to self-closing HTML tags (e.g. `<br />`) when saved back to your file. 
  </comp.DataReferenceRow>
  <comp.DataReferenceRow label="options.breaks" type_markdown="boolean">
-  If `true`, newlines within paragraphs will be rendered as linebreaks (`<br>`) in the Visual Editor. If `false`, these newlines will appear as single whitespace characters.
+  This key allows you to configure how the Visual Editor renders newline characters. You can use this key to match the Visual Editor's behavior to your SSG's Markdown engine.
 
-  If `true`, CloudCannon will change all `<br>` tags in the file back into newline characters before saving, to preserve your original formatting. If your file already contained `<br>` tags, these will also be converted.
+  If `true`, CloudCannon will render newline characters within paragraphs as `<br>` tags in the Visual Editor. CloudCannon will also change all `<br>` tags in the file into newline characters before saving to preserve your original formatting.
 
+  If `false`, CloudCannon will render newline characters within paragraphs normally when converted to HTML in the Visual Editor (i.e., collapsed by default). You can use Shift + Enter to add a linebreak within a paragraph. CloudCannon will save this as a `<br>` to ensure the linebreak appears when the site is built.
   <comp.Notice info_type="info">
     In Kramdown, this option will only work if `options.gfm` is also enabled.
   </comp.Notice>
@@ -145,13 +146,6 @@ CloudCannon supports CommonMark and Kramdown using `markdown-it` (JavaScript) an
   
   Read the section below to learn more about how to configure this, and the default values for different SSGs.
  </comp.DataReferenceRow>
- <comp.DataReferenceRow label="options.attributes_elements.inline" type_markdown="string">
-  This key determines how to save Markdown format attributes for inline elements.
-
-  
-  
-  Read the section below to learn more about how to configure this, and the default values for different SSGs.
- </comp.DataReferenceRow>
  <comp.DataReferenceRow label="options.gfm" type_markdown="boolean">
   Enables extra parsing options consistent with GitHub Flavored Markdown. 
   
@@ -211,9 +205,9 @@ with a line break in the middle.
 ```
 </comp.CodeBlock>
 
-* `breaks: false` means that the newline will be preserved as `\n`.
-* `breaks: true` and `xhtml: false` means that the newline will be changed to `<br>`.
-* `breaks: true` and `xhtml: true` means that the newline will be changed to `<br />`.
+* `breaks: true` means that the newline will be preserved as `\n`.
+* `breaks: false` and `xhtml: false` means that the newline will be changed to `<br>`.
+* `breaks: false` and `xhtml: true` means that the newline will be changed to `<br />`.
 
 ### Constraints on Markdown tables
 
@@ -271,13 +265,14 @@ markdown:
 <comp.Notice info_type="info">
   Hugo sites use Goldmark for Markdown processing, which has different behavior to other CommonMark parsers. 
 
-  If you encounter issues with attributes on Hugo sites, we recommend the following configuration:
+  If you encounter issues with Markdown format attributes on Hugo sites, we recommend the following configuration:
   
   <comp.CodeBlock language="YAML" source="cloudcannon.config.yml">
   ```
   markdown:
     engine: 'commonmark'
     options:
+      attributes: true
       attributes_elements:
         inline: none
         block: space right
