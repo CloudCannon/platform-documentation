@@ -322,6 +322,23 @@ module.exports = {
                 snippet: true,
               },
             },
+            key_documentation: {
+              type: "object",
+              comment: "Add a documentation link.",
+              options: {
+                subtype: "object",
+                structures: {
+                  values: [
+                    {
+                      value: {
+                        text: ,
+                        url: ,
+                      },
+                    },
+                  ],
+                },
+              },
+            },
             parent_keys: {
               type: "multiselect",
               options: {
