@@ -55,6 +55,7 @@ const _snippets = {
   ...require(snip("data_reference")),
   ...require(snip("docs_image")),
   ...require(snip("docs_video")),
+  ...require(snip("key_reference_table")),
   ...require(snip("multi_code_block")),
   ...require(snip("notice")),
   ...require(snip("tabs")),
