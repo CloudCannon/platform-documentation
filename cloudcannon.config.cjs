@@ -330,6 +330,7 @@ module.exports = {
                 structures: {
                   values: [
                     {
+                      comment: "For more information, please read our documentation on...",
                       value: {
                         text: null,
                         url: null,
