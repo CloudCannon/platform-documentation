@@ -98,7 +98,41 @@ module.exports = {
         icon: 'fact_check',
         icon_color: '#ffd166',
       },
-    ]
+    ],
+    key_value_type: [
+      {
+        name: 'Array',
+        icon: 'data_array',
+      },
+      {
+        name: 'Boolean',
+        icon: 'check_box',
+      },
+      {
+        name: 'Number',
+        icon: '123',
+      },
+      {
+        name: 'Object',
+        icon: 'add_box',
+      },
+      {
+        name: 'String',
+        icon: 'abc',
+      },
+      {
+        name: 'Array of Numbers',
+        icon: '123',
+      },
+      {
+        name: 'Array of Objects',
+        icon: 'add_box',
+      },
+      {
+        name: 'Array of Strings',
+        icon: 'abc',
+      },
+    ],
   },
   collections_config: {
     common_content: {
@@ -240,6 +274,82 @@ module.exports = {
         include: ["navigation.yml", "meta.yml", "headingnav.yml", "ssgs.yml"],
       },
     },
+    keys: {
+      path: "_keys",
+      icon: "key",
+      preview: {
+        text: {
+          key: "key_name",
+        },
+      },
+      schemas: {
+        default: {
+          path: ".cloudcannon/schemas/key-definition.yml",
+          _inputs: {
+            key_name: {
+              type: "text",
+            },
+            key_value_type: {
+              type: "multiselect",
+              options: {
+                values: "_select_data.key_value_type",
+                value_key: "name",
+                preview: {
+                  label: {
+                    key: "name",
+                  },
+                },
+              },
+            },
+            key_description: {
+              type: "markdown",
+              options: {
+                format: "p h1 h2 h3 h4 h5 h6",
+                blockquote: true,
+                bold: true,
+                italic: true,
+                strike: true,
+                subscript: true,
+                superscript: true,
+                underline: true,
+                link: true,
+                bulletedlist: true,
+                numberedlist: true,
+                code: true,
+                embed: true,
+                horizontalrule: true,
+                table: true,
+                snippet: true,
+              },
+            },
+            parent_keys: {
+              type: "multiselect",
+              options: {
+                values: "collections.keys",
+                value_key: "key_name",
+                preview: {
+                  label: {
+                    key: "key_name",
+                  },
+                },
+              },
+            },
+            subkeys: {
+              type: "multiselect",
+              options: {
+                values: "collections.keys",
+                value_key: "key_name",
+                preview: {
+                  label: {
+                    key: "key_name",
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
   },
   _editables: {
     content: {
@@ -322,6 +432,7 @@ module.exports = {
           "Builds",
           "Editing interfaces",
           "Client Sharing",
+          "Configuration file",
           "Custom Permission Groups",
           "Headless Mode",
           "Inputs",
