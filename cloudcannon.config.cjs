@@ -331,8 +331,8 @@ module.exports = {
                   values: [
                     {
                       value: {
-                        text: ,
-                        url: ,
+                        text: null,
+                        url: null,
                       },
                     },
                   ],
