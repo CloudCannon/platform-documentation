@@ -543,9 +543,50 @@ Keys that configure your Collection display control how the Collection appears i
     </comp.Example>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="sort_options" type_markdown="Array of Objects">
+    This key defines the options for the *Sort* dropdown in a *Collection browser*. Configuring sort options for a Collection will remove CloudCannon's default sorting options from the *Sort* dropdown.
+  
+    The following nested keys are available for each entry in the `sort_options` array:
+  
+    * `key` (required)
+    * `order`
+    * `label`
+  
+    By default, CloudCannon provides sorting options for path, file size, file creation time, and last modified, in ascending and descending order.
+  
+    <comp.Example>
+      In this example, the *Sort* dropdown in the `blog` *Collection browser* has ascending and descending options for sorting by `author` and `date`.
+  
+      <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+        ``````````
+        collections_config:
+          blog:
+            sort_options:
+              - key: author
+                order: ascending
+                label: Author (A-Z)
+              - key: author
+                order: descending
+                label: Author (Z-A)
+              - key: date
+                order: ascending
+                label: Date (Newest First)
+              - key: date
+                order: descending
+                label: Date (Oldest First)
+        ``````````
+        </comp.MultiCodeBlock>
+    </comp.Example>
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="sort_options.key" type_markdown="String">
     This key defines
   </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="singular_name" type_markdown="Array of Objects">
+  <comp.DataReferenceRow label="sort_options.order" type_markdown="String">
+    This key defines
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="sort_options.label" type_markdown="String">
+    This key defines
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="singular_name" type_markdown="String">
     This key defines
   </comp.DataReferenceRow>
 </comp.DataReference>
@@ -750,48 +791,6 @@ Collection configuration entries have the following options available:
 
     For example `new_preview_url: /about/` will load the `/about/` URL on new or unbuilt pages in the Visual Editor.
   </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="preview" type_markdown="Object">
-    The preview definition for changing the way collection items are previewed across the editor.
-
-    See the [preview options documentation](/documentation/articles/configure-your-card-previews/) for detailed information on setting this option.
-
-    You can also set `preview` for each [schema](/documentation/articles/what-is-a-schema/#options) in your collection.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="preview.gallery" type_markdown="Object">
-    Shows large image/icon preview per collection item. Has no default. See `preview` for details.
-
-    * `preview.gallery.fit` defaults to `contain`, or `cover` for generated screenshots.
-    * `preview.gallery.image` defaults to a generated screenshot for files with a matching file in the build output, otherwise the first top-level image-like data found.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="preview.icon" type_markdown="Array, string or boolean">
-    Controls the icon shown on each collection item. Must match a [Material Icon](https://material.io/tools/icons/) name. Defaults to checking the `icon` key then falls back to the containing collection's `icon`.
-
-    If set to `false`, no icon is displayed.
-
-    If `image` is set, it will cover `icon` when loaded successfully.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="preview.image" type_markdown="Array, string or boolean">
-    Controls the image shown per collection item. Defaults to checking the keys `thumbnail_image`, `thumbnail_image_path`, `image`, and `image_path` in that order, then falls back to finding any top-level image-like field in the collection item's data.
-
-    If set to `false`, no image is displayed.
-
-    If no image is found, `icon` is displayed instead.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="preview.metadata" type_markdown="Array">
-    Shows a list of items that can contain an image, icon and text per collection item. Has no default. See `preview` for details.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="preview.subtext" type_markdown="Array, string or boolean">
-    Controls the supporting text per collection item. Defaults to the `url` key of the collection item, or the `date` key for blog-like collections.
-
-    If set to `false`, no subtext is displayed.
-
-    Subtext is hidden if text and subtext is the same. If there’s no text, subtext is used instead.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="preview.text" type_markdown="Array, string or boolean">
-    Controls the main text shown per collection item. Defaults to checking the keys `name` and `title`, then falls back to the first text-like value found.
-
-    If set to `false`, no text is displayed.
-  </comp.DataReferenceRow>
   <comp.DataReferenceRow label="schemas" type_markdown="Object">
     The set of schemas for this collection. Schemas are used when creating and editing files in this collection. Each entry corresponds to a schema that describes a data structure for this collection.
 
@@ -804,19 +803,6 @@ Collection configuration entries have the following options available:
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="singular_name" type_markdown="String">
     Overrides the default singular display name of the collection. This is displayed in the collection add menu and file context menu.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="sort" type_markdown="Object">
-    Sets the default sorting for the collection file list. Defaults to the first option in `sort_options`, then falls back descending `path`. As an exception, defaults to descending `date` for blog-like collections. Contains the following fields:
-
-    * `key` defines what field contains the value to sort on inside each collection item's data. **Required**.
-    * `order` controls which sort values come first. Must be one of `asc`, `ascending`, `desc` or `descending`. Defaults to `ascending`.
-
-    ```yaml
-    key: name
-    order: desc
-    ```
-
-    Selecting a sort order in-app from the available sort options stores that preference, taking priority over this option the next time the collection file list is opened.
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="sort_options" type_markdown="Array of objects">
     Controls the available options in the sort menu. Defaults to generating the options from the first item in the collection, falling back to ascending `path` and descending `path`. Each option contains the following fields:
