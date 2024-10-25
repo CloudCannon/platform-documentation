@@ -66,6 +66,8 @@ All Collections options are configured within the `collections_config` key in yo
     By default, CloudCannon uses your `source` key to make assumptions about your Collections.
 
     <comp.Example>
+      In this example, we have configured a `blog` Collection. Key settings include two Schemas to populate files with different content, a Blog Tags input populated by a fixed data set, and custom Create Path to generate file names from structured data.
+    
       <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
       ``````````
       collections_config:
@@ -74,23 +76,19 @@ All Collections options are configured within the `collections_config` key in yo
           glob:
             - '!_index.md'
           name: Blog
-          singular_name:
           icon: post_add
           url: /blog/
-          disable_url: false
           documentation:
-            url: https://example.com
+            url: https://example.com/travel-blog-style-guide
             text: Documentation
             icon: auto_stories
           description: |-
             This Collection is for *Travel blogs* and *Customer stories*.
 
             If your have any questions, please contact Heather.
-          preview:
-          sort:
-          sort_options:
           _editables:
           _enabled_editors:
+            - content
           _inputs:
             blog_tags:
               type: multiselect
@@ -112,6 +110,71 @@ All Collections options are configured within the `collections_config` key in yo
           _structures:
           add_options:
           create:
+            extra_data:
+              filename: '{date|year}-{date|month}-{date|day}-{title}'
+            path: '[relative_base_path]/{filename|slugify}.[ext]'
+          disable_add: false
+          disable_add_folder: false
+          disable_file_actions: false
+          new_preview_url:
+          schemas:
+            blog:
+              path: schemas/travel_blog.md
+              name: Blog Post
+              icon: post_add
+            blog:
+              path: schemas/customer_story.md
+              name: Blog Post
+              icon: post_add
+          schema_key: _blog_template
+          include_developer_files: false
+      ``````````
+      </comp.MultiCodeBlock>
+      
+      In this example, we have configured a `blog` Collection. Key settings include
+      
+      <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+      ``````````
+      collections_config:
+        team:
+          path: _data/team
+          name: Our Team
+          singular_name: Team Member
+          icon: groups
+          disable_url: true
+          description: |-
+            This Collection has a file for every member of our team!
+          preview:
+            text:
+              - key: name
+            subtext:
+              - key: job_title
+            icon:
+              - key: profile_picture
+          sort:
+            key: name
+            order: ascending
+          sort_options:
+            - key: name
+              order: ascending
+              label: Name (A-Z)
+            - key: name
+              order: descending
+              label: Name (Z-A)
+            - key: job_title
+              order: ascending
+              label: Job Title (A-Z)
+            - key: date
+              order: descending
+              label: Job Title (Z-A)
+          _enabled_editors:
+            - data
+          _structures:
+          add_options:
+            - name: Office Locations
+              icon: map
+              href: /our-offices
+          create:
           disable_add: false
           disable_add_folder: false
           disable_file_actions: false
@@ -126,7 +189,6 @@ All Collections options are configured within the `collections_config` key in yo
               name: Blog Post
               icon: post_add
           schema_key:
-          include_developer_files: false
       ``````````
       </comp.MultiCodeBlock>
     </comp.Example>
