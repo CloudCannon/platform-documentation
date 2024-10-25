@@ -282,6 +282,9 @@ module.exports = {
           key: "key_name",
         },
       },
+      create: {
+        path: "[relative_base_path]/{key_name|slugify}.yml",
+      },
       schemas: {
         default: {
           path: ".cloudcannon/schemas/key-definition.yml",
@@ -322,6 +325,25 @@ module.exports = {
                 snippet: true,
               },
             },
+            key_documentation: {
+              type: "object",
+              comment: "Add a documentation link.",
+              options: {
+                subtype: "object",
+                structures: {
+                  values: [
+                    {
+                      label: "Key Documentation Link",
+                      comment: "For more information, please read our documentation on...",
+                      value: {
+                        text: null,
+                        url: null,
+                      },
+                    },
+                  ],
+                },
+              },
+            },
             parent_keys: {
               type: "multiselect",
               options: {
@@ -344,6 +366,38 @@ module.exports = {
                     key: "key_name",
                   },
                 },
+              },
+            },
+          },
+        },
+      },
+    },
+    glossary: {
+      path: "_glossary",
+      icon: "abc",
+      preview: {
+        text: {
+          key: "key_name",
+        },
+      },
+      schemas: {
+        default: {
+          path: ".cloudcannon/schemas/glossary-term.yml",
+          _inputs: {
+            glossary_term_name: {
+              type: "text",
+            },
+            term_description: {
+              type: "textarea",
+              comment: "Keep this as short as possible (i.e., 125 characters).",
+              context: {
+                open: false,
+                title: "Help",
+                icon: "help",
+                content: "Try not to use the term name in the description."
+              },
+              options: {
+                show_count: true,
               },
             },
           },
@@ -432,6 +486,7 @@ module.exports = {
           "Builds",
           "Editing interfaces",
           "Client Sharing",
+          "Collections",
           "Configuration file",
           "Custom Permission Groups",
           "Headless Mode",
