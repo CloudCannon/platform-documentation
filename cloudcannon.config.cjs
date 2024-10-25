@@ -282,6 +282,9 @@ module.exports = {
           key: "key_name",
         },
       },
+      create: {
+        path: "[relative_base_path]/{key_name|slugify}.yml",
+      },
       schemas: {
         default: {
           path: ".cloudcannon/schemas/key-definition.yml",
