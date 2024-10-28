@@ -76,7 +76,7 @@ module.exports = {
   _snippets,
   data_config: {
     article_topics: {
-      path: "/_data/article-topics.yml",
+      path: "/_data/article_topics.yml",
     },
   },
   _select_data: {
