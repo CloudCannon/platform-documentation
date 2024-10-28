@@ -74,6 +74,11 @@ module.exports = {
     mdx: true,
   },
   _snippets,
+  data_config: {
+    article_topics: {
+      path: "/_data/article-topics.yml"
+    },
+  },
   _select_data: {
     docs_ssgs: ssg_data.ssgs,
     docs_guide_series: guide_series_data.series,
@@ -480,27 +485,7 @@ module.exports = {
       type: "multiselect",
       comment: "Select which topics apply to this article.",
       options: {
-        values: [
-          "Account Settings",
-          "Beta",
-          "Builds",
-          "Editing interfaces",
-          "Client Sharing",
-          "Collections",
-          "Configuration file",
-          "Custom Permission Groups",
-          "Headless Mode",
-          "Inputs",
-          "Introduction",
-          "Multi-factor Authentication",
-          "Organizations",
-          "Permission Groups",
-          "Projects",
-          "Sites",
-          "Site Sharing",
-          "SSO/SAML",
-          "Team members",
-        ],
+        values: "data.article_topics",
       },
     },
   },
