@@ -286,6 +286,20 @@ module.exports = {
         text: {
           key: "key_name",
         },
+        metadata: [
+          {
+            text: {
+              key: "key_value_type",
+            },
+            icon: "data_object",
+          },
+          {
+            text: {
+              key: "parent_keys",
+            },
+            icon: "escalator_warning",
+          },
+        ],
       },
       create: {
         path: "[relative_base_path]/{key_name|slugify}.yml",
