@@ -361,21 +361,81 @@ _inputs:
 
 ### Filters
 
-A filter allows you to limit the available values for a Select or Multiselect input to a a subset of possible values. Filters are available for fixed data sets defined under `_select_data`, Collections, or data files.
+A filter allows you to limit the available values for a Select or Multiselect input to a a subset of possible values. Filters are available for any string value of `options.values` including fixed data sets defined under `_select_data`, Collections, or data files.
+
+Filters use structured data keys to determine the correct subset of values. Let's walk through a few examples.
+
+We want to create a Multiselect input populated with the files in our `posts` Collection as value options. More specifically, we only want files where the structured data key `author` has a value of "Heather". We can configure the following filter on our input values:
 
 <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
 ``````````
+
 _inputs:
   heathers_posts:
     type: multiselect
     label: Heather's Posts
     options:
       values___1___: "collections.posts[?(@.author == 'Heather')]"
+
 ``````````
 <comp.Annotation number="1">
   Available values for the Mutiselect input `heathers_posts` are any items in the `posts` Collection where the `author` structured data key is equal to "Heather".
 </comp.Annotation>
 </comp.MultiCodeBlock>
+
+&nbsp;
+
+&nbsp;
+
+We have the following data file containing important information for our Site:
+
+<comp.CodeBlock language="YAML" source="example_data_file.yml">
+``````````
+
+food:
+  - name: apple
+    color: red
+  - name: banana
+    color: yellow
+  - name: pineapple
+    color: yellow
+animals:
+  - Cat
+  - Dog
+  - Bird
+
+``````````
+</comp.CodeBlock>
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+``````````
+
+data_config___1___:
+  example_data:
+    path: data/example_data_file.yml
+_inputs:
+  pets:
+    type: select
+    options:
+      values: data.example_data.animals
+  food:
+    type: multiselect
+    options:
+      values: data.example_data.food[*].name
+  yellow_food:
+    type: choice
+    options:
+      values: data.example_data.food[?(@.color == 'yellow')].name
+
+``````````
+<comp.Annotation number="1">
+  Available values for the Mutiselect input `heathers_posts` are any items in the `posts` Collection where the `author` structured data key is equal to "Heather".
+</comp.Annotation>
+</comp.MultiCodeBlock>
+
+&nbsp;
+
+&nbsp;
 
 ## Options
 
@@ -438,15 +498,15 @@ Select and Multiselect inputs have the following options available:
     Defaults to:
 
     <comp.CodeBlock language="YAML" source="cloudcannon.config.yml">
-                ``````````
-                preview:
-                  text:
-                    - key: title
-                    - key: name
-                  icon:
-                    - key: icon
-                ``````````
-                </comp.CodeBlock>
+                        ``````````
+                        preview:
+                          text:
+                            - key: title
+                            - key: name
+                          icon:
+                            - key: icon
+                        ``````````
+                        </comp.CodeBlock>
 
     For more information about previews, please read our documentation on [configuring card previews](/documentation/articles/configure-your-card-previews/).
   </comp.DataReferenceRow>
@@ -484,15 +544,15 @@ Select and Multiselect inputs have the following options available:
       In this example, CloudCannon will provide items in the `posts` Collection as values for the `heathers_posts` input. CloudCannon will also apply a filter, returning only files where the `author` structured data key is equal to "Heather".
 
       <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
-                  ``````````
-                  _inputs:
-                    heathers_posts:
-                      type: multiselect
-                      label: Heather's Posts
-                      options:
-                        values: "collections.posts[?(@.author == 'Heather')]"
-                  ``````````
-                  </comp.MultiCodeBlock>
+                              ``````````
+                              _inputs:
+                                heathers_posts:
+                                  type: multiselect
+                                  label: Heather's Posts
+                                  options:
+                                    values: "collections.posts[?(@.author == 'Heather')]"
+                              ``````````
+                              </comp.MultiCodeBlock>
     </comp.Example>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="value_key" type_markdown="String or array of strings">
