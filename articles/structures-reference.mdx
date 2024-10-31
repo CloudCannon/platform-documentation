@@ -199,54 +199,94 @@ Each array item in `values` will have the following options:
     See the [preview options documentation](/documentation/articles/configure-your-card-previews/) for detailed information on setting this option.
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="preview" type_markdown="Object">
-    The preview definition to change how to display structures in the Data Editor, and when choosing a new structure (both in the select and modal styles).
-
-    All preview options are available here, although only the following options are used in the Data Editor:
-
+    This key defines the appearance of a Card. You can configure Card preview for [Collections](/documentation/articles/what-is-a-collection/), [Schemas](/documentation/articles/what-is-a-schema/), [Object inputs](/documentation/articles/object-inputs/), [Array inputs](/documentation/articles/array-inputs/), [Select and Multiselect
+    inputs](/documentation/articles/select-and-multiselect-inputs/), [Structures](/documentation/articles/what-is-a-structure/), the Structure modal, [Snippets](/documentation/articles/what-is-a-snippet/), and the Snippet modal.
+  
+    The following nested keys are available:
+  
     * `text`
     * `subtext`
     * `icon`
+    * `icon_color`
     * `image`
-
-    See the [preview options documentation](/documentation/articles/configure-your-card-previews/) for detailed information on setting this option.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="preview.gallery" type_markdown="Object">
-    Shows large image/icon preview per structure item. Has no default. See `preview` for details.
-
-    * `preview.gallery.fit` defaults to `contain`.
-    * `preview.gallery.image` has no default, falls back to the first top-level image-like data found.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="preview.icon" type_markdown="Array, string or boolean">
-    Controls the icon shown on each structure item. Must match a [Material Icon](https://material.io/tools/icons/) name. Has no default, falls back to `icon`.
-
-    If set to `false`, no icon is displayed.
-
-    If `image` is set, it will cover `icon` when loaded successfully.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="preview.image" type_markdown="Array, string or boolean">
-    Controls the image shown per structure item. Has no default.
-
-    If set to `false`, no image is displayed.
-
-    If no image is found, `icon` is displayed instead.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="preview.metadata" type_markdown="Array">
-    Shows a list of items that can contain an image, icon and text per structure item. Has no default. See `preview` for details.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="preview.subtext" type_markdown="Array, string or boolean">
-    Controls the supporting text per structure item. Defaults to the `description` key, then falls back to the first text-like value found.
-
-    If set to `false`, no subtext is displayed.
-
-    Subtext is hidden if text and subtext is the same. If there’s no text, subtext is used instead.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="preview.view" type_markdown="String">
-    Changes how the snippet is displayed once it has been added. Defaults to `card`, must be one of `inline`, `gallery`, or `card`.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="preview.text" type_markdown="Array, string or boolean">
-    Controls the main text shown per structure item. Has no default, falls back to `label`.
-
-    If set to `false`, no text is displayed.
+    * `metadata`
+    * `gallery`
+  
+    This key has no default.
+  
+    <comp.Example>
+      In this example, we have configured the appearance of file Cards in the *Collection browser*.
+  
+      <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+        ``````````
+        collections_config:
+          blog:
+            preview:
+              text:
+                - key: title
+              subtext:
+                - key: author
+              icon: edit_note
+              icon_color:
+                - key: color
+                - '#ff0000'
+              image:
+                - key: image
+              metadata:
+                - template: [url]
+                - icon: event
+                  text:
+                    - template: 'Published on {date|date_long}'
+              gallery:
+                - key: featured_image
+  
+        ``````````
+        </comp.MultiCodeBlock>
+  
+      In this example, we have configured the appearance of Cards in inputs using the Structure `staff`.
+  
+      <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+        ``````````
+        _structures:
+          staff:
+            values:
+              - value:
+                  _type: Employee
+                  name: 
+                  job_description: 
+                  profile_picture: 
+                preview:
+                  text:
+                    - key: name
+                    - Employee
+                  subtext:
+                    - key: job_description
+                    - Description of position
+                  image:
+                    - key: profile_picture
+                  icon: support_agent
+              - value:
+                  _type: Manager
+                  name: 
+                  job_description: 
+                  profile_picture: 
+                  url: 
+                preview:
+                  text:
+                    - key: name
+                    - Manager
+                  subtext:
+                    - key: job_description
+                    - Description of position
+                  image:
+                    - key: profile_picture
+                  icon: face
+  
+        ``````````
+        </comp.MultiCodeBlock>
+    </comp.Example>
+  
+    For more information, please read our documentation on [configuring your Card previews](/documentation/articles/configure-your-card-previews/).
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="tags" type_markdown="Array">
     Used to group and filter items when selecting from a modal.
