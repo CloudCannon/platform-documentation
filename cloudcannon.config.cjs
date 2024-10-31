@@ -311,6 +311,9 @@ module.exports = {
             key_name: {
               type: "text",
             },
+            key_singular_name: {
+              type: "text",
+            },
             key_value_type: {
               type: "multiselect",
               options: {
