@@ -426,11 +426,73 @@ These keys configure how a particular Structure value appears in CloudCannon.
     </comp.Example>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="picker_preview" type_markdown="Object">
-    The preview definition to change how to display structures when choosing a new structure (both in the select and modal styles). This **takes priority** over `preview` when choosing a new structure, and does not affect structures added to the Data Editor.
+    This key defines the appearance of a Card. You can configure Card preview for [Structures](/documentation/articles/what-is-a-structure/) and [Snippets](/documentation/articles/what-is-a-snippet/). This key is separate from the `preview` key and only affects the select and modal lists.
 
-    All preview options are available.
-
-    See the [preview options documentation](/documentation/articles/configure-your-card-previews/) for detailed information on setting this option.
+    The following nested keys are available:
+  
+    * `text`
+    * `subtext`
+    * `icon`
+    * `icon_color`
+    * `image`
+    * `metadata`
+    * `gallery`
+  
+    By default, CloudCannon uses the values configured for `preview`
+  
+    <comp.Example>
+      In this example, we have configured different appearance for Cards in the `events` array and Cards in the Structures modal used to select values for the Array input.
+  
+      <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+      ``````````
+      _structures:
+        events:
+          style: modal
+          values:
+            - label: Birthday
+              value:
+                name:
+                date:
+                place:
+                image:
+                description:
+              preview:
+                text:
+                  - template: "{name}s birthday event!"
+                subtext:
+                  - template: "On {date} at {place}"
+                image:
+                  - key: image
+              picker_preview:
+                text: Birthday
+                subtext: Add someones birthday to the events array
+                icon: cake
+            - label: Holiday
+              value:
+                date:
+                place:
+                image:
+                description:
+              preview:
+                text:
+                  - template: "Holiday to {place}!"
+                subtext:
+                  - template: "On {date}"
+                image:
+                  - key: image
+              picker_preview:
+                text: Holiday
+                subtext: Add a holiday to the events array
+                icon: beach_access
+      _inputs:
+        events:
+          type: array
+          options:
+            structures: _structures.events
+  
+      ``````````
+      </comp.MultiCodeBlock>
+    </comp.Example>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="preview" type_markdown="Object">
     This key defines the appearance of a Card. You can configure Card preview for [Collections](/documentation/articles/what-is-a-collection/), [Schemas](/documentation/articles/what-is-a-schema/), [Object inputs](/documentation/articles/object-inputs/), [Array inputs](/documentation/articles/array-inputs/), [Select and Multiselect
