@@ -3,44 +3,101 @@ key_name: _structures.[*].values
 key_singular_name: values
 key_value_type:
   - Array of Objects
-key_description: |-
-  This key defines the options available for a Structure. You must define this key for the Structure to function.
+key_description: >-
+  This key defines the options available for a Structure. You must define this
+  key for the Structure to function.
 
-  The following nested keys are available for each entry in the `value` array:
+
+  The following nested keys are available for each entry in the `values` array:
+
 
   * `id`
-  * `icon`
-  * `tags`
-  * `image`
-  * `label`
-  * `value` (required)
+
   * `default`
-  * `preview`
+
+  * `tags`
+
+  * `value` (required)
+
+  * `groups`
+
+  * `label`
+
   * `picker_preview`
+
+  * `preview`
+
 
   This key has no default.
 
+
   <comp.Example>
-    In this example...
+    In this example, we have configured different appearance for Cards in the `events` array and Cards in the Structures modal used to select values for the Array input.
 
     <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
     ``````````
     _structures:
-      test:
+      events:
+        style: modal
         values:
           - id:
             default:
-            icon:
-            image:
-            label:
-            picker_preview:
-            preview:
             tags:
-              - blog
             value:
               name:
+              date:
+              place:
+              image:
               description:
-              url:
+            groups:
+              - heading: Birthday details
+                inputs:
+                  - name
+                  - image
+                  - description
+              - heading: Where and When
+                inputs:
+                  - date
+                  - place
+            label: Birthday
+            picker_preview:
+              text: Birthday
+              subtext: Add someones birthday to the events array
+              icon: cake
+            preview:
+              text:
+                - template: "{name}s birthday event!"
+              subtext:
+                - template: "On {date} at {place}"
+              image:
+                - key: image
+          - id:
+            default:
+            tags:
+            value:
+              date:
+              place:
+              image:
+              description:
+            groups:
+            label: Holiday
+            picker_preview:
+              text: Holiday
+              subtext: Add a holiday to the events array
+              icon: beach_access
+            preview:
+              text:
+                - template: "Holiday to {place}!"
+              subtext:
+                - template: "On {date}"
+              image:
+                - key: image
+    _inputs:
+      events:
+        type: array
+        options:
+          structures: _structures.events
+
     ``````````
     </comp.MultiCodeBlock>
   </comp.Example>
@@ -51,11 +108,9 @@ parent_keys:
   - _structures
 subkeys:
   - _structures.[*].values.id
-  - _structures.[*].values.icon
   - _structures.[*].values.tags
-  - _structures.[*].values.image
   - _structures.[*].values.label
   - _structures.[*].values.value
   - _structures.[*].values.default
-  - _structures.[*].values.preview
-  - _structures.[*].values.picker_preview
+  - preview
+  - picker_preview
