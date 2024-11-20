@@ -69,11 +69,13 @@ Once configured, the Select input will appear in the Data Editor or sidebar of t
 
 <comp.CodeBlock language="Markdown" source="guide.md">
 ```
+
 ---
 blog_author: Author A
 ---
 
 Content goes here.
+
 ```
 </comp.CodeBlock>
 
@@ -110,6 +112,7 @@ Once configured, the Multiselect input will appear in the Data Editor or sidebar
 
 <comp.CodeBlock language="Markdown" source="guide.md">
 ```
+
 ---
 blog_tags:
   - Opinion
@@ -117,6 +120,7 @@ blog_tags:
 ---
 
 Content goes here.
+
 ```
 </comp.CodeBlock>
 
@@ -153,11 +157,13 @@ Once configured, the Choice input will appear in the Data Editor or sidebar of t
 
 <comp.CodeBlock language="Markdown" source="guide.md">
 ```
+
 ---
 priority: high
 ---
 
 Content goes here.
+
 ```
 </comp.CodeBlock>
 
@@ -194,6 +200,7 @@ Once configured, the Multichoice input will appear in the Data Editor or sidebar
 
 <comp.CodeBlock language="Markdown" source="guide.md">
 ```
+
 ---
 theme_color:
   - Blue
@@ -201,6 +208,7 @@ theme_color:
 ---
 
 Content goes here.
+
 ```
 </comp.CodeBlock>
 
@@ -319,9 +327,11 @@ Data files must contain arrays of strings or objects. The Select or Multiselect 
 
 <comp.CodeBlock language="YAML" source="theme_colors.yml">
 ``````````
+
 - Blue
 - Green
 - Red
+
 ``````````
 </comp.CodeBlock>
 
@@ -348,6 +358,119 @@ _inputs:
 <comp.Notice info_type="important">
   You must have [defined your Data](/documentation/articles/define-your-data/) for this configuration to work.
 </comp.Notice>
+
+### Filters
+
+A filter allows you to limit the available values for a Select or Multiselect input to a subset of possible values. Filters are available for any string value of `options.values` including fixed data sets defined under `_select_data`, Collections, or data files.
+
+Filters use structured data keys to determine the correct subset of values. Let's walk through a few examples.
+
+In our first example, we want to create two inputs populated by different subsets of the same fixed data set. We have the following fixed data set containing important information for our Site:
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+``````````
+
+_select_data___1___:
+  food:
+    - name: apple
+      color: red
+    - name: banana
+      color: yellow
+    - name: pineapple
+      color: yellow
+
+``````````
+<comp.Annotation number="1">
+  We have defined our fixed data set under the `_select_data` key in our CloudCannon configuration file.
+</comp.Annotation>
+</comp.MultiCodeBlock>
+
+We want to configure:
+
+1. A Multiselect input populated by all the entries in the `food` array and uses the `name` key in the input search bar to identify each entry.
+2. A Choice input populated by a subset of the `food` array where the structured data key `color` has a value of `yellow` and uses the `name` key on the buttons to identify each entry.
+
+We can configure the following filter on our input values:
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+``````````
+
+_inputs:
+  food:
+    type: multiselect
+    options:
+      values___1___: _select_data.food[*].name
+  yellow_food:
+    type: choice
+    options:
+      values___2___: _select_data.food[?(@.color == 'yellow')].name
+
+``````````
+<comp.Annotation number="1">
+  The `[*]` filter allows CloudCannon to use all items in the `food` fixed data set as values for the Mutiselect input `food`. By adding `.name` to the end of our value, we can specify that CloudCannon should use the `name` key to populate the input.
+</comp.Annotation>
+<comp.Annotation number="2">
+  The `[?(@.color == 'yellow')]` filter instructs CloudCannon to only use items in the `food` fixed data set where the `color` structured data key is equal to `yellow` as values for the Choice input `yellow_food`. By adding `.name` to the end of our value, we can specify that CloudCannon should use the `name` key to populate the input.
+</comp.Annotation>
+</comp.MultiCodeBlock>
+
+In our second example, we want to create a Multiselect input populated with the files in our `posts` Collection as value options. More specifically, we only want files where the structured data key `author` has a value of `Heather`. We can configure the following filter on our input values:
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+``````````
+
+_inputs:
+  heathers_posts:
+    type: multiselect
+    label: Heather's Posts
+    options:
+      values___1___: "collections.posts[?(@.author == 'Heather')]"
+
+``````````
+<comp.Annotation number="1">
+  The `[?(@.author == 'Heather')]` filter instructs CloudCannon to only use items in the `posts` Collection where the `author` structured data key is equal to `Heather` as values for the Mutiselect input `heathers_posts`.
+</comp.Annotation>
+</comp.MultiCodeBlock>
+
+In our third example, we want to use data from a data file in multiple inputs. We have the following data file containing important information for our Site:
+
+<comp.CodeBlock language="YAML" source="example_data_file.yml">
+``````````
+
+animals:
+  - Cat
+  - Dog
+  - Bird
+plants:
+  - Tree
+  - Vine
+  - Shrub
+
+``````````
+</comp.CodeBlock>
+
+We want to configure a Select input populated by the data in `example_data_file.yml`. More specifically, we only want values from the `animals` array within that data file. We can configure the following filter on our input values:
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+``````````
+
+data_config___1___:
+  example_data:
+    path: data/example_data_file.yml
+_inputs:
+  pets:
+    type: select
+    options:
+      values___2___: data.example_data.animals
+
+``````````
+<comp.Annotation number="1">
+  In order for CloudCannon to use data from a dedicated data file, you must define the file path. For more information, please read our documentation on [defining your data](/documentation/articles/define-your-data/).
+</comp.Annotation>
+<comp.Annotation number="2">
+  By adding `.animals` to the end of our value, we can specify that CloudCannon should only use data from the `animals` array to populate the input.
+</comp.Annotation>
+</comp.MultiCodeBlock>
 
 ## Options
 
@@ -410,15 +533,15 @@ Select and Multiselect inputs have the following options available:
     Defaults to:
 
     <comp.CodeBlock language="YAML" source="cloudcannon.config.yml">
-    ``````````
-    preview:
-      text:
-        - key: title
-        - key: name
-      icon:
-        - key: icon
-    ``````````
-    </comp.CodeBlock>
+                                                        ``````````
+                                                        preview:
+                                                          text:
+                                                            - key: title
+                                                            - key: name
+                                                          icon:
+                                                            - key: icon
+                                                        ``````````
+                                                        </comp.CodeBlock>
 
     For more information about previews, please read our documentation on [configuring card previews](/documentation/articles/configure-your-card-previews/).
   </comp.DataReferenceRow>
@@ -444,9 +567,28 @@ Select and Multiselect inputs have the following options available:
     Available for Choice and Multichoice inputs.
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="values" type_markdown="Array, object or string">
-    This key determines the available values for your input. If this key contains an object or array, CloudCannon will use the listed values. If this key contains a string, CloudCannon will fetch the values from the [data set](#data-sets) referenced.
+    This key defines which values are available for a Select or Multiselect input.
 
-    Defaults to fetching values from a data set following the naming convention (e.g. `colors` or `my_colors` for [data set](#data-sets) `colors`).
+    You must define this key for the Select or Multiselect input to function.
+
+    Value can be an array of options, or a string referencing a fixed data set, Collection, or data file.
+
+    This key has no default.
+
+    <comp.Example>
+      In this example, CloudCannon will provide items in the `posts` Collection as values for the `heathers_posts` input. CloudCannon will also apply a filter, returning only files where the `author` structured data key is equal to "Heather".
+
+      <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+                                                                              ``````````
+                                                                              _inputs:
+                                                                                heathers_posts:
+                                                                                  type: multiselect
+                                                                                  label: Heather's Posts
+                                                                                  options:
+                                                                                    values: "collections.posts[?(@.author == 'Heather')]"
+                                                                              ``````````
+                                                                              </comp.MultiCodeBlock>
+    </comp.Example>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="value_key" type_markdown="String or array of strings">
     This key defines which key CloudCannon should use as the Select/Multiselect input value when a value option is an Object with multiple nested keys.
@@ -461,7 +603,7 @@ Select and Multiselect inputs have the following options available:
 
 <comp.Notice info_type="important">
   Sites created before 25 November 2021 have a different default for saving collection items in order to keep existing sites working.
-  Create a new site, or use the [Legacy Collections Value Key](/documentation/articles/activating-flags/#legacy-collections-value-key) flag to update this for your site.
+  Create a new site, or use the [Legacy Collections Value Key](/documentation/articles/legacy-option-flags/#legacy-collections-value-key) flag to update this for your site.
 </comp.Notice>
 
 ## Unconfigured Select and Multiselect inputs
@@ -472,11 +614,13 @@ CloudCannon will interpret any key as a Select input if the key name ends in the
 
 <comp.CodeBlock language="Markdown" source="blog.md">
 ```
+
 ---
 blog_author: Karen Key
 ---
 
 Blog content goes here.
+
 ```
 </comp.CodeBlock>
 

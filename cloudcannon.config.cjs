@@ -74,6 +74,11 @@ module.exports = {
     mdx: true,
   },
   _snippets,
+  data_config: {
+    article_topics: {
+      path: "/_data/article_topics.yml",
+    },
+  },
   _select_data: {
     docs_ssgs: ssg_data.ssgs,
     docs_guide_series: guide_series_data.series,
@@ -271,7 +276,7 @@ module.exports = {
       path: "_data",
       filter: {
         base: "none",
-        include: ["navigation.yml", "meta.yml", "headingnav.yml", "ssgs.yml"],
+        include: ["navigation.yml", "meta.yml", "headingnav.yml", "ssgs.yml", "article_topics.yml"],
       },
     },
     keys: {
@@ -281,6 +286,20 @@ module.exports = {
         text: {
           key: "key_name",
         },
+        metadata: [
+          {
+            text: {
+              key: "key_value_type",
+            },
+            icon: "data_object",
+          },
+          {
+            text: {
+              key: "parent_keys",
+            },
+            icon: "escalator_warning",
+          },
+        ],
       },
       create: {
         path: "[relative_base_path]/{key_name|slugify}.yml",
@@ -290,6 +309,9 @@ module.exports = {
           path: ".cloudcannon/schemas/key-definition.yml",
           _inputs: {
             key_name: {
+              type: "text",
+            },
+            key_singular_name: {
               type: "text",
             },
             key_value_type: {
@@ -480,27 +502,7 @@ module.exports = {
       type: "multiselect",
       comment: "Select which topics apply to this article.",
       options: {
-        values: [
-          "Account Settings",
-          "Beta",
-          "Builds",
-          "Editing interfaces",
-          "Client Sharing",
-          "Collections",
-          "Configuration file",
-          "Custom Permission Groups",
-          "Headless Mode",
-          "Inputs",
-          "Introduction",
-          "Multi-factor Authentication",
-          "Organizations",
-          "Permission Groups",
-          "Projects",
-          "Sites",
-          "Site Sharing",
-          "SSO/SAML",
-          "Team members",
-        ],
+        values: "data.article_topics",
       },
     },
   },

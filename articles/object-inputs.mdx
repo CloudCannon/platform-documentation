@@ -26,7 +26,13 @@ related_links: []
 ---
 An Object input lets your team members group other inputs. Object inputs can contain nested inputs of any type, including other Objects and [Arrays](/documentation/articles/array-inputs/). There is no limit to how many nested layers you can create within an Object. Grouping inputs under an Object is useful for organizing your data or hiding complicated or infrequently edited data.
 
-You can populate an Object input by creating a mutable Object with an entry input type or a structured Object. Using a mutable Object, your team can create their own key names and add, delete, clone, and reorder nested keys. Using a structured Object, you can create sets of different keys to populate an Object, allowing your team to choose from several predefined [structures](/documentation/articles/what-is-a-structure/).
+Unlike other input types, the Object input has one type but three subtypes:
+
+* Object
+* Tabbed Object
+* Mutable Object
+
+Input subtype determines the appearance of the Object input.
 
 For each input, you can configure the input subtype, which structures are associated with the input, groups of nested inputs with headings and subheadings, the appearance of the preview card, and how CloudCannon handles empty values. For mutable Objects, you can configure which keys and structures are allowed, add comments and documentation links, and determine label formatting.
 
@@ -34,7 +40,7 @@ You can also use the [general configuration options](/documentation/articles/con
 
 ## Object
 
-The Object input provides a user interface for a group of inputs. Object inputs appear as a [card](/documentation/articles/configure-your-card-previews/) in the Data Editor or sidebar of the Visual or Content Editor, previewing some of the content it contains.
+The Object input provides a user interface for a group of inputs. Object inputs appear as a [Card](/documentation/articles/configure-your-card-previews/) in the Data Editor or sidebar of the Visual or Content Editor, previewing some of the content it contains.
 
 <comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/inputs/object/2024-07/CloudCannon-Documentation-Object-Input-Closed.png" alt="A screenshot of the Object input in the Data Editor, showing a preview of the content within the Object." title="The Object input" type="ui-snippet"/>
 
@@ -42,7 +48,7 @@ When you click on the Object card, it will open to show the nested inputs within
 
 <comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/inputs/object/2024-07/CloudCannon-Documentation-Object-Input-Open.png" alt="A screenshot of the Object input in the Data Editor, showing the nested inputs within the Object." title="The Object input expanded" type="ui-snippet"/>
 
-You can configure an Object input using the `type` key with the value `object`. Define the `type` key under your input key name within `_inputs`. For more information, please read our documentation on [configuring your inputs](/documentation/articles/configure-your-inputs/).
+You can configure a tabbed Object input using the `type` key with the value `object`, and the `subtype` key with the value `object`. Define the `type` key under your input key name within `_inputs` and the `subtype` key under `options`. For more information, please read our documentation on [configuring your inputs](/documentation/articles/configure-your-inputs/).
 
 <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
 ```
@@ -50,6 +56,8 @@ You can configure an Object input using the `type` key with the value `object`. 
 _inputs___1___:
   seo___2___:
     type___3___: object
+    options:
+      subtype: object
 
 ```
 <comp.Annotation number="1">
@@ -71,6 +79,7 @@ Once configured, the Object input will appear in the Data Editor or sidebar of t
 
 <comp.CodeBlock language="Markdown" source="blog.md">
 ```
+
 ---
 seo:
   title: How you can optimize publishing workflows for your content team
@@ -79,30 +88,91 @@ seo:
 ---
 
 Blog content goes here.
+
 ```
 </comp.CodeBlock>
+
+## Tabbed Object
+
+The Tabbed Object input provides a user interface for a group of inputs. Tabbed Objects look the same as a default Object input on the top scope: a [Card](/documentation/articles/configure-your-card-previews/) previewing some of the content it contains.
+
+However, when you click on the Object Card it will open to show the first level of nested inputs within that Object as tabs. You can have an unlimited number of tabs at this level.
+
+<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/inputs/object/2024-10/CloudCannon-Documentation-Tabbed-Object-First-Tab.png" alt="A screenshot of a Tabbed Object input shows two tabs at the top, one for each nested object." title="A Tabbed Object input" type="ui-snippet"/>
+
+<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/inputs/object/2024-10/CloudCannon-Documentation-Tabbed-Object-Second-Tab.png" alt="A screenshot of a Tabbed Object input shows two tabs at the top, one for each nested object." title="A Tabbed Object input" type="ui-snippet"/>
+
+Clicking on a tab will show the nested inputs within your first level nested keys. Tabbed objects are useful if you want to display objects with two or more layers of nested keys in a more intuitive manner.
+
+You can configure a tabbed Object input using the `type` key with the value `object`, and the `subtype` key with the value `tabbed`. Define the `type` key under your input key name within `_inputs` and the `subtype` key under `options`. For more information, please read our documentation on [configuring your inputs](/documentation/articles/configure-your-inputs/).
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+```
+
+_inputs___1___:
+  seo___2___:
+    type___3___: object
+    options:
+      subtype: tabbed
+
+```
+<comp.Annotation number="1">
+  All inputs are defined under the `_inputs` key, regardless of where they are in the [configuration cascade](/documentation/articles/using-the-configuration-cascade/).
+</comp.Annotation>
+<comp.Annotation number="2">
+  This Object input is called `seo`.
+</comp.Annotation>
+<comp.Annotation number="3">
+  The value of the `type` key determines the input type. This is an `object` input.
+</comp.Annotation>
+</comp.MultiCodeBlock>
+
+## Mutable Object
+
+The Mutable Object input provides a user interface for a group of inputs. Mutable Object inputs have a different appearance in the Data Editor and the sidebar of the Visual or Content Editor to default Object inputs. Rather than clicking on the Object input card to view the nested keys, all the nested keys are visible at the top scope of the input.
+
+<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/inputs/object/2024-07/CloudCannon-Documentation-Mutable-Object-Input.png" alt="A screenshot of a mutable Object input in the Data Editor, showing the nested inputs at the parent scope." title="A mutable Object input" type="ui-snippet"/>
+
+A Mutable Object allows your team to add, delete, clone, rename, and reorder nested keys. Mutable Objects function similarly to [Array](/documantation/articles/array-inputs/) inputs, except they do not allow multiple nested keys with the same name.
+
+You can configure a tabbed Object input using the `type` key with the value `object`, and the `subtype` key with the value `mutable`. Define the `type` key under your input key name within `_inputs` and the `subtype` key under `options`. For more information, please read our documentation on [configuring your inputs](/documentation/articles/configure-your-inputs/).
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+```
+
+_inputs___1___:
+  seo___2___:
+    type___3___: object
+    options:
+      subtype: mutable
+
+```
+<comp.Annotation number="1">
+  All inputs are defined under the `_inputs` key, regardless of where they are in the [configuration cascade](/documentation/articles/using-the-configuration-cascade/).
+</comp.Annotation>
+<comp.Annotation number="2">
+  This Object input is called `seo`.
+</comp.Annotation>
+<comp.Annotation number="3">
+  The value of the `type` key determines the input type. This is an `object` input.
+</comp.Annotation>
+</comp.MultiCodeBlock>
 
 ## Populating an Object input
 
 Without additional configuration, default Object inputs become misconfigured when empty.
 
-In default Object inputs, CloudCannon will clone the last entry in the Object to add a new nested key. This method is not possible with an empty Object. You can configure a mutable Object with an entry input type or create a structure to avoid this issue and support empty Objects.
+In unconfigured Object inputs, CloudCannon will clone the last entry in the Object to add a new nested key. This method is not possible with an empty Object. You can configure an entry input type for your Mutable Objects or create a Structure
+
+mutable Object with an entry input type or create a structure to avoid this issue and support empty Objects.
 
 Mutable Objects and structured Objects are mutually exclusive and have different configuration options.
 
-### Mutable Object with an entry input type
+### Entry input types for Mutable Objects
 
-A mutable Object allows your team to add, delete, clone, rename, and reorder nested keys. Mutable Objects function similarly to [Array](/documantation/articles/array-inputs/) inputs, except they do not allow multiple nested keys with the same name.
-
-Mutable Object inputs have a different appearance in the Data Editor and the sidebar of the Visual or Content Editor to default Object inputs. Rather than clicking on the Object input card to view the nested keys, all the nested keys are visible at the top scope of the input.
-
-<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/inputs/object/2024-07/CloudCannon-Documentation-Mutable-Object-Input.png" alt="A screenshot of a mutable Object input in the Data Editor, showing the nested inputs at the parent scope." title="A mutable Object input" type="ui-snippet"/>
-
-Although not required, we highly recommend configuring the entry input type for your mutable Objects. Without an entry input type, CloudCannon will prevent you from deleting a nested key within an Object if it is the only nested key remaining to avoid misconfiguration.
+Although not required, we highly recommend configuring the entry input type for your Mutable Objects. Without an entry input type, CloudCannon will prevent you from deleting a nested key within an Object if it is the only nested key remaining to avoid misconfiguration.
 
 The entry input type defines what type of input CloudCannon should use to populate an Object or [Array](/documentation/articles/array-inputs/). Configuring the entry input type allows an Object input to be empty without becoming misconfigured. All new nested keys added to an Object input will match the input type specified by the entry input type. Additionally, CloudCannon can repopulate the input if you delete the contents of the Object or create a new instance of that input.
-
-You can configure a mutable Object input using the `subtype` key with the value `mutable`. Define the `subtype` key under `options` within your input key name.
 
 You can define the entry input type for your Object input under the `_inputs` key. To specify future entries within a particular Object, use the key name of the Object followed by the `.*` characters. Define the type of input for those entries with the `type` key.
 
@@ -130,25 +200,25 @@ _inputs:
   CloudCannon allows your team members to name keys within mutable Objects anything they like, which can quickly lead to data inconsistency. You can address this issue by configuring the `entries` option for your mutable Object to define the allowed key names, reference [structures](/documentation/articles/what-is-a-structure/) to populate your keys, and assign specific structures to key names.
 </comp.Notice>
 
-### Structured Object
+### Structures
 
-A structured Object allows your team to select a predefined template to populate the input.
+A structure allows your team to select a predefined template to populate an Object input. We recommend using Structures for your default and Tabbed Objects.
 
 <comp.Notice info_type="info">
   This input type relies on structures. For more information about how to configure structures, please read our [structures documentation](/documentation/articles/what-is-a-structure/).
 </comp.Notice>
 
-Structured Object inputs appear similar to the default input. However, unlike the default Object input, you can easily add content to your Object using the *\+ Add* button — the text on this button will differ depending on the key name of your input.
+Object inputs with Structures appear similar to the default input. However, unlike the default Object input, you can easily add content to your Object using the *\+ Add* button — the text on this button will differ depending on the key name of your input. If you configure more that one Structure for you input, every option will appear in the *\+ Add* button dropdown.
 
 <comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/inputs/object/2024-07/CloudCannon-Documentation-Structured-Object-Input-Empty.png" alt="A screenshot of an empty Object input in the Data Editor, showing a dropdown to select a structure to populate the Object." title="An empty Object input" type="ui-snippet"/>
 
-Structured Object inputs avoid the issue of becoming misconfigured when empty. Because you have configured at least one structure and linked it to your input, CloudCannon can repopulate the input if you delete the contents of the Object or create a new instance of that input.
+Configuring a Structure for your Object avoids the input becoming misconfigured when empty. CloudCannon can repopulate the input if you delete the contents of the Object or create a new instance of that input.
 
 <comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/inputs/object/2024-07/CloudCannon-Documentation-Structured-Object-Input-Closed.png" alt="A screenshot of the Object input in the Data Editor, showing a preview of the content within the Object." title="The Object input" type="ui-snippet"/>
 
 <comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/inputs/object/2024-07/CloudCannon-Documentation-Structured-Object-Input-Open.png" alt="A screenshot of the Object input in the Data Editor, showing the nested inputs within the Object." title="The Object input expanded" type="ui-snippet"/>
 
-You can configure an Object input using the `structures` key. Define the `structures` key under `options` within your input key name. The value of the `structures` key can be a string or an object.
+You can configure a Structure for an Object input using the `structures` key. Define the `structures` key under `options` within your input key name. The value of the `structures` key can be a string or an object.
 
 If you have defined your structures elsewhere under the `_structures` key, you can reference it by using the key name as the value (i.e., `_structures.key_name`).
 
@@ -259,8 +329,8 @@ Object inputs have the following options available:
     If configured as a string, CloudCannon will use the matching structures value defined under `_structures` in the [configuration cascade](/documentation/articles/using-the-configuration-cascade/).
 
     <comp.Notice info_type="info">
-                                                                                                                      This key looks similar to `entries.structures`. However, the `structures` key applies to the Object input itself, while `entries.structures` applies to the entries within the object.
-                                                                                                                    </comp.Notice>
+      This key looks similar to `entries.structures`. However, the `structures` key applies to the Object input itself, while `entries.structures` applies to the entries within the object.
+    </comp.Notice>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="groups" type_markdown="array of keys">
     This key allows you to group nested inputs within the Object Input together without changing the data structure. The following nested keys are available:
@@ -310,8 +380,8 @@ Object inputs have the following options available:
     For more information about previews, please read our documentation on [configuring card previews](/documentation/articles/configure-your-card-previews/).
 
     <comp.Notice info_type="info">
-                                                                                                                  Object inputs now support the new `preview` option. [Read our migration guide](/documentation/articles/migrating-to-preview-options/) if you are still using the old options: `text_key`, `subtext_key`, `image_key` and `icon`.
-                                                                                                                </comp.Notice>
+      Object inputs now support the new `preview` option. [Read our migration guide](/documentation/articles/migrating-to-preview-options/) if you are still using the old options: `text_key`, `subtext_key`, `image_key` and `icon`.
+    </comp.Notice>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="preview.text" type_markdown="array, string, or boolean">
     This key determines the title text displayed on a default Object Input card. This key has no default, and falls back to the first nested value found (prioritizing text-based values).
@@ -419,8 +489,8 @@ _inputs:
     Available for Mutable Objects only.
 
     <comp.Notice info_type="info">
-                                                                                                              This key looks similar to `structures`. However, the `structures` key applies to the Object input itself, while `entries.structures` applies to the entries within the object.
-                                                                                                            </comp.Notice>
+      This key looks similar to `structures`. However, the `structures` key applies to the Object input itself, while `entries.structures` applies to the entries within the object.
+    </comp.Notice>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="entries.assigned_structures" type_markdown="object">
     This key enables you to assign structures to specific key names for entries in the Object Input. When selecting an entry key name, CloudCannon will prompt to to choose one of the assigned structures for that allowed key. Structure values are referred to by their `id`.
@@ -456,10 +526,12 @@ CloudCannon will interpret any unconfigured input with nested keys as an Object 
 
 <comp.CodeBlock language="YAML" source="data.yml">
 ```
+
 company_photo:
   image:
   date:
   description:
+
 ```
 </comp.CodeBlock>
 
