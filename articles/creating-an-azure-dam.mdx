@@ -17,20 +17,11 @@ You will need an Azure account to use Blob Storage.
 
 ### Settings in Azure
 
-You will need to configure the *Resource sharing (CORS)* settings in Azure Blob Storage to allow access from CloudCannon.
+You will need to configure the *Resource sharing (CORS)* settings in Azure Blob Storage to allow access from CloudCannon. Ensure that your CORS policies include a single rule with all of the following details:
 
-Add a CORS rule with `https://app.cloudcannon.com` in the *AllowedOrigins* and `GET, PUT` in the *AllowedMethods*.
-
-<comp.CodeBlock language="xml" source="CORS">
-```
-<Cors>
-  <CorsRule>  
-    <AllowedOrigins>https://app.cloudcannon.com</AllowedOrigins>  
-    <AllowedMethods>PUT,GET</AllowedMethods>  
-  </CorsRule>  
-<Cors>  
-```
-</comp.CodeBlock>
+* *AllowedOrigins* must include `https://app.cloudcannon.com`
+* *AllowedMethods* must include `GET` and `PUT`.
+* *AllowedHeaders* must include at least `content-type`, `x-ms-blob-type`, `x-ms-client-request-id`, `x-ms-version`. You will also need `x-ms-blob-content-type` unless this has been disabled in Advanced Options. See the section below about metadata for more details.
 
 ### Connecting your DAM to CloudCannon
 
@@ -48,11 +39,11 @@ Click **Authenticate**, to save and close the modal, then click **Link DAM**.
 
 ### Attach metadata to uploaded files
 
-You can toggle the option to attach metadata to your files when they are uploaded. This could include the email address of the uploader and the file MIME type.
+You can toggle the option to attach metadata to your files when they are uploaded.
 
-By default, the `uploadedBy` metadata option is off for new DAMs. To enable this setting, you may need to update your "Resource sharing (CORS)" settings in Azure. Please ensure that the *AllowedHeaders* include `x-ms-meta-uploadedBy`.
+The *Email of user* option will attach a piece of metadata `uploadedBy` to files uploaded to Azure from CloudCannon, with the email of the user who uploaded them. To enable this setting, you may need to update your "Resource sharing (CORS)" settings in Azure. Please ensure that the *AllowedHeaders* include `x-ms-meta-uploadedBy`.
 
-By default, the MIME type metadata option is on for new DAM. To enable this setting, you may need to update your "Resource sharing (CORS)" settings in Azure. Please ensure that the *AllowedHeaders* include `x-ms-blob-content-type`.
+The *X-Ms-Blob-Content-Type* option will set the content type on a file after it has been uploaded to Azure from CloudCannon. If this setting is enabled, you need to update your "Resource sharing (CORS)" settings in Azure, to ensure that the *AllowedHeaders* include `x-ms-blob-content-type`.
 
 To edit these settings, navigate to the _Advanced Options_ section under _Org Settings_ > _Assets_ > _Azure DAM_. Enabling the metadata option will only affect files uploaded after the setting is applied. 
 
