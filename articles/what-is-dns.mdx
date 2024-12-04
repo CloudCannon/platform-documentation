@@ -35,7 +35,7 @@ The *DNS lookup* process involves several servers, each of which contribute to t
 * **DNS Resolver** — The server responsible for translating a domain name into an IP address. This server is maintained by the user's Internet service provider. Also known as a recursive resolver, or a DNS recursor.
 * **Root Nameserver** — The first server in a DNS lookup. This server acts an an index for TLD Nameservers.
 * **TLD Nameserver** — The server responsible for a specific TLD in a URL (i.e., .com, .net, .org, etc.). This server acts as an index for all Authoritative Nameservers with a given TLD.
-* **Authoritative Nameserver** — The server responsible for maintaining the DNS records for a given domain. Often just called "the Name Server".
+* **Authoritative Nameserver** — The server responsible for maintaining the DNS records for a given domain. Often just called "the nameserver".
 * **Web Server** — The server responsible for hosting your website content.
 
 <comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/hosting/what-is-dns/2025-01/CloudCannon-Documentation-DNS-Lookup-Diagram.png" alt="A diagram of the DNS lookup process, where the DNS Resolver contacts various servers for the matching IP address for a given domain name." title="DNS Lookup Diagram" type="photo"/>
@@ -57,9 +57,15 @@ This process only takes milliseconds to complete, so it will not affect the user
 
 In many cases, the user's browser does not have to complete a *DNS lookup* at all, especially if the user is trying to visit a website they have been to before. After the browser has received the correct IP address for a domain name at least once, it caches that information for a period of time. If a user tries to access that domain while the IP address is cached, the browser can skip the *DNS lookup* process.
 
-## What is a Nameserver?
+## What is a nameserver?
 
-* **Nameserver** — A u
+There are many nameservers involved in the *DNS Lookup* process, however, the word "Nameserver" normally refers to the authoritative nameserver, which manages all the DNS records for a particular Domain Name.
+
+* **Nameserver** — Stores DNS records for a given Domain Name.
+
+Almost all domains rely on multiple nameservers for redundancy, a primary and a secondary server. That means if one nameserver goes down, the other can still answer DNS queries.
+
+All nameservers have the store identical DNS records for a Domain Name. Updating the DNS records for the primary nameserver will trigger an update in the secondary server.
 
 ## What are DNS records?
 
@@ -67,25 +73,29 @@ DNS records are instructions for a Domain Name, managed by an authoritative name
 
 Each DNS record has a Time-To-Live (TTL) value, which indicates how often a DNS server should refresh a record to check for updates from the domain owner.
 
+<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/hosting/configure-cloudcannon-dns/2024-11/CloudCannon-Documentation-Domain-Settings-CloudCannon-DNS.png" alt="A screenshot of the Domain Settings page shows the DNS Provider dropdown is set to CloudCannon DNS." title="The Domain Settings page" type="screenshot"/>
+
 CloudCannon DNS supports the following DNS record types: *A*, *AAAA*, *CNAME*, *MX*, *SPF*, *SRV*, and *TXT*.
 
 * **Address (A) Record** — Specifies the IP address for a given Domain Name in IPv4 format (e.g., 93.184.216.34). This record allows you to access a website if you only know the Domain Name, or block mail from a specific source.
 * **Address (AAAA) Record** — Specifies the IP address for a given Domain Name in IPv6 format (e.g., 3001:0db7:3c5d:0024:0000:0000:1a2f:3c1b). IPv6 is a newer format of IPv4, offering a longer string and more string combinations to increase the number of unique IP addresses available.
 * **Canonical Name (CNAME) Record** — Specifies the canonical Domain Name for an alias domain. Often used for subdomains (e.g., users looking for the IP address for www.example.com will be redirected to example.com) or for hosting platforms.
 * **Email Exchange (MX) Record** — Specifies where emails for a given Domain Name should be routed to.
-* **Sender Policy Framework (SPF) Record** — Specifies which servers are authorized to send emails from a given Domain Name. "SPF" stands for "sender policy framework".
+* **Sender Policy Framework (SPF) Record** — Specifies which servers are authorized to send emails from a given Domain Name.
 * **Service (SRV) Record** — Specifies the host and port number for services the need to connect to a specific port.
 * **Text (TXT) Record** — Can store any text string, but is commonly used to verify ownership of a Domain Name.
 
 Other records
 
-* **Nameserver (NS) Record** —
+* **Nameserver (NS) Record** — Specifies which nameserver is authoritative for a given Domain Name.
+
+Instead of configuring NS records in CloudCannon, you update your nameservers with your Domain Registrar. For more information, please read our documentation on [configuring CloudCannon DNS](/documentation/articles/configure-cloudcannon-dns/).
 
 ## DNS types
 
 On CloudCannon, any Site with a [Custom Domain](/documentation/articles/what-is-a-custom-domain/) can use [CloudCannon DNS](/documentation/articles/configure-cloudcannon-dns/) or an [external DNS](/documentation/articles/configure-external-dns/).
 
-* **CloudCannon DNS** —
+* **CloudCannon DNS** — Manage your DNS records through CloudCannon.
 * **External DNS** —
 
 CloudCannon offers free DNS services by default through Cloudflare. For more information, please read our documentation on [configuring CloudCannon DNS](/documentation/articles/configure-cloudcannon-dns/).
