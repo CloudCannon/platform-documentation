@@ -11,6 +11,8 @@ description: >-
   Learn how to configure your template strings in CloudCannon. Template strings
   are a mix of literal text and placeholders which are replaced with data when
   read by CloudCannon.
+article_category:
+article_topic:
 tags: []
 related_articles: []
 related_links:
@@ -56,10 +58,10 @@ Placeholders support several filters. Filters occur after the placeholder key, w
 * `day` gets a 4-digit day from a date
 * `time` gets the time from a date, in a 12-hour format (e.g. 12:30pm)
 * `timezone` gets the timezone from a date
-* `date_short` gets a short date format (e.g. 7/07/22)
-* `date_medium` gets a medium date format (e.g. 7/07/2022)
-* `date_long` gets a long date format (e.g. 7 June 2022)
-* `date_full` gets a longer date format (e.g. Tuesday, 7 June 2022)
+* `date_short` gets a short date format (e.g. 7/12/2022)
+* `date_medium` gets a medium date format (e.g. 7 Dec 2022)
+* `date_long` gets a long date format (e.g. 7 December 2022)
+* `date_full` gets a longer date format (e.g. Tuesday, 7 December 2022)
 * `time` gets the time (e.g. 1:00pm)
 * `time_short` gets a short time format (e.g. 1:00 pm)
 * `time_medium` gets a medium time format (e.g. 1:00:00 pm)
@@ -85,10 +87,12 @@ Let's go through some examples for the following file:
 
 <comp.CodeBlock language="yaml" source="short-message.mdx">
 ```
+
 date: 2020-01-02
 empty_value:
 message: "Hello World"
 draft: false
+
 ```
 </comp.CodeBlock>
 
@@ -96,8 +100,9 @@ In the above file we have four keys containing different data types: `date`, `em
 
 Here are some examples of how we can transform this data using different filters:
 
-<comp.CodeBlock language="annotated" source="">
+<comp.CodeBlock language="annotated">
 ```
+
 {date|day}-{date|month}-{date|year} {date|time} ({date|timezone}) #1
 // 01-02-2020 00:00am (Etc/UTC)
 
@@ -115,20 +120,27 @@ Here are some examples of how we can transform this data using different filters
 
 {"Unpublished"|if=draft|default="Published"} #6
 // Published
+
 ```
 <comp.Annotation number="1">
   We can use multiple date filters to control the output string. This template string uses dynamic data placeholders and literal text characters, such as `-` and `()`.
-</comp.Annotation> <comp.Annotation number="2">
+</comp.Annotation>
+<comp.Annotation number="2">
   We can convert text strings to `uppercase` and `truncate` the number of characters to five.
-</comp.Annotation> <comp.Annotation number="3">
+</comp.Annotation>
+<comp.Annotation number="3">
   We can print the value of a key if a value exists using the `if` filter.
-</comp.Annotation> <comp.Annotation number="4">
+</comp.Annotation>
+<comp.Annotation number="4">
   We can print the value of a key based on the value of another key using the `unless` filter. In this case, we print the value of `message` because `empty_value` is falsy.
-</comp.Annotation> <comp.Annotation number="5">
+</comp.Annotation>
+<comp.Annotation number="5">
   We can create a fallback option when a placeholder resolves to an empty result using the `default` filter. In this case, "Nothing here!" is printed because `empty_value` contains no value.
-</comp.Annotation> <comp.Annotation number="6">
+</comp.Annotation>
+<comp.Annotation number="6">
   We can use multiple filters to check if a key contains a value and create a fallback string if that key is falsy.
-</comp.Annotation></comp.CodeBlock>
+</comp.Annotation>
+</comp.CodeBlock>
 
 ### Filtering nested keys and arrays
 
@@ -136,8 +148,9 @@ Data placeholders can reference nested keys in your front matter or other data v
 
 Here is an example file:
 
-<comp.CodeBlock language="YAML" source="">
+<comp.CodeBlock language="YAML">
 ```
+
 links:
   - url: /documentation
     text: Learn more
@@ -150,6 +163,7 @@ seo:
   tags:
     - 'sales'
     - 'documentation'
+
 ```
 </comp.CodeBlock>
 
@@ -161,8 +175,9 @@ Here are some examples of how we can transform this data using different filters
   When you use `[*]` to reference each item within an array, CloudCannon will join the final output into a single string, separating each value with a comma and a space.
 </comp.Notice>
 
-<comp.CodeBlock language="annotated" source="">
+<comp.CodeBlock language="annotated">
 ```
+
 {seo.description} #1
 // Description goes here
 
@@ -174,13 +189,18 @@ Here are some examples of how we can transform this data using different filters
 
 {links[*].text|default="No text"} #4
 // Learn more, Read more, No text
+
 ```
 <comp.Annotation number="1">
   We can print the value of a nested key.
-</comp.Annotation> <comp.Annotation number="2">
+</comp.Annotation>
+<comp.Annotation number="2">
   We can print the value of a specific key within an array.
-</comp.Annotation> <comp.Annotation number="3">
+</comp.Annotation>
+<comp.Annotation number="3">
   We can print the value of every item within an array and filter the result with `uppercase`. CloudCannon automatically joins the final output into a single string.
-</comp.Annotation> <comp.Annotation number="4">
+</comp.Annotation>
+<comp.Annotation number="4">
   We can search an array using and print the value of a key each time it appears in that array. If one key is empty, we can use a fallback value using the `default` filter.
-</comp.Annotation></comp.CodeBlock>
+</comp.Annotation>
+</comp.CodeBlock>
