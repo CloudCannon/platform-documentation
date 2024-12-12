@@ -13,10 +13,13 @@ const common_content_files = fg.sync([
 console.log(`Loading common content from ${common_content_files.join(", ")}`);
 
 const ssg_data = yaml.load(
-  fs.readFileSync(path.join(__dirname, "_data/ssgs.yml"), "utf8")
+  fs.readFileSync(path.join(__dirname, "_data/ssgs.yml"), "utf8"),
 );
 const guide_series_data = yaml.load(
-  fs.readFileSync(path.join(__dirname, "_data/guide_series.yml"), "utf8")
+  fs.readFileSync(path.join(__dirname, "_data/guide_series.yml"), "utf8"),
+);
+const docshot_data = yaml.load(
+  fs.readFileSync(path.join(__dirname, "_data/docshots.yml"), "utf8"),
 );
 
 for (const common_content_file of common_content_files) {
@@ -47,26 +50,26 @@ for (const common_content_file of common_content_files) {
   common_content_structures.push(structure_value);
 }
 
-const snip = (name) =>
-  path.join(__dirname, `.cloudcannon/snippets/${name}.json`);
+const snip = (name) => path.join(__dirname, `.cloudcannon/snippets/${name}`);
 
 const _snippets = {
-  ...require(snip("code_block")),
-  ...require(snip("data_reference")),
-  ...require(snip("docs_image")),
-  ...require(snip("docs_video")),
-  ...require(snip("multi_code_block")),
-  ...require(snip("notice")),
-  ...require(snip("tabs")),
-  ...require(snip("youtube")),
-  ...require(snip("example")),
-  ...require(snip("common_content")),
-  ...require(snip("common_content_param")),
-  ...require(snip("system_version_default")),
-  ...require(snip("system_version_list")),
-  ...require(snip("slot")),
+  ...require(snip("code_block.json")),
+  ...require(snip("data_reference.json")),
+  ...require(snip("docs_image.json")),
+  ...require(snip("docshot.js"))(docshot_data.source),
+  ...require(snip("docs_video.json")),
+  ...require(snip("multi_code_block.json")),
+  ...require(snip("notice.json")),
+  ...require(snip("tabs.json")),
+  ...require(snip("youtube.json")),
+  ...require(snip("example.json")),
+  ...require(snip("common_content.json")),
+  ...require(snip("common_content_param.json")),
+  ...require(snip("system_version_default.json")),
+  ...require(snip("system_version_list.json")),
+  ...require(snip("slot.json")),
   // Make sure fallbacks comes last ! ! !
-  ...require(snip("fallbacks")),
+  ...require(snip("fallbacks.json")),
 };
 
 module.exports = {
