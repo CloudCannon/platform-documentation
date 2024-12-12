@@ -20,7 +20,7 @@ module.exports = (source) => {
         gallery: {
           image: [
             {
-              key: `https://cc-screenshots.imgix.net/${source}/{docshot_key}.webp`,
+              template: `https://cc-screenshots.imgix.net/${source}/{docshot_key}.webp`,
             },
           ],
         },
