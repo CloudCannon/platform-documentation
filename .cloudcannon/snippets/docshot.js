@@ -38,6 +38,10 @@ module.exports = (source) => {
             show_count: true,
           },
         },
+        docshot_key: {
+          type: "text",
+          comment: "[From DocShots](https://docshots.cloudcannon.com/)",
+        },
       },
       definitions: {
         component_name: "comp.DocShot",
