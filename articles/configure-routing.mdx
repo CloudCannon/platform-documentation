@@ -5,7 +5,8 @@ _created_at: '2021-09-15 23:13:40 +0000'
 title: Configure custom routing
 nav_title: Configure custom routing
 published: true
-image: /documentation/static/CloudCannonDocumentationog.jpg
+image: >-
+  https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
 description: Configure your CloudCannon's hosting by configuring a single json file.
 article_category:
   - Instructions
@@ -24,8 +25,40 @@ related_links:
     url: https://github.com/uhop/node-re2
 ---
 <comp.Notice info_type="important">
-  Custom Routing is only available for Sites hosted through CloudCannon. If you host your Site externally, or use CloudCannon in [Headless Mode](/documentation/articles/what-is-headless-mode/), Custom Routing will not work.
+  Custom Routing is only available for Sites [hosted through CloudCannon](/documentation/articles/what-is-web-hosting/#hosting-on-cloud-cannon). If you host your Site externally, or use CloudCannon in [Headless Mode](/documentation/articles/what-is-headless-mode/), Custom Routing will not work.
 </comp.Notice>
+
+Custom routing allows you to control which content is delivered to your visitors when they enter a URL in their internet browser. You can create custom routing by creating a `routing.json` file in your `.cloudcannon` folder. When a visitor requests your webpage, the file server will also load the `routing.json` file
+
+For a complete list of options available in the `routing.json` file, please read our [routing reference](/documentation/articles/routing-reference/) documentation.
+
+## 301 Redirects
+
+CloudCannon recommends creating 301 redirects to prevent visitors seeing x when they attempt to load any of your old URLs.
+
+* **301 redirect** — a permanent redirect instruction
+
+Permanently redirecting your old page URLs to ... SEO
+
+<comp.Notice info_type="info">
+  Invalid JSON code in the routing.json file will cause your Site [builds](/documentation/articles/what-is-a-site-build/) to fail, protecting the live version of your Site. You can troubleshoot your JSON using the [build output logs](/documentation/articles/what-is-a-site-build/#reading-your-build-output-logs).
+</comp.Notice>
+
+To create a custom routing file:
+
+1. Navigate to the `.cloudcannon` folder using the *File browser*, or create one in the root of your Site.
+2. Click the *\+ Add* button in the top right of the browser and select the *\+ Create new file* option from the dropdown.
+3. Save
+
+If you would prefer, you can can configure a `routing.json` file in your `.cloudcannon` folder using your local development environment.
+
+Here's an example...
+
+&nbsp;
+
+## Custom Headers
+
+&nbsp;
 
 Configure your CloudCannon's hosting by configuring a single JSON file. Create a `routing.json` file in the `.cloudcannon` folder at the root of your file structure. When URLs are loaded through the file server, this file is loaded to extend the default behaviour. Add [custom headers](#custom-headers) and [configure redirects](#redirects) all in one place.
 
@@ -42,27 +75,6 @@ Routes are useful in two cases:
 
 Configure your `routing.json` to include an array under the `routes` key with the following keys:
 
-<comp.DataReference>
-  <comp.DataReferenceRow label="from" type_markdown="Regex (Implemented using [re2](https://github.com/uhop/node-re2))">
-    A regular expression or plain string defining the url to match. The urls will always start with a / character. Implicit ^ and $ on each value.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="to" type_markdown="String">
-    The new URL to replace the current path including [regex parameters](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/replace#specifying_a_string_as_a_parameter).
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="status" type_markdown="Number">
-    One of 200, 301, 302, 307, 308, 404, or 410. Used to define the [HTTP status code](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status) to use on the route.
-
-    301, 302, 307 and 308 codes trigger a redirect to a new location resulting in two requests.
-
-    200, 404, and 410 change the URL that is served resulting in a single request. When using these statuses, the "to" field must refer to a path on the same site, with the domain and protocol excluded.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="forced" type_markdown="Boolean">
-    If forced is true (default), the redirect will take priority. If forced is false, the redirect will only run if no file exists on that route. This is useful if you have a greedy regex that you don't want interfering with existing routes.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="substitutions" type_markdown="Boolean">
-    If substitutions is true (default), the `to` option can use regex parameters. If substitutions is false, the `to` option will be used as is. This is useful if you have a URL with characters that resemble the regex parameters.
-  </comp.DataReferenceRow>
-</comp.DataReference>
 
 <comp.CodeBlock language="json" source=".cloudcannon/routing.json">
 ```
@@ -100,52 +112,8 @@ Redirects will only occur if the `from` url doesn't resolve to a file. Rules are
 
 Configure extra headers on any route. Meet security needs or change some behaviour. Configure your `routing.json` to include an array under the `headers` key with the following keys:
 
-<comp.DataReference>
-  <comp.DataReferenceRow label="match" type_markdown="Regex (Implemented using [re2](https://github.com/uhop/node-re2))">
-    A regular expression or plain string defining the url to match. The urls will always start with a / character. Implicit ^ and $ on each value.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="headers" type_markdown="Array">
-    A list of header names and values to add to the matching request
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="headers.name" type_markdown="String">
-    The name of the header to configure. Allowed values are
 
-    * 'strict-transport-security'
 
-    * 'x-robots-tag'
-
-    * 'x-content-type-options'
-
-    * 'x-frame-options'
-
-    * 'x-xss-protection'
-
-    * 'access-control-allow-origin'
-
-    * 'access-control-allow-headers'
-
-    * 'access-control-allow-methods'
-
-    * 'content-security-policy'
-
-    * 'content-security-policy-report-only'
-
-    * 'expect-ct'
-
-    * 'sourcemap'
-
-    * 'large-allocation'
-
-    * 'content-type'
-
-    * 'referrer-policy'
-
-    * 'permissions-policy'
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="headers.value" type_markdown="String">
-    The value to return in the header
-  </comp.DataReferenceRow>
-</comp.DataReference>
 
 <comp.CodeBlock language="json" source=".cloudcannon/routing.json">
 ```
