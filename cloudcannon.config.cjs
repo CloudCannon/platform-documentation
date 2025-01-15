@@ -261,7 +261,7 @@ module.exports = {
     changelog: {
       path: "changelogs",
       output: true,
-      icon: "newspaper,
+      icon: "newspaper",
       url: (filePath) => {
         const regex =
           /^changelogs\/([0-9]{4})\-([0-9]{2})\-([0-9]{2})_(.+)\.mdx?/;
