@@ -28,11 +28,14 @@ related_links:
   Custom routing is only available for Sites [hosted through CloudCannon](/documentation/articles/what-is-web-hosting/#hosting-on-cloud-cannon). If you host your Site externally, or use CloudCannon in [Headless Mode](/documentation/articles/what-is-headless-mode/), custom routing will not work.
 </comp.Notice>
 
-Custom routing allows you to control which content is delivered to your visitors when they enter a URL in their internet browser. You can create custom routing by creating a `routing.json` file in your `.cloudcannon` folder. When a visitor requests your webpage, the file server will also load the `routing.json` file
+Custom routing allows you to control which content is delivered to your visitors when they enter a URL in their internet browser. You can create custom routing by creating a `routing.json` file in your `.cloudcannon` folder. When a visitor requests your webpage, the file server will also load the `routing.json` file to extend the default routing behavior.
 
-&nbsp;
+Your custom routing file can specify [redirects](/documentation/articles/configure-custom-routing/#custom-redirects) and [headers](/documentation/articles/configure-custom-routing/#custom-headers).
 
-To create a custom routing file:
+* **Custom redirect** — a permanent redirect instruction
+* **Custom header** — a permanent redirect instruction
+
+To create a blank custom routing file:
 
 1. Navigate to the `.cloudcannon` folder using the *File browser*, or create one in the root of your Site.
 2. Click the *\+ Add* button in the top right of the browser and select the *\+ Create new file* option from the dropdown. CloudCannon will open a blank `.txt` file in the Source Editor.
@@ -49,56 +52,50 @@ If you would prefer, you can also create a `routing.json` file using your local 
 
 &nbsp;
 
+&nbsp;
+
+&nbsp;
+
 For a complete list of options available in the `routing.json` file, please read our [routing reference](/documentation/articles/routing-reference/) documentation.
 
 ## Custom Redirects
 
-&nbsp;
+Custom redirects control what content is delivered to a visitor when they attempt to visit a URL
 
-A custom redirect will only occur if the `from` URL does not resolve when a visitor attempts to load the page. CloudCannon reads your redirects in order, and will use the earliest matching rule for a given `from` URL. Duplicate rule are ignored.
+Redirects have three parts: the `from` URL, the `to` URL, and the `status` code.
 
-<comp.Notice info_type="info">
-  You can redirect to, but not from a URL fragment (e.g. example.com/blog/#heading). The URL fragment is not passed to the server so, it cannot be processed by the redirect.
-</comp.Notice>
+* **From** — a
+* **To** — a
+* **Status** — a
 
 &nbsp;
 
 CloudCannon recommends creating 301 redirects to prevent visitors seeing x when they attempt to load any of your old URLs.
 
-* 200
-* **301 redirect** — a permanent redirect instruction
-* **302, 307, 308, 404, or 410**
+* 200 — a
+* **301** — a permanent redirect instruction
+* **302** — a
+* **307** — a
+* **308** — a
+* **404** — a
+* **410** — a
+
+A custom redirect will only occur if the `from` URL does not resolve when a visitor attempts to load the page. CloudCannon reads your redirects in order, and will use the earliest matching rule for a given `from` URL. Duplicate rules are ignored.
+
+<comp.Notice info_type="info">
+  You can redirect to, but not from a URL fragment (e.g. example.com/blog/#heading). The URL fragment is not passed to the server so, it cannot be processed by the redirect.
+</comp.Notice>
 
 Permanently redirecting your old page URLs to ... SEO
 
 &nbsp;
 
+To add custom redirects to your `routing.json` file:
+
+1. Navigate to the `.cloudcannon` folder in your *File browser* and click on the `routing.json` file. CloudCannon will open `routing.json` in the Source Editor.
+2. &nbsp;
+
 Here's an example...
-
-&nbsp;
-
-## Custom Headers
-
-&nbsp;
-
-&nbsp;
-
-&nbsp;
-
-Configure your CloudCannon's hosting by configuring a single JSON file. Create a `routing.json` file in the `.cloudcannon` folder at the root of your file structure. When URLs are loaded through the file server, this file is loaded to extend the default behaviour. Add [custom headers](#custom-headers) and [configure redirects](#redirects) all in one place.
-
-<comp.Notice info_type="info">
-  Producing invalid JSON in this file will break the build and prevent hosting being impacted. Error messages will be available in the build output.
-</comp.Notice>
-
-### Routes
-
-Routes are useful in two cases:
-
-1. **Redirects**: When you change your website’s structure, you should redirect the old URLs to the new pages. This ensures external links pointing to the old content and search engines can be redirected.
-2. **Push state routing**: Certain SSGs output a single html file that is expected to load on multiple routes. JavaScript on that page will load different content based on the url.
-
-Configure your `routing.json` to include an array under the `routes` key with the following keys:
 
 <comp.CodeBlock language="json" source=".cloudcannon/routing.json">
 ```
@@ -112,13 +109,13 @@ Configure your `routing.json` to include an array under the `routes` key with th
     },
     {
       "from": "/cloudcannon/(.*)",
-      "status": 302,
-      "to": "https://cloudcannon.com/$1"
+      "to": "https://cloudcannon.com/$1",
+      "status": 302
     },
     {
       "from": "/app/(.*)",
+      "to": "/app/",
       "status": 200,
-      "to": "/app/"
     }
   ]
 }
@@ -126,7 +123,26 @@ Configure your `routing.json` to include an array under the `routes` key with th
 ```
 </comp.CodeBlock>
 
-Redirects will only occur if the `from` url doesn't resolve to a file. Rules are read in order and the earliest matching rule is used.
+&nbsp;
+
+## Custom Headers
+
+&nbsp;
+
+&nbsp;
+
+&nbsp;
+
+### Routes
+
+Routes are useful in two cases:
+
+1. **Redirects**: When you change your website’s structure, you should redirect the old URLs to the new pages. This ensures external links pointing to the old content and search engines can be redirected.
+2. **Push state routing**: Certain SSGs output a single html file that is expected to load on multiple routes. JavaScript on that page will load different content based on the url.
+
+Configure your `routing.json` to include an array under the `routes` key with the following keys:
+
+&nbsp;
 
 ### Custom Headers
 
