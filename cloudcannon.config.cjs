@@ -208,7 +208,7 @@ module.exports = {
     guides: {
       path: "guides",
       output: true,
-      icon: "school",
+      icon: "handshake",
       url: "/guides/[relative_base_path]/[slug]/",
       parser: "front-matter",
       schemas: {
@@ -246,10 +246,22 @@ module.exports = {
         },
       },
     },
+    reference: {
+      path: "reference",
+      output: true,
+      icon: "fact_check",
+      url: "/reference/[slug]/",
+      parser: "front-matter",
+      schemas: {
+        default: {
+          path: ".cloudcannon/schemas/reference.mdx",
+        },
+      },
+    },
     changelog: {
       path: "changelogs",
       output: true,
-      icon: "tips_and_updates",
+      icon: "newspaper,
       url: (filePath) => {
         const regex =
           /^changelogs\/([0-9]{4})\-([0-9]{2})\-([0-9]{2})_(.+)\.mdx?/;
