@@ -30,10 +30,14 @@ related_links:
 
 Custom routing allows you to control which content is delivered to your visitors when they enter a URL in their internet browser. You can create custom routing by creating a `routing.json` file in your `.cloudcannon` folder. When a visitor requests your webpage, the file server will also load the `routing.json` file to extend the default routing behavior.
 
-Your custom routing file can specify [redirects](/documentation/articles/configure-custom-routing/#custom-redirects) and [headers](/documentation/articles/configure-custom-routing/#custom-headers).
+Your custom routing file can specify [redirects](/documentation/articles/configure-custom-routing/#custom-redirects) and [headers](/documentation/articles/configure-custom-routing/#custom-headers) using JSON code.
 
-* **Custom redirect** — a permanent redirect instruction
-* **Custom header** — a permanent redirect instruction
+* **Custom redirect** — a
+* **Custom header** — a
+
+<comp.Notice info_type="info">
+  Invalid JSON code in the routing.json file will cause your Site [builds](/documentation/articles/what-is-a-site-build/) to fail, protecting the live version of your Site. You can troubleshoot your JSON using the [build output logs](/documentation/articles/what-is-a-site-build/#reading-your-build-output-logs).
+</comp.Notice>
 
 To create a blank custom routing file:
 
@@ -46,54 +50,45 @@ CloudCannon will save a blank `routing.json` file in your `.cloudcannon` folder.
 
 If you would prefer, you can also create a `routing.json` file using your local development environment.
 
-<comp.Notice info_type="info">
-  Invalid JSON code in the routing.json file will cause your Site [builds](/documentation/articles/what-is-a-site-build/) to fail, protecting the live version of your Site. You can troubleshoot your JSON using the [build output logs](/documentation/articles/what-is-a-site-build/#reading-your-build-output-logs).
-</comp.Notice>
-
-&nbsp;
-
-&nbsp;
-
-&nbsp;
-
 For a complete list of options available in the `routing.json` file, please read our [routing reference](/documentation/articles/routing-reference/) documentation.
 
 ## Custom Redirects
 
-Custom redirects control what content is delivered to a visitor when they attempt to visit a URL
+Custom redirects control what content is delivered to a visitor when they attempt to visit a URL. Redirects have three parts: the `from` URL, the `to` URL, and the `status` code.
 
-Redirects have three parts: the `from` URL, the `to` URL, and the `status` code.
+* **From** — Specifies which URL should trigger this redirect rule.
+* **To** — Specifies which URL the visitor should be redirected to.
+* **Status** — Tells the visitor's browser the reason for the redirect.
 
-* **From** — a
-* **To** — a
-* **Status** — a
+CloudCannon allows the following [HTTP status codes](https://en.wikipedia.org/wiki/List_of_HTTP_status_codes):
 
-&nbsp;
+* **200** — Indicates the request was successful.
+* **301** — Indicates the requested URL has been changed permanently and specifies the new URL in the response.
+* **302** — Indicates the requested URL has been changed temporarily and the file server should continue to use the original URL in future requests.
+* **307** — Indicates the requested URL has been changed temporarily and the file server should continue to use the original URL in future requests. This is similar to a 302 code however it does not allow the HTTP method to change.
+* **308** — Indicates the requested URL has been changed permanently and the file server should continue to use the original URL in future requests. This is similar to a 301 code however it does not allow the HTTP method to change.
+* **404** — Indicates the requested URL could not be found.
+* **410** — Indicates the requested URL has been permanently deleted and search engines should de-index this page.
 
-CloudCannon recommends creating 301 redirects to prevent visitors seeing x when they attempt to load any of your old URLs.
+Most users will only need to specify redirects using the 301, 302, and 404 status codes. We recommend redirecting your old page URLs with 301 or 302 redirects whenever you change the URL of a page or the architecture of your site in a way that affects the URL structure. This helps to preserve your SEO scores if you want to rank highly in search engine results, and prevents visitors from seeing x when they attempt to load any of your old URLs.
 
-* 200 — a
-* **301** — a permanent redirect instruction
-* **302** — a
-* **307** — a
-* **308** — a
-* **404** — a
-* **410** — a
+We also recommend [configuring a 404 page](/documentation/articles/configure-a-404-page/) and redirecting all unrecognized subpaths to that page.
 
-A custom redirect will only occur if the `from` URL does not resolve when a visitor attempts to load the page. CloudCannon reads your redirects in order, and will use the earliest matching rule for a given `from` URL. Duplicate rules are ignored.
+<comp.Notice info_type="info">
+  A custom redirect will only occur if the `from` URL does not resolve when a visitor attempts to load the page. CloudCannon reads your redirects in order, and will use the earliest matching rule for a given `from` URL. Duplicate rules are ignored.
+</comp.Notice>
 
 <comp.Notice info_type="info">
   You can redirect to, but not from a URL fragment (e.g. example.com/blog/#heading). The URL fragment is not passed to the server so, it cannot be processed by the redirect.
 </comp.Notice>
 
-Permanently redirecting your old page URLs to ... SEO
-
-&nbsp;
-
 To add custom redirects to your `routing.json` file:
 
 1. Navigate to the `.cloudcannon` folder in your *File browser* and click on the `routing.json` file. CloudCannon will open `routing.json` in the Source Editor.
-2. &nbsp;
+2. &nbsp;Create a JSON array under the `routes` key. Each entry in the array should contain `from`, `to`, and `status`.
+3. When you are happy with your routing file, save your changes.
+
+CloudCannon will
 
 Here's an example...
 
