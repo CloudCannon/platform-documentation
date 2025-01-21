@@ -40,7 +40,7 @@ Your custom routing file can specify [redirects](/documentation/articles/configu
 To create a blank custom routing file:
 
 1. Navigate to the `.cloudcannon` folder using the *File browser*, or create one in the root of your Site.
-2. Click the *\+ Add* button in the top right of the browser and select the *\+ Create new file* option from the dropdown. CloudCannon will open a blank `.txt` file in the Source Editor.
+2. Click the *\+ Add* button at the top right of the browser and select the *\+ Create new file* option from the dropdown. CloudCannon will open a blank `.txt` file in the Source Editor.
 3. Click the *Save* button in the top right of the editing interface. CloudCannon will open the *Review changes* modal.
 4. Edit the file path to "/.cloudcannon/routing.json" and click the *Save selected* button in the bottom right of the modal.
 
@@ -62,13 +62,13 @@ CloudCannon allows the following [HTTP status codes](https://en.wikipedia.org/wi
 
 * **200** — Indicates the request was successful.
 * **301** — Indicates the requested URL has been changed permanently and specifies the new URL in the response.
-* **302** — Indicates the requested URL has been changed temporarily and the file server should continue to use the original URL in future requests.
+* **302** — Indicates the requested URL has been changed temporarily, and the file server should continue to use the original URL in future requests.
 * **307** — Indicates the requested URL has been changed temporarily and the file server should continue to use the original URL in future requests. This is similar to a 302 code however it does not allow the HTTP method to change.
 * **308** — Indicates the requested URL has been changed permanently and the file server should continue to use the original URL in future requests. This is similar to a 301 code however it does not allow the HTTP method to change.
 * **404** — Indicates the requested URL could not be found.
-* **410** — Indicates the requested URL has been permanently deleted and search engines should de-index this page.
+* **410** — Indicates the requested URL has been permanently deleted, and search engines should de-index this page.
 
-Most users will only need to specify redirects using the 301, 302, and 404 status codes. We recommend redirecting your old page URLs with 301 or 302 redirects whenever you change the URL of a page or the architecture of your site in a way that affects the URL structure. This helps to preserve your SEO scores if you want to rank highly in search engine results, maintains external links to your website, and prevents visitors from seeing incorrect or missing content when they attempt to load any of your old URLs.
+Most users will only need to specify redirects using the 301, 302, and 404 status codes. We recommend redirecting your old page URLs with 301 or 302 redirects whenever you change the URL of a page or the architecture of your Site in a way that affects the URL structure. This helps to preserve your SEO scores if you want to rank highly in search engine results, maintains external links to your website, and prevents visitors from seeing incorrect or missing content when they attempt to load any of your old URLs.
 
 We also recommend [configuring a 404 page](/documentation/articles/configure-a-404-page/) and redirecting all unrecognized subpaths to that page.
 
@@ -80,15 +80,19 @@ We also recommend [configuring a 404 page](/documentation/articles/configure-a-4
   You can redirect to, but not from a URL fragment (e.g. example.com/blog/#heading). The URL fragment is not passed to the server so, it cannot be processed by the redirect.
 </comp.Notice>
 
+<comp.Notice info_type="info">
+  You can use redirects to load a single HTML file on multiple URL routes and use JavaScript to load different content.
+</comp.Notice>
+
 To add custom redirects to your `routing.json` file:
 
 1. Navigate to the `.cloudcannon` folder in your *File browser* and click on the `routing.json` file. CloudCannon will open `routing.json` in the Source Editor.
-2. &nbsp;Create a JSON array under the `routes` key. Each entry in the array should contain `from`, `to`, and `status`.
+2. &nbsp;Create a JSON array under the `routes` key. Each entry in the array should include the keys `from`, `to`, and `status`.
 3. When you are happy with your routing file, save your changes.
 
-CloudCannon will
+After a successful build, CloudCannon will redirect visitors according to the rules in your `routing.json` file.
 
-Here's a few examples:
+Here are a few examples:
 
 <comp.CodeBlock language="json" source=".cloudcannon/routing.json">
 ```
@@ -116,28 +120,46 @@ Here's a few examples:
 ```
 </comp.CodeBlock>
 
+### Generating redirects
+
+If your Site requires it, you can generate your routing file at build time.
+
+For example, if you only want to redirect URLs on your production Site, you could add the following Liquid templating:
+
+<comp.CodeBlock language="JSON" source="routing.json">
+``````````
+
+{
+  routes: [
+    {% if environment == 'production' %}
+      {from: '/example-1',
+      to: '/example-2'}
+    {% endif %}
+  ]
+}
+
+``````````
+</comp.CodeBlock>
+
+You can create a build process generate your routing file with the correct content, depending on the environment. In this case, the build process should generate the file in  `_cloudcannon/routing.json` . CloudCannon will use this file instead of  `.cloudcannon/routing.json` from your source.
+
+For more information, please contact our friendly [support team](/support/).
+
 ## Custom Headers
 
-&nbsp;
+Custom HTTP headers allow you to pass more information between your web server and the visitor's browser every time someone loads a web page. Custom headers are often used to change some website behavior, meet security requirements, or allow other origins to load resources.
 
-&nbsp;
+In CloudCannon, you can configure headers using the `routing.json` file. Whenever a visitor loads a web page from your Site, all relevant header rules from your routing file are applied in order.
 
-&nbsp;
+To add custom headers to your `routing.json` file:
 
-### Routes
+1. Navigate to the `.cloudcannon` folder in your *File browser* and click on the `routing.json` file. CloudCannon will open `routing.json` in the Source Editor.
+2. Create a JSON array under the `headers` key.
+3. Within the `headers` key, add an object labeled `match` and set it to `*`, and a second `headers` array.
+4. Within the second `headers` array, add an entry for each custom header. Each entry in the array should include the keys `name` and `value`.
+5. When you are happy with your routing file, save your changes.
 
-Routes are useful in two cases:
-
-1. **Redirects**: When you change your website’s structure, you should redirect the old URLs to the new pages. This ensures external links pointing to the old content and search engines can be redirected.
-2. **Push state routing**: Certain SSGs output a single html file that is expected to load on multiple routes. JavaScript on that page will load different content based on the url.
-
-Configure your `routing.json` to include an array under the `routes` key with the following keys:
-
-&nbsp;
-
-### Custom Headers
-
-Configure extra headers on any route. Meet security needs or change some behaviour. Configure your `routing.json` to include an array under the `headers` key with the following keys:
+After a successful build, CloudCannon will load your custom headers whenever a page loads.
 
 <comp.CodeBlock language="json" source=".cloudcannon/routing.json">
 ```
@@ -166,11 +188,3 @@ Configure extra headers on any route. Meet security needs or change some behavio
 
 ```
 </comp.CodeBlock>
-
-Headers are processed at the beginning of all calls. Rules are read in order and combined on all matching rules similar to how CSS works.
-
-### Generated redirects
-
-Create dynamic redirects from pages and data of your site.
-
-During your build process, generate a file on `_cloudcannon/routing.json` and this will be used instead of `.cloudcannon/routing.json` from your source.
