@@ -82,11 +82,33 @@ These keys configure which URLs should be redirected.
     </comp.Example>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="status" type_markdown="Number">
-    One of 200, 301, 302, 307, 308, 404, or 410. Used to define the [HTTP status code](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status) to use on the route.
-
-    301, 302, 307 and 308 codes trigger a redirect to a new location resulting in two requests.
-
-    200, 404, and 410 change the URL that is served resulting in a single request. When using these statuses, the "to" field must refer to a path on the same site, with the domain and protocol excluded.
+    This key defines the [HTTP status code](https://en.wikipedia.org/wiki/List_of_HTTP_status_codes) for a redirect rule.
+  
+    Values can be one of the following: `200`, `301`, `302`, `307`, `308`, `404`, or `410`.
+    
+    <comp.Notice info_type="info">
+    When using 200, 404, and 410 status codes, `routes.to` must refer to a path on the same Site as `routes.from`, with the domain and protocol excluded.
+    </comp.Notice>
+  
+    This key has no default.
+  
+    <comp.Example>
+      In this example, we use the HTTP status `301` to indicate a permanent URL change.
+  
+      <comp.MultiCodeBlock language="JSON" source="routing.json">
+      ``````````
+      {
+        "routes": [
+          {
+            "from": "/documentation/articles/choosing-your-ssg/",
+            "to": "/documentation/articles/select-your-ssg/",
+            "status": 301
+          }
+        ]
+      }
+      ``````````
+      </comp.MultiCodeBlock>
+    </comp.Example>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="forced" type_markdown="Boolean">
     If forced is true (default), the redirect will take priority. If forced is false, the redirect will only run if no file exists on that route. This is useful if you have a greedy regex that you don't want interfering with existing routes.
