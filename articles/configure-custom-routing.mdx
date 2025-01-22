@@ -50,30 +50,35 @@ If you would prefer, you can also create a `routing.json` file using your local 
 
 For a complete list of options available in the `routing.json` file, please read our [routing reference](/documentation/articles/routing-reference/) documentation.
 
-## Custom Redirects
+## Custom Routes
 
-Custom redirects control what content is delivered to a visitor when they attempt to visit a URL. Most redirects need three parts: the `from` URL, the `to` URL, and the `status` code.
+When CloudCannon loads the `routing.json` file each time a visitor requests a URL, the first matching routing rule can control what content is delivered to the visitor by redirecting them to a different URL or serving a different content without changing the URL (i.e., a proxy). You can specify the type of custom route using an [HTTP status code](https://en.wikipedia.org/wiki/List_of_HTTP_status_codes).
 
-* **From** — Specifies which URL should trigger this redirect rule.
-* **To** — Specifies which URL the visitor should be redirected to.
-* **Status** — Tells the visitor's browser the reason for the redirect.
+CloudCannon supports the following redirect codes:
 
-CloudCannon allows the following [HTTP status codes](https://en.wikipedia.org/wiki/List_of_HTTP_status_codes):
-
-* **200** — Indicates the request was successful.
 * **301** — Indicates the requested URL has been changed permanently and specifies the new URL in the response.
 * **302** — Indicates the requested URL has been changed temporarily, and the file server should continue to use the original URL in future requests.
 * **307** — Indicates the requested URL has been changed temporarily and the file server should continue to use the original URL in future requests. This is similar to a 302 code however it does not allow the HTTP method to change.
 * **308** — Indicates the requested URL has been changed permanently and the file server should continue to use the original URL in future requests. This is similar to a 301 code however it does not allow the HTTP method to change.
+
+CloudCannon supports the following proxy codes:
+
+* **200** — Indicates the request was successful.
 * **404** — Indicates the requested URL could not be found.
 * **410** — Indicates the requested URL has been permanently deleted, and search engines should de-index this page.
 
-Most users will only need to specify redirects using the 301, 302, and 404 status codes. We recommend redirecting your old page URLs with 301 or 302 redirects whenever you change the URL of a page or the architecture of your Site in a way that affects the URL structure. This helps to preserve your SEO scores if you want to rank highly in search engine results, maintains external links to your website, and prevents visitors from seeing incorrect or missing content when they attempt to load any of your old URLs.
+When configuring custom routing, most users will only need the 307, 308, and 404 status codes.
+
+We recommend redirecting your old page URLs with 307 or 308 redirects whenever you change the URL of a page or the architecture of your Site in a way that affects the URL structure. Redirecting old URLs will:
+
+* Preserve your SEO scores if you want to rank highly in search engine results.
+* Maintain external links to your website.
+* Prevent visitors from seeing incorrect or missing content when they attempt to load any of your old URLs.
 
 We also recommend [configuring a 404 page](/documentation/articles/configure-a-404-page/) and routing all unrecognized subpaths to that page.
 
 <comp.Notice info_type="info">
-  A custom redirect will only occur if the `from` URL does not resolve when a visitor attempts to load the page. CloudCannon reads your redirects in order, and will use the earliest matching rule for a given `from` URL. Duplicate rules are ignored.
+  CloudCannon reads your routes in order, and will use the earliest matching rule for a given `from` URL. Duplicate rules are ignored.
 </comp.Notice>
 
 <comp.Notice info_type="info">
@@ -84,13 +89,19 @@ We also recommend [configuring a 404 page](/documentation/articles/configure-a-4
   You can use routing to load a single HTML file on multiple URL routes and use JavaScript to load different content.
 </comp.Notice>
 
-To add custom redirects to your `routing.json` file:
+You must configure three keys for a custom redirect: the `from` URL, the `to` URL, and the `status` code. Proxies do not require the `to` key.
+
+* **From** — Specifies which URL should trigger this redirect rule.
+* **To** — Specifies which URL the visitor should be redirected to.
+* **Status** — Tells the visitor's browser the reason for the route using an [HTTP status code](https://en.wikipedia.org/wiki/List_of_HTTP_status_codes).
+
+To add custom routes to your `routing.json` file:
 
 1. Navigate to the `.cloudcannon` folder in your *File browser* and click on the `routing.json` file. CloudCannon will open `routing.json` in the Source Editor.
-2. &nbsp;Create a JSON array under the `routes` key. Each entry in the array should include the keys `from`, `to`, and `status`.
+2. &nbsp;Create a JSON array under the `routes` key. Each entry in the array could include the keys `from`, `to`, and `status`.
 3. When you are happy with your routing file, save your changes.
 
-After a successful build, CloudCannon will redirect visitors according to the rules in your `routing.json` file.
+After a successful build, CloudCannon will route visitors according to the rules in your `routing.json` file.
 
 Here are a few examples:
 
@@ -119,6 +130,8 @@ Here are a few examples:
 
 ```
 </comp.CodeBlock>
+
+For more a complete list of configuration keys available for custom routing, please read our [routing reference documentation](/documentation/articles/routing-reference/).
 
 ### Generating redirects
 
@@ -159,7 +172,7 @@ To add custom headers to your `routing.json` file:
 
 1. Navigate to the `.cloudcannon` folder in your *File browser* and click on the `routing.json` file. CloudCannon will open `routing.json` in the Source Editor.
 2. Create a JSON array under the `headers` key.
-3. Within the `headers` key, add an object labeled `match` and set it to `*`, and a second `headers` array.
+3. Within the `headers` key, add an object labeled `match` and a second `headers` array. The value of the `match` object should be a REGEX string of all URLs to which you want to add a header.
 4. Within the second `headers` array, add an entry for each custom header. Each entry in the array should include the keys `name` and `value`.
 5. When you are happy with your routing file, save your changes.
 
@@ -192,3 +205,5 @@ After a successful build, CloudCannon will load your custom headers whenever a p
 
 ```
 </comp.CodeBlock>
+
+For more a complete list of configuration keys available for custom routing, please read our [routing reference documentation](/documentation/articles/routing-reference/).
