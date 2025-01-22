@@ -291,7 +291,7 @@ module.exports = {
       path: "_data",
       filter: {
         base: "none",
-        include: ["navigation.yml", "meta.yml", "headingnav.yml", "ssgs.yml", "article_topics.yml"],
+        include: ["navigation.yml", "reference_navigation.yml", "meta.yml", "headingnav.yml", "ssgs.yml", "article_topics.yml"],
       },
     },
     keys: {
