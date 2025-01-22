@@ -212,8 +212,52 @@ These keys configure which URLs should be redirected.
 ## Custom headers
 
 <comp.DataReference>
-  <comp.DataReferenceRow label="headers" type_markdown="Array of Objects">
-    A list of header names and values to add to the matching request
+  <comp.DataReferenceRow label="headers" type_markdown="Array">
+    This key defines any custom headers for URLs on CloudCannon hosted Sites. The `headers` array often has another `headers` array nested within.
+  
+    The following nested keys are available for each entry in the `headers` array:
+  
+    * `match`
+    * `name`
+    * `value`
+  
+    This key has no default.
+  
+    <comp.Example>
+      In this example, there are three `headers` arrays, with two nested within the other. The first `headers` array indicates that CloudCannon should apply custom HTTP headers to your Site. The second `headers` array only applies to URLs matching `/staff-only/*` and the third array to all URLs.
+  
+      <comp.MultiCodeBlock language="JSON" source="routing.json">
+      ``````````
+      {
+        "headers": [ ___1___
+          {
+            "match": "/staff-only/*",
+            "headers": [ ___2___
+              {
+                "name": "X-Robots-Tag",
+                "value": "noindex, nofollow"
+              }
+            ]
+          }
+          {
+            "match": "*",
+            "headers": [ ___3___
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "https://example.com"
+              },
+              {
+                "name": "X-Content-Type-Options",
+                "value": "nosniff"
+              }
+            ]
+          }
+        ]
+      }
+  
+      ``````````
+      </comp.MultiCodeBlock>
+    </comp.Example>
   </comp.DataReferenceRow>
 </comp.DataReference>
 

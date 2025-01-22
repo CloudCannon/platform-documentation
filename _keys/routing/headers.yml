@@ -2,47 +2,59 @@ _schema: default
 key_name: headers
 key_singular_name: headers
 key_value_type:
-  - Array of Objects
-key_description: |-
-  This key defines any custom redirects for URLs on CloudCannon hosted Sites.
+  - Array
+key_description: >-
+  This key defines any custom headers for URLs on CloudCannon hosted Sites. The
+  `headers` array often has another `headers` array nested within.
 
-  The following nested keys are available for each entry in the `routes` array:
 
-  * `from` (required)
-  * `to` (required)
-  * `status`
-  * `forced`
-  * `substitutions`
+  The following nested keys are available for each entry in the `headers` array:
+
+
+  * `match`
+
+  * `name`
+
+  * `value`
+
 
   This key has no default.
 
+
   <comp.Example>
-    In this example, the `routes` array has three redirect rules: two which indicate that content has moved to a different URL, and one to indicate all subpaths of `/app/` are successful.
+    In this example, there are three `headers` arrays, with two nested within the other. The first `headers` array indicates that CloudCannon should apply custom HTTP headers to your Site. The second `headers` array only applies to URLs matching `/staff-only/*` and the third array to all URLs.
 
     <comp.MultiCodeBlock language="JSON" source="routing.json">
-          ``````````
-          {
-            "routes": [
-              {
-                "from": "/cloudcannon/(.*)",
-                "to": "https://cloudcannon.com/$1",
-                "status": 302
-              },
-              {
-                "from": "/documentation/articles/choosing-your-ssg/",
-                "to": "/documentation/articles/select-your-ssg/",
-                "status": 301
-              },
-              {
-                "from": "/app/(.*)",
-                "to": "/app/",
-                "status": 200
-              }
-            ]
-          }
+    ``````````
+    {
+      "headers": [ ___1___
+        {
+          "match": "/staff-only/*",
+          "headers": [ ___2___
+            {
+              "name": "X-Robots-Tag",
+              "value": "noindex, nofollow"
+            }
+          ]
+        }
+        {
+          "match": "*",
+          "headers": [ ___3___
+            {
+              "name": "Access-Control-Allow-Origin",
+              "value": "https://example.com"
+            },
+            {
+              "name": "X-Content-Type-Options",
+              "value": "nosniff"
+            }
+          ]
+        }
+      ]
+    }
 
-          ``````````
-          </comp.MultiCodeBlock>
+    ``````````
+    </comp.MultiCodeBlock>
   </comp.Example>
 key_documentation:
   text: Routing
