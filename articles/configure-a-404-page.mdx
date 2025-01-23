@@ -1,0 +1,120 @@
+---
+_schema: default
+_uuid: 675e4636-c318-49a9-b5a4-9764180b57d9
+_created_at: '2021-09-15 23:13:40 +0000'
+title: Configure a 404 page
+nav_title: Configure a 404 page
+published: true
+image: >-
+  https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+description: >-
+  Configure a helpful, branded 404 page when a visitor requests a page that
+  cannot be found.
+article_category:
+  - Instructions
+article_topic:
+  - Hosting
+  - Routing
+tags:
+  - Hosting
+  - Sites
+  - Guides
+related_articles:
+related_links:
+---
+<comp.Notice info_type="important">
+  This method for configuring a 404 page is only available for Sites [hosted through CloudCannon](/documentation/articles/what-is-web-hosting/#hosting-on-cloud-cannon). If you host your Site externally, or use CloudCannon in [Headless Mode](/documentation/articles/what-is-headless-mode/), these instructions will not work.
+</comp.Notice>
+
+A "404 page" is the webpage shown to visitors when the web server cannot find the content for the URL they requested, named after the [HTTP status code](https://en.wikipedia.org/wiki/List_of_HTTP_status_codes) `404 Not Found`. A web server may be unable to find a page's content because:
+
+* The URL is incorrect.
+* The content has been deleted from the website or moved to a different URL.
+
+By default, visitors will see a simple 404 page when the web server cannot find a URL from a Site hosted on CloudCannon.
+
+<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/hosting/configure-a-404-page/2025-01/CloudCannon-Documentation-404-Page.png" alt="A screenshot of CloudCannon's default 404 page." title="CloudCannon's Default 404 Page" type="screenshot"/>
+
+<comp.Notice info_type="info">
+  CloudCannon will also show a 404 page if a visitor requests the URL for an image or file on your website.
+</comp.Notice>
+
+We recommend creating a dedicated 404 page that matches your Site branding and provides helpful resources when your users get lost.
+
+To show visitors a custom 404 page:
+
+1. Create a file called `404.html` and add the content you want CloudCannon to serve.
+2. Save your page to your Site. We recommend saving it in the same place as other important pages (e.g., "Home" or "About").
+3. Navigate to the `routing.json` file within your `.cloudcannon` folder using the *File browser*, or create one if you have not done so.
+4. Create an entry within the `routes` array with the subkeys `from`, `to`, `status`, and `forced`.
+5. Set `from` to a REGEX string that captures all URLs (e.g., `/.*`), `to` to the path of your 404 page, `status` to `404`, and `forced` to `false`.
+6. Save your changes.
+
+After a successful build, CloudCannon will show visitors your custom `404.html` when the web server cannot find a page on your website.
+
+It is important to set `forced` to `false`, as this configuration option determines whether the routing rule should take priority over any existing page content. By setting this key to `false`, CloudCannon will only serve our 404 page content for URLs that match the `from` REGEX string if the web server cannot find a page's content. 
+
+If you would prefer, you can also configure your `routing.json` file using your local development environment.
+
+For a complete list of options available in the `routing.json` file, please read our [routing reference](/documentation/articles/routing-reference/) documentation.
+
+<comp.Notice info_type="info">
+  Set the permalink of your page to /404.html if you are using Jekyll and non-default permalinks.
+</comp.Notice>
+
+We also recommend creating a custom header to prevent search engines indexing your 404 page. For more information, please read our documentation on [custom headers](/documentation/articles/configure-custom-routing/#custom-headers).
+
+Here is an example of what your 404 route should look like:
+
+<comp.CodeBlock language="json" source="routing.json">
+```
+
+{
+  "routes": [
+    {
+      "from": "/.*",
+      "to": "/404.html",
+      "status": 404,
+      "forced": false
+    }
+  ],
+  "headers": [
+    {
+      "match": "/404.html",
+      "headers": [
+        {
+          "name": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
+    }
+  ]
+}
+
+```
+</comp.CodeBlock>
+
+Most Sites only need one 404 page, but you can create as many 404 routes as required by configuring a more specific `from` URL. You must list routes in order from most to least specific REGEX strings, otherwise will ignore consecutive routes. For more generic information, please read our documentation on [configuring custom routing](/documentation/articles/configure-custom-routing/).
+
+<comp.CodeBlock language="json" source="routing.json">
+```
+
+{
+  "routes": [
+    {
+      "from": "/blog/.*",
+      "to": "/404-blog.html",
+      "status": 404,
+      "forced": false
+    },
+    {
+      "from": "/.*",
+      "to": "/404.html",
+      "status": 404,
+      "forced": false
+    }
+  ]
+}
+
+```
+</comp.CodeBlock>
