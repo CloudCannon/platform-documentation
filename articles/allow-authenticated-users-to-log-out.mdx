@@ -7,7 +7,9 @@ nav_title: Allow authenticated users to log out
 published: true
 image: >-
   https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
-description: Provide a logout button on your authenticated pages.
+description: >-
+  Learn how CloudCannon detects if a user is authenticated and how to configure
+  a logout button on your authenticated pages.
 article_category:
   - Instructions
 article_topic:
@@ -19,7 +21,23 @@ tags:
 related_articles:
 related_links:
 ---
-Once a user is authenticated, they can log out at `<your-domain>/logout`. You can provide a logout button on your authenticated pages with this link.
+When you [enable password authentication](/documentation/articles/enable-password-authentication/), [enable user account authentication](/documentation/articles/enable-user-account-authentication/), or [enable SAML authentication](/documentation/articles/enable-saml-authentication/), CloudCannon attaches a cookie to the visitor's web browser when they have successfully logged in (i.e., authenticated). CloudCannon uses this cookie to allow access when a user requests an authenticated route.
+
+<comp.Notice info_type="info">
+  No sensitive authentication data is exposed through cookies.
+</comp.Notice>
+
+This cookie is removed if a visitor clears their Internet browser cache.
+
+You can allow authenticated users to log out by adding a logout link to your authenticated routes. CloudCannon reserves the `/logout` route on all Sites. The logout URL for your Site will be your domain name followed by `/logout`, even if you serve your Site on a [subdomain](/documentation/articles/add-a-subdomain/), or [subpath](/documentation/articles/host-your-site-on-a-subpath/), CloudCannon w (e.g., `example.com/logout`, `app.example.com/logout`, or `example.com/documentation/logout`).
+
+<comp.Notice info_type="important">
+  CloudCannon reserves the `/logout` URL for all Sites hosted on CloudCannon, even if you do not have a CloudCannon authentication method enabled. You cannot serve any content on this URL.
+</comp.Notice>
+
+When a visitor clicks the logout link, CloudCannon will remove the cookie and reroute them to your home page.
+
+You can create a logout button on your authenticated pages using the following link:
 
 <comp.CodeBlock language="html" source="index.html">
 ```
@@ -29,15 +47,7 @@ Once a user is authenticated, they can log out at `<your-domain>/logout`. You ca
 ```
 </comp.CodeBlock>
 
-### Detecting if a user is logged in
-
-CloudCannon sets a cookie when the user is authenticated. Use this to show the logout button for authenticated users on public pages, and hide it otherwise.
-
-<comp.Notice info_type="info">
-  No sensitive authentication data is exposed through cookies.
-</comp.Notice>
-
-The cookie is used to set a class on the body. The CSS will show the logout button with this class.
+If you use [authenticated routes](/documentation/articles/configure-authenticated-routes/), you may have a mix of authenticated and non-authenticated users on your public pages. In this case, you can use JavaScript and CSS to only show the logout button to authenticated users.
 
 <comp.CodeBlock language="javascript" source="script.js">
 ```
@@ -45,7 +55,7 @@ The cookie is used to set a class on the body. The CSS will show the logout butt
 var isAuthenticated = document.cookie.indexOf("authenticated=true") >= 0;
 
 if (isAuthenticated) {
-  document.body.className += " authenticated";
+  document.body.classList.add("authenticated");
 }
 
 ```
@@ -72,3 +82,5 @@ if (isAuthenticated) {
 
 ```
 </comp.CodeBlock>
+
+In the above example, the user's browser will add the `authenticated` class to the `body` element of your page if they have the `authenticated` cookie. The CSS file will only display elements with the `.logout` class if they are nested within an element with the `.authenticated` class.
