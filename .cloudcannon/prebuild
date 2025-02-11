@@ -1,10 +1,13 @@
 if [ -z "${SAFE_TO_DEINDEX+set}" ]
 then
-    if jq -r '.headers[] | select(.headers[].name == "X-Robots-Tag") | select(.match != "/documentation/404/*")' .cloudcannon/routing.json
-    then
-        echo "Failing build as an X-Robots-Tag was found but our SAFE_TO_DEINDEX variable has not been set"
-        exit 1
-    fi
+  if jq -e '
+    .headers[] |
+    select(.headers[] | ascii_downcase | .name == "x-robots-tag") |
+    select(.match != "/documentation/404/*")
+  ' .cloudcannon/routing.json > /dev/null; then
+    echo "Failing build as an X-Robots-Tag was found but our SAFE_TO_DEINDEX variable has not been set"
+    exit 1
+  fi
 fi
 
 ./.cloudcannon/generate-versions > _data/systemversions.json
