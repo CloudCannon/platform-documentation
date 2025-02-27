@@ -1,0 +1,272 @@
+---
+_schema: default
+_uuid: c0fb8866-1093-417b-a816-1aa26cf70dba
+_created_at: '2021-09-15 05:03:07 +0000'
+title: Enable user account authentication
+nav_title: Enable user account authentication
+published: true
+image: >-
+  https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+description: >-
+  Learn how to enable user account authentication for your Site and restrict
+  access to a list of invited users.
+article_category:
+  - Instructions
+article_topic:
+  - Authentication
+  - Hosting
+tags:
+  - authentication
+  - security
+  - login
+  - account
+related_articles: []
+related_links:
+---
+<comp.Notice info_type="important">
+  This feature is only available for Sites [hosted through CloudCannon](/documentation/articles/what-is-web-hosting/#hosting-on-cloud-cannon). If you host your Site externally, or use CloudCannon in [Headless Mode](/documentation/articles/what-is-headless-mode/), this feature will not work.
+</comp.Notice>
+
+User account authentication allows you to specify a list of email addresses that can log in to view your website content.
+
+By default, CloudCannon serves a simple Login page when a visitor requests your URL.
+
+<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/hosting/enable-account-authentication/2025-01/CloudCannon-Documentation-Account-Authentication-Login-Page.png" alt="A screenshot of the Site Login Page shows fields for email address and password to log in to a user account authenticated Site." title="The Site Login Page" type="screenshot"/>
+
+To enable user account authentication for your Site:
+
+1. Navigate to the *Authentication* page under *Site Settings*.
+2. Click on the *Authentication method* dropdown and select the *Accounts* option.
+3. Click the *Switch to Account authentication* button to confirm your choice.
+4. For each user you want to access your Site, enter their email address in the *Email Address* text field and click the *Add User* button.
+
+CloudCannon will email each user and prompt them to create a personal password for your Site. If a user forgets their password, they can reset it using their email address.
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Site-Settings-Authentication-Account-Enter-Email" alt="A screenshot of the Authentication page shows a text field where you can enter the email address of the person you want to invite." title="The Authentication Page" type="screenshot"/>
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Site-Settings-Authentication-Account-Success" alt="A screenshot of the Authentication page shows a card for each user you have invited to your Site." title="The Authentication Page" type="screenshot"/>
+
+Once a user has set their personal password for your Site, CloudCannon will update the authenticated users list.
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Site-Settings-Authentication-Account-User-Card" alt="A screenshot of the Authenticated User Card on the Authentication page shows that hello@cloudcannon is invited and has set a password." title="The Authenticated User Card" type="ui-snippet"/>
+
+You can remove users at any time by clicking the *Remove* button next to their email address.
+
+To disable user account authentication, click the *Authentication method* dropdown, select the *None* option, and then click the *Switch to no authentication* button to confirm your choice.
+
+CloudCannon uses cookies to determine whether a visitor is logged in (i.e., authenticated). Visitors can log out using the log-out link. For more information, please read our documentation on [allowing authenticated users to log out](/documentation/articles/allow-authenticated-users-to-log-out/).
+
+## Configure custom login pages
+
+You can customize the login pages for your website by creating the `login.html`, `set-password.html`, and `reset-password.html` files. These files should be in the root directory of your output Site. Where this is in your Site repository will depend on your SSG (e.g., the root of the repository for Jekyll, the static folder for Hugo, etc.).
+
+You can customize these HTML files to match your Site branding and provide helpful resources.
+
+In each file, CloudCannon requires a `<form>` element with the liquid variable `class="{{messageClasses}}"`. CloudCannon injects a class into the `{{messageClasses}}` liquid variable to change the content on the page as the user submits the form.
+
+You can add custom message classes to communicate to your users when they use your forms, such as error-handling messages and success notifications. CloudCannon highly recommends specific message classes, which are detailed in the sections below.
+
+<comp.Notice info_type="important">
+                                                On Jekyll-generated pages, please add `raw` tags so Jekyll outputs the liquid variable correctly: `{% raw %}{{messageClasses}}{% endraw %}`.
+</comp.Notice>
+
+### Login page
+
+The login page allows visitors to your Site to enter an email and password to view your content. This page must be named `login.html`.
+
+This page requires:
+
+* Form inputs for `email` and `password`.
+* A `submit` input.
+* A link to the reset password page.
+
+We also highly recommend using the message class `has-incorrect-login` to communicate to visitors when they have entered incorrect login details.  A form action is not required for this page.
+
+Here is an example of a basic login page:
+
+<comp.CodeBlock language="html" source="login.html">
+```
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <title>Log in</title>
+    <style>
+      .incorrect-login-message {
+        display: none;
+      }
+
+      .has-incorrect-login .incorrect-login-message {
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Log in</h1>
+
+    <form action="" method="post" class="{{messageClasses}}">
+      <div class="incorrect-login-message">
+        Incorrect email address or password.
+      </div>
+
+      <label for="email">Email Address</label>
+      <input id="email" type="email" name="email" autofocus>
+
+      <label for="password">Password</label>
+      <input id="password" type="password" name="password">
+
+      <input type="submit" value="Log in">
+    </form>
+
+    <a href="/reset-password">Forgot your password?</a>
+  </body>
+</html>
+
+```
+</comp.CodeBlock>
+
+<comp.Notice info_type="important">
+  You may already have a `login.html` file if you are switching from [password authentication](/documentation/articles/enable-password-authentication/) to user account authentication. Make sure to update the contents of this file.
+</comp.Notice>
+
+### Set Password page
+
+The set password page allows visitors to set a personal password to log in to your Site. CloudCannon will email a link to this page to each user when you add them to your invited users list. Visitors can also access this page when they request a password reset. This page must be named `set-password.html`.
+
+This page requires:
+
+* Form inputs for `password` and `password-confirm`.
+* A hidden form input for `token`.
+* A `submit` input.
+* The `/set-password` form action.
+
+There are several message classes we recommend for this page: `has-password-mismatch`, `has-invalid-link`, `has-token-expired`, and `has-success`.
+
+* The `has-password-mismatch` message class warns the user when the text in the password and password confirmation fields does not match.
+* The `has-invalid-link` and `has-token-expired` message classes warn the user when their reset password link is invalid or expired.
+* The `has-success` message class tells the user when they have successfully set a password.
+
+Here is an example of a basic set password page:
+
+<comp.CodeBlock language="html" source="set-password.html">
+```
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <title>Set Password</title>
+    <style>
+      .password-mismatch-message,
+      .invalid-link-message,
+      .token-expired-message,
+      .success-message {
+        display: none;
+      }
+
+      .has-password-mismatch .password-mismatch-message,
+      .has-invalid-link .invalid-link-message,
+      .has-token-expired .token-expired-message,
+      .has-success .success-message {
+        display: block;
+      }
+
+      .has-success label,
+      .has-success input {
+        display: none;
+      }
+    </style>
+  </head>
+  <body class="{{messageClasses}}">
+    <h1>Set Password</h1>
+    <form action="/set-password" method="post">
+      <div class="password-mismatch-message">
+        Password did not match confirmation.
+      </div>
+      <div class="invalid-link-message">
+        Your reset link is no longer valid.
+        <a href="/reset-password">Reset your password</a> to get another.
+      </div>
+      <div class="token-expired-message">
+        Your reset link has expired.
+        <a href="/reset-password">Reset your password</a> to get another.
+      </div>
+      <div class="success-message">
+        Successfully set your password.
+      </div>
+
+      <label for="password">Password</label>
+      <input id="password" type="password" name="password" autofocus>
+
+      <label for="password-confirm">Confirm Password</label>
+      <input id="password-confirm" type="password" name="password-confirm">
+
+      <input type="hidden" name="token" value="{{token}}">
+
+      <input type="submit" value="Set Password">
+    </form>
+  </body>
+</html>
+
+```
+</comp.CodeBlock>
+
+### Reset Password page
+
+The reset password page allows visitors to reset their personal login password by entering an invited email address. CloudCannon will email a link to the set password page. This page must be named `reset-password.html`.
+
+This page requires:
+
+* A form input for `email`.
+* A `submit` input.
+* The `/reset-password` form action.
+
+We highly recommend adding the `has-no-email` and `has-success` message classes.
+
+* The `has-no-email` message class warns the user when they have
+* The `has-success` message class tells the user when they have successfully entered their email to receive a reset link.
+
+Here is an example of a basic reset password page:
+
+<comp.CodeBlock language="html" source="reset-password.html">
+```
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <title>Reset Password</title>
+    <style>
+      .no-email-message,
+      .success-message {
+        display: none;
+      }
+
+      .has-success .success-message,
+      .has-no-email .no-email-message {
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Reset Password</h1>
+
+    <form action="/reset-password" method="post" class="{{messageClasses}}">
+      <div class="no-email-message">
+        You must provide an email address.
+      </div>
+      <div class="success-message">
+        We've sent you an email with instructions to reset your password.
+      </div>
+
+      <label for="email">Email Address</label>
+      <input id="email" type="email" name="email" autofocus>
+
+      <input type="submit" value="Reset Password">
+    </form>
+  </body>
+</html>
+
+```
+</comp.CodeBlock>

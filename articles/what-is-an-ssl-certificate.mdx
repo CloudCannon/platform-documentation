@@ -1,0 +1,127 @@
+---
+_schema: default
+_uuid: 79cd09be-23e5-4925-87b1-7d57532caa2c
+_created_at: 2024-11-26T11:01:36+13:00
+title: What is an SSL certificate?
+nav_title: What is an SSL certificate?
+published: true
+image: >-
+  https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+description: >-
+  Learn about SSL certificates and how they can protect user data on your
+  website.
+article_category:
+  - Explanation
+article_topic:
+tags: []
+related_articles: []
+related_links: []
+explicit_canonical:
+---
+<comp.Notice info_type="important">
+  Managing your SSL certificate on CloudCannon requires you to host your Site through CloudCannon. If you are hosting your Site through an external service, please review their documentation on SSL certification.
+</comp.Notice>
+
+An SSL certificate (or a TLS certificate) is a periodically regenerated digital certificate that supports your website's authenticity and enables encryption for greater security between your web server and the visitor's browser. SSL certification is important to:
+
+* Prevent others from intercepting the information passing between the server and the browser.
+* Help users distinguish between the real version of your website and any fake versions created by other people.
+* Verify ownership of a website.
+
+We recommend all websites edited on CloudCannon use an SSL certificate.
+
+## HTTP vs HTTPS
+
+HTTP, or the HyperText Transfer Protocol, is the primary method used by the internet to transfer information between a browser and a web server. The acronym HTTP appears at the beginning of a website's URL.
+
+Websites with a valid SSL certificate use HTTPS instead, where the "S" stands for Secure. This means it is very easy to visually determine if a website is using a secure protocol.
+
+<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/hosting/what-is-web-hosting/2024-11/CloudCannon-Documentation-URL-Structure-Diagram.png" alt="A diagram of a URL shows labels for protocol, subdomain, domain, top-level domain, subdirectory, slug, and path." title="The structure of a URL" type="photo"/>
+
+Most browsers will automatically warn users before they attempt to visit an unsecure website (i.e., HTTP instead of HTTPS). Depending on your browser, this can take the form of a white warning page where the user must explicitly choose to continue to the unsecure website.
+
+Warnings about unsecure websites can lead to a higher user bounce rate (where users immediately "bounce" off your website before seeing any of your content). This might be because users are security conscious or because they lose interest due to an inefficient experience.
+
+You can avoid these issues by adding an SSL certificate to your Site to enable HTTPS.
+
+## How do SSL certificates work?
+
+SSL certificates contain the following details about your Site:
+
+* **Domain Name** — The address used to access a website (e.g., [cloudcannon.com](https://cloudcannon.com/)).
+* **Certificate expiration date** — The date a certificate expires. This is normally a year after it was generated.
+* **Public key** — A string used to encrypt data, protecting communication channels from unauthorized access. Data can only be decrypted with the corresponding Private key.
+* **Certificate Chain** — A sequence of certificates that links the SSL certificate for your Site to a trusted certificate authority, providing legitimacy to your SSL certificate.
+
+SSL certificates also come with a private key, which is not shared with the user's browser.
+
+* **Private key** — A string used to decrypt data.
+
+<comp.Notice info_type="important">
+  Your private key should only be provided to your DNS provider. Do not write down your Private key in a publicly accessible or unsecure place. If you think the security of your Private key has been compromized, please generate a new SSL certificate.
+</comp.Notice>
+
+When a browser attempts to connect to your website, it uses a process called a *TLS handshake*. This process validates the identity of the web server, the domain of your website, and prevents unauthorized access to the data passing between the user and your website.
+
+In simple terms, the *TLS handshake* includes the following steps:
+
+1. The user's browser contacts the web server hosting your website, specifying what version of TLS the browser is using and a random string called a "Client Random".
+2. The web server replies to the browser with the SSL certificate and a random string called a "Server Random".
+3. The browser will verify the SSL certificate with the certificate authority that issued it, confirming the authenticity of the web server and the domain.
+4. The browser contacts the web server again with a random string encrypted with the Public key from the SSL certificate.
+5. The web server uses the corresponding Private key to decrypt the message.
+6. If the web server and the user's browser agree on the strings for Client Random, Server Random, and the decrypted message, then the web server will allow the browser to access the website in an encrypted session.
+
+This process only takes milliseconds to complete, so it will not affect the user's experience on your website.
+
+Depending on your browser, a padlock icon will appear near your URL once you add an SSL certificate to your website. You can click on this icon to review the publicly available certificate information.
+
+## TLS Version
+
+To configure an SSL certificate for your Site on CloudCannon, you must specify the minimum TLS version.
+
+* **Minimum TLS Version** — The minimum version of TLS that a user's browser must have to be allowed to access your Site.
+
+A higher TLS version is a stronger cryptographic standard, including fixes for known vulnerabilities in previous versions. On CloudCannon, the minimum TLS version you can use for your Site is 1.2, however 1.3 is available if you require it.
+
+## Which SSL certificate is right for your domain?
+
+On CloudCannon, any Site with a [Custom Domain](/documentation/articles/what-is-a-custom-domain/) can use an [auto-generated SSL certificate](/documentation/articles/https-support-for-your-sites-hosted-on-cloudcannon/) or a [custom SSL certificate](/documentation/articles/add-a-custom-ssl-certificate/). Auto-generated SSL certificates can be either wildcard or single-domain certificates.
+
+### Auto-generated SSL certificates
+
+CloudCannon provides a free auto-generated SSL certificate by default for all Sites. An autogenerated SSL certificate can be a wildcard certificate or a single-domain certificate.
+
+* **Wildcard SSL certificate** — A certificate that protects a single domain and all its subdomains (e.g., example.com and its subdomains blog.example.com, support.example.com, app.example.com etc.).
+* **Single-domain SSL certificate** — A certificate that protects a single domain. This is useful if you only have one CloudCannon Site which is hosted on a subdomain.
+
+CloudCannon offers auto-generated SSL certificates through ZeroSSL and Cloudflare, and will automatically renew your certificate each year so you Site is never unsecure.
+
+A wildcard SSL certificate may be right for you if:
+
+* You host multiple Sites on CloudCannon using a base domain and subdomains.
+* You are using [CloudCannon DNS](/documentation/articles/configure-cloudcannon-dns/).
+
+A single-domain SSL certificate may be right for you if:
+
+* You only host Sites on CloudCannon on subdomains.
+* You are using [CloudCannon DNS](/documentation/articles/configure-cloudcannon-dns/).
+
+If you select an auto-generated SSL certificate for your Site hosted on CloudCannon, there are a few limitations you should consider.
+
+* If you are using an [external DNS provider](/documentation/articles/configure-external-dns/), some additional configuration is required. For more information, please read our documentation on [adding TXT DNS records](https://daring-train.cloudvent.net/documentation/articles/add-an-auto-generated-ssl-certificate/#add-txt-dns-records).
+
+For more information, please read our documentation on [adding an auto-generated SSL certificate](/documentation/articles/https-support-for-your-sites-hosted-on-cloudcannon/).
+
+### Custom SSL certificates
+
+You can purchase a custom SSL certificate from a trusted third-party service and add your certificate details to CloudCannon.
+
+* **Custom SSL certificate** — A certificate you have generated using a trusted third-party service (e.g., GoDaddy, Google, AWS, Cloudflare). Most web hosting services also provide the option to generate custom SSL certificates.
+
+A custom SSL certificate may be right for you if:
+
+* You already have an SSL certificate purchased through a third-party provider.
+* Your company's security policies require you to have an SSL certificate from an internally approved authority.
+
+For more information, please read our documentation on [adding a custom SSL certificate](/documentation/articles/add-a-custom-ssl-certificate/).
