@@ -471,24 +471,7 @@ module.exports = {
         "common_content"
       ]
     }
-  ]
-
-
-    
-    {
-      "heading": "Content",
-      "collections": [
-        "pages",
-        "blog"
-      ]
-    },
-    {
-      "heading": "Data Files",
-      "collections": [
-        "data"
-      ]
-    }
-  ]
+  ],
   _editables: {
     content: {
       format: "p h1 h2 h3 h4 h5 h6",
