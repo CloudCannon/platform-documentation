@@ -146,6 +146,10 @@ module.exports = {
     pages: {
       path: "",
       glob: [
+        "index.mdx",
+        "guides.mdx",
+        "changelog/*",
+        "articles/index.mdx",
         "404/*"
       ]
     },
@@ -454,15 +458,15 @@ module.exports = {
     {
       heading: "Other",
       collections: [
-        "changelog"
+        "changelog",
+        "pages"
       ]
     },
     {
       heading: "Data",
       collections: [
         "data",
-        "common_content",
-        "pages"
+        "common_content"
       ]
     }
   ],
