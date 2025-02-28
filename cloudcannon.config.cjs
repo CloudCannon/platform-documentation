@@ -461,7 +461,8 @@ module.exports = {
       heading: "Data",
       collections: [
         "data",
-        "common_content"
+        "common_content",
+        "pages"
       ]
     }
   ],
