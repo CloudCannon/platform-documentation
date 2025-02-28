@@ -143,6 +143,12 @@ module.exports = {
     ],
   },
   collections_config: {
+    pages: {
+      path: "",
+      glob: [
+        "404/*"
+      ]
+    },
     common_content: {
       paths: {
         dam_uploads:
@@ -243,18 +249,6 @@ module.exports = {
               },
             },
           },
-        },
-      },
-    },
-    reference: {
-      path: "reference",
-      output: true,
-      icon: "fact_check",
-      url: "/reference/[slug]/",
-      parser: "front-matter",
-      schemas: {
-        default: {
-          path: ".cloudcannon/schemas/reference.mdx",
         },
       },
     },
@@ -454,7 +448,6 @@ module.exports = {
     {
       heading: "Developers",
       collections: [
-        "reference",
         "keys"
       ]
     },
