@@ -1,0 +1,354 @@
+---
+_schema: default
+_uuid: 42263db6-8d59-4e9c-973d-4f374588429d
+_created_at: 2025-01-15T16:40:40+13:00
+title: Routing reference
+nav_title: Routing reference
+published: true
+image: >-
+  https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+description: >-
+  A complete list of configuration keys is available for your routing.json file
+  in CloudCannon.
+article_category:
+  - Reference
+article_topic:
+  - Routing
+  - Hosting
+tags: []
+related_articles: []
+related_links: []
+explicit_canonical:
+---
+Routing determines what content is returned to a visitor's browser when they request a URL. Custom routing allows you to extend the default behavior.
+
+This article covers all keys available in CloudCannon for configuring your `routing.json` file. For more information, please read our documentation on [Routing](/documentation/articles/what-is-routing/) in general and [configuring custom routing](/documentation/articles/configure-custom-routing/).
+
+All custom routing options are configured in the `routing.json` file in the `.cloudcannon` folder within your root directory.
+
+## Custom redirects
+
+<comp.DataReference>
+  <comp.DataReferenceRow label="routes" type_markdown="Array of Objects">
+    This key defines any custom redirects for URLs on CloudCannon hosted Sites.
+
+    The following nested keys are available for each entry in the `routes` array:
+
+    * `from` (required)
+    * `to` (required)
+    * `status`
+    * `forced`
+    * `substitutions`
+
+    This key has no default.
+
+    <comp.Example>
+      In this example, the `routes` array has three redirect rules: two which indicate that content has moved to a different URL, and one to indicate all subpaths of `/app/` are successful.
+
+      <comp.MultiCodeBlock language="JSON" source="routing.json">
+      ``````````
+      {
+        "routes": [
+          {
+            "from": "/cloudcannon/(.*)",
+            "to": "https://cloudcannon.com/$1",
+            "status": 302
+          },
+          {
+            "from": "/documentation/articles/choosing-your-ssg/",
+            "to": "/documentation/articles/select-your-ssg/",
+            "status": 301
+          },
+          {
+            "from": "/app/(.*)",
+            "to": "/app/",
+            "status": 200
+          }
+        ]
+      }
+
+      ``````````
+      </comp.MultiCodeBlock>
+    </comp.Example>
+  </comp.DataReferenceRow>
+</comp.DataReference>
+
+These keys configure which URLs should be redirected.
+
+<comp.DataReference>
+  <comp.DataReferenceRow label="from" type_markdown="String">
+    This key defines which URL should trigger this redirect rule. You must define this key for the redirect rule to function.
+
+    Values can be a plain text string or REGEX (implemented by [re2](https://github.com/google/re2/wiki/Syntax)). URLs must always start with a `/` character. The REGEX functions `^` and `$` are implicit for each value of this key.
+
+    This key has no default.
+
+    <comp.Example>
+      In this example, we want to redirect any users requesting the "/documentation/articles/choosing-your-ssg/" URL.
+
+      <comp.MultiCodeBlock language="JSON" source="routing.json">
+      ``````````
+      {
+        "routes": [
+          {
+            "from": "/documentation/articles/choosing-your-ssg/",
+            "to": "/documentation/articles/select-your-ssg/",
+            "status": 301
+          }
+        ]
+      }
+      ``````````
+      </comp.MultiCodeBlock>
+    </comp.Example>
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="to" type_markdown="String">
+    This key defines which URL this redirect rule should send visitors to. You must define this key for the redirect rule to function.
+
+    Values must be a plain text string, and can contain REGEX substitutions such as `$1` or `$2`.
+
+    This key has no default.
+
+    <comp.Example>
+      In this example, we want to permanently redirect any users requesting the "/documentation/articles/choosing-your-ssg/" URL to "/documentation/articles/select-your-ssg/".
+
+      <comp.MultiCodeBlock language="JSON" source="routing.json">
+      ``````````
+      {
+        "routes": [
+          {
+            "from": "/documentation/articles/choosing-your-ssg/",
+            "to": "/documentation/articles/select-your-ssg/",
+            "status": 301
+          }
+        ]
+      }
+      ``````````
+      </comp.MultiCodeBlock>
+    </comp.Example>
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="status" type_markdown="Number">
+    This key defines the [HTTP status code](https://en.wikipedia.org/wiki/List_of_HTTP_status_codes) for a redirect rule.
+
+    Values can be one of the following: `200`, `301`, `302`, `307`, `308`, `404`, or `410`.
+
+    <comp.Notice info_type="info">
+      When using 200, 404, and 410 status codes, `routes.to` must refer to a path on the same Site as `routes.from`, with the domain and protocol excluded.
+    </comp.Notice>
+
+    This key has no default.
+
+    <comp.Example>
+      In this example, we use the HTTP status `308` to indicate a permanent URL change.
+
+      <comp.MultiCodeBlock language="JSON" source="routing.json">
+      ``````````
+      {
+        "routes": [
+          {
+            "from": "/documentation/articles/choosing-your-ssg/",
+            "to": "/documentation/articles/select-your-ssg/",
+            "status": 308
+          }
+        ]
+      }
+      ``````````
+      </comp.MultiCodeBlock>
+    </comp.Example>
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="forced" type_markdown="Boolean">
+    This key toggles whether a redirect rule should take priority over the requested URL, even if the web server successfully finds content served to the URL.
+
+    Setting this key to `false` will prevent the redirect rule from taking priority unless the web server cannot find any content on the requested URL. This is useful if you don't want a greedy REGEX string in your redirect rule interfering with existing routes.
+
+    By default, this key is `true` (i.e., redirect rules will take priority).
+
+    <comp.Example>
+      In this example, we want to redirect all URLs to the 404 page unless the web server succesfully finds the content.
+
+      <comp.MultiCodeBlock language="JSON" source="routing.json">
+      ``````````
+      {
+        "routes": [
+          {
+            "from": "/.*",
+            "to": "/404.html",
+            "status": 404,
+            "forced": false
+          }
+        ]
+      }
+      ``````````
+      </comp.MultiCodeBlock>
+    </comp.Example>
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="substitutions" type_markdown="Boolean">
+    This key toggles whether the `routes.to` key will accept REGEX parameters.
+
+    Setting this key to `false` will prevent CloudCannon looking for REGEX parameters in the value of `routes.to`. This is useful if you have a URL with characters that resemble the REGEX parameters.
+
+    By default, this key is `true` (i.e., CloudCannon will look for REGEX parameters in the value of `routes.to`).
+
+    <comp.Example>
+      In this example, we want to redirect all URLs to the 404 page unless the web server succesfully finds the content.
+
+      <comp.MultiCodeBlock language="JSON" source="routing.json">
+      ``````````
+      {
+        "routes": [
+          {
+          "from": "/brands/two-dollar-store.html",
+          "to": "/brands/$2-store.html",
+            "status": 301,
+            "substitutions": false
+          }
+        ]
+      }
+      ``````````
+      </comp.MultiCodeBlock>
+    </comp.Example>
+  </comp.DataReferenceRow>
+</comp.DataReference>
+
+## Custom headers
+
+<comp.DataReference>
+  <comp.DataReferenceRow label="headers" type_markdown="Array">
+    This key defines any custom headers for URLs on CloudCannon hosted Sites.
+  
+    The following nested keys are available for each entry in the `headers` array:
+  
+    * `match`
+    * `name`
+    * `value`
+  
+    This key has no default.
+  
+    <comp.Example>
+      In this example, CloudCannon will apply an X-Robots-Tag header to any URL starting with `/staff-only/`, and will apply Access-Control-Allow-Origin and X-Content-Type-Options to all URLs
+  
+      <comp.MultiCodeBlock language="JSON" source="routing.json">
+      ``````````
+      {
+        "headers": [
+          {
+            "match": "/staff-only/*",
+            "headers": [
+              {
+                "name": "X-Robots-Tag",
+                "value": "noindex, nofollow"
+              }
+            ]
+          },
+          {
+            "match": "*",
+            "headers": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "https://example.com"
+              },
+              {
+                "name": "X-Content-Type-Options",
+                "value": "nosniff"
+              }
+            ]
+          }
+        ]
+      }
+  
+      ``````````
+      </comp.MultiCodeBlock>
+    </comp.Example>
+  </comp.DataReferenceRow>
+</comp.DataReference>
+
+These keys configure which which HTTP headers CloudCannon should pass between the web server and the client.
+
+<comp.DataReference>
+  <comp.DataReferenceRow label="headers.match" type_markdown="String">
+    This key defines the URLs to which CloudCannon should apply headers. CloudCannon will apply all headers in the `headers` array.
+    
+    Values can be a plain text string or REGEX (implemented by [re2](https://github.com/google/re2/wiki/Syntax)). URLs must always start with a `/` character. The REGEX functions `^` and `$` are implicit for each value of this key.
+  
+    This key has no default.
+  
+    <comp.Example>
+      In this example, CloudCannon will only apply the `X-Robots-Tag` header to the URL `/staff-only/` and all subpaths.
+  
+      <comp.MultiCodeBlock language="JSON" source="routing.json">
+      ``````````
+      {
+        "headers": [
+          {
+            "match": "/staff-only/*",
+            "headers": [
+              {
+                "name": "X-Robots-Tag",
+                "value": "noindex, nofollow"
+              }
+            ]
+          }
+        ]
+      }
+      ``````````
+      </comp.MultiCodeBlock>
+    </comp.Example>
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="headers.name" type_markdown="String">
+    This key defines the name of the HTTP header CloudCannon should provide to the client.
+  
+    Values can be one of the following: `access-control-allow-headers`, `access-control-allow-methods`, `access-control-allow-origin`, `content-security-policy`, `content-security-policy-report-only`, `content-type`, `expect-ct`, `large-allocation`, `permissions-policy`, `referrer-policy`,  `sourcemap`, `strict-transport-security`, `x-content-type-options`, `x-frame-options`, `x-robots-tag`, or `x-xss-protection`.
+  
+    This key has no default.
+  
+    <comp.Example>
+      In this example, CloudCannon uses the `X-Robots-Tag` header to prevent clients (i.e., Search Engines) from indexing the staff-only section of this website.
+  
+      <comp.MultiCodeBlock language="JSON" source="routing.json">
+      ``````````
+      {
+        "headers": [
+          {
+            "match": "/staff-only/*",
+            "headers": [
+              {
+                "name": "X-Robots-Tag",
+                "value": "noindex, nofollow"
+              }
+            ]
+          }
+        ]
+      }
+      ``````````
+      </comp.MultiCodeBlock>
+    </comp.Example>
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="headers.value" type_markdown="String">
+    This key defines the header values CloudCannon should pass the client.
+    
+    Accepted values will depend on the `header.name`. For more information, please read the documentation of the header you are using.
+    
+    This key has no default.
+    
+    <comp.Example>
+      In this example, CloudCannon instructs Google's crawling robot not to index the staff only area of the website, or follow any links on this page to find other pages to index. For more information, please read [Google's Crawling Robot](https://developers.google.com/search/docs/crawling-indexing/robots-meta-tag) documentation.
+    
+      <comp.MultiCodeBlock language="JSON" source="routing.json">
+        ``````````
+        {
+          "headers": [
+            {
+              "match": "/staff-only/*",
+              "headers": [
+                {
+                  "name": "X-Robots-Tag",
+                  "value": "noindex, nofollow"
+                }
+              ]
+            }
+          ]
+        }
+        ``````````
+        </comp.MultiCodeBlock>
+    </comp.Example>
+  </comp.DataReferenceRow>
+</comp.DataReference>
