@@ -143,6 +143,16 @@ module.exports = {
     ],
   },
   collections_config: {
+    pages: {
+      path: "",
+      glob: [
+        "index.mdx",
+        "guides.mdx",
+        "changelog/*",
+        "articles/index.mdx",
+        "404/*"
+      ]
+    },
     common_content: {
       paths: {
         dam_uploads:
@@ -243,18 +253,6 @@ module.exports = {
               },
             },
           },
-        },
-      },
-    },
-    reference: {
-      path: "reference",
-      output: true,
-      icon: "fact_check",
-      url: "/reference/[slug]/",
-      parser: "front-matter",
-      schemas: {
-        default: {
-          path: ".cloudcannon/schemas/reference.mdx",
         },
       },
     },
@@ -442,6 +440,36 @@ module.exports = {
       },
     },
   },
+  collection_groups: [
+    {
+      heading: "Users",
+      collections: [
+        "articles",
+        "guides",
+        "glossary"
+      ]
+    },
+    {
+      heading: "Developers",
+      collections: [
+        "keys"
+      ]
+    },
+    {
+      heading: "Other",
+      collections: [
+        "changelog",
+        "pages"
+      ]
+    },
+    {
+      heading: "Data",
+      collections: [
+        "data",
+        "common_content"
+      ]
+    }
+  ],
   _editables: {
     content: {
       format: "p h1 h2 h3 h4 h5 h6",
