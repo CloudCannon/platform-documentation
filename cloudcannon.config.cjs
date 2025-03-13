@@ -544,7 +544,7 @@ module.exports = {
     author_notes: {
       type: "object",
       options: {
-        subtype: "mutable",
+        subtype: "tabbed",
       },
     },
     article_topic: {
