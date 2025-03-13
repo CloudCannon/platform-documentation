@@ -209,6 +209,10 @@ module.exports = {
       icon: "article",
       url: "/articles/[slug]/",
       parser: "front-matter",
+      sort: {
+        key: "doc_shots",
+        order: "descending",
+      },
       schemas: {
         default: {
           path: ".cloudcannon/schemas/article.mdx",
