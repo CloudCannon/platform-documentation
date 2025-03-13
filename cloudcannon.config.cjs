@@ -209,38 +209,6 @@ module.exports = {
       icon: "article",
       url: "/articles/[slug]/",
       parser: "front-matter",
-      sort_options: [
-        {  
-        key: "title",
-        order: "ascending",
-        label: "Author (A-Z)",
-        },
-        {  
-        key: "title",
-        order: "descending",
-        label: "Author (Z-A)",
-        },
-        {  
-        key: "_created_at",
-        order: "ascending",
-        label: "Date Created (Newest First)",
-        },
-        {  
-        key: "_created_at",
-        order: "descending",
-        label: "Date Created (Oldest First)",
-        },
-        {  
-        key: "doc_shots",
-        order: "ascending",
-        label: "Doc Shots (Newest First)",
-        },
-        {  
-        key: "doc_shots",
-        order: "descending",
-        label: "Doc Shots (Oldest First)",
-        },        
-      ],
       schemas: {
         default: {
           path: ".cloudcannon/schemas/article.mdx",
