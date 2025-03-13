@@ -1,0 +1,62 @@
+---
+_schema: default
+_uuid: c0536066-95b8-4298-bc99-ebcecf9b3260
+_created_at: 2025-02-28T11:28:51+13:00
+title: What are conflicts?
+nav_title: What are conflicts?
+published: true
+image: >-
+  https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+description: Learn about conflicts in CloudCannon and how they arise.
+article_category:
+  - Explanation
+article_topic:
+  - Editing
+  - Conflicts
+tags: []
+related_articles: []
+related_links: []
+explicit_canonical:
+---
+In CloudCannon, conflicts arise when multiple people try to update the same file or part of a file in a way that conflicts with each other. When CloudCannon detects a conflict, it is important to resolve it by choosing which version of your file to keep.
+
+<comp.Notice info_type="info">
+  Conflicts aren't dangerous to your content or website — they're CloudCannon's way of letting you know that there are two versions of your file, and that you need to choose how to proceed.
+</comp.Notice>
+
+There are two types of conflicts you can encounter in CloudCannon:
+
+* **Publishing conflict** — When changes to a file on your Site conflict with incoming changes to the same file from your [Publish Branch](/documentation/articles/what-is-a-publish-branch/).
+* **Syncing conflict** — When unsaved changes to a file on your Site conflict with incoming changes to the same file from a different CloudCannon Site or your git repository.
+
+CloudCannon will warn you when it detects a conflict using a notification in your *Site Navigation*, in the *Review changes* modal, or on the *Publishing* page.
+
+## Publishing conflicts
+
+Publishing conflicts can occur when you <a href="/documentation/articles/connect-a-publish-branch/" target="_blank" rel="noopener">connect a Publish Branch</a> to your Site. A Publish Branch is the copy of your Site to which you publish your changes. Connecting a Publish Branch allows you to work on your website using a separate copy without your changes going public until you are ready.
+
+Multiple Sites can contribute to the same Publish Branch. A publishing conflict occurs when you or a team member have updated the same file on different branches that contribute to the same Publish Branch. When one Site publishes to the Publish Branch first, the other Site must update. CloudCannon will detect that there are conflicting versions of the same file and ask you to resolve this conflict by choosing which version of the file to keep: the changes on our current Site, the incoming changes from the Publish Branch, or a hybrid of the two.
+
+Let's go through an example.
+
+<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/publishing/what-is-a-publish-branch/2025-03/CloudCannon-Documentation-Branching-Workflow-Diagram.png" alt="A diagram of a branching workflow shows three project branches publish to the Staging Branch, which publishes to the Live Website branch." title="Branching Workflow Diagram" type="photo"/>
+
+In the diagram above, three Sites contribute to the same Publish Branch: one for writing a new blog, one for removing a product page, and one for updating the Site navigation. Deleting the product page and updating the navigation both require our team to make changes to the `/products/` page: one team member removes a link from that page, and another renames the page to `/services/`, effectively deleting the `/products/` page and replacing it with the new `/services/` page. These changes conflict with each other.
+
+The team member updating the website navigation finishes first and publishes their changes to the Publish Branch: "Staging Website."
+
+We are working on removing the product page, and before we can publish it to the staging website, CloudCannon will prompt us to <a href="/documentation/articles/update-from-a-publish-branch/" target="_blank" rel="noopener">update from our Publish Branch</a>. When we try to update, CloudCannon detects conflicting versions of the `/products/` file: on our Site, we have changed a link, but on the Publish Branch, the `/products/` page doesn't exist anymore.
+
+Before we can publish our changes, CloudCannon requires us to choose which version of the file to keep. For more information, please read our documentation on <a href="/documentation/articles/resolve-publishing-conflicts/" target="_blank" rel="noopener">resolving publishing conflicts</a>.
+
+## Syncing conflicts
+
+Syncing conflicts can occur when multiple people edit the same file on the same branch but not on the same CloudCannon Site. There are two ways to edit the same branch without being on the same CloudCannon Site.
+
+One, you could connect the same branch to more than one CloudCannon Site. Normally, each branch in your Git repository is connected to one Site in CloudCannon. However, you can connect multiple CloudCannon Sites to a single branch if that suits your workflow (e.g., you have multiple websites in a single Git repository, or "monorepo").
+
+Two, you could edit the same branch using a CloudCannon Site, your local development environment, or directly through your Git provider simultaneously. It's common for content creators to use CloudCannon to update their website, while developers use their local development environment or Git provider.
+
+CloudCannon is constantly monitoring your branch in your Git repository, so when someone saves a change to the branch, all CloudCannon Sites connected to the branch will sync that change. A syncing conflict occurs when you have unsaved changes to a file, and CloudCannon tries to sync an update to that file from your Git repository. To prevent incoming changes from your Git repository from overwriting your unsaved changes, CloudCannon will stop attempting to sync your files and alert you to the syncing conflict.
+
+Before we can save any changes to other files, CloudCannon requires you to choose which version of the file to keep by attempting to merge the incoming changes with the unsaved changes or discarding your unsaved changes. For more information, please read our documentation on [resolving syncing conflicts](/documentation/articles/resolve-syncing-conflicts/).
