@@ -230,7 +230,6 @@ module.exports = {
         order: "descending",
         label: "Date Created (Oldest First)",
         },
-        ,
         {  
         key: "doc_shots",
         order: "ascending",
