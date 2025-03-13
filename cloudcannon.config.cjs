@@ -544,7 +544,16 @@ module.exports = {
     author_notes: {
       type: "object",
       options: {
-        subtype: "tabbed",
+        subtype: "object",
+      },
+      groups: {
+        heading: "x",
+        comment: "y",
+        inputs: [
+          {
+            key: "toolproof_screenshots",
+          },
+        ],
       },
     },
     article_topic: {
