@@ -546,27 +546,6 @@ module.exports = {
       options: {
         subtype: "object",
       },
-      groups: [
-          {
-          heading: "a",
-          comment: "b",
-          inputs: [
-            {
-              key: "toolproof_screenshots",
-            },
-          ],
-        },
-        {
-          heading: "x",
-          comment: "y",
-          inputs: [
-            {
-              key: "test1",
-              key: "test2",
-            },
-          ],
-        },
-      ],
     },
     article_topic: {
       type: "multiselect",
