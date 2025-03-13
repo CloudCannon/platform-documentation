@@ -541,6 +541,12 @@ module.exports = {
         },
       },
     },
+    author_notes: {
+      type: "object",
+      options: {
+        subtype: "mutable",
+      },
+    },
     article_topic: {
       type: "multiselect",
       comment: "Select which topics apply to this article.",
