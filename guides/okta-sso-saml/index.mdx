@@ -39,31 +39,6 @@ CloudCannon supports SSO for Organizations on our Enterprise plan. With Okta SSO
 
 After configuring SSO/SAML, CloudCannon will create a custom landing page for your Organization. Team members can click a button, and CloudCannon will confirm their identity with Okta or redirect them to the Okta login page.
 
-## How does SSO/SAML work?
-
-The Single Sign-On process uses the following steps:
-
-1. The user tries to log in to CloudCannon.
-2. CloudCannon generates a SAML request.
-3. The user's Internet browser redirects them to the Single Sign-On (SSO) URL. In this case, the SSO URL would be an Okta Login page.
-4. The Identity Provider (Okta) parses CloudCannon's SAML request. Okta authenticates the user by asking them to enter their Okta username and password. If the user is already logged in to Okta, then it skips this step.
-5. The Identity Provider (Okta) generates a SAML response.
-6. The user's Internet browser redirects them to CloudCannon, where CloudCannon validates the SAML response.
-7. If the verification is successful, CloudCannon logs the user in and gives them access to your Organization.
-
-When you configure SSO/SAML between an Identity Provider and a Service Provider
-
-&nbsp;
-
-&nbsp;
-
-* **Single sign-on** **(SSO) URL** — The CloudCannon address to which Okta will redirect users after they enter their login in details. CloudCannon calls this the *SSO URL*.
-* **Entity ID** — The intended recipient for your SAML assertion, also known as the Service Provider (SP). CloudCannon calls this the *Entity ID (Issuer)*.
-
-&nbsp;
-
-&nbsp;
-
 ## Why use SSO/SAML?
 
 When you have a larger team, managing their access to various software can be tricky. SSO enables you to:
@@ -73,3 +48,58 @@ When you have a larger team, managing their access to various software can be tr
 * Revoke access in a single location and know you have removed access to multiple applications.
 
 SSO is also required for some security and compliance policies, as it reduces password-related vulnerabilities and puts authentication in the hands of a single Identity Provider rather than many applications.
+
+## How does SSO/SAML work?
+
+They main point of confusion when setting up SSO/SAML between an Identity Provider (i.e., Okta) and a Service Provider (i.e., CloudCannon) is the conflicting terminology used by different software, and the back-and-forth
+
+&nbsp;
+
+* **Single sign-on** **(SSO) URL** — The CloudCannon address to which Okta will redirect users after they enter their login in details. CloudCannon calls this the *SSO URL*.
+* **SAML 2.0 Endpoint (HTTP)** — The Okta URL to which CloudCannon will redirect users when they try to log in to CloudCannon.
+
+&nbsp;
+
+* **Entity ID** — The intended recipient for your SAML assertion. This is also known as the Service Provider (SP). CloudCannon calls this the *Entity ID (Issuer)*.
+
+&nbsp;
+
+* **Name ID Format** — Determines how the Identity Provider (Okta) identifies a user to the Service Provider (CloudCannon).
+* **Authn Context** — Determines how the Service Provider (CloudCannon) expects the Identity Provider (Okta) to authenticate the user.
+* **Signing Algorithm** — Select the SHA1 or SHA256 algorithm to encrypt your data. SHA1 uses 160-bit long key to encrypt data while SHA256 uses 256-bit long key.
+* **X.509 Certificate** — Determines the format, structure, and content of the public key certificate.
+
+&nbsp;
+
+The Single Sign-On process uses the following steps:
+
+1. The user tries to log in to CloudCannon.
+2. CloudCannon generates a SAML request.
+3. The user's Internet browser redirects them to the SAML 2.0 Endpoint (i.e., Okta), where Okta parses the SAML request.
+4. Okta authenticates the user by asking them to enter their Okta username and password. If the user is already logged in to Okta, then it skips this step.
+5. The Identity Provider (Okta) generates a SAML response.
+6. The user's Internet browser redirects them to the SSO URL (i.e., CloudCannon), where CloudCannon validates the SAML response.
+7. If the verification is successful, CloudCannon logs the user in and gives them access to your Organization.
+
+&nbsp;
+
+&nbsp;
+
+&nbsp;
+
+* **Entity ID** — The intended recipient for your SAML assertion, also known as the Service Provider (SP). CloudCannon calls this the *Entity ID (Issuer)*.
+
+&nbsp;
+
+&nbsp;
+
+* &nbsp;
+* **Entity ID (Issuer) — The unique URL where CloudCannon publishes public information about its SAML configuration, including the public certificate. Must start with `https://cloudcannon.com/`.**
+
+&nbsp;
+
+&nbsp;
+
+&nbsp;
+
+##
