@@ -21,157 +21,77 @@ An Input is an editing interface for structured data in your data files or the f
 
 This article covers all keys available in CloudCannon for configuring your Inputs. For more information, please read our documentation on [Inputs](/documentation/articles/what-are-inputs/) in general and [configuring your Inputs](/documentation/articles/configure-your-inputs/).
 
-All Collections options are configured within the `_inputs` key in your [CloudCannon configuration file](/documentation/articles/what-is-the-cloudcannon-configuration-file/).
+All Inputs options are configured within the `_inputs` key in your [CloudCannon configuration file](/documentation/articles/what-is-the-cloudcannon-configuration-file/).
 
 <comp.DataReference>
   <comp.DataReferenceRow label="collections_config" type_markdown="Object">
-    This key defines your Collections. The following nested keys are available for each Collection:
-
-    * `path`
-    * `glob`
-    * `name`
-    * `singular_name`
-    * `icon`
-    * `url`
-    * `disable_url`
-    * `documentation`
-    * `description`
-    * `preview`
-    * `sort`
-    * `sort_options`
-    * `_editables`
-    * `_enabled_editors`
-    * `_inputs`
-    * `_select_data`
-    * `_structures`
-    * `add_options`
-    * `create`
-    * `disable_add`
-    * `disable_add_folder`
-    * `disable_file_actions`
-    * `new_preview_url`
-    * `schemas`
-    * `schema_key`
-    * `include_developer_files`
-
-    By default, CloudCannon uses your `source` key to make assumptions about your Collections.
-
+    This key defines which inputs are available at a given level of the
+    configuration cascade.
+  
+    The following nested keys are available for each input inside `_inputs`:
+  
+    * `type`
+    * `label`
+    * `comment`
+    * `context`
+    * `hidden`
+    * `disabled`
+    * `instance_value`
+    * `cascade`
+    * `options`
+  
+    This key has no default. If undefined at higher levels of the [configuration cascade](/documentation/articles/using-the-configuration-cascade/), `_inputs` will default to any values configured in the [CloudCannon configuration file](/documentation/articles/what-is-the-cloudcannon-configuration-file/).
+  
     <comp.Example>
-      In this example, we have configured a `blog` Collection. Key settings include two Schemas to populate files with different content, a Blog Tags input populated by a fixed data set, and a custom Create Path to generate file names from structured data.
-
+      In this example, we have configured the `date_created` Date input, which will automatically populate when you create a file using this input. Editors cannot alter this input as the interface is disabled.
+    
       <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
-                                          ``````````
-                                          collections_config:
-                                            blog:
-                                              path: content/blog
-                                              glob:
-                                                - '!_index.md'
-                                              name: Blog
-                                              icon: post_add
-                                              url: /blog/
-                                              documentation:
-                                                url: https://example.com/travel-blog-style-guide
-                                                text: Documentation
-                                                icon: auto_stories
-                                              description: |-
-                                                This Collection is for *Travel blogs* and *Customer stories*.
-
-                                                If your have any questions, please contact Heather.
-                                              _editables:
-                                              _enabled_editors:
-                                                - content
-                                              _inputs:
-                                                blog_tags:
-                                                  type: multiselect
-                                                  label: Blog type
-                                                  comment: Select a blog type
-                                                  context:
-                                                    open: false
-                                                    title: Help
-                                                    icon: help
-                                                    content: |
-                                                      Blog tags help our users filter articles by topic.
-                                                  options:
-                                                    values: _select_data.blog_topics
-                                              _select_data:
-                                                blog_topics:
-                                                  - Opinion
-                                                  - Feature
-                                                  - Resource
-                                              create:
-                                                extra_data:
-                                                  filename: '{date|year}-{date|month}-{date|day}-{title}'
-                                                path: '[relative_base_path]/{filename|slugify}.[ext]'
-                                              disable_add: false
-                                              disable_add_folder: false
-                                              disable_file_actions: false
-                                              schemas:
-                                                blog:
-                                                  path: schemas/travel_blog.md
-                                                  name: Blog Post
-                                                  icon: post_add
-                                                customer_story:
-                                                  path: schemas/customer_story.md
-                                                  name: Customer Story
-                                                  icon: post_add
-                                              schema_key: _blog_template
-                                              include_developer_files: false
-                                          ``````````
-                                          </comp.MultiCodeBlock>
-
-      In this example, we have configured a `team` Collection. Key settings include custom sorting options, add options, and Card previews.
-
+      ``````````
+      _inputs:
+        date_created:
+          type: datetime
+          label: Date of article creation
+          comment: UTC +0 timezone
+          context:
+            open: false
+            title: Help
+            icon: help
+            content: This date field will automatically populate when you create an article.
+          hidden: false
+          disabled: true
+          instance_value: NOW
+          cascade: true
+          options:
+            timezone: Etc/UTC
+      ``````````
+      </comp.MultiCodeBlock>
+    
+      In this example, we have configured the `blog_tags` Multiselect input for the `blog` Collection.
+  
       <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
-                                          ``````````
-                                          collections_config:
-                                            team:
-                                              path: _data/team
-                                              name: Our Team
-                                              singular_name: Team Member
-                                              icon: groups
-                                              disable_url: true
-                                              description: |-
-                                                This Collection has a file for every member of our team!
-                                              preview:
-                                                text:
-                                                  - key: name
-                                                subtext:
-                                                  - key: job_title
-                                                icon:
-                                                  - key: profile_picture
-                                              sort:
-                                                key: name
-                                                order: ascending
-                                              sort_options:
-                                                - key: name
-                                                  order: ascending
-                                                  label: Name (A-Z)
-                                                - key: name
-                                                  order: descending
-                                                  label: Name (Z-A)
-                                                - key: job_title
-                                                  order: ascending
-                                                  label: Job Title (A-Z)
-                                                - key: date
-                                                  order: descending
-                                                  label: Job Title (Z-A)
-                                              _enabled_editors:
-                                                - data
-                                              add_options:
-                                                - name: Office Locations
-                                                  icon: map
-                                                  href: /our-offices
-                                              schemas:
-                                                manager:
-                                                  path: schemas/manager.yml
-                                                  name: Manager
-                                                  icon: face
-                                                employee:
-                                                  path: schemas/employee.yml
-                                                  name: Employee
-                                                  icon: support_agent
-                                          ``````````
-                                          </comp.MultiCodeBlock>
+      ``````````
+      collections_config:
+        blog:
+          _inputs:
+            blog_tags:
+              type: multiselect
+              label: Blog type
+              comment: Select a blog type
+              context:
+                open: false
+                title: Help
+                icon: help
+                content: |
+                  Blog tags help our users filter articles by topic.
+              options:
+                values:
+                  - Opinion
+                  - Feature
+                  - Resource
+  
+      ``````````
+      </comp.MultiCodeBlock>
+    
     </comp.Example>
   </comp.DataReferenceRow>
 </comp.DataReference>
@@ -207,12 +127,12 @@ These keys configure how a Collection functions in CloudCannon.
       In this example, the files for the `blog` Collection are located in the `content/blog` folder.
 
       <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
-                                          ``````````
-                                          collections_config:
-                                            blog:
-                                              path: content/blog
-                                          ``````````
-                                          </comp.MultiCodeBlock>
+                                                            ``````````
+                                                            collections_config:
+                                                              blog:
+                                                                path: content/blog
+                                                            ``````````
+                                                            </comp.MultiCodeBlock>
     </comp.Example>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="glob" type_markdown="Array of Strings">
@@ -233,39 +153,39 @@ These keys configure how a Collection functions in CloudCannon.
       In this example, the *Collection browser* will show all files in the `data` folder except for the `secret.yml` file.
 
       <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
-                                          ``````````
-                                          collections_config:
-                                            data:
-                                              path: data
-                                              glob:
-                                                - '!secret.yml'
-                                          ``````````
-                                          </comp.MultiCodeBlock>
+                                                            ``````````
+                                                            collections_config:
+                                                              data:
+                                                                path: data
+                                                                glob:
+                                                                  - '!secret.yml'
+                                                            ``````````
+                                                            </comp.MultiCodeBlock>
 
       In this example, the *Collection browser* will show only `.yml` files in the `data` folder or any nested folders.
 
       <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
-                                          ``````````
-                                          collections_config:
-                                            data:
-                                              path: data
-                                              glob:
-                                                - '**/*.yml'
-                                          ``````````
-                                          </comp.MultiCodeBlock>
+                                                            ``````````
+                                                            collections_config:
+                                                              data:
+                                                                path: data
+                                                                glob:
+                                                                  - '**/*.yml'
+                                                            ``````````
+                                                            </comp.MultiCodeBlock>
 
       In this example, the *Collection browser* will show only `.yml` files in the `data` folder, except for the `secret.yml` file.
 
       <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
-                                          ``````````
-                                          collections_config:
-                                            data:
-                                              path: data
-                                              glob:
-                                                - '**/*.yml'
-                                                - '!secret.yml'
-                                          ``````````
-                                          </comp.MultiCodeBlock>
+                                                            ``````````
+                                                            collections_config:
+                                                              data:
+                                                                path: data
+                                                                glob:
+                                                                  - '**/*.yml'
+                                                                  - '!secret.yml'
+                                                            ``````````
+                                                            </comp.MultiCodeBlock>
     </comp.Example>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="url" type_markdown="String">
@@ -283,12 +203,12 @@ These keys configure how a Collection functions in CloudCannon.
       In this example, the output URL for files in this Collection will be `/travel/` rather than the default `/blog/`.
 
       <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
-                                          ``````````
-                                          collections_config:
-                                            blog:
-                                              url: /travel/[slug]/
-                                          ``````````
-                                          </comp.MultiCodeBlock>
+                                                            ``````````
+                                                            collections_config:
+                                                              blog:
+                                                                url: /travel/[slug]/
+                                                            ``````````
+                                                            </comp.MultiCodeBlock>
     </comp.Example>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="disable_url" type_markdown="Boolean">
@@ -302,12 +222,12 @@ These keys configure how a Collection functions in CloudCannon.
       In this example, `data` is an non-output Collection and we don't want output URLs generated.
 
       <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
-                                          ``````````
-                                          collections_config:
-                                            data:
-                                              disable_url: true
-                                          ``````````
-                                          </comp.MultiCodeBlock>
+                                                            ``````````
+                                                            collections_config:
+                                                              data:
+                                                                disable_url: true
+                                                            ``````````
+                                                            </comp.MultiCodeBlock>
     </comp.Example>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="include_developer_files" type_markdown="Boolean">
@@ -323,12 +243,12 @@ These keys configure how a Collection functions in CloudCannon.
       In this example, we want to see developer files in the *Collection browser* for the `data` Collection.
 
       <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
-                                          ``````````
-                                          collections_config:
-                                            data:
-                                              include_developer_files: true
-                                          ``````````
-                                          </comp.MultiCodeBlock>
+                                                            ``````````
+                                                            collections_config:
+                                                              data:
+                                                                include_developer_files: true
+                                                            ``````````
+                                                            </comp.MultiCodeBlock>
     </comp.Example>
   </comp.DataReferenceRow>
 </comp.DataReference>
@@ -347,12 +267,12 @@ These keys configure how a Collection appears in CloudCannon.
       In this example, CloudCannon will call the `blog` Collection "Travel Blog" in the *Site Navigation* and the *Collection browser*.
 
       <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
-                                          ``````````
-                                          collections_config:
-                                            blog:
-                                              name: Travel Blog
-                                          ``````````
-                                          </comp.MultiCodeBlock>
+                                                            ``````````
+                                                            collections_config:
+                                                              blog:
+                                                                name: Travel Blog
+                                                            ``````````
+                                                            </comp.MultiCodeBlock>
     </comp.Example>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="description" type_markdown="String">
@@ -364,15 +284,15 @@ These keys configure how a Collection appears in CloudCannon.
 
     <comp.Example>
       <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
-                                          ``````````
-                                          collections_config:
-                                            blog:
-                                              description:|-
-                                                This Collection is for *Travel blogs* and *Customer stories*.
+                                                            ``````````
+                                                            collections_config:
+                                                              blog:
+                                                                description:|-
+                                                                  This Collection is for *Travel blogs* and *Customer stories*.
 
-                                                If your have any questions, please contact Heather.
-                                          ``````````
-                                          </comp.MultiCodeBlock>
+                                                                  If your have any questions, please contact Heather.
+                                                            ``````````
+                                                            </comp.MultiCodeBlock>
     </comp.Example>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="icon" type_markdown="String">
@@ -390,12 +310,12 @@ These keys configure how a Collection appears in CloudCannon.
       In this example, we have configured the `post_add` icon for the `blog` Collection.
 
       <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
-                                          ``````````
-                                          collections_config:
-                                            blog:
-                                              icon: post_add
-                                          ``````````
-                                          </comp.MultiCodeBlock>
+                                                            ``````````
+                                                            collections_config:
+                                                              blog:
+                                                                icon: post_add
+                                                            ``````````
+                                                            </comp.MultiCodeBlock>
     </comp.Example>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="documentation" type_markdown="Object">
@@ -413,15 +333,15 @@ These keys configure how a Collection appears in CloudCannon.
       In this example, the documentation link for the `data` Collection goes to [CloudCannon Documentation](https://cloudcannon.com/documentation/).
 
       <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
-                                          ``````````
-                                          collections_config:
-                                            data:
-                                              documentation:
-                                                url: https://cloudcannon.com/documentation/
-                                                text: CloudCannon Documentation
-                                                icon: star
-                                          ``````````
-                                          </comp.MultiCodeBlock>
+                                                            ``````````
+                                                            collections_config:
+                                                              data:
+                                                                documentation:
+                                                                  url: https://cloudcannon.com/documentation/
+                                                                  text: CloudCannon Documentation
+                                                                  icon: star
+                                                            ``````````
+                                                            </comp.MultiCodeBlock>
     </comp.Example>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="documentation.url" type_markdown="String">
@@ -434,13 +354,13 @@ These keys configure how a Collection appears in CloudCannon.
       In this example, we have configured the `blog` Collection documentation link to go to `example.com`.
 
       <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
-                                          ``````````
-                                          collections_config:
-                                            blog:
-                                              documentation:
-                                                url: https://example.com
-                                          ``````````
-                                          </comp.MultiCodeBlock>
+                                                            ``````````
+                                                            collections_config:
+                                                              blog:
+                                                                documentation:
+                                                                  url: https://example.com
+                                                            ``````````
+                                                            </comp.MultiCodeBlock>
     </comp.Example>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="documentation.text" type_markdown="String">
@@ -452,14 +372,14 @@ These keys configure how a Collection appears in CloudCannon.
       In this example, the text for the documentation link is `CloudCannon Documentation`.
 
       <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
-                                          ``````````
-                                          collections_config:
-                                            data:
-                                              documentation:
-                                                url: https://cloudcannon.com/documentation/
-                                                text: CloudCannon Documentation
-                                          ``````````
-                                          </comp.MultiCodeBlock>
+                                                            ``````````
+                                                            collections_config:
+                                                              data:
+                                                                documentation:
+                                                                  url: https://cloudcannon.com/documentation/
+                                                                  text: CloudCannon Documentation
+                                                            ``````````
+                                                            </comp.MultiCodeBlock>
     </comp.Example>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="documentation.icon" type_markdown="String">
@@ -474,14 +394,14 @@ These keys configure how a Collection appears in CloudCannon.
       In this example, we have configured the `star` icon for the `blog` Collection documentation link.
 
       <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
-                                          ``````````
-                                          collections_config:
-                                            blog:
-                                              documentation:
-                                                url: https://www.cloudcannon.com/documentation/
-                                                icon: star
-                                          ``````````
-                                          </comp.MultiCodeBlock>
+                                                            ``````````
+                                                            collections_config:
+                                                              blog:
+                                                                documentation:
+                                                                  url: https://www.cloudcannon.com/documentation/
+                                                                  icon: star
+                                                            ``````````
+                                                            </comp.MultiCodeBlock>
     </comp.Example>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="preview" type_markdown="Object">
@@ -504,30 +424,30 @@ These keys configure how a Collection appears in CloudCannon.
       In this example, we have configured the file Cards in the *Collection browser*.
 
       <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
-                                          ``````````
-                                          collections_config:
-                                            blog:
-                                              preview:
-                                                text:
-                                                  - key: title
-                                                subtext:
-                                                  - key: author
-                                                icon: edit_note
-                                                icon_color:
-                                                  - key: color
-                                                  - '#ff0000'
-                                                image:
-                                                  - key: image
-                                                metadata:
-                                                  - template: [url]
-                                                  - icon: event
-                                                    text:
-                                                      - template: 'Published on {date|date_long}'
-                                                gallery:
-                                                  - key: featured_image
+                                                            ``````````
+                                                            collections_config:
+                                                              blog:
+                                                                preview:
+                                                                  text:
+                                                                    - key: title
+                                                                  subtext:
+                                                                    - key: author
+                                                                  icon: edit_note
+                                                                  icon_color:
+                                                                    - key: color
+                                                                    - '#ff0000'
+                                                                  image:
+                                                                    - key: image
+                                                                  metadata:
+                                                                    - template: [url]
+                                                                    - icon: event
+                                                                      text:
+                                                                        - template: 'Published on {date|date_long}'
+                                                                  gallery:
+                                                                    - key: featured_image
 
-                                          ``````````
-                                          </comp.MultiCodeBlock>
+                                                            ``````````
+                                                            </comp.MultiCodeBlock>
     </comp.Example>
 
     For more information, please read our documentation on [configuring your Card previews](/documentation/articles/configure-your-card-previews/).
@@ -548,14 +468,14 @@ These keys configure how a Collection appears in CloudCannon.
       In this example, CloudCannon will sort files in the `blog` Collection by the `date` key in the frontmatter of each file, in descending order.
 
       <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
-                                          ``````````
-                                          collections_config:
-                                            blog:
-                                              sort:
-                                                key: date
-                                                order: descending
-                                          ``````````
-                                          </comp.MultiCodeBlock>
+                                                            ``````````
+                                                            collections_config:
+                                                              blog:
+                                                                sort:
+                                                                  key: date
+                                                                  order: descending
+                                                            ``````````
+                                                            </comp.MultiCodeBlock>
     </comp.Example>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="sort.key" type_markdown="String">
@@ -569,14 +489,14 @@ These keys configure how a Collection appears in CloudCannon.
       In this example, CloudCannon will sort files in the `blog` Collection by the `date` key in the frontmatter of each file, in descending order.
 
       <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
-                                            ``````````
-                                            collections_config:
-                                              blog:
-                                                sort:
-                                                  key: date
-                                                  order: descending
-                                            ``````````
-                                            </comp.MultiCodeBlock>
+                                                              ``````````
+                                                              collections_config:
+                                                                blog:
+                                                                  sort:
+                                                                    key: date
+                                                                    order: descending
+                                                              ``````````
+                                                              </comp.MultiCodeBlock>
     </comp.Example>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="sort.order" type_markdown="String">
@@ -590,14 +510,14 @@ These keys configure how a Collection appears in CloudCannon.
       In this example, CloudCannon will sort files in the `blog` Collection by the `date` key in the frontmatter of each file, in descending order.
 
       <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
-                                          ``````````
-                                          collections_config:
-                                            blog:
-                                              sort:
-                                                key: date
-                                                order: descending
-                                          ``````````
-                                          </comp.MultiCodeBlock>
+                                                            ``````````
+                                                            collections_config:
+                                                              blog:
+                                                                sort:
+                                                                  key: date
+                                                                  order: descending
+                                                            ``````````
+                                                            </comp.MultiCodeBlock>
     </comp.Example>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="sort_options" type_markdown="Array of Objects">
@@ -615,24 +535,24 @@ These keys configure how a Collection appears in CloudCannon.
       In this example, the *Sort* dropdown in the `blog` *Collection browser* only contains options for sorting by `author` and `date` in ascending and descending order.
 
       <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
-                                            ``````````
-                                            collections_config:
-                                              blog:
-                                                sort_options:
-                                                  - key: author
-                                                    order: ascending
-                                                    label: Author (A-Z)
-                                                  - key: author
-                                                    order: descending
-                                                    label: Author (Z-A)
-                                                  - key: date
-                                                    order: ascending
-                                                    label: Date (Newest First)
-                                                  - key: date
-                                                    order: descending
-                                                    label: Date (Oldest First)
-                                            ``````````
-                                            </comp.MultiCodeBlock>
+                                                              ``````````
+                                                              collections_config:
+                                                                blog:
+                                                                  sort_options:
+                                                                    - key: author
+                                                                      order: ascending
+                                                                      label: Author (A-Z)
+                                                                    - key: author
+                                                                      order: descending
+                                                                      label: Author (Z-A)
+                                                                    - key: date
+                                                                      order: ascending
+                                                                      label: Date (Newest First)
+                                                                    - key: date
+                                                                      order: descending
+                                                                      label: Date (Oldest First)
+                                                              ``````````
+                                                              </comp.MultiCodeBlock>
     </comp.Example>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="sort_options.key" type_markdown="String">
@@ -646,15 +566,15 @@ These keys configure how a Collection appears in CloudCannon.
       In this example, the "Author (A-Z)" option in the *Sort* dropdown will use the `author` key to sort files in the `blog` *Collection browser*.
 
       <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
-                                          ``````````
-                                          collections_config:
-                                            blog:
-                                              sort_options:
-                                                - key: author
-                                                  order: ascending
-                                                  label: Author (A-Z)
-                                          ``````````
-                                          </comp.MultiCodeBlock>
+                                                            ``````````
+                                                            collections_config:
+                                                              blog:
+                                                                sort_options:
+                                                                  - key: author
+                                                                    order: ascending
+                                                                    label: Author (A-Z)
+                                                            ``````````
+                                                            </comp.MultiCodeBlock>
     </comp.Example>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="sort_options.order" type_markdown="String">
@@ -668,15 +588,15 @@ These keys configure how a Collection appears in CloudCannon.
       In this example, the "Author (A-Z)" option in the *Sort* dropdown will sort files in the `blog` *Collection browser* in ascending order.
 
       <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
-                                          ``````````
-                                          collections_config:
-                                            blog:
-                                              sort_options:
-                                                - key: author
-                                                  order: ascending
-                                                  label: Author (A-Z)
-                                          ``````````
-                                          </comp.MultiCodeBlock>
+                                                            ``````````
+                                                            collections_config:
+                                                              blog:
+                                                                sort_options:
+                                                                  - key: author
+                                                                    order: ascending
+                                                                    label: Author (A-Z)
+                                                            ``````````
+                                                            </comp.MultiCodeBlock>
     </comp.Example>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="sort_options.label" type_markdown="String">
@@ -688,15 +608,15 @@ These keys configure how a Collection appears in CloudCannon.
       In this example, the sorting method which uses the `author` key is called "Author (A-Z)" in the *Sort* dropdown.
 
       <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
-                                          ``````````
-                                          collections_config:
-                                            blog:
-                                              sort_options:
-                                                - key: author
-                                                  order: ascending
-                                                  label: Author (A-Z)
-                                          ``````````
-                                          </comp.MultiCodeBlock>
+                                                            ``````````
+                                                            collections_config:
+                                                              blog:
+                                                                sort_options:
+                                                                  - key: author
+                                                                    order: ascending
+                                                                    label: Author (A-Z)
+                                                            ``````````
+                                                            </comp.MultiCodeBlock>
     </comp.Example>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="singular_name" type_markdown="String">
@@ -710,12 +630,12 @@ These keys configure how a Collection appears in CloudCannon.
       In this example, the *\+ Add* button option to add a Collection file will read "Add Team Member" rather that "Add Team".
 
       <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
-                                          ``````````
-                                          collections_config:
-                                            team:
-                                              singular_name: Team Member
-                                          ``````````
-                                          </comp.MultiCodeBlock>
+                                                            ``````````
+                                                            collections_config:
+                                                              team:
+                                                                singular_name: Team Member
+                                                            ``````````
+                                                            </comp.MultiCodeBlock>
     </comp.Example>
   </comp.DataReferenceRow>
 </comp.DataReference>
@@ -742,15 +662,15 @@ These keys configure how CloudCannon’s editing interfaces function for a Colle
       In this example, we have configured the Snippet tool for WYSIWYG toolbars in the `blog` Collection.
 
       <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
-                                          ``````````
-                                          collections_config:
-                                            blog:
-                                              _editables:
-                                                content:
-                                                  snippet: true
+                                                            ``````````
+                                                            collections_config:
+                                                              blog:
+                                                                _editables:
+                                                                  content:
+                                                                    snippet: true
 
-                                          ``````````
-                                          </comp.MultiCodeBlock>
+                                                            ``````````
+                                                            </comp.MultiCodeBlock>
     </comp.Example>
 
     For more information, please read our documentation on [Rich Text editors](/documentation/articles/what-are-rich-text-editors/).
@@ -766,14 +686,14 @@ These keys configure how CloudCannon’s editing interfaces function for a Colle
       In this example, we have enabled only the [Content Editor](/documentation/articles/the-content-editor/) in the `blog` Collection.
 
       <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
-                                          ``````````
-                                          collections_config:
-                                            blog:
-                                              _enabled_editors:
-                                                - content
+                                                            ``````````
+                                                            collections_config:
+                                                              blog:
+                                                                _enabled_editors:
+                                                                  - content
 
-                                          ``````````
-                                          </comp.MultiCodeBlock>
+                                                            ``````````
+                                                            </comp.MultiCodeBlock>
     </comp.Example>
 
     For more information, please read our documentation on the [Visual Editor](/documentation/articles/the-visual-editor/), [Content Editor](/documentation/articles/the-content-editor/), [Data Editor](/documentation/articles/the-data-editor/), and [Source Editor](/documentation/articles/the-source-editor/).
@@ -800,25 +720,25 @@ These keys configure how CloudCannon’s editing interfaces function for a Colle
       In this example, we have configured the `blog_tags` Multiselect input for the `blog` Collection.
 
       <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
-                                          ``````````
-                                          collections_config:
-                                            blog:
-                                              _inputs:
-                                                blog_tags:
-                                                  type: multiselect
-                                                  label: Blog type
-                                                  comment: Select a blog type
-                                                  context:
-                                                    open: false
-                                                    title: Help
-                                                    icon: help
-                                                    content: |
-                                                      Blog tags help our users filter articles by topic.
-                                                  options:
-                                                    values: _select_data.blog_topics
+                                                            ``````````
+                                                            collections_config:
+                                                              blog:
+                                                                _inputs:
+                                                                  blog_tags:
+                                                                    type: multiselect
+                                                                    label: Blog type
+                                                                    comment: Select a blog type
+                                                                    context:
+                                                                      open: false
+                                                                      title: Help
+                                                                      icon: help
+                                                                      content: |
+                                                                        Blog tags help our users filter articles by topic.
+                                                                    options:
+                                                                      values: _select_data.blog_topics
 
-                                          ``````````
-                                          </comp.MultiCodeBlock>
+                                                            ``````````
+                                                            </comp.MultiCodeBlock>
     </comp.Example>
 
     For more information, please read our documentation on [inputs](/documentation/articles/what-are-inputs/).
@@ -832,17 +752,17 @@ These keys configure how CloudCannon’s editing interfaces function for a Colle
       In this example, we have configured the `blog_tags` Multiselect input for the `blog` Collection.
 
       <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
-                                          ``````````
-                                          collections_config:
-                                            blog:
-                                              _select_data:
-                                                blog_topics:
-                                                  - Opinion
-                                                  - Feature
-                                                  - Resource
+                                                            ``````````
+                                                            collections_config:
+                                                              blog:
+                                                                _select_data:
+                                                                  blog_topics:
+                                                                    - Opinion
+                                                                    - Feature
+                                                                    - Resource
 
-                                          ``````````
-                                          </comp.MultiCodeBlock>
+                                                            ``````````
+                                                            </comp.MultiCodeBlock>
     </comp.Example>
 
     For more information, please read our documentation on [Select and Multiselect inputs](/documentation/articles/select-and-multiselect-inputs/#fixed-data-sets).
@@ -866,68 +786,68 @@ These keys configure how CloudCannon’s editing interfaces function for a Colle
       In this example, we want to populate an Array input in the `blog` Collection with Related Articles, including the `name`, `description`, and `url` fields.
 
       <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
-                                          ``````````
-                                          collections_config:
-                                            blog:
-                                              _structures:
-                                                related_articles:
-                                                  style: select
-                                                  values:
-                                                    - preview:
-                                                        text:
-                                                          - key: name
-                                                        subtext:
-                                                          - key: url
-                                                      value:
-                                                        name:
-                                                        description:
-                                                        url:
-                                          ``````````
-                                          </comp.MultiCodeBlock>
+                                                            ``````````
+                                                            collections_config:
+                                                              blog:
+                                                                _structures:
+                                                                  related_articles:
+                                                                    style: select
+                                                                    values:
+                                                                      - preview:
+                                                                          text:
+                                                                            - key: name
+                                                                          subtext:
+                                                                            - key: url
+                                                                        value:
+                                                                          name:
+                                                                          description:
+                                                                          url:
+                                                            ``````````
+                                                            </comp.MultiCodeBlock>
 
       In this example, we want to populate an Array input with Staff members, including the `name`, `job_description`, and `profile_picture` fields for all staff types, and the `url` field for Managers only.
 
       <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
-                                          ``````````
-                                          _structures:
-                                            staff:
-                                              style: modal
-                                              hide_extra_inputs: false
-                                              values:
-                                                - value:
-                                                    _type: Employee
-                                                    name:
-                                                    job_description:
-                                                    profile_picture:
-                                                  preview:
-                                                    text:
-                                                      - key: name
-                                                      - Employee
-                                                    subtext:
-                                                      - key: job_description
-                                                      - Description of position
-                                                    image:
-                                                      - key: profile_picture
-                                                    icon: support_agent
-                                                - value:
-                                                    _type: Manager
-                                                    name:
-                                                    job_description:
-                                                    profile_picture:
-                                                    url:
-                                                  preview:
-                                                    text:
-                                                      - key: name
-                                                      - Manager
-                                                    subtext:
-                                                      - key: job_description
-                                                      - Description of position
-                                                    image:
-                                                      - key: profile_picture
-                                                    icon: face
+                                                            ``````````
+                                                            _structures:
+                                                              staff:
+                                                                style: modal
+                                                                hide_extra_inputs: false
+                                                                values:
+                                                                  - value:
+                                                                      _type: Employee
+                                                                      name:
+                                                                      job_description:
+                                                                      profile_picture:
+                                                                    preview:
+                                                                      text:
+                                                                        - key: name
+                                                                        - Employee
+                                                                      subtext:
+                                                                        - key: job_description
+                                                                        - Description of position
+                                                                      image:
+                                                                        - key: profile_picture
+                                                                      icon: support_agent
+                                                                  - value:
+                                                                      _type: Manager
+                                                                      name:
+                                                                      job_description:
+                                                                      profile_picture:
+                                                                      url:
+                                                                    preview:
+                                                                      text:
+                                                                        - key: name
+                                                                        - Manager
+                                                                      subtext:
+                                                                        - key: job_description
+                                                                        - Description of position
+                                                                      image:
+                                                                        - key: profile_picture
+                                                                      icon: face
 
-                                          ``````````
-                                          </comp.MultiCodeBlock>
+                                                            ``````````
+                                                            </comp.MultiCodeBlock>
     </comp.Example>
 
     For more information, please read our documentation on [structures](/documentation/articles/what-is-a-structure/).
@@ -966,47 +886,47 @@ These keys configure how you create new files and maintain existing files for a 
       In this example, the *\+ Add* button in the *Collection browser* has an option for `Customer Story` which will populate a new file in the `blog` Collection with the contents of the `customer_story.mdx` file. If the Schema file is updated, CloudCannon will preserve the old inputs to prevent you from losing structured data in older files.
 
       <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
-                                          ``````````
-                                          collections_config:
-                                            blog:
-                                              schemas:
-                                                customer_story:
-                                                  path: /schemas/customer_story.mdx
-                                                  reorder_inputs: true
-                                                  hide_extra_inputs: false
-                                                  remove_empty_inputs: false
-                                                  remove_extra_inputs: false
-                                                  name: Customer Story
-                                                  icon: notes
-                                          ``````````
-                                          </comp.MultiCodeBlock>
+                                                            ``````````
+                                                            collections_config:
+                                                              blog:
+                                                                schemas:
+                                                                  customer_story:
+                                                                    path: /schemas/customer_story.mdx
+                                                                    reorder_inputs: true
+                                                                    hide_extra_inputs: false
+                                                                    remove_empty_inputs: false
+                                                                    remove_extra_inputs: false
+                                                                    name: Customer Story
+                                                                    icon: notes
+                                                            ``````````
+                                                            </comp.MultiCodeBlock>
 
       In this example, the *\+ Add* button in the *Collection browser* has an option for `Term Definition` which will populate a new file in the `glossary` Collection with the contents of the `glossary_term.yml` file. The `term_description` input is configured specifically for files created with this Schema.
 
       <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
-                                          ``````````
-                                          collections_config:
-                                            glossary:
-                                              schemas:
-                                                term_definition:
-                                                  path: /schemas/glossary_term.yml
-                                                  name: Term Definition
-                                                  icon: abc
-                                                  _enabled_editors:
-                                                    - data
-                                                  _inputs:
-                                                    term_description:
-                                                      type: textarea
-                                                      comment: Keep this as short as possible (i.e., 125 characters).
-                                                      context:
-                                                        open: false
-                                                        title: Help
-                                                        icon: help
-                                                        content: Try not to use the term name in the description.
-                                                      options:
-                                                        show_count: true
-                                          ``````````
-                                          </comp.MultiCodeBlock>
+                                                            ``````````
+                                                            collections_config:
+                                                              glossary:
+                                                                schemas:
+                                                                  term_definition:
+                                                                    path: /schemas/glossary_term.yml
+                                                                    name: Term Definition
+                                                                    icon: abc
+                                                                    _enabled_editors:
+                                                                      - data
+                                                                    _inputs:
+                                                                      term_description:
+                                                                        type: textarea
+                                                                        comment: Keep this as short as possible (i.e., 125 characters).
+                                                                        context:
+                                                                          open: false
+                                                                          title: Help
+                                                                          icon: help
+                                                                          content: Try not to use the term name in the description.
+                                                                        options:
+                                                                          show_count: true
+                                                            ``````````
+                                                            </comp.MultiCodeBlock>
     </comp.Example>
 
     For more information, please read our documentation on [Schemas](/documentation/articles/what-is-a-schema/).
@@ -1022,12 +942,12 @@ These keys configure how you create new files and maintain existing files for a 
       In this example, we want to make Schemas more friendly for our non-technical team members, so we have configured the schema key in the front matter of files in the `blog` Collection to be `blog_template`.
 
       <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
-                                          ``````````
-                                          collections_config:
-                                            blog:
-                                              schema_key: _blog_template
-                                          ``````````
-                                          </comp.MultiCodeBlock>
+                                                            ``````````
+                                                            collections_config:
+                                                              blog:
+                                                                schema_key: _blog_template
+                                                            ``````````
+                                                            </comp.MultiCodeBlock>
     </comp.Example>
 
     For more information, please read our documentation on [Schemas](/documentation/articles/what-is-a-schema/).
@@ -1057,30 +977,30 @@ These keys configure how you create new files and maintain existing files for a 
       In this example, we want team members in the `_posts` Collection to create new files in the`blog` subfolder of the `_drafts` Collection. CloudCannon will open these files in the [Content Editor](/documentation/articles/the-content-editor/).
 
       <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
-                                          ``````````
-                                          collections_config:
-                                              _posts:
-                                                add_options:
-                                                  - name: Add draft blog
-                                                    icon: post_add
-                                                    editor: content
-                                                    base_path: /../_drafts/blog
+                                                            ``````````
+                                                            collections_config:
+                                                                _posts:
+                                                                  add_options:
+                                                                    - name: Add draft blog
+                                                                      icon: post_add
+                                                                      editor: content
+                                                                      base_path: /../_drafts/blog
 
-                                          ``````````
-                                          </comp.MultiCodeBlock>
+                                                            ``````````
+                                                            </comp.MultiCodeBlock>
 
       In this example, the *\+ Add* button dropdown in the `team` *Collection browser* has a link to the Office Locations page on our live website.
 
       <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
-                                          ``````````
-                                          collections_config:
-                                            team:
-                                              add_options:
-                                                - name: Office Locations
-                                                  icon: map
-                                                  href: /our-offices
-                                          ``````````
-                                          </comp.MultiCodeBlock>
+                                                            ``````````
+                                                            collections_config:
+                                                              team:
+                                                                add_options:
+                                                                  - name: Office Locations
+                                                                    icon: map
+                                                                    href: /our-offices
+                                                            ``````````
+                                                            </comp.MultiCodeBlock>
     </comp.Example>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="add_options.name" type_markdown="String">
@@ -1092,15 +1012,15 @@ These keys configure how you create new files and maintain existing files for a 
       In this example, the *\+ Add* button dropdown in the `team` *Collection browser* has a link to the Office Locations page on our live website.
 
       <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
-                                          ``````````
-                                          collections_config:
-                                            team:
-                                              add_options:
-                                                - name: Office Locations
-                                                  icon: map
-                                                  href: /our-offices
-                                          ``````````
-                                          </comp.MultiCodeBlock>
+                                                            ``````````
+                                                            collections_config:
+                                                              team:
+                                                                add_options:
+                                                                  - name: Office Locations
+                                                                    icon: map
+                                                                    href: /our-offices
+                                                            ``````````
+                                                            </comp.MultiCodeBlock>
     </comp.Example>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="add_options.icon" type_markdown="String">
@@ -1114,15 +1034,15 @@ These keys configure how you create new files and maintain existing files for a 
       In this example, the *\+ Add* button dropdown in the `team` *Collection browser* has a link to the Office Locations page on our live website.
 
       <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
-                                          ``````````
-                                          collections_config:
-                                            team:
-                                              add_options:
-                                                - name: Office Locations
-                                                  icon: map
-                                                  href: /our-offices
-                                          ``````````
-                                          </comp.MultiCodeBlock>
+                                                            ``````````
+                                                            collections_config:
+                                                              team:
+                                                                add_options:
+                                                                  - name: Office Locations
+                                                                    icon: map
+                                                                    href: /our-offices
+                                                            ``````````
+                                                            </comp.MultiCodeBlock>
     </comp.Example>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="add_options.editor" type_markdown="String">
@@ -1136,17 +1056,17 @@ These keys configure how you create new files and maintain existing files for a 
       In this example, we want new draft blog files to open in the [Content Editor](/documentation/articles/the-content-editor/).
 
       <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
-                                          ``````````
-                                          collections_config:
-                                              _posts:
-                                                add_options:
-                                                  - name: Add draft blog
-                                                    icon: post_add
-                                                    editor: content
-                                                    base_path: /../_drafts/blog
+                                                            ``````````
+                                                            collections_config:
+                                                                _posts:
+                                                                  add_options:
+                                                                    - name: Add draft blog
+                                                                      icon: post_add
+                                                                      editor: content
+                                                                      base_path: /../_drafts/blog
 
-                                          ``````````
-                                          </comp.MultiCodeBlock>
+                                                            ``````````
+                                                            </comp.MultiCodeBlock>
     </comp.Example>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="add_options.base_path" type_markdown="String">
@@ -1160,17 +1080,17 @@ These keys configure how you create new files and maintain existing files for a 
       In this example, we want team members in the `_posts` Collection to create new files in the`blog` subfolder of the `_drafts` Collection rather than the current *Collection browser* they have open. By configuring the `base_path` value to `/../_drafts/blog`, new files will be created in a different Collection subfolder (i.e., `_drafts`) when a team member selects this option from the *\+ Add* button dropdown.
 
       <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
-                                          ``````````
-                                          collections_config:
-                                              _posts:
-                                                add_options:
-                                                  - name: Add draft blog
-                                                    icon: post_add
-                                                    editor: content
-                                                    base_path: /../_drafts/blog
+                                                            ``````````
+                                                            collections_config:
+                                                                _posts:
+                                                                  add_options:
+                                                                    - name: Add draft blog
+                                                                      icon: post_add
+                                                                      editor: content
+                                                                      base_path: /../_drafts/blog
 
-                                          ``````````
-                                          </comp.MultiCodeBlock>
+                                                            ``````````
+                                                            </comp.MultiCodeBlock>
     </comp.Example>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="add_options.collection" type_markdown="String">
@@ -1184,15 +1104,15 @@ These keys configure how you create new files and maintain existing files for a 
       In this example, we want team members in the articles Collection to create new files in the `new_articles` Collection rather than the current Collection browser they have open. By configuring the `collection` value to `new_articles`, new files will be created in a different Collection (i.e., `new_articles`) when a team member selects this option from the + Add button dropdown.
 
       <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
-                                          ``````````
-                                          collections_config:
-                                            articles:
-                                              add_options:
-                                                - name: Add articles
-                                                  collection: new_articles
-                                                  schema: articles
-                                          ``````````
-                                          </comp.MultiCodeBlock>
+                                                            ``````````
+                                                            collections_config:
+                                                              articles:
+                                                                add_options:
+                                                                  - name: Add articles
+                                                                    collection: new_articles
+                                                                    schema: articles
+                                                            ``````````
+                                                            </comp.MultiCodeBlock>
     </comp.Example>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="add_options.schema" type_markdown="String">
@@ -1206,15 +1126,15 @@ These keys configure how you create new files and maintain existing files for a 
       In this example, we want CloudCannon to populate new files with the contents of the `articles` Schema when a team member selects this option from the + Add button dropdown.
 
       <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
-                                          ``````````
-                                          collections_config:
-                                            articles:
-                                              add_options:
-                                                - name: Add articles
-                                                  collection: new_articles
-                                                  schema: articles
-                                          ``````````
-                                          </comp.MultiCodeBlock>
+                                                            ``````````
+                                                            collections_config:
+                                                              articles:
+                                                                add_options:
+                                                                  - name: Add articles
+                                                                    collection: new_articles
+                                                                    schema: articles
+                                                            ``````````
+                                                            </comp.MultiCodeBlock>
     </comp.Example>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="add_options.default_content_file" type_markdown="String">
@@ -1226,15 +1146,15 @@ These keys configure how you create new files and maintain existing files for a 
       In this example, we want CloudCannon to populate the initial contents of new files with `event_template.yml`.
 
       <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
-                                          ``````````
-                                          collections_config:
-                                            events:
-                                              add_options:
-                                                name: Add new event
-                                                collection: upcoming_events
-                                                default_content_file: event_template.yml
-                                          ``````````
-                                          </comp.MultiCodeBlock>
+                                                            ``````````
+                                                            collections_config:
+                                                              events:
+                                                                add_options:
+                                                                  name: Add new event
+                                                                  collection: upcoming_events
+                                                                  default_content_file: event_template.yml
+                                                            ``````````
+                                                            </comp.MultiCodeBlock>
     </comp.Example>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="add_options.href" type_markdown="String">
@@ -1248,15 +1168,15 @@ These keys configure how you create new files and maintain existing files for a 
       In this example, the *\+ Add* button dropdown in the `team` *Collection browser* has a link to the Office Locations page on our live website.
 
       <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
-                                          ``````````
-                                          collections_config:
-                                            team:
-                                              add_options:
-                                                - name: Office Locations
-                                                  icon: map
-                                                  href: /our-offices
-                                          ``````````
-                                          </comp.MultiCodeBlock>
+                                                            ``````````
+                                                            collections_config:
+                                                              team:
+                                                                add_options:
+                                                                  - name: Office Locations
+                                                                    icon: map
+                                                                    href: /our-offices
+                                                            ``````````
+                                                            </comp.MultiCodeBlock>
     </comp.Example>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="create" type_markdown="Object">
@@ -1277,16 +1197,16 @@ These keys configure how you create new files and maintain existing files for a 
       In this example, CloudCannon will generate a Create Path for new files in the `blog` Collection using the `date` and `title` structured data keys. For example, CloudCannon will generate a create path of `blog/2024-10-31-spooky-getaway.md` for a file with the date 31st October 2024 and the title "Spooky Getaway".
 
       <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
-                                          ``````````
-                                          collections_config:
-                                            blog:
-                                              create:
-                                                extra_data:
-                                                  filename: '{date|year}-{date|month}-{date|day}-{title}'
-                                                path: '[relative_base_path]/{filename|slugify}.[ext]'
+                                                            ``````````
+                                                            collections_config:
+                                                              blog:
+                                                                create:
+                                                                  extra_data:
+                                                                    filename: '{date|year}-{date|month}-{date|day}-{title}'
+                                                                  path: '[relative_base_path]/{filename|slugify}.[ext]'
 
-                                          ``````````
-                                          </comp.MultiCodeBlock>
+                                                            ``````````
+                                                            </comp.MultiCodeBlock>
     </comp.Example>
 
     For more information, please read our documentation on [Create Paths](/documentation/articles/set-the-path-for-new-files/).
@@ -1304,12 +1224,12 @@ These keys configure how you create new files and maintain existing files for a 
       In this example, we want to prevent team members from adding new files to the `data` Collection through the *Collection browser*.
 
       <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
-                                          ``````````
-                                          collections_config:
-                                            data:
-                                              disable_add: true
-                                          ``````````
-                                          </comp.MultiCodeBlock>
+                                                            ``````````
+                                                            collections_config:
+                                                              data:
+                                                                disable_add: true
+                                                            ``````````
+                                                            </comp.MultiCodeBlock>
     </comp.Example>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="disable_add_folder" type_markdown="Boolean">
@@ -1325,12 +1245,12 @@ These keys configure how you create new files and maintain existing files for a 
       In this example, we want to prevent team members from adding new subfolders to the `data` Collection through the *Collection browser*.
 
       <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
-                                          ``````````
-                                          collections_config:
-                                            data:
-                                              disable_add_folder: true
-                                          ``````````
-                                          </comp.MultiCodeBlock>
+                                                            ``````````
+                                                            collections_config:
+                                                              data:
+                                                                disable_add_folder: true
+                                                            ``````````
+                                                            </comp.MultiCodeBlock>
     </comp.Example>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="disable_file_actions" type_markdown="Boolean">
@@ -1344,12 +1264,12 @@ These keys configure how you create new files and maintain existing files for a 
       In this example, we want to prevent team members from using file actions in the `data` Collection through the *Collection browser*.
 
       <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
-                                          ``````````
-                                          collections_config:
-                                            data:
-                                              disable_file_actions: true
-                                          ``````````
-                                          </comp.MultiCodeBlock>
+                                                            ``````````
+                                                            collections_config:
+                                                              data:
+                                                                disable_file_actions: true
+                                                            ``````````
+                                                            </comp.MultiCodeBlock>
     </comp.Example>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="new_preview_url" type_markdown="String">
@@ -1363,12 +1283,12 @@ These keys configure how you create new files and maintain existing files for a 
       In this example, the Visual Editor will open the `/about/` page when you open an unbuilt page from the `blog` Collection.
 
       <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
-                                          ``````````
-                                          collections_config:
-                                            blog:
-                                              new_preview_url: /about/
-                                          ``````````
-                                          </comp.MultiCodeBlock>
+                                                            ``````````
+                                                            collections_config:
+                                                              blog:
+                                                                new_preview_url: /about/
+                                                            ``````````
+                                                            </comp.MultiCodeBlock>
     </comp.Example>
   </comp.DataReferenceRow>
 </comp.DataReference>
