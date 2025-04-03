@@ -16,47 +16,21 @@ article_topic:
 author_notes:
   doc_shots: true
 ---
-&nbsp;
-
-&nbsp;
-
-&nbsp;
-
-&nbsp;
-
-In CloudCannon, conflicts occur when two people, one on a CloudCannon Site, and another on a different CloudCannon Site or using their local development environment, try to update the same file or part of a file in a way that conflicts with each other. When CloudCannon detects a conflict, it is important to resolve it by choosing which version of your file to keep.
-
-<comp.Notice info_type="important">
-  Conflicts aren't dangerous to your content or website — they're CloudCannon's way of letting you know that there are two versions of your file, and that you need to choose how to proceed.
-</comp.Notice>
-
-There are two types of conflicts you can encounter in CloudCannon: Syncing Conflicts and Publishing Conflicts.
-
-* **Syncing Conflict** — When incoming changes to a file from a different CloudCannon Site or your git repository affect a file on your Site with unsaved changes.
-* **Publishing Conflict** — When incoming changes to a file from your [Publish Branch](/documentation/articles/what-is-a-publish-branch/) conflict with changes to the same file on your Site.
-* **Incoming changes** — These are changes to your Site files originating from outside the branch you are working on, such as from a different CloudCannon Site or your git repository. All incoming changes are made by a member of your team.
-
-CloudCannon will warn you when it detects a conflict using a notification on the *Save* or *Publish* button in your *Site Navigation*, in the *Review changes* modal, or on the *Publishing* page.
-
-<comp.Notice info_type="info">
-  **What is the difference between a Syncing Conflict and a Publishing Conflict?**
-
-  A Syncing Conflict occurs when there are two versions of the same file on the same branch, one on your CloudCannon Site and one on your Git repository.
-
-  A Publishing Conflict occurs when there are two versions of the same file on two different but connected branches, one on your CloudCannon Site and one on your Publish Branch.
-</comp.Notice>
-
-## Syncing Conflicts
-
 CloudCannon is constantly monitoring your branch in your Git repository. When someone saves a change to your branch, CloudCannon will sync that change to all CloudCannon Sites connected to that branch by overwriting the version of your file on your Site with the version from your Git repository. This behavior keeps your CloudCannon Site up to date with your Git repository.
 
-A Syncing Conflict occurs when you have unsaved changes to a file, and CloudCannon tries to sync an update to that file from your Git repository.
+To prevent incoming changes from overwriting your unsaved changes, CloudCannon will pause Syncing if an incoming change from your Git repository affects a file with unsaved changes.
 
-To prevent incoming changes from your Git repository from overwriting your unsaved changes, CloudCannon will stop attempting to sync your files and alert you to the Syncing Conflict. CloudCannon will notify you about a Syncing Conflict using the *Conflicts* warning notification above the *Save* button in your *Site Navigation*.
+* **Incoming changes** — These are changes to your Site files originating from outside the branch you are working on, such as from a different CloudCannon Site or your git repository. All incoming changes are made by a member of your team.
+
+CloudCannon will notify you about a Syncing Conflict using the *Conflicts* warning notification above the *Save* button in your *Site Navigation*.
 
 <comp.DocShot docshot_key="CloudCannon-Documentation-Save-Button-Syncing-Conflict-Notification" alt="A screenshot of the Save Button in the Site Navigation shows a Conflicts warning notification in the top right." title="The Save Button" type="ui-snippet"/>
 
-You must resolve the Syncing Conflict before CloudCannon will allow you to save any changes to non-conflicted files. For more information, please read our documentation on [resolving Syncing Conflicts](/documentation/articles/resolve-syncing-conflicts/).
+<comp.Notice info_type="info">
+  Incoming changes from your Git repository can affect multiple files. CloudCannon will pause Syncing for all files if one or more files have unsaved changes.
+</comp.Notice>
+
+Before you can save any changes to unaffected files, you must allow CloudCannon to resume Syncing by saving the files with incoming changes. For more information, please read our documentation on [resume Syncing](/documentation/articles/resume-syncing/).
 
 ### Example
 
@@ -76,40 +50,4 @@ Before we can finish making our changes, our team member saves their changes to 
 
 Because we have the About page open with unsaved changes, CloudCannon will block the syncing attempt and notify us about the Syncing Conflict on the *Save* button and in the *Review changes* modal.
 
-<comp.Notice info_type="info">
-  Incoming changes from the Git repository can involve multiple files. CloudCannon will block the sync of all incoming changes for all file if one or more files have unsaved changes.
-</comp.Notice>
-
 Before we can save any changes to other files or complete the sync to update all our files with incoming changes, we need to resolve the Syncing Conflict for `about.md` by saving or discarding our unsaved changes. In this example, we want to save our unsaved changes and let CloudCannon complete the sync.
-
-## Publishing Conflicts
-
-Publishing Conflicts can occur when you <a href="/documentation/articles/connect-a-publish-branch/" target="_blank" rel="noopener">connect a Publish Branch</a> to your Site. A [Publish Branch](/documentation/articles/what-is-a-publish-branch/) is the copy of your Site to which you publish your changes.
-
-Multiple Sites can contribute to the same Publish Branch. When someone publishes a change to your Publish Branch from another Site or branch, CloudCannon will notify you that an [update is available from your Publish Branch](/documentation/articles/update-from-a-publish-branch/). We recommend updating your Site from it's Publish Branch whenever updates are available.
-
-A Publishing Conflict occurs when you have saved changes to a file on your Site which conflict with incoming changes to the same file.
-
-To prevent one version of the file from overwriting the other, CloudCannon will stop attempting to update your files and alert you to the Publishing Conflict. CloudCannon will notify you about a Publishing Conflict using the *Conflicts* warning notification above the *Publish* button in your *Site Navigation*.
-
-<comp.DocShot docshot_key="CloudCannon-Documentation-Publish-Button-Publishing-Conflict-Notification" alt="A screenshot of the Publish Button in the Site Navigation shows a Conflicts warning notification in the top right." title="The Publish Button" type="ui-snippet"/>
-
-You must resolve the Publishing Conflict before CloudCannon will allow you to save any changes to files on your Site. For more information, please read our documentation on <a href="/documentation/articles/resolve-publishing-conflicts/" target="_blank" rel="noopener">resolving publishing conflicts</a>.
-
-### Example
-
-Let's go through an example of how a Publishing Conflict can occur.
-
-<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/publishing/what-is-a-publish-branch/2025-03/CloudCannon-Documentation-Branching-Workflow-Diagram.png" alt="A diagram of a branching workflow shows three project branches publish to the Staging Branch, which publishes to the Live Website branch." title="Branching Workflow Diagram" type="photo"/>
-
-We want to remove a product page from our website. We create a new Site branch to work on our changes without affecting the live Site. On our Site, we delete the product page and edit the `products.html` page to remove the link to the page we just deleted from the list of all our available products. We save these changes to our Site.
-
-Coincidentally, another team member is also updating the `products.html` file at the same time. Our team member is changing our main website navigation and wants to rename the `/products/` page to `/services/`. This effectively deletes the `products.html` file and replaces it with the `services.html` file.
-
-Before we can publish our changes to the Publish Branch (i.e., the "Staging website"), our team member publishes their changes to the same Publish Branch.  CloudCannon detects that someone has updated the Publish Branch and notifies us that updates are available for our Site. When we try to update from our Publish Branch, CloudCannon detect the conflicting versions of the `products.html` file.
-
-We have updated the file's contents by removing a link, and our team member has deleted the file entirely and replaced it with `services.html`.
-
-CloudCannon will notify us about the Publishing Conflict on the *Publish* button and on the *Publishing* page.
-
-Before we can save any changes to files on our Site or complete the update from our Publish Branch, we need to resolve the Publishing Conflict for `products.html` by choosing which version of the file to keep: the changes on our current Site, the incoming changes from the Publish Branch, or a hybrid of the two. In this example, we want to create a hybrid of the two commits (remove the link from the new `services.html` file and delete the `products.html` file) and let CloudCannon complete the update from our Publish Branch.
