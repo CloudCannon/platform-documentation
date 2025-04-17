@@ -287,10 +287,6 @@ module.exports = {
     },
     data: {
       path: "_data",
-      filter: {
-        base: "none",
-        include: ["navigation.yml", "meta.yml", "headingnav.yml", "ssgs.yml", "article_topics.yml"],
-      },
     },
     keys: {
       path: "_keys",
@@ -539,6 +535,12 @@ module.exports = {
             },
           ],
         },
+      },
+    },
+    author_notes: {
+      type: "object",
+      options: {
+        subtype: "object",
       },
     },
     article_topic: {
