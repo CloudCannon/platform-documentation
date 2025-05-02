@@ -554,6 +554,12 @@ module.exports = {
         },
       },
     },
+    author_notes: {
+      type: "object",
+      options: {
+        subtype: "object",
+      },
+    },
     docshots_status: {
       type: "select",
       comment: "Select whether this article needs Docshots.",
