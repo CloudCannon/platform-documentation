@@ -85,6 +85,23 @@ module.exports = {
   _select_data: {
     docs_ssgs: ssg_data.ssgs,
     docs_guide_series: guide_series_data.series,
+    docshots_status: [
+      {
+        name: 'Needs docshots',
+        icon: 'add_a_photo',
+        icon_color: '#cc3232',
+      },
+      {
+        name: 'Not applicable',
+        icon: 'no_photography',
+        icon_color: '#e7b416',
+      },
+      {
+        name: 'Added!',
+        icon: 'photo_camera',
+        icon_color: '#2dc937',
+      },
+    ],
     diataxis_category: [
       {
         name: 'Explanation',
@@ -541,6 +558,13 @@ module.exports = {
       type: "object",
       options: {
         subtype: "object",
+      },
+    },
+    docshots: {
+      type: "select",
+      comment: "Select which topics apply to this article.",
+      options: {
+        values: "_select_data.docshots_status",
       },
     },
     article_topic: {
