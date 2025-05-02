@@ -560,7 +560,7 @@ module.exports = {
         subtype: "object",
       },
     },
-    docshots: {
+    docshots_status: {
       type: "select",
       comment: "Select whether this article needs Docshots.",
       options: {
