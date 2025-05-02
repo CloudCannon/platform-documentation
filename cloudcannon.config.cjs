@@ -565,6 +565,13 @@ module.exports = {
       comment: "Select which topics apply to this article.",
       options: {
         values: "_select_data.docshots_status",
+        preview: {
+          icon_color: [
+            {
+              key: 'icon_color',
+            },
+          ],
+        },
       },
     },
     article_topic: {
