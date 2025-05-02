@@ -562,7 +562,7 @@ module.exports = {
     },
     docshots: {
       type: "select",
-      comment: "Select which topics apply to this article.",
+      comment: "Select whether this article needs Docshots.",
       options: {
         values: "_select_data.docshots_status",
         preview: {
