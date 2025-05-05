@@ -229,6 +229,7 @@ module.exports = {
       schemas: {
         default: {
           path: ".cloudcannon/schemas/article.mdx",
+        },
         instructions: {
           path: ".cloudcannon/schemas/article-instructions.mdx",
         },
