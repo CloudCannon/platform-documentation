@@ -85,6 +85,23 @@ module.exports = {
   _select_data: {
     docs_ssgs: ssg_data.ssgs,
     docs_guide_series: guide_series_data.series,
+    docshots_status: [
+      {
+        name: 'Needs docshots',
+        icon: 'add_a_photo',
+        icon_color: '#cc3232',
+      },
+      {
+        name: 'Not applicable',
+        icon: 'no_photography',
+        icon_color: '#e7b416',
+      },
+      {
+        name: 'Added!',
+        icon: 'photo_camera',
+        icon_color: '#2dc937',
+      },
+    ],
     diataxis_category: [
       {
         name: 'Explanation',
@@ -212,6 +229,9 @@ module.exports = {
       schemas: {
         default: {
           path: ".cloudcannon/schemas/article.mdx",
+        },
+        instructions: {
+          path: ".cloudcannon/schemas/article-instructions.mdx",
         },
       },
     },
@@ -541,6 +561,20 @@ module.exports = {
       type: "object",
       options: {
         subtype: "object",
+      },
+    },
+    docshots_status: {
+      type: "select",
+      comment: "Select whether this article needs Docshots.",
+      options: {
+        values: "_select_data.docshots_status",
+        preview: {
+          icon_color: [
+            {
+              key: 'icon_color',
+            },
+          ],
+        },
       },
     },
     article_topic: {
