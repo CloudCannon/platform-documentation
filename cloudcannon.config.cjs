@@ -407,7 +407,7 @@ module.exports = {
                 },
               },
             },
-            subkeys: {
+            child_keys: {
               type: "multiselect",
               options: {
                 values: "collections.keys",
