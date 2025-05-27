@@ -8,8 +8,8 @@ published: true
 image: >-
   https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
 description: >-
-  Learn how to configure a Code input for editing code values in data files or
-  front matter.
+  Learn how to configure a Code input for editing code or mono-spaced plain text
+  in data files or front matter.
 article_category:
   - Instructions
 article_topic:
@@ -25,9 +25,9 @@ author_notes:
   Members of all [Default Permission Groups](/documentation/articles/what-are-default-permission-groups/), or [Custom Permission Groups](/documentation/articles/what-are-custom-permission-groups/) with the `site:file:write` permission, can configure inputs in all locations in the configuration cascade. You can limit permission to specific locations in the configuration using [file globs](/documentation/articles/what-are-custom-permission-groups/#specify-a-file-glob).
 </comp.Notice>
 
-A Boolean input is an editing interface for true or false values. You can use this input in the Data Editor, Content Editor, or Visual Editor, to edit structured data in data files or front matter.
+A Code input is an editing interface for code or mono-spaced plain text. You can use this input in the Data Editor, Content Editor, or Visual Editor, to edit structured data in data files or front matter.
 
-These instructions assume that you know where in the configuration cascade you want to configure your Code input. For more information, please read our documentation on [inputs](/documentation/articles/what-are-inputs/) in general and the [configuration cascade](/documentation/articles/using-the-configuration-cascade/).
+These instructions assume that you know where in the configuration cascade you want to configure your Code input. For more information, please read our documentation on [inputs](/documentation/articles/what-are-inputs/) in general, [Code inputs](/documentation/articles/what-is-a-code-input/), and the [configuration cascade](/documentation/articles/using-the-configuration-cascade/).
 
 To configure a Code input:
 
@@ -43,61 +43,74 @@ CloudCannon will now apply this Code input configuration to all markup files tha
 
 When you are happy with your input configuration, you must save your input configuration.
 
+For a complete list of available configuration keys please read our [inputs reference](https://vestal-rook.cloudvent.net/documentation/articles/inputs-reference/) documentation.
+
 <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
 ```
 
 _inputs___1___:
-  blog_published___2___:
-    type___3___: checkbox
-    label: string
-    comment: string
-    context:
-      open: boolean
-      title: string
-      icon: string
-      content: string
-    hidden: boolean, or string
-    disabled: boolean, or string
-    cascade: boolean
-    options:
-      required: boolean
+  example_ruby___2___:
+    type___3___: code
 
 ```
 <comp.Annotation number="1">
   All inputs are defined under the `_inputs` key, regardless of where they are in the [configuration cascade](/documentation/articles/using-the-configuration-cascade/).
 </comp.Annotation>
 <comp.Annotation number="2">
-  This Boolean input is called `blog_published`.
+  This Code input is called `example_ruby`.
 </comp.Annotation>
 <comp.Annotation number="3">
-  The value of the `type` key determines the input type. This is a `checkbox` Boolean input.
+  The value of the `type` key determines the input type. This is a `code` input.
 </comp.Annotation>
 </comp.MultiCodeBlock>
 
 ## Valid values
 
-Here are some examples of valid values for the key `available`. These work for both Checkbox and Switch inputs.
+Code inputs can have multiple valid values for empty, single-line, and multiline content. Here are some examples of valid values for the key `code`.
 
 <comp.Tabs label="Languages">
   <comp.Tab name="YAML">
     Empty/null value:
-    * `available: `
+    * `code: `
 
-    Boolean values (without any quotation marks):
-    * `available: true`
-    * `available: false`
+    Any valid string (quoted or unquoted):
+    * `code: ""`
+    * `code: ''`
+    * `code: any string`
+    * `code: "any string"`
+    * `code: 'any string'`
+
+    Any valid multiline string:
+    * <code>code: ><br/>  multiline string</code>
+    * <code>code: >-<br/>  multiline string</code>
+    * <code>code: >+<br/>  multiline string</code>
+    * <code>code: |<br/>  multiline string</code>
+    * <code>code: |-<br/>  multiline string</code>
+    * <code>code: |+<br/>  multiline string</code>
   </comp.Tab>
   <comp.Tab name="TOML">
-    Boolean values (without any quotation marks):
-    * `available = true`
-    * `available = false`
+    Any valid string:
+    * `code = ""`
+    * `code = "any string"`
+
+    Any valid escaped string:
+    * `code = ''`
+    * `code = 'any string (literal)'`
+
+    Any valid multiline string:
+    * <code>code = """<br/>  multiline string"""</code>
+    * <code>code = """\\<br/>  multiline string (trimmed)<br/>  \\"""</code>
+    * <code>code = '''<br/>  literal multiline string'''</code>
   </comp.Tab>
   <comp.Tab name="JSON">
     Null value:
-    * `"available": null`
+    * `"code": null`
 
-    Boolean values (without any quotation marks):
-    * `"available": true`
-    * `"available": false`
+    Any valid string:
+    * `"code": ""`
+    * `"code": "any string"`
+
+    Any valid multiline string:
+    * `"code": "multiline \n string"`
   </comp.Tab>
 </comp.Tabs>
