@@ -134,6 +134,10 @@ module.exports = {
         icon: 'check_box',
       },
       {
+        name: 'Date',
+        icon: 'event',
+      },
+      {
         name: 'Number',
         icon: '123',
       },
