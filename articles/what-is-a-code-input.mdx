@@ -17,11 +17,15 @@ article_topic:
   - Inputs
 author_notes: {}
 ---
-A Code input lets your team members write code or mono-spaced plain text in your data files or the front matter of markup files. Code inputs have a code area for your content.
+A Code input is an editing interface for code or mono-spaced plain text. You can use this input in the Data Editor, Content Editor, or Visual Editor to edit structured data in data files or front matter.
 
-For each input, you can configure the height of the code area, tab size, theme color, gutter visibility, syntax highlighting, and how CloudCannon handles empty values. You can also use the [general configuration options](/documentation/articles/configure-your-inputs/#general-configuration-options) available for all inputs.
+There is only one type of Code input:
 
-## Code
+* Code
+
+## Code input types
+
+### Code
 
 The Code input provides an editing interface for code or mono-spaced plain text content.
 
@@ -48,7 +52,7 @@ _inputs___1___:
 </comp.Annotation>
 </comp.MultiCodeBlock>
 
-Once configured, the Code input will appear in the Data Editor or the Visual or Content Editor sidebar when you add it to a data file or the front matter of a markup file.
+When you add your input key name to a data or markup file, your configured Code input will appear in the Data Editor, Visual Editor, and Content Editor.
 
 <comp.CodeBlock language="YAML" source="data.yml">
 ```
@@ -63,28 +67,98 @@ example_ruby: |
 ```
 </comp.CodeBlock>
 
-## Options
+## Input configuration options
 
-You can configure Code inputs using the `options` key under your input key, inside of `_inputs`.
+General configuration options are available for all input types. You can define the label, comment, and context box for your Boolean input, whether it is hidden or disabled, and how CloudCannon should handle configuration at multiple levels of the configuration cascade.
+
+Specific configuration options for Code inputs include defining the height of the code area, tab size, theme color, gutter visibility, syntax highlighting, and how CloudCannon handles empty values. You can also add input validation
+
+For more information, please read our documentation on [configuring your inputs](/documentation/articles/configure-your-inputs/) in general, or our [inputs reference](/documentation/articles/inputs-reference/) for a complete list of available configuration keys.
 
 <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
 ```
 
 _inputs:
-  snippet:
+  example_ruby:
     type: code
+    label: string
+    comment: string
+    context:
+      open: boolean
+      title: string
+      icon: string
+      content: string
+    hidden: boolean, or string
+    disabled: boolean, or string
+    cascade: boolean
     options:
-      max_visible_lines: 25
-      min_visible_lines: 15
-      show_gutter: false
-      syntax: sh
-      tab_size: 4
-      theme: solarized_dark
-      empty_type: null
+      max_visible_lines: number
+      min_visible_lines: number
+      show_gutter: boolean
+      syntax: string
+      tab_size: number
+      theme: string
+      empty_type: string
+      required: boolean
+      max_length: number
+      min_length: number
+      pattern: string
+      pattern_message: string
+      unique_on: string
 
 ```
 </comp.MultiCodeBlock>
 
+## Valid values
+
+Code inputs can have multiple valid values for empty, single-line, and multiline content. Here are some examples of valid values for the key `code`.
+
+<comp.Tabs label="Languages">
+  <comp.Tab name="YAML">
+    Empty/null value:
+    * `code: `
+
+    Any valid string (quoted or unquoted):
+    * `code: ""`
+    * `code: ''`
+    * `code: any string`
+    * `code: "any string"`
+    * `code: 'any string'`
+
+    Any valid multiline string:
+    * <code>code: ><br/>  multiline string</code>
+    * <code>code: >-<br/>  multiline string</code>
+    * <code>code: >+<br/>  multiline string</code>
+    * <code>code: |<br/>  multiline string</code>
+    * <code>code: |-<br/>  multiline string</code>
+    * <code>code: |+<br/>  multiline string</code>
+  </comp.Tab>
+  <comp.Tab name="TOML">
+    Any valid string:
+    * `code = ""`
+    * `code = "any string"`
+
+    Any valid escaped string:
+    * `code = ''`
+    * `code = 'any string (literal)'`
+
+    Any valid multiline string:
+    * <code>code = """<br/>  multiline string"""</code>
+    * <code>code = """\\<br/>  multiline string (trimmed)<br/>  \\"""</code>
+    * <code>code = '''<br/>  literal multiline string'''</code>
+  </comp.Tab>
+  <comp.Tab name="JSON">
+    Null value:
+    * `"code": null`
+
+    Any valid string:
+    * `"code": ""`
+    * `"code": "any string"`
+
+    Any valid multiline string:
+    * `"code": "multiline \n string"`
+  </comp.Tab>
+</comp.Tabs>
 
 ## Unconfigured Code inputs
 
