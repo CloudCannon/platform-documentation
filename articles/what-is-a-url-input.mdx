@@ -1,0 +1,156 @@
+---
+_schema: default
+_uuid: 917e4ece-c982-489a-97fa-e4a4b20ee381
+_created_at: '2021-09-15 05:03:07 +0000'
+title: What is a URL input?
+nav_title: What is a URL input?
+published: true
+image: >-
+  https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+description: >-
+  Learn how to configure a URL input to edit relative, absolute, and fully
+  qualified URLs in your data files or front matter.
+article_category:
+  - Explanation
+article_topic:
+  - Editing
+  - Editing interfaces
+  - Inputs
+author_notes: {}
+---
+A URL input is an editing interface for relative, absolute, and fully qualified URLs. You can use this input in the Data Editor, Content Editor, or Visual Editor to edit structured data in data files or front matter.
+
+There is only one type of URL input:
+
+* URL
+
+## URL input types
+
+### URL
+
+The URL input provides an editing interface for relative, absolute, and fully qualified URLs. CloudCannon shows a preview of the URL when the URL begins with a protocol (`http://` or `https://`).
+
+<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/inputs/url/2024-07/CloudCannon-Documentation-URL-Input-External.png" alt="A screenshot of two URL inputs in the Data Editor, showing external and internal URLs." title="The URL input" type="ui-snippet"/>
+
+<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/inputs/url/2024-07/CloudCannon-Documentation-URL-Input-Internal.png" alt="A screenshot of two URL inputs in the Data Editor, showing internal URLs." title="The URL input" type="ui-snippet"/>
+
+You can configure a URL input using the `type` key with the value `url`. Define the `type` key under your input key name within `_inputs`. For more information, please read our documentation on [configuring your inputs](/documentation/articles/configure-your-inputs/).
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+```
+
+_inputs___1___:
+  associate_link___2___:
+    type___3___: url
+
+```
+<comp.Annotation number="1">
+  All inputs are defined under the `_inputs` key, regardless of where they are in the [configuration cascade](/documentation/articles/using-the-configuration-cascade/).
+</comp.Annotation>
+<comp.Annotation number="2">
+  This URL input is called `associate_link`.
+</comp.Annotation>
+<comp.Annotation number="3">
+  The value of the `type` key determines the input type. This is a `url` input.
+</comp.Annotation>
+</comp.MultiCodeBlock>
+
+When you add your input key name to a data or markup file, your configured URL input will appear in the Data Editor, Visual Editor, or Content Editor.
+
+<comp.CodeBlock language="Markdown" source="blog.md">
+```
+
+---
+associate_link: http://example.com
+---
+
+Blog content goes here.
+
+```
+</comp.CodeBlock>
+
+## Input configuration options
+
+General configuration options are available for all input types. You can define the label, comment, and context box for your URL input, whether it is hidden or disabled, and how CloudCannon should handle configuration at multiple levels of the configuration cascade.
+
+Specific configuration options for URL inputs include configuring how CloudCannon handles empty values and which URL input options are visible. You can also add input validation to require a value, specify the minimum and maximum value length, or match a regular expression.
+
+Here is an example of a URL input using some of the most commonly used configuration keys.
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+```
+
+_inputs:
+  background:
+    type: url
+    label: External Link
+    comment: Enter a URL to link to an external resource
+    options:
+      empty_type: null
+      hide_link_to_file: false
+      hide_link_to_page: false
+      hide_link_to_email_address: false
+      required: true
+
+```
+</comp.MultiCodeBlock>
+
+For more information, please read our documentation on [configuring your inputs](/documentation/articles/configure-your-inputs/) in general, or our [inputs reference](/documentation/articles/inputs-reference/) for a complete list of available configuration keys.
+
+## Valid values
+
+Here are some examples of valid values for the key `url`.
+
+<comp.Tabs label="Languages">
+  <comp.Tab name="YAML">
+    Empty/null value:
+    * `url: `
+
+    Any valid string (quoted or unquoted):
+    * `url: ""`
+    * `url: ''`
+    * `url: example.com`
+    * `url: "example.com"`
+    * `url: 'example.com'`
+    * `url: "https://example.com"`
+
+    URLs containing `:` must be surrounded by quotes
+  </comp.Tab>
+  <comp.Tab name="TOML">
+    Any valid string:
+    * `url = ""`
+    * `url = ''`
+    * `url = "example.com"`
+    * `url = 'example.com'`
+    * `url = "https://example.com"`
+  </comp.Tab>
+  <comp.Tab name="JSON">
+    Null value:
+    * `"url": null`
+
+    Any valid string:
+    * `"url": ""`
+    * `"url": "example.com"`
+    * `"url": "https://example.com"`
+  </comp.Tab>
+</comp.Tabs>
+
+## Unconfigured URL inputs
+
+In some cases, CloudCannon can still detect a URL input even if you have not configured it.
+
+CloudCannon will interpret any unconfigured input with the key name `url` or `link`, or that ends in `_url` or `_link`, as a URL input.
+
+<comp.CodeBlock language="YAML" source="data.yml">
+```
+
+external_link: https://cloudcannon.com/
+
+```
+</comp.CodeBlock>
+
+This behavior is convenient if you have simple inputs or do not want to configure inputs. It is also beneficial for new websites on CloudCannon where you have yet to create any CloudCannon-specific configuration.
+
+<comp.Notice info_type="info">
+  We recommend configuring your inputs for greater control over their functionality and appearance.
+</comp.Notice> 
