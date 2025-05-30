@@ -1,0 +1,195 @@
+---
+_schema: default
+_uuid: f33c85ef-ce35-4f9e-b44e-4ea37d5ae71f
+_created_at: '2021-09-15 05:03:07 +0000'
+title: What is a Rich Text input?
+nav_title: What is a Rich Text input?
+published: true
+image: >-
+  https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+description: >-
+  Learn how to configure a Rich Text input to store HTML or Markdown content in
+  your data files or front matter.
+article_category:
+  - Explanation
+article_topic:
+  - Inputs
+  - Editing
+  - Editing interfaces
+author_notes: {}
+---
+A Rich Text input is an editing interface for markup content. You can use this input in the Data Editor, Content Editor, or Visual Editor to edit structured data in data files or front matter. Rich Text inputs have a text area for your content and a WYSIWYG toolbar for formatting your content.
+
+You can configure the WYSIWYG toolbar for a Rich Text input the same way you configure the toolbar for the [Content Editor](/documentation/articles/the-content-editor/). For more information, please read our documentation on [configuring your Rich Text editors](/documentation/articles/configure-your-rich-text-editors/).
+
+There are two types of Rich Text input:
+
+* HTML
+* Markdown
+
+## Rich Text input types
+
+### HTML
+
+The HTML Rich Text input provides an editing interface for HTML markup content.
+
+<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/inputs/rich-text/2024-06/CloudCannon_Documentation_HTML_Rich_Text_Input.png" alt="A screenshot of an HTML Rich Text input in the Data Editor." title="A Rich Text input" type="screenshot-snippet"/>
+
+You can configure a HTML input using the `type` key with the value `html`. Define the `type` key under your input key name within `_inputs`. For more information, please read our documentation on [configuring your inputs](/documentation/articles/configure-your-inputs/).
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+```
+
+_inputs___1___:
+  content___2___:
+    type___3___: html
+
+```
+<comp.Annotation number="1">
+  All inputs are defined under the `_inputs` key, regardless of where they are in the [configuration cascade](/documentation/articles/using-the-configuration-cascade/).
+</comp.Annotation>
+<comp.Annotation number="2">
+  The Rich Text input is called `content`.
+</comp.Annotation>
+<comp.Annotation number="3">
+  The value of the `type` key determines the input type. This is an `html` Rich Text input.
+</comp.Annotation>
+</comp.MultiCodeBlock>
+
+When you add your input key name to a data or markup file, your configured HTML Rich Text input will appear in the Data Editor, Visual Editor, or Content Editor.
+
+<comp.CodeBlock language="Markdown" source="about.md">
+```
+
+---
+content: |
+  <p>This paragraph has <em>emphasis</em> and <strong>strength</strong>.</p>
+  <ol>
+    <li>Walk</li>
+    <li>Run</li>
+  </ol>
+  <p>Linking to <a href="/">index</a>.</p>
+---
+
+```
+</comp.CodeBlock>
+
+### Markdown
+
+The Markdown Rich Text input provides an editing interface for Markdown markup content.
+
+<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/inputs/rich-text/2024-06/CloudCannon_Documentation_Markdown_Rich_Text_Input.png" alt="A screenshot of a Markdown Rich Text input in the Data Editor." title="A Rich Text input" type="screenshot-snippet"/>
+
+You can configure a Markdown input using the `type` key with the value `markdown`. Define the `type` key under your input key name within `_inputs`. For more information, please read our documentation on [configuring your inputs](/documentation/articles/configure-your-inputs/).
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+```
+
+_inputs___1___:
+  top_copy___2___:
+    type___3___: markdown
+
+```
+<comp.Annotation number="1">
+  All inputs are defined under the `_inputs` key, regardless of where they are in the [configuration cascade](/documentation/articles/using-the-configuration-cascade/).
+</comp.Annotation>
+<comp.Annotation number="2">
+  The Rich Text input is called `top_copy`.
+</comp.Annotation>
+<comp.Annotation number="3">
+  The value of the `type` key determines the input type. This is a `markdown` Rich Text input.
+</comp.Annotation>
+</comp.MultiCodeBlock>
+
+When you add your input key name to a data or markup file, your configured Markdown Rich Text input will appear in the Data Editor, Visual Editor, or Content Editor.
+
+<comp.CodeBlock language="Markdown" source="about.md">
+```
+
+---
+top_copy: |
+  # Animals
+
+  - Dogs
+  - Cats
+
+  ***Its raining cats and dogs.***
+---
+
+```
+</comp.CodeBlock>
+
+You may need to convert the Markdown value into HTML to use it on your site, for example by using the `markdownify` filter in Jekyll or Hugo.
+
+For more information, please read our documentation on [configuring your markdown engine](/documentation/articles/configure-your-markdown-engine/).
+
+## Input configuration options
+
+General configuration options are available for all input types. You can define the label, comment, and context box for your Rich Text input, whether it is hidden or disabled, and how CloudCannon should handle configuration at multiple levels of the configuration cascade.
+
+Specific configuration options for Rich Text inputs include configuring whether your team members are allowed to resize the text area, the initial height of the text area, the upload paths or filenames for any assets uploaded through this input, and how CloudCannon handles empty values.
+
+Here is an example of a Rich Text input using some of the most commonly used configuration keys.
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+```
+
+_inputs:
+  description:
+    type: markdown
+    options:
+      allow_resize: false
+      empty_type: "null"
+      initial_height: 200
+      paths:
+        dam_uploads: assets/images
+        dam_uploads_filename: "[filename].[extension]"
+
+```
+</comp.MultiCodeBlock>
+
+For more information, please read our documentation on [configuring your inputs](/documentation/articles/configure-your-inputs/) in general, or our [inputs reference](/documentation/articles/inputs-reference/) for a complete list of available configuration keys.
+
+## Unconfigured Rich Text inputs
+
+In some cases, CloudCannon can still detect a Rich Text input even if you have not configured it.
+
+CloudCannon will interpret any unconfigured input with the key name `html` or `markdown`, or that ends in `_html` or `_markdown`, as a Rich Text input.
+
+<comp.CodeBlock language="Markdown" source="about.md">
+```
+
+---
+sidebar_html: |
+  <p>This paragraph has <em>emphasis</em> and <strong>strength</strong>.</p>
+  <ol>
+    <li>Walk</li>
+    <li>Run</li>
+  </ol>
+  <p>Linking to <a href="/">index</a>.</p>
+---
+
+```
+</comp.CodeBlock>
+
+<comp.CodeBlock language="Markdown" source="about.md">
+```
+
+---
+markdown: |
+  # Animals
+
+  - Dogs
+  - Cats
+
+  ***Its raining cats and dogs.***
+---
+
+```
+</comp.CodeBlock>
+
+This behavior is convenient if you have simple inputs or do not want to configure inputs. It is also beneficial for new websites on CloudCannon where you have yet to create any CloudCannon-specific configuration.
+
+<comp.Notice info_type="info">
+  We recommend configuring your inputs for greater control over their functionality and appearance.
+</comp.Notice> 
