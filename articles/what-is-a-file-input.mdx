@@ -18,7 +18,7 @@ article_topic:
   - Editing interfaces
 author_notes: {}
 ---
-A File input is an editing interface for file paths and links to external files. You can use this input in the Data Editor, Content Editor, or Visual Editor to edit structured data in data files or front matter.
+A File input is an editing interface for file paths, allowing you to upload a file to your repository or [DAM](/documentation/articles/integrating-your-dam-with-cloudcannon/), or add links to external files. You can use this input in the Data Editor, Content Editor, or Visual Editor to edit structured data in data files or front matter.
 
 There are three types of File input:
 
@@ -71,7 +71,7 @@ Blog content goes here.
 
 ### Document
 
-The Document input provides an editing interface for uploading documents to your repository or DAM and browsing existing assets.
+The Document input provides an editing interface for uploading documents to your repository or DAM and browsing existing assets. By default, this input only accepts document file types.
 
 <comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/inputs/file-path/2024-08/CloudCannon-Documentation-Document-Input.png" alt="A screenshot of the Document input in the Data Editor, showing a dropdown menu to upload or browse assets." title="The Document input" type="ui-snippet"/>
 
@@ -112,7 +112,7 @@ Page content goes here.
 
 ### Image
 
-The Image input provides an editing interface for uploading images to your repository or DAM and browsing existing assets.
+The Image input provides an editing interface for uploading images to your repository or DAM and browsing existing assets. By default, this input only accepts image file types.
 
 <comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/inputs/file-path/2024-08/CloudCannon-Documentation-Image-Input.png" alt="A screenshot of the Image input in the Data Editor, showing a dropdown menu to upload or browse assets." title="The Image input" type="ui-snippet"/>
 
@@ -151,7 +151,7 @@ logo: /web-assets/logo.png
 
 General configuration options are available for all input types. You can define the label, comment, and context box for your File input, whether it is hidden or disabled, and how CloudCannon should handle configuration at multiple levels of the configuration cascade.
 
-Specific configuration options for File inputs include adding input validation, defining the default path for uploading assets, which MIME types an input will accept, which DAMs you can upload to and browse, and how CloudCannon handles empty values. For inputs that accept images, you can configure how CloudCannon resizes images, MIME type, and whether CloudCannon creates additional images of different sizes when you upload a new asset.
+Specific configuration options for File inputs include defining the default path for uploading assets, which MIME types an input will accept, which DAMs you can upload to and browse, and how CloudCannon handles empty values. You can also add input validation to require a value, specify the minimum and maximum value length, maximum file size, or match a regular expression. For inputs that accept images, you can configure how CloudCannon resizes images, MIME type, and whether CloudCannon creates additional images of different sizes when you upload a new asset.
 
 Here is an example of a File input using some of the most commonly used configuration keys.
 
@@ -169,7 +169,6 @@ _inputs:
         - image/jpeg
       allowed_sources:
         - site-files
-      empty_type: null
       resize_style: crop
       width: 400
       height: 300
@@ -178,7 +177,11 @@ _inputs:
       mime_type: image/png
       sizes:
         - size: 2x
-          target: _retina_image_file
+          target:
+      required: true
+      max_file_size:
+      pattern: (?i)\.(jpe?g|png)$
+      pattern_message:
 
 ```
 </comp.MultiCodeBlock>
@@ -240,4 +243,4 @@ This behavior is convenient if you have simple inputs or do not want to configur
 
 <comp.Notice info_type="info">
   We recommend configuring your inputs for greater control over their functionality and appearance.
-</comp.Notice> 
+</comp.Notice>
