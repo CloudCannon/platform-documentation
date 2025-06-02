@@ -678,3 +678,124 @@ These keys configure the appearance and functionality of Date and Time inputs in
     * `null` - an empty value for this input will be stored as a null value (default). This does not apply to TOML files.
   </comp.DataReferenceRow>
 </comp.DataReference>
+
+### File input options
+
+These keys configure the appearance and functionality of File inputs in CloudCannon.
+
+<comp.DataReference>
+  <comp.DataReferenceRow label="paths" type_markdown="Object">
+    This key enables you to define paths for your Rich Text editors or File inputs. The following nested keys are available:
+
+    * `dam_static`
+    * `dam_uploads`
+    * `dam_uploads_filename`
+    * `static`
+    * `uploads`
+    * `uploads_filename`
+    * `uploads_use_relative_paths`
+
+    This key has no default. If undefined at higher levels of the [configuration cascade](/documentation/articles/using-the-configuration-cascade/), `paths` will default to any values configured in the [CloudCannon configuration file](/documentation/articles/what-is-the-cloudcannon-configuration-file/).
+
+    For more information, please read our documentation on [Rich Text editors](/documentation/articles/what-are-rich-text-editors/) or [File inputs](/documentation/articles/configure-your-file-inputs/).
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="paths.dam_static" type_markdown="String">
+    This key enables you to define the path for the location of statically copied assets for [DAM](/documentation/articles/introduction-to-assets-and-dams/) files.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="paths.dam_uploads" type_markdown="String">
+    This key enables you to define the path for the default location of newly uploaded [DAM](/documentation/articles/introduction-to-assets-and-dams/) files.
+
+    You can use [dynamic placeholders](/documentation/articles/configure-your-template-strings/) for `uploads` and `dam_uploads`. For more information, please read our documentation on [adjusting file upload paths](/documentation/articles/adjusting-the-uploads-path/).
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="paths.dam_uploads_filename" type_markdown="String">
+    This key enables you to define the name of a file, after uploading it to a [DAM](/documentation/articles/introduction-to-assets-and-dams/).
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="paths.static" type_markdown="String">
+    This key enables you to define the path for the location of statically copied assets.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="paths.uploads" type_markdown="String">
+    This key enables you to define the path for the default location of newly uploaded files.
+
+    You can use [dynamic placeholders](/documentation/articles/configure-your-template-strings/) for `uploads` and `dam_uploads`. For more information, please read our documentation on [adjusting file upload paths](/documentation/articles/adjusting-the-uploads-path/).
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="paths.uploads_filename" type_markdown="String">
+    This key enables you to define the name of a file, after uploading it.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="paths.uploads_use_relative_paths" type_markdown="Boolean">
+    This key enables you to use a file path relative to the current file when uploading through this input. File inputs in data files or front matter will also use relative file paths when selecting an existing file.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="accepts_mime_types" type_markdown="String or array of strings">
+    This key restricts which file types you are allowed to select or upload through an input. Each File input type has a different default:
+
+    * File: `*`
+    * Image: `image/x-icon,image/gif,image/jpeg,image/jpeg,image/png,image/webp,image/bmp,image/svg+xml`
+    * Document: `application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation`
+
+    If this key uses a string value, the value format should be a comma-separated (no spaces) list of accepted [MIME types](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types). The string `*` allows any type.
+
+    If this key uses an array of values, each item in the array should be a string containing a single accepted [MIME type](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types).
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="allowed_sources" type_markdown="Array">
+    This key lists which DAMs you are allowed to upload to and browse. Valid values include `site-files` and the reference key for any DAM connected to your site.
+
+    If `site-files` is omitted from the array, site files will not be available as an asset source for this input.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="empty_type" type_markdown="String">
+    This key determines how CloudCannon handles an empty value. This key does not apply to existing empty values.
+
+    Value must be one of the following:
+
+    * `string` - an empty value for this input will be stored as "".
+    * `null` - an empty value for this input will be stored as a null value (default). This does not apply to TOML files.
+  </comp.DataReferenceRow>
+</comp.DataReference>
+
+If the input accepts images, the following options are also available:
+
+<comp.DataReference>
+  <comp.DataReferenceRow label="resize_style" type_markdown="String">
+    This key determines how CloudCannon resizes images prior to uploading them to your repository or DAM. CloudCannon resizes images using a bounding box defined by the `width` and `height` options. Defaults to `contain`, if `width` and `height` are defined.
+
+    Value must be one of the following:
+
+    * `crop` — Prompts the user to choose a region of the image that matches the dimensions of the bounding box.
+    * `cover` — Keeps the original aspect ratio of the uploaded image but enlarges the image to match the largest dimension of the bounding box.
+    * `contain` — Keeps the original aspect ratio of the uploaded image but reduces the image to match the smallest dimension of the bounding box.
+    * `stretch` — Ignores the original aspect ratio and resizes the image to match the dimensions of the bounding box.
+
+    If either `width` or `height` are not defined, the `contain`, `cover` and `stretch` options will not work. For the `crop`option, `width` and `height` are optional, and control the minimum size and aspect ratio of the crop region.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="width" type_markdown="Integer">
+    This key determines the width of the bounding box CloudCannon uses to resize images prior to upload. Works in conjunction with the `resize_style` option.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="height" type_markdown="Integer">
+    This key determines the height of the bounding box CloudCannon uses to resize images prior to upload. Works in conjunction with the `resize_style` option.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="mime_type" type_markdown="String">
+    This key determines what format CloudCannon will convert an image to prior to uploading it. CloudCannon also updates the file extension. Defaults to keeping an image's original MIME type.
+
+    Value must be one of:
+
+    * `image/jpeg`
+    * `image/png`
+    * `image/webp`
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="expandable" type_markdown="Boolean">
+    This key determines whether you can expand an image to fit the bounding box when resizing an image prior to upload. Defaults to `false`. Has no effect if files are not resized.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="prevent_resize_existing_files" type_markdown="Boolean">
+    This key determines whether CloudCannon will prompt you to resize an existing image when you select it through this input. Defaults to false.
+
+    When resizing an existing image, CloudCannon will save the resized copy without overwriting the original file.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="sizes" type_markdown="Array of objects">
+    This key determines whether CloudCannon will create additional images of different sizes  when uploading or selecting an image through this input. This key has no default.
+
+    Each entry in the array contains the following fields:
+
+    * `size` — Set the dimensions for the additional image file. Value must be a number with the "x" suffix for relative size or "w" suffix for fixed width (e.g., 2x, 3x, 100w, 360w).
+    * `target` — References another input. CloudCannon sets the value of this target input to the file path of the additional image file.
+
+    If CloudCannon cannot create an additional image (e.g., the image you uploaded is too small), CloudCannon does not set the value of the target input.
+  </comp.DataReferenceRow>
+</comp.DataReference>
