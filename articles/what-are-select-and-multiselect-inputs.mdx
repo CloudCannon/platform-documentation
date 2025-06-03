@@ -246,7 +246,7 @@ All Select and Multiselect inputs must have a predefined list of value options f
 
 ### Fixed data sets
 
-A fixed data set is an array of predefined value options for your Select or Multiselect input. Fixed data sets are best suited to inputs with values that do not change often.
+A fixed data set is an array of predefined value options for your Select or Multiselect input, defined in the same place you configure your input. Fixed data sets are best suited to inputs with values that do not change often.
 
 ### Collections
 
@@ -278,9 +278,49 @@ _inputs:
 
 ### Data files
 
-x
+A data file stores structured data. You can populate your input using a dedicated data file, which you can open and edit this file using the CloudCannon file browser. Using a data file to populate your value options is useful when you want your team members to be able to edit the available options easily.
 
-### Filters
+<comp.Notice info_type="info">
+  Your Site may encounter issues if a team member removes an option from your data file that is in use by an input.
+</comp.Notice>
+
+Data files must contain arrays of strings or objects. The Select or Multiselect input will use the strings if the data file contains an array, and the key names if it contains objects.
+
+<comp.CodeBlock language="YAML" source="theme_colors.yml">
+``````````
+
+- Blue
+- Green
+- Red
+
+``````````
+</comp.CodeBlock>
+
+You can reference a data file for your Select or Multiselect input using the `values` key in the input `options`. Use the value `data.key_name`, replacing `key_name` with the key name of your data file.
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+```
+
+_inputs:
+  block_theme_color___1___:
+    type: select
+    options:
+      values___2___: data.theme_colors
+
+```
+<comp.Annotation number="1">
+  This Select input is called `block_theme_color`.
+</comp.Annotation>
+<comp.Annotation number="2">
+  This input references a data file called `theme_colors`.
+</comp.Annotation>
+</comp.MultiCodeBlock>
+
+<comp.Notice info_type="important">
+  You must have [defined your Data](/documentation/articles/define-your-data/) for this configuration to work.
+</comp.Notice>
+
+## Filters
 
 x
 
@@ -322,12 +362,12 @@ Here are some examples of valid values for Select and Multiselect inputs.
     Multiple values (Multiselect/Multichoice):
     ```json
     {
-                                  "multiselect_value": [
-                                    "option1",
-                                    "option2",
-                                    "option3"
-                                  ]
-                                }
+                                          "multiselect_value": [
+                                            "option1",
+                                            "option2",
+                                            "option3"
+                                          ]
+                                        }
     ```
   </comp.Tab>
 </comp.Tabs>
