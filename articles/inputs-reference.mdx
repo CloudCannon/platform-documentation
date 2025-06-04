@@ -828,3 +828,105 @@ These keys configure the appearance and functionality of Number inputs in CloudC
     * `null` - an empty value for this input will be stored as a null value (default). This does not apply to TOML files.
   </comp.DataReferenceRow>
 </comp.DataReference>
+
+### Select and Multiselect input options
+
+These keys configure the appearance and functionality of Select and Multiselect inputs in CloudCannon.
+
+<comp.DataReference>
+  <comp.DataReferenceRow label="allow_create" type_markdown="Boolean">
+    This key determines whether you are allowed to enter a new text value that does not appear in the data set. CloudCannon does not add new text values to the data set. Defaults to `false`.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="allow_empty" type_markdown="Boolean">
+    This key toggles the presence of an empty option alongside the options listed under `values`. Defaults to `true`. When `false`, CloudCannon will use the first value in the data set by default.
+
+    This key has no effect on Multiselect inputs.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="empty_type" type_markdown="string">
+    This key determines how CloudCannon handles an empty value. This key does not apply to existing empty values.
+
+    Value must be one of the following:
+
+    * `string` - an empty value for this input will be stored as "".
+    * `array` - an empty value for this input will be stored as `[]`.
+    * `null` - an empty value for this input will be stored as a null value (default). This does not apply to TOML files.
+
+    Available for Multiselect and Multichoice inputs.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="preview" type_markdown="Object">
+    This key enables you to define the appearance of input values in the Data Editor or sidebar of the Visual or Content Editor. The following nested keys are available:
+
+    * `text`
+    * `icon` (Choice/Multichoice only)
+    * `image` (Choice/Multichoice only)
+
+    Defaults to:
+
+    <comp.CodeBlock language="YAML" source="cloudcannon.config.yml">
+                                                        ``````````
+                                                        preview:
+                                                          text:
+                                                            - key: title
+                                                            - key: name
+                                                          icon:
+                                                            - key: icon
+                                                        ``````````
+                                                        </comp.CodeBlock>
+
+    For more information about previews, please read our documentation on [configuring card previews](/documentation/articles/configure-your-card-previews/).
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="preview.text" type_markdown="Array, string or boolean">
+    This key determines the title text displayed for a value option. This key has no default, and has no effect unless the value option is an Object.
+
+    If set to `false`, no text is displayed.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="preview.icon" type_markdown="Array, string or boolean">
+    This key determines the icon displayed for a value option. The value must match a name from the [Material Icons](https://material.io/tools/icons/) list.
+
+    If set to `false`, no icon is displayed.
+
+    If image is defined, the image replace icon when loaded successfully.
+
+    Available for Choice and Multichoice inputs.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="preview.image" type_markdown="array, string, or boolean">
+    This key determines the image displayed for a value option. This key has no default and, if the value option is an Object, falls back to `thumbnail_image`, `thumbnail_image_path`, `image`, and `image_path` in that order. If no image is found, `icon` is displayed instead.
+
+    If set to `false`, no image is displayed.
+
+    Available for Choice and Multichoice inputs.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="values" type_markdown="Array, object or string">
+    This key defines which values are available for a Select or Multiselect input.
+
+    You must define this key for the Select or Multiselect input to function.
+
+    Value can be an array of options, or a string referencing a fixed data set, Collection, or data file.
+
+    This key has no default.
+
+    <comp.Example>
+      In this example, CloudCannon will provide items in the `posts` Collection as values for the `heathers_posts` input. CloudCannon will also apply a filter, returning only files where the `author` structured data key is equal to "Heather".
+
+      <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+                                                                              ``````````
+                                                                              _inputs:
+                                                                                heathers_posts:
+                                                                                  type: multiselect
+                                                                                  label: Heather's Posts
+                                                                                  options:
+                                                                                    values: "collections.posts[?(@.author == 'Heather')]"
+                                                                              ``````````
+                                                                              </comp.MultiCodeBlock>
+    </comp.Example>
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="value_key" type_markdown="String or array of strings">
+    This key defines which key CloudCannon should use as the Select/Multiselect input value when a value option is an Object with multiple nested keys.
+
+    Defaults to `['id', 'uuid', 'path', 'title', 'name']`. Has no effect unless `values` is an array of objects.
+
+    If set as an array, keys are tried in order, until a non-empty value is found. If no keys are set for an available value, that value is not included in the input options.
+
+    If set as a string, this key is used directly. Value options are excluded if they don't have a value for this key.
+  </comp.DataReferenceRow>
+</comp.DataReference>
