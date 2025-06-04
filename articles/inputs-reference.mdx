@@ -829,6 +829,217 @@ These keys configure the appearance and functionality of Number inputs in CloudC
   </comp.DataReferenceRow>
 </comp.DataReference>
 
+### Object input options
+
+These keys configure the appearance and functionality of Object inputs in CloudCannon.
+
+<comp.DataReference>
+  <comp.DataReferenceRow label="subtype" type_markdown="string">
+    This key determines the appearance and function of the input. Defaults to `object`.
+
+    Value must be one of the following:
+
+    * `object` — clicking on the Object card will open the second scope containing all nested inputs.
+    * `mutable` — all nested inputs appear on the top scope with controls to add, delete, clone, rename, or remove inputs from within the Object.
+    * `tabbed` — all nested objects appear as tabs in the top scope.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="structures" type_markdown="string or object">
+    This key determines which predefined templates to use for populating the Object Input. When configured, team members can select a [structure](/documentation/articles/what-is-a-structure/) to populate the Object with input/input groups. This key has no default.
+
+    If configured as an object, CloudCannon will use the values directly.
+
+    If configured as a string, CloudCannon will use the matching structures value defined under `_structures` in the [configuration cascade](/documentation/articles/using-the-configuration-cascade/).
+
+    <comp.Notice info_type="info">
+      This key looks similar to `entries.structures`. However, the `structures` key applies to the Object input itself, while `entries.structures` applies to the entries within the object.
+    </comp.Notice>
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="groups" type_markdown="array of keys">
+    This key allows you to group nested inputs within the Object Input together without changing the data structure. The following nested keys are available:
+
+    * `heading`
+    * `comment`
+    * `collapsed`
+    * `inputs`
+    * `documentation`
+
+    Each group should be a new item in the array. Ungrouped inputs appear below groups by default.
+
+    This key does not apply to Structured or Mutable Object Inputs.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="groups[*].heading" type_markdown="text">
+    This key determines the title text displayed at the top of the group. This text is visible whether a group is expanded or collapsed.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="groups[*].comment" type_markdown="text">
+    This key determines the subtitle text displayed at the top of the group. This text is visible whether a group is expanded or collapsed.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="groups[*].collapsed" type_markdown="boolean">
+    This key determines whether a group is collapsed by default. Defaults to `false`.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="groups[*].inputs" type_markdown="array of strings">
+    This key determines the inputs included in this group. These key names must match a key within the Object Input. Defaults to `[]`.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="groups[*].documentation" type_markdown="object">
+    This key enables you to add a custom link below the heading of the group. The following nested keys are available:
+
+    * `url` — determines the `href` value of the link (String). This field is required.
+    * `text` — determines the visible text used in the link (String). Defaults to `Documentation`.
+    * `icon` — determines the icon displayed next to the link. Must be a [Material Icon](https://fonts.google.com/icons?icon.set=Material+Icons) name. Defaults to `auto_stories`.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="place_groups_below" type_markdown="boolean">
+    This key determines whether ungrouped inputs appear below groups or above groups. Defaults to `false`. Has no affect if `groups` is not configured.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="preview" type_markdown="object">
+    This key enables you to define the appearance of the input in the Data Editor or sidebar of the Visual or Content Editor. The following nested keys are available:
+
+    * `text`
+    * `subtext`
+    * `icon`
+    * `image`
+
+    If the Object Input uses `structures`, CloudCannon will use the `preview` key from the structure instead.
+
+    For more information about previews, please read our documentation on [configuring card previews](/documentation/articles/configure-your-card-previews/).
+
+    <comp.Notice info_type="info">
+      Object inputs now support the new `preview` option. [Read our migration guide](/documentation/articles/migrating-to-preview-options/) if you are still using the old options: `text_key`, `subtext_key`, `image_key` and `icon`.
+    </comp.Notice>
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="preview.text" type_markdown="array, string, or boolean">
+    This key determines the title text displayed on a default Object Input card. This key has no default, and falls back to the first nested value found (prioritizing text-based values).
+
+    If set to `false`, no text is displayed.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="preview.subtext" type_markdown="array, string, or boolean">
+    This key determines the subtitle text displayed on a default Object Input card. This key has no default, and falls back to listing the `label` of each nested input. `subtext` is hidden if text and subtext are the same. If there is no text, subtext will appear in the place of text.
+
+    If set to `false`, no text is displayed.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="preview.icon" type_markdown="array, string, or boolean">
+    This key determines the icon displayed on a default Object Input card. The value must match a name from the [Material Icons](https://fonts.google.com/icons?icon.set=Material+Icons) list. Defaults checking the `icon` key, then falls back to the `notes` icon.
+
+    If set to `false`, no icon is displayed.
+
+    If `image` is defined, the image replace `icon` when loaded successfully.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="preview.image" type_markdown="array, string, or boolean">
+    This key determines the image displayed on a default Object Input card. This key has no default, and falls back to `thumbnail_image`, `thumbnail_image_path`, `image`, and `image_path` in that order. If no image is found, `icon` is displayed instead.
+
+    If set to `false`, no image is displayed.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="empty_type" type_markdown="String">
+    This key determines how CloudCannon handles an empty value. This key does not apply to existing empty values.
+
+    Value must be one of the following:
+
+    * `string` - an empty value for this input will be stored as "".
+    * `null` - an empty value for this input will be stored as a null value (default). This does not apply to TOML files.
+  </comp.DataReferenceRow>
+</comp.DataReference>
+
+If the input is a mutable Object, the following options are also available:
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+```
+
+_inputs:
+  example:
+    type: object
+    options:
+      subtype: mutable
+      entries:
+        allowed_keys:
+          - image
+          - link
+          - link_or_image
+        structures:
+          values:
+            - id: image_template
+              label: Image
+              icon: image
+              value:
+                image:
+                caption:
+            - id: link_template
+              label: External link
+              icon: link
+              value:
+                url:
+                title:
+        assigned_structures:
+          link:
+            - link_template
+          image:
+            - image_template
+          link_or_image:
+            - image_template
+            - link_template
+        comment: Select a key name.
+        documentation:
+          url: https://cloudcannon.com/documentation/articles/configure-your-object-inputs/
+          text: Documentation
+          icon: help
+      allow_label_formatting: true
+
+```
+</comp.MultiCodeBlock>
+
+<comp.DataReference>
+  <comp.DataReferenceRow label="entries" type_markdown="object">
+    This key enables you to define the appearance and function of entries in a mutable object. The following nested keys are available:
+
+    * `allowed_keys`
+    * `structures`
+    * `assigned_structures`
+    * `comment`
+    * `documentation`
+
+    Available for Mutable Objects only.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="entries.allowed_keys" type_markdown="array">
+    This key defines a limited set of key names for nested keys within your Object Input. This affects entries when adding or renaming nested keys. Defaults to `[]`.
+
+    Available for Mutable Objects only.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="entries.structures" type_markdown="string or object">
+    This key determines which predefined templates to use for populating entries nested in the Object Input. When configured, team members can select a [structure](/documentation/articles/what-is-a-structure/) to populate the Object with input/input groups. This key has no default.
+
+    If configured as an object, CloudCannon will use the values directly.
+
+    If configured as a string, CloudCannon will use the matching structures value defined under `_structures` in the [configuration cascade](/documentation/articles/using-the-configuration-cascade/).
+
+    Available for Mutable Objects only.
+
+    <comp.Notice info_type="info">
+      This key looks similar to `structures`. However, the `structures` key applies to the Object input itself, while `entries.structures` applies to the entries within the object.
+    </comp.Notice>
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="entries.assigned_structures" type_markdown="object">
+    This key enables you to assign structures to specific key names for entries in the Object Input. When selecting an entry key name, CloudCannon will prompt to to choose one of the assigned structures for that allowed key. Structure values are referred to by their `id`.
+
+    Available for Mutable Objects only.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="entries.comment" type_markdown="text">
+    This key determines the subtitle text above the key input. This key has no default, and supports a limited selection of Markdown formatting in value text: links, bold, italic, subscript, superscript, inline code elements are allowed.
+
+    Available for Mutable Objects only.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="entries.documentation" type_markdown="object">
+    This key enables you to add a custom link above the key input. The following nested keys are available:
+
+     * `url` - determines the `href` value of the link (String). This field is required.
+     * `text` - determines the visible text used in the link (String). Defaults to `Documentation`.
+     * `icon` - determines the icon displayed next to the link. Must be a [Material Icon](https://fonts.google.com/icons?icon.set=Material+Icons) name. Defaults to `auto_stories`.
+
+     Available for Mutable Objects only.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="allow_label_formatting" type_markdown="boolean">
+    This key determines whether labels on mutable object entries are formatted. Defaults to `false`.
+
+    Available for Mutable Objects only.
+  </comp.DataReferenceRow>
+</comp.DataReference>
+
 ### Select and Multiselect input options
 
 These keys configure the appearance and functionality of Select and Multiselect inputs in CloudCannon.
