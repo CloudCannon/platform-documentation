@@ -27,11 +27,13 @@ author_notes:
 
 A [Boolean input](/documentation/articles/what-is-a-boolean-input/) is an editing interface for structured data with true or false values in data files or front matter. By configuring your inputs, you can customize the appearance and functionality for a better editing experience.
 
+<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/inputs/boolean/2024-07/CloudCannon-Documentation-Checkbox-Boolean-Input.png" alt="A screenshot of two Checkbox Boolean inputs in the Data Editor, showing one true and one false value." title="The Checkbox Boolean Input" type="ui-snippet"/>
+
 <comp.Notice info_type="info">
   For a complete list of configuration keys available for inputs please read our [inputs reference](/documentation/articles/inputs-reference/) documentation.
 </comp.Notice>
 
-These instructions assume that you want to configure a Boolean input and where in the configuration cascade. For more information, please read our documentation on [inputs](/documentation/articles/what-are-inputs/) in general and the [configuration cascade](/documentation/articles/using-the-configuration-cascade/).
+These instructions assume that you know what type of Boolean input you want to configure and where in the configuration cascade. For more information, please read our documentation on [inputs](/documentation/articles/what-are-inputs/) in general and the [configuration cascade](/documentation/articles/using-the-configuration-cascade/).
 
 To configure a Boolean input:
 
@@ -39,7 +41,7 @@ To configure a Boolean input:
 2. Navigate to the location in the configuration cascade where you want to configure your input. This can be the root of your CloudCannon Configuration File, within the `collections_config.*` key in your CloudCannon Configuration File, a Schema file, a markup file, or any where you configure a Structure.
 3. Identify the `_inputs` key, or create one at that level of the configuration cascade.
 4. Add an input name key for your input under the `_inputs` key (a.k.a., `_inputs.*`). We recommend naming your input something simple that indicates the function or context.
-5. Add the `type` key under your input name key, with an appropriate value for the type of input you want.
+5. Add the `type` key under your input name key, with either the `checkbox` or `switch` value.
 6. (Optional.) Add any other general configuration keys (e.g., `label`, `comment`, `context`, `options`) under your input name key.
 7. (Optional.) Add any specific configuration keys under `_inputs.*.options` (e.g., `required`).
 
@@ -49,4 +51,76 @@ When you are happy with your input configuration, you must save your input confi
 
 <comp.DocShot docshot_key="" alt="" title="" type="screenshot"/>
 
-Extra info...
+## Input configuration options
+
+General configuration options are available for all input types. You can define the label, comment, and context box for your Boolean input, whether it is hidden or disabled, and how CloudCannon should handle configuration at multiple levels of the configuration cascade.
+
+Specific configuration options for Boolean inputs include adding input validation, where CloudCannon requires a value for your Boolean input.
+
+Here is an example of a Boolean input using some of the most commonly used configuration keys.
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+```
+
+_inputs:
+  blog_published:
+    type: checkbox
+    label: Published
+    comment: This blog will appear on our website when this box is checked
+    options:
+      required: true
+
+```
+</comp.MultiCodeBlock>
+
+## Valid values
+
+Here are some examples of valid values for the key `available`. These work for both Checkbox and Switch inputs.
+
+<comp.Tabs label="Languages">
+  <comp.Tab name="YAML">
+    Empty/null value:
+    * `available: `
+
+    Boolean values (without any quotation marks):
+    * `available: true`
+    * `available: false`
+  </comp.Tab>
+  <comp.Tab name="TOML">
+    Boolean values (without any quotation marks):
+    * `available = true`
+    * `available = false`
+  </comp.Tab>
+  <comp.Tab name="JSON">
+    Null value:
+    * `"available": null`
+
+    Boolean values (without any quotation marks):
+    * `"available": true`
+    * `"available": false`
+  </comp.Tab>
+</comp.Tabs>
+
+## Unconfigured Boolean inputs
+
+In some cases, CloudCannon can still detect a Boolean input even if you have not configured it.
+
+CloudCannon will interpret any unconfigured input with a `true` or `false` value as a Checkbox Boolean input. CloudCannon cannot create a Switch input without configuration.
+
+<comp.CodeBlock language="Markdown" source="article.md">
+```
+
+---
+public: true
+---
+
+Content goes here.
+
+```
+</comp.CodeBlock>
+
+This behavior is convenient if you have simple inputs or do not want to configure inputs. It is also beneficial for new websites on CloudCannon where you have yet to create any CloudCannon-specific configuration.
+
+<comp.Notice info_type="info">
+  We recommend configuring your inputs for greater control over their functionality and appearance.
+</comp.Notice>
