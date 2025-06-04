@@ -18,9 +18,9 @@ article_topic:
   - Editing interfaces
 author_notes: {}
 ---
-A Rich Text input is an editing interface for markup content. You can use this input in the Data Editor, Content Editor, or Visual Editor to edit structured data in data files or front matter. Rich Text inputs have a text area for your content and a WYSIWYG toolbar for formatting your content.
+A Rich Text input is an editing interface for markup content. You can use this input in the Data Editor, Content Editor, or Visual Editor to edit structured data in data files or front matter.
 
-You can configure the WYSIWYG toolbar for a Rich Text input the same way you configure the toolbar for the [Content Editor](/documentation/articles/the-content-editor/). For more information, please read our documentation on [configuring your Rich Text editors](/documentation/articles/configure-your-rich-text-editors/).
+Rich Text inputs have a text area for your content and a WYSIWYG toolbar for formatting your content. You can configure the WYSIWYG toolbar for a Rich Text input in the same way you configure the toolbar for the [Content Editor](/documentation/articles/the-content-editor/). For more information, please read our documentation on [configuring your Rich Text editors](/documentation/articles/configure-your-rich-text-editors/).
 
 There are two types of Rich Text input:
 
@@ -127,7 +127,7 @@ For more information, please read our documentation on [configuring your markdow
 
 General configuration options are available for all input types. You can define the label, comment, and context box for your Rich Text input, whether it is hidden or disabled, and how CloudCannon should handle configuration at multiple levels of the configuration cascade.
 
-Specific configuration options for Rich Text inputs include configuring whether your team members are allowed to resize the text area, the initial height of the text area, the upload paths or filenames for any assets uploaded through this input, and how CloudCannon handles empty values.
+Specific configuration options for Rich Text inputs include configuring whether your team members are allowed to resize the text area, the initial height of the text area, the upload paths or filenames for any assets uploaded through this input, and how CloudCannon handles empty values. You can also add input validation to require a value, specify the minimum and maximum value length, or match a regular expression.
 
 Here is an example of a Rich Text input using some of the most commonly used configuration keys.
 
@@ -139,16 +139,68 @@ _inputs:
     type: markdown
     options:
       allow_resize: false
-      empty_type: "null"
       initial_height: 200
       paths:
         dam_uploads: assets/images
         dam_uploads_filename: "[filename].[extension]"
+      required: true
+      max_length: 500
 
 ```
 </comp.MultiCodeBlock>
 
 For more information, please read our documentation on [configuring your inputs](/documentation/articles/configure-your-inputs/) in general, or our [inputs reference](/documentation/articles/inputs-reference/) for a complete list of available configuration keys.
+
+## Valid values
+
+Rich Text inputs can have multiple valid values for empty, single line, and multiline content. Here are some examples of valid values for the key `html`. These work for both HTML and Markdown inputs.
+
+<comp.Tabs label="Languages">
+  <comp.Tab name="YAML">
+    Empty/null value:
+    * `html: `
+
+    Any valid string (quoted or unquoted):
+    * `html: ""`
+    * `html: ''`
+    * `html: any string`
+    * `html: "any string"`
+    * `html: 'any string'`
+
+    Any valid multiline string:
+    * <code>html: ><br/>  multiline string</code>
+    * <code>html: >-<br/>  multiline string</code>
+    * <code>html: >+<br/>  multiline string</code>
+    * <code>html: |<br/>  multiline string</code>
+    * <code>html: |-<br/>  multiline string</code>
+    * <code>html: |+<br/>  multiline string</code>
+  </comp.Tab>
+  <comp.Tab name="TOML">
+    Any valid string:
+    * `html = ""`
+    * `html = "any string"`
+
+    Any valid escaped string:
+    * `html = ''`
+    * `html = 'any string (literal)'`
+
+    Any valid multiline string:
+    * <code>html = """<br/>  multiline string"""</code>
+    * <code>html = """\\<br/>  multiline string (trimmed) \\<br/>  """</code>
+    * <code>html = '''<br/>  literal multiline string'''</code>
+  </comp.Tab>
+  <comp.Tab name="JSON">
+    Null value:
+    * `"html": null`
+
+    Any valid string:
+    * `"html": ""`
+    * `"html": "any string"`
+
+    Any valid multiline string:
+    * `"html": "multiline \n string"`
+  </comp.Tab>
+</comp.Tabs>
 
 ## Unconfigured Rich Text inputs
 
@@ -192,4 +244,4 @@ This behavior is convenient if you have simple inputs or do not want to configur
 
 <comp.Notice info_type="info">
   We recommend configuring your inputs for greater control over their functionality and appearance.
-</comp.Notice> 
+</comp.Notice>
