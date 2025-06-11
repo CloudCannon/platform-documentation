@@ -317,12 +317,18 @@ module.exports = {
       icon: "key",
       preview: {
         text: {
-          key: "key_name",
+          key: [
+            "full_name",
+            "key_name",
+          ]
         },
         metadata: [
           {
             text: {
-              key: "key_value_type",
+              key: [
+                "value_type",
+                "key_value_type",
+              ]
             },
             icon: "data_object",
           },
@@ -339,15 +345,15 @@ module.exports = {
       },
       schemas: {
         default: {
-          path: ".cloudcannon/schemas/key-definition.yml",
+          path: ".cloudcannon/schemas/key-reference.yml",
           _inputs: {
-            key_name: {
+            name: {
               type: "text",
             },
-            key_singular_name: {
+            full_name: {
               type: "text",
             },
-            key_value_type: {
+            value_type: {
               type: "multiselect",
               options: {
                 values: "_select_data.key_value_type",
@@ -359,7 +365,7 @@ module.exports = {
                 },
               },
             },
-            key_description: {
+            description: {
               type: "markdown",
               options: {
                 format: "p h1 h2 h3 h4 h5 h6",
@@ -380,33 +386,14 @@ module.exports = {
                 snippet: true,
               },
             },
-            key_documentation: {
-              type: "object",
-              comment: "Add a documentation link.",
-              options: {
-                subtype: "object",
-                structures: {
-                  values: [
-                    {
-                      label: "Key Documentation Link",
-                      comment: "For more information, please read our documentation on...",
-                      value: {
-                        text: null,
-                        url: null,
-                      },
-                    },
-                  ],
-                },
-              },
-            },
             parent_keys: {
               type: "multiselect",
               options: {
                 values: "collections.keys",
-                value_key: "key_name",
+                value_key: "name",
                 preview: {
                   label: {
-                    key: "key_name",
+                    key: "name",
                   },
                 },
               },
@@ -415,10 +402,10 @@ module.exports = {
               type: "multiselect",
               options: {
                 values: "collections.keys",
-                value_key: "key_name",
+                value_key: "name",
                 preview: {
                   label: {
-                    key: "key_name",
+                    key: "name",
                   },
                 },
               },
