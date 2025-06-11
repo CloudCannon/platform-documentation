@@ -1,0 +1,217 @@
+---
+_schema: instructions
+_uuid: 9i0j1k2l-3m4n-5o6p-7q8r-9s0t1u2v3w4x
+_created_at: 2025-06-05T09:39:11+12:00
+title: Configure a Select or Multiselect input
+nav_title: Configure a Select or Multiselect input
+published: true
+image: >-
+  https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+description: >-
+  Learn how to configure Select and Multiselect inputs to store fixed or dynamic
+  lists in your data files or front matter.
+article_category:
+  - Instructions
+article_topic:
+  - Editing
+  - Editing interfaces
+  - Inputs
+author_notes:
+  docshots_status: Needs docshots
+---
+<comp.Notice info_type="permissions">
+  **Permissions required**
+
+  Members of all [Default Permission Groups](/documentation/articles/what-are-default-permission-groups/), or [Custom Permission Groups](/documentation/articles/what-are-custom-permission-groups/) with the `site:file:write` permission, can configure inputs in all locations in the configuration cascade. You can limit permission to specific locations in the configuration using [file globs](/documentation/articles/what-are-custom-permission-groups/#specify-a-file-glob).
+</comp.Notice>
+
+A [Select or Multiselect input](/documentation/articles/what-are-select-and-multiselect-inputs/) is an editing interface for selecting values from predefined lists. By configuring your inputs, you can customize the appearance and functionality for a better editing experience.
+
+<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/inputs/select/2024-07/CloudCannon-Documentation-Select-Input.png" alt="A screenshot of the Select input in the Data Editor." title="The Select input" type="ui-snippet"/>
+
+These instructions assume that you know where in the configuration cascade you want to configure your input. For more information, please read our documentation on [inputs](/documentation/articles/what-are-inputs/) in general and the [configuration cascade](/documentation/articles/using-the-configuration-cascade/).
+
+To configure a Select or Multiselect input:
+
+1. Open your website files in your local development environment, or log in to CloudCannon and select the Site for which you want to configure your input.
+2. Navigate to the location in the configuration cascade where you want to configure your input. This can be the root of your CloudCannon Configuration File, within the `collections_config.*` key in your CloudCannon Configuration File, a Schema file, a markup file, or any where you configure a Structure.
+3. Identify the `_inputs` key, or create one at that level of the configuration cascade.
+4. Add an input name key for your input under the `_inputs` key (a.k.a., `_inputs.*`). We recommend naming your input something simple that indicates the function or context.
+5. Add the `type` key under your input name key, with the value `select`, `multiselect`, `choice`, or `multichoice`.
+6. (Optional.) Add any other general configuration keys (e.g., `label`, `comment`, `context`, `options`) under your input name key.
+7. (Optional.) Add any specific configuration keys under `_inputs.*.options` (e.g., `values`, `value_key`, `allow_empty`).
+
+CloudCannon will now apply this input configuration to all markup files that use your input name key, without needing to save your configuration. This allows you to make changes to your input configuration and see those changes affect inputs live.
+
+When you are happy with your input configuration, you must save your input configuration.
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+```
+_inputs___1___:
+  blog_author___2___:
+    type___3___: select
+  blog_tags___4___:
+    type___5___: multiselect
+  priority___6___:
+    type___7___: choice
+  theme_color___8___:
+    type___9___: multichoice
+```
+<comp.Annotation number="1">
+  All inputs are defined under the `_inputs` key, regardless of where they are in the [configuration cascade](/documentation/articles/using-the-configuration-cascade/).
+</comp.Annotation>
+<comp.Annotation number="2">
+  This Select input is called `blog_author`.
+</comp.Annotation>
+<comp.Annotation number="3">
+  The value of the `type` key determines the input type. This is a `select` input.
+</comp.Annotation>
+<comp.Annotation number="4">
+  This Multiselect input is called `blog_tags`.
+</comp.Annotation>
+<comp.Annotation number="5">
+  The value of the `type` key determines the input type. This is a `multiselect` input.
+</comp.Annotation>
+<comp.Annotation number="6">
+  This Choice input is called `priority`.
+</comp.Annotation>
+<comp.Annotation number="7">
+  The value of the `type` key determines the input type. This is a `choice` input.
+</comp.Annotation>
+<comp.Annotation number="8">
+  This Multichoice input is called `theme_color`.
+</comp.Annotation>
+<comp.Annotation number="9">
+  The value of the `type` key determines the input type. This is a `multichoice` input.
+</comp.Annotation>
+</comp.MultiCodeBlock>
+
+When you add your input key name to a data or markup file, your configured Select or Multiselect input will appear in the Data Editor, Visual Editor, or Content Editor.
+
+<comp.CodeBlock language="Markdown" source="blog.md">
+```
+---
+blog_author: Author A
+blog_tags:
+  - Opinion
+  - Resource
+priority: high
+theme_color:
+  - Blue
+  - Green
+---
+
+Content goes here.
+```
+</comp.CodeBlock>
+
+## Input configuration options
+
+General configuration options are available for all input types. You can define the label, comment, and context box for your Select or Multiselect input, whether it is hidden or disabled, and how CloudCannon should handle configuration at multiple levels of the configuration cascade.
+
+Specific configuration options for Select and Multiselect inputs include defining the list of input options, the appearance of option previews, whether you can create new values, whether the input can be empty, and how CloudCannon handles empty values. You can also add input validation to require a value, specify the minimum and maximum number of items, and whether CloudCannon should require unique values.
+
+Here is an example of a Select input using some of the most commonly used configuration keys.
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+```
+_inputs:
+  blog_author:
+    type: select
+    label: Blog Author
+    comment: Select the author for this blog post
+    options:
+      values:
+        - name: Karen Key
+          role: Project Manager
+        - name: Holly James
+          role: Engineering Lead
+      value_key: name
+      allow_empty: false
+      required: true
+```
+</comp.MultiCodeBlock>
+
+<comp.Notice info_type="info">
+  For a complete list of configuration keys available for inputs please read our [inputs reference](/documentation/articles/inputs-reference/) documentation.
+</comp.Notice>
+
+## Valid values
+
+Here are some examples of valid values for Select and Multiselect inputs.
+
+<comp.Tabs label="Languages">
+  <comp.Tab name="YAML">
+    Empty/null value:
+    * `select_value: `
+
+    Single value (Select/Choice):
+    * `select_value: option1`
+    * `select_value: "option1"`
+
+    Multiple values (Multiselect/Multichoice):
+    ```yaml
+    multiselect_value:
+      - option1
+      - option2
+      - option3
+    ```
+  </comp.Tab>
+  <comp.Tab name="TOML">
+    Single value (Select/Choice):
+    * `select_value = "option1"`
+
+    Multiple values (Multiselect/Multichoice):
+    * `multiselect_value = ["option1", "option2", "option3"]`
+  </comp.Tab>
+  <comp.Tab name="JSON">
+    Empty/null value:
+    * `"select_value": null`
+
+    Single value (Select/Choice):
+    * `"select_value": "option1"`
+
+    Multiple values (Multiselect/Multichoice):
+    ```json
+    {
+      "multiselect_value": [
+        "option1",
+        "option2",
+        "option3"
+      ]
+    }
+    ```
+  </comp.Tab>
+</comp.Tabs>
+
+## Unconfigured Select and Multiselect inputs
+
+In some cases, CloudCannon can still detect a Select or Multiselect input even if you have not configured it.
+
+CloudCannon will interpret any key as a Select input if the key name ends in the singular form of a fixed data set you have defined under `_select_data` (e.g., `author` or `blog_author` for the fixed data set `authors`).
+
+<comp.CodeBlock language="Markdown" source="blog.md">
+```
+---
+blog_author: Karen Key
+---
+
+Blog content goes here.
+```
+</comp.CodeBlock>
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+```
+_select_data:
+  authors:
+    - Karen Key
+    - Billy Mills
+    - Holly James
+```
+</comp.MultiCodeBlock>
+
+This behavior is convenient if you have simple inputs or do not want to configure inputs. It is also beneficial for new websites on CloudCannon where you have yet to create any CloudCannon-specific configuration.
+
+<comp.Notice info_type="info">
+  We recommend configuring your inputs for greater control over their functionality and appearance.
+</comp.Notice> 
