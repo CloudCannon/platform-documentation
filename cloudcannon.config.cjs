@@ -317,6 +317,121 @@ module.exports = {
       icon: "key",
       preview: {
         text: {
+          key: "key_name",
+        },
+        metadata: [
+          {
+            text: {
+              key: "key_value_type",
+            },
+            icon: "data_object",
+          },
+          {
+            text: {
+              key: "parent_keys",
+            },
+            icon: "escalator_warning",
+          },
+        ],
+      },
+      create: {
+        path: "[relative_base_path]/{key_name|slugify}.yml",
+      },
+      schemas: {
+        default: {
+          path: ".cloudcannon/schemas/key-definition.yml",
+          _inputs: {
+            key_name: {
+              type: "text",
+            },
+            key_singular_name: {
+              type: "text",
+            },
+            key_value_type: {
+              type: "multiselect",
+              options: {
+                values: "_select_data.key_value_type",
+                value_key: "name",
+                preview: {
+                  label: {
+                    key: "name",
+                  },
+                },
+              },
+            },
+            key_description: {
+              type: "markdown",
+              options: {
+                format: "p h1 h2 h3 h4 h5 h6",
+                blockquote: true,
+                bold: true,
+                italic: true,
+                strike: true,
+                subscript: true,
+                superscript: true,
+                underline: true,
+                link: true,
+                bulletedlist: true,
+                numberedlist: true,
+                code: true,
+                embed: true,
+                horizontalrule: true,
+                table: true,
+                snippet: true,
+              },
+            },
+            key_documentation: {
+              type: "object",
+              comment: "Add a documentation link.",
+              options: {
+                subtype: "object",
+                structures: {
+                  values: [
+                    {
+                      label: "Key Documentation Link",
+                      comment: "For more information, please read our documentation on...",
+                      value: {
+                        text: null,
+                        url: null,
+                      },
+                    },
+                  ],
+                },
+              },
+            },
+            parent_keys: {
+              type: "multiselect",
+              options: {
+                values: "collections.keys",
+                value_key: "key_name",
+                preview: {
+                  label: {
+                    key: "key_name",
+                  },
+                },
+              },
+            },
+            subkeys: {
+              type: "multiselect",
+              options: {
+                values: "collections.keys",
+                value_key: "key_name",
+                preview: {
+                  label: {
+                    key: "key_name",
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    reference: {
+      path: "_keys",
+      icon: "key",
+      preview: {
+        text: {
           key: [
             "full_name",
             "key_name",
@@ -459,7 +574,8 @@ module.exports = {
     {
       heading: "Developers",
       collections: [
-        "keys"
+        "keys",
+        "reference"
       ]
     },
     {
