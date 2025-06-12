@@ -22,7 +22,7 @@ author_notes:
 <comp.Notice info_type="permissions">
   **Permissions required**
 
-  Members of the Owners or Developers [Default Permission Groups](/documentation/articles/what-are-default-permission-groups/), or [Custom Permission Groups](/documentation/articles/what-are-custom-permission-groups/) with the `x` permission, can...
+  Members of all [Default Permission Groups](/documentation/articles/what-are-default-permission-groups/), or [Custom Permission Groups](/documentation/articles/what-are-custom-permission-groups/) with the `site:file:write` permission, can configure inputs in all locations in the configuration cascade. You can limit permission to specific locations in the configuration using [file globs](/documentation/articles/what-are-custom-permission-groups/#specify-a-file-glob).
 </comp.Notice>
 
 Short description and link to explanation article...
@@ -35,6 +35,104 @@ To...:
 
 CloudCannon will...
 
-<comp.DocShot docshot_key="" alt="" title="" type="screenshot"/>
+## Valid values
 
-Extra info...
+Here are some examples of valid values for an Array input.
+
+<comp.Tabs label="Languages">
+  <comp.Tab name="YAML">
+    Empty/null value:
+    * `array: `
+
+    Any valid list of values:
+    ```yaml
+    array:
+      - value1
+      - value2
+      - value3
+    ```
+
+    Any valid list of objects:
+    ```yaml
+    array:
+      - name: Item 1
+        description: First item
+      - name: Item 2
+        description: Second item
+    ```
+  </comp.Tab>
+  <comp.Tab name="TOML">
+    Any valid array of values:
+    ```toml
+    array = ["value1", "value2", "value3"]
+    ```
+
+    Any valid array of tables:
+    ```toml
+    [[array]]
+    name = "Item 1"
+    description = "First item"
+
+    [[array]]
+    name = "Item 2"
+    description = "Second item"
+    ```
+  </comp.Tab>
+  <comp.Tab name="JSON">
+    Empty/null value:
+    * `"array": null`
+
+    Any valid array of values:
+    ```json
+    {
+      "array": [
+        "value1",
+        "value2",
+        "value3"
+      ]
+    }
+    ```
+
+    Any valid array of objects:
+    ```json
+    {
+      "array": [
+        {
+          "name": "Item 1",
+          "description": "First item"
+        },
+        {
+          "name": "Item 2",
+          "description": "Second item"
+        }
+      ]
+    }
+    ```
+  </comp.Tab>
+</comp.Tabs>
+
+## Unconfigured Array inputs
+
+In some cases, CloudCannon can still detect an Array input even if you have not configured it.
+
+CloudCannon will interpret any unconfigured input with a list of nested values or keys as an Array input. You cannot create structured Array inputs without configuration.
+
+<comp.CodeBlock language="YAML" source="data.yml">
+```
+
+animals:
+  - bear
+  - lizard
+  - swan
+  - name: Dog
+    fun_fact: Man's best friend.
+    image: /images/my-dog.png
+
+```
+</comp.CodeBlock>
+
+This behavior is convenient if you have simple inputs or do not want to configure inputs. It is also beneficial for new websites on CloudCannon where you have yet to create any CloudCannon-specific configuration.
+
+<comp.Notice info_type="info">
+  We recommend configuring your inputs for greater control over their functionality and appearance.
+</comp.Notice> 
