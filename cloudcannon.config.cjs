@@ -134,6 +134,10 @@ module.exports = {
         icon: 'check_box',
       },
       {
+        name: 'Date',
+        icon: 'event',
+      },
+      {
         name: 'Number',
         icon: '123',
       },
@@ -423,6 +427,127 @@ module.exports = {
         },
       },
     },
+    reference: {
+      path: "_reference",
+      icon: "key",
+      preview: {
+        text: {
+          key: [
+            "full_name",
+          ]
+        },
+        metadata: [
+          {
+            text: {
+              key: [
+                "value_type",
+              ]
+            },
+            icon: "data_object",
+          },
+          {
+            text: {
+              key: "parent_keys",
+            },
+            icon: "escalator_warning",
+          },
+        ],
+      },
+      create: {
+        path: "[relative_base_path]/{full_name|slugify}.yml",
+      },
+      schemas: {
+        default: {
+          path: ".cloudcannon/schemas/key-reference.yml",
+          _inputs: {
+            name: {
+              type: "text",
+            },
+            full_name: {
+              type: "text",
+            },
+            value_type: {
+              type: "multiselect",
+              options: {
+                values: "_select_data.key_value_type",
+                value_key: "name",
+                preview: {
+                  label: {
+                    key: "name",
+                  },
+                },
+              },
+            },
+            description: {
+              type: "markdown",
+              options: {
+                format: "p h1 h2 h3 h4 h5 h6",
+                blockquote: true,
+                bold: true,
+                italic: true,
+                strike: true,
+                subscript: true,
+                superscript: true,
+                underline: true,
+                link: true,
+                bulletedlist: true,
+                numberedlist: true,
+                code: true,
+                embed: true,
+                horizontalrule: true,
+                table: true,
+                snippet: true,
+              },
+            },
+            examples: {
+              type: "markdown",
+              options: {
+                format: "p h1 h2 h3 h4 h5 h6",
+                blockquote: true,
+                bold: true,
+                italic: true,
+                strike: true,
+                subscript: true,
+                superscript: true,
+                underline: true,
+                link: true,
+                bulletedlist: true,
+                numberedlist: true,
+                code: true,
+                embed: true,
+                horizontalrule: true,
+                table: true,
+                snippet: true,
+              },
+            },
+            parent_keys: {
+              type: "multiselect",
+              options: {
+                values: "collections.reference",
+                value_key: "name",
+                preview: {
+                  label: {
+                    key: "name",
+                  },
+                },
+              },
+            },
+            child_keys: {
+              type: "multiselect",
+              options: {
+                values: "collections.reference",
+                value_key: "name",
+                preview: {
+                  label: {
+                    key: "name",
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
     glossary: {
       path: "_glossary",
       icon: "abc",
@@ -468,7 +593,8 @@ module.exports = {
     {
       heading: "Developers",
       collections: [
-        "keys"
+        "keys",
+        "reference"
       ]
     },
     {
