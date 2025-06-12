@@ -434,7 +434,6 @@ module.exports = {
         text: {
           key: [
             "full_name",
-            "key_name",
           ]
         },
         metadata: [
@@ -442,7 +441,6 @@ module.exports = {
             text: {
               key: [
                 "value_type",
-                "key_value_type",
               ]
             },
             icon: "data_object",
@@ -456,7 +454,7 @@ module.exports = {
         ],
       },
       create: {
-        path: "[relative_base_path]/{key_name|slugify}.yml",
+        path: "[relative_base_path]/{full_name|slugify}.yml",
       },
       schemas: {
         default: {
