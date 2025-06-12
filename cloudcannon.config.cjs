@@ -428,7 +428,7 @@ module.exports = {
       },
     },
     reference: {
-      path: "_keys",
+      path: "_reference",
       icon: "key",
       preview: {
         text: {
