@@ -163,289 +163,209 @@ _inputs:
 These keys configure the appearance and functionality of Object inputs in CloudCannon.
 
 <comp.DataReference>
-  <comp.DataReferenceRow label="allow_create" type_markdown="Boolean">
-    This key determines whether you are allowed to enter a new text value that does not appear in the data set. CloudCannon does not add new text values to the data set. Defaults to `false`.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="allow_empty" type_markdown="Boolean">
-    This key toggles the presence of an empty option alongside the options listed under `values`. Defaults to `true`. When `false`, CloudCannon will use the first value in the data set by default.
+  <comp.DataReferenceRow label="subtype" type_markdown="string">
+    This key determines the appearance and function of the input. Defaults to `object`.
 
-    This key has no effect on Multiselect inputs.
+    Value must be one of the following:
+
+    * `object` — clicking on the Object card will open the second scope containing all nested inputs.
+    * `mutable` — all nested inputs appear on the top scope with controls to add, delete, clone, rename, or remove inputs from within the Object.
+    * `tabbed` — all nested objects appear as tabs in the top scope.
   </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="empty_type" type_markdown="string">
+  <comp.DataReferenceRow label="structures" type_markdown="string or object">
+    This key determines which predefined templates to use for populating the Object Input. When configured, team members can select a [structure](/documentation/articles/what-is-a-structure/) to populate the Object with input/input groups. This key has no default.
+
+    If configured as an object, CloudCannon will use the values directly.
+
+    If configured as a string, CloudCannon will use the matching structures value defined under `_structures` in the [configuration cascade](/documentation/articles/using-the-configuration-cascade/).
+
+    <comp.Notice info_type="info">
+      This key looks similar to `entries.structures`. However, the `structures` key applies to the Object input itself, while `entries.structures` applies to the entries within the object.
+    </comp.Notice>
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="groups" type_markdown="array of keys">
+    This key allows you to group nested inputs within the Object Input together without changing the data structure. The following nested keys are available:
+
+    * `heading`
+    * `comment`
+    * `collapsed`
+    * `inputs`
+    * `documentation`
+
+    Each group should be a new item in the array. Ungrouped inputs appear below groups by default.
+
+    This key does not apply to Structured or Mutable Object Inputs.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="groups[*].heading" type_markdown="text">
+    This key determines the title text displayed at the top of the group. This text is visible whether a group is expanded or collapsed.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="groups[*].comment" type_markdown="text">
+    This key determines the subtitle text displayed at the top of the group. This text is visible whether a group is expanded or collapsed.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="groups[*].collapsed" type_markdown="boolean">
+    This key determines whether a group is collapsed by default. Defaults to `false`.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="groups[*].inputs" type_markdown="array of strings">
+    This key determines the inputs included in this group. These key names must match a key within the Object Input. Defaults to `[]`.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="groups[*].documentation" type_markdown="object">
+    This key enables you to add a custom link below the heading of the group. The following nested keys are available:
+
+    * `url` — determines the `href` value of the link (String). This field is required.
+    * `text` — determines the visible text used in the link (String). Defaults to `Documentation`.
+    * `icon` — determines the icon displayed next to the link. Must be a [Material Icon](https://fonts.google.com/icons?icon.set=Material+Icons) name. Defaults to `auto_stories`.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="place_groups_below" type_markdown="boolean">
+    This key determines whether ungrouped inputs appear below groups or above groups. Defaults to `false`. Has no affect if `groups` is not configured.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="preview" type_markdown="object">
+    This key enables you to define the appearance of the input in the Data Editor or sidebar of the Visual or Content Editor. The following nested keys are available:
+
+    * `text`
+    * `subtext`
+    * `icon`
+    * `image`
+
+    If the Object Input uses `structures`, CloudCannon will use the `preview` key from the structure instead.
+
+    For more information about previews, please read our documentation on [configuring card previews](/documentation/articles/configure-your-card-previews/).
+
+    <comp.Notice info_type="info">
+      Object inputs now support the new `preview` option. [Read our migration guide](/documentation/articles/migrating-to-preview-options/) if you are still using the old options: `text_key`, `subtext_key`, `image_key` and `icon`.
+    </comp.Notice>
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="preview.text" type_markdown="array, string, or boolean">
+    This key determines the title text displayed on a default Object Input card. This key has no default, and falls back to the first nested value found (prioritizing text-based values).
+
+    If set to `false`, no text is displayed.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="preview.subtext" type_markdown="array, string, or boolean">
+    This key determines the subtitle text displayed on a default Object Input card. This key has no default, and falls back to listing the `label` of each nested input. `subtext` is hidden if text and subtext are the same. If there is no text, subtext will appear in the place of text.
+
+    If set to `false`, no text is displayed.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="preview.icon" type_markdown="array, string, or boolean">
+    This key determines the icon displayed on a default Object Input card. The value must match a name from the [Material Icons](https://fonts.google.com/icons?icon.set=Material+Icons) list. Defaults checking the `icon` key, then falls back to the `notes` icon.
+
+    If set to `false`, no icon is displayed.
+
+    If `image` is defined, the image replace `icon` when loaded successfully.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="preview.image" type_markdown="array, string, or boolean">
+    This key determines the image displayed on a default Object Input card. This key has no default, and falls back to `thumbnail_image`, `thumbnail_image_path`, `image`, and `image_path` in that order. If no image is found, `icon` is displayed instead.
+
+    If set to `false`, no image is displayed.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="empty_type" type_markdown="String">
     This key determines how CloudCannon handles an empty value. This key does not apply to existing empty values.
 
     Value must be one of the following:
 
     * `string` - an empty value for this input will be stored as "".
-    * `array` - an empty value for this input will be stored as `[]`.
     * `null` - an empty value for this input will be stored as a null value (default). This does not apply to TOML files.
-
-    Available for Multiselect and Multichoice inputs.
   </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="preview" type_markdown="Object">
-    This key enables you to define the appearance of input values in the Data Editor or sidebar of the Visual or Content Editor. The following nested keys are available:
+</comp.DataReference>
 
-    * `text`
-    * `icon` (Choice/Multichoice only)
-    * `image` (Choice/Multichoice only)
+If the input is a mutable Object, the following options are also available:
 
-    Defaults to:
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+```
 
-    <comp.CodeBlock language="YAML" source="cloudcannon.config.yml">
-                                                                                        ``````````
-                                                                                        preview:
-                                                                                          text:
-                                                                                            - key: title
-                                                                                            - key: name
-                                                                                          icon:
-                                                                                            - key: icon
-                                                                                        ``````````
-                                                                                        </comp.CodeBlock>
+_inputs:
+  example:
+    type: object
+    options:
+      subtype: mutable
+      entries:
+        allowed_keys:
+          - image
+          - link
+          - link_or_image
+        structures:
+          values:
+            - id: image_template
+              label: Image
+              icon: image
+              value:
+                image:
+                caption:
+            - id: link_template
+              label: External link
+              icon: link
+              value:
+                url:
+                title:
+        assigned_structures:
+          link:
+            - link_template
+          image:
+            - image_template
+          link_or_image:
+            - image_template
+            - link_template
+        comment: Select a key name.
+        documentation:
+          url: https://cloudcannon.com/documentation/articles/object-inputs/
+          text: Documentation
+          icon: help
+      allow_label_formatting: true
 
-    For more information about previews, please read our documentation on [configuring card previews](/documentation/articles/configure-your-card-previews/).
+```
+</comp.MultiCodeBlock>
+
+<comp.DataReference>
+  <comp.DataReferenceRow label="entries" type_markdown="object">
+    This key enables you to define the appearance and function of entries in a mutable object. The following nested keys are available:
+
+    * `allowed_keys`
+    * `structures`
+    * `assigned_structures`
+    * `comment`
+    * `documentation`
+
+    Available for Mutable Objects only.
   </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="preview.text" type_markdown="Array, string or boolean">
-    This key determines the title text displayed for a value option. This key has no default, and has no effect unless the value option is an Object.
+  <comp.DataReferenceRow label="entries.allowed_keys" type_markdown="array">
+    This key defines a limited set of key names for nested keys within your Object Input. This affects entries when adding or renaming nested keys. Defaults to `[]`.
 
-    If set to `false`, no text is displayed.
+    Available for Mutable Objects only.
   </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="preview.icon" type_markdown="Array, string or boolean">
-    This key determines the icon displayed for a value option. The value must match a name from the [Material Icons](https://material.io/tools/icons/) list.
+  <comp.DataReferenceRow label="entries.structures" type_markdown="string or object">
+    This key determines which predefined templates to use for populating entries nested in the Object Input. When configured, team members can select a [structure](/documentation/articles/what-is-a-structure/) to populate the Object with input/input groups. This key has no default.
 
-    If set to `false`, no icon is displayed.
+    If configured as an object, CloudCannon will use the values directly.
 
-    If image is defined, the image replace icon when loaded successfully.
+    If configured as a string, CloudCannon will use the matching structures value defined under `_structures` in the [configuration cascade](/documentation/articles/using-the-configuration-cascade/).
 
-    Available for Choice and Multichoice inputs.
+    Available for Mutable Objects only.
+
+    <comp.Notice info_type="info">
+      This key looks similar to `structures`. However, the `structures` key applies to the Object input itself, while `entries.structures` applies to the entries within the object.
+    </comp.Notice>
   </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="preview.image" type_markdown="array, string, or boolean">
-    This key determines the image displayed for a value option. This key has no default and, if the value option is an Object, falls back to `thumbnail_image`, `thumbnail_image_path`, `image`, and `image_path` in that order. If no image is found, `icon` is displayed instead.
+  <comp.DataReferenceRow label="entries.assigned_structures" type_markdown="object">
+    This key enables you to assign structures to specific key names for entries in the Object Input. When selecting an entry key name, CloudCannon will prompt to to choose one of the assigned structures for that allowed key. Structure values are referred to by their `id`.
 
-    If set to `false`, no image is displayed.
-
-    Available for Choice and Multichoice inputs.
+    Available for Mutable Objects only.
   </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="values" type_markdown="Array, object or string">
-    This key defines which values are available for a Select or Multiselect input.
+  <comp.DataReferenceRow label="entries.comment" type_markdown="text">
+    This key determines the subtitle text above the key input. This key has no default, and supports a limited selection of Markdown formatting in value text: links, bold, italic, subscript, superscript, inline code elements are allowed.
 
-    You must define this key for the Select or Multiselect input to function.
-
-    Value can be an array of options, or a string referencing a fixed data set, Collection, or data file.
-
-    This key has no default.
-
-    <comp.Example>
-      In this example, CloudCannon will provide items in the `posts` Collection as values for the `heathers_posts` input. CloudCannon will also apply a filter, returning only files where the `author` structured data key is equal to "Heather".
-
-      <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
-                                                                                                                              ``````````
-                                                                                                                              _inputs:
-                                                                                                                                heathers_posts:
-                                                                                                                                  type: multiselect
-                                                                                                                                  label: Heather's Posts
-                                                                                                                                  options:
-                                                                                                                                    values: "collections.posts[?(@.author == 'Heather')]"
-                                                                                                                              ``````````
-                                                                                                                              </comp.MultiCodeBlock>
-    </comp.Example>
+    Available for Mutable Objects only.
   </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="value_key" type_markdown="String or array of strings">
-    This key defines which key CloudCannon should use as the Select/Multiselect input value when a value option is an Object with multiple nested keys.
+  <comp.DataReferenceRow label="entries.documentation" type_markdown="object">
+    This key enables you to add a custom link above the key input. The following nested keys are available:
 
-    Defaults to `['id', 'uuid', 'path', 'title', 'name']`. Has no effect unless `values` is an array of objects.
+     * `url` - determines the `href` value of the link (String). This field is required.
+     * `text` - determines the visible text used in the link (String). Defaults to `Documentation`.
+     * `icon` - determines the icon displayed next to the link. Must be a [Material Icon](https://fonts.google.com/icons?icon.set=Material+Icons) name. Defaults to `auto_stories`.
 
-    If set as an array, keys are tried in order, until a non-empty value is found. If no keys are set for an available value, that value is not included in the input options.
-
-    If set as a string, this key is used directly. Value options are excluded if they don't have a value for this key.
+     Available for Mutable Objects only.
   </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="_inputs.*.options.required" type_markdown="Boolean">
-    This key toggles whether CloudCannon requires this Input to have a value. If set to `true`, CloudCannon will require you to enter a value to save your changes, or discard your unsaved changes.
+  <comp.DataReferenceRow label="allow_label_formatting" type_markdown="boolean">
+    This key determines whether labels on mutable object entries are formatted. Defaults to `false`.
 
-    By default, this key is `false` (i.e, CloudCannon does not require this Input to have a value).
-
-    This key is available for Array, Boolean, Code, Color, Date and Time, File, Number, Object, Select and Multiselect, Text, Rich Text, and URL Inputs.
-
-    <comp.Example>
-      In this example, we want to require our team to enter an `author` value for markup files with this Input.
-
-      <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
-                                                                                                ``````````
-                                                                                                  _inputs:
-                                                                                                    author:
-                                                                                                      type: text
-                                                                                                      comment: Enter the name of the author for this blog post.
-                                                                                                      options:
-                                                                                                        required: true
-
-                                                                                                  ``````````
-                                                                                                  </comp.MultiCodeBlock>
-    </comp.Example>
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="_inputs.*.options.max_items" type_markdown="Number">
-    This key defines the maximum number of items CloudCannon will allow in an Input. When configured, CloudCannon will prevent you from adding more items to this Input. If the Input already contains more items, CloudCannon will require you to remove items until the Input contains a valid number to save your changes, or discard your unsaved changes.
-
-    Value can be any positive integer. If `options.min_items` is also configured, this key cannot be a lesser number.
-
-    This key has no default.
-
-    This key is available for Array and Multiselect or Multichoice Inputs.
-
-    <comp.Example>
-      In this example, we want to add an array of filepaths to our homepage's `featured_posts` Input. This Input limits you to a maximum of five array items.
-
-      <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
-                                                                                                ``````````
-                                                                                                _inputs:
-                                                                                                  featured_posts:
-                                                                                                    type: array
-                                                                                                    options:
-                                                                                                      min_items: 2
-                                                                                                      max_items: 5
-                                                                                                ``````````
-                                                                                                </comp.MultiCodeBlock>
-    </comp.Example>
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="_inputs.*.options.min_items" type_markdown="Number">
-    This key defines the minimum number of items CloudCannon will allow in an Input. When configured, CloudCannon will prevent you from removing items from this Input below this value. If the Input already contains fewer items, CloudCannon will require you to add items until the Input contains a valid number to save your changes, or discard your unsaved changes.
-
-    Value can be any positive integer. If `options.min_items` is also configured, this key cannot be a greater number.
-
-    This key has no default.
-
-    This key is available for Array and Multiselect or Multichoice Inputs.
-
-    <comp.Example>
-      In this example, we want to add an array of filepaths to our homepage's `featured_posts` Input. This Input limits you to a maximum of two array items.
-
-      <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
-                                                                                                ``````````
-                                                                                                _inputs:
-                                                                                                  featured_posts:
-                                                                                                    type: array
-                                                                                                    options:
-                                                                                                      min_items: 2
-                                                                                                      max_items: 5
-                                                                                                ``````````
-                                                                                                </comp.MultiCodeBlock>
-    </comp.Example>
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="_inputs.*.options.max_length" type_markdown="Number">
-    This key defines the maximum string length, in characters, that CloudCannon will allow in an Input. When configured, CloudCannon will warn you when an Input value is too long. If the Input already contains a longer value, CloudCannon will require you to remove characters until the Input contains a valid string to save your changes, or discard your unsaved changes.
-
-    Value can be any non-negative integer. If this key is set to `0`, CloudCannon requires the Input to be empty. If `options.min_length` is also configured, this key cannot be a smaller number.
-
-    This key has no default.
-
-    This key is available for Code, Color, File, Select, Text, Rich Text, and URL Inputs. To use this key in a Select Input, `allow_create` must be set to `true`.
-
-    <comp.Example>
-      In this example, we want our team to enter a blog description using the Rich Text `seo_description` Input. This Input limits you to a maximum of 125 characters.
-
-      <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
-                                                                                                ``````````
-                                                                                                _inputs:
-                                                                                                  seo_description:
-                                                                                                    type: markdown
-                                                                                                    comment: Enter a brief description of this blog.
-                                                                                                    options:
-                                                                                                      max_length: 125
-                                                                                                      min_length: 25
-                                                                                                ``````````
-                                                                                                </comp.MultiCodeBlock>
-    </comp.Example>
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="_inputs.*.options.min_length" type_markdown="Number">
-    This key defines the minimum string length, in characters, that CloudCannon will allow in an Input. When configured, CloudCannon will warn you when an Input value is too short. If the Input already contains a shorter value, CloudCannon will require you to add characters until the Input contains a valid string to save your changes, or discard your unsaved changes.
-
-    Value can be any positive integer. If `options.max_length` is also configured, this key cannot be a greater number.
-
-    This key has no default.
-
-    This key is available for Code, Color, File, Select, Text, Rich Text, and URL Inputs. To use this key in a Select Input, `allow_create` must be set to `true`.
-
-    <comp.Example>
-      In this example, we want our team to enter a blog description using the Rich Text `seo_description` Input. This Input requires a minimum of 25 characters.
-
-      <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
-                                                                                                ``````````
-                                                                                                _inputs:
-                                                                                                  seo_description:
-                                                                                                    type: markdown
-                                                                                                    comment: Enter a brief description of this blog.
-                                                                                                    options:
-                                                                                                      max_length: 125
-                                                                                                      min_length: 25
-                                                                                                ``````````
-                                                                                                </comp.MultiCodeBlock>
-    </comp.Example>
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="_inputs.*.options.pattern" type_markdown="String">
-    This key defines a [regular expression](https://re2js.leopard.in.ua/) that the Input value must match. When configured, CloudCannon will require you to enter a value that matches the REGEX pattern. If the Input already contains an invalid value, CloudCannon will require you to enter a valid string to save your changes, or discard your unsaved changes.
-
-    Value must be a valid REGEX string.
-
-    This key has no default.
-
-    This key is available for Code, Color, File, Select, Text, Rich Text, and URL Inputs. To use this key in a Select Input, `allow_create` must be set to `true`.
-
-    <comp.Example>
-      In this example, we want our team to add an email address to the `contact_email` Input using the correct email format.
-
-      <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
-                                                                                                ``````````
-                                                                                                _inputs:
-                                                                                                  contact_email:
-                                                                                                    type: email
-                                                                                                    options:
-                                                                                                      pattern: '[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}'
-                                                                                                      pattern_message: 'Please use the format ___@___.__'
-                                                                                                ``````````
-                                                                                                </comp.MultiCodeBlock>
-    </comp.Example>
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="_inputs.*.options.pattern_message" type_markdown="String">
-    This key defines the message that explains which [regular expression](https://re2js.leopard.in.ua/) an Input will accept. This key requires you to define `options.pattern`.
-
-    This key has no default.
-
-    This key is available for Code, Color, File, Select, Text, Rich Text, and URL Inputs.
-
-    <comp.Example>
-      In this example, we prompt our team to use the correct email format in the `contact_email` Input using a pattern message.
-
-      <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
-                                                                                                ``````````
-                                                                                                _inputs:
-                                                                                                  contact_email:
-                                                                                                    type: email
-                                                                                                    options:
-                                                                                                      pattern: '[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}'
-                                                                                                      pattern_message: 'Please use the format ___@___.__'
-                                                                                                ``````````
-                                                                                                </comp.MultiCodeBlock>
-    </comp.Example>
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="_inputs.*.options.unique_on" type_markdown="String">
-    This key defines the JSON Path selector that CloudCannon should use to determine if the value of an Input is unique. When configured, CloudCannon will require the value of the Input to be unique compared to the value defined on the JSON Path. If the Input already contains a non-unique value, CloudCannon will require you to change it to a valid value to save your changes, or discard your unsaved changes.
-
-    Value must be a valid JSON Path.
-
-    This key has no default.
-
-    <comp.Example>
-      In this example, CloudCannon will provide items in the `posts` Collection as values for the `heathers_posts` input. CloudCannon will also apply a filter, returning only files where the `author` structured data key is equal to "Heather".
-
-      <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
-                                                                                                                                                ``````````
-                                                                                                                                                _inputs:
-                                                                                                                                                  heathers_posts:
-                                                                                                                                                    type: multiselect
-                                                                                                                                                    label: Heather's Posts
-                                                                                                                                                    options:
-                                                                                                                                                      values: "collections.posts[?(@.author == 'Heather')]"
-                                                                                                                                                ``````````
-                                                                                                                                                </comp.MultiCodeBlock>
-    </comp.Example>
+    Available for Mutable Objects only.
   </comp.DataReferenceRow>
 </comp.DataReference>
 
@@ -485,14 +405,14 @@ Here are some examples of valid values for an Object input.
     Any valid nested key-value pairs:
     ```json
     {
-                          "object": {
-                            "key1": "value1",
-                            "key2": "value2",
-                            "nested_object": {
-                              "key3": "value3"
+                              "object": {
+                                "key1": "value1",
+                                "key2": "value2",
+                                "nested_object": {
+                                  "key3": "value3"
+                                }
+                              }
                             }
-                          }
-                        }
     ```
   </comp.Tab>
 </comp.Tabs>
