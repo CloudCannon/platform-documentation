@@ -501,10 +501,31 @@ module.exports = {
                 snippet: true,
               },
             },
+            examples: {
+              type: "markdown",
+              options: {
+                format: "p h1 h2 h3 h4 h5 h6",
+                blockquote: true,
+                bold: true,
+                italic: true,
+                strike: true,
+                subscript: true,
+                superscript: true,
+                underline: true,
+                link: true,
+                bulletedlist: true,
+                numberedlist: true,
+                code: true,
+                embed: true,
+                horizontalrule: true,
+                table: true,
+                snippet: true,
+              },
+            },
             parent_keys: {
               type: "multiselect",
               options: {
-                values: "collections.keys",
+                values: "collections.reference",
                 value_key: "name",
                 preview: {
                   label: {
@@ -516,7 +537,7 @@ module.exports = {
             child_keys: {
               type: "multiselect",
               options: {
-                values: "collections.keys",
+                values: "collections.reference",
                 value_key: "name",
                 preview: {
                   label: {
