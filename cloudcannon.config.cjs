@@ -238,6 +238,13 @@ module.exports = {
           path: ".cloudcannon/schemas/article-instructions.mdx",
         },
       },
+      _inputs: {
+        title: {
+          options: {
+            required: true
+          }
+        }
+      }
     },
     guides: {
       path: "guides",
