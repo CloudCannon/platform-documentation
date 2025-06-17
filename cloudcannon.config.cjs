@@ -436,11 +436,6 @@ module.exports = {
             "full_name",
           ]
         },
-        subtext: {
-          key: [
-            "full_name",
-          ]
-        },
         metadata: [
           {
             text: {
