@@ -439,9 +439,15 @@ module.exports = {
       icon: "key",
       preview: {
         text: {
-          key: "full_name",
+          key: "key_name",
         },
         metadata: [
+          {
+            text: {
+              key: "full_name",
+            },
+            icon: "code",
+          },
           {
             text: {
               key: "value_type",
@@ -450,7 +456,7 @@ module.exports = {
           },
           {
             text: {
-              key: "parent_keys",
+              key: "child_keys",
             },
             icon: "escalator_warning",
           },
