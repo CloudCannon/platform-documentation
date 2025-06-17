@@ -239,7 +239,7 @@ module.exports = {
         },
       },
       _inputs: {
-        title: {
+        "$.title": {
           options: {
             required: true
           }
