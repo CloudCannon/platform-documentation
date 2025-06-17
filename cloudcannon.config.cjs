@@ -439,16 +439,12 @@ module.exports = {
       icon: "key",
       preview: {
         text: {
-          key: [
-            "full_name",
-          ]
+          key: "full_name",
         },
         metadata: [
           {
             text: {
-              key: [
-                "value_type",
-              ]
+              key: "value_type",
             },
             icon: "data_object",
           },
