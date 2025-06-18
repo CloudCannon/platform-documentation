@@ -240,7 +240,6 @@ module.exports = {
       },
       _inputs: {
         "$.title": {
-          comment: "test comment",
           options: {
             required: true
           }
