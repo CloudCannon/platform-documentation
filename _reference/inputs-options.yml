@@ -1,78 +1,100 @@
 _schema: default
-full_name: _inputs.*.options
+full_name: _inputs.options
 key_name: options
 value_type:
   - Object
 description: |-
-  This key determines the configuration specific to each input type. If this key and nested keys are not defined, CloudCannon will use the default configuration options for that input type.
+  This key defines the configuration options for an input. The available nested keys depend on the input type.
+
+
+  Additional nested keys are available for specific input types:
+
+  **Text, Textarea, and Rich Text inputs:**
+  * `min_length`
+  * `max_length`
+  * `pattern`
+  * `pattern_message`
+
+  **Number inputs:**
+  * `min`
+  * `max`
+
+  **File inputs:**
+  * `max_file_size`
+
+  **Array inputs:**
+  * `min_items`
+  * `max_items`
+
+  **Select and Multiselect inputs:**
+  * `values`
+  * `unique_on`
+
+  **Date and Time inputs:**
+  * `start_from`
+  * `end_before`
+
+  **Code inputs:**
+  * `theme`
+  * `max_visible_lines`
 
   This key has no default.
-
-  For more information on options, please read our documentation on each input type.
 examples: |-
   <comp.Example>
-    In this example, we have configured the `date_created` Date input, which will automatically populate when you create a file using this input. Editors cannot alter this input as the interface is disabled.
+    In this example, we configure a text input with validation options.
 
     <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
         ``````````
         _inputs:
-          date_created:
-            type: datetime
-            label: Date of article creation
-            comment: UTC +0 timezone
-            context:
-              open: false
-              title: Help
-              icon: help
-              content: This date field will automatically populate when you create an article.
-            hidden: false
-            disabled: true
-            instance_value: NOW
-            cascade: true
+          title:
+            type: text
             options:
-              timezone: Etc/UTC
+              required: true
+              min_length: 10
+              max_length: 100
+              pattern: '^[A-Za-z0-9\s]+$'
+              pattern_message: 'Only letters, numbers, and spaces are allowed'
+        ``````````
+        </comp.MultiCodeBlock>
+
+    In this example, we configure a select input with predefined values.
+
+    <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+        ``````````
+        _inputs:
+          category:
+            type: select
+            options:
+              values:
+                - Blog Post
+                - News Article
+                - Tutorial
+                - Case Study
         ``````````
         </comp.MultiCodeBlock>
   </comp.Example>
 parent_keys:
   - _inputs
 child_keys:
-  - required
-  - required_message
-  - max
-  - max_message
-  - min
-  - min_message
-  - max_items
-  - max_items_message
-  - min_items
-  - min_items_message
-  - max_length
-  - max_length_message
-  - min_length
-  - min_length_message
-  - pattern
-  - pattern_message
-  - start_from
-  - start_from_message
-  - end_before
-  - end_before_message
-  - unique_on
-  - unique_on_message
-  - values
-  - max_file_size
-  - timezone
-  - theme
-  - max_visible_lines
-  - min_visible_lines
-  - show_gutter
-  - syntax
-  - tab_size
-  - allow_resize
-  - initial_height
-  - paths
-  - show_count
-  - empty_type
-  - hide_link_to_file
-  - hide_link_to_page
-  - hide_link_to_email_address
+  - _inputs.options.required
+  - _inputs.options.hidden
+  - _inputs.options.disabled
+  - _inputs.options.comment
+  - _inputs.options.context
+  - _inputs.options.cascade
+  - _inputs.options.instance_value
+  - _inputs.options.min_length
+  - _inputs.options.max_length
+  - _inputs.options.pattern
+  - _inputs.options.pattern_message
+  - _inputs.options.min
+  - _inputs.options.max
+  - _inputs.options.max_file_size
+  - _inputs.options.min_items
+  - _inputs.options.max_items
+  - _inputs.options.values
+  - _inputs.options.unique_on
+  - _inputs.options.start_from
+  - _inputs.options.end_before
+  - _inputs.options.theme
+  - _inputs.options.max_visible_lines
