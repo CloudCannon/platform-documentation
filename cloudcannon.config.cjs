@@ -304,6 +304,17 @@ module.exports = {
           path: ".cloudcannon/schemas/changelog.mdx",
         },
       },
+      _inputs: {
+        title: {
+          type: "text",
+          options: {
+            required: true,
+            required_message: "Tell the people what they get",
+            min_length: 5,
+            min_length_message: "Tell people a bit more than that"
+          }
+        }
+      }
     },
     data: {
       path: "_data",
