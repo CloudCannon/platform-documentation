@@ -306,7 +306,7 @@ module.exports = {
       },
       _inputs: {
         title: {
-          type: text,
+          type: "text",
           options: {
             required: true,
             required_message: "Tell the people what they get",
