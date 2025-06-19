@@ -1,0 +1,82 @@
+_schema: default
+full_name: _inputs
+key_name: _inputs
+value_type:
+  - Object
+description: |-
+  This key defines which inputs are available at a given level of the configuration cascade.
+
+  The following nested keys are available for each input inside `_inputs`:
+
+  * `type`
+  * `label`
+  * `comment`
+  * `context`
+  * `hidden`
+  * `disabled`
+  * `instance_value`
+  * `cascade`
+  * `options`
+
+  This key has no default. If undefined at higher levels of the [configuration cascade](/documentation/articles/using-the-configuration-cascade/), `_inputs` will default to any values configured in the [CloudCannon configuration file](/documentation/articles/what-is-the-cloudcannon-configuration-file/).
+examples: |-
+  <comp.Example>
+    In this example, we have configured the `date_created` Date input, which will automatically populate when you create a file using this input. Editors cannot alter this input as the interface is disabled.
+  
+    <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+        ``````````
+        _inputs:
+          date_created:
+            type: datetime
+            label: Date of article creation
+            comment: UTC +0 timezone
+            context:
+              open: false
+              title: Help
+              icon: help
+              content: This date field will automatically populate when you create an article.
+            hidden: false
+            disabled: true
+            instance_value: NOW
+            cascade: true
+            options:
+              timezone: Etc/UTC
+        ``````````
+        </comp.MultiCodeBlock>
+  
+    In this example, we have configured the `blog_tags` Multiselect input for the `blog` Collection.
+
+    <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+        ``````````
+        collections_config:
+          blog:
+            _inputs:
+              blog_tags:
+                type: multiselect
+                label: Blog type
+                comment: Select a blog type
+                context:
+                  open: false
+                  title: Help
+                  icon: help
+                  content: |
+                    Blog tags help our users filter articles by topic.
+                options:
+                  values:
+                    - Opinion
+                    - Feature
+                    - Resource
+        ``````````
+        </comp.MultiCodeBlock>
+  </comp.Example>
+parent_keys:
+  - collections_config
+child_keys:
+  - _inputs.cascade
+  - _inputs.comment
+  - _inputs.context
+  - _inputs.hidden
+  - _inputs.instance_value
+  - _inputs.label
+  - _inputs.*.options
+  - _inputs.type
