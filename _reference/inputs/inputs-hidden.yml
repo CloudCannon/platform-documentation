@@ -1,0 +1,52 @@
+_schema: default
+full_name: _inputs.*.hidden
+key_name: hidden
+value_type:
+  - Boolean
+  - String
+description: |-
+  This key toggles the visibility of an Input in the Data Editor or the sidebar of the Visual or Content Editor. Hidden inputs are useful when you want an Input to exist, but not be visible or editable outside of the Source Editor.
+
+  Value can be a boolean or a string. A boolean value of `true` will hide the Input.
+
+  A string value can hide an Input based on the value of another Input. You can reverse the value with a `!` character at the beginning.
+
+  * `published` hides an Input when the sibling Input `published` is truthy
+  * `!published` hides an Input when the sibling Input `published` is falsy
+
+  For reverse values in `YAML` files, the string should be in `'` or `"` quotation marks.
+
+  By default, this key follows the Input naming convention where key names beginning with an underscore are hidden `true`.
+examples: |-
+  <comp.Example>
+    In this example, we want to hide the `internal_notes` Input from the main interface, but keep it available in the Source Editor.
+
+    <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+        ``````````
+        _inputs:
+          internal_notes:
+            type: textarea
+            label: Internal Notes
+            hidden: true
+            comment: Notes for internal use only
+        ``````````
+        </comp.MultiCodeBlock>
+
+    In this example, we want to conditionally hide the `draft_content` Input based on the `published` status.
+
+    <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+        ``````````
+        _inputs:
+          published:
+            type: checkbox
+            label: Published
+          draft_content:
+            type: textarea
+            label: Draft Content
+            hidden: "!published"
+        ``````````
+        </comp.MultiCodeBlock>
+  </comp.Example>
+parent_keys:
+  - _inputs
+child_keys: 
