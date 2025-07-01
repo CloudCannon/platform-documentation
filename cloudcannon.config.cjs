@@ -731,7 +731,20 @@ module.exports = {
       },
     },
   },
-  commit_templates: [{ template_string: "{message}" }],
+
+  commit_templates: [
+    {
+      template_string: `{message}`,
+      _inputs: {
+        message: {
+          type: "text",
+          options: {
+            required: true,
+          },
+        },
+      },
+    },
+  ],
   timezone: "Pacific/Auckland",
   base_url: "documentation",
 };
