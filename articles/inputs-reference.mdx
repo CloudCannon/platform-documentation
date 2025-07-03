@@ -408,23 +408,25 @@ These keys configure how CloudCannon determines a valid value before you can sav
     </comp.Example>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="_inputs.*.options.required_message" type_markdown="String">
-    This key defines the message that explains which [regular expression](https://re2js.leopard.in.ua/) an Input will accept. This key requires you to define `options.pattern`.
+    This key defines a custom error message that explains why a value has failed the validation criteria from `options.required`. This key requires you to define `options.required`.
 
     This key has no default.
 
-    This key is available for Code, Color, File, Select, Text, Rich Text, and URL Inputs.
+    This key is available for Array, Boolean, Code, Color, Date and Time, File, Number, Object, Select and Multiselect, Text, Rich Text, and URL Inputs.
 
     <comp.Example>
-      In this example, we prompt our team to use the correct email format in the `contact_email` Input using a pattern message.
+      In this example, we prompt our team to use enter an Input value using a required message.
 
       <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
       ``````````
-      _inputs:
-        contact_email:
-          type: email
-          options:
-            pattern: '[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}'
-            pattern_message: 'Please use the format ___@___.__'
+        _inputs:
+          author:
+            type: text
+            comment: Enter the name of the author for this blog post.
+            options:
+              required: true
+              required_message: You are not allowed to leave this blank.
+
       ``````````
       </comp.MultiCodeBlock>
     </comp.Example>
@@ -455,23 +457,26 @@ These keys configure how CloudCannon determines a valid value before you can sav
     </comp.Example>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="_inputs.*.options.max_message" type_markdown="String">
-    This key defines the message that explains which [regular expression](https://re2js.leopard.in.ua/) an Input will accept. This key requires you to define `options.pattern`.
+    This key defines a custom error message that explains why a value has failed the validation criteria from `options.max`. This key requires you to define `options.max`.
 
     This key has no default.
 
-    This key is available for Code, Color, File, Select, Text, Rich Text, and URL Inputs.
+    This key is available for Number Inputs.
 
     <comp.Example>
-      In this example, we prompt our team to use the correct email format in the `contact_email` Input using a pattern message.
+      In this example, we prompt our team to enter a valid number using a custom message.
 
       <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
       ``````````
       _inputs:
-        contact_email:
-          type: email
+        rating:
+          type: number
+          comment: How highly did you rate this experience?
           options:
-            pattern: '[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}'
-            pattern_message: 'Please use the format ___@___.__'
+            max: 5
+            max_message: Cannot be more than 5
+            min: 1
+            min_message: Cannot be less than 1
       ``````````
       </comp.MultiCodeBlock>
     </comp.Example>
@@ -502,15 +507,42 @@ These keys configure how CloudCannon determines a valid value before you can sav
     </comp.Example>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="_inputs.*.options.min_message" type_markdown="String">
-    This key defines the message that explains which [regular expression](https://re2js.leopard.in.ua/) an Input will accept. This key requires you to define `options.pattern`.
+    This key defines a custom error message that explains why a value has failed the validation criteria from `options.min`. This key requires you to define `options.min`.
 
     This key has no default.
 
-    This key is available for Code, Color, File, Select, Text, Rich Text, and URL Inputs.
+    This key is available for Number Inputs.
 
     <comp.Example>
-      In this example, we prompt our team to use the correct email format in the `contact_email` Input using a pattern message.
+      In this example, we prompt our team to enter a valid number using a custom message.
 
+      <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+      ``````````
+      _inputs:
+        rating:
+          type: number
+          comment: How highly did you rate this experience?
+          options:
+            max: 5
+            max_message: Cannot be more than 5
+            min: 1
+            min_message: Cannot be less than 1
+      ``````````
+      </comp.MultiCodeBlock>
+    </comp.Example>
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="_inputs.*.options.max_file_size" type_markdown="String">
+    This key defines the maximum file size in kB that CloudCannon will allow you to upload. When configured, CloudCannon will prevent you from saving your changes until you select a valid file size, or discard your unsaved changes.
+
+    Value can be any positive integer.
+  
+    This key has no default.
+  
+    This key is available for File and URL Inputs.
+  
+    <comp.Example>
+      In this example, we want our team to upload an image using the `feature_image` Input. This Input limits you to a maximum file size of 750 kB.
+  
       <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
       ``````````
       _inputs:
@@ -518,7 +550,30 @@ These keys configure how CloudCannon determines a valid value before you can sav
           type: image
           comment: Select the feature image for the banner.
           options:
-            max_file_size: 750
+            max_file_size: 140
+      ``````````
+      </comp.MultiCodeBlock>
+    </comp.Example>
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="_inputs.*.options.max_file_size_message" type_markdown="String">
+    This key defines a custom error message that explains why a value has failed the validation criteria from `options.max_file_size`. This key requires you to define `options.max_file_size`.
+  
+    This key has no default.
+  
+    This key is available for File and URL Inputs.
+  
+    <comp.Example>
+      In this example, we want our team to upload an image using the `feature_image` Input. This Input limits you to a maximum file size of 750 kB.
+  
+      <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+      ``````````
+      _inputs:
+        feature_image:
+          type: image
+          comment: Select the feature image for the banner.
+          options:
+            max_file_size: 140
+            max_file_size_message: For SEO, keep this under 140kB
       ``````````
       </comp.MultiCodeBlock>
     </comp.Example>
@@ -541,30 +596,34 @@ These keys configure how CloudCannon determines a valid value before you can sav
         featured_posts:
           type: array
           options:
-            min_items: 2
             max_items: 5
+            max_items_message: Cannot be more than 5
+            min_items: 2
+            min_items_message: Cannot be less than 2
       ``````````
       </comp.MultiCodeBlock>
     </comp.Example>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="_inputs.*.options.max_items_message" type_markdown="String">
-    This key defines the message that explains which [regular expression](https://re2js.leopard.in.ua/) an Input will accept. This key requires you to define `options.pattern`.
+    This key defines a custom error message that explains why a value has failed the validation criteria from `options.max_items`. This key requires you to define `options.max_items`.
 
     This key has no default.
 
-    This key is available for Code, Color, File, Select, Text, Rich Text, and URL Inputs.
+    This key is available for Array and Multiselect or Multichoice Inputs.
 
     <comp.Example>
-      In this example, we prompt our team to use the correct email format in the `contact_email` Input using a pattern message.
+      In this example, we prompt our team to enter a valid number of items using a custom message.
 
       <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
       ``````````
       _inputs:
-        contact_email:
-          type: email
+        featured_posts:
+          type: array
           options:
-            pattern: '[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}'
-            pattern_message: 'Please use the format ___@___.__'
+            max_items: 5
+            max_items_message: Cannot be more than 5
+            min_items: 2
+            min_items_message: Cannot be less than 2
       ``````````
       </comp.MultiCodeBlock>
     </comp.Example>
@@ -587,30 +646,34 @@ These keys configure how CloudCannon determines a valid value before you can sav
         featured_posts:
           type: array
           options:
-            min_items: 2
             max_items: 5
+            max_items_message: Cannot be more than 5
+            min_items: 2
+            min_items_message: Cannot be less than 2
       ``````````
       </comp.MultiCodeBlock>
     </comp.Example>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="_inputs.*.options.min_items_message" type_markdown="String">
-    This key defines the message that explains which [regular expression](https://re2js.leopard.in.ua/) an Input will accept. This key requires you to define `options.pattern`.
+    This key defines a custom error message that explains why a value has failed the validation criteria from `options.min_items`. This key requires you to define `options.min_items`.
 
     This key has no default.
 
-    This key is available for Code, Color, File, Select, Text, Rich Text, and URL Inputs.
+    This key is available for Array and Multiselect or Multichoice Inputs.
 
     <comp.Example>
-      In this example, we prompt our team to use the correct email format in the `contact_email` Input using a pattern message.
+      In this example, we prompt our team to enter a valid number of items using a custom message.
 
       <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
       ``````````
       _inputs:
-        contact_email:
-          type: email
+        featured_posts:
+          type: array
           options:
-            pattern: '[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}'
-            pattern_message: 'Please use the format ___@___.__'
+            max_items: 5
+            max_items_message: Cannot be more than 5
+            min_items: 2
+            min_items_message: Cannot be less than 2
       ``````````
       </comp.MultiCodeBlock>
     </comp.Example>
@@ -641,23 +704,26 @@ These keys configure how CloudCannon determines a valid value before you can sav
     </comp.Example>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="_inputs.*.options.max_length_message" type_markdown="String">
-    This key defines the message that explains which [regular expression](https://re2js.leopard.in.ua/) an Input will accept. This key requires you to define `options.pattern`.
+    This key defines a custom error message that explains why a value has failed the validation criteria from `options.max_length`. This key requires you to define `options.max_length`.
 
     This key has no default.
 
     This key is available for Code, Color, File, Select, Text, Rich Text, and URL Inputs.
 
     <comp.Example>
-      In this example, we prompt our team to use the correct email format in the `contact_email` Input using a pattern message.
+      In this example, we prompt our team to enter a valid number of characters using a custom message.
 
       <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
       ``````````
       _inputs:
-        contact_email:
-          type: email
+        seo_description:
+          type: markdown
+          comment: Enter a brief description of this blog.
           options:
-            pattern: '[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}'
-            pattern_message: 'Please use the format ___@___.__'
+            max_length: 125
+            max_length_message: You are only allowed 125 characters.
+            min_length: 25
+            min_length_message: Please write more than 25 characters.
       ``````````
       </comp.MultiCodeBlock>
     </comp.Example>
@@ -688,23 +754,26 @@ These keys configure how CloudCannon determines a valid value before you can sav
     </comp.Example>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="_inputs.*.options.min_length_message" type_markdown="String">
-    This key defines the message that explains which [regular expression](https://re2js.leopard.in.ua/) an Input will accept. This key requires you to define `options.pattern`.
+    This key defines a custom error message that explains why a value has failed the validation criteria from `options.min_length`. This key requires you to define `options.min_length`.
 
     This key has no default.
 
     This key is available for Code, Color, File, Select, Text, Rich Text, and URL Inputs.
 
     <comp.Example>
-      In this example, we prompt our team to use the correct email format in the `contact_email` Input using a pattern message.
+      In this example, we prompt our team to enter a valid number of characters using a custom message.
 
       <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
       ``````````
       _inputs:
-        contact_email:
-          type: email
+        seo_description:
+          type: markdown
+          comment: Enter a brief description of this blog.
           options:
-            pattern: '[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}'
-            pattern_message: 'Please use the format ___@___.__'
+            max_length: 125
+            max_length_message: You are only allowed 125 characters.
+            min_length: 25
+            min_length_message: Please write more than 25 characters.
       ``````````
       </comp.MultiCodeBlock>
     </comp.Example>
@@ -734,7 +803,7 @@ These keys configure how CloudCannon determines a valid value before you can sav
     </comp.Example>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="_inputs.*.options.pattern_message" type_markdown="String">
-    This key defines the message that explains which [regular expression](https://re2js.leopard.in.ua/) an Input will accept. This key requires you to define `options.pattern`.
+    This key defines a custom error message that explains why a value has failed the validation criteria from `options.pattern`. This key requires you to define `options.pattern`.
 
     This key has no default.
 
@@ -780,23 +849,25 @@ These keys configure how CloudCannon determines a valid value before you can sav
     </comp.Example>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="_inputs.*.options.start_from_message" type_markdown="String">
-    This key defines the message that explains which [regular expression](https://re2js.leopard.in.ua/) an Input will accept. This key requires you to define `options.pattern`.
+    This key defines a custom error message that explains why a value has failed the validation criteria from `options.start_from`. This key requires you to define `options.start_from`.
 
     This key has no default.
 
-    This key is available for Code, Color, File, Select, Text, Rich Text, and URL Inputs.
+    This key is available for Date and Time Inputs.
 
     <comp.Example>
-      In this example, we prompt our team to use the correct email format in the `contact_email` Input using a pattern message.
+      In this example, we prompt our team to enter a valid date using a custom message.
 
       <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
       ``````````
       _inputs:
-        contact_email:
-          type: email
+        2022_event:
+          type: datetime
           options:
-            pattern: '[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}'
-            pattern_message: 'Please use the format ___@___.__'
+            start_from: 2022-01-01T00:00:00Z
+            start_from_message: Date is too early. Must be during 2022.
+            end_before: 2023-01-01T00:00:00Z
+            end_before_message: Date is too late. Must be during 2022.
       ``````````
       </comp.MultiCodeBlock>
     </comp.Example>
@@ -826,23 +897,25 @@ These keys configure how CloudCannon determines a valid value before you can sav
     </comp.Example>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="_inputs.*.options.end_before_message" type_markdown="String">
-    This key defines the message that explains which [regular expression](https://re2js.leopard.in.ua/) an Input will accept. This key requires you to define `options.pattern`.
+    This key defines a custom error message that explains why a value has failed the validation criteria from `options.end_before`. This key requires you to define `options.end_before`.
 
     This key has no default.
 
-    This key is available for Code, Color, File, Select, Text, Rich Text, and URL Inputs.
+    This key is available for Date and Time Inputs.
 
     <comp.Example>
-      In this example, we prompt our team to use the correct email format in the `contact_email` Input using a pattern message.
+      In this example, we prompt our team to enter a valid date using a custom message.
 
       <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
       ``````````
       _inputs:
-        contact_email:
-          type: email
+        2022_event:
+          type: datetime
           options:
-            pattern: '[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}'
-            pattern_message: 'Please use the format ___@___.__'
+            start_from: 2022-01-01T00:00:00Z
+            start_from_message: Date is too early. Must be during 2022.
+            end_before: 2023-01-01T00:00:00Z
+            end_before_message: Date is too late. Must be during 2022.
       ``````````
       </comp.MultiCodeBlock>
     </comp.Example>
@@ -854,553 +927,60 @@ These keys configure how CloudCannon determines a valid value before you can sav
 
     This key has no default.
 
-    <comp.Example>
-      In this example, CloudCannon will provide items in the `posts` Collection as values for the `heathers_posts` input. CloudCannon will also apply a filter, returning only files where the `author` structured data key is equal to "Heather".
-
-      <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
-      ``````````
-      _inputs:
-        heathers_posts:
-          type: multiselect
-          label: Heather's Posts
-          options:
-            values: "collections.posts[?(@.author == 'Heather')]"
-      ``````````
-      </comp.MultiCodeBlock>
-    </comp.Example>
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="_inputs.*.options.unique_on_message" type_markdown="String">
-    This key defines the message that explains which [regular expression](https://re2js.leopard.in.ua/) an Input will accept. This key requires you to define `options.pattern`.
-
-    This key has no default.
-
-    This key is available for Code, Color, File, Select, Text, Rich Text, and URL Inputs.
-
-    <comp.Example>
-      In this example, we prompt our team to use the correct email format in the `contact_email` Input using a pattern message.
-
-      <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
-      ``````````
-      _inputs:
-        contact_email:
-          type: email
-          options:
-            pattern: '[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}'
-            pattern_message: 'Please use the format ___@___.__'
-      ``````````
-      </comp.MultiCodeBlock>
-    </comp.Example>
-  </comp.DataReferenceRow>
-</comp.DataReference>
-
-### Array input options
-
-These keys configure the appearance and functionality of Array inputs in CloudCannon.
-
-<comp.DataReference>
-  <comp.DataReferenceRow label="structures" type_markdown="String or object">
-    This key determines which predefined templates to use for populating the Object Input. When configured, team members can select a [structure](/documentation/articles/what-is-a-structure/) to populate the Object with input/input groups. This key has no default.
-
-    If configured as an object, CloudCannon will use the values directly.
-
-    If configured as a string, CloudCannon will use the matching structures value defined under `_structures` in the [configuration cascade](/documentation/articles/using-the-configuration-cascade/).
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="preview" type_markdown="object">
-    This key enables you to define the appearance of the input in the Data Editor or sidebar of the Visual or Content Editor. The following nested keys are available:
-
-    * `text`
-    * `subtext`
-    * `icon`
-    * `image`
-
-    If the Array Input uses `structures`, CloudCannon will use the `preview` key from the structure instead.
-
-    For more information about previews, please read our documentation on [configuring card previews](/documentation/articles/configure-your-card-previews/).
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="preview.text" type_markdown="array, string, or boolean">
-    This key determines the title text displayed on a default Array Input card(s). This key has no default, and falls back to the first nested value found (prioritizing text-based values).
-
-    If set to `false`, no text is displayed.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="preview.subtext" type_markdown="array, string, or boolean">
-    This key determines the subtitle text displayed on a default Array Input card(s). This key has no default, and falls back to listing the `label` of each nested input. `subtext` is hidden if text and subtext are the same. If there is no text, subtext will appear in the place of text.
-
-    If set to `false`, no text is displayed.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="preview.icon" type_markdown="array, string, or boolean">
-    This key determines the icon displayed on a default Array Input card(s). The value must match a name from the [Material Icons](https://fonts.google.com/icons?icon.set=Material+Icons) list. Defaults checking the `icon` key, then falls back to the `notes` icon.
-
-    If set to `false`, no icon is displayed.
-
-    If `image` is defined, the image replace `icon` when loaded successfully.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="preview.image" type_markdown="array, string, or boolean">
-    This key determines the image displayed on a default Array Input card(s). This key has no default, and falls back to `thumbnail_image`, `thumbnail_image_path`, `image`, and `image_path` in that order. If no image is found, `icon` is displayed instead.
-
-    If set to `false`, no image is displayed.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="empty_type" type_markdown="String">
-    This key determines how CloudCannon handles an empty value. This key does not apply to existing empty values.
-
-    Value must be one of the following:
-
-    * `string` - an empty value for this input will be stored as "".
-    * `null` - an empty value for this input will be stored as a null value (default). This does not apply to TOML files.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="_inputs.*.options.disable_add" type_markdown="Boolean">
-    This key toggles whether you can add new items to an Array Input. When set to `true`, the "Add" button is disabled in editing interfaces.
-
-    By default, this key is `false` (i.e., users can add new items to the array).
-
-    <comp.Example>
-      In this example, we have a `content_blocks` Array Input where users cannot add entries to the Array.
-
-      <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
-          ``````````
-          _inputs:
-            content_blocks:
-              type: array
-              label: Categories
-              options:
-                disable_add: true
-                disable_remove: true
-          ``````````
-          </comp.MultiCodeBlock>
-    </comp.Example>
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="_inputs.*.options.disable_remove" type_markdown="Boolean">
-    This key toggles whether you can remove items from an Array Input. When set to `true`, CloudCannon will remove the "Delete" option from the Context Menu for each entry.
-
-    By default, this key is `false` (i.e., users can remove items from the array).
-
-    <comp.Example>
-      In this example, we have a `content_blocks` Array Input where users cannot remove entries from the Array.
-
-      <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
-          ``````````
-          _inputs:
-            content_blocks:
-              type: array
-              label: Categories
-              options:
-                disable_add: true
-                disable_remove: true
-          ``````````
-          </comp.MultiCodeBlock>
-    </comp.Example>
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="_inputs.*.options.disable_reorder" type_markdown="Boolean">
-    This key toggles whether you can reorder items within an Array Input. When set to `true`, CloudCannon will disable the drag-and-drop reordering functionality and remove the "Move Up" and "Move Down" options from the Context Menu for each entry.
-    
-    By default, this key is `false` (i.e., users can reorder items in the array).
-
-    <comp.Example>
-      In this example, we have a `staff` Array Input where users cannot reorder the items.
-
-      <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
-          ``````````
-          _inputs:
-            staff:
-              type: array
-              label: Our Team
-              options:
-                disable_reorder: true
-          ``````````
-          </comp.MultiCodeBlock>
-    </comp.Example>
-  </comp.DataReferenceRow>
-</comp.DataReference>
-
-### Code input options
-
-These keys configure the appearance and functionality of Code inputs in CloudCannon.
-
-<comp.DataReference>
-  <comp.DataReferenceRow label="max_visible_lines" type_markdown="Integer">
-    This key determines the maximum number of visible lines in the code area, controlling maximum height. When content exceeds this number of lines, the input becomes a scroll area. Defaults to `30`.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="min_visible_lines" type_markdown="Integer">
-    This key determines the minimum number of visible lines in the code area, controlling initial height. When content exceeds this number of lines, the input expands line by line until it reaches the value of `max_visible_lines`. Defaults to `10`.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="show_gutter" type_markdown="Boolean">
-    This key toggles the line numbers and code-folding controls. Defaults to `true`.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="syntax" type_markdown="String">
-    This key determines how the input parses your content for syntax highlighting. The value should match the code language. This key has no default.
-
-    Value must be one of:
-
-    `abap` `abc` `actionscript` `ada` `alda` `apache_conf` `apex` `applescript` `aql` `asciidoc` `asl` `assembly_x86` `autohotkey` `batchfile` `c9search` `c_cpp` `cirru` `clojure` `cobol` `coffee` `coldfusion` `crystal` `csharp` `csound_document` `csound_orchestra` `csound_score` `csp` `css` `curly` `d` `dart` `diff` `django` `dockerfile` `dot` `drools` `edifact` `eiffel` `ejs` `elixir` `elm` `erlang` `forth` `fortran` `fsharp` `fsl` `ftl` `gcode` `gherkin` `gitignore` `glsl` `gobstones` `golang` `graphqlschema` `groovy` `haml` `handlebars` `haskell` `haskell_cabal` `haxe` `hjson` `html` `html_elixir` `html_ruby` `ini` `io` `jack` `jade` `java` `javascript` `json` `json5` `jsoniq` `jsp` `jssm` `jsx` `julia` `kotlin` `latex` `less` `liquid` `lisp` `livescript` `logiql` `logtalk` `lsl` `lua` `luapage` `lucene` `makefile` `markdown` `mask` `matlab` `maze` `mediawiki` `mel` `mixal` `mushcode` `mysql` `nginx` `nim` `nix` `nsis` `nunjucks` `objectivec` `ocaml` `pascal` `perl` `perl6` `pgsql` `php` `php_laravel_blade` `pig` `plain_text` `powershell` `praat` `prisma` `prolog` `properties` `protobuf` `puppet` `python` `qml` `r` `razor` `rdoc` `red` `redshift` `rhtml` `rst` `ruby` `rust` `sass` `scad` `scala` `scheme` `scss` `sh` `sjs` `slim` `smarty` `snippets` `soy_template` `space` `sparql` `sql` `sqlserver` `stylus` `svg` `swift` `tcl` `terraform` `tex` `text` `textile` `toml` `tsx` `turtle` `twig` `typescript` `vala` `vbscript` `velocity` `verilog` `vhdl` `visualforce` `wollok` `xml` `xquery` `yaml` `zeek`
-
-    Alternatively, you can configure `syntax` with the naming convention. `syntax` is assumed to be the section preceding the normalized `_code_block` suffix (e.g. `my_javascript_code_block` for `javascript`).
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="tab_size" type_markdown="Integer">
-    This key defines how many spaces each line is auto indented by, and how many spaces a tab is shown as. Defaults to `2`.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="theme" type_markdown="String">
-    This key determines the color scheme for syntax highlighting. This key is only applicable if `syntax` is also defined. Defaults to `monokai`.
-
-    Value must be one of:
-
-    `ambiance` `chaos` `chrome` `clouds` `clouds_midnight` `cobalt` `crimson_editor` `dawn` `dracula` `dreamweaver` `eclipse` `github` `gob` `gruvbox` `idle_fingers` `iplastic` `katzenmilch` `kr_theme` `kuroir` `merbivore` `merbivore_soft` `mono_industrial` `monokai` `nord_dark` `pastel_on_dark` `solarized_dark` `solarized_light` `sqlserver` `terminal` `textmate` `tomorrow` `tomorrow_night` `tomorrow_night_blue` `tomorrow_night_bright` `tomorrow_night_eighties` `twilight` `vibrant_ink` `xcode`
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="empty_type" type_markdown="string">
-    This key determines how CloudCannon handles an empty value. This key does not apply to existing empty values.
-
-    Value must be one of the following:
-
-    * `string` - an empty value for this input will be stored as `""`.
-    * `null` - an empty value for this input will be stored as a null value (default). This does not apply to TOML files.
-  </comp.DataReferenceRow>
-</comp.DataReference>
-
-### Rich Text input options
-
-These keys configure the appearance and functionality of Rich Text inputs in CloudCannon.
-
-<comp.DataReference>
-  <comp.DataReferenceRow label="allow_resize" type_markdown="Boolean">
-    This key toggles the resize handler to vertically resize the text area of the input. Defaults to `true`.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="initial_height" type_markdown="Integer">
-    This key defines the initial height of the input text area in pixels (`px`). Defaults to `320`. Supports values between `135` and `1200`.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="paths" type_markdown="Object">
-    This key enables you to define paths for your Rich Text editors or File inputs. The following nested keys are available:
-
-    * `dam_static`
-    * `dam_uploads`
-    * `dam_uploads_filename`
-    * `static`
-    * `uploads`
-    * `uploads_filename`
-    * `uploads_use_relative_paths`
-
-    This key has no default. If undefined at higher levels of the [configuration cascade](/documentation/articles/using-the-configuration-cascade/), `paths` will default to any values configured in the [CloudCannon configuration file](/documentation/articles/what-is-the-cloudcannon-configuration-file/).
-
-    For more information, please read our documentation on [Rich Text editors](/documentation/articles/what-are-rich-text-editors/) or [File inputs](/documentation/articles/what-is-a-file-input/).
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="paths.dam_static" type_markdown="String">
-    This key enables you to define the path for the location of statically copied assets for [DAM](/documentation/articles/introduction-to-assets-and-dams/) files.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="paths.dam_uploads" type_markdown="String">
-    This key enables you to define the path for the default location of newly uploaded [DAM](/documentation/articles/introduction-to-assets-and-dams/) files.
-
-    You can use [dynamic placeholders](/documentation/articles/configure-your-template-strings/) for `uploads` and `dam_uploads`. For more information, please read our documentation on [adjusting file upload paths](/documentation/articles/adjusting-the-uploads-path/).
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="paths.dam_uploads_filename" type_markdown="String">
-    This key enables you to define the name of a file, after uploading it to a [DAM](/documentation/articles/introduction-to-assets-and-dams/).
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="paths.static" type_markdown="String">
-    This key enables you to define the path for the location of statically copied assets.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="paths.uploads" type_markdown="String">
-    This key enables you to define the path for the default location of newly uploaded files.
-
-    You can use [dynamic placeholders](/documentation/articles/configure-your-template-strings/) for `uploads` and `dam_uploads`. For more information, please read our documentation on [adjusting file upload paths](/documentation/articles/adjusting-the-uploads-path/).
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="paths.uploads_filename" type_markdown="String">
-    This key enables you to define the name of a file, after uploading it.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="paths.uploads_use_relative_paths" type_markdown="Boolean">
-    This key enables you to use a file path relative to the current file when uploading through this input. File inputs in data files or front matter will also use relative file paths when selecting an existing file.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="empty_type" type_markdown="string">
-    This key determines how CloudCannon handles an empty value. This key does not apply to existing empty values.
-
-    Value must be one of the following:
-
-    * `string` - an empty value for this input will be stored as "".
-    * `null` - an empty value for this input will be stored as a null value (default). This does not apply to TOML files.
-  </comp.DataReferenceRow>
-</comp.DataReference>
-
-### File input options
-
-These keys configure the appearance and functionality of File inputs in CloudCannon.
-
-<comp.DataReference>
-  <comp.DataReferenceRow label="accepts_mime_types" type_markdown="String or array of strings">
-    This key restricts which file types you are allowed to select or upload through an input. Each File input type has a different default:
-
-    * File: `*`
-    * Image: `image/x-icon,image/gif,image/jpeg,image/jpeg,image/png,image/webp,image/bmp,image/svg+xml`
-    * Document: `application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation`
-
-    If this key uses a string value, the value format should be a comma-separated (no spaces) list of accepted [MIME types](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types). The string `*` allows any type.
-
-    If this key uses an array of values, each item in the array should be a string containing a single accepted [MIME type](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types).
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="allowed_sources" type_markdown="Array">
-    This key lists which DAMs you are allowed to upload to and browse. Valid values include `site-files` and the reference key for any DAM connected to your site.
-
-    If `site-files` is omitted from the array, site files will not be available as an asset source for this input.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="resize_style" type_markdown="String">
-    This key determines how CloudCannon resizes images prior to uploading them to your repository or DAM. CloudCannon resizes images using a bounding box defined by the `width` and `height` options. Defaults to `contain`, if `width` and `height` are defined.
-
-    Value must be one of the following:
-
-    * `crop` — Prompts the user to choose a region of the image that matches the dimensions of the bounding box.
-    * `cover` — Keeps the original aspect ratio of the uploaded image but enlarges the image to match the largest dimension of the bounding box.
-    * `contain` — Keeps the original aspect ratio of the uploaded image but reduces the image to match the smallest dimension of the bounding box.
-    * `stretch` — Ignores the original aspect ratio and resizes the image to match the dimensions of the bounding box.
-
-    If either `width` or `height` are not defined, the `contain`, `cover` and `stretch` options will not work. For the `crop`option, `width` and `height` are optional, and control the minimum size and aspect ratio of the crop region.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="width" type_markdown="Integer">
-    This key determines the width of the bounding box CloudCannon uses to resize images prior to upload. Works in conjunction with the `resize_style` option.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="height" type_markdown="Integer">
-    This key determines the height of the bounding box CloudCannon uses to resize images prior to upload. Works in conjunction with the `resize_style` option.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="mime_type" type_markdown="String">
-    This key determines what format CloudCannon will convert an image to prior to uploading it. CloudCannon also updates the file extension. Defaults to keeping an image's original MIME type.
-
-    Value must be one of:
-
-    * `image/jpeg`
-    * `image/png`
-    * `image/webp`
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="expandable" type_markdown="Boolean">
-    This key determines whether you can expand an image to fit the bounding box when resizing an image prior to upload. Defaults to `false`. Has no effect if files are not resized.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="prevent_resize_existing_files" type_markdown="Boolean">
-    This key determines whether CloudCannon will prompt you to resize an existing image when you select it through this input. Defaults to false.
-
-    When resizing an existing image, CloudCannon will save the resized copy without overwriting the original file.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="sizes" type_markdown="Array of objects">
-    This key determines whether CloudCannon will create additional images of different sizes  when uploading or selecting an image through this input. This key has no default.
-
-    Each entry in the array contains the following fields:
-
-    * `size` — Set the dimensions for the additional image file. Value must be a number with the "x" suffix for relative size or "w" suffix for fixed width (e.g., 2x, 3x, 100w, 360w).
-    * `target` — References another input. CloudCannon sets the value of this target input to the file path of the additional image file.
-
-    If CloudCannon cannot create an additional image (e.g., the image you uploaded is too small), CloudCannon does not set the value of the target input.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="_inputs.*.options.disable_upload_file" type_markdown="Boolean">
-    This key toggles whether CloudCannon shows the "Upload a new file" option in the "Add URL" dropdown menu on a URL Input or "Add file" dropdown menu on a File Input. When set to `true`, the "Upload a new file" option is not available.
-
-    By default, this key is `false` (i.e., users can upload files).
-
-    <comp.Example>
-      In this example, we have a `logo` Image input where users can only select existing images but cannot upload new ones.
-
-      <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
-          ``````````
-          _inputs:
-            logo:
-              type: image
-              label: Company Logo
-              options:
-                disable_upload_file: true
-          ``````````
-          </comp.MultiCodeBlock>
-    </comp.Example>
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="_inputs.*.options.disable_direct_input" type_markdown="Boolean">
-    This key toggles whether you can type in the text field of a File Input or URL Input. When set to `true`, you cannot manually type or paste values into the input text field.
-
-    By default, this key is `false` (i.e., users can type directly into the input field).
-
-    <comp.Example>
-      In this example, we have a `document` File input where users must select files through the file browser and cannot manually type file paths.
-
-      <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
-          ``````````
-          _inputs:
-            document:
-              type: document
-              label: PDF Document
-              options:
-                disable_direct_input: true
-          ``````````
-          </comp.MultiCodeBlock>
-    </comp.Example>
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="_inputs.*.options.disable_upload_file_in_file_browser" type_markdown="Boolean">
-    This key toggles whether the "Add" button in the top right of the File browser modal is available, after selecting the "Link to existing file" option in the "Add URL" dropdown menu on a URL Input or "Add file" dropdown menu on a File Input. When set to `true`, the "Link to existing file" option is not available.
-
-    By default, this key is `false` (i.e., users can upload files in the File browser modal).
-
-    <comp.Example>
-      In this example, we have a `background_image` Image input where users can upload files using the "Upload a new file" option in the "Add URL" dropdown menu on a URL Input or "Add file" dropdown menu on a File Input, but not from within the File browser modal.
-
-      <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
-          ``````````
-          _inputs:
-            background_image:
-              type: image
-              label: Background Image
-              options:
-                disable_upload_file_in_file_browser: true
-          ``````````
-          </comp.MultiCodeBlock>
-    </comp.Example>
-  </comp.DataReferenceRow>
-</comp.DataReference>
-
-### Text input options
-
-These keys configure the appearance and functionality of Text inputs in CloudCannon.
-
-<comp.DataReference>
-  <comp.DataReferenceRow label="show_count" type_markdown="Boolean">
-    This key toggles a character counter.
-
-    Available for Textarea input only.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="empty_type" type_markdown="string">
-    This key determines how CloudCannon handles an empty value. This key does not apply to existing empty values.
-
-    Value must be one of the following:
-
-    * `string` - an empty value for this input will be stored as "".
-    * `null` - an empty value for this input will be stored as a null value (default). This does not apply to TOML files.
-  </comp.DataReferenceRow>
-</comp.DataReference>
-
-### URL input options
-
-These keys configure the appearance and functionality of URL inputs in CloudCannon.
-
-<comp.DataReference>
-  <comp.DataReferenceRow label="empty_type" type_markdown="string">
-    This key determines how CloudCannon handles an empty value. This key does not apply to existing empty values.
-
-    Value must be one of the following:
-
-    * `string` - an empty value for this input will be stored as "".
-    * `null` - an empty value for this input will be stored as a null value (default). This does not apply to TOML files.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="hide_link_to_file" type_markdown="boolean">
-    This key toggles whether the "Link to a file" option for this URL input is visible.
-
-    Setting this key to `true` will hide this option.
-
-    By default, this key is false (i.e., the options visible).
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="hide_link_to_page" type_markdown="boolean">
-    This key toggles whether the "Link to a page" option for this URL input is visible.
-
-    Setting this key to `true` will hide this option.
-
-    By default, this key is false (i.e., the options visible).
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="hide_link_to_email_address" type_markdown="boolean">
-    This key toggles whether the "Link to an email address" option for this URL input is visible.
-
-    Setting this key to `true` will hide this option.
-
-    By default, this key is false (i.e., the options visible).
-    This key is available for Array and Multiselect Inputs.
+    This key is available for Array, Multiselect, and Multichoice inputs.
 
     <comp.Example>
       In this example, we want our team to add article filepaths to the `related_articles` Input. This Input requires all the filepaths to be unique.
-
+  
       <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
-      ``````````
-      _inputs:
-        related_articles:
-          type: array
-          options:
-            unique_on: '$.path'
-      ``````````
-      </comp.MultiCodeBlock>
-
-      &nbsp;
-
+          ``````````
+          _inputs:
+            related_articles:
+              type: array
+              options:
+                unique_on: '$.path'
+          ``````````
+          </comp.MultiCodeBlock>
+  
       <comp.MultiCodeBlock language="YAML" source="blog-article.yml">
-      ``````````
-      related_articles:
-        - path: /articles/first-article.md
-          featured: true
-        - path: /articles/second-article.md
-          featured: false
-      ``````````
-      </comp.MultiCodeBlock>
-    </comp.Example>
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="_inputs.*.options.disable_upload_file" type_markdown="Boolean">
-    This key toggles whether CloudCannon shows the "Upload a new file" option in the "Add URL" dropdown menu on a URL Input or "Add file" dropdown menu on a File Input. When set to `true`, the "Upload a new file" option is not available.
-
-    By default, this key is `false` (i.e., users can upload files).
-
-    <comp.Example>
-      In this example, we have a `logo` Image input where users can only select existing images but cannot upload new ones.
-
-      <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
           ``````````
-          _inputs:
-            logo:
-              type: image
-              label: Company Logo
-              options:
-                disable_upload_file: true
+          related_articles:
+            - path: /articles/first-article.md
+              featured: true
+            - path: /articles/second-article.md
+              featured: false
           ``````````
           </comp.MultiCodeBlock>
     </comp.Example>
   </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="_inputs.*.options.disable_direct_input" type_markdown="Boolean">
-    This key toggles whether you can type in the text field of a File Input or URL Input. When set to `true`, you cannot manually type or paste values into the input text field.
+  <comp.DataReferenceRow label="_inputs.*.options.unique_on_message" type_markdown="String">
+    This key defines a custom error message that explains why a value has failed the validation criteria from `options.unique_on`. This key requires you to define `options.unique_on`.
 
-    By default, this key is `false` (i.e., users can type directly into the input field).
+    This key has no default.
+
+    This key is available for Array, Multiselect, and Multichoice inputs.
 
     <comp.Example>
-      In this example, we have a `document` File input where users must select files through the file browser and cannot manually type file paths.
-
+      In this example, we want our team to add article filepaths to the `related_articles` Input. This Input requires all the filepaths to be unique.
+  
       <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
           ``````````
           _inputs:
-            document:
-              type: document
-              label: PDF Document
+            related_articles:
+              type: array
               options:
-                disable_direct_input: true
+                unique_on: '$.path'
+                unique_on_message: The value for path must be different for all items.
           ``````````
           </comp.MultiCodeBlock>
-    </comp.Example>
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="_inputs.*.options.disable_upload_file_in_file_browser" type_markdown="Boolean">
-    This key toggles whether the "Add" button in the top right of the File browser modal is available, after selecting the "Link to existing file" option in the "Add URL" dropdown menu on a URL Input or "Add file" dropdown menu on a File Input. When set to `true`, the "Link to existing file" option is not available.
-
-    By default, this key is `false` (i.e., users can upload files in the File browser modal).
-
-    <comp.Example>
-      In this example, we have a `background_image` Image input where users can upload files using the "Upload a new file" option in the "Add URL" dropdown menu on a URL Input or "Add file" dropdown menu on a File Input, but not from within the File browser modal.
-
-      <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+  
+      <comp.MultiCodeBlock language="YAML" source="blog-article.yml">
           ``````````
-          _inputs:
-            background_image:
-              type: image
-              label: Background Image
-              options:
-                disable_upload_file_in_file_browser: true
-          ``````````
-          </comp.MultiCodeBlock>
-    </comp.Example>
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="_inputs.*.options.hide_link_to_file" type_markdown="Boolean">
-    This key toggles whether CloudCannon shows the "Link to a page" option in the "Add URL" dropdown menu on a URL Input. When set to `true`, the "Link to a page" option is not available.
-
-    By default, this key is `false` (i.e., file linking and upload options are visible).
-
-    <comp.Example>
-      In this example, we have a `document_url` URL input where users can only enter URLs manually and cannot link to files or upload new files.
-
-      <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
-          ``````````
-          _inputs:
-            document_url:
-              type: url
-              label: Document URL
-              comment: Enter the URL to an external document
-              options:
-                hide_link_to_file: true
+          related_articles:
+            - path: /articles/first-article.md
+              featured: true
+            - path: /articles/first-article.md
+              featured: false
           ``````````
           </comp.MultiCodeBlock>
     </comp.Example>
