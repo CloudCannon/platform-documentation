@@ -134,6 +134,10 @@ module.exports = {
         icon: 'check_box',
       },
       {
+        name: 'Date',
+        icon: 'event',
+      },
+      {
         name: 'Number',
         icon: '123',
       },
@@ -234,6 +238,13 @@ module.exports = {
           path: ".cloudcannon/schemas/article-instructions.mdx",
         },
       },
+      _inputs: {
+        "$.title": {
+          options: {
+            required: true
+          }
+        }
+      }
     },
     guides: {
       path: "guides",
@@ -434,6 +445,129 @@ module.exports = {
         },
       },
     },
+    reference: {
+      path: "_reference",
+      icon: "key",
+      preview: {
+        text: {
+          key: "key_name",
+        },
+        metadata: [
+          {
+            text: {
+              key: "full_name",
+            },
+            icon: "code",
+          },
+          {
+            text: {
+              key: "value_type",
+            },
+            icon: "data_object",
+          },
+          {
+            text: {
+              key: "child_keys",
+            },
+            icon: "escalator_warning",
+          },
+        ],
+      },
+      create: {
+        path: "[relative_base_path]/{full_name|slugify}.yml",
+      },
+      schemas: {
+        default: {
+          path: ".cloudcannon/schemas/key-reference.yml",
+          _inputs: {
+            name: {
+              type: "text",
+            },
+            full_name: {
+              type: "text",
+            },
+            value_type: {
+              type: "multiselect",
+              options: {
+                values: "_select_data.key_value_type",
+                value_key: "name",
+                preview: {
+                  label: {
+                    key: "name",
+                  },
+                },
+              },
+            },
+            description: {
+              type: "markdown",
+              options: {
+                format: "p h1 h2 h3 h4 h5 h6",
+                blockquote: true,
+                bold: true,
+                italic: true,
+                strike: true,
+                subscript: true,
+                superscript: true,
+                underline: true,
+                link: true,
+                bulletedlist: true,
+                numberedlist: true,
+                code: true,
+                embed: true,
+                horizontalrule: true,
+                table: true,
+                snippet: true,
+              },
+            },
+            examples: {
+              type: "markdown",
+              options: {
+                format: "p h1 h2 h3 h4 h5 h6",
+                blockquote: true,
+                bold: true,
+                italic: true,
+                strike: true,
+                subscript: true,
+                superscript: true,
+                underline: true,
+                link: true,
+                bulletedlist: true,
+                numberedlist: true,
+                code: true,
+                embed: true,
+                horizontalrule: true,
+                table: true,
+                snippet: true,
+              },
+            },
+            parent_keys: {
+              type: "multiselect",
+              options: {
+                values: "collections.reference",
+                value_key: "name",
+                preview: {
+                  label: {
+                    key: "name",
+                  },
+                },
+              },
+            },
+            child_keys: {
+              type: "multiselect",
+              options: {
+                values: "collections.reference",
+                value_key: "name",
+                preview: {
+                  label: {
+                    key: "name",
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
     glossary: {
       path: "_glossary",
       icon: "abc",
@@ -479,7 +613,8 @@ module.exports = {
     {
       heading: "Developers",
       collections: [
-        "keys"
+        "keys",
+        "reference"
       ]
     },
     {
@@ -596,7 +731,20 @@ module.exports = {
       },
     },
   },
-  commit_templates: [{ template_string: "{message}" }],
+
+  commit_templates: [
+    {
+      template_string: `{message}`,
+      _inputs: {
+        message: {
+          type: "text",
+          options: {
+            required: true,
+          },
+        },
+      },
+    },
+  ],
   timezone: "Pacific/Auckland",
   base_url: "documentation",
 };
