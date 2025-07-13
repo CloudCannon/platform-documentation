@@ -1,4 +1,6 @@
 import lume from "lume/mod.ts";
+import nunjucks from "lume/plugins/nunjucks.ts";
+
 import pagefind from "lume/plugins/pagefind.ts";
 import date from "lume/plugins/date.ts";
 import sass from "lume/plugins/sass.ts";
@@ -40,7 +42,7 @@ import "./_config/prism-tree.js";
 import "./_config/prism-annotated.js";
 
 import { DOMParser } from "https://deno.land/x/deno_dom@v0.1.38/deno-dom-wasm.ts";
-import { Page } from "lume/core.ts";
+//import { Page } from "lume/core.ts";
 import { Element, Node } from "lume/deps/dom.ts";
 import { extract } from "lume/deps/front_matter.ts";
 
@@ -59,6 +61,8 @@ const site = lume({
     }
 });
 
+site.use(nunjucks());
+
 const injectedSections: Promise<string>[] = [];
 
 const mdFilter = site.renderer.helpers.get('md')[0];
@@ -73,12 +77,12 @@ if (Deno.args.includes("-s") || Deno.args.includes("--serve")) {
 // Output all files to `/documentation/*` to match the location
 // (by default `_site/index.html` would represent `https://cloudcannon.com/documentation/`,
 //  but to subpath it on CloudCannon we want this at `_site/documentation/index.html`)
-site.preprocess("*", (page) => {
+site.preprocess("*", (pages) => pages.forEach((page) => {
     page.data.url = `/documentation${page.data.url}`;
-});
+}));
 
 // Creates an excerpt for all changelogs saved in description.
-site.preprocess(['.md', '.mdx'], (page) => {
+site.preprocess(['.md', '.mdx'], (pages) => pages.forEach((page) => {
     if (!page.data.description && page.src.path.startsWith('/changelogs/')) {
         const firstLine = page.data.content.trim().split('\n')[0];
         if (!firstLine) {
@@ -88,7 +92,7 @@ site.preprocess(['.md', '.mdx'], (page) => {
         const markdownInline = mdFilter(firstLine, true) || '';
         page.data.description = stripHTML(markdownInline);
     }
-});
+}));
 
 site.copy("ye_olde_images", "documentation/ye_olde_images");
 site.copy("uploads", "documentation/static");
@@ -113,10 +117,16 @@ site.formats.get(".md").engines[0].engine.disable("code");
 site.use(jsx());
 site.use(mdx());
 site.use(esbuild());
+site.add("/assets/js/site.js");
+
 site.use(sass());
+site.add("/assets/css/site.scss");
+
 site.use(date());
 site.use(sitemap({
-    filename: '/documentation/sitemap.xml'
+    items:{
+        filename: '=/documentation/sitemap.xml'
+    }
 }));
 
 // JSX doesn't like to output some alpine attributes,
@@ -264,7 +274,7 @@ const injectReusableContent = async (el: Element) => {
     }
 }
 
-site.process([".html"], async (page) => {
+site.process([".html"], (pages) => Promise.all(pages.map(async (page) => {
     if (page.document) await injectReusableContent(page.document.body);
 
     for (const [attr, newattr] of Object.entries(alpineRemaps)) {
@@ -338,7 +348,7 @@ site.process([".html"], async (page) => {
     page.document?.querySelectorAll('a').forEach((el) => {
         appendTargetBlank(page, el);
     });
-});
+})));
 
 // These MUST appear after our custom site.process([".html"] handling,
 // as in that function we inject content that should then be processed by the inline plugin,
@@ -348,9 +358,9 @@ site.use(prism());
 
 // This annotation process relies on the syntax highlighting,
 // so needs to run after prism
-site.process([".html"], async (page) => {
+site.process([".html"], (pages) => Promise.all(pages.map(async (page) => {
     annotateCodeBlocks(page);
-});
+})));
 
 // TODO: Redo docnav as JSX and move this logic into the component
 const bubble_up_nav = (obj) => {
@@ -365,7 +375,7 @@ const bubble_up_nav = (obj) => {
     }
 }
 
-site.filter("render_page_content", async (page: Page) => {
+site.filter("render_page_content", async (page: Lume.Page) => {
     return await site.renderer.render(page.data.content, page.data, `${page.src.path}.${page.src.ext || "mdx"}`);
 }, true)
 

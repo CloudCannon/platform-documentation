@@ -119,13 +119,13 @@ const tabButton = (tab) => {
   return (
     <button className="c-tabs__tab"
       alpine:click={`selectedTab = '${tab}'`}
-      {...{ ":aria-selected": `selectedTab === '${tab}'` }}
+      //{...{ ":aria-selected": `selectedTab === '${tab}'` }}
       role="tab"
       key={tab}>
       {tabNames[tab.toLowerCase()] || tab.toUpperCase()}
     </button>
   )
-}
+};
 
 const tabPane = ([lang, codeBlock]) => {
   return (
@@ -138,7 +138,7 @@ const tabPane = ([lang, codeBlock]) => {
       {codeBlock}
     </div>
   );
-}
+};
 
 const codeBlock = (str, lang, source, annotations) => {
   source = source ? <div className="c-code-block__source">{source}</div> : <></>;

@@ -1,14 +1,14 @@
 export default function ({comp, search, series = "starters", card_type = "interactive", card_eyebrow, title_replace}, helpers) {
     const guide_pages = search.pages(`url^=/documentation/guides/ guide_series=${series}`, "date=desc");
-    const guide_indexes = guide_pages.filter(page => page.src.slug === "index");
-    const guide_data = guide_indexes.map(page => {
+    const guide_indexes = guide_pages.filter(data => data.page.src.entry.name === "index.mdx");
+    const guide_data = guide_indexes.map(data => {
         return {
-            url: page.data.url,
-            id: page.data.guide_id,
-            image: page.data.guide_image,
-            title: title_replace ? page.data.guide_title.replace(new RegExp(title_replace, 'i'), '') : page.data.guide_title,
-            description: page.data.description,
-            ssgs: page.data.guide_target_ssgs,
+            url: data.url,
+            id: data.guide_id,
+            image: data.guide_image,
+            title: title_replace ? data.guide_title.replace(new RegExp(title_replace, 'i'), '') : data.guide_title,
+            description: data.description,
+            ssgs: data.guide_target_ssgs,
         }
     });
     guide_data.sort((a, b) => a.title.localeCompare(b.title));

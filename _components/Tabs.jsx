@@ -5,7 +5,7 @@ export default function ({comp, name, children}) {
         return (
             <button className="c-tabs__tab"
                 alpine:click={`selectedTab = '${tab}'`} 
-                {...{":aria-selected": `selectedTab === '${tab}'`}}
+                //{...{":aria-selected": `selectedTab === '${tab}'`}}
                 role="tab"
                 key={tab}>
                 { tab }
