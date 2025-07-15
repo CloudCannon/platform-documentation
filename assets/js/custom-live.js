@@ -34,7 +34,7 @@ const customLive = () => {
         } else if (attribute === "array"){
           let arrayElement = element.dataset.arrayelement;
           let doc = parser.parseFromString(arrayElement, 'text/html');
-          doc = doc.body;
+          doc = doc.body.firstChild;
           console.log(element, value, doc)
         } else {
             element.setAttribute(attribute, value);
