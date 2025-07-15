@@ -27,14 +27,14 @@ author_notes:
 
 A [Text input](/documentation/articles/what-is-a-text-input/) is an editing interface for plain text content. By configuring your inputs, you can customize the appearance and functionality for a better editing experience.
 
-<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/inputs/text/2024-07/CloudCannon-Documentation-Text-Input.png" alt="A screenshot of the Text input in the Data Editor." title="The Text input" type="ui-snippet"/>
+<comp.DocShot docshot_key="CloudCannon-Documentation-Text-Input" alt="A screenshot of the Text Input in the Data Editor shows a text field." title="The Text input" type="ui-snippet"/>
 
 These instructions assume that you know what type of Text input you want to configure and where in the configuration cascade. For more information, please read our documentation on [Text inputs](/documentation/articles/what-is-a-text-input/), [inputs](/documentation/articles/what-are-inputs/) in general, and the [configuration cascade](/documentation/articles/using-the-configuration-cascade/).
 
 To configure a Text input:
 
 1. Open your website files in your local development environment, or log in to CloudCannon and select the Site for which you want to configure your input.
-2. Navigate to the location in the configuration cascade where you want to configure your input. This can be the root of your CloudCannon Configuration File, within the `collections_config.*` key in your CloudCannon Configuration File, a Schema file, a markup file, or any where you configure a Structure.
+2. Navigate to the location in the configuration cascade where you want to configure your input. This can be the root of your CloudCannon Configuration File, within the `collections_config.*` key in your CloudCannon Configuration File, a Schema file, the frontmatter of a markup file, or any where you configure a Structure.
 3. Identify the `_inputs` key, or create one at that level of the configuration cascade.
 4. Add an input name key for your input under the `_inputs` key (a.k.a., `_inputs.*`). We recommend naming your input something simple that indicates the function or context.
 5. Add the `type` key under your input name key, with the value `text`, `textarea`, or `email`.
@@ -124,12 +124,12 @@ _inputs:
 These keys configure the appearance and functionality of Text inputs in CloudCannon.
 
 <comp.DataReference>
-  <comp.DataReferenceRow label="show_count" type_markdown="Boolean">
+  <comp.DataReferenceRow label="_inputs.*.options.show_count" type_markdown="Boolean">
     This key toggles a character counter.
 
     Available for Textarea input only.
   </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="empty_type" type_markdown="string">
+  <comp.DataReferenceRow label="_inputs.*.options.empty_type" type_markdown="string">
     This key determines how CloudCannon handles an empty value. This key does not apply to existing empty values.
 
     Value must be one of the following:
@@ -137,27 +137,70 @@ These keys configure the appearance and functionality of Text inputs in CloudCan
     * `string` - an empty value for this input will be stored as "".
     * `null` - an empty value for this input will be stored as a null value (default). This does not apply to TOML files.
   </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="_inputs.*.options.icon" type_markdown="String">
+    This key determines whether CloudCannon should display an icon at the beginning of the text field and which icon it should display. The value must match a name from the [Material Icons](https://fonts.google.com/icons?icon.set=Material+Icons) list.
+
+    This key has no default.
+
+    <comp.Example>
+      In this example, we have added the `person` icon to the beginning of the text field to visually add context.
+
+      <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+      ``````````
+        _inputs:
+          author:
+            options:
+              icon: person
+
+      ``````````
+      </comp.MultiCodeBlock>
+    </comp.Example>
+  </comp.DataReferenceRow>
   <comp.DataReferenceRow label="_inputs.*.options.required" type_markdown="Boolean">
     This key toggles whether CloudCannon requires this Input to have a value. If set to `true`, CloudCannon will require you to enter a value to save your changes, or discard your unsaved changes.
 
     By default, this key is `false` (i.e, CloudCannon does not require this Input to have a value).
 
-    This key is available for Array, Boolean, Code, Color, Date and Time, File, Number, Object, Select and Multiselect, Text, Rich Text, and URL Inputs.
+    This key is available for Array, Code, Color, Date and Time, File, Number, Object, Select and Multiselect, Text, Rich Text, and URL Inputs.
 
     <comp.Example>
       In this example, we want to require our team to enter an `author` value for markup files with this Input.
 
       <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
-                                                      ``````````
-                                                        _inputs:
-                                                          author:
-                                                            type: text
-                                                            comment: Enter the name of the author for this blog post.
-                                                            options:
-                                                              required: true
+      ``````````
+        _inputs:
+          author:
+            type: text
+            comment: Enter the name of the author for this blog post.
+            options:
+              required: true
 
-                                                        ``````````
-                                                        </comp.MultiCodeBlock>
+        ``````````
+        </comp.MultiCodeBlock>
+    </comp.Example>
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="_inputs.*.options.required_message" type_markdown="String">
+    This key defines a custom error message that explains why a value has failed the validation criteria from `options.required`. This key requires you to define `options.required`.
+
+    This key has no default.
+
+    This key is available for Array, Code, Color, Date and Time, File, Number, Object, Select and Multiselect, Text, Rich Text, and URL Inputs.
+
+    <comp.Example>
+      In this example, we prompt our team to use enter an Input value using a required message.
+
+      <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+      ``````````
+        _inputs:
+          author:
+            type: text
+            comment: Enter the name of the author for this blog post.
+            options:
+              required: true
+              required_message: You are not allowed to leave this blank.
+
+      ``````````
+      </comp.MultiCodeBlock>
     </comp.Example>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="_inputs.*.options.max_length" type_markdown="Number">
@@ -173,16 +216,41 @@ These keys configure the appearance and functionality of Text inputs in CloudCan
       In this example, we want our team to enter a blog description using the Rich Text `seo_description` Input. This Input limits you to a maximum of 125 characters.
 
       <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
-                                                      ``````````
-                                                      _inputs:
-                                                        seo_description:
-                                                          type: markdown
-                                                          comment: Enter a brief description of this blog.
-                                                          options:
-                                                            max_length: 125
-                                                            min_length: 25
-                                                      ``````````
-                                                      </comp.MultiCodeBlock>
+      ``````````
+      _inputs:
+        seo_description:
+          type: markdown
+          comment: Enter a brief description of this blog.
+          options:
+            max_length: 125
+            min_length: 25
+      ``````````
+      </comp.MultiCodeBlock>
+    </comp.Example>
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="_inputs.*.options.max_length_message" type_markdown="String">
+    This key defines a custom error message that explains why a value has failed the validation criteria from `options.max_length`. This key requires you to define `options.max_length`.
+
+    This key has no default.
+
+    This key is available for Code, Color, File, Select, Text, Rich Text, and URL Inputs.
+
+    <comp.Example>
+      In this example, we prompt our team to enter a valid number of characters using a custom message.
+
+      <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+      ``````````
+      _inputs:
+        seo_description:
+          type: markdown
+          comment: Enter a brief description of this blog.
+          options:
+            max_length: 125
+            max_length_message: You are only allowed 125 characters.
+            min_length: 25
+            min_length_message: Please write more than 25 characters.
+      ``````````
+      </comp.MultiCodeBlock>
     </comp.Example>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="_inputs.*.options.min_length" type_markdown="Number">
@@ -198,16 +266,41 @@ These keys configure the appearance and functionality of Text inputs in CloudCan
       In this example, we want our team to enter a blog description using the Rich Text `seo_description` Input. This Input requires a minimum of 25 characters.
 
       <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
-                                                      ``````````
-                                                      _inputs:
-                                                        seo_description:
-                                                          type: markdown
-                                                          comment: Enter a brief description of this blog.
-                                                          options:
-                                                            max_length: 125
-                                                            min_length: 25
-                                                      ``````````
-                                                      </comp.MultiCodeBlock>
+      ``````````
+      _inputs:
+        seo_description:
+          type: markdown
+          comment: Enter a brief description of this blog.
+          options:
+            max_length: 125
+            min_length: 25
+      ``````````
+      </comp.MultiCodeBlock>
+    </comp.Example>
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="_inputs.*.options.min_length_message" type_markdown="String">
+    This key defines a custom error message that explains why a value has failed the validation criteria from `options.min_length`. This key requires you to define `options.min_length`.
+
+    This key has no default.
+
+    This key is available for Code, Color, File, Select, Text, Rich Text, and URL Inputs.
+
+    <comp.Example>
+      In this example, we prompt our team to enter a valid number of characters using a custom message.
+
+      <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+      ``````````
+      _inputs:
+        seo_description:
+          type: markdown
+          comment: Enter a brief description of this blog.
+          options:
+            max_length: 125
+            max_length_message: You are only allowed 125 characters.
+            min_length: 25
+            min_length_message: Please write more than 25 characters.
+      ``````````
+      </comp.MultiCodeBlock>
     </comp.Example>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="_inputs.*.options.pattern" type_markdown="String">
@@ -223,15 +316,15 @@ These keys configure the appearance and functionality of Text inputs in CloudCan
       In this example, we want our team to add an email address to the `contact_email` Input using the correct email format.
 
       <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
-                                                      ``````````
-                                                      _inputs:
-                                                        contact_email:
-                                                          type: email
-                                                          options:
-                                                            pattern: '[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}'
-                                                            pattern_message: 'Please use the format ___@___.__'
-                                                      ``````````
-                                                      </comp.MultiCodeBlock>
+      ``````````
+      _inputs:
+        contact_email:
+          type: email
+          options:
+            pattern: '[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}'
+            pattern_message: 'Please use the format ___@___.__'
+      ``````````
+      </comp.MultiCodeBlock>
     </comp.Example>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="_inputs.*.options.pattern_message" type_markdown="String">
@@ -245,15 +338,15 @@ These keys configure the appearance and functionality of Text inputs in CloudCan
       In this example, we prompt our team to use the correct email format in the `contact_email` Input using a pattern message.
 
       <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
-                                                      ``````````
-                                                      _inputs:
-                                                        contact_email:
-                                                          type: email
-                                                          options:
-                                                            pattern: '[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}'
-                                                            pattern_message: 'Please use the format ___@___.__'
-                                                      ``````````
-                                                      </comp.MultiCodeBlock>
+      ``````````
+      _inputs:
+        contact_email:
+          type: email
+          options:
+            pattern: '[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}'
+            pattern_message: 'Please use the format ___@___.__'
+      ``````````
+      </comp.MultiCodeBlock>
     </comp.Example>
   </comp.DataReferenceRow>
 </comp.DataReference>
