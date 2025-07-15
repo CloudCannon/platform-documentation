@@ -38,8 +38,10 @@ const customLive = () => {
 
           let array = []
           value.forEach(val => {
-            array.push(doc.cloneNode())
+            array.push(doc.outerHTML)
           })
+
+          console.log(array)
 
           element.innerHTML = array.join("")
 
