@@ -123,6 +123,8 @@ site.add("/assets/js/custom-live.js");
 site.use(sass());
 site.add("/assets/css/site.scss");
 
+site.add("/uploads")
+
 site.use(date());
 site.use(sitemap({
     items:{
