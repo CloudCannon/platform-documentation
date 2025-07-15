@@ -35,6 +35,14 @@ const customLive = () => {
           let arrayElement = element.dataset.arrayelement;
           let doc = parser.parseFromString(arrayElement, 'text/html');
           doc = doc.body.firstChild;
+
+          let array = []
+          value.forEach(val => {
+            array.push(doc.cloneNode())
+          })
+
+          element.innerHTML = array.join("")
+
           console.log(element, value, doc)
         } else {
             element.setAttribute(attribute, value);
