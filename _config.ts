@@ -118,6 +118,7 @@ site.use(jsx());
 site.use(mdx());
 site.use(esbuild());
 site.add("/assets/js/site.js");
+site.add("/assets/js/custom-live.js");
 
 site.use(sass());
 site.add("/assets/css/site.scss");
