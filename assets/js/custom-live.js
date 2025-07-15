@@ -33,7 +33,7 @@ const customLive = () => {
             element.style.backgroundImage = `url(${value})`;
         } else if (attribute === "array"){
           let arrayElement = element.dataset.arrayelement;
-          const doc = parser.parseFromString(arrayElement, 'text/html');
+          let doc = parser.parseFromString(arrayElement, 'text/html');
           doc = doc.body;
           console.log(element, value, doc)
         } else {
