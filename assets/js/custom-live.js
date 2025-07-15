@@ -30,7 +30,7 @@ const customLive = () => {
         } else if (attribute === "backgroundImage"){
             element.style.backgroundImage = `url(${value})`;
         } else if (attribute === "array"){
-          console.log(value)
+          console.log(element, value)
         } else {
             element.setAttribute(attribute, value);
         }
