@@ -6,6 +6,8 @@ const dig = (obj, path) => {
     return obj;
 }
 
+let parser = new DOMParser();
+
 const customLive = () => {
     // On this template we have a custom tag data-custom-live-editing
     const elements = [...document.querySelectorAll(`[data-custom-live-editing]`)].map(element => {
@@ -30,8 +32,9 @@ const customLive = () => {
         } else if (attribute === "backgroundImage"){
             element.style.backgroundImage = `url(${value})`;
         } else if (attribute === "array"){
-          let arrayElement = element.dataset.arrayelement
-          console.log(element, value, arrayElement)
+          let arrayElement = element.dataset.arrayelement;
+          const doc = parser.parseFromString(arrayElement, 'text/html');
+          console.log(element, value, doc)
         } else {
             element.setAttribute(attribute, value);
         }
