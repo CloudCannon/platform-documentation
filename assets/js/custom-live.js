@@ -22,6 +22,7 @@ class CloudCannonLive {
   async loadNewPropsFromCloudCannon(CloudCannon) {
     try {
       const latest = await CloudCannon.value();
+      console.log(latest)
       this.data = latest;
       this.renderFn(this.data);
     } catch (err) {
