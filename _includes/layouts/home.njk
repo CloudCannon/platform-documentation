@@ -4,6 +4,14 @@ layout: layouts/base.njk
 <script src="https://unpkg.com/alpinejs" defer></script>
 <script src="{{ '/assets/js/custom-live.js' }}" type="text/javascript"></script>
 
+<script>
+  window.renderedComponents = {
+    {% for type in ["centredblock"] %}
+    "{{ type }}": `{% comp "contentblocks." + type %}{% endcomp %}`,
+    {% endfor %}
+  };
+</script>
+
 <div x-data="{ contentBlocks: [] }" x-init="
   new CloudCannonLive(data => {
     contentBlocks = data?.content_blocks || []
@@ -14,7 +22,7 @@ layout: layouts/base.njk
   <div class="static-content" x-show="contentBlocks.length == 0">
     {% for block in content_blocks %}
       <div x-data='{ block: {{ block | dump | safe }} }'>
-        {% comp "contentblocks.centredblock" %}{% endcomp %}
+        {% comp "contentblocks." + block._component_type %}{% endcomp %}
       </div>
     {% endfor %}
   </div>
@@ -22,15 +30,7 @@ layout: layouts/base.njk
   <!-- CloudCannon live preview region (hidden if not in live editing) -->
   <div id="live-preview" x-show="contentBlocks.length > 0">
     <template x-for="(block, i) in contentBlocks" :key="i">
-      <div class="block">
-        <template x-if="block._component_type === 'centred'">
-          {% comp "contentblocks.centredblock" %}{% endcomp %}
-        </template>
-
-        <template x-if="block._component_type === 'card'">
-          <div>CARD</div>
-        </template>
-      </div>
+      <div class="block" x-html="window.renderedComponents[block._component_type] || 'Missing component'"></div>
     </template>
   </div>
 

@@ -6,7 +6,6 @@ class CloudCannonLive {
   }
 
   init() {
-    console.log("???");
     document.addEventListener("cloudcannon:load", (e) => {
       this.onCloudCannonLoad(e.detail.CloudCannon);
     });
@@ -23,7 +22,6 @@ class CloudCannonLive {
   async loadNewPropsFromCloudCannon(CloudCannon) {
     try {
       const latest = await CloudCannon.value();
-      console.log(latest);
       this.data = latest;
       this.renderFn(this.data);
     } catch (err) {
