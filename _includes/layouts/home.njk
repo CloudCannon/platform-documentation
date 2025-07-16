@@ -1,16 +1,43 @@
----
-layout: layouts/base.njk
-title: How can we help?
-omit_trailing_title: true
----
-{% set component_count = 0 %}
-{% for component in page.data.content_blocks %}
-    {% if component._component_type == "card" %}
-        CARD
-    {% elif component._component_type == "left-right" %}
-        LR
-    {% elif component._component_type == "centred" %}
-        {{ comp.ContentBlocks.CentredBlock({ heading: component.heading, description: component.description, background_image: component.background_image, buttons: component.buttons, component_count:component_count }) | await | safe }}
-    {% endif %}
-    {% set component_count = component_count + 1 %}
-{% endfor %}
+<!DOCTYPE html>
+<html lang="en" x-data="{ contentBlocks: [] }" x-init="
+  new CloudCannonLive(data => {
+    contentBlocks = data?.page?.data?.content_blocks || []
+  })
+">
+<head>
+  <meta charset="UTF-8" />
+  <title>{{ title }}</title>
+    <script src="https://unpkg.com/alpinejs" defer></script>
+    <script src="{{ '/assets/js/site.js' }}" type="text/javascript"></script>
+    <script src="{{ '/assets/js/custom-live.js' }}" type="text/javascript"></script>
+</head>
+<body>
+
+  <!-- Optional: static rendering for non-CloudCannon environments -->
+  <div class="static-content">
+    {% for block in content_blocks %}
+      {% comp "contentblocks.centredblock", heading="Test" %}{% endcomp %}
+    {% endfor %}
+  </div>
+
+  <div x-text="contentBlocks"></div>
+
+
+  <!-- CloudCannon live preview region (hidden if not in live editing) -->
+  <div id="live-preview" x-show="contentBlocks.length > 0">
+    Hello there
+    <template x-for="(block, i) in contentBlocks" :key="i">
+      <div class="block">
+        <template x-if="block._component_type === 'centred'">
+          SOMETHING
+        </template>
+
+        <template x-if="block._component_type === 'card'">
+          CARD
+        </template>
+      </div>
+    </template>
+  </div>
+
+</body>
+</html>
