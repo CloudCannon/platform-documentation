@@ -46,4 +46,6 @@ brokenLinks.forEach(({ parent, url }) => {
 
 if (!results.passed) {
   Deno.exit(1);
+} else {
+  Deno.exit(0);
 }
