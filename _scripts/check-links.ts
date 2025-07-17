@@ -29,7 +29,6 @@ const results = await checker.check({
   linksToSkip: [
     "^(?!http://localhost:.*/documentation)",
     ".*_pagefind.*",
-    ".*changelog.*",
   ],
   urlRewriteExpressions,
 });
