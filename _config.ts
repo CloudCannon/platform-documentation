@@ -1,4 +1,6 @@
 import lume from "lume/mod.ts";
+import icons from "lume/plugins/icons.ts";
+
 import nunjucks from "lume/plugins/nunjucks.ts";
 
 import pagefind from "lume/plugins/pagefind.ts";
@@ -62,6 +64,7 @@ const site = lume({
 });
 
 site.use(nunjucks());
+site.use(icons());
 
 const injectedSections: Promise<string>[] = [];
 
@@ -123,7 +126,8 @@ site.copy("/assets/js/custom-live.js");
 site.use(sass());
 site.add("/assets/css/site.scss");
 
-site.add("/uploads")
+site.add("/assets/img");
+site.add("/uploads");
 
 site.use(date());
 site.use(sitemap({

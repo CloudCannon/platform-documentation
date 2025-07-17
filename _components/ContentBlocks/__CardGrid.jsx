@@ -1,0 +1,19 @@
+export default function ({comp, number, children}) {
+  return(
+    <div class="c-card-grid">
+      <template x-for="card in block.cards">
+        <div className="c-card-grid__card" x-bind:class="card.span_two ? 'span-two' : ''">
+          <h2 x-text="card.heading"></h2>
+          <template x-for="item in card.items">
+            <div class="c-card-grid__card--item">
+              <div class="c-card-grid__card--item__heading">
+                <img src='{{ "acorn:duotone" |> icon("phosphor") }}'/>
+                <h3 x-text="item.heading"></h3>
+              </div>
+              <p x-html="item.description"></p>
+            </div>
+          </template>
+        </div>
+      </template>
+    </div>
+  )}
