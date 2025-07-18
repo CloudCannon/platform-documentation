@@ -8,7 +8,7 @@ This release gives developers the option to set the Jekyll `--drafts` flag, and 
 **Features:**
 
 * Output draft posts option in *Site Settings*
-* [Collection Defaults](/documentation/edit/editing/collections//) for pre-populating new collection items and blog posts
+* [Collection Defaults](/documentation/edit/editing/collections/) for pre-populating new collection items and blog posts
 * More output for Jekyll build errors
 
 **Fixes:**
