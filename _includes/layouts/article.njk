@@ -8,11 +8,8 @@ layout: layouts/base.njk
             more: true
         }">
             {% import "docnav.njk" as docnav with context %}
-            {% if beta_navigation | nav_contains(url) %}
-                {{ docnav.nav(beta_navigation, "Beta Docs") }}
-            {% else %}
+
                 {{ docnav.nav(navigation, "Docs") }}
-            {% endif %}
         </aside>
         <div class="u-card-box l-content">
             <h1 data-pagefind-body class="l-heading u-margin-bottom-0">{{ title }}</h1>
@@ -30,7 +27,9 @@ layout: layouts/base.njk
 
             {% include "related-articles.njk" %}
 
-            {% for block in navigation.headings | bubble_up_nav %}
+            {% set section = navigation.sections | get_section("Developer Articles") %}
+
+            {% for block in section.headings | bubble_up_nav %}
                 {% set index = block._bubbled | index_of(url) %}
                 {% if index >= 0 %}
                     {% set prevUrl = block._bubbled[index - 1] %}

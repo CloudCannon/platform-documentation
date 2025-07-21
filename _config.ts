@@ -369,6 +369,13 @@ site.process([".html"], (pages) => Promise.all(pages.map(async (page) => {
     annotateCodeBlocks(page);
 })));
 
+site.filter("get_section", (sections, section) => {
+    let found = sections.filter(x => x.section === section)
+    if(found && found.length > 0)
+        return found[0]
+    return []
+})
+
 // TODO: Redo docnav as JSX and move this logic into the component
 const bubble_up_nav = (obj) => {
     if (obj._bubbled) return;
