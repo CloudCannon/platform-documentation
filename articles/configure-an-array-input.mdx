@@ -151,29 +151,103 @@ These keys configure the appearance and functionality of Object inputs in CloudC
     If configured as a string, CloudCannon will use the matching structures value defined under `_structures` in the [configuration cascade](/documentation/articles/using-the-configuration-cascade/).
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="_inputs.*.options.preview" type_markdown="Object">
-    This key enables you to define the appearance of input values in the Data Editor or sidebar of the Visual or Content Editor. The following nested keys are available:
+    This key defines the appearance of a Card. You can configure Card preview for [Collections](/documentation/articles/what-is-a-collection/), [Schemas](/documentation/articles/what-is-a-schema/), [Object inputs](/documentation/articles/what-is-an-object-input/), [Array inputs](/documentation/articles/what-is-an-array-input/), [Select inputs](/documentation/articles/what-is-a-select-input/), [Structures](/documentation/articles/what-is-a-structure/), the Structure modal, [Snippets](/documentation/articles/what-is-a-snippet/), and the Snippet modal.
+
+    The following nested keys are available:
 
     * `text`
     * `subtext`
     * `icon`
+    * `icon_color`
+    * `icon_background_color`
     * `image`
+    * `metadata`
+    * `gallery`
 
-    Defaults to:
+    This key defaults to:
 
-    <comp.CodeBlock language="YAML" source="cloudcannon.config.yml">
-    ``````````
-    preview:
-      text:
-        - key: title
-        - key: name
-      icon:
-        - key: icon
-    ``````````
-    </comp.CodeBlock>
-
-    If the Array Input uses `structures`, CloudCannon will use the `preview` key from the structure instead.
+      <comp.CodeBlock language="YAML" source="cloudcannon.config.yml">
+      ``````````
+      preview:
+        text:
+          - key: title
+          - key: name
+        icon:
+          - key: icon
+      ``````````
+      </comp.CodeBlock>
 
     For more information about previews, please read our documentation on [configuring card previews](/documentation/articles/configure-your-card-previews/).
+
+    <comp.Example>
+    In this example, we have configured the appearance of file Cards in the *Collection browser*.
+
+    <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+    ``````````
+    collections_config:
+      blog:
+        preview:
+          text:
+            - key: title
+          subtext:
+            - key: author
+          icon: edit_note
+          icon_color:
+            - key: color
+            - '#ff0000'
+          image:
+            - key: image
+          metadata:
+            - template: [url]
+            - icon: event
+              text:
+                - template: 'Published on {date|date_long}'
+          gallery:
+            - key: featured_image
+    ``````````
+    </comp.MultiCodeBlock>
+
+    In this example, we have configured the appearance of Cards in inputs using the Structure `staff`.
+
+    <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+    ``````````
+    _structures:
+      staff:
+        values:
+          - value:
+              _type: Employee
+              name:
+              job_description:
+              profile_picture:
+            preview:
+              text:
+                - key: name
+                - Employee
+              subtext:
+                - key: job_description
+                - Description of position
+              image:
+                - key: profile_picture
+              icon: support_agent
+          - value:
+              _type: Manager
+              name:
+              job_description:
+              profile_picture:
+              url:
+            preview:
+              text:
+                - key: name
+                - Manager
+              subtext:
+                - key: job_description
+                - Description of position
+              image:
+                - key: profile_picture
+              icon: face
+    ``````````
+    </comp.MultiCodeBlock>
+  </comp.Example>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="_inputs.*.options.preview.text" type_markdown="array, string, or boolean">
     This key determines the title text displayed on a default Array Input card(s). This key has no default, and falls back to the first nested value found (prioritizing text-based values).
@@ -185,12 +259,111 @@ These keys configure the appearance and functionality of Object inputs in CloudC
 
     If set to `false`, no text is displayed.
   </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="_inputs.*.options.preview.icon" type_markdown="array, string, or boolean">
-    This key determines the icon displayed on a default Array Input card(s). The value must match a name from the [Material Icons](https://fonts.google.com/icons?icon.set=Material+Icons) list. Defaults checking the `icon` key, then falls back to the `notes` icon.
+  <comp.DataReferenceRow label="_inputs.*.options.preview.icon" type_markdown="Array, string or boolean">
+    This key determines the icon displaye beside the text and subtext on a Card. The value must match a name from the [Google's Material Icons](https://fonts.google.com/icons) list.
+    
+    This key defaults to checking the `icon` key, then falls back to the `notes` icon.
 
     If set to `false`, no icon is displayed.
 
-    If `image` is defined, the image replace `icon` when loaded successfully.
+    If `image` is defined, the image replaces `icon` when loaded successfully.
+
+    This key supports cascading options, which can be either an Array or a single value. Value can be one of the following:
+    * A String of the exact value (e.g `"edit_note"`)
+    * A reference to a key within the connected item (e.g `key: icon` in YAML or `{ "key": "icon" }` in JSON)
+    * A String with placeholders that will be replaced with values (e.g. `template: {icon_type}` in YAML or `{ "template": "{icon_type}" }` in JSON)
+
+    <comp.Example>
+      In this example, we configure a static icon for the card.
+
+      <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+          ``````````
+          preview:
+            icon: edit_note
+          ``````````
+          </comp.MultiCodeBlock>
+
+      In this example, we use a dynamic icon from the data.
+
+      <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+          ``````````
+          preview:
+            icon:
+              - key: icon_type
+              - support_agent
+          ``````````
+          </comp.MultiCodeBlock>
+    </comp.Example>
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="_inputs.*.options.preview.icon_color" type_markdown="Array, string or boolean">
+    This key determines the color of the icon displayed on a Card.
+
+    This key supports cascading options, which can be either an Array or a single value. Value can be one of the following:
+    * A String of the exact value (e.g `"#ff0000"`)
+    * A reference to a key within the connected item (e.g `key: color` in YAML or `{ "key": "color" }` in JSON)
+    * A String with placeholders that will be replaced with values (e.g. `template: {color_code}` in YAML or `{ "template": "{color_code}" }` in JSON)
+
+    By default, this key is `#000000` (black).
+
+    <comp.Example>
+      In this example, we configure a dynamic icon color from the data with a fallback to red.
+
+      <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+          ``````````
+          preview:
+            icon: edit_note
+            icon_color:
+              - key: color
+              - '#ff0000'
+          ``````````
+          </comp.MultiCodeBlock>
+
+      In this example, we use a static icon color.
+
+      <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+          ``````````
+          preview:
+            icon: nature_people
+            icon_color:
+              - '#00ff00'
+          ``````````
+          </comp.MultiCodeBlock>
+    </comp.Example>
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="_inputs.*.options.preview.icon_background_color" type_markdown="Array, string or boolean">
+    This key determines the background color of the icon displayed on a Card. This is useful if your `icon_color` value has poor contrast on a white background.
+
+    This key supports cascading options, which can be either an Array or a single value.Value can be one of the following:
+    * A String of the exact value (e.g `"#ff0000"`)
+    * A reference to a key within the connected item (e.g `key: color` in YAML or `{ "key": "color" }` in JSON)
+    * A String with placeholders that will be replaced with values (e.g. `template: {color_code}` in YAML or `{ "template": "{color_code}" }` in JSON)
+
+    This key has no default.
+
+    <comp.Example>
+      In this example, we configure a dynamic icon background color from the data with a fallback to red.
+
+      <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+          ``````````
+          preview:
+            icon: edit_note
+            icon_background_color:
+              - key: color
+              - '#ff0000'
+          ``````````
+          </comp.MultiCodeBlock>
+
+      In this example, we use a static icon background color.
+
+      <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+          ``````````
+          preview:
+            icon: nature_people
+            icon_background_color:
+              - '#00ff00'
+          ``````````
+          </comp.MultiCodeBlock>
+    </comp.Example>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="_inputs.*.options.preview.image" type_markdown="array, string, or boolean">
     This key determines the image displayed on a default Array Input card(s). This key has no default, and falls back to `thumbnail_image`, `thumbnail_image_path`, `image`, and `image_path` in that order. If no image is found, `icon` is displayed instead.
@@ -361,7 +534,7 @@ These keys configure the appearance and functionality of Object inputs in CloudC
   <comp.DataReferenceRow label="_inputs.*.options.min_items" type_markdown="Number">
     This key defines the minimum number of items CloudCannon will allow in an Input. When configured, CloudCannon will prevent you from removing items from this Input below this value. If the Input already contains fewer items, CloudCannon will require you to add items until the Input contains a valid number to save your changes, or discard your unsaved changes.
 
-    Value can be any positive integer. If `options.min_items` is also configured, this key cannot be a greater number.
+    Value can be any positive integer. If `options.max_items` is also configured, this key cannot be a greater number.
 
     This key has no default.
 
