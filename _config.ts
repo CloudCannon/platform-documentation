@@ -380,7 +380,7 @@ site.filter("get_section", (sections, section) => {
 const bubble_up_nav = (obj) => {
     if (obj._bubbled) return;
     if (obj._type === "heading" || obj._type === "group") {
-        let articles = obj.items.flatMap(o => bubble_up_nav(o));
+        let articles = obj.items ? obj.items.flatMap(o => bubble_up_nav(o)) : [];
         obj._bubbled = articles;
         return articles;
     } else {
