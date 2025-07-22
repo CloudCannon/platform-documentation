@@ -346,7 +346,7 @@ site.process([".html"], (pages) => Promise.all(pages.map(async (page) => {
     if (hasItems) {
         const h3 = page.document.createElement('h3');
         h3.classList.add("l-toc__heading");
-        const headingText = page.document.createTextNode('On this page');
+        const headingText = page.document.createTextNode('Table of contents');
         h3.appendChild(headingText);
         tocContainer?.appendChild(h3);
         tocContainer?.appendChild(toc);
