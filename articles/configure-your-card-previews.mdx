@@ -51,21 +51,111 @@ The `preview` configuration has a number of different keys which correspond to d
   <comp.DataReferenceRow label="subtext" type_markdown="cascading option">
     The second highest level of text which is displayed over at most two lines.
   </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="icon" type_markdown="cascading option">
-    Adds an icon from [Google’s Material Icons](https://material.io/tools/icons/) beside the text and subtext on the card. Must match [Material Icon](https://material.io/tools/icons/) name.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="icon_color" type_markdown="Array">
-    If an icon is set, this key will set the color of that icon. Accepts HEX values.
+  <comp.DataReferenceRow label="_inputs.*.options.preview.icon" type_markdown="Array, string or boolean">
+    This key determines the icon displaye beside the text and subtext on a Card. The value must match a name from the [Google's Material Icons](https://fonts.google.com/icons) list.
+    
+    This key defaults to checking the `icon` key, then falls back to the `notes` icon.
 
-    <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
-    ``````````
-    preview:
-      icon: nature_people
-      icon_color:
-        - key: color
-        - '#ff0000'
-    ``````````
-    </comp.MultiCodeBlock>
+    If set to `false`, no icon is displayed.
+
+    If `image` is defined, the image replaces `icon` when loaded successfully.
+
+    This key supports cascading options, which can be either an Array or a single value. Value can be one of the following:
+    * A String of the exact value (e.g `"edit_note"`)
+    * A reference to a key within the connected item (e.g `key: icon` in YAML or `{ "key": "icon" }` in JSON)
+    * A String with placeholders that will be replaced with values (e.g. `template: {icon_type}` in YAML or `{ "template": "{icon_type}" }` in JSON)
+
+    <comp.Example>
+      In this example, we configure a static icon for the card.
+
+      <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+          ``````````
+          preview:
+            icon: edit_note
+          ``````````
+          </comp.MultiCodeBlock>
+
+      In this example, we use a dynamic icon from the data.
+
+      <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+          ``````````
+          preview:
+            icon:
+              - key: icon_type
+              - support_agent
+          ``````````
+          </comp.MultiCodeBlock>
+    </comp.Example>
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="_inputs.*.options.preview.icon_color" type_markdown="Array, string or boolean">
+    This key determines the color of the icon displayed on a Card.
+
+    This key supports cascading options, which can be either an Array or a single value. Value can be one of the following:
+    * A String of the exact value (e.g `"#ff0000"`)
+    * A reference to a key within the connected item (e.g `key: color` in YAML or `{ "key": "color" }` in JSON)
+    * A String with placeholders that will be replaced with values (e.g. `template: {color_code}` in YAML or `{ "template": "{color_code}" }` in JSON)
+
+    By default, this key is `#000000` (black).
+
+    <comp.Example>
+      In this example, we configure a dynamic icon color from the data with a fallback to red.
+
+      <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+          ``````````
+          preview:
+            icon: edit_note
+            icon_color:
+              - key: color
+              - '#ff0000'
+          ``````````
+          </comp.MultiCodeBlock>
+
+      In this example, we use a static icon color.
+
+      <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+          ``````````
+          preview:
+            icon: nature_people
+            icon_color:
+              - '#00ff00'
+          ``````````
+          </comp.MultiCodeBlock>
+    </comp.Example>
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="_inputs.*.options.preview.icon_background_color" type_markdown="Array, string or boolean">
+    This key determines the background color of the icon displayed on a Card. This is useful if your `icon_color` value has poor contrast on a white background.
+
+    This key supports cascading options, which can be either an Array or a single value.Value can be one of the following:
+    * A String of the exact value (e.g `"#ff0000"`)
+    * A reference to a key within the connected item (e.g `key: color` in YAML or `{ "key": "color" }` in JSON)
+    * A String with placeholders that will be replaced with values (e.g. `template: {color_code}` in YAML or `{ "template": "{color_code}" }` in JSON)
+
+    This key has no default.
+
+    <comp.Example>
+      In this example, we configure a dynamic icon background color from the data with a fallback to red.
+
+      <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+          ``````````
+          preview:
+            icon: edit_note
+            icon_background_color:
+              - key: color
+              - '#ff0000'
+          ``````````
+          </comp.MultiCodeBlock>
+
+      In this example, we use a static icon background color.
+
+      <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+          ``````````
+          preview:
+            icon: nature_people
+            icon_background_color:
+              - '#00ff00'
+          ``````````
+          </comp.MultiCodeBlock>
+    </comp.Example>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="image" type_markdown="cascading option">
     Defines an image to display beside the text and subtext on the card. Once the image loads it will cover the icon.
@@ -91,19 +181,40 @@ Metadata is a great way to show related data in the card.
   <comp.DataReferenceRow label="icon" type_markdown="cascading option">
     Defines an icon from [Google’s Material Icons](https://material.io/tools/icons/) beside the text on the metadata. Must match [Material Icon](https://material.io/tools/icons/) name.
   </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="icon_color" type_markdown="Array">
-    If an icon is set, this key will set the color of that icon. Accepts HEX values.
+  <comp.DataReferenceRow label="icon_color" type_markdown="cascading option">
+    This key determines the color of the icon displayed on a Card.
 
-    <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
-    ``````````
-    preview:
-      metadata:
-        - icon: nature_people
-          icon_color:
-            - key: color
-            - '#ff0000'
-    ``````````
-    </comp.MultiCodeBlock>
+    This key supports cascading options, which can be either an Array or a single value. Value can be one of the following:
+    * A String of the exact value (e.g `"#ff0000"`)
+    * A reference to a key within the connected item (e.g `key: color` in YAML or `{ "key": "color" }` in JSON)
+    * A String with placeholders that will be replaced with values (e.g. `template: {color_code}` in YAML or `{ "template": "{color_code}" }` in JSON)
+
+    By default, this key is `#000000` (black).
+
+    <comp.Example>
+      In this example, we configure a dynamic icon color from the data with a fallback to red.
+
+      <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+      ``````````
+      preview:
+        icon: edit_note
+        icon_color:
+          - key: color
+          - '#ff0000'
+      ``````````
+      </comp.MultiCodeBlock>
+
+      In this example, we use a static icon color.
+
+      <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+      ``````````
+      preview:
+        icon: nature_people
+        icon_color:
+          - '#00ff00'
+      ``````````
+      </comp.MultiCodeBlock>
+    </comp.Example>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="image" type_markdown="cascading option">
     Defines an image path to load over the icon.
@@ -123,19 +234,40 @@ The gallery will render an icon if it is defined, an image over the icon once lo
   <comp.DataReferenceRow label="icon" type_markdown="cascading option">
     Defines an icon from [Google’s Material Icons](https://material.io/tools/icons/) to display in the centre of the gallery area. match [Material Icon](https://material.io/tools/icons/) name.
   </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="icon_color" type_markdown="Array">
-    If an icon is set, this key will set the color of that icon. Accepts HEX values.
+  <comp.DataReferenceRow label="icon_color" type_markdown="cascading option">
+    This key determines the color of the icon displayed on a Card.
 
-    <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
-    ``````````
-    preview:
-      gallery:
-        icon: nature_people
+    This key supports cascading options, which can be either an Array or a single value. Value can be one of the following:
+    * A String of the exact value (e.g `"#ff0000"`)
+    * A reference to a key within the connected item (e.g `key: color` in YAML or `{ "key": "color" }` in JSON)
+    * A String with placeholders that will be replaced with values (e.g. `template: {color_code}` in YAML or `{ "template": "{color_code}" }` in JSON)
+
+    By default, this key is `#000000` (black).
+
+    <comp.Example>
+      In this example, we configure a dynamic icon color from the data with a fallback to red.
+
+      <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+      ``````````
+      preview:
+        icon: edit_note
         icon_color:
           - key: color
           - '#ff0000'
-    ``````````
-    </comp.MultiCodeBlock>
+      ``````````
+      </comp.MultiCodeBlock>
+
+      In this example, we use a static icon color.
+
+      <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+      ``````````
+      preview:
+        icon: nature_people
+        icon_color:
+          - '#00ff00'
+      ``````````
+      </comp.MultiCodeBlock>
+    </comp.Example>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="image" type_markdown="cascading option">
     Defines an image to display in the gallery area. Covers text and icon once the image is loaded.
