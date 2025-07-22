@@ -370,7 +370,7 @@ site.process([".html"], (pages) => Promise.all(pages.map(async (page) => {
 })));
 
 site.filter("get_section", (sections, section) => {
-    let found = sections.filter(x => x.section === section)
+    let found = sections.filter(x => x._uuid === section)
     if(found && found.length > 0)
         return found[0]
     return []
