@@ -305,7 +305,7 @@ site.process([".html"], (pages) => Promise.all(pages.map(async (page) => {
         return slug;
     }
 
-    const tocContainer = page.document?.querySelectorAll(`.l-toc`)?.[0];
+    let tocContainer = page.document?.querySelectorAll(`.l-toc`)?.[0];
     const toc = page.document.createElement('ol');
     toc.classList.add("l-toc__list");
     function appendAnchorHeader(el, slug) {
@@ -318,7 +318,15 @@ site.process([".html"], (pages) => Promise.all(pages.map(async (page) => {
     }
 
     let hasItems = false;
-    page.document?.querySelectorAll(`main h1, main h2, main h3`).forEach((el) => {
+    let selector = `main h1, main h2, main h3`;
+    
+    if(!tocContainer){
+        tocContainer = page.document?.querySelectorAll(`.l-toc-changelog-list`)?.[0];
+        if(tocContainer)
+            selector = `main .changelog-entry > h2:first-of-type`;
+    }
+
+    page.document?.querySelectorAll(selector).forEach((el) => {
         if (el.hasAttribute("data-skip-anchor")) return;
 
         const text = el.innerText;
