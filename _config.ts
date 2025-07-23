@@ -438,6 +438,32 @@ site.filter("render_common", (file: string, data: object = {}) => {
     return content_id - 1;
 })
 
+let changelogsData = {};
+
+site.addEventListener("beforeBuild", async () => {
+  const dir = "changelogs";
+  const years = {"keys":[]};
+
+  for await (const entry of Deno.readDir(dir)) {
+    if (entry.isFile && entry.name.endsWith(".mdx")) {
+        let date = entry.name.split("_")[0]
+        let year = date.split("-")[0]
+        if(!years.keys.includes(year))
+            years.keys.push(year)
+        if(years[year])
+            years[year]++
+        else
+            years[year] = 1;
+    }
+  }
+
+  years.keys.sort((a,b) => b - a    )
+
+  changelogsData = years;
+});
+
+site.data("changelog_years", () => changelogsData);
+
 /* Environment data */
 
 let hubspot_id = Deno.env.get("HUBSPOT_ID");
