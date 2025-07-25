@@ -5,7 +5,6 @@ import ScrollPadlock from "npm:scroll-padlock@2.2.0";
 
 const scrollElement = document.body,
   LOCKED_CLASS = "t-scroll-lock";
-
 new ScrollPadlock(scrollElement, LOCKED_CLASS);
 
 Alpine.plugin(intersect);
@@ -27,10 +26,15 @@ Alpine.magic("setNavMemory", () => {
 Alpine.magic("getNavMemory", () => {
   return () => {
     let navState = localStorage.getItem("nav_memory");
+    console.log("1", navState)
     if (!navState) return;
+    console.log("2")
     navState = JSON.parse(navState);
     // Only persist nav on immediate page navigations
-    if (Date.now() - navState.time > 10000) return;
+    console.log(Date.now() - navState.time)
+    //if (Date.now() - navState.time > 10000) return;
+
+    console.log("doc",document);
 
     [...document.querySelectorAll("#t-docs-nav details")].forEach(
       (d, index) => {
