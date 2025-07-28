@@ -136,6 +136,7 @@ site.use(sitemap({
     }
 }));
 
+
 // JSX doesn't like to output some alpine attributes,
 // so we write them with an `alpine` prefix and re-map them here.
 const alpineRemaps = {
@@ -445,19 +446,20 @@ site.addEventListener("beforeBuild", async () => {
   const years = {"keys":[]};
 
   for await (const entry of Deno.readDir(dir)) {
-    if (entry.isFile && entry.name.endsWith(".mdx")) {
-        let date = entry.name.split("_")[0]
-        let year = date.split("-")[0]
-        if(!years.keys.includes(year))
-            years.keys.push(year)
-        if(years[year])
-            years[year]++
-        else
-            years[year] = 1;
+    if (entry.isDirectory) {
+        let dirname = entry.name;
+        years.keys.push(dirname);
+        years[dirname] = 0;
+        let subdir = `${dir}/${dirname}`
+        for await (const entry of Deno.readDir(subdir)) {
+            if (entry.isFile) {
+                years[dirname]++;
+            }
+        }
     }
   }
-
-  years.keys.sort((a,b) => b - a    )
+console.log(years)
+  years.keys.sort((a,b) => b - a)
 
   changelogsData = years;
 });

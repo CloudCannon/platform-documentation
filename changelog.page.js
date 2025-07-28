@@ -1,14 +1,22 @@
 export const layout = "layouts/changelog-list.njk";
 
-export default function* ({ search, paginate }) {
-  const posts = search.pages("url^=/documentation/changelog/", "date=desc");
-  
-  const options = {
-    url: (n) => n === 1 ? '/changelog/' : `/changelog/page/${n}/`,
-    size: 10,
-  };
+export default function* ({ search }) {
+  // Correct method in Lume v3
+  const entries = search.pages("changelogs");
+  //console.log(entries)
 
-  for (const data of paginate(posts, options)) {
-    yield data;
-  }
+  // Sort newest first
+  const sorted = entries.sort(
+    (a, b) => new Date(b.date) - new Date(a.date)
+  );
+
+  const recent = sorted.slice(0, 3);
+
+  yield {
+    url: "/changelog/",
+    data: {
+      title: "Changelog",
+      results: recent,
+    },
+  };
 }
