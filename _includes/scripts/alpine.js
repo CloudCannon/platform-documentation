@@ -26,15 +26,10 @@ Alpine.magic("setNavMemory", () => {
 Alpine.magic("getNavMemory", () => {
   return () => {
     let navState = localStorage.getItem("nav_memory");
-    console.log("1", navState)
     if (!navState) return;
-    console.log("2")
     navState = JSON.parse(navState);
     // Only persist nav on immediate page navigations
-    console.log(Date.now() - navState.time)
     //if (Date.now() - navState.time > 10000) return;
-
-    console.log("doc",document);
 
     [...document.querySelectorAll("#t-docs-nav details")].forEach(
       (d, index) => {

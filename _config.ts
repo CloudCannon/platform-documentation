@@ -458,7 +458,7 @@ site.addEventListener("beforeBuild", async () => {
         }
     }
   }
-console.log(years)
+
   years.keys.sort((a,b) => b - a)
 
   changelogsData = years;

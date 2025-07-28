@@ -12,7 +12,7 @@
             </div>
 
         <ol class="t-docs-nav__main-list">
-            <li class="t-docs-nav__main-list__item changelog-nav" >
+            <li class="t-docs-nav__main-list__item changelog-nav {% if url == "/documentation/changelog/" %}selected{% endif %}" {% if url == "/documentation/changelog/" %} aria-current="page"{% endif %}>
                 <span class="t-docs-nav__main-list__item__heading">Most recent</span>
                 <div class="changelog-count">3</div>
             </li>
@@ -31,45 +31,4 @@
     <!--<div class="t-docs-nav__base" :data-show="more">
         <img src="/assets/img/arrow.svg" class="t-docs-nav__base__icon" inline>
     </div>-->
-{% endmacro %}
-
-{% macro subnav(block) %}
-    <ol class="t-docs-nav__sub-list">
-        {% for item in block.items %}
-            {% if item._type == "group" %}
-                <li>
-                    <details {% if url in item._bubbled %}open{% endif %}>
-                        <summary class="t-docs-nav__sub-list__heading">
-                            {{ item.name }}
-                            <img src="/assets/img/arrow.svg" class="t-docs-nav__sub-list__heading__arrow" inline>
-                        </summary>
-                        {{ subnav(item) }}
-                    </details>
-                </li>
-            {% else %}
-                {% for article in item.articles %}
-                    {% if article === 'index' %}
-                        {% set article_page = search.page("url=/documentation/articles/") %}
-                    {% else %}
-                        {% if article === 'beta' %}
-                            {% set article_page = search.page("url=/documentation/articles/beta/") %}
-                        {% else %}
-                            {% set article_page = search.page("url=/documentation/articles/"+article+"/") %}
-                        {% endif %}
-                    {% endif %}
-                    
-                    {% if article_page %}
-                    <li>
-                        <a class="t-docs-nav__sub-list__article"
-                            {% if article_page.url == url %} aria-current="page"{% endif %}
-                            href="{{ article_page.url }}"
-                            @click="$setNavMemory?.()">
-                            {{ article_page.page.data.nav_title }}
-                        </a>
-                    </li>
-                    {% endif %}
-                {% endfor %}
-            {% endif %}
-        {% endfor %}
-    </ol>
 {% endmacro %}
