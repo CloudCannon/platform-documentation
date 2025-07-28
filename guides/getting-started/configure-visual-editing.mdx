@@ -24,22 +24,80 @@ available on all SSGs cloudcannon supports
 
 <comp.CodeBlock language="html">
 ``````````
-<html>
-  <body>
-    <main data-editable="source" data-path="/src/pages/index.astro" data-key="main">
-      <h1>Title</h1>
-      <p>
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus imperdiet, diam id faucibus accumsan, sapien tortor accumsan quam, sed auctor ex magna non ipsum. Vestibulum sed orci consequat, egestas nisi vitae, placerat lectus. Sed posuere quam vel consectetur tincidunt. Pellentesque convallis sit amet elit eget ullamcorper. Pellentesque pellentesque semper dolor eget tincidunt.
-      </p>
-    </main>
-  </body>
-</html>
+<main data-editable="source" data-path="/src/pages/index.astro" data-key="main">
+  <h1>Title</h1>
+  <p>
+    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus imperdiet, diam id faucibus accumsan, sapien tortor accumsan quam, sed auctor ex magna non ipsum. Vestibulum sed orci consequat, egestas nisi vitae, placerat lectus. Sed posuere quam vel consectetur tincidunt. Pellentesque convallis sit amet elit eget ullamcorper. Pellentesque pellentesque semper dolor eget tincidunt.
+  </p>
+</main>
+``````````
+</comp.CodeBlock>
+
+Our blog posts all have the same format, specified by a layout. This is an example of a blog file:
+
+<comp.CodeBlock language="markdown">
+``````````
+---
+title: My blog post
+description: Lorem ipsum dolor sit amet
+pubDate: 2025-07-24T00:00:00Z
+heroImage: /assets/hero-3.jpg
+---
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus imperdiet, diam id faucibus accumsan, sapien tortor accumsan quam, sed auctor ex magna non ipsum. Vestibulum sed orci consequat, egestas nisi vitae, placerat lectus. Sed posuere quam vel consectetur tincidunt. Pellentesque convallis sit amet elit eget ullamcorper. Pellentesque pellentesque semper dolor eget tincidunt.
+``````````
+</comp.CodeBlock>
+
+To make all the blog posts editable, we should add editable elements to the layout file. We want our content creators to be able to edit the title, publishing date, hero image, and content in the CloudCannon Visual Editor.
+
+<comp.CodeBlock language="html">
+``````````
+<main>
+  <article>
+    <div class="hero-image">
+      {
+        heroImage && (
+          <img
+            data-editable="image"
+            data-prop-source="heroImage"
+            width={1020}
+            height={510}
+            src={heroImage}
+            alt=""
+          />
+        )
+      }
+    </div>
+    <div class="title">
+      <h1 data-editable="text" data-prop="title">{title}</h1>
+    </div>
+    <div class="date">
+      <FormattedDate date={pubDate} />
+      {
+        updatedDate && (
+          <div class="last-updated-on">
+            Last updated on {" "}
+            <FormattedDate date={updatedDate} />
+          </div>
+        )
+      }
+    </div>
+    <text-editable data-prop="@content">
+      <slot />
+    </text-editable>
+  </article>
+</main>
 ``````````
 </comp.CodeBlock>
 
 live rendering even for ssgs that don't have a rendering element
 
 &nbsp;
+
+data-editable="text" is the type of content
+
+data-prop="" is the property we want to edit
+
+data-prop="@content" is for when you want the non-frontmatter content
 
 ---
 
