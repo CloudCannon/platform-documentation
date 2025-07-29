@@ -48,11 +48,16 @@ import { DOMParser } from "https://deno.land/x/deno_dom@v0.1.38/deno-dom-wasm.ts
 import { Element, Node } from "lume/deps/dom.ts";
 import { extract } from "lume/deps/front_matter.ts";
 
+import { remark } from "npm:remark";
+import remarkParse from "npm:remark-parse";
+import strip from "npm:strip-markdown";
+
+import { format, formatDistanceToNowStrict, differenceInMonths } from 'npm:date-fns';
+
 function stripHTML(html) {
     const doc = new DOMParser().parseFromString(html, 'text/html');
     return doc.body.textContent || '';
 }
-
 
 const domainsRegExp = new RegExp('cloudcannon.com|^\/|^\#');
 
@@ -401,6 +406,21 @@ const bubble_up_nav = (obj) => {
 site.filter("render_page_content", async (page: Lume.Page) => {
     return await site.renderer.render(page.data.content, page.data, `${page.src.path}.${page.src.ext || "mdx"}`);
 }, true)
+
+site.filter("render_text_only", async (markdown: string) => {
+    const result = await remark()
+      .use(remarkParse)
+      .use(strip)
+      .process(markdown);
+
+    return String(result).trim();
+}, true)
+
+site.filter("DATE_TO_NOW", (date) => {
+    let difference_in_months = differenceInMonths(new Date(), date)
+    let date_to_now = formatDistanceToNowStrict(date, {addSuffix: true})
+    return difference_in_months < 5 ? date_to_now : format(date, "d MMMM yyyy")
+})
 
 site.filter("bubble_up_nav", (blocks) => {
     blocks.forEach(bubble_up_nav);
