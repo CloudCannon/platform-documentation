@@ -14,7 +14,8 @@ try {
     const obj = {
       path:entry,
       title:data.data.title,
-      _uuid:data.data._uuid
+      _uuid:data.data._uuid,
+      description: data.data.description
     }
     all_resources.push(obj)
   }
