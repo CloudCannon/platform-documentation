@@ -383,8 +383,8 @@ site.process([".html"], (pages) => Promise.all(pages.map(async (page) => {
     annotateCodeBlocks(page);
 })));
 
-site.filter("get_section", (sections, section) => {
-    let found = sections.filter(x => x._uuid === section)
+site.filter("get_by_uuid", (resources, uuid) => {
+    let found = resources.filter(x => x._uuid === uuid)
     if(found && found.length > 0)
         return found[0]
     return []
