@@ -7,7 +7,7 @@ try {
   const source = yaml.load(fs.readFileSync("_data/docshots.yml", 'utf8'));
   let config = yaml.load(fs.readFileSync("cloudcannon.config.yml", 'utf8'));
   config._snippets.docshot.preview.gallery.image[0].template = `'https://cc-screenshots.imgix.net/${source.source}/{docshot_key}.webp'`
-  fs.writeFileSync("cloudcannon.config.yml",yaml.dump(config));
+  fs.writeFileSync("cloudcannon.config.yml",yaml.dump(config, {lineWidth:-1}));
   console.log("done writing new config...")
 } catch (e) {
   console.log(e);
