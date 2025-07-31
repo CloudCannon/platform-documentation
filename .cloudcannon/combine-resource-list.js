@@ -15,7 +15,8 @@ try {
       path:entry,
       title:data.data.title,
       _uuid:data.data._uuid,
-      description: data.data.description
+      description: data.data.description,
+      article_category: data.data.article_category
     }
     all_resources.push(obj)
   }
