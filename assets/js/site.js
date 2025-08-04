@@ -25,6 +25,8 @@ window.searchInput = new Input({
 });
 search.add(window.searchInput);
 
+window.searchInput.inputEl.placeholder = "Search this site"
+
 const searchResultTemplate = (result) => {
   let base_title = result.meta.title;
   if (result.meta.guide_title) {
