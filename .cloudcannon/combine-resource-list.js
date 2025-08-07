@@ -31,7 +31,10 @@ try {
     const obj = {
       path:guide,
       _uuid: data._uuid,
-      guide_title: data.guide_title
+      guide_icon:data.guide_icon,
+      guide_title: data.guide_title,
+      guide_image:data.guide_image,
+      guide_summary:data.guide_summary
     }
     all_guides.push(obj)
   }
