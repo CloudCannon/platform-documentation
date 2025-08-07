@@ -30,10 +30,8 @@ try {
     const data = yaml.load(fs.readFileSync(guide, 'utf-8'));
     const obj = {
       path:guide,
-      guide_id: data.guide_id,
-      guide_title: data.guide_title,
-      guide_summary:data.guide_summary,
-      guide_image:data.guide_image
+      _uuid: data._uuid,
+      guide_title: data.guide_title
     }
     all_guides.push(obj)
   }
