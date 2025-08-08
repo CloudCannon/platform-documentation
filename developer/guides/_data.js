@@ -4,4 +4,5 @@ export default {
     u = u.split("/").slice(3)
     return `/dweveloper-guides/${u.join("/")}`;
   },
+  layout: "layouts/guide.njk"
 };
