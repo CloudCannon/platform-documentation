@@ -23,49 +23,50 @@ layout: layouts/base.njk
                 </button>
             </div>
             <ol class="t-docs-nav__main-list">
-            <li class="t-docs-nav__main-list__item" >
-                <ol class="t-docs-nav__sub-list">
-                    {% set complete_class = 'guide-complete' %}
-                    {% for data in articles %}
-                        {% set completed = false %}
-                        {% if data.start_nav_group %}
-                            </ol>
-                            <span class="t-docs-nav__main-list__item__heading">{{ data.start_nav_group }}</span>
-                            <ol class="t-docs-nav__sub-list">
-                        {% endif %}
-
-                        {% if data.url == url %}
-                            {% set complete_class = 'current-guide' %}
-                            {% set currentIndex = loop.index0 %}
-                        {% else %}
-                            {% if data.order < page.data.order %}
-                                {% set completed = true %}
-                            {% else %}
-                                {% set complete_class = '' %}
+                <li class="t-docs-nav__main-list__item guide" >
+                    <ol class="t-docs-nav__sub-list">
+                        {% set complete_class = 'guide-complete' %}
+                        {% for data in articles %}
+                            {% set completed = false %}
+                            {% if data.start_nav_group %}
+                                </ol>
+                                <span class="t-docs-nav__main-list__item__heading">{{ data.start_nav_group }}</span>
+                                <ol class="t-docs-nav__sub-list">
                             {% endif %}
-                        {% endif %}
 
-                        <li>
-                            <a class="t-docs-nav__sub-list__article"
-                                {% if data.url == url %} aria-current="page"{% endif %}
-                                href="{{ data.url | url }}">
-                                <div class="t-docs-nav__sub-list__connector-group">
-                                    <span class="t-docs-nav__sub-list__index {{ complete_class }}">{% if completed == true %}<img src="{{ "check:outlined" | icon("material") }}" inline />{% else %}{{ data.order }}{% endif %}</span>
-                                    
-                                    <span class="t-docs-nav__sub-list__connector {{ complete_class }}"></span>
-                                </div>
-                                <div>{{ data.title }}</div>
-                            </a>
-                        </li>
-                    {% endfor %}
-                </ol>
-            </li>
+                            {% if data.url == url %}
+                                {% set complete_class = 'current-guide' %}
+                                {% set currentIndex = loop.index0 %}
+                            {% else %}
+                                {% if data.order < page.data.order %}
+                                    {% set completed = true %}
+                                {% else %}
+                                    {% set complete_class = '' %}
+                                {% endif %}
+                            {% endif %}
+
+                            <li>
+                                <a class="t-docs-nav__sub-list__article"
+                                    {% if data.url == url %} aria-current="page"{% endif %}
+                                    href="{{ data.url | url }}">
+                                    <div class="t-docs-nav__sub-list__connector-group">
+                                        <span class="t-docs-nav__sub-list__index {{ complete_class }}">{% if completed == true %}<img src="{{ "check:outlined" | icon("material") }}" inline />{% else %}{{ data.order }}{% endif %}</span>
+                                        {% if data.order < articles.length %}
+                                        <span class="t-docs-nav__sub-list__connector {{ complete_class }}"></span>
+                                        {% endif %}
+                                    </div>
+                                    <div>{{ data.title }}</div>
+                                </a>
+                            </li>
+                        {% endfor %}
+                    </ol>
+                </li>
             </ol>
             <div x-intersect="more = false" x-intersect:leave="more = true"></div>
           </nav>
-          <div class="t-docs-nav__base" :data-show="more">
+         <!-- <div class="t-docs-nav__base" :data-show="more">
               <img src="/assets/img/arrow.svg" class="t-docs-nav__base__icon" inline>
-          </div>
+          </div>-->
         </aside>
         <div class="u-card-box l-content">
             <h1 data-pagefind-body class="l-heading u-margin-bottom-0">{{ title }}</h1>
