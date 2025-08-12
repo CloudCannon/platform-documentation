@@ -399,7 +399,7 @@ const bubble_up_nav = (obj) => {
         return articles;
     } else {
         // TODO: Temporary URL map, until a UUID refactor.
-        return obj.articles?.map(a => `/documentation/articles/${a}/`) ?? [];
+        return obj.articles
     }
 }
 

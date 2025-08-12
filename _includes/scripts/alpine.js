@@ -15,7 +15,7 @@ Alpine.magic("setNavMemory", () => {
     const navState = {
       scroll: document.querySelector("#t-docs-nav").scrollTop,
       opened: [...document.querySelectorAll("#t-docs-nav details")].map((d) =>
-        d.hasAttribute("open")
+        d.hasAttribute("open") && d.getAttribute("open") == true
       ),
       time: Date.now(),
     };
