@@ -13,10 +13,10 @@ try {
     const data = matter(fs.readFileSync(entry));
     const obj = {
       path:entry,
-      title:data.data.title,
+      title:data.data.details.title,
       _uuid:data.data._uuid,
-      description: data.data.description,
-      article_category: data.data.article_category
+      description: data.data.details.description,
+      category: data.data.details.category
     }
     all_resources.push(obj)
   }
