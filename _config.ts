@@ -16,6 +16,8 @@ import mdx from "lume/plugins/mdx.ts";
 
 import slugify from "npm:@sindresorhus/slugify@2.2.0";
 
+import jsYaml from "npm:js-yaml";
+
 // Data highlights
 import "npm:prismjs@1.29.0/components/prism-yaml.js";
 import "npm:prismjs@1.29.0/components/prism-json.js";
@@ -390,6 +392,18 @@ site.filter("get_by_uuid", (resources, uuid) => {
     return []
 })
 
+site.filter("get_by_letter", async (resources, letter) => {
+    const dir = `user/glossary/${letter}`;
+    let entries = [];
+    for await(const entry of Deno.readDir(dir)){
+        const file_content = Deno.readTextFileSync(`${dir}/${entry.name}`);
+        const yml = jsYaml.load(file_content);
+        entries.push(yml)
+    }
+    entries.sort((a,b) => a.glossary_term_name < b.glossary_term_name ? -1 : 1)
+    return entries;
+}, true)
+
 // TODO: Redo docnav as JSX and move this logic into the component
 const bubble_up_nav = (obj) => {
     if (obj._bubbled) return;
@@ -485,6 +499,7 @@ site.addEventListener("beforeBuild", async () => {
 });
 
 site.data("changelog_years", () => changelogsData);
+site.data("all_letters", () => [...Array(26).keys()].map((n) => String.fromCharCode(97 + n)))
 
 /* Environment data */
 

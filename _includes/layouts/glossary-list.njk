@@ -1,0 +1,42 @@
+---
+layout: layouts/base.njk
+title: ''
+description: ''
+---
+<div class="l-page">
+    <div class="l-column">
+        <aside class="l-left" x-data="{
+            more: true
+        }">
+            {% import "glossarynav.njk" as glossarynav with context %}
+            {{ glossarynav.nav("User Glossary") }}
+        </aside>
+        <div class="u-card-box l-small-content">
+            <h1 class="l-heading u-margin-bottom-0 u-padding-bottom-0">
+                {% set u = url %}
+                {% set u = u.split("/") %}
+                {% set letter = u[3] %}
+                {{ letter | upper }}
+            </h1>
+
+            <div class="l-content-split">
+                <main class="l-content-cards glossary-cards">
+                  {% set entries = user_glossary | get_by_letter(letter) %}
+                  {% for entry in entries %}
+                    <div class="glossary-entry">
+                      <h2>{{ entry.glossary_term_name }}</h2>
+                      <p>{{ entry.term_description }}</p>
+                    </div>
+                  {% endfor %}
+                </main>
+            
+                <aside data-pagefind-ignore class="l-right">
+                    <div class="l-toc-changelog-list">
+                        <!-- "On this page" -->
+                    </div>
+                </aside>
+            </div>
+        </div>
+    </div>
+</div>
+
