@@ -2,9 +2,7 @@ import "../../_includes/scripts/alpine.js";
 import {
   Instance,
   Input,
-  ResultList,
   Summary,
-  FilterPills,
 } from "npm:@pagefind/modular-ui@1.0.3";
 
 const search = new Instance({
@@ -26,6 +24,171 @@ window.searchInput = new Input({
 search.add(window.searchInput);
 
 window.searchInput.inputEl.placeholder = "Search this site"
+
+let currPage = 0;
+let perPage = 10;
+
+const templateNodes = (templateResult) => {
+    if (templateResult instanceof Element) {
+        return [templateResult];
+    } else if (Array.isArray(templateResult) && templateResult.every(r => r instanceof Element)) {
+        return templateResult;
+    } else if (typeof templateResult === "string" || templateResult instanceof String) {
+        let wrap = document.createElement("div");
+        wrap.innerHTML = templateResult;
+        return [...wrap.childNodes]
+    } else {
+        console.error(`[Pagefind ResultList component]: Expected template function to return an HTML element or string, got ${typeof templateResult}`);
+        return [];
+    }
+}
+
+const placeholderTemplate = () => {
+    const placeholder = (max = 30) => {
+        return ". ".repeat(Math.floor(10 + Math.random() * max));
+    };
+    return `<li class="pagefind-modular-list-result">
+    <div class="pagefind-modular-list-thumb" data-pfmod-loading></div>
+    <div class="pagefind-modular-list-inner">
+        <p class="pagefind-modular-list-title" data-pfmod-loading>${placeholder(30)}</p>
+        <p class="pagefind-modular-list-excerpt" data-pfmod-loading>${placeholder(40)}</p>
+    </div>
+</li>`;
+}
+
+const resultTemplate = (result) => {
+    let wrapper = new El("li").class("pagefind-modular-list-result");
+
+    let thumb = new El("div").class("pagefind-modular-list-thumb").addTo(wrapper);
+    if (result?.meta?.image) {
+        new El("img").class("pagefind-modular-list-image").attrs({
+            src: result.meta.image,
+            alt: result.meta.image_alt || result.meta.title
+        }).addTo(thumb);
+    }
+
+    let inner = new El("div").class("pagefind-modular-list-inner").addTo(wrapper);
+    let title = new El("p").class("pagefind-modular-list-title").addTo(inner);
+    new El("a").class("pagefind-modular-list-link").text(result.meta?.title).attrs({
+        href: result.meta?.url || result.url
+    }).addTo(title);
+
+    new El("p").class("pagefind-modular-list-excerpt").html(result.excerpt).addTo(inner);
+
+    return wrapper.element;
+}
+
+const nearestScrollParent = (el) => {
+    if (!(el instanceof HTMLElement)) return null;
+    const overflowY = window.getComputedStyle(el).overflowY;
+    const isScrollable = overflowY !== 'visible' && overflowY !== 'hidden';
+
+    if (isScrollable) {
+        return el;
+    } else {
+        return nearestScrollParent(el.parentNode);
+    }
+}
+
+class ResultCustom {
+    constructor(opts = {}) {
+        this.rawResult = opts.result;
+        this.placeholderNodes = opts.placeholderNodes;
+        this.resultFn = opts.resultFn;
+        this.intersectionEl = opts.intersectionEl;
+        this.result = null;
+        this.load();
+        //this.waitForIntersection();
+    }
+
+    /*waitForIntersection() {
+        if (!this.placeholderNodes?.length) return;
+
+        let options = {
+            root: this.intersectionEl,
+            rootMargin: "0px",
+            threshold: 0.01,
+        };
+        
+        let observer = new IntersectionObserver((entries, observer) => {
+            if (this.result !== null) return;
+            if (entries?.[0]?.isIntersecting) {
+                this.load();
+                observer.disconnect();
+            }
+        }, options);
+
+        observer.observe(this.placeholderNodes[0]);
+    }*/
+
+    async load() {
+      console.log(this.placeholderNodes.length)
+        if (!this.placeholderNodes?.length) return;
+
+        this.result = await this.rawResult.data();
+        const resultTemplate = this.resultFn(this.result);
+        const resultNodes = templateNodes(resultTemplate);
+
+        while (this.placeholderNodes.length > 1) {
+            this.placeholderNodes.pop().remove();
+        }
+
+        this.placeholderNodes[0].replaceWith(...resultNodes);
+    }
+}
+
+class ResultListCustom {
+    constructor(opts) {
+        this.intersectionEl = document.body;
+        this.containerEl = null;
+        this.results = [];
+        this.placeholderTemplate = opts.placeholderTemplate ?? placeholderTemplate;
+        this.resultTemplate = opts.resultTemplate ?? resultTemplate;
+
+        if (opts.containerElement) {
+            this.initContainer(opts.containerElement);
+        } else {
+            console.error(`[Pagefind ResultList component]: No selector supplied for containerElement`);
+            return;
+        }
+    }
+
+    initContainer(selector) {
+        const container = document.querySelector(selector);
+        if (!container) {
+            console.error(`[Pagefind ResultList component]: No container found for ${selector} selector`);
+            return;
+        }
+
+        this.containerEl = container;
+    }
+
+    append(nodes) {
+        for (const node of nodes) {
+            this.containerEl.appendChild(node);
+        }
+    }
+
+    register(instance) {
+        instance.on("results", (results) => {
+            if (!this.containerEl) return;
+            this.containerEl.innerHTML = "";
+            this.intersectionEl = nearestScrollParent(this.containerEl);
+            let pageResults = results.results.slice(currPage * perPage,(currPage+1)*perPage)
+            this.results = pageResults.map(r => {
+                let placeholderNodes = templateNodes(this.placeholderTemplate());
+                this.append(placeholderNodes);
+                return new ResultCustom({ result: r, placeholderNodes, resultFn: this.resultTemplate, intersectionEl: this.intersectionEl });
+            })
+        });
+
+        instance.on("loading", () => {
+            if (!this.containerEl) return;
+            this.containerEl.innerHTML = "";
+        });
+    }
+}
+
 
 const searchResultTemplate = (result) => {
   let base_title = result.meta.title;
@@ -60,7 +223,7 @@ const searchResultTemplate = (result) => {
 };
 
 search.add(
-  new ResultList({
+  new ResultListCustom({
     containerElement: "#searchresults",
     resultTemplate: searchResultTemplate,
   })
@@ -258,7 +421,7 @@ search.add(
   })
 );
 
-
+/*
 let recentSearches = null,
   thisSearch = null;
 search.on("search", (term) => {
@@ -280,7 +443,7 @@ search.on("search", (term) => {
       ])
     );
   }
-});
+});*/
 
 const messageElement = document.querySelector("#searchmessage");
 
@@ -298,11 +461,39 @@ if (messageElement) {
   });
 }
 
+function makePaginationBox(pagination,num)
+{
+  let box = document.createElement("div");
+  box.classList.add("pagination-box");
+  box.innerHTML = num;
+  pagination.append(box);
+}
+
 search.on("results", (results) => {
-    if(results.results.length > 0)
+  let pagination = document.getElementById("searchpagination");
+  pagination.innerHTML = "";
+    if(results.results.length > 0){
       document.getElementById("searchcontainer").classList.add("has-results")
-    else
+      let pages = Math.ceil(results.results.length / perPage);
+      let half = Math.floor(pages/2);
+
+      /* FIGURE OUT HOW TO MAKE THIS BETTER */
+      makePaginationBox(pagination," "); // prev
+
+      makePaginationBox(pagination,1);
+      makePaginationBox(pagination,2);
+      makePaginationBox(pagination,"…")
+      makePaginationBox(pagination,half);
+      makePaginationBox(pagination,"…");
+      makePaginationBox(pagination,pages-1);
+      makePaginationBox(pagination,pages);
+
+      makePaginationBox(pagination," "); // next
+    }
+    else{
+      currPage = 0;
       document.getElementById("searchcontainer").classList.remove("has-results")
+    }
 });
 
 // Prefetch links
