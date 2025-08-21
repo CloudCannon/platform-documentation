@@ -467,6 +467,7 @@ function makePaginationBox(pagination,num)
   box.classList.add("pagination-box");
   box.innerHTML = num;
   pagination.append(box);
+  return box;
 }
 
 search.on("results", (results) => {
@@ -478,7 +479,11 @@ search.on("results", (results) => {
       let half = Math.floor(pages/2);
 
       /* FIGURE OUT HOW TO MAKE THIS BETTER */
-      makePaginationBox(pagination," "); // prev
+      let prevbox = makePaginationBox(pagination,""); // prev
+      let prevsvg = document.createElement("img");
+      prevsvg.src = "https://cdn.jsdelivr.net/npm/@material-design-icons/svg@0.14.15/outlined/arrow_back_ios.svg"
+      prevsvg.setAttribute("inline", true);
+      prevbox.append(prevsvg);
 
       makePaginationBox(pagination,1);
       makePaginationBox(pagination,2);
@@ -488,7 +493,11 @@ search.on("results", (results) => {
       makePaginationBox(pagination,pages-1);
       makePaginationBox(pagination,pages);
 
-      makePaginationBox(pagination," "); // next
+      let nextbox = makePaginationBox(pagination,""); // next
+      let nextsvg = document.createElement("img");
+      nextsvg.src = "https://cdn.jsdelivr.net/npm/@material-design-icons/svg@0.14.15/outlined/arrow_forward_ios.svg"
+      nextsvg.setAttribute("inline", true);
+      nextbox.append(nextsvg)
     }
     else{
       currPage = 0;
