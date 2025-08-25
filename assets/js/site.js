@@ -21,9 +21,35 @@ window.searchInstance = search;
 window.searchInput = new Input({
   containerElement: "#searchbox",
 });
+
 search.add(window.searchInput);
 
-window.searchInput.inputEl.placeholder = "Search this site"
+const originalElement = window.searchInput.inputEl;
+const clonedElement = originalElement.cloneNode(true);
+originalElement.parentNode.replaceChild(clonedElement, originalElement);
+
+const originalClear = document.querySelector(".pagefind-modular-input-clear");
+const clonedClear = originalClear.cloneNode(true);
+originalClear.parentNode.replaceChild(clonedClear, originalClear);
+
+clonedClear.addEventListener("click", e => {
+  clonedElement.value = "";
+  search.triggerSearch("");
+  document.getElementById("searchsummary").style.display = "none"
+})
+
+clonedElement.placeholder = "Search this site";
+clonedElement.addEventListener("input", e => {
+  let query = e.target.value;
+  if(query.length > 1)
+    search.triggerSearch(`${query.trim()}`);
+
+  if (query && query?.length) {
+      clonedClear.removeAttribute("data-pfmod-suppressed");
+  } else {
+      clonedClear.setAttribute("data-pfmod-suppressed", "true");
+  }
+})
 
 let currPage = 0;
 let perPage = 10;
@@ -98,31 +124,9 @@ class ResultCustom {
         this.intersectionEl = opts.intersectionEl;
         this.result = null;
         this.load();
-        //this.waitForIntersection();
     }
 
-    /*waitForIntersection() {
-        if (!this.placeholderNodes?.length) return;
-
-        let options = {
-            root: this.intersectionEl,
-            rootMargin: "0px",
-            threshold: 0.01,
-        };
-        
-        let observer = new IntersectionObserver((entries, observer) => {
-            if (this.result !== null) return;
-            if (entries?.[0]?.isIntersecting) {
-                this.load();
-                observer.disconnect();
-            }
-        }, options);
-
-        observer.observe(this.placeholderNodes[0]);
-    }*/
-
     async load() {
-      console.log(this.placeholderNodes.length)
         if (!this.placeholderNodes?.length) return;
 
         this.result = await this.rawResult.data();
@@ -173,8 +177,15 @@ class ResultListCustom {
         instance.on("results", (results) => {
             if (!this.containerEl) return;
             this.containerEl.innerHTML = "";
-            this.intersectionEl = nearestScrollParent(this.containerEl);
-            let pageResults = results.results.slice(currPage * perPage,(currPage+1)*perPage)
+            let totalLength = results.results.length;
+            let pageResults = results.results.slice(currPage * perPage,(currPage+1)*perPage);
+            let endResults = (currPage+1)*perPage < totalLength ? (currPage+1)*perPage : totalLength;
+
+            if(totalLength > 0){
+              document.getElementById("searchsummary").style.display = "block"
+              document.getElementById("searchsummary").innerHTML = `Showing ${(currPage*perPage)+1} - ${endResults} of ${totalLength} results for <b>${instance.searchTerm}</b>`
+            }
+
             this.results = pageResults.map(r => {
                 let placeholderNodes = templateNodes(this.placeholderTemplate());
                 this.append(placeholderNodes);
@@ -199,7 +210,7 @@ const searchResultTemplate = (result) => {
   let base_result = `<li class="result base"><a class="link" href="${result.url}">
     <span class="section">${result.meta.site}</span>
     <span class="title">${base_title}</span>
-  </a></li>`;
+  `;
 
   const has_root_result = !result.sub_results[0].anchor;
   if (has_root_result) {
@@ -208,18 +219,17 @@ const searchResultTemplate = (result) => {
       <span class="section">${result.meta.site}</span>
       <span class="title">${base_title}</span>
       <span class="info">${root_result.excerpt}</span>
-    </a></li>`;
+    `;
   }
 
   result.sub_results.sort((a, b) => b.locations.length - a.locations.length);
 
   const subs = result.sub_results.slice(0, 3).map((sub) => {
-    return `<li class="result sub"><a class="link" href="${sub.url}">
-      <span class="title">${sub.title}
+    return `
       <span class="info">${sub.excerpt}</span>
-    </a></li>`;
+    `;
   });
-  return base_result + subs.join("\n");
+  return base_result + subs.join("\n") + `</a></li>`;
 };
 
 search.add(
@@ -242,7 +252,7 @@ class FilterPillsCustom {
         this.wrapper = null;
         this.pillContainer = null;
         this.available = {};
-        this.selected = ["All"];
+        this.selected = ["Documentation"];
         this.total = 0;
         this.filterMemo = "";
 
@@ -344,10 +354,11 @@ class FilterPillsCustom {
                 this.selected = [val];
             }
             if (!this.selected?.length) {
-                this.selected = ["All"];
+                this.selected = ["Documentation"];
             } else if (this.selected?.length > 1) {
                 this.selected = this.selected.filter(v => v !== "All");
             }
+            currPage = 0;
             this.update();
             this.pushFilters();
         })
@@ -365,6 +376,7 @@ class FilterPillsCustom {
 
     register(instance) {
         this.instance = instance;
+        instance.searchFilters = {"site":["Documentation"]} // change this maybe?
         this.instance.on("filters", (filters) => {
             if (!this.pillContainer) return;
 
@@ -392,7 +404,8 @@ class FilterPillsCustom {
                     return a[0].localeCompare(b[0]);
                 });
             }
-            this.available.unshift(["All", this.total]);
+            let total = this.available.reduce(function (acc, obj) { return acc + obj[1]; }, 0);
+            this.available.push(["All", total]);
             this.update();
         });
 
@@ -418,6 +431,7 @@ search.add(
   new FilterPillsCustom({
     containerElement: "#searchfilter",
     filter: "site",
+    ordering: ["Documentation","Guides","Changelog","All"]
   })
 );
 
@@ -461,11 +475,18 @@ if (messageElement) {
   });
 }
 
-function makePaginationBox(pagination,num)
+function makePaginationBox(pagination,text,num = text)
 {
   let box = document.createElement("div");
   box.classList.add("pagination-box");
-  box.innerHTML = num;
+  if(currPage+1 == num)
+    box.classList.add("active");
+
+  box.innerHTML = text;
+  box.addEventListener("click", e => {
+    currPage = num-1;
+    search.triggerSearch(search.searchTerm);
+  })
   pagination.append(box);
   return box;
 }
@@ -473,36 +494,68 @@ function makePaginationBox(pagination,num)
 search.on("results", (results) => {
   let pagination = document.getElementById("searchpagination");
   pagination.innerHTML = "";
-    if(results.results.length > 0){
-      document.getElementById("searchcontainer").classList.add("has-results")
-      let pages = Math.ceil(results.results.length / perPage);
-      let half = Math.floor(pages/2);
+  if(results.results.length > 0){
+    document.getElementById("searchcontainer").classList.add("has-results")
+    let pages = Math.ceil(results.results.length / perPage);
 
-      /* FIGURE OUT HOW TO MAKE THIS BETTER */
-      let prevbox = makePaginationBox(pagination,""); // prev
+    /* FIGURE OUT HOW TO MAKE THIS BETTER */
+    if(pages > 1 && currPage != 0)
+    {
+      let prevbox = makePaginationBox(pagination,"",currPage); // prev
       let prevsvg = document.createElement("img");
       prevsvg.src = "https://cdn.jsdelivr.net/npm/@material-design-icons/svg@0.14.15/outlined/arrow_back_ios.svg"
-      prevsvg.setAttribute("inline", true);
+      prevsvg.setAttribute("inline", '');
       prevbox.append(prevsvg);
+    }
 
+    if(pages > 1 && pages <= 7)
+    {
+      for(let i=1;i<=pages;i++)
+        makePaginationBox(pagination,i);
+    }
+    else if(pages >= 8)
+    {
+      // first 2
       makePaginationBox(pagination,1);
       makePaginationBox(pagination,2);
-      makePaginationBox(pagination,"…")
-      makePaginationBox(pagination,half);
-      makePaginationBox(pagination,"…");
+
+      // middle numbers
+      if(currPage < 4){
+        makePaginationBox(pagination,3);
+        makePaginationBox(pagination,4);
+        makePaginationBox(pagination,"…",5);
+      }
+      else if(currPage >= pages-4)
+      {
+        makePaginationBox(pagination,"…",pages-4);
+        makePaginationBox(pagination,pages-3);
+        makePaginationBox(pagination,pages-2);
+      }
+      else
+      {
+        makePaginationBox(pagination,"…",currPage);
+        makePaginationBox(pagination,currPage+1);
+        makePaginationBox(pagination,"…",currPage+2);
+      }
+
+      // last 2
       makePaginationBox(pagination,pages-1);
       makePaginationBox(pagination,pages);
+    }
 
-      let nextbox = makePaginationBox(pagination,""); // next
+    if(pages > 1 && currPage != pages-1)
+    {
+      let nextbox = makePaginationBox(pagination,"",currPage+2); // next
       let nextsvg = document.createElement("img");
       nextsvg.src = "https://cdn.jsdelivr.net/npm/@material-design-icons/svg@0.14.15/outlined/arrow_forward_ios.svg"
-      nextsvg.setAttribute("inline", true);
-      nextbox.append(nextsvg)
+      nextsvg.setAttribute("inline", '');
+      nextbox.append(nextsvg);
     }
-    else{
-      currPage = 0;
-      document.getElementById("searchcontainer").classList.remove("has-results")
-    }
+  }
+  else{
+    currPage = 0;
+    document.getElementById("searchcontainer").classList.remove("has-results")
+  }
 });
 
 // Prefetch links
