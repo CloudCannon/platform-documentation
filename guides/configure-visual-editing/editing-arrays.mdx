@@ -1,0 +1,68 @@
+---
+_schema: default
+_uuid: 99019ffd-f7bc-4f44-a852-03070878622e
+_created_at: 2025-08-26T11:45:15+12:00
+title: Editing arrays
+nav_title: Editing arrays
+order: 4
+published: true
+start_nav_group:
+image: >-
+  https://cc-dam.imgix.net/documentation/images/guides/getting-started/guide-thumbnails/CloudCannon-Getting-Started-Thumbnail-Universal.png
+description:
+---
+## Make Arrays Editable
+
+If your frontmatter has arrays (like tags or a team list):
+
+```markdown
+---
+title: "About Us"
+team_members:
+  - name: "John Doe"
+    role: "Developer"
+    bio: "Loves coding"
+  - name: "Jane Smith"
+    role: "Designer"
+    bio: "Creative problem solver"
+tags: ["astro", "web-development", "javascript"]
+---
+```
+
+Make them editable in your Astro component:
+
+```astro
+---
+const { frontmatter } = Astro.props;
+---
+
+<!-- Editable team members array -->
+<section>
+  <h2>Our Team</h2>
+  <array-editable data-prop="team_members">
+    {frontmatter.team_members?.map((member, index) => (
+      <array-item key={index}>
+        <div class="team-member">
+          <h3><text-editable data-prop="name">{member.name}</text-editable></h3>
+          <p><text-editable data-prop="role">{member.role}</text-editable></p>
+          <p><text-editable data-prop="bio" data-type="text">{member.bio}</text-editable></p>
+        </div>
+      </array-item>
+    ))}
+  </array-editable>
+</section>
+
+<!-- Editable simple tags array -->
+<div>
+  <h3>Tags:</h3>
+  <array-editable data-prop="tags">
+    {frontmatter.tags?.map((tag, index) => (
+      <array-item key={index}>
+        <span class="tag">
+          <text-editable data-prop="">{tag}</text-editable>
+        </span>
+      </array-item>
+    ))}
+  </array-editable>
+</div>
+```
