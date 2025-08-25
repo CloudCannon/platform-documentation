@@ -1,3 +1,338 @@
+
+collections_config:
+  pages:
+    path: 
+    glob:
+      - index.mdx
+      - guides.mdx
+      - changelog/*
+      - articles/index.mdx
+      - 404/*
+    url: /[slug]/
+    _enabled_editors:
+      - visual
+  developer_articles:
+    path: developer/articles
+    output: true
+    icon: article
+    url: /developer-articles/[slug]/
+    schemas:
+      default:
+        path: .cloudcannon/schemas/article.mdx
+      instructions:
+        path: .cloudcannon/schemas/article-instructions.mdx
+    _inputs:
+      $.title:
+        options:
+          required: true
+  user_articles:
+    path: user/articles
+    output: true
+    icon: article
+    url: /user-articles/[slug]/
+    schemas:
+      default:
+        path: .cloudcannon/schemas/article.mdx
+      instructions:
+        path: .cloudcannon/schemas/article-instructions.mdx
+    _inputs:
+      $.title:
+        options:
+          required: true
+  developer_guides:
+    path: developer/guides
+    output: true
+    icon: devices
+    url: /developer-guides/[relative_base_path]/[slug]/
+    schemas:
+      default:
+        path: .cloudcannon/schemas/guide-item.mdx
+      guide_data:
+        path: .cloudcannon/schemas/guide-data.yml
+        _inputs:
+          guide_target_ssgs:
+            type: multiselect
+            options:
+              values: _select_data.docs_ssgs
+              value_key: name
+              preview:
+                label:
+                  key: name
+          guide_series:
+            type: select
+            options:
+              values: _select_data.docs_guide_series
+              value_key: id
+              preview:
+                label:
+                  key: name
+      guide_landing_page:
+        path: .cloudcannon/schemas/guide-landing-page.mdx
+  user_guides:
+    path: user/guides
+    output: true
+    icon: devices
+    url: /user-guides/[relative_base_path]/[slug]/
+    schemas:
+      default:
+        path: .cloudcannon/schemas/guide-item.mdx
+      guide_data:
+        path: .cloudcannon/schemas/guide-data.yml
+        _inputs:
+          guide_target_ssgs:
+            type: multiselect
+            options:
+              values: _select_data.docs_ssgs
+              value_key: name
+              preview:
+                label:
+                  key: name
+          guide_series:
+            type: select
+            options:
+              values: _select_data.docs_guide_series
+              value_key: id
+              preview:
+                label:
+                  key: name
+  changelog:
+    path: changelogs
+    output: true
+    icon: newspaper
+    url: /changelog/{date|year}/{date|month}-{date|day}_{title|slugify}/
+    sort:
+      key: path
+      order: desc
+    create:
+      path: {date|month}-{date|day}_{title|slugify}.[ext]
+      _inputs:
+        date:
+          instance_value: NOW
+    schemas:
+      default:
+        path: .cloudcannon/schemas/changelog.mdx
+    _inputs:
+      title:
+        type: text
+        options:
+          required: true
+          required_message: Tell the people what they get
+          min_length: 5
+          min_length_message: Tell people a bit more than that
+  beta:
+    path: beta
+    name: Beta
+    icon: experiment
+  data:
+    path: _data
+  keys:
+    path: _keys
+    icon: key
+    preview:
+      text:
+        key: key_name
+      metadata:
+        - text:
+            key: key_value_type
+          icon: data_object
+        - text:
+            key: parent_keys
+          icon: escalator_warning
+    create:
+      path: [relative_base_path]/{key_name|slugify}.yml
+    schemas:
+      default:
+        path: .cloudcannon/schemas/key-definition.yml
+        _inputs:
+          key_name:
+            type: text
+          key_singular_name:
+            type: text
+          key_value_type:
+            type: multiselect
+            options:
+              values: _select_data.key_value_type
+              value_key: name
+              preview:
+                label:
+                  key: name
+          key_description:
+            type: markdown
+            options:
+              format: p h1 h2 h3 h4 h5 h6
+              blockquote: true
+              bold: true
+              italic: true
+              strike: true
+              subscript: true
+              superscript: true
+              underline: true
+              link: true
+              bulletedlist: true
+              numberedlist: true
+              code: true
+              embed: true
+              horizontalrule: true
+              table: true
+              snippet: true
+          key_documentation:
+            type: object
+            comment: Add a documentation link.
+            options:
+              subtype: object
+              structures:
+                values:
+                  - label: Key Documentation Link
+                    comment: For more information, please read our documentation on...
+                    value:
+                      text: null
+                      url: null
+          parent_keys:
+            type: multiselect
+            options:
+              values: collections.keys
+              value_key: key_name
+              preview:
+                label:
+                  key: key_name
+          subkeys:
+            type: multiselect
+            options:
+              values: collections.keys
+              value_key: key_name
+              preview:
+                label:
+                  key: key_name
+  reference:
+    path: _reference
+    icon: key
+    preview:
+      text:
+        key: key_name
+      metadata:
+        - text:
+            key: full_name
+          icon: code
+        - text:
+            key: value_type
+          icon: data_object
+        - text:
+            key: child_keys
+          icon: escalator_warning
+    create:
+      path: [relative_base_path]/{full_name|slugify}.yml
+    schemas:
+      default:
+        path: .cloudcannon/schemas/key-reference.yml
+        _inputs:
+          name:
+            type: text
+          full_name:
+            type: text
+          value_type:
+            type: multiselect
+            options:
+              values: _select_data.key_value_type
+              value_key: name
+              preview:
+                label:
+                  key: name
+          description:
+            type: markdown
+            options:
+              format: p h1 h2 h3 h4 h5 h6
+              blockquote: true
+              bold: true
+              italic: true
+              strike: true
+              subscript: true
+              superscript: true
+              underline: true
+              link: true
+              bulletedlist: true
+              numberedlist: true
+              code: true
+              embed: true
+              horizontalrule: true
+              table: true
+              snippet: true
+          examples:
+            type: markdown
+            options:
+              format: p h1 h2 h3 h4 h5 h6
+              blockquote: true
+              bold: true
+              italic: true
+              strike: true
+              subscript: true
+              superscript: true
+              underline: true
+              link: true
+              bulletedlist: true
+              numberedlist: true
+              code: true
+              embed: true
+              horizontalrule: true
+              table: true
+              snippet: true
+          parent_keys:
+            type: multiselect
+            options:
+              values: collections.reference
+              value_key: name
+              preview:
+                label:
+                  key: name
+          child_keys:
+            type: multiselect
+            options:
+              values: collections.reference
+              value_key: name
+              preview:
+                label:
+                  key: name
+  user_glossary:
+    path: user/glossary
+    icon: design_services
+    preview:
+      text:
+        key: key_name
+    schemas:
+      default:
+        path: .cloudcannon/schemas/glossary-term.yml
+        _inputs:
+          glossary_term_name:
+            type: text
+          term_description:
+            type: textarea
+            comment: Keep this as short as possible (i.e., 125 characters).
+            context:
+              open: false
+              title: Help
+              icon: help
+              content: Try not to use the term name in the description.
+            options:
+              show_count: true
+collection_groups:
+  - heading: Users
+    collections:
+      - user_articles
+      - user_guides
+      - user_glossary
+  - heading: Developers
+    collections:
+      - developer_articles
+      - developer_guides
+      - developer_reference
+  - heading: Other
+    collections:
+      - changelog
+      - pages
+  - heading: Data
+    collections:
+      - data
+      - beta
+      - common_content
 _snippets_imports:
   mdx: true
 _snippets:
@@ -888,335 +1223,6 @@ _select_data:
       icon: 'add_box'
     - name: 'Array of Strings'
       icon: 'abc'
-collections_config:
-  pages:
-    path: ''
-    glob:
-      - 'index.mdx'
-      - 'guides.mdx'
-      - 'changelog/*'
-      - 'articles/index.mdx'
-      - '404/*'
-    url: '/[slug]/'
-    _enabled_editors:
-      - 'visual'
-  developer_articles:
-    path: 'developer/articles'
-    output: true
-    icon: 'article'
-    url: '/developer-articles/[slug]/'
-    schemas:
-      default:
-        path: '.cloudcannon/schemas/article.mdx'
-      instructions:
-        path: '.cloudcannon/schemas/article-instructions.mdx'
-    _inputs:
-      $.title:
-        options:
-          required: true
-  user_articles:
-    path: 'user/articles'
-    output: true
-    icon: 'article'
-    url: '/user-articles/[slug]/'
-    schemas:
-      default:
-        path: '.cloudcannon/schemas/article.mdx'
-      instructions:
-        path: '.cloudcannon/schemas/article-instructions.mdx'
-    _inputs:
-      $.title:
-        options:
-          required: true
-  developer_guides:
-    path: 'developer/guides'
-    output: true
-    icon: 'devices'
-    url: '/developer-guides/[relative_base_path]/[slug]/'
-    schemas:
-      default:
-        path: '.cloudcannon/schemas/guide-item.mdx'
-      guide_data:
-        path: '.cloudcannon/schemas/guide-data.yml'
-        _inputs:
-          guide_target_ssgs:
-            type: 'multiselect'
-            options:
-              values: '_select_data.docs_ssgs'
-              value_key: 'name'
-              preview:
-                label:
-                  key: 'name'
-          guide_series:
-            type: 'select'
-            options:
-              values: '_select_data.docs_guide_series'
-              value_key: 'id'
-              preview:
-                label:
-                  key: 'name'
-      guide_landing_page:
-        path: '.cloudcannon/schemas/guide-landing-page.mdx'
-  user_guides:
-    path: 'user/guides'
-    output: true
-    icon: 'devices'
-    url: '/user-guides/[relative_base_path]/[slug]/'
-    schemas:
-      default:
-        path: '.cloudcannon/schemas/guide-item.mdx'
-      guide_data:
-        path: '.cloudcannon/schemas/guide-data.yml'
-        _inputs:
-          guide_target_ssgs:
-            type: 'multiselect'
-            options:
-              values: '_select_data.docs_ssgs'
-              value_key: 'name'
-              preview:
-                label:
-                  key: 'name'
-          guide_series:
-            type: 'select'
-            options:
-              values: '_select_data.docs_guide_series'
-              value_key: 'id'
-              preview:
-                label:
-                  key: 'name'
-  changelog:
-    path: 'changelogs'
-    output: true
-    icon: 'newspaper'
-    url: '/changelog/{date|year}/{date|month}-{date|day}_{title|slugify}/'
-    sort:
-      key: 'path'
-      order: 'desc'
-    create:
-      path: '{date|month}-{date|day}_{title|slugify}.[ext]'
-      _inputs:
-        date:
-          instance_value: 'NOW'
-    schemas:
-      default:
-        path: '.cloudcannon/schemas/changelog.mdx'
-    _inputs:
-      title:
-        type: 'text'
-        options:
-          required: true
-          required_message: 'Tell the people what they get'
-          min_length: 5
-          min_length_message: 'Tell people a bit more than that'
-  data:
-    path: '_data'
-  keys:
-    path: '_keys'
-    icon: 'key'
-    preview:
-      text:
-        key: 'key_name'
-      metadata:
-        - text:
-            key: 'key_value_type'
-          icon: 'data_object'
-        - text:
-            key: 'parent_keys'
-          icon: 'escalator_warning'
-    create:
-      path: '[relative_base_path]/{key_name|slugify}.yml'
-    schemas:
-      default:
-        path: '.cloudcannon/schemas/key-definition.yml'
-        _inputs:
-          key_name:
-            type: 'text'
-          key_singular_name:
-            type: 'text'
-          key_value_type:
-            type: 'multiselect'
-            options:
-              values: '_select_data.key_value_type'
-              value_key: 'name'
-              preview:
-                label:
-                  key: 'name'
-          key_description:
-            type: 'markdown'
-            options:
-              format: 'p h1 h2 h3 h4 h5 h6'
-              blockquote: true
-              bold: true
-              italic: true
-              strike: true
-              subscript: true
-              superscript: true
-              underline: true
-              link: true
-              bulletedlist: true
-              numberedlist: true
-              code: true
-              embed: true
-              horizontalrule: true
-              table: true
-              snippet: true
-          key_documentation:
-            type: 'object'
-            comment: 'Add a documentation link.'
-            options:
-              subtype: 'object'
-              structures:
-                values:
-                  - label: 'Key Documentation Link'
-                    comment: 'For more information, please read our documentation on...'
-                    value:
-                      text: null
-                      url: null
-          parent_keys:
-            type: 'multiselect'
-            options:
-              values: 'collections.keys'
-              value_key: 'key_name'
-              preview:
-                label:
-                  key: 'key_name'
-          subkeys:
-            type: 'multiselect'
-            options:
-              values: 'collections.keys'
-              value_key: 'key_name'
-              preview:
-                label:
-                  key: 'key_name'
-  reference:
-    path: '_reference'
-    icon: 'key'
-    preview:
-      text:
-        key: 'key_name'
-      metadata:
-        - text:
-            key: 'full_name'
-          icon: 'code'
-        - text:
-            key: 'value_type'
-          icon: 'data_object'
-        - text:
-            key: 'child_keys'
-          icon: 'escalator_warning'
-    create:
-      path: '[relative_base_path]/{full_name|slugify}.yml'
-    schemas:
-      default:
-        path: '.cloudcannon/schemas/key-reference.yml'
-        _inputs:
-          name:
-            type: 'text'
-          full_name:
-            type: 'text'
-          value_type:
-            type: 'multiselect'
-            options:
-              values: '_select_data.key_value_type'
-              value_key: 'name'
-              preview:
-                label:
-                  key: 'name'
-          description:
-            type: 'markdown'
-            options:
-              format: 'p h1 h2 h3 h4 h5 h6'
-              blockquote: true
-              bold: true
-              italic: true
-              strike: true
-              subscript: true
-              superscript: true
-              underline: true
-              link: true
-              bulletedlist: true
-              numberedlist: true
-              code: true
-              embed: true
-              horizontalrule: true
-              table: true
-              snippet: true
-          examples:
-            type: 'markdown'
-            options:
-              format: 'p h1 h2 h3 h4 h5 h6'
-              blockquote: true
-              bold: true
-              italic: true
-              strike: true
-              subscript: true
-              superscript: true
-              underline: true
-              link: true
-              bulletedlist: true
-              numberedlist: true
-              code: true
-              embed: true
-              horizontalrule: true
-              table: true
-              snippet: true
-          parent_keys:
-            type: 'multiselect'
-            options:
-              values: 'collections.reference'
-              value_key: 'name'
-              preview:
-                label:
-                  key: 'name'
-          child_keys:
-            type: 'multiselect'
-            options:
-              values: 'collections.reference'
-              value_key: 'name'
-              preview:
-                label:
-                  key: 'name'
-  user_glossary:
-    path: 'user/glossary'
-    icon: 'design_services'
-    preview:
-      text:
-        key: 'key_name'
-    schemas:
-      default:
-        path: '.cloudcannon/schemas/glossary-term.yml'
-        _inputs:
-          glossary_term_name:
-            type: 'text'
-          term_description:
-            type: 'textarea'
-            comment: 'Keep this as short as possible (i.e., 125 characters).'
-            context:
-              open: false
-              title: 'Help'
-              icon: 'help'
-              content: 'Try not to use the term name in the description.'
-            options:
-              show_count: true
-collection_groups:
-  - heading: 'Users'
-    collections:
-      - 'user_articles'
-      - 'user_guides'
-      - 'user_glossary'
-  - heading: 'Developers'
-    collections:
-      - 'developer_articles'
-      - 'developer_guides'
-      - 'developer_reference'
-  - heading: 'Other'
-    collections:
-      - 'changelog'
-      - 'pages'
-  - heading: 'Data'
-    collections:
-      - 'data'
-      - 'common_content'
 _editables:
   content:
     format: 'p h1 h2 h3 h4 h5 h6'
