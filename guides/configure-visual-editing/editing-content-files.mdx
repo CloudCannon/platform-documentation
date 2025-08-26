@@ -58,7 +58,14 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 		<main>
 			<article>
 				<div class="hero-image">
-					{heroImage && <img width={1020} height={510} src={heroImage} alt="" />} /*1*/
+                    {heroImage &&
+                        <img /*1*/
+                          width={1020}
+                          height={510}
+                          src={heroImage}
+                          alt=""
+                        />
+                      }
 				</div>
 				<div class="prose">
 					<div class="title">
@@ -115,34 +122,11 @@ This file is the blog layout, containing templating for the values of each blog 
 <comp.CodeBlock language="Astro" source="BlogPost.astro">
 ``````````
 
-<div class="hero-image">
-    {heroImage && <img width={1020} height={510} src={heroImage} alt="" />} /*1*/
-</div>
-<div class="prose">
-    <div class="title">
-        <div class="date">
-            <FormattedDate date={pubDate} /> /*2*/
-            {
-                updatedDate && (
-                    <div class="last-updated-on">
-                        Last updated on <FormattedDate date={updatedDate} />
-                    </div>
-                )
-            }
-        </div>
+<h1>{title}</h1> /*1*/
 
 ``````````
 <comp.Annotation number="1">
   This `<img>` element contains image width, height, source, and alt text attributes. The `src` attribute is set to the template `{heroImage}`, which draws its value from the `heroImage` key in the front matter of a blog file.
-</comp.Annotation>
-<comp.Annotation number="2">
-  This `<FormattedDate>` element contains a date attribute, set to the template `{pubDate}`. This value comes from the `pubDate` key in the front matter of a blog file.
-</comp.Annotation>
-<comp.Annotation number="3">
-  This `<h1>` element surrounds the template value `{title}`. This value comes from the `title` key in the front matter of a blog file.
-</comp.Annotation>
-<comp.Annotation number="4">
-  This `<slot />` element marks where the markup content from a blog file will go.
 </comp.Annotation>
 </comp.CodeBlock>
 
@@ -172,12 +156,40 @@ This file is the blog layout, containing templating for the values of each blog 
 
 ``````````
 <comp.Annotation number="1">
-  This `<img>` element contains image width, height, source, and alt text attributes. The `src` attribute is set to the template `{heroImage}`, which draws its value from the `heroImage` key in the front matter of a blog file.
+  The `data-editable` attribute defines what kind of data
 </comp.Annotation>
 <comp.Annotation number="2">
-  This `<FormattedDate>` element contains a date attribute, set to the template `{pubDate}`. This value comes from the `pubDate` key in the front matter of a blog file.
+  This `data-prop-src` attribute
 </comp.Annotation>
 </comp.CodeBlock>
+
+## Date data in your front matter
+
+In our example, there are three types of structured data....
+
+This file is the blog layout, containing templating for the values of each blog file.
+
+<comp.CodeBlock language="Astro" source="BlogPost.astro">
+``````````
+
+<div class="date">
+    <FormattedDate date={pubDate} /> /*1*/
+    {
+        updatedDate && (
+            <div class="last-updated-on">
+                Last updated on <FormattedDate date={updatedDate} />
+            </div>
+        )
+    }
+</div>
+
+``````````
+<comp.Annotation number="1">
+  This `<img>` element contains image width, height, source, and alt text attributes. The `src` attribute is set to the template `{heroImage}`, which draws its value from the `heroImage` key in the front matter of a blog file.
+</comp.Annotation>
+</comp.CodeBlock>
+
+Together, these files output a webpage that looks like this:
 
 ## Markdown content
 
@@ -186,21 +198,7 @@ x
 <comp.CodeBlock language="Astro" source="BlogPost.astro">
 ``````````
 
-<div class="hero-image">
-    {heroImage && <img width={1020} height={510} src={heroImage} alt="" />} /*1*/
-</div>
-<div class="prose">
-    <div class="title">
-        <div class="date">
-            <FormattedDate date={pubDate} /> /*2*/
-            {
-                updatedDate && (
-                    <div class="last-updated-on">
-                        Last updated on <FormattedDate date={updatedDate} />
-                    </div>
-                )
-            }
-        </div>
+<slot /> /*1*/
 
 ``````````
 <comp.Annotation number="1">
