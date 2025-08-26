@@ -502,7 +502,8 @@ search.on("results", (results) => {
   let pagination = document.getElementById("searchpagination");
   pagination.innerHTML = "";
   if(results.results.length > 0){
-    document.getElementById("searchcontainer").classList.add("has-results")
+    document.getElementById("searchcontainer").classList.add("has-results");
+    pagination.classList.add("show");
     let pages = Math.ceil(results.results.length / perPage);
 
     /* FIGURE OUT HOW TO MAKE THIS BETTER */
@@ -561,7 +562,8 @@ search.on("results", (results) => {
   }
   else{
     currPage = 0;
-    document.getElementById("searchcontainer").classList.remove("has-results")
+    document.getElementById("searchcontainer").classList.remove("has-results");
+    pagination.classList.remove("show");
   }
 });
 
