@@ -147,11 +147,13 @@ Here's what our blog layout code should look like:
 </comp.Annotation>
 </comp.CodeBlock>
 
-Editing
+Editing the blog author is slightly more complicated.
 
-&nbsp;
+In the blog layout, the `{author}` templating inside the `<p>` tag is populated by the value of the `author` key in the front matter of each blog file. Just like the title example, we need to add the `data-editable="text"` and `data-prop="author"` attributes to enable inline editing in the Visual Editor. However, if we add those attributes directly to the `<p>` tag, we won't be able to see the "By:" plain text that prepends the author value.
 
-&nbsp;
+If we add `<p data-editable="text" data-prop="author">` to our blog layout, the Visual Editor would re-render to the field to show the value of `author`, hiding the plain text. It is important to note that Text Editables don't modify the code of your templating, so the "By:" plain text is not destroyed. Instead, they update the value of the front matter key and re-render the webpage preview. This leads to a mismatch in the appearance of the built Site, which includes "By:" before the author name, and the preview in the Visual Editor, which would not.
+
+To avoid this issue, we can specifically wrap the `{author}` templating in a `<text-editable>` web component. The `<text-editable>` component replaces the need for the `data-editable="text"` attribute, telling CloudCannon what type of data we are editing. We can add the `data-prop="author"` attribute to this web component.
 
 Here's what our blog layout code should look like:
 
