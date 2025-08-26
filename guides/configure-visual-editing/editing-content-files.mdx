@@ -17,7 +17,7 @@ Most content files are hybrid files, with a YAML front matter section containing
 
 Let's take a look at an example. Even though this example is for the SSG Astro, most SSGs that CloudCannon supports will use a similar model (i.e., populating a layout file with values from each content file to generate a page).
 
-This file is a blog post, containing structured data keys for `title`, `description`, `pubDate`, and `heroImage` in the front matter, and Markdown content in the body of the file.
+This file is a blog post, containing structured data keys for `title`, `description`, `author`, `pubDate`, and `heroImage` in the front matter, and Markdown content in the body of the file.
 
 <comp.CodeBlock language="markdown" source="first-post.mdx">
 ``````````
@@ -25,6 +25,7 @@ This file is a blog post, containing structured data keys for `title`, `descript
 ---
 title: 'First post'
 description: 'Lorem ipsum dolor sit amet'
+author: 'C. Kent'
 pubDate: 'Jul 08 2022'
 heroImage: '../../assets/blog-placeholder-3.jpg'
 ---
@@ -80,9 +81,10 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 							}
 						</div>
 						<h1>{title}</h1> /*3*/
+                        <p>By: {author}</p> /*4*/
 						<hr />
 					</div>
-					<slot /> /*4*/
+					<slot /> /*5*/
 				</div>
 			</article>
 		</main>
@@ -100,7 +102,10 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 <comp.Annotation number="3">
   This `<h1>` element surrounds the template value `{title}`. This value comes from the `title` key in the front matter of a blog file.
 </comp.Annotation>
-<comp.Annotation number="4">
+<comp.Annotation number="5">
+  This `<p>` element surrounds the template value `{author}`, prepended by the plain text "By:". This value comes from the `author` key in the front matter of a blog file.
+</comp.Annotation>
+<comp.Annotation number="5">
   This `<slot />` element marks where the markup content from a blog file will go.
 </comp.Annotation>
 </comp.CodeBlock>
@@ -112,6 +117,12 @@ Together, these files output a webpage that looks like this:
 When you open a content file like `first-post.mdx` in the Visual Editor, CloudCannon will automatically add Inputs to the sidebar for you to edit the structured data in your front matter, but you can't change your content or edit directly on the page. Let's fix that by adding CloudCannon Editables to your blog layout file.
 
 <comp.DocShot docshot_key="" alt="" title=""/>
+
+In this step of the guide, we'll add the following components and attributes:
+
+* `data-editable=""` —
+* `data-prop=""` — This attribute defines the path to the data property you want to edit.
+* `<text-editable>` — This web component allows you to wrap other elements and apply Editable attributes. This is useful if you want to edit an element that can't take attributes.
 
 ## Text data in your front matter
 
@@ -209,74 +220,3 @@ x
 </comp.CodeBlock>
 
 Because `<slot />` is not a DOM element, we need to add one
-
-In your Astro component that displays this content:
-
-<comp.CodeBlock language="">
-``````````
-
----
-// src/pages/blog/[slug].astro or src/layouts/BlogPost.astro
-const { frontmatter } = Astro.props;
----
-
-<html>
-<head>
-  <title>{frontmatter.title}</title>
-</head>
-<body>
-  <!-- Make the title editable -->
-  <h1>
-    <text-editable data-prop="title">{frontmatter.title}</text-editable>
-  </h1>
-
-  <!-- Make the description editable -->
-  <p>
-    <text-editable data-prop="description" data-type="text">
-      {frontmatter.description}
-    </text-editable>
-  </p>
-
-  <!-- Make the author editable -->
-  <p>By: <text-editable data-prop="author">{frontmatter.author}</text-editable></p>
-
-  <!-- The content becomes editable automatically -->
-  <div>
-    <text-editable data-prop="@content">
-      <slot />
-    </text-editable>
-  </div>
-</body>
-</html>
-
-``````````
-</comp.CodeBlock>
-
-&nbsp;
-
-```astro
-
-```
-
-### Alternative: Using Data Attributes
-
-If you prefer not to use custom elements, you can use data attributes:
-
-<comp.CodeBlock language="">
-``````````
-
-<h1 data-editable="text" data-prop="title">{frontmatter.title}</h1>
-<p data-editable="text" data-prop="description" data-type="text">
-  {frontmatter.description}
-</p>
-<p>By: <span data-editable="text" data-prop="author">{frontmatter.author}</span></p>
-<div data-editable="text" data-prop="@content">
-  <slot />
-</div>
-
-``````````
-</comp.CodeBlock>
-
-```astro
-
-```
