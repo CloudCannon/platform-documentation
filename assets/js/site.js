@@ -35,7 +35,8 @@ originalClear.parentNode.replaceChild(clonedClear, originalClear);
 clonedClear.addEventListener("click", e => {
   clonedElement.value = "";
   search.triggerSearch("");
-  document.getElementById("searchsummary").style.display = "none"
+  document.getElementById("searchsummary").style.display = "none";
+  clonedClear.setAttribute("data-pfmod-hidden",true);
 })
 
 clonedElement.placeholder = "Search this site";
@@ -45,9 +46,11 @@ clonedElement.addEventListener("input", e => {
     search.triggerSearch(`${query.trim()}`);
 
   if (query && query?.length) {
-      clonedClear.removeAttribute("data-pfmod-suppressed");
+    document.querySelector(".mobile-filters").removeAttribute("data-pfmod-suppressed");
+    clonedClear.removeAttribute("data-pfmod-suppressed");
   } else {
-      clonedClear.setAttribute("data-pfmod-suppressed", "true");
+    document.querySelector(".mobile-filters").setAttribute("data-pfmod-suppressed", "true");
+    clonedClear.setAttribute("data-pfmod-suppressed", "true");
   }
 })
 
@@ -426,6 +429,10 @@ class FilterPillsCustom {
         });
     }
 }
+
+document.querySelector(".mobile-filters").addEventListener("click", e => {
+  document.getElementById("searchfilter").classList.toggle("open");
+})
 
 search.add(
   new FilterPillsCustom({
