@@ -233,12 +233,20 @@ Together, these files output a webpage that looks like this:
 
 ## Markdown content
 
-x
+Editing the body of a content file in the Visual Editor is the most intuitive editing experience for CloudCannon users.
+
+In the blog layout, the `<slot />` element is populated by the Markdown content in the main body of each blog file. However, because `<slot />` is not a DOM element, we can't add the `data-editable=""` and `data-prop=""` attributes directly. To get around this issue, we can specifically wrap the `<slot />` element in a `<text-editable>` web component.
+
+The `<text-editable>` component replaces the need for the `data-editable="text"` attribute, telling CloudCannon what type of data we are editing. But, what is the value of the `data-prop=""` attribute? There are no front matter keys we can reference to tell CloudCannon where the data is stored.
+
+In this case, we can use the special value `@content` to specify Markdown content in the body of a content file.
+
+Here's what our blog layout code should look like:
 
 <comp.CodeBlock language="Astro" source="BlogPost.astro">
 ``````````
 
-<text-editable data-editable="@content"> /*1*/
+<text-editable data-prop="@content"> /*1*/
     <slot />
 </text-editable>
 
@@ -248,4 +256,6 @@ x
 </comp.Annotation>
 </comp.CodeBlock>
 
-Because `<slot />` is not a DOM element, we need to add one
+If we save and rebuild our Site, a yellow editable box will appear around the blog content in the Visual Editor, enabling inline editing.
+
+<comp.DocShot docshot_key="" alt="" title=""/>
