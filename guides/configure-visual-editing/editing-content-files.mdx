@@ -19,7 +19,7 @@ Let's take a look at an example. Even though this example is for the SSG Astro, 
 
 This file is a blog post, containing structured data keys for `title`, `description`, `pubDate`, and `heroImage` in the front matter, and Markdown content in the body of the file.
 
-<comp.CodeBlock language=".mdx" source="first-post.mdx">
+<comp.CodeBlock language="markdown" source="first-post.mdx">
 ``````````
 
 ---
@@ -122,11 +122,11 @@ This file is the blog layout, containing templating for the values of each blog 
 <comp.CodeBlock language="Astro" source="BlogPost.astro">
 ``````````
 
-<h1>{title}</h1> /*1*/
+<h1 data-editable="text" data-prop="title" >{title}</h1> /*1*/
 
 ``````````
 <comp.Annotation number="1">
-  This `<img>` element contains image width, height, source, and alt text attributes. The `src` attribute is set to the template `{heroImage}`, which draws its value from the `heroImage` key in the front matter of a blog file.
+  The `data-editable` attribute defines what kind of data this element contains. In this case, the value is `text`. The `data-prop` attribute defines where data is stored. In this case, we are editing the value of the `title` key in the file front matter.
 </comp.Annotation>
 </comp.CodeBlock>
 
@@ -156,14 +156,14 @@ This file is the blog layout, containing templating for the values of each blog 
 
 ``````````
 <comp.Annotation number="1">
-  The `data-editable` attribute defines what kind of data
+  The `data-editable` attribute defines what kind of data this element contains. In this case, the value is `image`.
 </comp.Annotation>
 <comp.Annotation number="2">
-  This `data-prop-src` attribute
+  The `data-prop-src` attribute defines where data is stored. In this case, we are editing the value of the `heroImage` key in the file front matter.
 </comp.Annotation>
 </comp.CodeBlock>
 
-## Date data in your front matter
+## Dates in your front matter
 
 In our example, there are three types of structured data....
 
@@ -198,24 +198,17 @@ x
 <comp.CodeBlock language="Astro" source="BlogPost.astro">
 ``````````
 
-<slot /> /*1*/
+<text-editable data-editable="@content"> /*1*/
+    <slot />
+</text-editable>
 
 ``````````
 <comp.Annotation number="1">
-  This `<img>` element contains image width, height, source, and alt text attributes. The `src` attribute is set to the template `{heroImage}`, which draws its value from the `heroImage` key in the front matter of a blog file.
-</comp.Annotation>
-<comp.Annotation number="2">
-  This `<FormattedDate>` element contains a date attribute, set to the template `{pubDate}`. This value comes from the `pubDate` key in the front matter of a blog file.
-</comp.Annotation>
-<comp.Annotation number="3">
-  This `<h1>` element surrounds the template value `{title}`. This value comes from the `title` key in the front matter of a blog file.
-</comp.Annotation>
-<comp.Annotation number="4">
-  This `<slot />` element marks where the markup content from a blog file will go.
+  The `<slot />` element is wrapped in the `<text-editable>` web component, which can take Editable attributes. The `data-prop` attribute defines where data is stored. In this case, we are editing the content of the file outside of the front matter, signified by the special value `@content`.
 </comp.Annotation>
 </comp.CodeBlock>
 
-&nbsp;
+Because `<slot />` is not a DOM element, we need to add one
 
 In your Astro component that displays this content:
 
