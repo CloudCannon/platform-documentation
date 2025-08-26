@@ -50,7 +50,7 @@ import Header from '../components/Header.astro';
 
 type Props = CollectionEntry<'blog'>['data'];
 
-const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
+const { title, description, author, pubDate, updatedDate, heroImage } = Astro.props;
 ---
 
 <html lang="en">
@@ -124,11 +124,15 @@ In this step of the guide, we'll add the following components and attributes:
 * `data-prop=""` — This attribute defines the path to the data property you want to edit.
 * `<text-editable>` — This web component allows you to wrap other elements and apply Editable attributes. This is useful if you want to edit an element that can't take attributes.
 
-## Text data in your front matter
+## Text in your front matter
 
-In our example, there are three types of structured data....
+In our example above, there are two text front matter keys we want to edit: `title` and `author`.
 
-This file is the blog layout, containing templating for the values of each blog file.
+In the blog layout, the `{title}` templating inside the `<h1>` tag is populated by the value of the `title` key in the front matter of each blog file. To allow CloudCannon to re-render this field in the Visual Editor for inline editing, we need to add the `data-editable=""` and `data-prop=""` attributes to the `<h1>` tag in the blog layout.
+
+The value for `data-editable` should be `text`, as text is the type of data stored under the `title` key. The value for `data-prop` should be `title`, as this is the path to the data property we want to edit (we'll dive deeper into paths for the `data-prop` attribute in the [Advanced data property paths]() step of this guide).
+
+Here's what our blog layout code should look like:
 
 <comp.CodeBlock language="Astro" source="BlogPost.astro">
 ``````````
@@ -141,9 +145,24 @@ This file is the blog layout, containing templating for the values of each blog 
 </comp.Annotation>
 </comp.CodeBlock>
 
-Together, these files output a webpage that looks like this:
+&nbsp;
 
-## Images in front matter
+In the ...
+
+<comp.CodeBlock language="Astro" source="BlogPost.astro">
+``````````
+
+<p>By: <text-editable data-prop="author">{author}</text-editable></p> /*1*/
+
+``````````
+<comp.Annotation number="1">
+  The `data-editable` attribute defines what kind of data this element contains. In this case, the value is `text`. The `data-prop` attribute defines where data is stored. In this case, we are editing the value of the `title` key in the file front matter.
+</comp.Annotation>
+</comp.CodeBlock>
+
+&nbsp;
+
+## Images in your front matter
 
 x
 
