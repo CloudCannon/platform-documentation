@@ -315,6 +315,7 @@ site.process([".html"], (pages) => Promise.all(pages.map(async (page) => {
 
     let tocContainer = page.document?.querySelectorAll(`.l-toc`)?.[0];
     const toc = page.document.createElement('ol');
+    toc.setAttribute("x-data","")
     toc.classList.add("l-toc__list");
     function appendAnchorHeader(el, slug) {
         el.setAttribute('id', slug);
@@ -348,6 +349,11 @@ site.process([".html"], (pages) => Promise.all(pages.map(async (page) => {
         if (tocContainer) {
             hasItems = true;
             const li = page.document.createElement('li');
+            li.setAttribute(
+            "x-bind:class",
+            `visibleHeadingId === '${slug}' ? 'active' : ''`
+            );
+
             li.appendChild(createLink(page, text, `#${slug}`));
             toc.appendChild(li);
         }
@@ -371,6 +377,10 @@ site.process([".html"], (pages) => Promise.all(pages.map(async (page) => {
     page.document?.querySelectorAll('a').forEach((el) => {
         appendTargetBlank(page, el);
     });
+
+    let mobile_toc = page.document.querySelector(".l-toc-mobile > .l-toc__list");
+    if(mobile_toc)
+        mobile_toc.innerHTML = toc?.innerHTML;
 })));
 
 // These MUST appear after our custom site.process([".html"] handling,
