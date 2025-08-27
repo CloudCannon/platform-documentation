@@ -14,9 +14,23 @@ layout: layouts/base.njk
             <p class="changelog-entry__eyebrow">Changelog</p>
             <h1 data-pagefind-body class="l-heading changelog-entry__heading">{{ title }}</h1>
             <p class="changelog-entry__date">{{ date | DATE_TO_NOW }}</p>
-            <main data-pagefind-body data-pagefind-filter="site:Changelog" data-pagefind-meta="site:Changelog">
-                {{ content | safe }}
-            </main>
+            <div class="l-toc-mobile" x-data="{toc_open:false}" @click="toc_open = !toc_open">
+                <h3 :class="toc_open ? 'open' : ''">Table of contents <img src="{{ "arrow_forward_ios:outlined" | icon("material") }}" inline/></h3>
+                <div class="l-toc__list" :class="toc_open ? 'open' : ''"></div>
+                <!-- "On this page" -->
+            </div>
+            <div class="l-content-split" x-data="$visibleNavHighlighter">
+                <main data-pagefind-body data-pagefind-filter="site:Changelog" data-pagefind-meta="site:Changelog">
+                    <div class="changelog-entry">
+                        {{ content | safe }}
+                    </div>
+                </main>
+                <aside data-pagefind-ignore class="l-right">
+                    <div class="l-toc-changelog-list" x-on:scroll.window.throttle.50ms="onScroll()">
+                        <!-- "On this page" -->
+                    </div>
+                </aside>
+            </div>
         </div>
     </div>
 </div>

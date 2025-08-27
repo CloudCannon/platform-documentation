@@ -332,7 +332,7 @@ site.process([".html"], (pages) => Promise.all(pages.map(async (page) => {
     if(!tocContainer){
         tocContainer = page.document?.querySelectorAll(`.l-toc-changelog-list`)?.[0];
         if(tocContainer)
-            selector = `main .changelog-entry > h2:first-of-type`;
+            selector = `main .changelog-entry > h2, main .changelog-entry > h3`;
     }
 
     page.document?.querySelectorAll(selector).forEach((el) => {
