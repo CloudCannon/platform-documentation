@@ -1,10 +1,10 @@
 ---
 _schema: default
-_uuid: 54bbb119-852f-4e1a-a4cd-172ffb1abe05
-_created_at: 2025-08-26T11:46:52+12:00
-title: Editing HTML-like files
-nav_title: Editing HTML-like files
-order: 4
+_uuid: 5095ec21-834a-40b8-9a29-73f4eb99cab0
+_created_at: 2025-08-28T08:53:07+12:00
+title: Editing arrays and page building
+nav_title: Editing arrays and page building
+order: 5
 published: true
 start_nav_group:
 image: >-
@@ -82,43 +82,111 @@ In this step of the guide, we'll add the following attributes:
 
 For a complete list of configuration options for CloudCannon Editables, please read our [Editables reference](/documentation/articles/editables-reference) documentation.
 
-## Editing HTML **or template source code**
+## Editing arrays or page building
 
-The Home page is mostly comprised of text inside `<h1>`, `<p>`, and `<ul>` tags. Let's enable editing in the Visual Editor by adding the attributes `data-editable`, `data-path`, and `data-key` to the `<main>` tag.
+...
 
-To define what type of data we are editing, we need to add the `data-editable` attribute to the `<main>` tag. This time the value should be `source`, as the `<main>` tag has nested HTML as well as text. We could also wrap the `<main>` element in the equivalent web component `<source-editables>`, however that is not as efficient as adding attributes to existing elements.
-
-<comp.Notice info_type="info">
-  <p>When using <code>data-editable="source"</code>, CloudCannon also requires you to define the <code>data-path</code> and <code>data-key</code> attributes.</p>
-</comp.Notice>
-
-The `data-path` attribute is similar to `data-prop`; it defines the location that data is stored. However, unlike the changes we made to the blog layout file in the [previous step of this guide](/documentation/guides/configure-visual-editing/editing-content-files/), our Home page stores text directly within the HTML elements, not in a structured data key. We want CloudCannon to update the value of this file every time we edit in the Visual Editor, so let's make the value the path of the file: `/src/pages/index.astro`.
-
-The `data-key` attribute acts as a unique identifier for an editable region. This means if you have several editable regions in one file, CloudCannon knows which value to update. We recommend choosing a key that provides context for which area of your code an editable region affects. In this example, we'll use the value `main`.
-
-Here's what our Home page code should look like:
-
-<comp.CodeBlock language="Astro" source="index.astro">
+<comp.CodeBlock language="Markdown" source="index.mdx">
 ``````````
 
-<main data-editable="source" data-path="/src/pages/index.astro" data-key="main"> /*1*/
+---
+title: Home
+content_blocks:
+  component_name: testimonial
+    title: Build relationships that
+    title_suffix: last
+    description: >-
+      Customers from around the world are building game changing email marketing
+      campaigns.
+    slider:
+      - image: /images/testimonial/logo-2.jpg
+        image_alt: Profile photo of Pete Fish
+        author: Pete Fish
+        designation: CMO at Clear Appeal
+        message: >-
+          Sendit has taken Clear Appeal to the next level with it's beautiful
+          targetted email campaigns.
+      - image: /images/testimonial/logo-3.jpg
+        image_alt: Profile photo of Dolly Watson
+        author: Dolly Watson
+        designation: Digital Marketer at Time Cop
+        message: >-
+          Wow, what a difference Sendit has made. My customers are more engaged
+          than ever.
+      - image: /images/testimonial/logo-4.jpg
+        image_alt: Profile photo of Simon Moriarty
+        author: Simon Moriarty
+        designation: Head of Marketing at Pinnacle Mines
+        message: >-
+          I can't imagine life without Sendit now, I have no idea how we were
+          surviving before.
+---
 
 ``````````
-<comp.Annotation number="1">
-  This `<img>` element contains image width, height, source, and alt text attributes. The `src` attribute is set to the template `{heroImage}`, which draws its value from the `heroImage` key in the front matter of a blog file.
-</comp.Annotation>
 </comp.CodeBlock>
-
-If we save and rebuild our Site, a yellow editable box will appear around the content on the Home page in the Visual Editor, enabling inline editing.
-
-<comp.DocShot docshot_key="" alt="" title=""/>
-
-You might notice that a WYSIWYG toolbar appears above your content when you click into the editable region.
 
 &nbsp;
 
-heading elements don't support block level content
+<comp.CodeBlock language="Markdown" source="index.mdx">
+``````````
 
-You can get a WYSIWYG toolbar for structured data keys if your configure your input to be a markdown type.
+import MarkdownIt from "markdown-it";
+const md = new MarkdownIt({ html: true });
+
+export default function GlobalTestimonial(block) {
+  return (
+    <section className="testimonial">
+      <div className="container">
+        <div className="row align-items-center">
+          <div className="col-lg-8 mx-auto text-center mb-5">
+            <div className="testimonial-content">
+              <h2>
+                {block.title} <span> {block.title_suffix}</span>
+              </h2>
+              <div
+                dangerouslySetInnerHTML={{
+                  __html: md.render(block.description),
+                }}
+              />
+            </div>
+          </div>
+        </div>
+        <div className="row">
+          {block.slider.map((slide, i) => (
+            <Testimonial slide={slide} i={i} key={i} />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+function Testimonial({ slide, i }) {
+  return (
+    <div className="col-lg-4 col-md-6 mb-5" key={i}>
+      <div className="testimonial-item">
+        <div className="testimonial-item-person">
+          <div className="thumb">
+            <img
+              src={slide.image}
+              alt="logo"
+              className={slide.image_alt}
+              loading="lazy"
+            />
+          </div>
+          <div className="content">
+            <h3>{slide.author}</h3>
+            <p>{slide.designation}</p>
+          </div>
+        </div>
+        <p>{slide.message}</p>
+      </div>
+    </div>
+  );
+}
+
+``````````
+</comp.CodeBlock>
+
+&nbsp;
 
 &nbsp;
