@@ -68,15 +68,20 @@ layout: layouts/base.njk
               <img src="/assets/img/arrow.svg" class="t-docs-nav__base__icon" inline>
           </div>-->
         </aside>
-        <div class="u-card-box l-content">
+        <div class="u-card-box l-content" x-data="$visibleNavHighlighter">
             <h1 data-pagefind-body class="l-heading u-margin-bottom-0">{{ title }}</h1>
             <p data-pagefind-body class="l-subheading">{{ description }}</h1>
+            <div class="l-toc-mobile" x-data="{toc_open:false}" @click="toc_open = !toc_open">
+                <h3 :class="toc_open ? 'open' : ''">Table of contents <img src="{{ "arrow_forward_ios:outlined" | icon("material") }}" inline/></h3>
+                <div class="l-toc__list" :class="toc_open ? 'open' : ''"></div>
+                <!-- "On this page" -->
+            </div>
             <div data-pagefind-body data-pagefind-filter="site:Guides" data-pagefind-meta="site:Guides" class="l-content-split">
                 <main>
                     {{ content | safe }}
                 </main>
                 <aside data-pagefind-ignore class="l-right">
-                    <div class="l-toc">
+                    <div class="l-toc" x-on:scroll.window.throttle.50ms="onScroll()">
                         <!-- "On this page" -->
                     </div>
                 </aside>
