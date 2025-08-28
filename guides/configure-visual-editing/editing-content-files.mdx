@@ -165,13 +165,52 @@ Here's what our blog layout code should look like:
 </comp.Annotation>
 </comp.CodeBlock>
 
-If we save and rebuild our Site, yellow editable boxes will appear around the title and author fields in the Visual Editor, enabling inline editing of those values.
+If we save and rebuild our Site, yellow boxes showing editable regions will appear around the title and author fields in the Visual Editor, enabling inline editing of those values.
+
+<comp.DocShot docshot_key="" alt="" title=""/>
+
+## Markdown content
+
+Editing the body of a content file in the Visual Editor is the most intuitive editing experience for CloudCannon users. Let's add a Text Editable to our content.
+
+In the blog layout, the `<slot />` element is populated by the Markdown content in the main body of each blog file. However, because `<slot />` is not a DOM element, we can't add the `data-editable=""` and `data-prop=""` attributes directly. To get around this issue, we can wrap the `<slot />` element in a `<text-editable>` web component which can take attributes.
+
+The `<text-editable>` component replaces the need for the `data-editable="text"` attribute, telling CloudCannon what type of data we are editing. But, what is the value of the `data-prop=""` attribute? There are no front matter keys we can reference to tell CloudCannon where the data is stored.
+
+In this case, we can use the special value `@content` to specify Markdown content in the body of a content file.
+
+Here's what our blog layout code should look like:
+
+<comp.CodeBlock language="Astro" source="BlogPost.astro">
+``````````
+
+<text-editable data-prop="@content"> /*1*/
+    <slot />
+</text-editable>
+
+``````````
+<comp.Annotation number="1">
+  The `<slot />` element is wrapped in the `<text-editable>` web component, which can take Editable attributes. The `data-prop` attribute defines where data is stored. In this case, we are editing the content of the file outside of the front matter, signified by the special value `@content`.
+</comp.Annotation>
+</comp.CodeBlock>
+
+If we save and rebuild our Site, a yellow box showing an editable region will appear around the blog content in the Visual Editor, enabling inline editing.
 
 <comp.DocShot docshot_key="" alt="" title=""/>
 
 ## Images in your front matter
 
-x
+You can also add an Image Editable to images, allowing user to upload a new image in the Visual Editor.
+
+In this example, each blog file references an image path under the `heroImage` key, which populates the `<img>` tag in the blog layout (`src` is set to `{heroImage}`). To allow CloudCannon to re-render this image in the Visual Editor and let select a new image path, we need to add the `data-editable=""` and `data-prop-src=""` attributes to the `<img>` tag in the blog layout.
+
+The value for `data-editable` should be `image`, as an image path is the type of data stored under the `heroImage` key.
+
+Next we'll add `data-prop-src`. The `data-prop-src` attribute is an extension of the `data-prop` attribute. Both define the location of the data property you want to edit. However, `data-prop` only passes the value stored at that location to the Editable (e.g., `/example.jpg`), while `data-prop-src` also renames the value with the `src` key (e.g., `src: /example.jpg`).
+
+CloudCannon Image Editables expect data in the `src: string` format. By adding the add the `data-prop-src="heroImage"` attribute to the `<img>` tag, we can take the value of the `heroImage` key in the front matter, append the key `src`, adn pass it to our Image Editable (we'll dive deeper into the `data-prop` attribute in the [Advanced data property paths]() step of this guide).
+
+Here's what our blog layout code should look like:
 
 <comp.CodeBlock language="Astro" source="BlogPost.astro">
 ``````````
@@ -198,33 +237,12 @@ x
 </comp.Annotation>
 </comp.CodeBlock>
 
-x
-
-## Markdown content
-
-Editing the body of a content file in the Visual Editor is the most intuitive editing experience for CloudCannon users.
-
-In the blog layout, the `<slot />` element is populated by the Markdown content in the main body of each blog file. However, because `<slot />` is not a DOM element, we can't add the `data-editable=""` and `data-prop=""` attributes directly. To get around this issue, we can wrap the `<slot />` element in a `<text-editable>` web component which can take attributes.
-
-The `<text-editable>` component replaces the need for the `data-editable="text"` attribute, telling CloudCannon what type of data we are editing. But, what is the value of the `data-prop=""` attribute? There are no front matter keys we can reference to tell CloudCannon where the data is stored.
-
-In this case, we can use the special value `@content` to specify Markdown content in the body of a content file.
-
-Here's what our blog layout code should look like:
-
-<comp.CodeBlock language="Astro" source="BlogPost.astro">
-``````````
-
-<text-editable data-prop="@content"> /*1*/
-    <slot />
-</text-editable>
-
-``````````
-<comp.Annotation number="1">
-  The `<slot />` element is wrapped in the `<text-editable>` web component, which can take Editable attributes. The `data-prop` attribute defines where data is stored. In this case, we are editing the content of the file outside of the front matter, signified by the special value `@content`.
-</comp.Annotation>
-</comp.CodeBlock>
-
-If we save and rebuild our Site, a yellow editable box will appear around the blog content in the Visual Editor, enabling inline editing.
+If we save and rebuild our Site, a yellow box showing an editable region will appear around the blog image in the Visual Editor.
 
 <comp.DocShot docshot_key="" alt="" title=""/>
+
+<comp.Notice info_type="important">
+  <p>We do not recommend nesting Image Editables inside Text Editables.</p>
+</comp.Notice>
+
+In the next step of this guide, we'll cover how to edit webpages generated from HTML-like files by adding a Source Editable.
