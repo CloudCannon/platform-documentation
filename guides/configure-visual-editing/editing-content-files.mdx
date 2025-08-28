@@ -111,9 +111,11 @@ Together, these files output a webpage that looks like this:
 
 <comp.DocsImage path="" alt="" title=""/>
 
-When you open a content file like `first-post.mdx` in the Visual Editor, CloudCannon will automatically add Inputs to the sidebar for you to edit the structured data in your front matter, but you can't change your content or edit it directly on the page. Let's fix that by adding CloudCannon Editables to your blog layout file.
+When you open a content file like `first-post.mdx` in the Visual Editor, CloudCannon will automatically add Inputs to the sidebar for you to edit the structured data in your front matter, but you can't change your content or edit it directly on the page.
 
 <comp.DocShot docshot_key="" alt="" title=""/>
+
+Let's fix that by adding CloudCannon Editables to your blog layout file.
 
 In this step of the guide, we'll add the following components and attributes:
 
@@ -149,7 +151,7 @@ Editing the blog author is slightly more complicated.
 
 In the blog layout, the `{author}` templating inside the `<p>` tag is populated by the value of the `author` key in the front matter of each blog file. Just like the title example, we need to add the `data-editable="text"` and `data-prop="author"` attributes to enable inline editing in the Visual Editor. However, if we add those attributes directly to the `<p>` tag, we won't be able to see the "By:" plain text that prepends the author value.
 
-If we add `<p data-editable="text" data-prop="author">` to our blog layout, the Visual Editor would re-render the field to only show the value of `author`, hiding the plain text. It is important to note that Text Editables don't modify the code of your templating, so the "By:" plain text is not destroyed. Instead, they update the value of the front matter key and re-render the webpage preview. This leads to a mismatch in the appearance of the built Site, which includes "By:" before the author name, and the preview in the Visual Editor, which would not.
+If we added `<p data-editable="text" data-prop="author">` to our blog layout, the Visual Editor would re-render the field to only show the value of `author`, hiding the plain text. It is important to note that Text Editables don't modify the code of your templating, so the "By:" plain text is not destroyed. Instead, they update the value of the front matter key and re-render the webpage preview. This leads to a mismatch in the appearance of the built Site, which includes "By:" before the author name, and the preview in the Visual Editor, which would not.
 
 To avoid this issue, we can specifically wrap the `{author}` templating in a `<text-editable>` web component. The `<text-editable>` component replaces the need for the `data-editable="text"` attribute, telling CloudCannon what type of data we are editing. We can add the `data-prop="author"` attribute to this web component.
 
@@ -191,7 +193,7 @@ Here's what our blog layout code should look like:
 
 ``````````
 <comp.Annotation number="1">
-  The `<slot />` element is wrapped in the `<text-editable>` web component, which can take Editable attributes. The `data-prop` attribute defines the path to the data property you want to edit and passes that value to the CloudCannon Editable.. In this case, we are editing the content of the file outside of the front matter, signified by the special value `@content`.
+  The `<slot />` element is wrapped in the `<text-editable>` web component, which can take Editable attributes. The `data-prop` attribute defines the path to the data property you want to edit and passes that value to the CloudCannon Editable. In this case, we are editing the content of the file outside of the front matter, signified by the special value `@content`.
 </comp.Annotation>
 </comp.CodeBlock>
 
@@ -203,7 +205,7 @@ If we save and rebuild our Site, a yellow box showing an editable region will ap
 
 You can also add an Image Editable to images, allowing users to upload a new image in the Visual Editor.
 
-In this example, each blog file references an image path under the `heroImage` key, which populates the `<img>` tag in the blog layout (`src` is set to `{heroImage}`). To allow CloudCannon to re-render this image in the Visual Editor and let select a new image path, we need to add the `data-editable=""` and `data-prop-src=""` attributes to the `<img>` tag in the blog layout.
+In this example, each blog file references an image path under the `heroImage` key, which populates the `<img>` tag in the blog layout (`src` is set to `{heroImage}`). To allow CloudCannon to re-render this image in the Visual Editor and let users select a new image, we need to add the `data-editable=""` and `data-prop-src=""` attributes to the `<img>` tag in the blog layout.
 
 The value for `data-editable` should be `image`, as an image path is the type of data stored under the `heroImage` key.
 
@@ -241,6 +243,8 @@ Here's what our blog layout code should look like:
 If we save and rebuild our Site, a yellow box showing an editable region will appear around the blog image in the Visual Editor.
 
 <comp.DocShot docshot_key="" alt="" title=""/>
+
+When you click into the image editable region, CloudCannon will open your computer's file browser and allow you to upload an image. CloudCannon will upload the new image to the location defined by `options.paths.uploads` if you have configured an Image input for your front matter key, or the location defined by `paths.uploads` in the root of your CloudCannon Configuration file. If you have not configured an upload path for your Site, CloudCannon will upload the new image to the uploads folder in the root of your repository, or create one if the folder does not exist.
 
 <comp.Notice info_type="important">
   <p>We do not recommend nesting Image Editables inside Text Editables.</p>
