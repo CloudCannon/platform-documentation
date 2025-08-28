@@ -13,7 +13,7 @@ description: >-
   Learn how to configure CloudCannon Editables for your content files, including
   YAML front matter and Markdown content.
 ---
-Most content files are hybrid files, with a YAML front matter section containing file information in structured data keys (e.g., `title`, `publish_date`, `author`, etc.) and the main body of content in Markdown. The structured data and content from each file populate fields in a layout file containing the HTML-like templating to generate the output page during a Site build.
+Most content files are hybrid files, with a YAML front matter section containing file information in structured data keys (e.g., `title`, `publish_date`, `author`, etc.) and the main body of content in Markdown. The structured data and content from each file populate fields in a layout file, which contains the HTML-like templating to generate the output page during a Site build.
 
 Let's take a look at an example. Even though this example is for the SSG Astro, most SSGs that CloudCannon supports will use a similar model (i.e., populating a layout file with values from each content file to generate a page).
 
@@ -35,7 +35,7 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor i
 ``````````
 </comp.CodeBlock>
 
-This file is the blog layout, containing templating for the values of each blog file.
+This file is the blog layout, containing HTML layout for the blog webpage and templating to populate elements with the values from each blog file.
 
 <comp.CodeBlock language="Astro" source="BlogPost.astro">
 ``````````
@@ -71,7 +71,7 @@ const { title, description, author, pubDate, updatedDate, heroImage } = Astro.pr
 				<div class="prose">
 					<div class="title">
 						<div class="date">
-							<FormattedDate date={pubDate} /> /*2*/
+							<FormattedDate date={pubDate} />
 							{
 								updatedDate && (
 									<div class="last-updated-on">
@@ -80,11 +80,11 @@ const { title, description, author, pubDate, updatedDate, heroImage } = Astro.pr
 								)
 							}
 						</div>
-						<h1>{title}</h1> /*3*/
-                        <p>By: {author}</p> /*4*/
+						<h1>{title}</h1> /*2*/
+                        <p>By: {author}</p> /*3*/
 						<hr />
 					</div>
-					<slot /> /*5*/
+					<slot /> /*4*/
 				</div>
 			</article>
 		</main>
@@ -97,15 +97,12 @@ const { title, description, author, pubDate, updatedDate, heroImage } = Astro.pr
   This `<img>` element contains image width, height, source, and alt text attributes. The `src` attribute is set to the template `{heroImage}`, which draws its value from the `heroImage` key in the front matter of a blog file.
 </comp.Annotation>
 <comp.Annotation number="2">
-  This `<FormattedDate>` element contains a date attribute, set to the template `{pubDate}`. This value comes from the `pubDate` key in the front matter of a blog file.
-</comp.Annotation>
-<comp.Annotation number="3">
   This `<h1>` element surrounds the template value `{title}`. This value comes from the `title` key in the front matter of a blog file.
 </comp.Annotation>
-<comp.Annotation number="4">
+<comp.Annotation number="3">
   This `<p>` element surrounds the template value `{author}`, prepended by the plain text "By:". This value comes from the `author` key in the front matter of a blog file.
 </comp.Annotation>
-<comp.Annotation number="5">
+<comp.Annotation number="4">
   This `<slot />` element marks where the markup content from a blog file will go.
 </comp.Annotation>
 </comp.CodeBlock>
@@ -120,9 +117,9 @@ When you open a content file like `first-post.mdx` in the Visual Editor, CloudCa
 
 In this step of the guide, we'll add the following components and attributes:
 
-* `data-editable=""` —
+* `data-editable=""` — This attribute defines the type of data as `array`, `array-item`, `component`, `image`, `source`, or `text`.
 * `data-prop=""` — This attribute defines the path to the data property you want to edit.
-* `<text-editable>` — This web component allows you to wrap other elements and apply Editable attributes. This is useful if you want to edit an element that can't take attributes or a specific section of a string.
+* `<text-editable>` — This web component defines the type of data as `text` and allows you to wrap other elements. This is useful if you want to edit an element that can't take attributes or a specific section of a string.
 
 For a complete list of configuration options for CloudCannon Editables, please read our [Editables reference](/documentation/articles/editables-reference) documentation.
 
@@ -198,32 +195,6 @@ x
 </comp.Annotation>
 <comp.Annotation number="2">
   The `data-prop-src` attribute defines where data is stored. In this case, we are editing the value of the `heroImage` key in the file front matter.
-</comp.Annotation>
-</comp.CodeBlock>
-
-x
-
-## Dates in your front matter
-
-x
-
-<comp.CodeBlock language="Astro" source="BlogPost.astro">
-``````````
-
-<div class="date">
-    <FormattedDate date={pubDate} /> /*1*/
-    {
-        updatedDate && (
-            <div class="last-updated-on">
-                Last updated on <FormattedDate date={updatedDate} />
-            </div>
-        )
-    }
-</div>
-
-``````````
-<comp.Annotation number="1">
-  This `<img>` element contains image width, height, source, and alt text attributes. The `src` attribute is set to the template `{heroImage}`, which draws its value from the `heroImage` key in the front matter of a blog file.
 </comp.Annotation>
 </comp.CodeBlock>
 
