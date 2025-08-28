@@ -10,3 +10,63 @@ start_nav_group:
 image:
 description:
 ---
+
+
+## Step 5: Making Astro Components Editable
+
+If you have reusable Astro components that you want to make editable, you need to register them first.
+
+### Register Your Astro Components
+
+Create a registration script:
+
+```javascript
+// src/scripts/register-components.js
+import { registerAstroComponent } from '@cloudcannon/editables/integrations/astro.js';
+import HeroSection from '../components/HeroSection.astro';
+import TestimonialCard from '../components/TestimonialCard.astro';
+
+// Register your components
+registerAstroComponent('hero_section', HeroSection);
+registerAstroComponent('testimonial_card', TestimonialCard);
+```
+
+Include this script in your layout:
+
+```astro
+---
+// In your layout
+---
+
+<script>
+  import '../scripts/register-components.js';
+</script>
+```
+
+### Use Component Editables
+
+Now you can make your components editable:
+
+```markdown
+---
+title: "Homepage"
+hero:
+  headline: "Welcome to Our Site"
+  subheading: "We build amazing things"
+  cta_text: "Get Started"
+testimonial:
+  quote: "This company is amazing!"
+  author: "Happy Customer"
+---
+```
+
+```astro
+<!-- In your page template -->
+<component-editable data-prop="hero" data-component="hero_section">
+    <HeroSection {...Astro.props.testimonial} />
+</component-editable>
+
+<component-editable data-prop="testimonial" data-component="testimonial_card">
+    <TestimonialCard {...Astro.props.testimonial} />
+</component-editable>
+```
