@@ -134,43 +134,12 @@ Allowing rich text formatting in an element that can only support plain text can
 
 <comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/guides/configure-visual-editing/2025-10/CloudCannon-Documentation-Editables-Data-Type-Flowchart.png" alt="An illustration of the flowchart CloudCannon uses to decide if rich text formatting is appropriate for an element." title="The Data Type Flowchart" type="ui-snippet"/>
 
-Firstly, CloudCannon determines whether the Editable is for content or front matter. Content is any Source Editable (i.e., `data-attribute="source"` or `<source-editable>`), or Text Editable where `data-prop="@content"`. Front matter is any Text Editable where `data-prop` is set to a structured data key.
+To begin, CloudCannon determines whether the Editable is for content or front matter. Content is any Source Editable (i.e., `data-attribute="source"` or `<source-editable>`), or Text Editable where `data-prop="@content"`. Front matter is any Text Editable where `data-prop` is set to a structured data key.
 
-If the Editable is for content, CloudCannon
+If the Editable is for content, CloudCannon will use either `text` or `block` as the default value of `data-type`, as the content is likely to need rich text formatting. Whether paragraph-level rich text formatting or all rich text formatting options are available will depend on the HTML element in the output file(e.g., `<h1>` elements can only support `text` level formatting, while `<div>` elements can support `block` level formatting).
 
-&nbsp;
+If the Editable is for a value stored in front matter, CloudCannon will determine whether you have input configuration for that front matter key. If you do not, CloudCannon will use `data-type="span"` by default. Similarly, if you do have input configuration, but the input type is not defined as rich text (i.e., `markdown` or `html`), CloudCannon will use `data-type="span"` by default.
 
-&nbsp;
+If your front matter key is configured as a rich text input, CloudCannon will use either `text` or `block` as the default value of `data-type`, whichever is appropriate for the HTML element in the output file.
 
-CloudCannon will determine the correct behavior based on the location of the element (i.e., content or front matter), and the element type if it is in HTML (e.g., `<p>` tags vs `<h1>` tags) or Input type configuration if it is in front matter.
-
-If the
-
-&nbsp;
-
-use the default behavior for the Editable.
-
-The default `data-type` for `data-editable="text"` and the equivalent web component `<text-editable>` is `span`.
-
-&nbsp;
-
-You can also manually define
-
-&nbsp;
-
-heading elements don't support block level content
-
-You can get a WYSIWYG toolbar for structured data keys if your configure your input to be a markdown type.
-
-&nbsp;
-
-* `data-type` - Element type for editing behavior
-  * `"span"` - Inline text editing (default for `<text-editable>`)
-  * `"text"` - Paragraph-level text editing
-  * `"block"` - Full rich-text editing with multiple paragraphs
-
-I've noticed that when we added `<main data-editable="source" data-path="/src/pages/index.astro" data-key="main">` a WYSIWYG toolbar appeared above the content, but `data-type` wasn't configured and its not a rich text input Does CC automatically detect it should be rich text?
-
-&nbsp;
-
-Yeah there's a few layers of detection that go into which toolbar you get there, for the content flavoured editables (i.e the ones that aren't inputs so source editables or text editables with `data-prop=@content`) it'll be either the configured `data-type` attribute or pick whichever one is most appropriate for the html element. In this case, `main` is a block level element so you get the block toolbar. If it were an `h1` instead, for example, you'd only get the text toolbar
+In the next step of this guide, we'll cover Array Editables, including how to use them for page building in the Visual Editor.
