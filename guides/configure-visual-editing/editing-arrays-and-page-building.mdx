@@ -13,6 +13,153 @@ description: |-
   Learn how to configure CloudCannon Editables for your 
   HTML-like files, such as a Home or About page.
 ---
+Some webpages, or webpage components, are constructed from arrays. An array could be simple, where each item has the same structure (e.g., a testimonial component), or more complex, where each item has a different structure (e.g., a page with various components).
+
+We can use Array Editables to allow users to click and drag elements around the Visual Editor, reordering them within an array.
+
+In this step of the guide, we'll add the following attributes:
+
+* `data-editable="array"` and `<array-item>` — This attribute defines the type of data inside and Editable as `array`, `array-item`, `component`, `image`, `source`, or `text`.
+* `data-prop=""` — This attribute defines the path to the data property you want to edit and passes that value to the CloudCannon Editable.
+* `data-id-key=""` — This attribute defines...
+* `data-id` — This attribute defines
+
+For a complete list of configuration options for CloudCannon Editables, please read our [Editables reference](/documentation/articles/editables-reference) documentation.
+
+## Simple arrays
+
+&nbsp;
+
+Let's walk through an example.
+
+Our Home page, `index.mdx`, stores testimonial information in YAML in the `slider` array. Each item in the array has the same structure, with the `image`, `image_alt`, `author`, `designation`, and `message` keys.
+
+<comp.CodeBlock language="Markdown" source="index.mdx">
+``````````
+
+---
+content_blocks:
+  component_name: testimonial
+    title: Build relationships that last
+    description: >-
+      Customers from around the world are building game-changing email marketing campaigns.
+    slider: /*1*/
+      - image: /images/testimonial/logo-2.jpg /*2*/
+        image_alt: Profile photo of Pete Fish
+        author: Pete Fish
+        designation: CMO at Clear Appeal
+        message: >-
+          Sendit has taken Clear Appeal to the next level with its beautiful
+          targeted email campaigns.
+      - image: /images/testimonial/logo-3.jpg /*3*/
+        image_alt: Profile photo of Dolly Watson
+        author: Dolly Watson
+        designation: Digital Marketer at Time Cop
+        message: >-
+          Wow, what a difference Sendit has made. My customers are more engaged
+          than ever.
+      - image: /images/testimonial/logo-4.jpg /*4*/
+        image_alt: Profile photo of Simon Moriarty
+        author: Simon Moriarty
+        designation: Head of Marketing at Pinnacle Mines
+        message: >-
+          I can't imagine life without Sendit now, I have no idea how we were
+          surviving before.
+---
+
+``````````
+</comp.CodeBlock>
+
+Data from structured data keys in `index.mdx` populate templating in our layout file
+
+<comp.CodeBlock language="JSX" source="testimonials.jsx">
+``````````
+
+import MarkdownIt from "markdown-it";
+const md = new MarkdownIt({ html: true });
+
+export default function GlobalTestimonial(block) {
+  return (
+    <section className="testimonial">
+      <div className="container">
+        <div className="row">
+          <div className="col-lg-8">
+            <div className="testimonial-content">
+              <h2>
+                {block.title}
+              </h2>
+              <div>
+                {block.title}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="row" data-editable="array" data-prop="slider"> /*1*/
+          {block.slider.map((slide, i) => (
+            <Testimonial slide={slide} i={i} key={i} />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+function Testimonial({ slide, i }) {
+  return (
+    <div className="col-lg-4 col-md-6 mb-5" key={i} data-editable="array-item">
+      <div className="testimonial-item">
+        <div className="testimonial-item-person">
+          <div className="thumb">
+            <img
+              src={slide.image}
+              alt="logo"
+              className={slide.image_alt}
+              loading="lazy"
+            />
+          </div>
+          <div className="content">
+            <h3>{slide.author}</h3>
+            <p>{slide.designation}</p>
+          </div>
+        </div>
+        <p>{slide.message}</p>
+      </div>
+    </div>
+  );
+}
+
+``````````
+</comp.CodeBlock>
+
+Together, these files output a webpage that looks like this:
+
+<comp.DocsImage path="" alt="" title=""/>
+
+Let's enable array editing in the
+
+**When you open a content file like `first-post.mdx` in the Visual Editor, CloudCannon will automatically add Inputs to the sidebar for you to edit the structured data in your front matter, but you can't change your content or edit it directly on the page.**
+
+**Let's fix that by adding CloudCannon Editables to your blog layout file.**
+
+&nbsp;
+
+&nbsp;
+
+&nbsp;
+
+&nbsp;
+
+## Arrays
+
+x
+
+x
+
+## Page building with Array Editables
+
+x
+
+&nbsp;
+
 For most static websites, webpages generated by a collection of content files and a layout only represent a portion of your website. Other pages, like a "Home" or "About" page, will come from a single file with HTML-like content (the exact format of your pages will differ depending on which SSG you use).
 
 Here's an example of a Home page for a blog website.
@@ -74,118 +221,13 @@ When you first open `index.astro` in the Visual Editor, there is nothing for you
 
 <comp.DocShot docshot_key="" alt="" title=""/>
 
-In this step of the guide, we'll add the following attributes:
-
-* `data-editable` — This attribute defines the type of data inside an Editable.
-* `data-path` — This attribute defines the path to the file you want to edit.
-* `data-key` — This attribute defines a unique identifier for an editable region within the file, which CloudCannon requires even if you don't have several discreet editable regions.
-
-For a complete list of configuration options for CloudCannon Editables, please read our [Editables reference](/documentation/articles/editables-reference) documentation.
+&nbsp;
 
 ## Editing arrays or page building
 
 ...
 
-<comp.CodeBlock language="Markdown" source="index.mdx">
-``````````
-
----
-title: Home
-content_blocks:
-  component_name: testimonial
-    title: Build relationships that
-    title_suffix: last
-    description: >-
-      Customers from around the world are building game changing email marketing
-      campaigns.
-    slider:
-      - image: /images/testimonial/logo-2.jpg
-        image_alt: Profile photo of Pete Fish
-        author: Pete Fish
-        designation: CMO at Clear Appeal
-        message: >-
-          Sendit has taken Clear Appeal to the next level with it's beautiful
-          targetted email campaigns.
-      - image: /images/testimonial/logo-3.jpg
-        image_alt: Profile photo of Dolly Watson
-        author: Dolly Watson
-        designation: Digital Marketer at Time Cop
-        message: >-
-          Wow, what a difference Sendit has made. My customers are more engaged
-          than ever.
-      - image: /images/testimonial/logo-4.jpg
-        image_alt: Profile photo of Simon Moriarty
-        author: Simon Moriarty
-        designation: Head of Marketing at Pinnacle Mines
-        message: >-
-          I can't imagine life without Sendit now, I have no idea how we were
-          surviving before.
----
-
-``````````
-</comp.CodeBlock>
-
 &nbsp;
-
-<comp.CodeBlock language="Markdown" source="index.mdx">
-``````````
-
-import MarkdownIt from "markdown-it";
-const md = new MarkdownIt({ html: true });
-
-export default function GlobalTestimonial(block) {
-  return (
-    <section className="testimonial">
-      <div className="container">
-        <div className="row align-items-center">
-          <div className="col-lg-8 mx-auto text-center mb-5">
-            <div className="testimonial-content">
-              <h2>
-                {block.title} <span> {block.title_suffix}</span>
-              </h2>
-              <div
-                dangerouslySetInnerHTML={{
-                  __html: md.render(block.description),
-                }}
-              />
-            </div>
-          </div>
-        </div>
-        <div className="row">
-          {block.slider.map((slide, i) => (
-            <Testimonial slide={slide} i={i} key={i} />
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-function Testimonial({ slide, i }) {
-  return (
-    <div className="col-lg-4 col-md-6 mb-5" key={i}>
-      <div className="testimonial-item">
-        <div className="testimonial-item-person">
-          <div className="thumb">
-            <img
-              src={slide.image}
-              alt="logo"
-              className={slide.image_alt}
-              loading="lazy"
-            />
-          </div>
-          <div className="content">
-            <h3>{slide.author}</h3>
-            <p>{slide.designation}</p>
-          </div>
-        </div>
-        <p>{slide.message}</p>
-      </div>
-    </div>
-  );
-}
-
-``````````
-</comp.CodeBlock>
 
 &nbsp;
 
@@ -247,9 +289,8 @@ const { frontmatter } = Astro.props;
 </div>
 ```
 
-
-
 Step 6: Working with Collections#
+
 If you're using Astro's content collections, you can make collection data editable:
 
 ```astro
