@@ -36,19 +36,19 @@ clonedClear.addEventListener("click", e => {
   clonedElement.value = "";
   search.triggerSearch("");
   document.getElementById("searchsummary").style.display = "none";
-  clonedClear.setAttribute("data-pfmod-hidden",true);
+  clonedClear.setAttribute("data-pfmod-suppressed",true);
+  document.querySelector(".mobile-filters").setAttribute("data-pfmod-suppressed", "true");
 })
 
 clonedElement.placeholder = "Search this site";
 clonedElement.addEventListener("input", e => {
   let query = e.target.value;
-  if(query.length > 1)
+  if(query && query?.length && query?.length > 1){
     search.triggerSearch(`${query.trim()}`);
-
-  if (query && query?.length) {
     document.querySelector(".mobile-filters").removeAttribute("data-pfmod-suppressed");
     clonedClear.removeAttribute("data-pfmod-suppressed");
   } else {
+    search.triggerSearch("");
     document.querySelector(".mobile-filters").setAttribute("data-pfmod-suppressed", "true");
     clonedClear.setAttribute("data-pfmod-suppressed", "true");
   }
