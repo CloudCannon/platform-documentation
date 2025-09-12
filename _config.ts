@@ -379,8 +379,11 @@ site.process([".html"], (pages) => Promise.all(pages.map(async (page) => {
     });
 
     let mobile_toc = page.document.querySelector(".l-toc-mobile > .l-toc__list");
-    if(mobile_toc)
+    if(mobile_toc){
         mobile_toc.innerHTML = toc?.innerHTML;
+        if(!toc || toc.childNodes.length == 0)
+            mobile_toc.closest(".l-toc-mobile").remove();
+    }
 })));
 
 // These MUST appear after our custom site.process([".html"] handling,
