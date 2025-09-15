@@ -2,7 +2,7 @@
 layout: layouts/base.njk
 ---
 
-{% set articles = search.pages("guide_id=" + guide_id, "order") %}
+{% set articles = search.pages("guide_id=" + guide_id, "details.order") %}
 {% set currentIndex = 0 %}
 {% set totalPages = articles.length %}
 
@@ -39,7 +39,7 @@ layout: layouts/base.njk
                                 {% set complete_class = 'current-guide' %}
                                 {% set currentIndex = loop.index0 %}
                             {% else %}
-                                {% if data.order < page.data.order %}
+                                {% if data.details.order < page.data.details.order %}
                                     {% set completed = true %}
                                 {% else %}
                                     {% set complete_class = '' %}
@@ -51,12 +51,12 @@ layout: layouts/base.njk
                                     {% if data.url == url %} aria-current="page"{% endif %}
                                     href="{{ data.url | url }}">
                                     <div class="t-docs-nav__sub-list__connector-group">
-                                        <span class="t-docs-nav__sub-list__index {{ complete_class }}">{% if completed == true %}<img src="{{ "check:outlined" | icon("material") }}" inline />{% else %}{{ data.order }}{% endif %}</span>
-                                        {% if data.order < articles.length %}
+                                        <span class="t-docs-nav__sub-list__index {{ complete_class }}">{% if completed == true %}<img src="{{ "check:outlined" | icon("material") }}" inline />{% else %}{{ data.details.order }}{% endif %}</span>
+                                        {% if data.details.order < articles.length %}
                                         <span class="t-docs-nav__sub-list__connector {{ complete_class }}"></span>
                                         {% endif %}
                                     </div>
-                                    <div class="guide-title">{{ data.title }}</div>
+                                    <div class="guide-title">{{ data.details.title }}</div>
                                 </a>
                             </li>
                         {% endfor %}
@@ -70,8 +70,8 @@ layout: layouts/base.njk
           </div>-->
         </aside>
         <div class="u-card-box l-content" x-data="$visibleNavHighlighter">
-            <h1 data-pagefind-body class="l-heading u-margin-bottom-0">{{ title }}</h1>
-            <p data-pagefind-body class="l-subheading">{{ description }}</h1>
+            <h1 data-pagefind-body class="l-heading u-margin-bottom-0">{{ details.title }}</h1>
+            <p data-pagefind-body class="l-subheading">{{ details.description }}</h1>
             <div class="l-toc-mobile" x-data="{toc_open:false}" @click="toc_open = !toc_open">
                 <h3 :class="toc_open ? 'open' : ''">Table of contents <img src="{{ "arrow_forward_ios:outlined" | icon("material") }}" inline/></h3>
                 <div class="l-toc__list" :class="toc_open ? 'open' : ''"></div>
