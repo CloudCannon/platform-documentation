@@ -10,6 +10,7 @@ try {
   const entries = fg.globSync(["developer/**/*.mdx","user/**/*.mdx"])
   for(const entry of entries)
   {
+    console.log(entry);
     const data = matter(fs.readFileSync(entry));
     const obj = {
       path:entry,
