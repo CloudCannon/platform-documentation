@@ -39,7 +39,8 @@
             <img src="{{ "close:outlined" | icon("material") }}" inline>
         </button>
     </div>
-    <div class="l-header__mobile-menu" x-show="isMainNavOpen" x-trap='isMainNavOpen'>
+
+    <div class="l-header__mobile-menu" x-show="isMainNavOpen" x-trap.noscroll='isMainNavOpen'>
         <div class="button-container" x-data="{ show_message: true }">
             <a class="cc-helper__button" href="https://app.cloudcannon.com/register">Go to App</a>
             <input type="checkbox" id="light_dark" @click="darkMode = darkMode == 'dark' ? 'light' : 'dark'; localStorage.setItem('cc_darkMode',darkMode)" :checked="darkMode == 'dark'" />
@@ -52,25 +53,41 @@
                 </div>
             </label>
         </div>
-        {% for item in headingnav.items %}
-            {% if item.items | length %}
-                <div class="l-header__links--sub-list">
-                    <ul class="l-header__links">
-                        {% for subitem in item.items %}
-                        <li>
-                            <a class="c-card-grid__card--item" href="{{ subitem.href }}">
-                            {% set icon = subitem.icon + ":outlined" %}
-                            <img src="{{ icon | icon("material") }}" inline />
-                            <h3>{{ subitem.heading }}</h3>
 
-                            <div><!-- spacer for grid layout --></div>
-                            <p>{{ subitem.description }}</p>
+        <div id="mobile-docnav"></div>
+
+        <div class="l-header__links--sub-list">
+            <ul class="l-header__links">
+                {% for item in headingnav.items %}
+                    {% if item.items | length %}
+                        {% for subitem in item.items %}
+                            <li>
+                                <a class="c-card-grid__card--item" href="{{ subitem.href }}">
+                                    {% if subitem.icon %}
+                                        {% set icon = subitem.icon + ":outlined" %}
+                                        <img src="{{ icon | icon("material") }}" inline />
+                                    {% else %}
+                                        <div><!-- spacer for grid layout --></div>
+                                    {% endif %}
+                                    <h3>{{ subitem.heading }}</h3>
+
+                                    <div><!-- spacer for grid layout --></div>
+                                    <p>{{ subitem.description }}</p>
+                                </a>
+                            </li>
+                        {% endfor %}
+                    {% else %}
+                        <li>
+                            <a class="c-card-grid__card--item" href="{{ item.href }}">
+                                {{ item.text }}
                             </a>
                         </li>
-                        {% endfor %}
-                    </ul>
-                </div>
-            {% endif %}
-        {% endfor %}
+                    {% endif %}
+                    {% if not loop.last %}
+                        <li class="l-header__links--divider"></li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        </div>
     </div>
 </nav>
