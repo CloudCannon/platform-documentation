@@ -1,0 +1,73 @@
+---
+_schema: default
+_uuid: ab694f1d-f571-47c9-b902-0cc056320a07
+_created_at: 2025-08-26T13:46:31+12:00
+title: Advanced data property paths
+nav_title: 'TODO: Advanced data property paths'
+order: 7
+published: true
+start_nav_group:
+image:
+description:
+---
+## Step 8: Advanced Patterns
+
+### Conditional Content Blocks
+
+For more complex layouts with different content block types:
+
+```markdown
+---
+title: "Homepage"
+content_blocks:
+  - type: "hero"
+    headline: "Welcome"
+    image: "/hero.jpg"
+  - type: "text"
+    content: "Some text content"
+  - type: "gallery"
+    images: ["/img1.jpg", "/img2.jpg"]
+---
+```
+
+```astro
+<array-editable 
+  data-prop="content_blocks" 
+  data-id-key="type" 
+  data-component-key="type">
+  {frontmatter.content_blocks?.map((block, index) => (
+    <array-item key={index} data-id={block.type} data-component={`${block.type}_block`}>
+        <Component {...block} />
+    </array-item>
+  ))}
+</array-editable>
+```
+
+### Editing Layout Files
+
+You can even make your layout files editable by using source editables:
+
+```astro
+---
+// src/layouts/BaseLayout.astro
+---
+
+<html>
+<head>
+  <title>{title}</title>
+</head>
+<body>
+  <header data-editable="source" data-path="/src/layouts/BaseLayout.astro" data-key="header">
+    <nav>
+      <a href="/">Home</a>
+      <a href="/about">About</a>
+      <a href="/blog">Blog</a>
+    </nav>
+  </header>
+  
+  <main>
+    <slot />
+  </main>
+</body>
+</html>
+```

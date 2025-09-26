@@ -1,0 +1,93 @@
+---
+_schema: default
+_uuid: 039e14a4-5d9b-4a53-aa50-c27e977c4e71
+_created_at: 2025-08-27T14:51:55+12:00
+title: Component editables
+nav_title: 'TODO: Component editables'
+order: 6
+published: true
+start_nav_group:
+image:
+description:
+---
+## Step 5: Making Astro Components Editable
+
+
+## Install CloudCannon Editables
+
+Let's install the CloudCannon Editables package. With your website project open, run the following code in your terminal:
+
+<comp.CodeBlock language="">
+``````````
+
+npm install @cloudcannon/editables
+
+``````````
+</comp.CodeBlock>
+
+If this command doesn't work, try:
+
+<comp.CodeBlock language="">
+``````````
+
+npm i https://github.com/CloudCannon/editables.git
+
+``````````
+</comp.CodeBlock>
+
+If you have reusable Astro components that you want to make editable, you need to register them first.
+
+### Register Your Astro Components
+
+Create a registration script:
+
+```javascript
+// src/scripts/register-components.js
+import { registerAstroComponent } from '@cloudcannon/editables/integrations/astro.js';
+import HeroSection from '../components/HeroSection.astro';
+import TestimonialCard from '../components/TestimonialCard.astro';
+
+// Register your components
+registerAstroComponent('hero_section', HeroSection);
+registerAstroComponent('testimonial_card', TestimonialCard);
+```
+
+Include this script in your layout:
+
+```astro
+---
+// In your layout
+---
+
+<script>
+  import '../scripts/register-components.js';
+</script>
+```
+
+### Use Component Editables
+
+Now you can make your components editable:
+
+```markdown
+---
+title: "Homepage"
+hero:
+  headline: "Welcome to Our Site"
+  subheading: "We build amazing things"
+  cta_text: "Get Started"
+testimonial:
+  quote: "This company is amazing!"
+  author: "Happy Customer"
+---
+```
+
+```astro
+<!-- In your page template -->
+<component-editable data-prop="hero" data-component="hero_section">
+    <HeroSection {...Astro.props.testimonial} />
+</component-editable>
+
+<component-editable data-prop="testimonial" data-component="testimonial_card">
+    <TestimonialCard {...Astro.props.testimonial} />
+</component-editable>
+```
