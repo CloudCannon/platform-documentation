@@ -55,7 +55,7 @@ This file is the blog layout, containing HTML layout for the blog webpage and te
 			<article>
 				<div class="hero-image">
                     {heroImage &&
-                        <!--1--> <img 
+                        <img
                           width={1020}
                           height={510}
                           src={heroImage}
@@ -180,57 +180,23 @@ Here's what our blog layout code should look like:
 
 Once we save and rebuild our *Site*, CloudCannon will show a yellow *Editable Region* box around the content on the webpage. When you click into the *Editable Region*, CloudCannon will also display a WYSIWYG toolbar for formatting your content.
 
-### Types of editable text
-
-Why did the Visual Editor show a WYSIWYG toolbar for the content of our blog files, but not for the title or author?
-
-* `data-type` - Element type for editing behavior
-  * `"span"` - Inline text editing (default for `<text-editable>`)
-  * `"text"` - Paragraph-level text editing
-  * `"block"` - Full rich-text editing with multiple paragraphs
-
-&nbsp;
-
-&nbsp;
-
-&nbsp;
-
----
-
-When you open a content file like `first-post.mdx` in the Visual Editor, CloudCannon will automatically add Inputs to the sidebar for you to edit the structured data in your front matter, but you can't change your content or edit it directly on the page.
-
-<comp.DocShot docshot_key="" alt="" title=""/>
-
-Let's fix that by adding Text and Image Editables to your blog layout file.
-
-In this step of the guide, we'll add the following components and attributes:
-
-* `data-editable="text"` and `<text-editable>` — This attribute, and its equivalent web component, defines the data type inside an Editable as `text`.
-* `data-editable="image"` and `<image-editable>` — This attribute, and its equivalent web component, defines the data type inside an Editable as `image`.
-* `data-prop=""` — This attribute defines the path to the data property you want to edit and passes that value to the CloudCannon Editable.
-* `data-prop-src=""` — This attribute defines the path to the data property you want to edit and passes that value to the CloudCannon Editable with the `src` key.
-
-For a complete list of configuration options for CloudCannon Editables, please read our [Editables reference](/documentation/articles/editables-reference) documentation.
-
-##
-
-&nbsp;
-
-## Markdown content
-
-&nbsp;
-
-<comp.DocShot docshot_key="" alt="" title=""/>
+Why did the Visual Editor show a WYSIWYG toolbar for the content of our blog files, but not for the title or author? Because, by default, CloudCannon treats most inputs as plain text and Markdown content as rich text. We'll cover that more in the next step of this guide, [Visual editing for HTML-like files](/documentation/guides/set-up-visual-editing/editing-html-like-files/).
 
 ## Images in your front matter
 
-You can also add an Image Editable to images, allowing users to upload a new image in the Visual Editor.
+Finally, we want to be able to edit the `heroImage` in our content files. The value of the `heroImage` front matter key populates the `<img>` tag in the blog layout (`src` is set to `[heroImage]`). To allow CloudCannon to re-render this image in the Visual Editor, we need to add the `data-editable=""` and `data-prop-src=""` attributes to the `<img>` tag in the blog layout.
 
-In this example, each blog file references an image path under the `heroImage` key, which populates the `<img>` tag in the blog layout (`src` is set to `<span data-cms-snippet-type="inline" data-cms-snippet-id="f40b9b50-6101-4182-8079-dee78f22b574" data-cms-snippet-data="eyJ0ZW1wbGF0ZSI6Imhlcm9JbWFnZSIsIl9oaWRkZW4iOnRydWUsIl9zbmlwcGV0X3R5cGUiOiJfY2NfbWR4X3Vua25vd25fdGVtcGxhdGUiLCJfbWV0YSI6eyJ0ZW1wbGF0ZSI6eyJvcmlnaW5hbERhdGEiOlt7Il90eXBlIjoidGV4dCIsInRleHQiOiJoZXJvSW1hZ2UifV19fX0="></span>`). To allow CloudCannon to re-render this image in the Visual Editor and let users select a new image, we need to add the `data-editable=""` and `data-prop-src=""` attributes to the `<img>` tag in the blog layout.
+This time, the value for `data-editable` should be `image`, as an image path is the type of data stored under the `heroImage` key. We could also wrap the `<img>` element in the equivalent web component `<editable-image>`, however that is not as efficient as adding attributes to existing elements.
 
-The value for `data-editable` should be `image`, as an image path is the type of data stored under the `heroImage` key. We could also wrap the `<img>` element in the equivalent web component `<image-editables>`, however that is not as efficient as adding attributes to existing elements.
+Next, we need to tell CloudCannon the path to the value we want to edit. This time, we'll use the `data-prop-src` attribute, not `data-prop`.
+
+&nbsp;
 
 Next we'll add `data-prop-src`. The `data-prop-src` attribute is an extension of the `data-prop` attribute. Both define the location of the data property you want to edit. However, `data-prop` only passes the value stored at that location to the Editable (e.g., `/example.jpg`), while `data-prop-src` also renames the value with the `src` key (e.g., `src: /example.jpg`).
+
+&nbsp;
+
+&nbsp;
 
 CloudCannon Image Editables expect data in the `src: string` format. By adding the add the `data-prop-src="heroImage"` attribute to the `<img>` tag, we can take the value of the `heroImage` key in the front matter, append the key `src`, adn pass it to our Image Editable (we'll dive deeper into the `data-prop` attribute in the [Advanced data property paths](/documentation/guides/configure-visual-editing/advanced-data-property-paths/) step of this guide).
 
@@ -272,3 +238,26 @@ When you click into the image editable region, CloudCannon will open your comput
 </comp.Notice>
 
 In the next step of this guide, we'll cover how to edit webpages generated from HTML-like files by adding a Source Editable.
+
+---
+
+When you open a content file like `first-post.mdx` in the Visual Editor, CloudCannon will automatically add Inputs to the sidebar for you to edit the structured data in your front matter, but you can't change your content or edit it directly on the page.
+
+<comp.DocShot docshot_key="" alt="" title=""/>
+
+Let's fix that by adding Text and Image Editables to your blog layout file.
+
+In this step of the guide, we'll add the following components and attributes:
+
+* `data-editable="text"` and `<text-editable>` — This attribute, and its equivalent web component, defines the data type inside an Editable as `text`.
+* `data-editable="image"` and `<image-editable>` — This attribute, and its equivalent web component, defines the data type inside an Editable as `image`.
+* `data-prop=""` — This attribute defines the path to the data property you want to edit and passes that value to the CloudCannon Editable.
+* `data-prop-src=""` — This attribute defines the path to the data property you want to edit and passes that value to the CloudCannon Editable with the `src` key.
+
+&nbsp;
+
+##
+
+&nbsp;
+
+##
