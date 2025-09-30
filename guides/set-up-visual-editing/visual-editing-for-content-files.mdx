@@ -35,7 +35,9 @@ title: 'First post'
 description: 'Lorem ipsum dolor sit amet'
 author: 'C. Kent'
 pubDate: 'Jul 10 2025'
-heroImage: '../../assets/blog-placeholder-3.jpg'
+heroImage: '../../assets/blog-banner.jpg'
+heroImageTitle: 'Curabitur imperdiet diam sit amet.'
+heroImageAlt: 'Nunc gravida ullamcorper mi, ac.'
 ---
 
 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Vitae ultricies leo integer malesuada nunc vel risus commodo viverra.
@@ -59,7 +61,8 @@ This file is the blog layout, containing HTML layout for the blog webpage and te
                           width={1020}
                           height={510}
                           src={heroImage}
-                          alt=""
+                          title={heroImageTitle}
+                          alt={heroImageAlt}
                         /> <!--1-->
                       }
 				</div>
@@ -180,25 +183,29 @@ Here's what our blog layout code should look like:
 
 Once we save and rebuild our *Site*, CloudCannon will show a yellow *Editable Region* box around the content on the webpage. When you click into the *Editable Region*, CloudCannon will also display a WYSIWYG toolbar for formatting your content.
 
+<comp.DocShot docshot_key="" alt="" title="" type="screenshot"/>
+
 Why did the Visual Editor show a WYSIWYG toolbar for the content of our blog files, but not for the title or author? Because, by default, CloudCannon treats most inputs as plain text and Markdown content as rich text. We'll cover that more in the next step of this guide, [Visual editing for HTML-like files](/documentation/guides/set-up-visual-editing/editing-html-like-files/).
 
 ## Images in your front matter
 
-Finally, we want to be able to edit the `heroImage` in our content files. The value of the `heroImage` front matter key populates the `<img>` tag in the blog layout (`src` is set to `[heroImage]`). To allow CloudCannon to re-render this image in the Visual Editor, we need to add the `data-editable=""` and `data-prop-src=""` attributes to the `<img>` tag in the blog layout.
+Finally, we want to be able to edit the values of `heroImage` , `heroImageTitle`, and `heroImageAlt` in our content files.
 
-This time, the value for `data-editable` should be `image`, as an image path is the type of data stored under the `heroImage` key. We could also wrap the `<img>` element in the equivalent web component `<editable-image>`, however that is not as efficient as adding attributes to existing elements.
+The value of these front matter keys populates various attributes of the `<img>` tag in the blog layout (e.g., `src` is set to `[heroImage]`). To allow CloudCannon to re-render this image and its details in the Visual Editor, we need to define an Image *Editable Region* using the `data-editable` attribute, and define the path the to the three data properties we want to edit.
 
-Next, we need to tell CloudCannon the path to the value we want to edit. This time, we'll use the `data-prop-src` attribute, not `data-prop`.
+Inside the `<img>` tag in the blog layout, we should add the `data-editable` attribute with the value `image`. Alternatively, we could choose to wrap the `<img>` element in the equivalent web component `<editable-image>`, however that is not as efficient as adding attributes to existing elements.
 
-&nbsp;
+Next, we need to tell CloudCannon the path for the values we want to edit. This time, we'll use the `data-prop-[key]` attribute, not `data-prop`. Both attributes define the location of the data property you want to edit, but the `data-prop-[key]` attribute is an extension of the `data-prop` attribute behavior.
 
-Next we'll add `data-prop-src`. The `data-prop-src` attribute is an extension of the `data-prop` attribute. Both define the location of the data property you want to edit. However, `data-prop` only passes the value stored at that location to the Editable (e.g., `/example.jpg`), while `data-prop-src` also renames the value with the `src` key (e.g., `src: /example.jpg`).
+A limitation of the `data-prop` attribute is that it only passes the the value stored at a location to the *Editable Region*. Some *Editable Regions*, like Image, expect data in the `key: string` format. The `data-prop-[key]` attribute also passes a key name to the *Editable Region*. For example, `data-prop="theme_color"` pointing at the front matter object `theme_color: red` would pass the value "red" to the *Editable Region* in the Visual Editor. If we use `data-prop-color="theme_color"` instead, we can pass "color: red" to the *Editable Region*.
 
-&nbsp;
+To edit the image path, title, and alt text, let's use `data-prop-src`, `data-prop-title`, and `data-prop-alt`.
 
-&nbsp;
+By adding the attribute `data-prop-src="heroImage"` to the `<img>` tag, we can take the value of the `heroImage` key in the front matter, append the key `src`, and pass it to our Image *Editable Region*. We'll also add `data-prop-title="heroImageTitle"` and `data-prop-alt="heroImageAlt"` (we'll dive deeper into the `data-prop` attribute in the [Advanced data property paths](/documentation/guides/configure-visual-editing/advanced-data-property-paths/) step of this guide).
 
-CloudCannon Image Editables expect data in the `src: string` format. By adding the add the `data-prop-src="heroImage"` attribute to the `<img>` tag, we can take the value of the `heroImage` key in the front matter, append the key `src`, adn pass it to our Image Editable (we'll dive deeper into the `data-prop` attribute in the [Advanced data property paths](/documentation/guides/configure-visual-editing/advanced-data-property-paths/) step of this guide).
+<comp.Notice info_type="info">
+  <p>You don't have to include the image title and alt text for the Image <em>Editable Region</em> to function, but we recommend it for website SEO.</p>
+</comp.Notice>
 
 Here's what our blog layout code should look like:
 
@@ -208,8 +215,10 @@ Here's what our blog layout code should look like:
 <div class="hero-image">
     {heroImage &&
       <img
-        data-editable="image" <!--1-->
-        data-prop-src="heroImage" <!--2-->
+        data-editable="image"
+        data-prop-src="heroImage"
+        data-prop-alt="alt"
+        data-prop-title="title"
         width={1020}
         height={510}
         src={heroImage}
@@ -227,37 +236,16 @@ Here's what our blog layout code should look like:
 </comp.Annotation>
 </comp.CodeBlock>
 
-If we save and rebuild our Site, a yellow box showing an editable region will appear around the blog image in the Visual Editor.
+Once we save and rebuild our *Site*, CloudCannon will show a yellow *Editable Region* box around the image in the Visual Editor.
 
-<comp.DocShot docshot_key="" alt="" title=""/>
+<comp.DocShot docshot_key="" alt="" title="" type="screenshot"/>
 
-When you click into the image editable region, CloudCannon will open your computer's file browser and allow you to upload an image. CloudCannon will upload the new image to the location defined by `options.paths.uploads` if you have configured an Image input for your front matter key, or the location defined by `paths.uploads` in the root of your CloudCannon Configuration file. If you have not configured an upload path for your Site, CloudCannon will upload the new image to the uploads folder in the root of your repository, or create one if the folder does not exist.
+When you click into the image *Editable Region*, CloudCannon will open the *Edit Image* Data Panel with the option to change the image, and update the image title and alt text.
+
+If you upload a new image through the *Edit Image* Data Panel, CloudCannon will upload it to one of three locations. If your front matter key is configured as an Image Input, CloudCannon will upload your new image to the location defined by `options.paths.uploads`. If this option is not defined, CloudCannon will use the location defined by `paths.uploads` in the root of your CloudCannon Configuration file. Finally, if you do not have any uploads path defined, CloudCannon will upload the new image to the uploads folder in the root of your repository, or create one if the folder does not exist.
 
 <comp.Notice info_type="important">
-  <p>If you nest an Image Editable inside a Text or Source Editable, CloudCannon will display a misconfigured warning.</p>
+  <p>If you nest an Image <em>Editable Region</em> inside a Text or Source <em>Editable Region</em>, CloudCannon will display a misconfigured warning.</p>
 </comp.Notice>
 
-In the next step of this guide, we'll cover how to edit webpages generated from HTML-like files by adding a Source Editable.
-
----
-
-When you open a content file like `first-post.mdx` in the Visual Editor, CloudCannon will automatically add Inputs to the sidebar for you to edit the structured data in your front matter, but you can't change your content or edit it directly on the page.
-
-<comp.DocShot docshot_key="" alt="" title=""/>
-
-Let's fix that by adding Text and Image Editables to your blog layout file.
-
-In this step of the guide, we'll add the following components and attributes:
-
-* `data-editable="text"` and `<text-editable>` — This attribute, and its equivalent web component, defines the data type inside an Editable as `text`.
-* `data-editable="image"` and `<image-editable>` — This attribute, and its equivalent web component, defines the data type inside an Editable as `image`.
-* `data-prop=""` — This attribute defines the path to the data property you want to edit and passes that value to the CloudCannon Editable.
-* `data-prop-src=""` — This attribute defines the path to the data property you want to edit and passes that value to the CloudCannon Editable with the `src` key.
-
-&nbsp;
-
-##
-
-&nbsp;
-
-##
+In the next step of this guide, we'll cover how to add Source *Editable Regions* to HTML-like files, allowing you to edit standalone HTML pages in the Visual Editor.
