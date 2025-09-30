@@ -34,7 +34,7 @@ This file is a blog post, containing structured data keys for `title`, `descript
 title: 'First post'
 description: 'Lorem ipsum dolor sit amet'
 author: 'C. Kent'
-pubDate: 'Jul 08 2022'
+pubDate: 'Jul 10 2025'
 heroImage: '../../assets/blog-placeholder-3.jpg'
 ---
 
@@ -95,19 +95,65 @@ This file is the blog layout, containing HTML layout for the blog webpage and te
 </comp.Annotation>
 </comp.CodeBlock>
 
+<comp.Notice info_type="info">
+  <p>Some SSGs use specific file types rather than <code>.html</code> for the layout pages (e.g., Astro uses <code>.astro</code> files). You can still add <em>Editable Regions</em> to these files as long as they output to an HTML file after a <em>Site</em> build.</p>
+</comp.Notice>
+
 Together, these files output a webpage that looks like this:
 
 <comp.DocsImage path="" alt="" title=""/>
 
 ## Text in your front matter
 
-In our example above, each blog file contains two text front matter keys we want to edit inline: `title` and `author`.
+In our example above, each blog file contains two text front matter keys we want to edit inline: `title` and `author`. We can add Text *Editable Regions* to the blog layout file to enable this.
+
+When building your *Site*, CloudCannon populates the templating inside the blog layout file with values from each blog file to create a series of output HTML pages. Specifically, the `title` key in the front matter of each blog file populates the `[title]` templating field inside the `<h1>` tag, and the `author` key populates the `[author]` templating field inside the `<p>` tag.
+
+Let's start with `title`.
+
+Inside the `<h1>` tag, we can add the `data-editable` HTML attribute with the value `text`, to define a Text *Editable Region*. We also need to add the `data-prop` HTML attribute to the `<h1>` tag, to define the path the to data property we want to edit (we'll dive deeper into paths for the `data-prop` attribute in the [Advanced data property paths](/documentation/guides/configure-visual-editing/advanced-data-property-paths/) step of this guide). CloudCannon will pass that value to the *Editable Region* in the Visual Editor and re-render the field. In this example, the value of `data-prop` should be `title`, as this is the name of the front matter key.
+
+Here's what our blog layout code should look like:
+
+<comp.CodeBlock language="Astro" source="BlogPost.astro">
+``````````
+
+<h1 data-editable="text" data-prop="title" >{title}</h1> /*1*/
+
+``````````
+<comp.Annotation number="1">
+  The `data-editable` attribute defines what kind of data this element contains. In this case, the value is `text`. The `data-prop` attribute defines where data is stored. In this case, we are editing the value of the `title` key in the file front matter.
+</comp.Annotation>
+</comp.CodeBlock>
+
+Editing the value of `author` in the Visual Editor is slightly more complicated.
+
+Just like the `title` example, we need to define the type of *Editable Region* we want and the path to the proerty we want to edit.But, the `[author]` templating field is not the only value inside the `<p>` tag: the plain text "By:" prepends the author value. If we added `<p data-editable="text" data-prop="author">` to the `<p>` tag in our blog layout, the Visual Editor would re-render the field to only show the value of `author`, hiding the plain text.
+
+It is important to note that *Editable Regions* don't modify the code of your templating, so the "By:" plain text is not destroyed. Instead, they update the value of the front matter key and re-render the webpage preview. This leads to a mismatch in the appearance of the built *Site*, which includes "By:" before the author name, and the preview in the Visual Editor, which would not.
+
+To avoid this issue, we can use the web component `<editable-text>` instead. The `<text-editable>` web component replaces the need for the `data-editable="text"` attribute, telling CloudCannon what type of data we are editing. This is useful if you want to edit an element that can't take attributes, or a specific section of a string.
+
+We can add the `data-prop="author"` attribute to this web component.
+
+Here's what our blog layout code should look like:
+
+<comp.CodeBlock language="Astro" source="BlogPost.astro">
+``````````
+
+<p>By: <text-editable data-prop="author">{author}</text-editable></p> /*1*/
+
+``````````
+<comp.Annotation number="1">
+  The `<text-editable>` web component defines what kind of data this element contains and takes other Editable attributes. The `data-prop` attribute defines the path to the data property you want to edit and passes that value to the CloudCannon Editable. In this case, we are editing the value of the `title` key in the file front matter.
+</comp.Annotation>
+</comp.CodeBlock>
+
+Once we save and rebuild our *Site*, CloudCannon will show yellow boxes around the title and author fields on the webpage, indicating *Editable Regions* in the Visual Editor.
+
+<comp.DocShot docshot_key="" alt="" title="" type="screenshot"/>
 
 &nbsp;
-
-&nbsp;
-
-In the blog layout, the `<span data-cms-snippet-type="inline" data-cms-snippet-id="abec2e01-f1c2-4e29-8a10-b7f9bcfb3a07" data-cms-snippet-data="eyJ0ZW1wbGF0ZSI6InRpdGxlIiwiX2hpZGRlbiI6dHJ1ZSwiX3NuaXBwZXRfdHlwZSI6Il9jY19tZHhfdW5rbm93bl90ZW1wbGF0ZSIsIl9tZXRhIjp7InRlbXBsYXRlIjp7Im9yaWdpbmFsRGF0YSI6W3siX3R5cGUiOiJ0ZXh0IiwidGV4dCI6InRpdGxlIn1dfX19"></span>` templating inside the `<h1>` tag is populated by the value of the `title` key in the front matter of each blog file. To allow CloudCannon to re-render this field in the Visual Editor for inline editing, we need to add the `data-editable=""` and `data-prop=""` attributes to the `<h1>` tag in the blog layout.
 
 &nbsp;
 
@@ -128,51 +174,9 @@ In this step of the guide, we'll add the following components and attributes:
 
 For a complete list of configuration options for CloudCannon Editables, please read our [Editables reference](/documentation/articles/editables-reference) documentation.
 
-## Text in your front matter
-
-In our example above, there are two text front matter keys we want to edit: `title` and `author`.
+##
 
 &nbsp;
-
-The value for `data-editable` should be `text`, as text is the type of data stored under the `title` key. The value for `data-prop` should be `title`, as this is the path to the data property we want to edit (we'll dive deeper into paths for the `data-prop` attribute in the [Advanced data property paths](/documentation/guides/configure-visual-editing/advanced-data-property-paths/) step of this guide).
-
-Here's what our blog layout code should look like:
-
-<comp.CodeBlock language="Astro" source="BlogPost.astro">
-``````````
-
-<h1 data-editable="text" data-prop="title" >{title}</h1> /*1*/
-
-``````````
-<comp.Annotation number="1">
-  The `data-editable` attribute defines what kind of data this element contains. In this case, the value is `text`. The `data-prop` attribute defines where data is stored. In this case, we are editing the value of the `title` key in the file front matter.
-</comp.Annotation>
-</comp.CodeBlock>
-
-Editing the blog author is slightly more complicated.
-
-In the blog layout, the `<span data-cms-snippet-type="inline" data-cms-snippet-id="bc90ef8a-e7c6-4d48-a9e7-51e29b8ed7e4" data-cms-snippet-data="eyJ0ZW1wbGF0ZSI6ImF1dGhvciIsIl9oaWRkZW4iOnRydWUsIl9zbmlwcGV0X3R5cGUiOiJfY2NfbWR4X3Vua25vd25fdGVtcGxhdGUiLCJfbWV0YSI6eyJ0ZW1wbGF0ZSI6eyJvcmlnaW5hbERhdGEiOlt7Il90eXBlIjoidGV4dCIsInRleHQiOiJhdXRob3IifV19fX0="></span>` templating inside the `<p>` tag is populated by the value of the `author` key in the front matter of each blog file. Just like the title example, we need to add the `data-editable="text"` and `data-prop="author"` attributes to enable inline editing in the Visual Editor. However, if we add those attributes directly to the `<p>` tag, we won't be able to see the "By:" plain text that prepends the author value.
-
-If we added `<p data-editable="text" data-prop="author">` to our blog layout, the Visual Editor would re-render the field to only show the value of `author`, hiding the plain text. It is important to note that Text Editables don't modify the code of your templating, so the "By:" plain text is not destroyed. Instead, they update the value of the front matter key and re-render the webpage preview. This leads to a mismatch in the appearance of the built Site, which includes "By:" before the author name, and the preview in the Visual Editor, which would not.
-
-To avoid this issue, we can specifically wrap the `<span data-cms-snippet-type="inline" data-cms-snippet-id="dfbedf24-a1d6-44a5-a5b6-20852db71b4c" data-cms-snippet-data="eyJ0ZW1wbGF0ZSI6ImF1dGhvciIsIl9oaWRkZW4iOnRydWUsIl9zbmlwcGV0X3R5cGUiOiJfY2NfbWR4X3Vua25vd25fdGVtcGxhdGUiLCJfbWV0YSI6eyJ0ZW1wbGF0ZSI6eyJvcmlnaW5hbERhdGEiOlt7Il90eXBlIjoidGV4dCIsInRleHQiOiJhdXRob3IifV19fX0="></span>` templating in a `<text-editable>` web component. The `<text-editable>` component replaces the need for the `data-editable="text"` attribute, telling CloudCannon what type of data we are editing. This is useful if you want to edit an element that can't take attributes or a specific section of a string. We can add the `data-prop="author"` attribute to this web component.
-
-Here's what our blog layout code should look like:
-
-<comp.CodeBlock language="Astro" source="BlogPost.astro">
-``````````
-
-<p>By: <text-editable data-prop="author">{author}</text-editable></p> /*1*/
-
-``````````
-<comp.Annotation number="1">
-  The `<text-editable>` web component defines what kind of data this element contains and takes other Editable attributes. The `data-prop` attribute defines the path to the data property you want to edit and passes that value to the CloudCannon Editable. In this case, we are editing the value of the `title` key in the file front matter.
-</comp.Annotation>
-</comp.CodeBlock>
-
-If we save and rebuild our Site, yellow boxes showing editable regions will appear around the title and author fields in the Visual Editor, enabling inline editing of those values.
-
-<comp.DocShot docshot_key="" alt="" title=""/>
 
 ## Markdown content
 
