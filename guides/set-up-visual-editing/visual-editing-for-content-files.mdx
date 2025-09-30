@@ -2,20 +2,28 @@
 _schema: default
 _uuid: 9cfb6628-42ff-4598-9556-9722d672d0a9
 _created_at: 2025-08-26T11:26:57+12:00
-title: Editing content files
-nav_title: Editing content files
+title: Visual editing for content files
+nav_title: Visual editing for content files
 order: 4
 published: true
 start_nav_group:
 image: >-
   https://cc-dam.imgix.net/documentation/images/guides/getting-started/guide-thumbnails/CloudCannon-Getting-Started-Thumbnail-Universal.png
 description: >-
-  Learn how to configure CloudCannon Editables for your content files, including
-  YAML front matter and Markdown content.
+  Learn how to configure Editable Regions for your content files, including YAML
+  front matter and Markdown content.
 ---
-Most content files are hybrid files, with a YAML front matter section containing file information in structured data keys (e.g., `title`, `publish_date`, `author`, etc.) and the main body of content in Markdown. The structured data and content from each file populate fields in a layout file, which contains the HTML-like templating to generate the output page during a Site build.
+The majority of the files on your website are likely to be content files. These are files with a repeated format, stored in *Collections* on your *Site*.
 
-Let's take a look at an example. Even though this example is for the SSG Astro, most SSGs that CloudCannon supports will use a similar model (i.e., populating a layout file with values from each content file to generate a page).
+You and any content creators on your team probably spend the majority of your time editing content files, such as when writing a new blog or updating a product, so it's essential to have an intuitive editing interface. Therefore, content files are an excellent starting point for configuring visual editing.
+
+In this step of the guide, we'll cover how to add *Editable Regions* for text and images stored in your front matter and Markdown content.
+
+## What is a content file?
+
+A content file is a hybrid file that contains structured data keys (e.g., `title`, `publish_date`, `author`) in a YAML front matter section and Markdown content in the main body of the file. The structured data and content from each file populate fields in a layout file, which contains the HTML-like templating, generating an output page for each file during the *Site* build.
+
+Let's take a look at an example.
 
 This file is a blog post, containing structured data keys for `title`, `description`, `author`, `pubDate`, and `heroImage` in the front matter, and Markdown content in the body of the file.
 
@@ -37,21 +45,8 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor i
 
 This file is the blog layout, containing HTML layout for the blog webpage and templating to populate elements with the values from each blog file.
 
-<comp.CodeBlock language="Astro" source="BlogPost.astro">
+<comp.CodeBlock language="HTML" source="BlogPost.html">
 ``````````
-
----
-import { Image } from 'astro:assets';
-import type { CollectionEntry } from 'astro:content';
-import BaseHead from '../components/BaseHead.astro';
-import Footer from '../components/Footer.astro';
-import FormattedDate from '../components/FormattedDate.astro';
-import Header from '../components/Header.astro';
-
-type Props = CollectionEntry<'blog'>['data'];
-
-const { title, description, author, pubDate, updatedDate, heroImage } = Astro.props;
----
 
 <html lang="en">
 	<body>
@@ -104,6 +99,20 @@ Together, these files output a webpage that looks like this:
 
 <comp.DocsImage path="" alt="" title=""/>
 
+## Text in your front matter
+
+In our example above, each blog file contains two text front matter keys we want to edit inline: `title` and `author`.
+
+&nbsp;
+
+&nbsp;
+
+In the blog layout, the `<span data-cms-snippet-type="inline" data-cms-snippet-id="abec2e01-f1c2-4e29-8a10-b7f9bcfb3a07" data-cms-snippet-data="eyJ0ZW1wbGF0ZSI6InRpdGxlIiwiX2hpZGRlbiI6dHJ1ZSwiX3NuaXBwZXRfdHlwZSI6Il9jY19tZHhfdW5rbm93bl90ZW1wbGF0ZSIsIl9tZXRhIjp7InRlbXBsYXRlIjp7Im9yaWdpbmFsRGF0YSI6W3siX3R5cGUiOiJ0ZXh0IiwidGV4dCI6InRpdGxlIn1dfX19"></span>` templating inside the `<h1>` tag is populated by the value of the `title` key in the front matter of each blog file. To allow CloudCannon to re-render this field in the Visual Editor for inline editing, we need to add the `data-editable=""` and `data-prop=""` attributes to the `<h1>` tag in the blog layout.
+
+&nbsp;
+
+---
+
 When you open a content file like `first-post.mdx` in the Visual Editor, CloudCannon will automatically add Inputs to the sidebar for you to edit the structured data in your front matter, but you can't change your content or edit it directly on the page.
 
 <comp.DocShot docshot_key="" alt="" title=""/>
@@ -123,7 +132,7 @@ For a complete list of configuration options for CloudCannon Editables, please r
 
 In our example above, there are two text front matter keys we want to edit: `title` and `author`.
 
-In the blog layout, the `{title}` templating inside the `<h1>` tag is populated by the value of the `title` key in the front matter of each blog file. To allow CloudCannon to re-render this field in the Visual Editor for inline editing, we need to add the `data-editable=""` and `data-prop=""` attributes to the `<h1>` tag in the blog layout.
+&nbsp;
 
 The value for `data-editable` should be `text`, as text is the type of data stored under the `title` key. The value for `data-prop` should be `title`, as this is the path to the data property we want to edit (we'll dive deeper into paths for the `data-prop` attribute in the [Advanced data property paths](/documentation/guides/configure-visual-editing/advanced-data-property-paths/) step of this guide).
 
@@ -142,11 +151,11 @@ Here's what our blog layout code should look like:
 
 Editing the blog author is slightly more complicated.
 
-In the blog layout, the `{author}` templating inside the `<p>` tag is populated by the value of the `author` key in the front matter of each blog file. Just like the title example, we need to add the `data-editable="text"` and `data-prop="author"` attributes to enable inline editing in the Visual Editor. However, if we add those attributes directly to the `<p>` tag, we won't be able to see the "By:" plain text that prepends the author value.
+In the blog layout, the `<span data-cms-snippet-type="inline" data-cms-snippet-id="bc90ef8a-e7c6-4d48-a9e7-51e29b8ed7e4" data-cms-snippet-data="eyJ0ZW1wbGF0ZSI6ImF1dGhvciIsIl9oaWRkZW4iOnRydWUsIl9zbmlwcGV0X3R5cGUiOiJfY2NfbWR4X3Vua25vd25fdGVtcGxhdGUiLCJfbWV0YSI6eyJ0ZW1wbGF0ZSI6eyJvcmlnaW5hbERhdGEiOlt7Il90eXBlIjoidGV4dCIsInRleHQiOiJhdXRob3IifV19fX0="></span>` templating inside the `<p>` tag is populated by the value of the `author` key in the front matter of each blog file. Just like the title example, we need to add the `data-editable="text"` and `data-prop="author"` attributes to enable inline editing in the Visual Editor. However, if we add those attributes directly to the `<p>` tag, we won't be able to see the "By:" plain text that prepends the author value.
 
 If we added `<p data-editable="text" data-prop="author">` to our blog layout, the Visual Editor would re-render the field to only show the value of `author`, hiding the plain text. It is important to note that Text Editables don't modify the code of your templating, so the "By:" plain text is not destroyed. Instead, they update the value of the front matter key and re-render the webpage preview. This leads to a mismatch in the appearance of the built Site, which includes "By:" before the author name, and the preview in the Visual Editor, which would not.
 
-To avoid this issue, we can specifically wrap the `{author}` templating in a `<text-editable>` web component. The `<text-editable>` component replaces the need for the `data-editable="text"` attribute, telling CloudCannon what type of data we are editing. This is useful if you want to edit an element that can't take attributes or a specific section of a string. We can add the `data-prop="author"` attribute to this web component.
+To avoid this issue, we can specifically wrap the `<span data-cms-snippet-type="inline" data-cms-snippet-id="dfbedf24-a1d6-44a5-a5b6-20852db71b4c" data-cms-snippet-data="eyJ0ZW1wbGF0ZSI6ImF1dGhvciIsIl9oaWRkZW4iOnRydWUsIl9zbmlwcGV0X3R5cGUiOiJfY2NfbWR4X3Vua25vd25fdGVtcGxhdGUiLCJfbWV0YSI6eyJ0ZW1wbGF0ZSI6eyJvcmlnaW5hbERhdGEiOlt7Il90eXBlIjoidGV4dCIsInRleHQiOiJhdXRob3IifV19fX0="></span>` templating in a `<text-editable>` web component. The `<text-editable>` component replaces the need for the `data-editable="text"` attribute, telling CloudCannon what type of data we are editing. This is useful if you want to edit an element that can't take attributes or a specific section of a string. We can add the `data-prop="author"` attribute to this web component.
 
 Here's what our blog layout code should look like:
 
@@ -198,7 +207,7 @@ If we save and rebuild our Site, a yellow box showing an editable region will ap
 
 You can also add an Image Editable to images, allowing users to upload a new image in the Visual Editor.
 
-In this example, each blog file references an image path under the `heroImage` key, which populates the `<img>` tag in the blog layout (`src` is set to `{heroImage}`). To allow CloudCannon to re-render this image in the Visual Editor and let users select a new image, we need to add the `data-editable=""` and `data-prop-src=""` attributes to the `<img>` tag in the blog layout.
+In this example, each blog file references an image path under the `heroImage` key, which populates the `<img>` tag in the blog layout (`src` is set to `<span data-cms-snippet-type="inline" data-cms-snippet-id="f40b9b50-6101-4182-8079-dee78f22b574" data-cms-snippet-data="eyJ0ZW1wbGF0ZSI6Imhlcm9JbWFnZSIsIl9oaWRkZW4iOnRydWUsIl9zbmlwcGV0X3R5cGUiOiJfY2NfbWR4X3Vua25vd25fdGVtcGxhdGUiLCJfbWV0YSI6eyJ0ZW1wbGF0ZSI6eyJvcmlnaW5hbERhdGEiOlt7Il90eXBlIjoidGV4dCIsInRleHQiOiJoZXJvSW1hZ2UifV19fX0="></span>`). To allow CloudCannon to re-render this image in the Visual Editor and let users select a new image, we need to add the `data-editable=""` and `data-prop-src=""` attributes to the `<img>` tag in the blog layout.
 
 The value for `data-editable` should be `image`, as an image path is the type of data stored under the `heroImage` key. We could also wrap the `<img>` element in the equivalent web component `<image-editables>`, however that is not as efficient as adding attributes to existing elements.
 
