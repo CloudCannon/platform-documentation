@@ -1,0 +1,426 @@
+---
+_schema: default
+_uuid: 187ca728-dbb1-4802-b8a4-4aa5d6307551
+_created_at: 2025-08-26T11:19:49+12:00
+title: 'DELETE: Tate''s Starter'
+nav_title: 'DELETE: Tate''s Starter'
+order: 11
+published: true
+start_nav_group:
+image:
+description:
+---
+# Adding Visual Editing to Your Astro Site with CloudCannon
+
+If you have an existing Astro site with markdown files and YAML frontmatter, you can easily add visual editing capabilities using CloudCannon Editables. This guide will walk you through making your content editable directly in the CloudCannon CMS.
+
+## Overview
+
+Your existing Astro site likely has:
+- Markdown files with YAML frontmatter (`.md` files)
+- Astro components (`.astro` files)
+- Content collections or individual pages
+- Static assets and styling
+
+CloudCannon Editables will let your content editors:
+- Edit frontmatter fields visually
+- Edit markdown content with a rich text editor
+- Add/remove items from arrays in frontmatter
+- Upload and manage images
+- Edit content without touching code
+
+## Step 1: Install CloudCannon Editables
+
+First, add the editables to your Astro project:
+
+```bash
+npm install @cloudcannon/editables
+```
+
+## Step 2: Make Your Frontmatter Editable
+
+Let's say you have a blog post with this frontmatter:
+
+```markdown
+---
+title: "My Blog Post"
+description: "A great blog post about Astro"
+author: "John Doe"
+date: 2024-01-15
+tags: ["astro", "web-development"]
+hero_image: "/images/hero.jpg"
+---
+
+# My Blog Post
+
+This is the content of my blog post...
+```
+
+### Making Text Fields Editable
+
+In your Astro component that displays this content:
+
+```astro
+---
+// src/pages/blog/[slug].astro or src/layouts/BlogPost.astro
+const { frontmatter } = Astro.props;
+---
+
+<html>
+<head>
+  <title>{frontmatter.title}</title>
+</head>
+<body>
+  <!-- Make the title editable -->
+  <h1>
+    <text-editable data-prop="title">{frontmatter.title}</text-editable>
+  </h1>
+  
+  <!-- Make the description editable -->
+  <p>
+    <text-editable data-prop="description" data-type="text">
+      {frontmatter.description}
+    </text-editable>
+  </p>
+  
+  <!-- Make the author editable -->
+  <p>By: <text-editable data-prop="author">{frontmatter.author}</text-editable></p>
+  
+  <!-- The content becomes editable automatically -->
+  <div>
+    <text-editable data-prop="@content">
+      <slot />
+    </text-editable>
+  </div>
+</body>
+</html>
+```
+
+### Alternative: Using Data Attributes
+
+If you prefer not to use custom elements, you can use data attributes:
+
+```astro
+<h1 data-editable="text" data-prop="title">{frontmatter.title}</h1>
+<p data-editable="text" data-prop="description" data-type="text">
+  {frontmatter.description}
+</p>
+<p>By: <span data-editable="text" data-prop="author">{frontmatter.author}</span></p>
+<div data-editable="text" data-prop="@content">
+  <slot />
+</div>
+```
+
+## Step 3: Make Arrays Editable
+
+If your frontmatter has arrays (like tags or a team list):
+
+```markdown
+---
+title: "About Us"
+team_members:
+  - name: "John Doe"
+    role: "Developer"
+    bio: "Loves coding"
+  - name: "Jane Smith"
+    role: "Designer"
+    bio: "Creative problem solver"
+tags: ["astro", "web-development", "javascript"]
+---
+```
+
+Make them editable in your Astro component:
+
+```astro
+---
+const { frontmatter } = Astro.props;
+---
+
+<!-- Editable team members array -->
+<section>
+  <h2>Our Team</h2>
+  <array-editable data-prop="team_members">
+    {frontmatter.team_members?.map((member, index) => (
+      <array-item key={index}>
+        <div class="team-member">
+          <h3><text-editable data-prop="name">{member.name}</text-editable></h3>
+          <p><text-editable data-prop="role">{member.role}</text-editable></p>
+          <p><text-editable data-prop="bio" data-type="text">{member.bio}</text-editable></p>
+        </div>
+      </array-item>
+    ))}
+  </array-editable>
+</section>
+
+<!-- Editable simple tags array -->
+<div>
+  <h3>Tags:</h3>
+  <array-editable data-prop="tags">
+    {frontmatter.tags?.map((tag, index) => (
+      <array-item key={index}>
+        <span class="tag">
+          <text-editable data-prop="">{tag}</text-editable>
+        </span>
+      </array-item>
+    ))}
+  </array-editable>
+</div>
+```
+
+## Step 4: Make Images Editable
+
+For image fields in your frontmatter:
+
+```astro
+---
+const { frontmatter } = Astro.props;
+---
+
+<image-editable data-prop="hero_image">
+  <img src={frontmatter.hero_image} alt={frontmatter.title} />
+</image-editable>
+```
+
+This will allow editors to:
+- Click on the image to upload a new one
+- Automatically update the frontmatter with the new image path
+
+## Step 5: Making Astro Components Editable
+
+If you have reusable Astro components that you want to make editable, you need to register them first.
+
+### Register Your Astro Components
+
+Create a registration script:
+
+```javascript
+// src/scripts/register-components.js
+import { registerAstroComponent } from '@cloudcannon/editables/integrations/astro.js';
+import HeroSection from '../components/HeroSection.astro';
+import TestimonialCard from '../components/TestimonialCard.astro';
+
+// Register your components
+registerAstroComponent('hero_section', HeroSection);
+registerAstroComponent('testimonial_card', TestimonialCard);
+```
+
+Include this script in your layout:
+
+```astro
+---
+// In your layout
+---
+
+<script>
+  import '../scripts/register-components.js';
+</script>
+```
+
+### Use Component Editables
+
+Now you can make your components editable:
+
+```markdown
+---
+title: "Homepage"
+hero:
+  headline: "Welcome to Our Site"
+  subheading: "We build amazing things"
+  cta_text: "Get Started"
+testimonial:
+  quote: "This company is amazing!"
+  author: "Happy Customer"
+---
+```
+
+```astro
+<!-- In your page template -->
+<component-editable data-prop="hero" data-component="hero_section">
+    <HeroSection {...Astro.props.testimonial} />
+</component-editable>
+
+<component-editable data-prop="testimonial" data-component="testimonial_card">
+    <TestimonialCard {...Astro.props.testimonial} />
+</component-editable>
+```
+
+## Step 6: Working with Collections
+
+If you're using Astro's content collections, you can make collection data editable:
+
+```astro
+---
+// src/pages/blog/index.astro
+import { getCollection } from 'astro:content';
+const posts = await getCollection('blog');
+---
+
+<h1>Blog Posts</h1>
+<array-editable data-prop="@collections[blog]">
+  {posts.map((post) => (
+    <array-item key={post.id}>
+      <article>
+        <h2>
+          <text-editable data-prop="data.title">{post.data.title}</text-editable>
+        </h2>
+        <p>
+          <text-editable data-prop="data.description">{post.data.description}</text-editable>
+        </p>
+        <a href={`/blog/${post.slug}/`}>Read more</a>
+      </article>
+    </array-item>
+  ))}
+</array-editable>
+```
+
+## Step 7: Configuration !!TODO!!
+
+Create a `cloudcannon.config.yml` file in your project root to configure input types:
+
+```yaml
+# cloudcannon.config.yml
+
+# Configure your collections
+collections_config:
+  blog:
+    path: src/content/blog
+    url: /blog/[slug]/
+  pages:
+    path: src/pages
+    url: /[slug]/
+
+# Configure input types for better editing experience
+_inputs:
+  title:
+    type: text
+  description:
+    type: textarea
+  content:
+    type: markdown
+  hero_image:
+    type: image
+  date:
+    type: date
+  tags:
+    type: multiselect
+    options:
+      values:
+        - astro
+        - web-development
+        - javascript
+        - css
+        - html
+
+# Configure rich text editing
+_editables:
+  content:
+    bold: true
+    italic: true
+    link: true
+    bulletedlist: true
+    numberedlist: true
+    image: true
+```
+
+## Step 8: Advanced Patterns
+
+### Conditional Content Blocks
+
+For more complex layouts with different content block types:
+
+```markdown
+---
+title: "Homepage"
+content_blocks:
+  - type: "hero"
+    headline: "Welcome"
+    image: "/hero.jpg"
+  - type: "text"
+    content: "Some text content"
+  - type: "gallery"
+    images: ["/img1.jpg", "/img2.jpg"]
+---
+```
+
+```astro
+<array-editable 
+  data-prop="content_blocks" 
+  data-id-key="type" 
+  data-component-key="type">
+  {frontmatter.content_blocks?.map((block, index) => (
+    <array-item key={index} data-id={block.type} data-component={`${block.type}_block`}>
+        <Component {...block} />
+    </array-item>
+  ))}
+</array-editable>
+```
+
+### Editing Layout Files
+
+You can even make your layout files editable by using source editables:
+
+```astro
+---
+// src/layouts/BaseLayout.astro
+---
+
+<html>
+<head>
+  <title>{title}</title>
+</head>
+<body>
+  <header data-editable="source" data-path="/src/layouts/BaseLayout.astro" data-key="header">
+    <nav>
+      <a href="/">Home</a>
+      <a href="/about">About</a>
+      <a href="/blog">Blog</a>
+    </nav>
+  </header>
+  
+  <main>
+    <slot />
+  </main>
+</body>
+</html>
+```
+
+## Common Patterns and Tips
+
+### 1. Preserve Your Existing Structure
+
+You don't need to change your file structure or data format. CloudCannon Editables work with your existing markdown and frontmatter.
+
+### 2. Gradual Migration
+
+Start by making a few key fields editable, then gradually add more as needed:
+
+```astro
+<!-- Start simple -->
+<h1><text-editable data-prop="title">{title}</text-editable></h1>
+
+<!-- Add more complex editing later -->
+<component-editable data-prop="hero" data-component="hero_section">
+  <HeroSection {...hero} />
+</component-editable>
+```
+
+### 4. SEO Considerations
+
+The editables enhance your existing content without breaking SEO:
+
+```astro
+<!-- This still renders normally for search engines -->
+<meta name="description" content={frontmatter.description} />
+<h1><text-editable data-prop="title">{frontmatter.title}</text-editable></h1>
+```
+
+## Troubleshooting
+
+### Validation Errors
+
+The system will show helpful error messages for configuration issues:
+
+- Missing `data-prop` attributes
+- Invalid data types
+- Non-existent component references
+- Malformed data paths
