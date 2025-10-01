@@ -47,8 +47,21 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor i
 
 This file is the blog layout, containing HTML for the blog webpage and templating to populate elements with the values from each blog file.
 
-<comp.CodeBlock language="HTML" source="BlogPost.html">
+<comp.CodeBlock language="Astro" source="BlogPost.astro">
 ``````````
+
+---
+import { Image } from 'astro:assets';
+import type { CollectionEntry } from 'astro:content';
+import BaseHead from '../components/BaseHead.astro';
+import Footer from '../components/Footer.astro';
+import FormattedDate from '../components/FormattedDate.astro';
+import Header from '../components/Header.astro';
+
+type Props = CollectionEntry<'blog'>['data'];
+
+const { title, description, author, pubDate, updatedDate, heroImage } = Astro.props;
+---
 
 <html lang="en">
 	<body>
@@ -57,13 +70,13 @@ This file is the blog layout, containing HTML for the blog webpage and templatin
 			<article>
 				<div class="hero-image">
                     {heroImage &&
-                        <img
+                        <img /*1*/
                           width={1020}
                           height={510}
                           src={heroImage}
                           title={heroImageTitle}
                           alt={heroImageAlt}
-                        /> <!--1-->
+                        />
                       }
 				</div>
 				<div class="prose">
@@ -71,11 +84,11 @@ This file is the blog layout, containing HTML for the blog webpage and templatin
 						<div class="date">
 							<FormattedDate date={pubDate} />
 						</div>
-						<h1>{title}</h1> <!--2-->
-                        <p>By: {author}</p> <!--3-->
+						<h1>{title}</h1> /*2*/
+                        <p>By: {author}</p> /*3*/
 						<hr />
 					</div>
-					<slot /> <!--4-->
+					<slot /> /*4*/
 				</div>
 			</article>
 		</main>
@@ -118,10 +131,10 @@ Inside the `<h1>` tag, we can add the `data-editable` HTML attribute with the va
 
 Here's what our blog layout code should look like:
 
-<comp.CodeBlock language="HTML" source="BlogPost.html">
+<comp.CodeBlock language="Astro" source="BlogPost.astro">
 ``````````
 
-<h1 data-editable="text" data-prop="title" >{title}</h1> <!--1-->
+<h1 data-editable="text" data-prop="title" >{title}</h1> /*1*/
 
 ``````````
 <comp.Annotation number="1">
@@ -141,10 +154,10 @@ We can add the `data-prop="author"` attribute to this web component.
 
 Here's what our blog layout code should look like:
 
-<comp.CodeBlock language="HTML" source="BlogPost.html">
+<comp.CodeBlock language="Astro" source="BlogPost.astro">
 ``````````
 
-<p>By: <text-editable data-prop="author">{author}</text-editable></p> <!--1-->
+<p>By: <text-editable data-prop="author">{author}</text-editable></p> /*1*/
 
 ``````````
 <comp.Annotation number="1">
@@ -168,10 +181,10 @@ In this case, we can use the special value `@content` to specify Markdown conten
 
 Here's what our blog layout code should look like:
 
-<comp.CodeBlock language="HTML" source="BlogPost.html">
+<comp.CodeBlock language="Astro" source="BlogPost.astro">
 ``````````
 
-<text-editable data-prop="@content"> <!--1-->
+<text-editable data-prop="@content"> /*1*/
     <slot />
 </text-editable>
 
@@ -209,20 +222,21 @@ By adding the attribute `data-prop-src="heroImage"` to the `<img>` tag, we can t
 
 Here's what our blog layout code should look like:
 
-<comp.CodeBlock language="HTML" source="BlogPost.html">
+<comp.CodeBlock language="Astro" source="BlogPost.astro">
 ``````````
 
 <div class="hero-image">
     {heroImage &&
       <img
-        data-editable="image"
-        data-prop-src="heroImage"
-        data-prop-alt="alt"
-        data-prop-title="title"
+        data-editable="image" /*1*/
+        data-prop-src="heroImage" /*2*/
+        data-prop-alt="alt" /*3*/
+        data-prop-title="title" /*4*/
         width={1020}
         height={510}
         src={heroImage}
-        alt=""
+        title={heroImageTitle}
+        alt={heroImageAlt}
       />
     }
 </div>
