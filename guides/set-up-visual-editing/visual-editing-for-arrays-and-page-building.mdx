@@ -79,10 +79,14 @@ const { testimonials } = Astro.props.frontmatter;
 						testimonials.map((testimonial) => (
 							<li>
 								{testimonial.image && (
-									<img width={720} height={360} src={testimonial.image} alt={testimonial.image_alt} />
+									<img
+                                      width={720}
+                                      height={360}
+                                      src={testimonial.image}
+                                      alt={testimonial.image_alt}
+                                    />
 								)}
 								<h4 class="name">{testimonial.name}</h4>
-
                                 <p class="job">{testimonial.job_title}</p>
 								<p class="quote">{testimonial.quote}</p>
 							</li>
@@ -114,6 +118,92 @@ Together, these files output a webpage that looks like this:
 <comp.DocShot docshot_key="" alt="" title="" type="screenshot"/>
 
 In this example, we want to be able to add, delete, and reorder the items in the testimonials array using the Visual Editor, and edit the text and image content for each item.
+
+Let's start with the array.
+
+In our example, the `<ul>` element wraps our array, with its contents looping over every array item stored under the `testimonials` key. We can add the `data-editable="array"` HTML component to the `<ul>` to define the data type for the *Editable Region*, or nest the equivalent web component `<editable-array>` inside `<ul>` to wrap the array.
+
+<comp.Notice info_type="important">
+  <p>If you prefer to use the web component <code>&lt;editable-array&gt;</code>, please ensure that the web component is the immediate parent element of your array.</p>
+</comp.Notice>
+
+&nbsp;
+
+&nbsp;
+
+&nbsp;
+
+Here's what our Testimonial Layout code should look like:
+
+<comp.CodeBlock language="Astro" source="TestimonialsLayout.astro">
+``````````
+
+---
+const { testimonials } = Astro.props.frontmatter;
+---
+
+<!doctype html>
+<html lang="en">
+	<body>
+		<main>
+			<section>
+				<ul data-editable="array" data-prop="testimonials">
+					{
+						testimonials.map((testimonial) => (
+							<li data-editable="array-item" >
+								{testimonial.image && (
+									<img
+                                        data-editable="image"
+                                        data-prop-src="image"
+                                        data-prop-alt="image_alt"
+                                        width={720}
+                                        height={360}
+                                        src={testimonial.image}
+                                        alt={testimonial.image_alt}
+                                    /> /*1*/
+								)}
+								<h4 class="name" data-editable="text" data-prop="name">{testimonial.name}</h4> /*2*/
+                                <p class="job" data-editable="text" data-prop="job_title">{testimonial.job_title}</p> /*3*/
+								<p class="quote" data-editable="text" data-prop="quote">{testimonial.quote}</p> /*4*/
+							</li>
+						))
+					}
+				</ul>
+			</section>
+		</main>
+	</body>
+</html>
+
+``````````
+<comp.Annotation number="1">
+  This `<img>` element contains image width, height, source, title, and alt text attributes. The `src`, `title`, and `alt` attributes are set to the template `{heroImage}`, `{heroImageTitle}`, and `{heroImageAlt}` respectively, which draw their values from the keys in the front matter of a blog file.
+</comp.Annotation>
+<comp.Annotation number="2">
+  This `<h1>` element surrounds the template value `{title}`. This value comes from the `title` key in the front matter of a blog file.
+</comp.Annotation>
+<comp.Annotation number="3">
+  This `<p>` element surrounds the template value `{author}`, prepended by the plain text "By:". This value comes from the `author` key in the front matter of a blog file.
+</comp.Annotation>
+<comp.Annotation number="4">
+  This `<slot />` element marks where the markup content from a blog file will go.
+</comp.Annotation>
+</comp.CodeBlock>
+
+Once we save and rebuild our *Site*, CloudCannon will show a yellow *Editable Regions* box all the content inside the `<main>` tag on the Home page in the Visual Editor, enabling rich text editing. When you click into the *Editable Region*, CloudCannon will also display a WYSIWYG toolbar for formatting your content.
+
+&nbsp;
+
+&nbsp;
+
+This time, the value of our
+
+**Like in our previous step,** [**Visual editing for content files**](https://nifty-quelea.cloudvent.net/documentation/guides/set-up-visual-editing/visual-editing-for-content-files/)**, the `data-editable` HTML attribute will define the type of data we want to edit. In this case, the value is `source` as the `<main>` tag contains source code. We can add this to the `<main>` tag, or wrap the `<main>` tag in the equivalent web component `<editable-source>`.**
+
+&nbsp;
+
+&nbsp;
+
+&nbsp;
 
 &nbsp;
 
