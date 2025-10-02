@@ -127,7 +127,7 @@ In our example, the `<ul>` element wraps our array, with its contents looping ov
 
 Our Array *Editable Region* needs a `data-prop` to define the path the to data property we want to edit. Let's add the HTML attribute `data-prop="testimonials"`, as `testimonials` is the key for our array in `testimonials.md`.
 
-Next, we need to define the structure of each array item. The `<li>` element is the parent element of each array item, containing all the repeated elements. We can add the `data-editable="array-item"` HTML component to the `<li>` element to define the Array Item *Editable Region*, or wrap the `<li>` in the equivalent web component `<editable-array-item>`
+Next, we need to define the structure of each array item. The `<li>` element is the parent element of each array item, containing all the repeated elements. We can add the `data-editable="array-item"` HTML component to the `<li>` element to define the Array Item *Editable Region*, or wrap the `<li>` in the equivalent web component `<editable-array-item>`.
 
 <comp.Notice info_type="info">
   <p><strong>Where should the Array and Array Item </strong><em><strong>Editable Regions</strong></em> <strong>go?</strong></p><p>The Array attribute or web component should be the immediate parent element of your array templating. The Array Item attribute or web component should be the first child element of your array templating. This way, Array and Array Item should flank the templating for looping over your array.</p><p>Try to avoid any nested elements between them; they should be as close together as possible, regardless of whether you use HTML attributes, web components, or both.</p>
@@ -199,155 +199,9 @@ When you hover an array item, CloudCannon will show a small toolbar in the top r
 
 ## Complex arrays or page building
 
-&nbsp;
+A complex array is one where the array items may not have the same structure.  A common use case for complex arrays is page building, where you define the structure for several "content blocks" (e.g., a hero banner, video or image gallery, call-to-action) and add, remove, or reorder them within an array to build the content for your page.
 
-&nbsp;
-
----
-
-&nbsp;
-
-We can use Array Editables to allow users to click and drag elements around the Visual Editor, reordering them within an array.
-
-In this step of the guide, we'll add the following attributes:
-
-* `data-editable="array"` and `<array-editable>` — This attribute, and its equivalent web component, defines the data type inside an Editable as `array`.
-* `data-editable="array-item"` and `<array-item>` — This attribute, and its equivalent web component, defines the data type inside an Editable as `array-item`.
-* `data-prop=""` — This attribute defines the path to the data property you want to edit and passes that value to the CloudCannon Editable.
-* `data-id-key=""` — This attribute defines...
-* `data-id` — This attribute defines...
-
-For a complete list of configuration options for CloudCannon Editables, please read our [Editables reference](/documentation/articles/editables-reference) documentation.
-
-## Simple arrays
-
-&nbsp;
-
-Let's walk through an example.
-
-Our Home page, `index.mdx`, stores testimonial information in YAML in the `slider` array. Each item in the array has the same structure, with the `image`, `image_alt`, `author`, `designation`, and `message` keys.
-
-<comp.CodeBlock language="YAML" source="index.yml">
-``````````
-
-content_blocks:
-  component_name: testimonial
-    title: Build relationships that last
-    description: >-
-      Customers from around the world are building game-changing email marketing campaigns.
-    slider: /*1*/
-      - image: /images/testimonial/logo-2.jpg //2
-        image_alt: Profile photo of Pete Fish
-        author: Pete Fish
-        designation: CMO at Clear Appeal
-        message: >-
-          Sendit has taken Clear Appeal to the next level with its beautiful
-          targeted email campaigns.
-      - image: /images/testimonial/logo-3.jpg #3
-        image_alt: Profile photo of Dolly Watson
-        author: Dolly Watson
-        designation: Digital Marketer at Time Cop
-        message: >-
-          Wow, what a difference Sendit has made. My customers are more engaged
-          than ever.
-      - image: /images/testimonial/logo-4.jpg <!--4-->
-        image_alt: Profile photo of Simon Moriarty
-        author: Simon Moriarty
-        designation: Head of Marketing at Pinnacle Mines
-        message___5___: >-
-          I can't imagine life without Sendit now, I have no idea how we were
-          surviving before.
-
-``````````
-</comp.CodeBlock>
-
-Data from structured data keys in `index.mdx` populate templating in our layout file
-
-<comp.CodeBlock language="JSX" source="testimonials.jsx">
-``````````
-
-import MarkdownIt from "markdown-it";
-const md = new MarkdownIt({ html: true });
-
-export default function GlobalTestimonial(block) {
-  return (
-    <section>
-      <div>
-        <div>
-          <div>
-            <div>
-              <h2>
-                {block.title}
-              </h2>
-              <div>
-                {block.title}
-              </div>
-            </div>
-          </div>
-        </div>
-        <div data-editable="array" data-prop="slider"> /*1*/
-          {block.slider.map((slide, i) => (
-            <Testimonial slide={slide} i={i} key={i} />
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-function Testimonial({ slide, i }) {
-  return (
-    <div key={i} data-editable="array-item">
-      <div>
-        <div>
-          <div>
-            <img
-              src={slide.image}
-              alt="logo"
-              className={slide.image_alt}
-              loading="lazy"
-            />
-          </div>
-          <div>
-            <h3>{slide.author}</h3>
-            <p>{slide.designation}</p>
-          </div>
-        </div>
-        <p>{slide.message}</p>
-      </div>
-    </div>
-  );
-}
-
-``````````
-</comp.CodeBlock>
-
-Together, these files output a webpage that looks like this:
-
-<comp.DocsImage path="" alt="" title=""/>
-
-Let's enable array editing in the Visual Editor by adding Array Editables to our component file.
-
-&nbsp;
-
-&nbsp;
-
-&nbsp;
-
-&nbsp;
-
-&nbsp;
-
-**When you open a content file like `first-post.mdx` in the Visual Editor, CloudCannon will automatically add Inputs to the sidebar for you to edit the structured data in your front matter, but you can't change your content or edit it directly on the page.**
-
-**Let's fix that by adding CloudCannon Editables to your blog layout file.**
-
-&nbsp;
-
-## Complex arrays and page building
-
-x
-
-&nbsp;
+Let's look at an example.
 
 &nbsp;
 
