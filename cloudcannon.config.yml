@@ -125,6 +125,8 @@ collections_config:
         remove_empty_inputs: false
         remove_extra_inputs: true
         icon: 'notes'
+        _enabled_editors:
+          - 'visual'
   user_guides:
     path: 'user/guides'
     icon: 'devices'
@@ -169,6 +171,15 @@ collections_config:
                 label:
                   key: 'name'
             cascade: true
+      guide_landing_page:
+        path: '.cloudcannon/schemas/guide-landing-page.mdx'
+        reorder_inputs: true
+        hide_extra_inputs: false
+        remove_empty_inputs: false
+        remove_extra_inputs: true
+        icon: 'notes'
+        _enabled_editors:
+          - 'visual'
   changelog:
     path: 'changelogs'
     icon: 'newspaper'
@@ -490,6 +501,10 @@ _inputs:
     type: 'array'
     options:
       values: '_structures.guide_sections'
+    preview:
+      text:
+        - key: 'section_title'
+        - 'Guide Section'
     cascade: true
   _uuid:
     type: 'auto'
@@ -531,16 +546,75 @@ _inputs:
       open: false
     cascade: true
   details.related_articles:
-    type: 'multiselect'
+    type: 'array'
     options:
-      values: 'data.combined_resource_list'
-      value_key: '_uuid'
-      required: true
-      max_items: 3
-      preview:
-        label:
-          key: 'title'
-    cascade: true
+      structures:
+        values:
+          - label: 'Developer Articles'
+            value:
+              _type: 'developer_article'
+              item: null
+            _inputs:
+              item:
+                type: 'select'
+                options:
+                  values: 'collections.developer_articles'
+                  value_key: '_uuid'
+                  preview:
+                    text:
+                      - key: 'details.title'
+          - label: 'User Articles'
+            value:
+              _type: 'user_article'
+              item: null
+            _inputs:
+              item:
+                type: 'select'
+                options:
+                  values: 'collections.user_articles'
+                  value_key: '_uuid'
+                  preview:
+                    text:
+                      - key: details.title
+          - label: 'Developer Guides'
+            value:
+              _type: 'developer_guide'
+              item: null
+            _inputs:
+              item:
+                type: 'select'
+                options:
+                  values: 'collections.developer_guides'
+                  value_key: '_uuid'
+                  preview:
+                    text:
+                      - key: details.title
+          - label: 'User Guides'
+            value:
+              _type: 'user_guide'
+              item: null
+            _inputs:
+              item:
+                type: 'select'
+                options:
+                  values: 'collections.user_guides'
+                  value_key: '_uuid'
+                  preview:
+                    text:
+                      - key: 'details.title'
+          - label: 'User Glossary'
+            value:
+              _type: 'user_glossary'
+              item: null
+            _inputs:
+              item:
+                type: 'select'
+                options:
+                  values: 'collections.user_glossary'
+                  value_key: 'glossary_term_name'
+                  preview:
+                    text:
+                      - key: 'glossary_term_name'
   author_notes:
     type: 'object'
     options:

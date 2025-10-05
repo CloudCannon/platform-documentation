@@ -1,14 +1,21 @@
 <ol class="l-header__links" x-data="{ open: -1 }">
   {% for item in headingnav.items %}
     <li><a 
+      tabindex="0"
       x-data="{index: {{ loop.index }}}"
-      @click="open = open == index ? -1 : index"
+      @click="open = open == index ? -1 : index;$focus.within($refs.dropdown_menu_{{ loop.index0 }}).first()"
+      @keydown.down="open = open == index ? -1 : index;$focus.within($refs.dropdown_menu_{{ loop.index0 }}).first()"
+      @keydown.up="open = open == index ? -1 : index;$focus.within($refs.dropdown_menu_{{ loop.index0 }}).last()"
       :class="open == index ? 'open' : ''"
       {% if item.href in url %} aria-current="page"{% endif %}
       {% if item.href %}href="{{ item.href }}"{% endif %}>{{ item.text }} {% if item.items | length %}<img src="{{ "chevron_right:filled" | icon("material") }}" inline>{% endif %}</a>
       {% if item.items | length %}
         <div class="l-header__links--sub-list">
-          <ul>
+          <ul x-ref="dropdown_menu_{{ loop.index0 }}"
+          @keydown.down="$focus.wrap().next()"
+          @keydown.up="$focus.wrap().previous()"
+          @keydown.escape="open = -1"
+          x-trap.noscroll.inert="open != -1">
             {% for subitem in item.items %}
               <li>
                 <a class="c-card-grid__card--item" href="{{ subitem.href }}">
