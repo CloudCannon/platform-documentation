@@ -13,17 +13,18 @@
         
         <ol class="t-docs-nav__main-list">
             {% for block in navigation.headings | bubble_up_nav %}
-                <li class="t-docs-nav__main-list__item" >
+                <li class="t-docs-nav__main-list__item" x-data="{ navOpen: {{ page.data._uuid in block._bubbled }} }">
                     {% if not block.heading_hidden %}
-                        <div class="t-docs-nav__main-list__item__heading-group {% if page.data._uuid in block._bubbled %}nav-open{% endif %}">
+                        <div class="t-docs-nav__main-list__item__heading-group {% if page.data._uuid in block._bubbled %}nav-open{% endif %}" :class="navOpen ? 'nav-open' : ''" @click="navOpen = !navOpen">
                             {% set icon = block.icon + ":outlined" %}
                             <img src="{{ icon | icon("material") }}" inline>
                             <span class="t-docs-nav__main-list__item__heading">{{ block.heading }}</span>
                             <img src="{{ "arrow_forward_ios:outlined" | icon("material") }}" inline>
                         </div>
                     {% endif %}
-                    
+                    <template x-if="navOpen">
                     {{ subnav(block) }}
+                    </template>
                 </li>
             {% endfor %}
         </ol>
