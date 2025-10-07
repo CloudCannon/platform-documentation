@@ -56,38 +56,38 @@ In this guide, we'll show you how to define each type of *Editable Region* using
       In this example, we have added `data-editable="text"` HTML attribute to the `<h1>` tag to define a Text *Editable Region*.
 
       <comp.CodeBlock language="Astro"  source="file.astro">
-                  ``````````
-                  <html lang="en">
-                    <body>
-                      <main>
-                		<article>
-                          <h1 data-editable="text" data-prop="title" >{title}</h1>
-                        </article>
-                      </main>
-                    </body>
-                  </html>
+      ``````````
+      <html lang="en">
+        <body>
+          <main>
+            <article>
+              <h1 data-editable="text" data-prop="title" >{title}</h1>
+            </article>
+          </main>
+        </body>
+      </html>
 
-                  ``````````
-                  </comp.CodeBlock>
+      ``````````
+      </comp.CodeBlock>
 
       In this example, we have wrapped the `<slot />` element in the `<editable-text>` web component to define a Text *Editable Region*, as no DOM element was available.
 
       <comp.CodeBlock language="Astro"  source="file.astro">
-                  ``````````
-                  <html lang="en">
-                    <body>
-                      <main>
-                		<article>
-                          <text-editable data-prop="@content">
-                            <slot />
-                          </text-editable>
-                        </article>
-                      </main>
-                    </body>
-                  </html>
+      ``````````
+      <html lang="en">
+        <body>
+          <main>
+            <article>
+              <text-editable data-prop="@content">
+                <slot />
+              </text-editable>
+            </article>
+          </main>
+        </body>
+      </html>
 
-                  ``````````
-                  </comp.CodeBlock>
+      ``````````
+      </comp.CodeBlock>
     </comp.Example>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="data-prop" type_markdown="HTML Attribute">
@@ -101,34 +101,34 @@ In this guide, we'll show you how to define each type of *Editable Region* using
       In this example, we have added `data-prop="title"` HTML attribute to the `<h1>` tag. CloudCannon will pass the value of the `title` structured data key to the Text *Editable Region* and re-render any changes in the Visual Editor.
 
       <comp.CodeBlock language="Astro"  source="file.astro">
-              ``````````
-              <html lang="en">
-                <body>
-                  <main>
-                  <article>
-                      <h1 data-editable="text" data-prop="title" >{title}</h1>
-                    </article>
-                  </main>
-                </body>
-              </html>
+      ``````````
+      <html lang="en">
+        <body>
+          <main>
+            <article>
+              <h1 data-editable="text" data-prop="title" >{title}</h1>
+            </article>
+          </main>
+        </body>
+      </html>
 
-              ``````````
-              </comp.CodeBlock>
+      ``````````
+      </comp.CodeBlock>
       <comp.CodeBlock language="Markdown"  source="blog.mdx">
-              ``````````
-              ---
-              title: Our new project
-              author: H. Scott
-              banner_image: /assets/banner.jpg
-              date: 2025-08-26T11:17:02+12:00
-              ---
-              Content goes here.
+      ``````````
+      ---
+      title: Our new project
+      author: H. Scott
+      banner_image: /assets/banner.jpg
+      date: 2025-08-26T11:17:02+12:00
+      ---
+      Content goes here.
 
-              ``````````
-              </comp.CodeBlock>
+      ``````````
+      </comp.CodeBlock>
     </comp.Example>
   </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="data-prop-[key]" type_markdown="HTML Attribute">
+  <comp.DataReferenceRow label="data-prop-*" type_markdown="HTML Attribute">
     This HTML attribute defines the path to the structured data key you want to edit and the key name when passing the value to an *Editable Region*. CloudCannon will pass the value of that key and relabel it with a new key name to your *Editable Region* so the Visual Editor can re-render that section of your webpage preview.
 
     This HTML attribute is an extension of the behavior of `data-prop`.
@@ -243,17 +243,41 @@ In this guide, we'll show you how to define each type of *Editable Region* using
     </comp.Example>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="data-id-key" type_markdown="HTML Attribute">
-    This HTML attribute defines...
+    This HTML attribute defines the path to the structured data key where `data-id` is defined. Must be used in conjunction with `data-id` on Array Item <em>Editable Regions</em>.
+
+    This HTML attribute is optional for simple Array <em>Editable Regions</em>, but required for complex Array <em>Editable Regions</em> (i.e., the array items do not share the same structure).
 
     <comp.Example>
-      In this example, we have configured the `blog_tags` Multiselect input for the `blog` Collection.
+      In this example, we have added `data-id-key="_block_name"` to the `<main>` tag. For each Array Item in this Array <em>Editable Region</em>, CloudCannon will look for the `data-id` under the `_content_blocks` key.
 
       <comp.CodeBlock language="Astro" source="file.astro">
-                  ``````````
-                  collections_config:
+      ``````````
+      <html lang="en">
+        <body>
+          <main data-editable="array" data-prop="_content_blocks" data-id-key="_block_name">
+            {
+              contentBlocks.map((block, i) => (
+                x
+              )
+            }
+          </main>
+        </body>
+      </html>
 
-                  ``````````
-                  </comp.CodeBlock>
+      ``````````
+      </comp.CodeBlock>
+      <comp.CodeBlock language="Markdown"  source="blog.mdx">
+      ``````````
+      ---
+      title: Our new project
+      author: H. Scott
+      banner_image: /assets/banner.jpg
+      date: 2025-08-26T11:17:02+12:00
+      ---
+      Content goes here.
+
+      ``````````
+      </comp.CodeBlock>
     </comp.Example>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="data-id" type_markdown="HTML Attribute">
