@@ -7,157 +7,285 @@ nav_title: Editable Regions reference
 published: true
 image: >-
  https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
-description:
+description: >-
+ A complete list of HTML attributes available for Editable Regions in
+ CloudCannon.
 article_category:
  - Reference
 article_topic:
 author_notes:
- docshots_status:
+ docshots_status: Not applicable
 ---
 x
 
-
 <comp.DataReference>
-  <comp.DataReferenceRow label="data-editable" type_markdown="Attibute, or component">
-    This attribute defines the type of data inside an Editable.
-    
-    Value can be `array`, `array-item`, `component`, `image`, `source`, or `text`.
+  <comp.DataReferenceRow label="data-editable" type_markdown="HTML Attribute">
+    This HTML attribute defines the type of *Editable Region* that CloudCannon should use in the Visual Editor. You can add this HTML attribute to a DOM element in any file type as long as it outputs to an HTML file after a *Site* build.
 
-    Alternatively, you can wrap elements in the equivalent web component: `<array-editable>`, `<array-item>`, `<component-editable>`, `<image-editable>`, `<source-editable>`, or `<text-editable>`. If you use the web component, you do not need to define the `data-editable` attribute.
+    Values can be one of the following: `text`, `image`, `source`, `array`, `array-item`, or `component`.
 
-    <comp.Example>
-      In this example, we added the `data-editable` attribute with the value `text` to the `<h1>` tag to indicate that the value is text data.
+    Depending on the value of this HTML element, the Visual Editor will also require other HTML attributes for *Editable Regions* to function.
 
-      <comp.CodeBlock language="HTML" source="index.html">
-            ``````````
-            <h1 data-editable="text" data-prop="title" >{title}</h1>
+    If there is no appropriate DOM element, you can wrap elements in the equivalent web component, which will accept HTML attributes. The web component can be one of the following: `<editable-text>`, `<editable-image>`, `<editable-source>`, `<editable-array>`, `<editable-array-item>`, or `<editable-component>`.
 
-            ``````````
-            </comp.CodeBlock>
-
-      In this example, we have wrapped the `<slot />` element in the `<text-editable>` web component to indicate that the value is text data.
-
-      <comp.CodeBlock language="HTML" source="blog-layout.html">
-            ``````````
-            <text-editable data-prop="@content">
-              <slot />
-            </text-editable>
-
-            ``````````
-            </comp.CodeBlock>
-    </comp.Example>
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="data-prop" type_markdown="Attibute">
-    This attribute defines the path type of data inside an Editable.
-    
-    Value can be `array`, `array-item`, `component`, `image`, `source`, or `text`.
-
-    Alternatively, you can wrap elements in the equivalent web component: `<array-editable>`, `<array-item>`, `<component-editable>`, `<image-editable>`, `<source-editable>`, or `<text-editable>`. If you use the web component, you do not need to define the `data-editable` attribute.
+    This HTML attribute, or the equivalent web component, is required for all <em>Editable Regions</em>.
 
     <comp.Example>
-      In this example, we added the `data-prop` attribute with the value `text` to the `<h1>` tag to indicate that the value is text data.
+      In this example, we have added `data-editable="text"` HTML attribute to the `<h1>` tag to define a Text *Editable Region*.
 
-      <comp.CodeBlock language="HTML" source="index.html">
+      <comp.CodeBlock language="Astro"  source="file.astro">
             ``````````
-            <h1 data-editable="text" data-prop="title" >{title}</h1>
+            <html lang="en">
+              <body>
+                <main>
+                  <article>
+                    <h1 data-editable="text" data-prop="title" >{title}</h1>
+                  </article>
+                </main>
+              </body>
+            </html>
 
             ``````````
             </comp.CodeBlock>
 
-      In this example, we have wrapped the `<slot />` element in the `<text-editable>` web component to indicate that the value is text data.
+      In this example, we have wrapped the `<slot />` element in the `<editable-text>` web component to define a Text *Editable Region*, as no DOM element was available.
 
-      <comp.CodeBlock language="HTML" source="blog-layout.html">
+      <comp.CodeBlock language="Astro"  source="file.astro">
             ``````````
-            <text-editable data-prop="@content">
-              <slot />
-            </text-editable>
+            <html lang="en">
+              <body>
+                <main>
+                  <article>
+                    <text-editable data-prop="@content">
+                      <slot />
+                    </text-editable>
+                  </article>
+                </main>
+              </body>
+            </html>
 
             ``````````
             </comp.CodeBlock>
     </comp.Example>
   </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="data-path" type_markdown="Attibute">
-    x
-    
+  <comp.DataReferenceRow label="data-prop" type_markdown="HTML Attribute">
+    This HTML attribute defines the path to the structured data key you want to edit. CloudCannon will pass the value of that key to your <em>Editable Region</em> so the Visual Editor can re-render that section of your webpage preview.
+
+    Values can be one of the following: a key from your front matter, `@content` for the Markdown content of your file, `@collections[name].index.key` for a key from a specific <em>Colllection</em>, `@data[filename].key`, or `@file[path].key` for a key from a specific file.
+
+    This HTML attribute is required for Text <em>Editable Regions</em>.
+
     <comp.Example>
-      In this example...
+      In this example, we have added `data-prop="title"` HTML attribute to the `<h1>` tag. CloudCannon will pass the value of the `title` structured data key to the Text *Editable Region* and re-render any changes in the Visual Editor.
 
-      <comp.CodeBlock language="HTML" source="index.html">
-      ``````````
-      x
+      <comp.CodeBlock language="Astro"  source="file.astro">
+            ``````````
+            <html lang="en">
+              <body>
+                <main>
+                  <article>
+                    <h1 data-editable="text" data-prop="title" >{title}</h1>
+                  </article>
+                </main>
+              </body>
+            </html>
 
-      ``````````
-      </comp.CodeBlock>
+            ``````````
+            </comp.CodeBlock>
+      <comp.CodeBlock language="Markdown"  source="blog.mdx">
+            ``````````
+            ---
+            title: Our new project
+            author: H. Scott
+            banner_image: /assets/banner.jpg
+            date: 2025-08-26T11:17:02+12:00
+            ---
+            Content goes here.
+
+            ``````````
+            </comp.CodeBlock>
     </comp.Example>
   </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="data-key" type_markdown="Attibute">
-    x
-    
+  <comp.DataReferenceRow label="data-prop-*" type_markdown="HTML Attribute">
+    This HTML attribute defines the path to the structured data key you want to edit and the key name when passing the value to an *Editable Region*. CloudCannon will pass the value of that key and relabel it with a new key name to your *Editable Region* so the Visual Editor can re-render that section of your webpage preview.
+
+    This HTML attribute is an extension of the behavior of `data-prop`.
+
+    This HTML attribute is required for Image <em>Editable Regions</em>.
+
     <comp.Example>
-      In this example...
+      In this example, we have added `data-prop-src="banner_image"` HTML attribute to the `<img>` tag. CloudCannon will pass the value of the `banner_image` structured data key to the Image *Editable Region* with the label `src` (i.e., `src: /assets/banner.jpg`) and re-render any changes in the Visual Editor.
 
-      <comp.CodeBlock language="HTML" source="index.html">
-      ``````````
-      x
+      <comp.CodeBlock language="Astro"  source="file.astro">
+            ``````````
+            <html lang="en">
+              <body>
+                <main>
+                  <article>
+                    <div>
+                        {banner_image &&
+                          <img
+                            data-editable="image"
+                            data-prop-src="banner_image"
+                            src={banner_image}
+                          />
+                        }
+                    </div>
+                  </article>
+                </main>
+              </body>
+            </html>
 
-      ``````````
-      </comp.CodeBlock>
+            ``````````
+            </comp.CodeBlock>
+      <comp.CodeBlock language="Markdown"  source="blog.mdx">
+            ``````````
+            ---
+            title: Our new project
+            author: H. Scott
+            banner_image: /assets/banner.jpg
+            date: 2025-08-26T11:17:02+12:00
+            ---
+            Content goes here.
+
+            ``````````
+            </comp.CodeBlock>
     </comp.Example>
   </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="data-type" type_markdown="Attibute">
-    x
-    
+  <comp.DataReferenceRow label="data-path" type_markdown="HTML Attribute">
+    This HTML attribute defines the path to the file you want to edit. CloudCannon will pass the value of that key to your <em>Editable Region</em> so the Visual Editor can re-render that section of your webpage preview.
+
+    This HTML attribute is required for Source <em>Editable Regions</em>.
+
     <comp.Example>
-      In this example...
+      In this example, we have added the `data-path="/src/pages/index.astro"` HTML attribute to the `<main>` tag. CloudCannon will pass the value of the file to the Source *Editable Region* and re-render any changes in the Visual Editor.
 
-      <comp.CodeBlock language="HTML" source="index.html">
-      ``````````
-      x
-
-      ``````````
-      </comp.CodeBlock>
+      <comp.CodeBlock language="Astro" source="index.astro">
+            ``````````
+            <html lang="en">
+              <body>
+                <main data-editable="source" data-path="/src/pages/index.astro" data-key="main">
+                  <img src="/smiling-robot.jpg">
+                  <h1>Hello!</h1>
+      			<p>
+                      Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
+                      labore et dolore magna aliqua. Vitae ultricies leo integer malesuada nunc vel risus commodo
+                      viverra. Adipiscing enim eu turpis egestas pretium.
+      			</p>
+                </main>
+              </body>
+            </html>
+            ``````````
+            </comp.CodeBlock>
     </comp.Example>
   </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="data-id" type_markdown="Attibute">
-    x
-    
+  <comp.DataReferenceRow label="data-type" type_markdown="HTML Attribute">
+    This HTML attribute defines which rich text formatting options are available for a Text <em>Editable Region</em>.
+
+    Values can be one of the following: `span` for plain text, `text` for paragraph-level rich text, or `block` for multi-paragraph rich text.
+
+    By default, `data-type` is `block` or `text` for any Source <em>Editable Regions</em>, `data-prop="@content"`, or Rich Text Inputs, and `span` where Input type is not Rich Text, or is not configured.
+
+    This HTML attribute is optional for Text <em>Editable Regions</em>.
+
     <comp.Example>
-      In this example...
+      In this example, we have added the `data-type="block"` HTML attribute to the `<editable-text>` web component, as we want all rich text formatting options.
 
-      <comp.CodeBlock language="HTML" source="index.html">
-      ``````````
-      x
+      <comp.CodeBlock language="Astro" source="file.astro">
+            ``````````
+            <editable-text data-prop="title" data-type="block">Default text</editable-text>
 
-      ``````````
-      </comp.CodeBlock>
+            ``````````
+            </comp.CodeBlock>
     </comp.Example>
   </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="data-id-key" type_markdown="Attibute">
-    x
-    
+  <comp.DataReferenceRow label="data-defer-mount" type_markdown="HTML Attribute">
+    This HTML attribute toggles whether the Visual Editor will automatically load an <em>Editable Region</em>. When set to true, CloudCannon will only initialize the <em>Editable Region</em> when clicked.
+
+    By default, this key is false (i.e., the Visual Editor will not defer loading the <em>Editable Region</em>).
+
+    This HTML attribute is optional for Text <em>Editable Regions</em>.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="data-key" type_markdown="HTML Attribute">
+    This HTML attribute defines...
+
     <comp.Example>
-      In this example...
+      In this example, we have configured the `blog_tags` Multiselect input for the `blog` Collection.
 
-      <comp.CodeBlock language="HTML" source="index.html">
-      ``````````
-      x
+      <comp.CodeBlock language="Astro" source="file.astro">
+            ``````````
+            collections_config:
 
-      ``````````
-      </comp.CodeBlock>
+            ``````````
+            </comp.CodeBlock>
     </comp.Example>
   </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="data-component" type_markdown="Attibute">
-    x
-    
+  <comp.DataReferenceRow label="data-id-key" type_markdown="HTML Attribute">
+    This HTML attribute defines the path to the structured data key where `data-id` is defined. Must be used in conjunction with `data-id` on Array Item <em>Editable Regions</em>.
+
+    This HTML attribute is optional for simple Array <em>Editable Regions</em>, but required for complex Array <em>Editable Regions</em> (i.e., the array items do not share the same structure).
+
     <comp.Example>
-      In this example...
+      In this example, we have added `data-id-key="_block_name"` to the `<main>` tag. For each Array Item in this Array <em>Editable Region</em>, CloudCannon will look for the `data-id` under the `_content_blocks` key.
 
-      <comp.CodeBlock language="HTML" source="index.html">
-      ``````````
-      x
+      <comp.CodeBlock language="Astro" source="file.astro">
+            ``````````
+            <html lang="en">
+              <body>
+                <main data-editable="array" data-prop="_content_blocks" data-id-key="_block_name">
+                  {
+                    contentBlocks.map((block, i) => (
+                      x
+                    )
+                  }
+                </main>
+              </body>
+            </html>
 
-      ``````````
-      </comp.CodeBlock>
+            ``````````
+            </comp.CodeBlock>
+    </comp.Example>
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="data-id" type_markdown="HTML Attribute">
+    This HTML attribute defines...
+
+    <comp.Example>
+      In this example, we have configured the `blog_tags` Multiselect input for the `blog` Collection.
+
+      <comp.CodeBlock language="Astro" source="file.astro">
+                        ``````````
+                        collections_config:
+
+                        ``````````
+                        </comp.CodeBlock>
+    </comp.Example>
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="data-component-key" type_markdown="HTML Attribute">
+    This HTML attribute defines...
+
+    <comp.Example>
+      In this example, we have configured the `blog_tags` Multiselect input for the `blog` Collection.
+
+      <comp.CodeBlock language="Astro" source="file.astro">
+                        ``````````
+                        collections_config:
+
+                        ``````````
+                        </comp.CodeBlock>
+    </comp.Example>
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="data-component" type_markdown="HTML Attribute">
+    This HTML attribute defines...
+
+    <comp.Example>
+      In this example, we have configured the `blog_tags` Multiselect input for the `blog` Collection.
+
+      <comp.CodeBlock language="Astro" source="file.astro">
+                        ``````````
+                        collections_config:
+
+                        ``````````
+                        </comp.CodeBlock>
     </comp.Example>
   </comp.DataReferenceRow>
 </comp.DataReference>
