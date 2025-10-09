@@ -1,0 +1,117 @@
+---
+_schema: default
+_uuid: 039e14a4-5d9b-4a53-aa50-c27e977c4e71
+_created_at: 2025-08-27T14:51:55+12:00
+title: Editable Regions for Components
+nav_title: 'TODO: Editable Regions for Components'
+order: 7
+published: true
+start_nav_group:
+image: >-
+  https://cc-dam.imgix.net/documentation/images/guides/getting-started/guide-thumbnails/CloudCannon-Getting-Started-Thumbnail-Universal.png
+description:
+---
+<comp.Notice info_type="important">
+  <p>Currently, Component <em>Editable Regions</em> are only available for Astro. We are working to support other SSGs. Please get in touch with our friendly <a href="/support/">support team</a> to request a specific SSG.</p>
+</comp.Notice>
+
+&nbsp;
+
+If you have reusable Astro components that you want to make editable, you need to register them first.
+
+## What is a component?
+
+A component is a resuable piece of code, ranging from a small snippet of HTML, like a `<meta>` tag that make SEO easier, to UI elements like a header, profile card, or entire page layout.
+
+Components render to HTML at build time, just like the preview of your webpages in the Visual Editor, so you can visually edit your components.
+
+## Install and register your components
+
+Before you can use Component *Editable Regions*, you will need to install the NPM package and register your Astro components.
+
+With your website project open in your local development environment, run the following command in your terminal:
+
+<comp.CodeBlock language="">
+``````````
+
+npm install @cloudcannon/editables
+
+``````````
+</comp.CodeBlock>
+
+If this command doesn't work, try the following:
+
+<comp.CodeBlock language="">
+``````````
+
+npm i https://github.com/CloudCannon/editables.git
+
+``````````
+</comp.CodeBlock>
+
+To register your Astro components, you'll need to create a registration script and include it in your layout.
+
+Here's an example registration script for the components `HeroSection` and `TestimonialCard`.
+
+<comp.CodeBlock language="JavaScript" source="src/scripts/register-components.js">
+``````````
+
+import { registerAstroComponent } from '@cloudcannon/editables/integrations/astro.js';
+import HeroSection from '../components/HeroSection.astro';
+import TestimonialCard from '../components/TestimonialCard.astro';
+
+// Register your components
+registerAstroComponent('hero_section', HeroSection);
+registerAstroComponent('testimonial_card', TestimonialCard);
+
+``````````
+</comp.CodeBlock>
+
+x
+
+<comp.CodeBlock language="Astro" source="Layout.astro">
+``````````
+
+<script>
+  import '../scripts/register-components.js';
+</script>
+
+``````````
+</comp.CodeBlock>
+
+## Using Component *Editable Regions*
+
+x
+
+<comp.CodeBlock language="Markdown" source="page.mdx">
+``````````
+
+---
+title: "Homepage"
+hero:
+  headline: "Welcome to Our Site"
+  subheading: "We build amazing things"
+  cta_text: "Get Started"
+testimonial:
+  quote: "This company is amazing!"
+  author: "Happy Customer"
+---
+
+``````````
+</comp.CodeBlock>
+
+x
+
+<comp.CodeBlock language="Astro" source="Layout.astro">
+``````````
+
+<component-editable data-prop="hero" data-component="hero_section">
+    <HeroSection {...Astro.props.testimonial} />
+</component-editable>
+
+<component-editable data-prop="testimonial" data-component="testimonial_card">
+    <TestimonialCard {...Astro.props.testimonial} />
+</component-editable>
+
+``````````
+</comp.CodeBlock>
