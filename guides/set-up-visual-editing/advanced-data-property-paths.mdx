@@ -10,7 +10,7 @@ start_nav_group:
 image:
 description:
 ---
-The `data-prop` HTML attribute
+The `data-prop` HTML attribute allows you to define the path to the data you want to edit.
 
 &nbsp;
 
@@ -27,6 +27,45 @@ The `data-prop` HTML attribute
 &nbsp;
 
 &nbsp;
+
+## Special data sources
+
+The `data-prop` HTML attribute is not restricted to structured data keys. In a previous step of this guide [Editable Regions for content files](/documentation/guides/set-up-visual-editing/editable-regions-for-content-files/), we introduced the `@content` special value, which allows you to edit the Markdown content of a file. There are several other special data source values you can use to edit data in various places.
+
+### *Collections*
+
+The `@collections[name]` special value allows you to edit
+
+* `@collections[name].index.property` —
+
+If you're using Astro's content collections, you can make collection data editable:
+
+<comp.CodeBlock language="Astro" source="file.astro">
+``````````
+
+---
+const posts = await getCollection('blog');
+---
+
+<h1>Blog Posts</h1>
+<array-editable data-prop="@collections[blog]">
+
+</array-editable>
+
+``````````
+</comp.CodeBlock>
+
+### Data
+
+`@data[filename].property` —
+
+### File
+
+`@file[path].property` —
+
+&nbsp;
+
+---
 
 ## Step 8: Advanced Patterns
 
@@ -49,57 +88,11 @@ content_blocks:
 ```
 
 ```astro
-<array-editable
-  data-prop="content_blocks"
-  data-id-key="type"
-  data-component-key="type">
+<array-editable data-prop="content_blocks" data-id-key="type" data-component-key="type">
   {frontmatter.content_blocks?.map((block, index) => (
     <array-item key={index} data-id={block.type} data-component={`${block.type}_block`}>
         <Component {...block} />
     </array-item>
   ))}
-</array-editable>
-```
-
-### Editing Layout Files
-
-You can even make your layout files editable by using source editables:
-
-```astro
----
-// src/layouts/BaseLayout.astro
----
-
-<html>
-<head>
-  <title>{title}</title>
-</head>
-<body>
-  <header data-editable="source" data-path="/src/layouts/BaseLayout.astro" data-key="header">
-    <nav>
-      <a href="/">Home</a>
-      <a href="/about">About</a>
-      <a href="/blog">Blog</a>
-    </nav>
-  </header>
-
-  <main>
-    <slot />
-  </main>
-</body>
-</html>
-
-Step 6: Working with Collections#
-
-If you're using Astro's content collections, you can make collection data editable:
-
----
-
-const posts = await getCollection('blog');
----
-
-<h1>Blog Posts</h1>
-<array-editable data-prop="@collections[blog]">
-
 </array-editable>
 ```
