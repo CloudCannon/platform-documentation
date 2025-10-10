@@ -7,7 +7,9 @@ nav_title: Configure Image Editable Regions
 published: true
 image: >-
  https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
-description: Learn how to...
+description: >-
+ Learn how to configure Image Editable Regions in your layout files to enable
+ image, image title, and alt text editing in the Visual Editor.
 article_category:
  - Instructions
 article_topic:
@@ -15,21 +17,83 @@ author_notes:
  docshots_status: Needs docshots
 ---
 <comp.Notice info_type="permissions">
-  **Permissions required**
-
-  Members of the Owners or Developers [Default Permission Groups](/documentation/articles/what-are-default-permission-groups/), or [Custom Permission Groups](/documentation/articles/what-are-custom-permission-groups/) with the `x` permission, can...
+  <p><strong>Permissions required</strong></p><p>Members of the Owners, Developers, and Technical Editors <a href="/documentation/articles/what-are-default-permission-groups/">Default Permission Groups</a>, or <a href="/documentation/articles/what-are-custom-permission-groups/">Custom Permission Groups</a> with the <code>site:source-editor:write</code> permission, can add <em>Editable Regions</em> to files using the Source Editor in CloudCannon.</p>
 </comp.Notice>
 
-Short description and link to explanation article...
+Image *Editable Regions* are one type of [Editable Region](/documentation/articles/what-are-editable-regions/) you can add to your layout and HTML-like files to enable visual editing. Text *Editable Regions* allow you to upload images from your local storage, select existing images from your repository or DAM, and manage image details like title or alt text.
 
-These instructions assume...
+These instructions assume you have configured your [build settings](/documentation/articles/configure-your-first-build/) and are comfortable editing HTML layouts, either in CloudCannon's [Source Editor](/documentation/articles/the-source-editor/) or your local development environment.
 
-To...:
+To configure Image *Editable Regions* in the [Visual Editor](/documentation/articles/the-visual-editor/):
 
-1. x
+1. Identify the file you want to which you want to add a Image *Editable Regions*. We recommend any files layout files that contain templating that is populated by content files at build time.
+2. Open the file in CloudCannon's Source Editor or your local development environment.
+3. Identify the `<img>` HTML tag that contains your templating and add the HTML attribute `data-editable="image"` . If no DOM element is available, you can wrap the templating in the `<editable-image>` web component.
+4. Add the `data-prop-src=""` HTML attribute to the same DOM element, or to the `<editable-image>` web component. The value of `data-prop-src` should be the path the to data property you want to edit.
+5. Optional. If you store image title or alt text data in your content files, add the `data-prop-title=""` and `data-prop-alt=""` HTML attributes to the same DOM element, or to the `<editable-image>` web component. The value of these attributes should be the path the to data property you want to edit.
+6. Save the change to your *Site*. CloudCannon will automatically rebuild your *Site*.
 
-CloudCannon will...
+When you open the file in the Visual Editor, CloudCannon will show yellow *Editable Region* boxes around the image. CloudCannon will show a data panel for selecting your image when you click into the *Editable Region*.
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Visual-Editor-Frontmatter-Image-Editable-Region" alt="A screenshot of the Visual Editor shows a yellow Editable Region box around the image and the Edit Image Data Panel." title="An Image Editable Region in the Visual Editor" type="screenshot"/>
+
+<comp.Notice info_type="info">
+  <p><strong>Want to make a standalone HTML-like file visually editable?</strong></p><p>We recommend configuring <a href="/documentation/articles/configure-source-editable-regions/">Source Editable Regions</a> for standalone HTML-like files (i.e., files that contain HTML structure and templating, like <code>.astro</code> or <code>.liquid</code>) rather than several Image and Text <em>Editable Regions</em>.</p>
+</comp.Notice>
+
+## Examples
+
+Here are a few examples of different Image *Editable Regions*:
+
+<comp.CodeBlock language="Astro" source="BlogPost.astro">
+``````````
+
+<div class="hero-image">
+    {heroImage &&
+      <img
+        data-editable="image" /*1*/
+        data-prop-src="heroImage" /*2*/
+        data-prop-alt="heroImageAlt" /*3*/
+        data-prop-title="heroImageTitle" /*4*/
+        width={1020}
+        height={510}
+        src={heroImage}
+        title={heroImageTitle}
+        alt={heroImageAlt}
+      />
+    }
+</div>
+
+``````````
+<comp.Annotation number="1">
+  The `data-editable` attribute defines what kind of data this element contains. In this case, the value is `image`.
+</comp.Annotation>
+<comp.Annotation number="2">
+  The `data-prop-src` attribute passes the value of `heroImage` to the Image Editable Region with the `src` key.
+</comp.Annotation>
+<comp.Annotation number="3">
+  The `data-prop-title` attribute passes the value of `heroImageTitle` to the Image Editable Region with the `title` key.
+</comp.Annotation>
+<comp.Annotation number="4">
+  The `data-prop-alt` attribute passes the value of `heroImageAlt` to the Image Editable Region with the `alt` key.
+</comp.Annotation>
+</comp.CodeBlock>
+
+## Expected data property format
+
+Image *Editable Regions* expect the data defined by `data-prop` to be in the `key: string` format. By using the `data-prop-*` attribute, we can append a key to the value passed to the Image *Editable Region*.
+
+For example, `data-prop="theme_color"` pointing at the front matter object `theme_color: red` would pass the value "red" to the *Editable Region* in the Visual Editor. If we use `data-prop-color="theme_color"` instead, we can pass "color: red" to the *Editable Region*.
+
+## Misconfigured Image *Editable Regions*
+
+CloudCannon will display an orange warning box in the Visual Editor if your Image *Editable Regions* is misconfigured.
 
 <comp.DocShot docshot_key="" alt="" title="" type="screenshot"/>
 
-Extra info...
+Image *Editable Regions* are misconfigured if:
+
+* You did not define the `data-prop` HTML attribute.
+* The *Editable Region* has an invalid data type (e.g., your Text region has a number or object, instead of a string).
+* There is no `<img>` child element in the Image *Editable Region* web component.
+* Upload failures
