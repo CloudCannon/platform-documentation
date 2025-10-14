@@ -206,12 +206,50 @@ A complex array is one where the array items may not have the same structure. A 
 
 Let's look at an example.
 
-Our "About" page is generated using an HTML layout populated by several data files defining content blocks. Here are three of the content blocks we use on the "About" page: Feature, Video, and Staff.
+Our "About" page is generated using an HTML layout populated by several data files defining content blocks. Here are three of the content blocks we use on the "About" page: Hero, Stats, and Contact.
 
-<comp.CodeBlock language="">
+<comp.CodeBlock language="Astro" source="HeroBlock.astro">
 ``````````
 
-x
+---
+const { title, description } = Astro.props;
+---
+
+<h2>{title}</h2>
+<p>{description}</p>
+
+``````````
+</comp.CodeBlock>
+
+<comp.CodeBlock language="Astro" source="StatsBlock.astro">
+``````````
+
+---
+const { heading, description, stats } = Astro.props;
+---
+
+<div>
+    {stats.map(({number, text}) => {
+    return <div>
+        <p>{number}</p>
+        <p>{text}</p>
+    </div>
+    })}
+</div>
+
+``````````
+</comp.CodeBlock>
+
+<comp.CodeBlock language="Astro" source="ContactBlock.astro">
+``````````
+
+---
+const { text, button, image } = Astro.props;
+---
+
+<img src={image} />
+<p>{text}</p>
+<button type="button">{button}</button>
 
 ``````````
 </comp.CodeBlock>
@@ -222,18 +260,30 @@ Here is an excerpt from our About Layout File. This section loops over all the i
 ``````````
 
 ---
-const
+const components = {};
+const componentImports = import.meta.glob("../components/**/*.astro", {
+  eager: true,
+});
+Object.entries(componentImports).forEach(([path, obj]) => {
+  const name = path.replace("../components/", "").split(".")[0];
+  components[name] = obj.default;
+});
+
+const { contentBlocks } = Astro.props.frontmatter;
 ---
 
 <!doctype html>
 <html lang="en">
   <body>
     <main>
-      {
-        contentBlocks.map((block, i) => (
-          x
-        )
-      }
+      <section>
+        {
+          contentBlocks.map((block) => {
+            const Component = components[block._name];
+            return <Component {...block} />;
+          })
+        }
+      </section>
     </main>
   </body>
 </html>
@@ -260,15 +310,33 @@ Here's what our About Layout code should look like:
 <comp.CodeBlock language="Astro" source="AboutLayout.astro">
 ``````````
 
+---
+const components = {};
+const componentImports = import.meta.glob("../components/**/*.astro", {
+  eager: true,
+});
+Object.entries(componentImports).forEach(([path, obj]) => {
+  const name = path.replace("../components/", "").split(".")[0];
+  components[name] = obj.default;
+});
+
+const { contentBlocks } = Astro.props.frontmatter;
+---
+
+<!doctype html>
 <html lang="en">
   <body>
-    <main data-editable="array" data-prop="content_blocks" data-id-key="_block_name">
-      {
-        contentBlocks.map((block, i) => (
-          x
-          <editable-array-item data-id={block._block_name}> ... </ editable-array-item>
-        )
-      }
+    <main>
+      <section>
+        <editable-array data-editable="array" data-prop="contentBlocks" data-id-key="_name">
+            {
+              contentBlocks.map((block) => {
+                const Component = components[block._name];
+                return <editable-array-item data-id={block._name}><Component {...block} /></editable-array-item>;
+              })
+            }
+        </editable-array>
+      </section>
     </main>
   </body>
 </html>
@@ -276,21 +344,57 @@ Here's what our About Layout code should look like:
 ``````````
 </comp.CodeBlock>
 
-Once we save and rebuild our *Site*, CloudCannon will show a yellow *Editable Regions* box around each array item, in this case the content blocks that make up the page.
-
-We can now build pages in the Visual Editor! We can add or delete content blocks, and reorder the content blocks in the array using the options in the *Edit* menu, or the *Drag* handler.
-
-<comp.DocsVideo url="" title="" autoplay={true} loop={true}/>
-
 If we add a few more *Editable Regions* to our content block files, we can edit the content inside each array item too.
 
-<comp.CodeBlock language="">
+<comp.CodeBlock language="Astro" source="HeroBlock.astro">
 ``````````
 
-x
+---
+const { title, description } = Astro.props;
+---
+
+<h2 data-editable="text" data-prop="title">{title}</h2>
+<p data-editable="text" data-prop="description">{description}</p>
 
 ``````````
 </comp.CodeBlock>
+
+<comp.CodeBlock language="Astro" source="StatsBlock.astro">
+``````````
+
+---
+const { stats } = Astro.props;
+---
+
+<div>
+    {stats.map(({number, text}) => {
+    return <div>
+        <p data-editable="text" data-prop="number">{number}</p>
+        <p data-editable="text" data-prop="text">{text}</p>
+    </div>
+    })}
+</div>
+
+``````````
+</comp.CodeBlock>
+
+<comp.CodeBlock language="Astro" source="ContactBlock.astro">
+``````````
+
+---
+const { text, button, image } = Astro.props;
+---
+
+<img data-editable="image" data-prop-src="image" src={image} />
+<p data-editable="text" data-prop="text">{text}</p>
+<button type="button" data-editable="text" data-prop="button">{button}</button>
+
+``````````
+</comp.CodeBlock>
+
+Once we save and rebuild our *Site*, CloudCannon will show a yellow *Editable Regions* box around each array item, in this case the content blocks that make up the page.
+
+We can now build pages in the Visual Editor! We can add or delete content blocks, and reorder the content blocks in the array using the options in the *Edit* menu, or the *Drag* handler.
 
 <comp.DocsVideo url="" title="" autoplay={true} loop={true}/>
 
