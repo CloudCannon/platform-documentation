@@ -25,10 +25,11 @@ A simple array is one where all the array items have the same structure (i.e., e
 
 Let's take a look at an example.
 
-Our "Quotes" page is generated using an HTML layout and populated with a data file containing testimonial content. This file is a testimonial data file, containing structured data keys for `image`, `image_alt`, `name`, `job_title`, and `quote`.
+Our "Quotes" page is generated using an HTML layout and populated with a data file containing testimonial content. This file is the Quotes page, containing structured data keys for `image`, `image_alt`, `name`, `job_title`, and `quote`.
 
 <comp.CodeBlock language="Markdown" source="testimonials.md">
 ``````````
+
 ---
 layout: ../layouts/TestimonialsLayout.astro
 testimonials:
@@ -57,6 +58,7 @@ testimonials:
     quote: >-
       "Aenean pharetra orci ac tincidunt lobortis."
 ---
+
 ``````````
 </comp.CodeBlock>
 
@@ -64,6 +66,7 @@ Here is an excerpt from our Testimonial Layout file. This section loops over all
 
 <comp.CodeBlock language="Astro" source="TestimonialsLayout.astro">
 ``````````
+
 ---
 const { testimonials } = Astro.props.frontmatter;
 ---
@@ -94,6 +97,7 @@ const { testimonials } = Astro.props.frontmatter;
     </main>
   </body>
 </html>
+
 ``````````
 <comp.Annotation number="1">
   This `<img>` element contains image width, height, source, and alt text attributes. The `src` and `alt` attributes are set to the template `{testimonial.image}` and `{testimonial.image_alt}` respectively.
@@ -133,6 +137,7 @@ Here's what our Testimonial Layout code should look like:
 
 <comp.CodeBlock language="Astro" source="TestimonialsLayout.astro">
 ``````````
+
 ---
 const { testimonials } = Astro.props.frontmatter;
 ---
@@ -166,6 +171,7 @@ const { testimonials } = Astro.props.frontmatter;
     </main>
   </body>
 </html>
+
 ``````````
 <comp.Annotation number="1">
   The `data-editable` attribute defines what kind of data this element contains, and the `data-prop` attribute defines the path to the data we want to edit. In this case, we want an Array *Editable Region*, so the value of `data-editable` is `array`, and we want to edit the `testimonials` structured data key in the file front matter.
@@ -202,17 +208,20 @@ Our "About" page is generated using an HTML layout populated by several data fil
 
 <comp.CodeBlock language="Astro" source="HeroBlock.astro">
 ``````````
+
 ---
 const { title, description } = Astro.props;
 ---
 
 <h2>{title}</h2>
 <p>{description}</p>
+
 ``````````
 </comp.CodeBlock>
 
 <comp.CodeBlock language="Astro" source="StatsBlock.astro">
 ``````````
+
 ---
 const { heading, description, stats } = Astro.props;
 ---
@@ -225,11 +234,13 @@ const { heading, description, stats } = Astro.props;
     </div>
     })}
 </div>
+
 ``````````
 </comp.CodeBlock>
 
 <comp.CodeBlock language="Astro" source="ContactBlock.astro">
 ``````````
+
 ---
 const { text, button, image } = Astro.props;
 ---
@@ -237,13 +248,45 @@ const { text, button, image } = Astro.props;
 <img src={image} />
 <p>{text}</p>
 <button type="button">{button}</button>
+
 ``````````
 </comp.CodeBlock>
 
-Here is an excerpt from our About Layout File. This section loops over all the items in the `_content_blocks` array, and populates the layout using the values.
+Our "Quotes" page is generated using an HTML layout and populated with a data file containing testimonial content. This file is the About page, containing the structured data key `contentBlocks`.
+
+<comp.CodeBlock language="Markdown" source="about.md">
+``````````
+
+---
+layout: ../layouts/AboutLayout.astro
+contentBlocks:
+  - _name: AboutHero
+    title: We're on a mission
+    description: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce lobortis mi sed est dapibus, sit amet consectetur quam euismod. Cras pretium quam vitae malesuada placerat. Curabitur ac sagittis ligula. Nunc sed ultrices leo. Vestibulum malesuada lobortis nisl, a feugiat est viverra et.
+  - _name: Stats
+    stats:
+      - number: $200m
+        text: Venture capital raised
+      - number: "2016"
+        text: Established in
+      - number: 40+
+        text: Amazing team members
+      - number: 44325+
+        text: Active users and growing
+  - _name: Contact
+    text: Want to get in contact with us?
+    button: Click here
+    image: https://preview.astro.new/blog/_astro/blog-placeholder-about.BtEdEmGp_1cKsnD.webp
+---
+
+``````````
+</comp.CodeBlock>
+
+Here is an excerpt from our About Layout File. This section loops over all the items in the `contentBlocks` array, and populates the layout using the values.
 
 <comp.CodeBlock language="Astro" source="AboutLayout.astro">
 ``````````
+
 ---
 const components = {};
 const componentImports = import.meta.glob("../components/**/*.astro", {
@@ -272,6 +315,7 @@ const { contentBlocks } = Astro.props.frontmatter;
     </main>
   </body>
 </html>
+
 ``````````
 </comp.CodeBlock>
 
@@ -279,20 +323,21 @@ Together, these files output a webpage that looks like this:
 
 <comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/guides/configure-visual-editing/2025-11/CloudCannon-Documentation-Visual-Editing-Guide-About-Page.png" alt="A screenshot of the About page on our Astro website shows header content, some statistics, an image, and a button." title="The about page" type="screenshot"/>
 
-As with the earlier example, we want to be able to edit the `_content_blocks` array to build our About page in the Visual Editor.
+As with the earlier example, we want to be able to edit the `contentBlocks` array to build our About page in the Visual Editor.
 
-Let's add the `data-editable="array"` and `data-prop="content_blocks"` HTML attributes to the `<main>` tag to define our *Editable Region* type and the path to the structured data key we want to edit.
+Let's add the `data-editable="array"` and `data-prop="contentBlocks"` HTML attributes to the `<section>` tag to define our *Editable Region* type and the path to the structured data key we want to edit.
 
 Because this array is more complex, we also need to identify different items in the array. To do this, we can define the `data-id-key` and `data-id` HTML attributes.
 
-By adding `data-id-key="_block_name"` to the `<main>` tag surrounding our array, we can tell the Visual Editor to use the `_block_name` structured data key as the unique identifier for each array item.
+By adding `data-id-key="_name"` to the `<section>` tag surrounding our array, we can tell the Visual Editor to use the `_name` structured data key as the unique identifier for each array item.
 
-For the Array Item *Editable Region*, there are no obvious DOM elements we can use. In this case, we'll wrap each item in the `<editable-array-item>` web component. Here, we can add the `data-id` HTML attribute...
+For the Array Item *Editable Region*, there are no obvious DOM elements we can use. In this case, we'll wrap each item in the `<editable-array-item>` web component. Here, we can add the `data-id` HTML attribute with the templating value `{block._name}` so that each array item has the correct identifier.
 
 Here's what our About Layout code should look like:
 
 <comp.CodeBlock language="Astro" source="AboutLayout.astro">
 ``````````
+
 ---
 const components = {};
 const componentImports = import.meta.glob("../components/**/*.astro", {
@@ -310,19 +355,18 @@ const { contentBlocks } = Astro.props.frontmatter;
 <html lang="en">
   <body>
     <main>
-      <section>
-        <editable-array data-editable="array" data-prop="contentBlocks" data-id-key="_name">
-            {
-              contentBlocks.map((block) => {
-                const Component = components[block._name];
-                return <editable-array-item data-id={block._name}><Component {...block} /></editable-array-item>;
-              })
-            }
-        </editable-array>
+      <section data-prop="contentBlocks" data-id-key="_name">
+        {
+          contentBlocks.map((block) => {
+            const Component = components[block._name];
+            return <editable-array-item data-id={block._name}><Component {...block} /></editable-array-item>;
+          })
+        }
       </section>
     </main>
   </body>
 </html>
+
 ``````````
 </comp.CodeBlock>
 
@@ -330,17 +374,20 @@ If we add a few more *Editable Regions* to our content block files, we can edit 
 
 <comp.CodeBlock language="Astro" source="HeroBlock.astro">
 ``````````
+
 ---
 const { title, description } = Astro.props;
 ---
 
 <h2 data-editable="text" data-prop="title">{title}</h2>
 <p data-editable="text" data-prop="description">{description}</p>
+
 ``````````
 </comp.CodeBlock>
 
 <comp.CodeBlock language="Astro" source="StatsBlock.astro">
 ``````````
+
 ---
 const { stats } = Astro.props;
 ---
@@ -353,11 +400,13 @@ const { stats } = Astro.props;
     </div>
     })}
 </div>
+
 ``````````
 </comp.CodeBlock>
 
 <comp.CodeBlock language="Astro" source="ContactBlock.astro">
 ``````````
+
 ---
 const { text, button, image } = Astro.props;
 ---
@@ -365,6 +414,7 @@ const { text, button, image } = Astro.props;
 <img data-editable="image" data-prop-src="image" src={image} />
 <p data-editable="text" data-prop="text">{text}</p>
 <button type="button" data-editable="text" data-prop="button">{button}</button>
+
 ``````````
 </comp.CodeBlock>
 
