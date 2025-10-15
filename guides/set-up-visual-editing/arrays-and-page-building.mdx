@@ -2,8 +2,8 @@
 _schema: default
 _uuid: 5095ec21-834a-40b8-9a29-73f4eb99cab0
 _created_at: 2025-08-28T08:53:07+12:00
-title: Editable Regions for arrays and page building
-nav_title: 'TODO: Editable Regions for arrays and page building'
+title: Arrays and page building
+nav_title: Arrays and page building
 order: 6
 published: true
 start_nav_group:
@@ -25,7 +25,7 @@ A simple array is one where all the array items have the same structure (i.e., e
 
 Let's take a look at an example.
 
-Our "Quotes" page is generated using an HTML layout and populated with a data file containing testimonial content. This file is a testimonial data file, containing structured data keys for `image`, `image_alt`, `name`, `job_title`, and `quote`.
+Our "Quotes" page is generated using an HTML layout and populated with a data file containing testimonial content. This file is the Quotes page, containing structured data keys for `image`, `image_alt`, `name`, `job_title`, and `quote`.
 
 <comp.CodeBlock language="Markdown" source="testimonials.md">
 ``````````
@@ -33,25 +33,25 @@ Our "Quotes" page is generated using an HTML layout and populated with a data fi
 ---
 layout: ../layouts/TestimonialsLayout.astro
 testimonials:
-  - image: /astro-blog/blog-placeholder-2.jpg
+  - image: ../../assets/placeholder-1.jpg
     image_alt: Profile photo of D. Gale
     name: D. Gale
     job_title: CEO at Yellow Brick Industries
     quote: >-
       "In pretium libero sed velit posuere sagittis."
-  - image: /astro-blog/blog-placeholder-3.jpg
+  - image: ../../assets/placeholder-2.jpg
     image_alt: Profile photo of S. Crow
     name: S. Crow
     job_title: CBO at Yellow Brick Industries
     quote: >-
       "Mauris at augue quis orci egestas eu in nulla."
-  - image: /astro-blog/blog-placeholder-4.jpg
+  - image: ../../assets/placeholder-3.jpg
     image_alt: Profile photo of T. Man
     name: T. Man
     job_title: CHO at Yellow Brick Industries
     quote: >-
       "Nunc ut sem vitae tortor volutpat varius."
-  - image: /astro-blog/blog-placeholder-5.jpg
+  - image: ../../assets/placeholder-4.jpg
     image_alt: Profile photo of C. Lion
     name: C. Lion
     job_title: CCO at Yellow Brick Industries
@@ -82,15 +82,13 @@ const { testimonials } = Astro.props.frontmatter;
               <li>
                 {testimonial.image && (
                   <img
-                    width={720}
-                    height={360}
                     src={testimonial.image}
                     alt={testimonial.image_alt}
                   /> /*1*/
                 )}
-                <h4 class="name">{testimonial.name}</h4> /*2*/
-                <p class="job">{testimonial.job_title}</p> /*3*/
-                <p class="quote">{testimonial.quote}</p> /*4*/
+                <h4>{testimonial.name}</h4> /*2*/
+                <p>{testimonial.job_title}</p> /*3*/
+                <p>{testimonial.quote}</p> /*4*/
               </li>
             ))
           }
@@ -117,7 +115,7 @@ const { testimonials } = Astro.props.frontmatter;
 
 Together, these files output a webpage that looks like this:
 
-<comp.DocShot docshot_key="" alt="" title="" type="screenshot"/>
+<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/guides/configure-visual-editing/2025-11/CloudCannon-Documentation-Visual-Editing-Guide-Quotes-Page.png" alt="A screenshot of the quotes page on our Astro website shows four items, each with an image, title, author, and quote." title="The quotes page" type="screenshot"/>
 
 In this example, we want to be able to add, delete, and reorder the items in the testimonials array using the Visual Editor, and edit the text and image content for each item.
 
@@ -158,15 +156,13 @@ const { testimonials } = Astro.props.frontmatter;
                     data-editable="image"
                     data-prop-src="image"
                     data-prop-alt="image_alt"
-                    width={720}
-                    height={360}
                     src={testimonial.image}
                     alt={testimonial.image_alt}
                   /> /*2*/
                 )}
-                <h4 class="name" data-editable="text" data-prop="name">{testimonial.name}</h4> /*3*/
-                <p class="job" data-editable="text" data-prop="job_title">{testimonial.job_title}</p> /*4*/
-                <p class="quote" data-editable="text" data-prop="quote">{testimonial.quote}</p> /*5*/
+                <h4 data-editable="text" data-prop="name">{testimonial.name}</h4> /*3*/
+                <p data-editable="text" data-prop="job_title">{testimonial.job_title}</p> /*4*/
+                <p data-editable="text" data-prop="quote">{testimonial.quote}</p> /*5*/
               </li>
             ))
           }
@@ -196,9 +192,11 @@ const { testimonials } = Astro.props.frontmatter;
 
 Once we save and rebuild our *Site*, CloudCannon will show a yellow *Editable Regions* box around each array item on the Testimonials page, and around each image and text field.
 
+<comp.DocShot docshot_key="CloudCannon-Documentation-Visual-Editor-Simple-Array-Editable-Region" alt="A screenshot of the Visual Editor shows yellow Editable Region boxes around the array items, text, and images on the Quotes webpage." title="Array Editable Region in the Visual Editor" type="screenshot"/>
+
 When you hover an array item, CloudCannon will show a small toolbar in the top right, containing an *Edit* button and a *Drag* handler. Clicking the *Edit* button will open a dropdown with options to move an array item one position to the left or right, and to delete the item. Clicking and holding the *Drag* handler allows you to visually move an array item to any position in the array.
 
-<comp.DocsVideo url="" title="" autoplay={true} loop={true}/>
+<comp.DocsVideo url="https://player.vimeo.com/progressive_redirect/playback/1127384254/rendition/1080p/file.mp4?loc=external&signature=2a13816e5104cb323e411f0d83f84fe060f24975a7dc81fe5fe80155591af1a7" title="Array Editable Regions in the Visual Editor" autoplay={true} loop={true}/>
 
 ## Complex arrays or page building
 
@@ -206,34 +204,114 @@ A complex array is one where the array items may not have the same structure. A 
 
 Let's look at an example.
 
-Our "About" page is generated using an HTML layout populated by several data files defining content blocks. Here are three of the content blocks we use on the "About" page: Feature, Video, and Staff.
+Our "About" page is generated using an HTML layout populated by several data files defining content blocks. Here are three of the content blocks we use on the "About" page: Hero, Stats, and Contact.
 
-<comp.CodeBlock language="">
+<comp.CodeBlock language="Astro" source="HeroBlock.astro">
 ``````````
 
-x
+---
+const { title, description } = Astro.props;
+---
+
+<h2>{title}</h2>
+<p>{description}</p>
 
 ``````````
 </comp.CodeBlock>
 
-Here is an excerpt from our About Layout File. This section loops over all the items in the `_content_blocks` array, and populates the layout using the values.
+<comp.CodeBlock language="Astro" source="StatsBlock.astro">
+``````````
+
+---
+const { heading, description, stats } = Astro.props;
+---
+
+<div>
+    {stats.map(({number, text}) => {
+    return <div>
+        <p>{number}</p>
+        <p>{text}</p>
+    </div>
+    })}
+</div>
+
+``````````
+</comp.CodeBlock>
+
+<comp.CodeBlock language="Astro" source="ContactBlock.astro">
+``````````
+
+---
+const { text, button, image } = Astro.props;
+---
+
+<img src={image} />
+<p>{text}</p>
+<button type="button">{button}</button>
+
+``````````
+</comp.CodeBlock>
+
+Our "Quotes" page is generated using an HTML layout and populated with a data file containing testimonial content. This file is the About page, containing the structured data key `contentBlocks`.
+
+<comp.CodeBlock language="Markdown" source="about.md">
+``````````
+
+---
+layout: ../layouts/AboutLayout.astro
+contentBlocks:
+  - _name: AboutHero
+    title: We're on a mission
+    description: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce lobortis mi sed est dapibus, sit amet consectetur quam euismod. Cras pretium quam vitae malesuada placerat. Curabitur ac sagittis ligula. Nunc sed ultrices leo. Vestibulum malesuada lobortis nisl, a feugiat est viverra et.
+  - _name: Stats
+    stats:
+      - number: $200m
+        text: Venture capital raised
+      - number: "2016"
+        text: Established in
+      - number: 40+
+        text: Amazing team members
+      - number: 44325+
+        text: Active users and growing
+  - _name: Contact
+    text: Want to get in contact with us?
+    button: Click here
+    image: https://preview.astro.new/blog/_astro/blog-placeholder-about.BtEdEmGp_1cKsnD.webp
+---
+
+``````````
+</comp.CodeBlock>
+
+Here is an excerpt from our About Layout File. This section loops over all the items in the `contentBlocks` array, and populates the layout using the values.
 
 <comp.CodeBlock language="Astro" source="AboutLayout.astro">
 ``````````
 
 ---
-const
+const components = {};
+const componentImports = import.meta.glob("../components/**/*.astro", {
+  eager: true,
+});
+Object.entries(componentImports).forEach(([path, obj]) => {
+  const name = path.replace("../components/", "").split(".")[0];
+  components[name] = obj.default;
+});
+
+const { contentBlocks } = Astro.props.frontmatter;
 ---
 
 <!doctype html>
 <html lang="en">
   <body>
     <main>
-      {
-        contentBlocks.map((block, i) => (
-          x
-        )
-      }
+      <section>
+        {
+          contentBlocks.map((block) => {
+            const Component = components[block._name];
+            return <Component {...block} />;
+          })
+        }
+      </section>
     </main>
   </body>
 </html>
@@ -243,32 +321,48 @@ const
 
 Together, these files output a webpage that looks like this:
 
-<comp.DocsImage path="" alt="" title="" type="screenshot"/>
+<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/guides/configure-visual-editing/2025-11/CloudCannon-Documentation-Visual-Editing-Guide-About-Page.png" alt="A screenshot of the About page on our Astro website shows header content, some statistics, an image, and a button." title="The about page" type="screenshot"/>
 
-As with the earlier example, we want to be able to edit the `_content_blocks` array to build our About page in the Visual Editor.
+As with the earlier example, we want to be able to edit the `contentBlocks` array to build our About page in the Visual Editor.
 
-Let's add the `data-editable="array"` and `data-prop="content_blocks"` HTML attributes to the `<main>` tag to define our *Editable Region* type and the path to the structured data key we want to edit.
+Let's add the `data-editable="array"` and `data-prop="contentBlocks"` HTML attributes to the `<section>` tag to define our *Editable Region* type and the path to the structured data key we want to edit.
 
 Because this array is more complex, we also need to identify different items in the array. To do this, we can define the `data-id-key` and `data-id` HTML attributes.
 
-By adding `data-id-key="_block_name"` to the `<main>` tag surrounding our array, we can tell the Visual Editor to use the `_block_name` structured data key as the unique identifier for each array item.
+By adding `data-id-key="_name"` to the `<section>` tag surrounding our array, we can tell the Visual Editor to use the `_name` structured data key as the unique identifier for each array item.
 
-For the Array Item *Editable Region*, there are no obvious DOM elements we can use. In this case, we'll wrap each item in the `<editable-array-item>` web component. Here, we can add the `data-id` HTML attribute...
+For the Array Item *Editable Region*, there are no obvious DOM elements we can use. In this case, we'll wrap each item in the `<editable-array-item>` web component. Here, we can add the `data-id` HTML attribute with the templating value `{block._name}` so that each array item has the correct identifier.
 
 Here's what our About Layout code should look like:
 
 <comp.CodeBlock language="Astro" source="AboutLayout.astro">
 ``````````
 
+---
+const components = {};
+const componentImports = import.meta.glob("../components/**/*.astro", {
+  eager: true,
+});
+Object.entries(componentImports).forEach(([path, obj]) => {
+  const name = path.replace("../components/", "").split(".")[0];
+  components[name] = obj.default;
+});
+
+const { contentBlocks } = Astro.props.frontmatter;
+---
+
+<!doctype html>
 <html lang="en">
   <body>
-    <main data-editable="array" data-prop="content_blocks" data-id-key="_block_name">
-      {
-        contentBlocks.map((block, i) => (
-          x
-          <editable-array-item data-id={block._block_name}> ... </ editable-array-item>
-        )
-      }
+    <main>
+      <section data-prop="contentBlocks" data-id-key="_name">
+        {
+          contentBlocks.map((block) => {
+            const Component = components[block._name];
+            return <editable-array-item data-id={block._name}><Component {...block} /></editable-array-item>;
+          })
+        }
+      </section>
     </main>
   </body>
 </html>
@@ -276,21 +370,59 @@ Here's what our About Layout code should look like:
 ``````````
 </comp.CodeBlock>
 
-Once we save and rebuild our *Site*, CloudCannon will show a yellow *Editable Regions* box around each array item, in this case the content blocks that make up the page.
-
-We can now build pages in the Visual Editor! We can add or delete content blocks, and reorder the content blocks in the array using the options in the *Edit* menu, or the *Drag* handler.
-
-<comp.DocsVideo url="" title="" autoplay={true} loop={true}/>
-
 If we add a few more *Editable Regions* to our content block files, we can edit the content inside each array item too.
 
-<comp.CodeBlock language="">
+<comp.CodeBlock language="Astro" source="HeroBlock.astro">
 ``````````
 
-x
+---
+const { title, description } = Astro.props;
+---
+
+<h2 data-editable="text" data-prop="title">{title}</h2>
+<p data-editable="text" data-prop="description">{description}</p>
 
 ``````````
 </comp.CodeBlock>
+
+<comp.CodeBlock language="Astro" source="StatsBlock.astro">
+``````````
+
+---
+const { stats } = Astro.props;
+---
+
+<div data-editable="array" data-prop="stats">
+    {stats.map(({number, text}) => {
+    return <div data-editable="array-item">
+        <p data-editable="text" data-prop="number">{number}</p>
+        <p data-editable="text" data-prop="text">{text}</p>
+    </div>
+    })}
+</div>
+
+``````````
+</comp.CodeBlock>
+
+<comp.CodeBlock language="Astro" source="ContactBlock.astro">
+``````````
+
+---
+const { text, button, image } = Astro.props;
+---
+
+<img data-editable="image" data-prop-src="image" src={image} />
+<p data-editable="text" data-prop="text">{text}</p>
+<button type="button" data-editable="text" data-prop="button">{button}</button>
+
+``````````
+</comp.CodeBlock>
+
+Once we save and rebuild our *Site*, CloudCannon will show a yellow *Editable Regions* box around each array item, in this case the content blocks that make up the page.
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Visual-Editor-Complex-Array-Editable-Region" alt="A screenshot of the Visual Editor shows yellow Editable Region boxes around the array items, text, and images on the About webpage." title="Array Editable Region in the Visual Editor" type="screenshot"/>
+
+We can now build pages in the Visual Editor! We can add or delete content blocks, and reorder the content blocks in the array using the options in the *Edit* menu, or the *Drag* handler.
 
 <comp.DocsVideo url="" title="" autoplay={true} loop={true}/>
 
