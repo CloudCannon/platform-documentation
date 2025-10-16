@@ -194,13 +194,13 @@ Once we save and rebuild our *Site*, CloudCannon will show a yellow *Editable Re
 
 <comp.DocShot docshot_key="CloudCannon-Documentation-Visual-Editor-Simple-Array-Editable-Region" alt="A screenshot of the Visual Editor shows yellow Editable Region boxes around the array items, text, and images on the Quotes webpage." title="Array Editable Region in the Visual Editor" type="screenshot"/>
 
-When you hover an array item, CloudCannon will show a small toolbar in the top right, containing an *Edit* button and a *Drag* handler. Clicking the *Edit* button will open a dropdown with options to move an array item one position to the left or right, and to delete the item. Clicking and holding the *Drag* handler allows you to visually move an array item to any position in the array.
+When you hover an array item, CloudCannon will show a small toolbar in the top right, containing an *Edit* button and a *Drag* handler. Clicking the *Edit* button will open a data panel containing your array item fields. Clicking the *Drag* handler will open a dropdown with options to move an array item one position to the left or right, and to delete the item, while clicking and holding the *Drag* handler allows you to visually move an array item to any position in the array.
 
 <comp.DocsVideo url="https://player.vimeo.com/progressive_redirect/playback/1127384254/rendition/1080p/file.mp4?loc=external&signature=2a13816e5104cb323e411f0d83f84fe060f24975a7dc81fe5fe80155591af1a7" title="Array Editable Regions in the Visual Editor" autoplay={true} loop={true}/>
 
 ## Complex arrays or page building
 
-A complex array is one where the array items may not have the same structure. A common use case for complex arrays is page building, where you define the structure for several "content blocks" (e.g., a hero banner, video or image gallery, call-to-action) and add, remove, or reorder them within an array to build the content for your page.
+A complex array is one where the array items may not have the same structure. A common use case for complex arrays is page building, where you define the structure for several "content blocks" (e.g., a hero banner, video, image gallery, call-to-action) and add, remove, or reorder them within an array to build the content for your page.
 
 Let's look at an example.
 
@@ -208,20 +208,17 @@ Our "About" page is generated using an HTML layout populated by several data fil
 
 <comp.CodeBlock language="Astro" source="HeroBlock.astro">
 ``````````
-
 ---
 const { title, description } = Astro.props;
 ---
 
 <h2>{title}</h2>
 <p>{description}</p>
-
 ``````````
 </comp.CodeBlock>
 
 <comp.CodeBlock language="Astro" source="StatsBlock.astro">
 ``````````
-
 ---
 const { heading, description, stats } = Astro.props;
 ---
@@ -234,13 +231,11 @@ const { heading, description, stats } = Astro.props;
     </div>
     })}
 </div>
-
 ``````````
 </comp.CodeBlock>
 
 <comp.CodeBlock language="Astro" source="ContactBlock.astro">
 ``````````
-
 ---
 const { text, button, image } = Astro.props;
 ---
@@ -248,7 +243,6 @@ const { text, button, image } = Astro.props;
 <img src={image} />
 <p>{text}</p>
 <button type="button">{button}</button>
-
 ``````````
 </comp.CodeBlock>
 
@@ -256,14 +250,13 @@ Our "Quotes" page is generated using an HTML layout and populated with a data fi
 
 <comp.CodeBlock language="Markdown" source="about.md">
 ``````````
-
 ---
 layout: ../layouts/AboutLayout.astro
 contentBlocks:
-  - _name: AboutHero
+  - _name: HeroBlock
     title: We're on a mission
     description: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce lobortis mi sed est dapibus, sit amet consectetur quam euismod. Cras pretium quam vitae malesuada placerat. Curabitur ac sagittis ligula. Nunc sed ultrices leo. Vestibulum malesuada lobortis nisl, a feugiat est viverra et.
-  - _name: Stats
+  - _name: StatsBlock
     stats:
       - number: $200m
         text: Venture capital raised
@@ -273,12 +266,11 @@ contentBlocks:
         text: Amazing team members
       - number: 44325+
         text: Active users and growing
-  - _name: Contact
+  - _name: ContactBlock
     text: Want to get in contact with us?
     button: Click here
     image: https://preview.astro.new/blog/_astro/blog-placeholder-about.BtEdEmGp_1cKsnD.webp
 ---
-
 ``````````
 </comp.CodeBlock>
 
@@ -286,7 +278,6 @@ Here is an excerpt from our About Layout File. This section loops over all the i
 
 <comp.CodeBlock language="Astro" source="AboutLayout.astro">
 ``````````
-
 ---
 const components = {};
 const componentImports = import.meta.glob("../components/**/*.astro", {
@@ -315,7 +306,6 @@ const { contentBlocks } = Astro.props.frontmatter;
     </main>
   </body>
 </html>
-
 ``````````
 </comp.CodeBlock>
 
@@ -337,7 +327,6 @@ Here's what our About Layout code should look like:
 
 <comp.CodeBlock language="Astro" source="AboutLayout.astro">
 ``````````
-
 ---
 const components = {};
 const componentImports = import.meta.glob("../components/**/*.astro", {
@@ -366,7 +355,6 @@ const { contentBlocks } = Astro.props.frontmatter;
     </main>
   </body>
 </html>
-
 ``````````
 </comp.CodeBlock>
 
@@ -374,20 +362,17 @@ If we add a few more *Editable Regions* to our content block files, we can edit 
 
 <comp.CodeBlock language="Astro" source="HeroBlock.astro">
 ``````````
-
 ---
 const { title, description } = Astro.props;
 ---
 
 <h2 data-editable="text" data-prop="title">{title}</h2>
 <p data-editable="text" data-prop="description">{description}</p>
-
 ``````````
 </comp.CodeBlock>
 
 <comp.CodeBlock language="Astro" source="StatsBlock.astro">
 ``````````
-
 ---
 const { stats } = Astro.props;
 ---
@@ -400,13 +385,11 @@ const { stats } = Astro.props;
     </div>
     })}
 </div>
-
 ``````````
 </comp.CodeBlock>
 
 <comp.CodeBlock language="Astro" source="ContactBlock.astro">
 ``````````
-
 ---
 const { text, button, image } = Astro.props;
 ---
@@ -414,7 +397,6 @@ const { text, button, image } = Astro.props;
 <img data-editable="image" data-prop-src="image" src={image} />
 <p data-editable="text" data-prop="text">{text}</p>
 <button type="button" data-editable="text" data-prop="button">{button}</button>
-
 ``````````
 </comp.CodeBlock>
 
