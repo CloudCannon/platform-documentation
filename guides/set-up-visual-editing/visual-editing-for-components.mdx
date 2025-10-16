@@ -31,6 +31,91 @@ Because components render to HTML at build time, you can edit them in the Visual
 
 Let's take a look at an example.
 
+Here's our blog post from earlier in the guide. This time we've added a `cta` object to the front matter, containing the structured data keys `description`, `link`, `buttonText`, and `buttonColor`.
+
+<comp.CodeBlock language="Markdown" source="first-post.mdx">
+``````````
+
+---
+title: 'First post'
+description: 'Lorem ipsum dolor sit amet'
+author: 'C. Kent'
+pubDate: 'Jul 10 2025'
+heroImage: '../../assets/blog-banner.jpg'
+heroImageTitle: 'Blog gradient'
+heroImageAlt: 'An eye-catching color gradient banner.'
+cta:
+  description: "text"
+  link: "https://www.google.com"
+  buttonText: text
+  buttonColor: "#034AD8"
+---
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Vitae ultricies leo integer malesuada nunc vel risus commodo viverra.
+
+``````````
+</comp.CodeBlock>
+
+Here's an excerpt from the Blog layout file, containing a Call-To-Action component called `CTA` at the bottom of every blog post.
+
+<comp.CodeBlock language="Astro" source="BlogPost.astro">
+``````````
+---
+import CTA from '../components/CTA.astro';
+---
+
+<html lang="en">
+	<body>
+		<main>
+			<article>
+                <!-- Blog HTML here -->
+			</article>
+			<CTA {...Astro.props.cta} /> /*1*/
+		</main>
+	</body>
+</html>
+``````````
+</comp.CodeBlock>
+
+Finally, here's our component layout file, which contains HTML for the component and templating to populate elements with values from each blog file.
+
+<comp.CodeBlock language="Astro" source="components/CTA.astro">
+``````````
+---
+const { description, link, buttonText, buttonColor } = Astro.props;
+---
+
+<p class="" data-editable="text" data-prop="description" style="text-align:center">{description}</p>
+<a class="button" style="display:block;margin:auto;" href={link}>
+    <button data-editable="text" data-prop="buttonText" style={`background-color: ${buttonColor}; color: white; padding: 10px 20px; border-radius: 5px; border: none; cursor: pointer;`}>{buttonText}</button>
+</a>
+``````````
+</comp.CodeBlock>
+
+&nbsp;
+
+&nbsp;
+
+<comp.CodeBlock language="Astro">
+``````````
+
+<html lang="en">
+	<body>
+		<main>
+			<article>
+                <!-- Blog HTML here -->
+			</article>
+			<editable-component data-prop="cta" data-component="cta">
+				<CTA {...Astro.props.cta} />
+			</editable-component>
+		</main>
+		<Footer />
+	</body>
+</html>
+
+``````````
+</comp.CodeBlock>
+
 This file file is the x, containing structured data keys for `hero`, `title`, `tagline`, `roles`, `icon`, and `text`.
 
 <comp.CodeBlock language="Markdown" source="hero.mdx">
@@ -64,6 +149,14 @@ Here is an excerpt from our Hero Component file, defining the layout of the comp
 	</div>
 	<slot />
 </div>
+
+``````````
+</comp.CodeBlock>
+
+Here is an excerpt from our Page file, including the Hero component and templating for values from `hero.mdx`.
+
+<comp.CodeBlock language="">
+``````````
 
 ``````````
 </comp.CodeBlock>
@@ -107,18 +200,18 @@ registerAstroComponent('hero', Hero);
 </comp.CodeBlock>
 
 <comp.Notice info_type="important">
-  If you use React components, please use `{ registerReactComponent }` instead.
-  
+        If you use React components, please use `{ registerReactComponent }` instead.
+
   <comp.CodeBlock language="JavaScript" source="src/scripts/register-components.js">
-  ``````````
+        ``````````
 
-  import { registerReactComponent } from '@cloudcannon/editable-regions/integrations/react.js';
-  import MyComponent from './MyComponent.jsx';
+        import { registerReactComponent } from '@cloudcannon/editable-regions/integrations/react.js';
+        import MyComponent from './MyComponent.jsx';
 
-  registerReactComponent('my_component', MyComponent);
+        registerReactComponent('my_component', MyComponent);
 
-  ``````````
-  </comp.CodeBlock>
+        ``````````
+        </comp.CodeBlock>
 </comp.Notice>
 
 ## Using Component *Editable Regions*
