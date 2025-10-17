@@ -23,11 +23,7 @@ In this step of the guide, we'll cover how to add *Editable Regions* to componen
 
 ## What is a component?
 
-A component is a resuable piece of code, ranging from a small snippet of HTML, like a `<meta>` tag that make SEO easier, to UI elements like a header, profile card, or an entire page layout.
-
-Because components render to HTML at build time, you can edit them in the Visual Editor.
-
-&nbsp;
+A component is a resuable piece of code, ranging from a small snippet of HTML, like a `<meta>` tag that make SEO easier, to UI elements like a header, profile card, or an entire page layout. Because components render to HTML at build time, you can edit them in the Visual Editor.
 
 Let's take a look at an example.
 
@@ -88,9 +84,9 @@ Finally, here's our component layout file, which contains HTML for the component
 const { description, link, buttonText, buttonColor } = Astro.props;
 ---
 
-<p class="" data-editable="text" data-prop="description" style="text-align:center">{description}</p>
-<a class="button" style="display:block;margin:auto;" href={link}>
-    <button data-editable="text" data-prop="buttonText" style={`background-color: ${buttonColor}; color: white; padding: 10px 20px; border-radius: 5px; border: none; cursor: pointer;`}>{buttonText}</button>
+<p>{description}</p>
+<a href={link}>
+    <button style={`background-color: ${buttonColor}`}>{buttonText}</button>
 </a>
 
 ``````````
@@ -98,7 +94,7 @@ const { description, link, buttonText, buttonColor } = Astro.props;
 
 Together, these files output a webpage that looks like this:
 
-<comp.DocsImage path="" alt="" title="" type="screenshot"/>
+<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/guides/configure-visual-editing/2025-10/CloudCannon-Documentation-Visual-Editing-Guide-CTA-Component.png" alt="" title="" type="screenshot"/>
 
 In this example, we want to be able to edit the text for the CTA component description and button inline in the Visual Editor, and be able to open a data panel to edit other values like the link and button color.
 
@@ -120,6 +116,8 @@ npm install @cloudcannon/editable-regions
 ``````````
 </comp.CodeBlock>
 
+For more information, you can visit CloudCannon's GitHub repository for the [Editable Regions NPM package](https://github.com/CloudCannon/editable-regions).
+
 ## Register your components
 
 Next, we need to register your components with the NPM package. To do this, you'll need to create a registration script and include it in your layout.
@@ -138,36 +136,26 @@ registerAstroComponent('hero', Hero);
 ``````````
 </comp.CodeBlock>
 
-<comp.Notice info_type="important">
-              If you use React components, please use `{ registerReactComponent }` instead.
+<comp.Notice info_type="info">
+      <p>If you use React components, please use <code>{ registerReactComponent }</code> instead.</p><p><comp.CodeBlock language="JavaScript" source="src/scripts/register-components.js">
+                  ``````````
 
-  <comp.CodeBlock language="JavaScript" source="src/scripts/register-components.js">
-              ``````````
+                  import { registerReactComponent } from '@cloudcannon/editable-regions/integrations/react.js';
+                  import MyComponent from './MyComponent.jsx';
 
-              import { registerReactComponent } from '@cloudcannon/editable-regions/integrations/react.js';
-              import MyComponent from './MyComponent.jsx';
+                  registerReactComponent('my_component', MyComponent);
 
-              registerReactComponent('my_component', MyComponent);
-
-              ``````````
-              </comp.CodeBlock>
+                  ``````````
+                  </comp.CodeBlock></p>
 </comp.Notice>
 
-## Using Component *Editable Regions*
+## Adding Component *Editable Regions*
 
 x
 
-<comp.CodeBlock language="Astro" source="Layout.astro">
-``````````
-
-<script>
-  import '../scripts/register-components.js';
-</script>
-
-``````````
-</comp.CodeBlock>
-
 x
+
+Here's what our Blog Layout code should look like:
 
 <comp.CodeBlock language="Astro" source="BlogPost.astro">
 ``````````
@@ -194,4 +182,27 @@ x
 ``````````
 </comp.CodeBlock>
 
-x
+Finally, we can add `data-editable` and `data-prop` attributes to define two Text *Editable Regions* for the description and button text data keys. This follows the same steps outlined in the [Visual editing for content files](/documentation/guides/set-up-visual-editing/visual-editing-for-content-files/) step of this guide.
+
+Here's what our CTA component code should look like:
+
+<comp.CodeBlock language="Astro" source="components/CTA.astro">
+``````````
+
+---
+const { description, link, buttonText, buttonColor } = Astro.props;
+---
+
+<p data-editable="text" data-prop="description">{description}</p>
+<a href={link}>
+    <button data-editable="text" data-prop="buttonText" style={`background-color: ${buttonColor}`}>{buttonText}</button>
+</a>
+
+``````````
+</comp.CodeBlock>
+
+Once we save and rebuild our *Site*, CloudCannon will show a yellow *Editable Regions* box around all the content inside the `<CTA>` component in the Visual Editor.
+
+&nbsp;
+
+When you click into the *Editable Region*, CloudCannon will also display a WYSIWYG toolbar for formatting your content.
