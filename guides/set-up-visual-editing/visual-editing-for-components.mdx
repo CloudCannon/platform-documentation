@@ -60,6 +60,7 @@ Here's an excerpt from the Blog layout file, containing a Call-To-Action compone
 
 <comp.CodeBlock language="Astro" source="BlogPost.astro">
 ``````````
+
 ---
 import CTA from '../components/CTA.astro';
 ---
@@ -74,6 +75,7 @@ import CTA from '../components/CTA.astro';
 		</main>
 	</body>
 </html>
+
 ``````````
 </comp.CodeBlock>
 
@@ -81,6 +83,7 @@ Finally, here's our component layout file, which contains HTML for the component
 
 <comp.CodeBlock language="Astro" source="components/CTA.astro">
 ``````````
+
 ---
 const { description, link, buttonText, buttonColor } = Astro.props;
 ---
@@ -89,83 +92,19 @@ const { description, link, buttonText, buttonColor } = Astro.props;
 <a class="button" style="display:block;margin:auto;" href={link}>
     <button data-editable="text" data-prop="buttonText" style={`background-color: ${buttonColor}; color: white; padding: 10px 20px; border-radius: 5px; border: none; cursor: pointer;`}>{buttonText}</button>
 </a>
-``````````
-</comp.CodeBlock>
-
-&nbsp;
-
-&nbsp;
-
-<comp.CodeBlock language="Astro">
-``````````
-
-<html lang="en">
-	<body>
-		<main>
-			<article>
-                <!-- Blog HTML here -->
-			</article>
-			<editable-component data-prop="cta" data-component="cta">
-				<CTA {...Astro.props.cta} />
-			</editable-component>
-		</main>
-		<Footer />
-	</body>
-</html>
-
-``````````
-</comp.CodeBlock>
-
-This file file is the x, containing structured data keys for `hero`, `title`, `tagline`, `roles`, `icon`, and `text`.
-
-<comp.CodeBlock language="Markdown" source="hero.mdx">
-``````````
-
----
-hero:
-  title: Hello, my name is Heather Scott
-  tagline: Creative Developer Portfolio
-  roles:
-    - icon: code
-      text: Developer
-    - icon: microphone
-      text: Speaker
-    - icon: pencil
-      text: Writer
----
-
-``````````
-</comp.CodeBlock>
-
-Here is an excerpt from our Hero Component file, defining the layout of the component with HTML and templating.
-
-<comp.CodeBlock language="Astro" source="HeroComponent.astro">
-``````````
-
-<div>
-	<div>
-		<h1>{title}</h1>
-		{tagline && <p>{tagline}</p>}
-	</div>
-	<slot />
-</div>
-
-``````````
-</comp.CodeBlock>
-
-Here is an excerpt from our Page file, including the Hero component and templating for values from `hero.mdx`.
-
-<comp.CodeBlock language="">
-``````````
 
 ``````````
 </comp.CodeBlock>
 
 Together, these files output a webpage that looks like this:
 
-<comp.DocsImage path="" alt="" title=""/>
+<comp.DocsImage path="" alt="" title="" type="screenshot"/>
 
-In this example, we want to be able to edit the text and array in the Hero Component using the Visual Editor.
+In this example, we want to be able to edit the text for the CTA component description and button inline in the Visual Editor, and be able to open a data panel to edit other values like the link and button color.
+
+<comp.Notice info_type="important">
+  <p>Don't use a Source <em>Editable Region</em> if you have a component in your HTML-like file, as the component will not function correctly in the Visual Editor.</p>
+</comp.Notice>
 
 ## Install the npm package
 
@@ -200,18 +139,18 @@ registerAstroComponent('hero', Hero);
 </comp.CodeBlock>
 
 <comp.Notice info_type="important">
-        If you use React components, please use `{ registerReactComponent }` instead.
+              If you use React components, please use `{ registerReactComponent }` instead.
 
   <comp.CodeBlock language="JavaScript" source="src/scripts/register-components.js">
-        ``````````
+              ``````````
 
-        import { registerReactComponent } from '@cloudcannon/editable-regions/integrations/react.js';
-        import MyComponent from './MyComponent.jsx';
+              import { registerReactComponent } from '@cloudcannon/editable-regions/integrations/react.js';
+              import MyComponent from './MyComponent.jsx';
 
-        registerReactComponent('my_component', MyComponent);
+              registerReactComponent('my_component', MyComponent);
 
-        ``````````
-        </comp.CodeBlock>
+              ``````````
+              </comp.CodeBlock>
 </comp.Notice>
 
 ## Using Component *Editable Regions*
@@ -230,18 +169,29 @@ x
 
 x
 
-x
-
-<comp.CodeBlock language="Astro" source="Layout.astro">
+<comp.CodeBlock language="Astro" source="BlogPost.astro">
 ``````````
 
-<component-editable data-prop="hero" data-component="hero_section">
-    <HeroSection {...Astro.props.testimonial} />
-</component-editable>
-
-<component-editable data-prop="testimonial" data-component="testimonial_card">
-    <TestimonialCard {...Astro.props.testimonial} />
-</component-editable>
+<html lang="en">
+	<body>
+        <script>
+		 	if(window.inEditorMode){
+				import '../scripts/register-components.js';
+			}
+		</script> /*1*/
+		<main>
+			<article>
+                <!-- Blog HTML here -->
+			</article>
+			<editable-component data-prop="cta" data-component="cta"> /*2*/
+				<CTA {...Astro.props.cta} />
+			</editable-component>
+		</main>
+		<Footer />
+	</body>
+</html>
 
 ``````````
 </comp.CodeBlock>
+
+x
