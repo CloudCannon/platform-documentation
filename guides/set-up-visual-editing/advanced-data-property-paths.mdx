@@ -1,0 +1,142 @@
+---
+_schema: default
+_uuid: ab694f1d-f571-47c9-b902-0cc056320a07
+_created_at: 2025-08-26T13:46:31+12:00
+title: Advanced data property paths
+nav_title: 'TODO: Advanced data property paths'
+order: 8
+published: true
+start_nav_group:
+image:
+description:
+---
+The `data-prop` HTML attribute allows you to define the path to the data you want to edit.
+
+&nbsp;
+
+<comp.CodeBlock >
+``````````
+
+<editable-component data-prop-description="CTADescription" data-prop-button="CTAButton" data-prop-url="CTALink" data-component="cta">
+				<CTAButton description={Astro.props.CTADescription} button={Astro.props.CTAButton} url={Astro.props.CTALink} />
+			</editable-component>
+
+``````````
+</comp.CodeBlock>
+
+&nbsp;
+
+<comp.CodeBlock language="">
+``````````
+
+---
+import Button from './Button.astro';
+const { description, button, url } = Astro.props;
+---
+<style>
+    .hidden {
+        outline-color: transparent !important;
+    }
+    *, *::before, *::after {
+        transition-property: none !important;
+        animation: none !important;
+        caret-color: transparent !important;
+    }
+</style>
+
+<p class="" data-editable="text" data-prop="description" style="text-align:center">{description}</p>
+<a class="button" style="display:block;margin:auto;" href={url} data-editable="component" data-component="button" data-prop="button">
+    <Button {...button} />
+</a>
+
+then
+
+<editable-image data-prop-src="image" data-prop-alt="alt" data-prop-title="title">
+        <img src="image.png" alt="An image" width="100" height="100" title="Image Title">
+    </editable-image>
+
+
+    then
+
+
+CTADescription: "text"
+CTALink: "https://www.google.com"
+CTAButton:
+  text: text
+  color: "#034AD8"
+
+``````````
+</comp.CodeBlock>
+
+&nbsp;
+
+&nbsp;
+
+## Special data sources
+
+The `data-prop` HTML attribute is not restricted to structured data keys. In a previous step of this guide [Editable Regions for content files](/documentation/guides/set-up-visual-editing/editable-regions-for-content-files/), we introduced the `@content` special value, which allows you to edit the Markdown content of a file. There are several other special data source values you can use to edit data in various places.
+
+### *Collections*
+
+The `@collections[name]` special value allows you to edit
+
+* `@collections[name].index.property` —
+
+If you're using Astro's content collections, you can make collection data editable:
+
+<comp.CodeBlock language="Astro" source="file.astro">
+``````````
+
+---
+const posts = await getCollection('blog');
+---
+
+<h1>Blog Posts</h1>
+<array-editable data-prop="@collections[blog]">
+
+</array-editable>
+
+``````````
+</comp.CodeBlock>
+
+### Data
+
+`@data[filename].property` —
+
+### File
+
+`@file[path].property` —
+
+&nbsp;
+
+---
+
+## Step 8: Advanced Patterns
+
+### Conditional Content Blocks
+
+For more complex layouts with different content block types:
+
+```markdown
+---
+title: "Homepage"
+content_blocks:
+  - type: "hero"
+    headline: "Welcome"
+    image: "/hero.jpg"
+  - type: "text"
+    content: "Some text content"
+  - type: "gallery"
+    images: ["/img1.jpg", "/img2.jpg"]
+---
+```
+
+```astro
+<array-editable data-prop="content_blocks" data-id-key="type" data-component-key="type">
+  {frontmatter.content_blocks?.map((block, index) => (
+    <array-item key={index} data-id={block.type} data-component={`${block.type}_block`}>
+        <Component {...block} />
+    </array-item>
+  ))}
+</array-editable>
+```
