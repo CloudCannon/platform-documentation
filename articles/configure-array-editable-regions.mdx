@@ -38,7 +38,7 @@ To configure Array *Editable Regions* in the [Visual Editor](/documentation/arti
 
 When you open the file in the Visual Editor, CloudCannon will show yellow *Editable Region* boxes around each array item. When you hover an array item, CloudCannon will show a small toolbar in the top right, containing an *Edit* button and a *Drag* handler. Clicking the *Edit* button will open a dropdown with options to move an array item one position to the left or right, and to delete the item. Clicking and holding the *Drag* handler allows you to visually move an array item to any position in the array.
 
-<comp.DocShot docshot_key="" alt="" title="" type="screenshot"/>
+<comp.DocShot docshot_key="CloudCannon-Documentation-Visual-Editor-Complex-Array-Editable-Region" alt="A screenshot of the Visual Editor shows yellow Editable Region boxes around the array items, text, and images on the About webpage." title="Array Editable Region in the Visual Editor" type="screenshot"/>
 
 <comp.Notice info_type="info">
   <p><strong>Where should the Array and Array Item </strong><em><strong>Editable Regions</strong></em> <strong>go?</strong></p><p>The Array attribute or web component should be the immediate parent element of your array templating. The Array Item attribute or web component should be the first child element of your array templating. This way, Array and Array Item should flank the templating for looping over your array.</p><p>Try to avoid any nested elements between them; they should be as close together as possible, regardless of whether you use HTML attributes, web components, or both.</p>
@@ -48,7 +48,7 @@ When you open the file in the Visual Editor, CloudCannon will show yellow *Edita
 
 Here are a few examples of different Array *Editable Regions*.
 
-In this example of a simple array, the `testimonials.md` file contains array items with the same structure. The `TestimonialsLayout.astro` file
+In this example of a simple array, the `testimonials.md` file contains array items with the same structure.
 
 <comp.CodeBlock language="Markdown" source="testimonials.md">
 ``````````
@@ -142,13 +142,74 @@ const { testimonials } = Astro.props.frontmatter;
 </comp.Annotation>
 </comp.CodeBlock>
 
-In this example of a complex array...
+In this example of a complex array, the `about.md` file contains array items with different structures.
+
+<comp.CodeBlock language="Markdown" source="about.md">
+``````````
+
+---
+layout: ../layouts/AboutLayout.astro
+contentBlocks:
+  - _name: HeroBlock
+    title: We're on a mission
+    description: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce lobortis mi sed est dapibus, sit amet consectetur quam euismod. Cras pretium quam vitae malesuada placerat. Curabitur ac sagittis ligula. Nunc sed ultrices leo. Vestibulum malesuada lobortis nisl, a feugiat est viverra et.
+  - _name: StatsBlock
+    stats:
+      - number: $200m
+        text: Venture capital raised
+      - number: "2016"
+        text: Established in
+      - number: 40+
+        text: Amazing team members
+      - number: 44325+
+        text: Active users and growing
+  - _name: ContactBlock
+    text: Want to get in contact with us?
+    button: Click here
+    image: https://preview.astro.new/blog/_astro/blog-placeholder-about.BtEdEmGp_1cKsnD.webp
+---
+
+``````````
+</comp.CodeBlock>
+
+<comp.CodeBlock language="Astro" source="AboutLayout.astro">
+``````````
+
+---
+const components = {};
+const componentImports = import.meta.glob("../components/**/*.astro", {
+  eager: true,
+});
+Object.entries(componentImports).forEach(([path, obj]) => {
+  const name = path.replace("../components/", "").split(".")[0];
+  components[name] = obj.default;
+});
+
+const { contentBlocks } = Astro.props.frontmatter;
+---
+
+<!doctype html>
+<html lang="en">
+  <body>
+    <main>
+      <section data-prop="contentBlocks" data-id-key="_name">
+        {
+          contentBlocks.map((block) => {
+            const Component = components[block._name];
+            return <editable-array-item data-id={block._name}><Component {...block} /></editable-array-item>;
+          })
+        }
+      </section>
+    </main>
+  </body>
+</html>
+
+``````````
+</comp.CodeBlock>
 
 ## Misconfigured Array *Editable Regions*
 
 CloudCannon will display an orange warning box in the Visual Editor if your Array *Editable Regions* is misconfigured.
-
-<comp.DocShot docshot_key="" alt="" title="" type="screenshot"/>
 
 Array *Editable Regions* are misconfigured if:
 
