@@ -13,9 +13,7 @@ description: >-
   Learn how to configure Editable Regions for your content files, including YAML
   front matter and Markdown content.
 ---
-The majority of the files on your website are likely to be content files. These are files with a repeated format, stored in *Collections* on your *Site*.
-
-You and any content creators on your team probably spend the majority of your time editing content files, such as when writing a new blog or updating a product image, so it's essential to have an intuitive editing interface. Therefore, content files are an excellent starting point for configuring visual editing.
+The majority of the files on your website are likely to be content files. These are files with a repeated format, stored in *Collections* on your *Site*. You and any content creators on your team probably spend most of your time editing content files, such as when writing a new blog or updating a product image, so it's essential to have an intuitive editing interface. Therefore, content files are an excellent starting point for configuring visual editing.
 
 Let's complete the next task in the *Set up Visual Editing* in-app guide: *Make your content files visually editable*.
 
@@ -25,11 +23,11 @@ In this step of the guide, we'll cover how to add *Editable Regions* for text an
 
 ## What is a content file?
 
-A content file is a hybrid file that contains structured data keys (e.g., `title`, `publish_date`, `author`) in a YAML front matter section and Markdown content in the main body of the file. The structured data and content from each file populate fields in a layout file, which contains the HTML-like templating, generating an output page for each file during the *Site* build.
+A content file is a hybrid file that contains structured data keys (e.g., `title`, `publish_date`, `author`) in a YAML front matter section and Markdown content in the main body of the file. The structured data and content from each file populate fields in a layout file, which contains templating and generates an output page for each file during the *Site* build.
 
 Let's take a look at an example.
 
-This file is a blog post, containing structured data keys for `title`, `description`, `author`, `pubDate`, and `heroImage` in the front matter, and Markdown content in the body of the file.
+This file is a blog post, containing structured data keys for `title`, `description`, `author`, `pubDate`, `heroImage`, `heroImageTitle`, and `heroImageAlt` in the front matter, and Markdown content in the body of the file.
 
 <comp.CodeBlock language="markdown" source="first-post.mdx">
 ``````````
@@ -89,7 +87,7 @@ const { title, description, author, pubDate, heroImage, heroImageTitle, heroImag
 
 ``````````
 <comp.Annotation number="1">
-  This `<img>` element contains image width, height, source, title, and alt text attributes. The `src`, `title`, and `alt` attributes are set to the template `{heroImage}`, `{heroImageTitle}`, and `{heroImageAlt}` respectively, which draw their values from the keys in the front matter of a blog file.
+  This `<img>` element contains image source, title, and alt text attributes. The `src`, `title`, and `alt` attributes are set to the templating `{heroImage}`, `{heroImageTitle}`, and `{heroImageAlt}` respectively, which draw their values from the keys in the front matter of a blog file.
 </comp.Annotation>
 <comp.Annotation number="2">
   This `<h1>` element surrounds the template value `{title}`. This value comes from the `title` key in the front matter of a blog file.
@@ -135,9 +133,9 @@ Here's what our blog layout code should look like:
 
 Editing the value of `author` in the Visual Editor is slightly more complicated.
 
-Just like the `title` example, we need to define the type of *Editable Region* we want and the path to the property we want to edit. But, the `[author]` templating field is not the only value inside the `<p>` tag: the plain text "By:" prepends the author value. If we added `data-editable="text" data-prop="author"` to the `<p>` tag in our blog layout, the Visual Editor would re-render the field to only show the value of `author`, hiding the plain text.
+Just like the `title` example, we need to define which type of *Editable Region* we want and the path to the property we want to edit. But, the `[author]` templating field is not the only content inside the `<p>` tag: the plain text "By:" prepends the author value. If we added `data-editable="text" data-prop="author"` to the `<p>` tag in our blog layout, the Visual Editor would re-render the field to only show the value of `author`, hiding the plain text.
 
-It is important to note that *Editable Regions* don't modify the code of your templating, so the "By:" plain text is not destroyed. Instead, they update the value of the front matter key and re-render the webpage preview. This leads to a mismatch in the appearance of the built *Site*, which includes "By:" before the author name, and the preview in the Visual Editor, which would not.
+It is important to note that *Editable Regions* don't modify the code of your templating, so the "By:" plain text is not destroyed. Instead, they update the value of the front matter key and re-render the webpage preview in the Visual Editor. This leads to a mismatch in the appearance of the built *Site*, which includes "By:" before the author name, and the preview in the Visual Editor, which would not.
 
 To avoid this issue, we can use the web component `<editable-text>` instead. The `<editable-text>` web component replaces the need for the `data-editable="text"` attribute, telling CloudCannon what type of data we are editing. This is useful if you want to edit an element that can't take attributes, or a specific section of a string.
 
@@ -156,15 +154,15 @@ Here's what our blog layout code should look like:
 </comp.Annotation>
 </comp.CodeBlock>
 
-Once we save and rebuild our *Site*, CloudCannon will show yellow boxes around the title and author fields on the webpage, indicating *Editable Regions* in the Visual Editor.
+Once we save and rebuild our *Site*, CloudCannon will show yellow boxes around the title and author fields on the webpage, indicating *Editable Regions* in the Visual Editor. You can edit the text value of `title` and `author` inline on the page when you click into the *Editable Region*.
 
 <comp.DocShot docshot_key="CloudCannon-Documentation-Visual-Editor-Frontmatter-Text-Editable-Regions" alt="A screenshot of the Visual Editor shows yellow Editable Regions boxes around the title and author fields on the webpage." title="Text Editable Regions in the Visual Editor" type="screenshot"/>
 
 ## Markdown content
 
-In our example, the Markdown content in each blog file populates the `<slot />` element in the blog layout file at build time. We want to edit the Markdown content directly on the page, as well as format the rich text. However, because `<slot />` is not a DOM element, we can't add the `data-editable=""` and `data-prop=""` attributes directly.
+In our example, the Markdown content in each blog file populates the `<slot />` element in the blog layout file at build time. We want to edit the Markdown content directly on the page, as well as format the rich text. However, because `<slot />` is not a DOM element, we can't add the `data-editable` and `data-prop` attributes directly.
 
-Just like the `author` example above, we can wrap the `<slot />` element in a `<text-editable>` web component, which can take attributes.
+Just like the `author` example above, we can wrap the `<slot />` element in a `<editable-text>` web component, which can take attributes.
 
 The `<editable-text>` component tells CloudCannon what type of data we are editing. But, what is the value of the `data-prop=""` attribute? There are no front matter keys we can reference to tell CloudCannon where the data is stored.
 
@@ -189,7 +187,7 @@ Once we save and rebuild our *Site*, CloudCannon will show a yellow *Editable Re
 
 <comp.DocShot docshot_key="CloudCannon-Documentation-Visual-Editor-Content-Text-Editable-Region" alt="A screenshot of the Visual Editor shows a yellow Editable Regions box around the blog content and a WYSIWYG toolbar." title="A Text Editable Region in the Visual Editor" type="screenshot"/>
 
-Why did the Visual Editor show a WYSIWYG toolbar for the content of our blog files, but not for the title or author? Because, by default, CloudCannon treats most inputs as plain text and Markdown content as rich text. We'll cover that more in the next step of this guide, [Visual editing for HTML-like files](/documentation/guides/set-up-visual-editing/editing-html-like-files/).
+Why did the Visual Editor show a WYSIWYG toolbar for the content of our blog file, but not for the title or author? Because, by default, CloudCannon treats most inputs as plain text and Markdown content as rich text. We'll cover that more in the next step of this guide, [Visual editing for HTML-like files](/documentation/guides/set-up-visual-editing/editing-html-like-files/).
 
 ## Images in your front matter
 
@@ -249,12 +247,12 @@ Once we save and rebuild our *Site*, CloudCannon will show a yellow *Editable Re
 
 <comp.DocShot docshot_key="CloudCannon-Documentation-Visual-Editor-Frontmatter-Image-Editable-Region" alt="A screenshot of the Visual Editor shows a yellow Editable Region box around the image and the Edit Image Data Panel." title="An Image Editable Region in the Visual Editor" type="screenshot"/>
 
-When you click into the image *Editable Region*, CloudCannon will open the *Edit Image* Data Panel with the option to change the image, and update the image title and alt text.
+When you click into the Image *Editable Region*, CloudCannon will open the *Edit Image* Data Panel with the option to change the image, and update the image title and alt text.
 
-If you upload a new image through the *Edit Image* Data Panel, CloudCannon will upload it to one of three locations. If your front matter key is configured as an Image Input, CloudCannon will upload your new image to the location defined by `options.paths.uploads`. If this option is not defined, CloudCannon will use the location defined by `paths.uploads` in the root of your CloudCannon Configuration file. Finally, if you do not have any uploads path defined, CloudCannon will upload the new image to the uploads folder in the root of your repository, or create one if the folder does not exist.
+If you upload a new image through the *Edit Image* Data Panel, CloudCannon will upload it to one of three locations. If your front matter key is configured as an [Image Input](/documentation/articles/what-is-a-file-input/#image), CloudCannon will upload your new image to the location defined by `options.paths.uploads`. If this option is not defined, CloudCannon will use the location defined by `paths.uploads` in the root of your CloudCannon Configuration file. Finally, if you do not have any uploads path defined, CloudCannon will upload the new image to the uploads folder in the root of your repository, or create one if the folder does not exist.
 
 <comp.Notice info_type="important">
   <p>If you nest an Image <em>Editable Region</em> inside a Text or Source <em>Editable Region</em>, CloudCannon will display a misconfigured warning.</p>
 </comp.Notice>
 
-In the next step of this guide, we'll cover how to add Source *Editable Regions* to HTML-like files, allowing you to edit standalone HTML pages in the Visual Editor.
+In the next step of this guide, we'll cover how to add Source *Editable Regions* to HTML-like files, allowing you to edit standalone pages in the Visual Editor.
