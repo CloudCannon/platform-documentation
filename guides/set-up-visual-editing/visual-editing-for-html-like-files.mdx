@@ -77,15 +77,15 @@ This file outputs a webpage that looks like this:
 
 <comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/guides/configure-visual-editing/2025-11/CloudCannon-Documentation-Visual-Editing-Guide-Home-Page.png" alt="A screenshot of the home page on our Astro website shows a header image, title, and content." title="The home page" type="screenshot"/>
 
-## Source code in HTML-like files
+## Visually editing source code
 
 In our example above, we want to edit everything inside of the `<main>` tag in the Visual Editor as rich text. We can do that by adding the `data-editable`, `data-path`, and `data-key` attributes.
 
-Like in our previous step, [Visual editing for content files](/documentation/guides/set-up-visual-editing/visual-editing-for-content-files/), the `data-editable` HTML attribute will define the type of data we want to edit. In this case, the value is `source` as the `<main>` tag contains source code. We can add this to the `<main>` tag, or wrap the `<main>` tag in the equivalent web component `<editable-source>`.
+Like in our previous step, [Visual editing for content files](/documentation/guides/set-up-visual-editing/visual-editing-for-content-files/), the `data-editable` HTML attribute will define the type of data we want to edit. In this case, the value is `source` as the `<main>` tag contains source code. We can add this to the `<main>` tag, or nest the equivalent web component `<editable-source>` inside the `<main>` tag.
 
-When we use `data-editable="source"`, the Source *Editable Region* also requires you to define the `data-path` and `data-key` attributes.
+The Source *Editable Region* also requires you to define the `data-path` and `data-key` attributes.
 
-The `data-path` attribute is similar to `data-prop`; it defines the location that data is stored. However, unlike the changes we made to the blog layout file in the [previous step of this guide](/documentation/guides/configure-visual-editing/editing-content-files/), our Home page stores text directly within the HTML elements, not in a structured front matter key. We want CloudCannon to update the value of this file every time we edit it in the Visual Editor, so let's make the value the path of the file: `/src/pages/index.html`.
+The `data-path` attribute is similar to `data-prop`; it defines the location that data is stored. However, unlike the changes we made to the blog layout file in the [previous step of this guide](/documentation/guides/configure-visual-editing/editing-content-files/), our Home page stores text directly within the HTML elements, not in a structured front matter key. We want CloudCannon to update the value of this file every time we edit it in the Visual Editor, so let's make the value the path of the file: `/src/pages/index.astro`.
 
 The `data-key` attribute acts as a unique identifier for an editable region. This means if you have several editable regions in one file, CloudCannon knows which value to update. We recommend choosing a key that provides context for which area of your code an editable region affects. In this example, we'll use the value `main`.
 
@@ -126,11 +126,11 @@ Allowing rich text formatting in an element that can only support plain text can
 
 <comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/guides/configure-visual-editing/2025-10/CloudCannon-Documentation-Editables-Data-Type-Flowchart.png" alt="An illustration of the flowchart CloudCannon uses to decide if rich text formatting is appropriate for an element." title="The Data Type Flowchart" type="ui-snippet"/>
 
-To begin, CloudCannon determines whether the Editable is for content or front matter. Content is any Source Editable (i.e., `data-attribute="source"` or `<source-editable>`), or Text Editable where `data-prop="@content"`. Front matter is any Text Editable where `data-prop` is set to a structured data key.
+To begin, CloudCannon determines whether the Editable is for content or front matter. Content is any Source *Editable Region* (i.e., `data-attribute="source"` or `<source-editable>`), or Text *Editable Region* where `data-prop="@content"`. Front matter is any Text Editable where `data-prop` is set to a structured data key.
 
-If the Editable is for content, CloudCannon will use either `text` or `block` as the default value of `data-type`, as the content is likely to need rich text formatting. Whether paragraph-level rich text formatting or all rich text formatting options are available will depend on the HTML element in the output file(e.g., `<h1>` elements can only support `text` level formatting, while `<div>` elements can support `block` level formatting).
+If the *Editable Region* is for content, CloudCannon will use either `text` or `block` as the default value of `data-type`, as the content is likely to need rich text formatting. Whether paragraph-level rich text formatting or all rich text formatting options are available will depend on the HTML element in the output file(e.g., `<h1>` elements can only support `text` level formatting, while `<div>` elements can support `block` level formatting).
 
-If the Editable is for a value stored in front matter, CloudCannon will determine whether you have input configuration for that front matter key. If you do not, CloudCannon will use `data-type="span"` by default. Similarly, if you do have input configuration, but the input type is not defined as rich text (i.e., `markdown` or `html`), CloudCannon will use `data-type="span"` by default.
+If the *Editable Region* is for a value stored in front matter, CloudCannon will determine whether you have input configuration for that front matter key. If you do not, CloudCannon will use `data-type="span"` by default. Similarly, if you do have input configuration, but the input type is not defined as rich text (i.e., `markdown` or `html`), CloudCannon will use `data-type="span"` by default.
 
 If your front matter key is configured as a rich text input, CloudCannon will use either `text` or `block` as the default value of `data-type`, whichever is appropriate for the HTML element in the output file.
 
