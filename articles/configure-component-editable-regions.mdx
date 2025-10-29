@@ -7,7 +7,9 @@ nav_title: Configure Component Editable Regions
 published: true
 image: >-
  https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
-description: Learn how to...
+description: >-
+ Learn how to configure Component Editable Regions in your website files to
+ enable Astro or React component editing in the Visual Editor.
 article_category:
  - Instructions
 article_topic:
@@ -15,21 +17,106 @@ author_notes:
  docshots_status: Needs docshots
 ---
 <comp.Notice info_type="permissions">
-  **Permissions required**
-
-  Members of the Owners or Developers [Default Permission Groups](/documentation/articles/what-are-default-permission-groups/), or [Custom Permission Groups](/documentation/articles/what-are-custom-permission-groups/) with the `x` permission, can...
+  <p><strong>Permissions required</strong></p><p>Members of the Owners, Developers, and Technical Editors <a href="/documentation/articles/what-are-default-permission-groups/">Default Permission Groups</a>, or <a href="/documentation/articles/what-are-custom-permission-groups/">Custom Permission Groups</a> with the <code>site:source-editor:write</code> permission, can add <em>Editable Regions</em> to files using the Source Editor in CloudCannon.</p>
 </comp.Notice>
 
-Short description and link to explanation article...
+...
 
-These instructions assume...
+These instructions assume you have configured your [build settings](/documentation/articles/configure-your-first-build/), are comfortable editing HTML layouts, either in CloudCannon's [Source Editor](/documentation/articles/the-source-editor/) or your local development environment, and are using Astro or React components.
 
-To...:
+To configure Component *Editable Regions* in the [Visual Editor](/documentation/articles/the-visual-editor/):
 
-1. x
+1. Install the CloudCannon *Editable Regions* NPM package by opening your website project in your local development environment and running the `npm install @cloudcannon/editable-regions` command in your terminal.
+2. Create a registration file for your components (e.g., `src/scripts/register-components.js`).
+3. Identify the file you want to which you want to add a Component *Editable Region*. We recommend any...
+4. Open the file in CloudCannon's Source Editor or your local development environment.
+5. At the top of your file, import the component registration file. Optionally, you can import your registration file only if the window is in Editor Mode (i.e., your webpage is open in CloudCannon's Visual Editor).
+6. Identify the component HTML element and add the HTML attribute `data-editable="component"` . If no DOM element is available, you can wrap the templating in the `<editable-component>` web component.
+7. Add the `data-prop=""` HTML attribute to the same DOM element, or to the `<editable-component>` web component. The value of `data-prop` should be the path the to data property you want to edit.
+8. Add the `data-component=""` HTML attribute to the same DOM element, or to the `<editable-component>` web component. The value of `data-component` should be the name of the component in your registration script file.
+9. Optional. If you also want to edit the contents of your component in the Visual Editor, add other types of *Editable Regions* to the component layout file.
+10. Save the change to your *Site*. CloudCannon will automatically rebuild your *Site*.
 
-CloudCannon will...
+When you open the file in the Visual Editor, CloudCannon will show yellow *Editable Region* boxes around...
 
 <comp.DocShot docshot_key="" alt="" title="" type="screenshot"/>
 
-Extra info...
+## Examples
+
+Here is an example of files required for a Component *Editable Region*:
+
+<comp.CodeBlock language="JavaScript" source="src/scripts/register-components.js">
+``````````
+
+import { registerAstroComponent } from '@cloudcannon/editable-regions/astro';
+import CTA from '../components/CTA.astro';
+
+// Register your components
+registerAstroComponent('cta', CTA);
+
+``````````
+</comp.CodeBlock>
+
+<comp.CodeBlock language="Astro" source="BlogPost.astro">
+``````````
+
+<html lang="en">
+  <body>
+    <script> /*1*/
+      if(window.inEditorMode){
+        import '../scripts/register-components.js';
+      }
+    </script>
+    <main>
+      <article>
+        <!-- Blog HTML here -->
+      </article>
+      <editable-component data-prop="cta" data-component="cta"> /*2*/
+        <CTA {...Astro.props.cta} />
+      </editable-component>
+    </main>
+    <Footer />
+  </body>
+</html>
+
+``````````
+<comp.Annotation number="1">
+  The `<script>` element instructs your browser to import the `register-components.js` file if your webpage is open in the Visual Editor.
+</comp.Annotation>
+<comp.Annotation number="2">
+  The `editable-component` web component defines a Component *Editable Region*. The `data-prop` attribute defines the path to the data we want to edit, and the `data-component` defines which registered component we are using. In this case, we want to edit the `cta` structured data key in the blog front matter and use the registered component `cta`.
+</comp.Annotation>
+</comp.CodeBlock>
+
+<comp.CodeBlock language="Astro" source="components/CTA.astro">
+``````````
+
+---
+const { description, link, buttonText, buttonColor } = Astro.props;
+---
+
+<p data-editable="text" data-prop="description">{description}</p>
+<a href={link}>
+    <button data-editable="text" data-prop="buttonText" style={`background-color: ${buttonColor}`}>{buttonText}</button>
+</a>
+
+``````````
+<comp.Annotation number="1">
+  This `<p>` element contains `data-editable="text"` and `data-prop="description"` to define a Text *Editable Region*.
+</comp.Annotation>
+<comp.Annotation number="2">
+  This `<button>` element contains `data-editable="text"` and `data-prop="buttonText"` to define a Text *Editable Region*.
+</comp.Annotation>
+</comp.CodeBlock>
+
+## Misconfigured Image *Editable Regions*
+
+CloudCannon will display an orange warning box in the Visual Editor if your Component *Editable Regions* is misconfigured.
+
+Component *Editable Regions* are misconfigured if:
+
+* You did not define the `data-prop` or `data-component`HTML attributes.
+* The *Editable Region* has an invalid data type (e.g., your Text region has a number or object, instead of a string).
+* You reference a component that does not exist, or has not been registered.
+* Component rendering errors
+* Invalid component return values
