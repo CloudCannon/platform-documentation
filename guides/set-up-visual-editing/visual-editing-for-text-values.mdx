@@ -14,11 +14,17 @@ description: >-
 ---
 x
 
+<comp.Notice info_type="info">
+  <p><strong>Nested text values</strong></p><p>To avoid misconfiguration errors, it is best practice to define your <em>Editable Regions</em> from the root of your file first (i.e., from parent elements to child elements). If your text values are nested inside an array or a component, you should define <em>Editable</em> <em>Regions</em> for those parent elements first. We'll cover this more in later steps of this guide.</p>
+</comp.Notice>
+
+&nbsp;
+
 ## *Editable Regions* for text values
 
 Text is the primary content of most websites, and also the easiest value to edit visually. You can use the Source or Text *Editable Regions* to edit text values. Which one you should use will depend on where the text is stored.
 
-Text content can be in one of three places: hard-coded in an HTML-like file (e.g., `.astro`, `.liquid`, etc), stored in a structured data key and referenced by templating in a layout, or in the body of your content files as Markup.
+Text content can be in one of three places: hard-coded in an HTML-like file (e.g., `.astro`, `.liquid`, etc), stored in a structured data key and referenced by templating in a layout, or in the body of your content files as Markup. In these three cases, you should use a Source *Editable Region* for the first, and a Text *Editable Region* for the second and third. Let's cover how to define these.
 
 ### Hard-coded values in HTML-like files
 
@@ -26,57 +32,7 @@ x
 
 ### Text values in structured data
 
-x
-
-### Markup text
-
-x
-
-## Rich text formatting options
-
-Not all text values have
-
-&nbsp;
-
-## Rich text vs. Plain Text
-
-Why did the Visual Editor show a WYSIWYG toolbar for the content of our blog files, but not for the title or author? CloudCannon shows you different editing options based on whether your *Editable Region* contains plain text or rich text.
-
-You can manually define this behavior using the `data-type` attribute, which accepts three values: `span`, `text`, or `block`.
-
-Setting `data-type` as `span` does not allow any rich text formatting (i.e., plain, inline text), while `text` allows paragraph-level rich text, with a WYSIWYG toolbar containing formatting tools such as bold, italics, and links. Setting `data-type` to `block` allows all rich text formatting options, from paragraph-level to block-level formatting like lists, block-quotes, images, snippets, and text styling.
-
-<comp.Notice info_type="info">
-  <p>If you want to specify exactly which formatting tools are available, you can manually define your WYSIWYG toolbar under the <code>_editables</code> key in your CloudCannon Configuration File. For more information, please read our documentation on <a href="/documentation/articles/configure-your-rich-text-editors/#editable-regions">Configuring your rich text editors</a>.</p>
-</comp.Notice>
-
-Allowing rich text formatting in an element that can only support plain text can be destructive to your content and HTML. When `data-type` is not defined, as in the above example, CloudCannon determines an appropriate default.
-
-<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/guides/configure-visual-editing/2025-10/CloudCannon-Documentation-Editables-Data-Type-Flowchart.png" alt="An illustration of the flowchart CloudCannon uses to decide if rich text formatting is appropriate for an element." title="The Data Type Flowchart" type="ui-snippet"/>
-
-To begin, CloudCannon determines whether the Editable is for content or front matter. Content is any Source *Editable Region* (i.e., `data-attribute="source"` or `<source-editable>`), or Text *Editable Region* where `data-prop="@content"`. Front matter is any Text Editable where `data-prop` is set to a structured data key.
-
-If the *Editable Region* is for content, CloudCannon will use either `text` or `block` as the default value of `data-type`, as the content is likely to need rich text formatting. Whether paragraph-level rich text formatting or all rich text formatting options are available will depend on the HTML element in the output file(e.g., `<h1>` elements can only support `text` level formatting, while `<div>` elements can support `block` level formatting).
-
-If the *Editable Region* is for a value stored in front matter, CloudCannon will determine whether you have input configuration for that front matter key. If you do not, CloudCannon will use `data-type="span"` by default. Similarly, if you do have input configuration, but the input type is not defined as rich text (i.e., `markdown` or `html`), CloudCannon will use `data-type="span"` by default.
-
-If your front matter key is configured as a rich text input, CloudCannon will use either `text` or `block` as the default value of `data-type`, whichever is appropriate for the HTML element in the output file.
-
-For a complete list of configuration options for *Editable Regions*, please read our [Visual Editing reference](/documentation/articles/editables-reference) documentation.
-
----
-
-The majority of the files on your website are likely to be content files. These are files with a repeated format, stored in *Collections* on your *Site*. You and any content creators on your team probably spend most of your time editing content files, such as when writing a new blog or updating a product image, so it's essential to have an intuitive editing interface. Therefore, content files are an excellent starting point for configuring visual editing.
-
-Let's complete the next task in the *Set up Visual Editing* in-app guide: *Make your content files visually editable*.
-
-<comp.DocShot docshot_key="CloudCannon-Documentation-Site-Dashboard-Content-Editable-Regions-Task" alt="A screenshot of the Make your content files visually editable task from the Set up Visual Editing in-app guide." title="The content visual editing task" type="ui-snippet"/>
-
-In this step of the guide, we'll cover how to add *Editable Regions* for text and images stored in your front matter and Markdown content. If you don't have any appropriate files or don't want to add this type of *Editable Region*, you can skip this step of the guide.
-
-## What is a content file?
-
-A content file is a hybrid file that contains structured data keys (e.g., `title`, `publish_date`, `author`) in a YAML front matter section and Markdown content in the main body of the file. The structured data and content from each file populate fields in a layout file, which contains templating and generates an output page for each file during the *Site* build.
+Many of the files on your website are likely to be content files, containing structured data keys (e.g., `title`, `publish_date`, `author`) in the front matter which populate templating in a layout file at build time.
 
 Let's take a look at an example.
 
@@ -161,15 +117,15 @@ Together, these files output a webpage that looks like this:
 
 <comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/guides/configure-visual-editing/2025-11/CloudCannon-Documentation-Visual-Editing-Guide-Content-Page.png" alt="A screenshot of a blog page on our Astro website shows a header image, title, author, and content." title="A blog page" type="screenshot"/>
 
-## Text in your front matter
-
-In our example above, each blog file contains two text front matter keys we want to edit inline: `title` and `author`. We can add Text *Editable Regions* to the blog layout file to enable this.
-
-When building your *Site*, CloudCannon populates the templating inside the blog layout file with values from each blog file to create a series of output HTML pages. Specifically, the `title` key in the front matter of each blog file populates the `{title}` templating field inside the `<h1>` tag, and the `author` key populates the `{author}` templating field inside the `<p>` tag.
+In this example, each blog file contains two text front matter keys we want to visually edit: `title` and `author`. We can add Text *Editable Regions* to the blog layout file to enable visual editing for these text values in the entire *Collection*.
 
 Let's start with `title`.
 
-Inside the `<h1>` tag, we can add the `data-editable` HTML attribute with the value `text`, to define a Text *Editable Region*. We also need to add the `data-prop` HTML attribute to the `<h1>` tag, to define the path the to data property we want to edit (we'll dive deeper into paths for the `data-prop` attribute in the [Advanced data property paths](/documentation/guides/configure-visual-editing/advanced-data-property-paths/) step of this guide). CloudCannon will pass that value to the *Editable Region* in the Visual Editor and re-render the field. In this example, the value of `data-prop` should be `title`, as this is the name of the front matter key.
+The `title` key in the front matter of each blog file populates the `{title}` templating field in our blog layout, which is inside an `<h1>` tag. To define a Text *Editable Region*, we can add the `data-editable` and `data-prop` HTML attributes to the `<h1>` DOM element. In this case, the value of `data-editable` should be `text`,
+
+&nbsp;
+
+We also need to add the `data-prop` HTML attribute to the `<h1>` tag, to define the path the to data property we want to edit (we'll dive deeper into paths for the `data-prop` attribute in the [Advanced data property paths](/documentation/guides/configure-visual-editing/advanced-data-property-paths/) step of this guide). CloudCannon will pass that value to the *Editable Region* in the Visual Editor and re-render the field. In this example, the value of `data-prop` should be `title`, as this is the name of the front matter key.
 
 Here's what our blog layout code should look like:
 
@@ -184,11 +140,11 @@ Here's what our blog layout code should look like:
 </comp.Annotation>
 </comp.CodeBlock>
 
-Editing the value of `author` in the Visual Editor is slightly more complicated.
+Adding a Text *Editable Region* for `{author}` is slightly more complicated.
 
-Just like the `title` example, we need to define which type of *Editable Region* we want and the path to the property we want to edit. But, the `{author}` templating field is not the only content inside the `<p>` tag: the plain text "By:" prepends the author value. If we added `data-editable="text" data-prop="author"` to the `<p>` tag in our blog layout, the Visual Editor would re-render the field to only show the value of `author`, hiding the plain text.
+The `author` key in the front matter of each blog file populates the `{author}` templating field in our blog layout, which is inside an `<p>` tag. The `{author}` templating field is not the only content inside the `<p>` tag: the plain text "By:" prepends the author value. If we added `data-editable="text" data-prop="author"` to the `<p>` tag in our blog layout, the Visual Editor would re-render the field to only show the value of `author`, hiding the plain text.
 
-It is important to note that *Editable Regions* don't modify the code of your templating, so the "By:" plain text is not destroyed. Instead, they update the value of the front matter key and re-render the webpage preview in the Visual Editor. This leads to a mismatch in the appearance of the built *Site*, which includes "By:" before the author name, and the preview in the Visual Editor, which would not.
+It is important to note that Text *Editable Regions* don't modify the code in your layout file, so the "By:" plain text is not destroyed. Instead, they update the value of the front matter key and re-render the webpage preview in the Visual Editor. This leads to a mismatch in the appearance of the built *Site*, which includes "By:" before the author name, and the preview in the Visual Editor, which would not.
 
 To avoid this issue, we can use the web component `<editable-text>` instead. The `<editable-text>` web component replaces the need for the `data-editable="text"` attribute, telling CloudCannon what type of data we are editing. This is useful if you want to edit an element that can't take attributes, or a specific section of a string.
 
@@ -210,6 +166,81 @@ Here's what our blog layout code should look like:
 Once we save and rebuild our *Site*, CloudCannon will show yellow boxes around the title and author fields on the webpage, indicating *Editable Regions* in the Visual Editor. You can edit the text value of `title` and `author` inline on the page when you click into the *Editable Region*.
 
 <comp.DocShot docshot_key="CloudCannon-Documentation-Visual-Editor-Frontmatter-Text-Editable-Regions" alt="A screenshot of the Visual Editor shows yellow Editable Regions boxes around the title and author fields on the webpage." title="Text Editable Regions in the Visual Editor" type="screenshot"/>
+
+### Markup text
+
+x
+
+## Rich text formatting options
+
+When you click into an *Editable Region* for a text value, sometimes the Visual Editor will display a WYSIWYG toolbar with rich text formatting options. CloudCannon determines whether your text value is rich text automatically, but you can also define this behavior manually using the `data-type` HTML attribute.
+
+<comp.CodeBlock language="Astro" source="BlogPost.astro">
+``````````
+
+<p>By: <editable-text data-prop="author" data-type="">{author}</editable-text></p> /*1*/
+
+``````````
+<comp.Annotation number="1">
+  The `<editable-text>` web component defines what kind of data this element contains, and the `data-prop` attribute defines the path to the data we want to edit. In this case, we used the web component to wrap the `{author}` templating specifically, and we want to edit the `author` structured data key in the file front matter.
+</comp.Annotation>
+</comp.CodeBlock>
+
+The `data-type` attribute accepts three values: `span`, `text`, or `block`. Setting `data-type` as `span` does not allow any rich text formatting (i.e., plain, inline text), while `text` allows paragraph-level rich text, with a WYSIWYG toolbar containing formatting tools such as bold, italics, and links. Setting `data-type` to `block` allows all rich text formatting options, from paragraph-level to block-level formatting like lists, block-quotes, images, snippets, and text styling.
+
+<comp.Notice info_type="info">
+  <p>If you want to specify exactly which formatting tools are available, you can manually define your WYSIWYG toolbar under the <code>_editables</code> key in your CloudCannon Configuration File. For more information, please read our documentation on <a href="/documentation/articles/configure-your-rich-text-editors/#editable-regions">Configuring your rich text editors</a>.</p>
+</comp.Notice>
+
+Not all text values need rich text formatting options, and, in some cases, adding rich text formatting to an element that can only support plain text can be destructive to your content and HTML. When `data-type` is not defined, CloudCannon will determine an appropriate default value using the following process.
+
+<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/guides/configure-visual-editing/2025-10/CloudCannon-Documentation-Editables-Data-Type-Flowchart.png" alt="An illustration of the flowchart CloudCannon uses to decide if rich text formatting is appropriate for an element." title="The Data Type Flowchart" type="ui-snippet"/>
+
+To begin, CloudCannon determines whether the Editable is for content or front matter. Content is any Source *Editable Region* (i.e., `data-attribute="source"` or `<source-editable>`), or Text *Editable Region* where `data-prop="@content"`. Front matter is any Text Editable where `data-prop` is set to a structured data key.
+
+If the *Editable Region* is for content, CloudCannon will use either `text` or `block` as the default value of `data-type`, as the content is likely to need rich text formatting. Whether paragraph-level rich text formatting or all rich text formatting options are available will depend on the HTML element in the output file(e.g., `<h1>` elements can only support `text` level formatting, while `<div>` elements can support `block` level formatting).
+
+If the *Editable Region* is for a value stored in front matter, CloudCannon will determine whether you have input configuration for that front matter key. If you do not, CloudCannon will use `data-type="span"` by default. Similarly, if you do have input configuration, but the input type is not defined as rich text (i.e., `markdown` or `html`), CloudCannon will use `data-type="span"` by default.
+
+If your front matter key is configured as a rich text input, CloudCannon will use either `text` or `block` as the default value of `data-type`, whichever is appropriate for the HTML element in the output file.
+
+For a complete list of configuration options for *Editable Regions*, please read our [Visual Editing reference](/documentation/articles/editables-reference) documentation.
+
+## Common errors
+
+If you accidentally misconfigure your *Editable Regions*, CloudCannon will display a red warning box in the Visual Editor.
+
+<comp.DocShot docshot_key="" alt="" title="" type="screenshot"/>
+
+Here are a few common errors you might encounter with Source and Text *Editable Regions*:
+
+* You did not define the `data-path` or `data-key` HTML attribute for your Source *Editable Region*, or the `data-prop` HTML attribute for your Text *Editable Region*.
+* The file path defined by `data-path` does not exist.
+* The *Editable Region* has an invalid data type (e.g., your Text region has a number or object, instead of a string).
+* You have an unsupported value for `data-type`. It must be `span`, `text`, or `block`.
+* There are Source *Editable Regions* with the same `data-key` value. This value should be unique.
+
+<comp.Notice info_type="important">
+  <p>Do not nest an Image <em>Editable Region</em> inside a Text or Source <em>Editable Region</em>.</p>
+</comp.Notice>
+
+In the next step of this guide, we'll cover how to define *Editable Regions* for image values stored in HTML-like files or structured data.
+
+---
+
+&nbsp;
+
+Let's complete the next task in the *Set up Visual Editing* in-app guide: *Make your content files visually editable*.
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Site-Dashboard-Content-Editable-Regions-Task" alt="A screenshot of the Make your content files visually editable task from the Set up Visual Editing in-app guide." title="The content visual editing task" type="ui-snippet"/>
+
+In this step of the guide, we'll cover how to add *Editable Regions* for text and images stored in your front matter and Markdown content. If you don't have any appropriate files or don't want to add this type of *Editable Region*, you can skip this step of the guide.
+
+## What is a content file?
+
+&nbsp;
+
+## Text in your front matter
 
 ## Markdown content
 
@@ -320,7 +351,7 @@ Here are a few common errors you might encounter with Text and Image *Editable R
   <p>Do not nest an Image <em>Editable Region</em> inside a Text or Source <em>Editable Region</em>.</p>
 </comp.Notice>
 
-In the next step of this guide, we'll cover how to add Source *Editable Regions* to HTML-like files, allowing you to edit standalone pages in the Visual Editor.
+&nbsp;
 
 &nbsp;
 
@@ -328,18 +359,6 @@ In the next step of this guide, we'll cover how to add Source *Editable Regions*
 
 &nbsp;
 
-## Common errors
-
-If you accidentally misconfigure your *Editable Regions*, CloudCannon will display a red warning box in the Visual Editor.
-
-<comp.DocShot docshot_key="" alt="" title="" type="screenshot"/>
-
-Here are a few common errors you might encounter with Source *Editable Regions*:
-
-* You did not define the `data-path` or `data-key` HTML attribute.
-* The *Editable Region* has an invalid data type (e.g., your Text region has a number or object, instead of a string).
-* The file path defined by `data-path` does not exist.
-* You have an unsupported value for `data-type`. It must be `span`, `text`, or `block`.
-* There are *Editable Regions* with the same `data-key` value. This value should be unique.
+##
 
 In the next step of this guide, we'll cover how to add Array *Editable Regions* to simple and complex arrays, allowing you to edit, remove, and reorder array items in the Visual Editor.
