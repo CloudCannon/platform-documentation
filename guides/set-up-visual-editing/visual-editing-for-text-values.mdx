@@ -2,19 +2,67 @@
 _schema: default
 _uuid: a8c9da69-9b1a-443f-b2d0-80c988920294
 _created_at: 2025-10-31T14:59:29+13:00
-title: Text and Images
-nav_title: Text and Images
+title: Visual Editing for text values
+nav_title: Visual Editing for text values
 order: 6
 published: true
 image: >-
   https://cc-dam.imgix.net/documentation/images/guides/getting-started/guide-thumbnails/CloudCannon-Getting-Started-Thumbnail-Universal.png
-description: Learn about...
+description: >-
+  Learn how to define Source or Text Editable Regions to edit text values stored
+  in HTML, structured data, or Markup.
 ---
 x
 
-&nbsp;
+## *Editable Regions* for text values
+
+Text is the primary content of most websites, and also the easiest value to edit visually. You can use the Source or Text *Editable Regions* to edit text values. Which one you should use will depend on where the text is stored.
+
+Text content can be in one of three places: hard-coded in an HTML-like file (e.g., `.astro`, `.liquid`, etc), stored in a structured data key and referenced by templating in a layout, or in the body of your content files as Markup.
+
+### Hard-coded values in HTML-like files
+
+x
+
+### Text values in structured data
+
+x
+
+### Markup text
+
+x
+
+## Rich text formatting options
+
+Not all text values have
 
 &nbsp;
+
+## Rich text vs. Plain Text
+
+Why did the Visual Editor show a WYSIWYG toolbar for the content of our blog files, but not for the title or author? CloudCannon shows you different editing options based on whether your *Editable Region* contains plain text or rich text.
+
+You can manually define this behavior using the `data-type` attribute, which accepts three values: `span`, `text`, or `block`.
+
+Setting `data-type` as `span` does not allow any rich text formatting (i.e., plain, inline text), while `text` allows paragraph-level rich text, with a WYSIWYG toolbar containing formatting tools such as bold, italics, and links. Setting `data-type` to `block` allows all rich text formatting options, from paragraph-level to block-level formatting like lists, block-quotes, images, snippets, and text styling.
+
+<comp.Notice info_type="info">
+  <p>If you want to specify exactly which formatting tools are available, you can manually define your WYSIWYG toolbar under the <code>_editables</code> key in your CloudCannon Configuration File. For more information, please read our documentation on <a href="/documentation/articles/configure-your-rich-text-editors/#editable-regions">Configuring your rich text editors</a>.</p>
+</comp.Notice>
+
+Allowing rich text formatting in an element that can only support plain text can be destructive to your content and HTML. When `data-type` is not defined, as in the above example, CloudCannon determines an appropriate default.
+
+<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/guides/configure-visual-editing/2025-10/CloudCannon-Documentation-Editables-Data-Type-Flowchart.png" alt="An illustration of the flowchart CloudCannon uses to decide if rich text formatting is appropriate for an element." title="The Data Type Flowchart" type="ui-snippet"/>
+
+To begin, CloudCannon determines whether the Editable is for content or front matter. Content is any Source *Editable Region* (i.e., `data-attribute="source"` or `<source-editable>`), or Text *Editable Region* where `data-prop="@content"`. Front matter is any Text Editable where `data-prop` is set to a structured data key.
+
+If the *Editable Region* is for content, CloudCannon will use either `text` or `block` as the default value of `data-type`, as the content is likely to need rich text formatting. Whether paragraph-level rich text formatting or all rich text formatting options are available will depend on the HTML element in the output file(e.g., `<h1>` elements can only support `text` level formatting, while `<div>` elements can support `block` level formatting).
+
+If the *Editable Region* is for a value stored in front matter, CloudCannon will determine whether you have input configuration for that front matter key. If you do not, CloudCannon will use `data-type="span"` by default. Similarly, if you do have input configuration, but the input type is not defined as rich text (i.e., `markdown` or `html`), CloudCannon will use `data-type="span"` by default.
+
+If your front matter key is configured as a rich text input, CloudCannon will use either `text` or `block` as the default value of `data-type`, whichever is appropriate for the HTML element in the output file.
+
+For a complete list of configuration options for *Editable Regions*, please read our [Visual Editing reference](/documentation/articles/editables-reference) documentation.
 
 ---
 
@@ -273,3 +321,25 @@ Here are a few common errors you might encounter with Text and Image *Editable R
 </comp.Notice>
 
 In the next step of this guide, we'll cover how to add Source *Editable Regions* to HTML-like files, allowing you to edit standalone pages in the Visual Editor.
+
+&nbsp;
+
+## Types of editable text
+
+&nbsp;
+
+## Common errors
+
+If you accidentally misconfigure your *Editable Regions*, CloudCannon will display a red warning box in the Visual Editor.
+
+<comp.DocShot docshot_key="" alt="" title="" type="screenshot"/>
+
+Here are a few common errors you might encounter with Source *Editable Regions*:
+
+* You did not define the `data-path` or `data-key` HTML attribute.
+* The *Editable Region* has an invalid data type (e.g., your Text region has a number or object, instead of a string).
+* The file path defined by `data-path` does not exist.
+* You have an unsupported value for `data-type`. It must be `span`, `text`, or `block`.
+* There are *Editable Regions* with the same `data-key` value. This value should be unique.
+
+In the next step of this guide, we'll cover how to add Array *Editable Regions* to simple and complex arrays, allowing you to edit, remove, and reorder array items in the Visual Editor.
