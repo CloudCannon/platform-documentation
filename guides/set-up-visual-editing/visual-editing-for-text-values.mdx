@@ -24,9 +24,75 @@ Text is the primary content of most websites, and also the easiest value to edit
 
 Text content can be in one of three places: hard-coded in an HTML-like file (e.g., `.astro`, `.liquid`, etc), stored in a structured data key and referenced by templating in a layout, or in the body of your content files as Markup. In these three cases, you should use a Source *Editable Region* for the first, and a Text *Editable Region* for the second and third. Let's cover how to define these.
 
-### Hard-coded values in HTML-like files
+### Hard-coded text values in HTML-like files
 
-x
+Standalone pages on your website, like a "Home" or "About" page, are probably generated from a single file with HTML-like content and templating. These pages are often landing pages, so an accurate visual editing experience is important to help your team understand exactly what a website visitor will see.
+
+The term "HTML-like" refers to any file that incorporates HTML structure and templating. Based on the SSG your *Site* uses, the format and extension of these files may differ (e.g., Astro uses `.astro` files, Eleventy uses `.liquid` files), but as long as they output to an HTML file after a Site build, you can still add *Editable Regions*.
+
+Let's take a look at an example.
+
+Here is an excerpt from the "Home" page of our website. It is mainly comprised of text inside `<h1>`, `<p>`, and `<ul>` tags, as well as an `<img>` tag.
+
+<comp.CodeBlock language="Astro" source="index.astro">
+``````````
+
+<!doctype html>
+<html lang="en">
+  <body>
+    <main>
+      <img src="/cloudcannon-logo.jpg">
+      <h1>Hello!</h1>
+      <p>
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
+          labore et dolore magna aliqua. Vitae ultricies leo integer malesuada nunc vel risus commodo
+          viverra. Adipiscing enim eu turpis egestas pretium.
+      </p>
+      <p>Varius sit amet mattis vulputate enim. Habitasse platea dictumst:</p>
+      <ul>
+          <li>Morbi tristique senectus et netus.</li>
+          <li>Id semper risus in hendrerit gravida rutrum quisque non tellus.</li>
+          <li>Habitasse platea dictumst quisque sagittis purus sit amet.</li>
+          <li>Tellus molestie nunc non blandit massa.</li>
+          <li>Cursus vitae congue mauris rhoncus.</li>
+      </ul>
+    </main>
+  </body>
+</html>
+
+``````````
+</comp.CodeBlock>
+
+This file outputs a webpage that looks like this:
+
+<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/guides/configure-visual-editing/2025-11/CloudCannon-Documentation-Visual-Editing-Guide-Home-Page.png" alt="A screenshot of the home page on our Astro website shows a header image, title, and content." title="The home page" type="screenshot"/>
+
+In this example, we want to visually edit the title of our Home page in the Visual Editor. We can add a Source *Editable Region* to our Home page.
+
+The text value of our page title is "Hello!" which is hard-coded in an `<h1>` tag. To define a Source *Editable Region*, we can add the `data-editable`, `data-path`, and `data-key` HTML attributes to the `<h1>` DOM element. The `data-editable` HTML attribute defines which type of *Editable Region* you want to use.
+
+The `data-path` HTML attribute defines where your data is stored which, in this case, in the the path of the file: `/src/pages/index.astro`. The `data-key` HTML attribute acts as a unique identifier for an *Editable Region*, so CloudCannon knows which value to update if you have several *Editable Regions* in one file. We recommend choosing a key that provides context for which area of your code an editable region affects. In this example, we'll use the value `title`.
+
+Here's what our Home page code should look like:
+
+<comp.CodeBlock language="Astro" source="index.astro">
+``````````
+
+<h1 data-editable="source" data-path="/src/pages/index.astro" data-key="title">Hello!</h1> /*1*/
+
+``````````
+<comp.Annotation number="1">
+  The `data-editable` attribute defines what kind of data this element contains, the `data-path` attribute defines the path to the file we want to edit, and the `data-key` attribute defines the unique identifier for this region if there are multiple regions in the file. In this case, we want a Source *Editable Region*, so the value of `data-editable` is `source`, we want to edit the `/src/pages/index.astro` file, and the unique key is `title`.
+</comp.Annotation>
+</comp.CodeBlock>
+
+Once we save and rebuild our *Site*, CloudCannon will show a yellow *Editable Region* box around the `<h1>` tag content in the Visual Editor. When you click into the *Editable Region*, you can type inline to change the value of the `<h1>` tag.
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Visual-Editor-Source-Editable-Region" alt="A screenshot of the Visual Editor shows yellow Editable Region boxes around the rich text content on the Home webpage." title="Source Editable Region in the Visual Editor" type="screenshot"/>
+
+<comp.Notice info_type="important">
+  <p>Do not nest Text or Image <em>Editable Regions</em> inside Source <em>Editable Regions</em>.</p>
+</comp.Notice>
 
 ### Text values in structured data
 
@@ -274,13 +340,3 @@ Here are a few common errors you might encounter with Source and Text *Editable 
 </comp.Notice>
 
 In the next step of this guide, we'll cover how to define *Editable Regions* for image values stored in HTML-like files or structured data.
-
----
-
-&nbsp;
-
-Let's complete the next task in the *Set up Visual Editing* in-app guide: *Make your content files visually editable*.
-
-<comp.DocShot docshot_key="CloudCannon-Documentation-Site-Dashboard-Content-Editable-Regions-Task" alt="A screenshot of the Make your content files visually editable task from the Set up Visual Editing in-app guide." title="The content visual editing task" type="ui-snippet"/>
-
-In this step of the guide, we'll cover how to add *Editable Regions* for text and images stored in your front matter and Markdown content. If you don't have any appropriate files or don't want to add this type of *Editable Region*, you can skip this step of the guide.
