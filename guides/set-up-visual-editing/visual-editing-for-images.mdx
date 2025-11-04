@@ -2,8 +2,8 @@
 _schema: default
 _uuid: 86d34c98-bc69-4309-a3b2-471238cbe365
 _created_at: 2025-11-04T12:52:07+13:00
-title: Visual Editing for image values
-nav_title: 'TODO: Visual Editing for image values'
+title: Visual Editing for images
+nav_title: 'TODO: Visual Editing for images'
 order: 7
 published: true
 image: >-
@@ -12,29 +12,45 @@ description: >-
   Learn how to define Source or Text Editable Regions to edit image values
   stored in HTML or structured data.
 ---
-x
-
-<comp.Notice info_type="info">
-  <p><strong>Nested text values</strong></p><p>To avoid misconfiguration errors, it is best practice to define your <em>Editable Regions</em> from the root of your file first (i.e., from parent elements to child elements). If your text values are nested inside an array or a component, you should define <em>Editable</em> <em>Regions</em> for those parent elements first. We'll cover this more in later steps of this guide.</p>
-</comp.Notice>
-
-## *Editable Regions* for image values
-
 Visual editing for images
 
-&nbsp;
+Image content can be in one of two places: hard-coded in an HTML-like file (e.g., `.astro`, `.liquid`, etc), or stored in a structured data key and referenced by templating in a layout. In these cases, you should use a Source *Editable Region* for the first, and an Image *Editable Region* for the second. Let's cover how to define these.
 
-&nbsp;
+<comp.Notice info_type="info">
+  <p><strong>Nested image values</strong></p><p>To avoid misconfiguration errors, it is best practice to define your <em>Editable Regions</em> from the root of your file first (i.e., from parent elements to child elements). If your image values are nested inside an array or a component, you should define <em>Editable</em> <em>Regions</em> for those parent elements first. We'll cover this more in later steps of this guide.</p>
+</comp.Notice>
 
-&nbsp;
+## Hard-coded image values in HTML-like files
 
-&nbsp;
+Standalone
+
+## Image values in structured data
+
+Many
+
+## Common errors
+
+If you accidentally misconfigure your *Editable Regions*, CloudCannon will display a red warning box in the Visual Editor.
+
+Here are a few common errors you might encounter with Source and Text *Editable Regions*:
+
+* You did not define the `data-path` or `data-key` HTML attribute for your Source *Editable Region*, or the `data-prop-*` HTML attribute for your Image *Editable Region*.
+* The file path defined by `data-path` does not exist.
+* The *Editable Region* has an invalid data type (e.g., your Text region has a number or object, instead of a string).
+* There is no `<img>` child element in the Image *Editable Region* web component.
+* There are Source *Editable Regions* with the same `data-key` value. This value should be unique.
+
+<comp.Notice info_type="important">
+  <p>Do not nest an Image <em>Editable Region</em> inside a Text or Source <em>Editable Region</em>.</p>
+</comp.Notice>
+
+In the next step of this guide, we'll cover how to define *Editable Regions* for image values stored in HTML-like files or structured data.
 
 ---
 
 Text is the primary content of most websites, and also the easiest value to edit visually. You can use the Source or Text *Editable Regions* to edit text values. Which one you should use will depend on where the text is stored.
 
-Text content can be in one of three places: hard-coded in an HTML-like file (e.g., `.astro`, `.liquid`, etc), stored in a structured data key and referenced by templating in a layout, or in the body of your content files as Markup. In these three cases, you should use a Source *Editable Region* for the first, and a Text *Editable Region* for the second and third. Let's cover how to define these.
+&nbsp;
 
 ### Hard-coded text values in HTML-like files
 
@@ -221,134 +237,4 @@ Once we save and rebuild our *Site*, CloudCannon will show yellow boxes around t
 
 <comp.DocShot docshot_key="CloudCannon-Documentation-Visual-Editor-Frontmatter-Text-Editable-Regions" alt="A screenshot of the Visual Editor shows yellow Editable Regions boxes around the title and author fields on the webpage." title="Text Editable Regions in the Visual Editor" type="screenshot"/>
 
-### Markdown text
-
-The majority of the text content on your website is likely to be Markdown in the body of your content files. This is also the text value that content teams will edit most often, such as when writing a new blog or updating a product description. This Markdown will populate the `<slot />` element in a layout file at build time.
-
-Let's take another look at the above example.
-
-<comp.CodeBlock language="markdown" source="first-post.mdx">
-``````````
-
----
-title: 'First post'
-author: 'C. Kent'
-heroImage: '../../assets/blog-banner.jpg'
-heroImageTitle: 'Blog gradient'
-heroImageAlt: 'An eye-catching color gradient banner.'
----
-
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Vitae ultricies leo integer malesuada nunc vel risus commodo viverra.
-
-``````````
-</comp.CodeBlock>
-
-<comp.CodeBlock language="Astro" source="BlogPost.astro">
-``````````
-
----
-const { title, author, heroImage, heroImageTitle, heroImageAlt } = Astro.props;
----
-<article>
-    <div class="hero-image">
-        {heroImage &&
-            <img
-              src={heroImage}
-              title={heroImageTitle}
-              alt={heroImageAlt}
-            />
-          }
-    </div>
-    <div class="prose">
-        <div class="title">
-            <h1>{title}</h1>
-            <p>By: {author}</p>
-            <hr />
-        </div>
-        <slot /> /*1*/
-    </div>
-</article>
-
-``````````
-<comp.Annotation number="1">
-  This `<slot />` element marks where the markup content from a blog file will go.
-</comp.Annotation>
-</comp.CodeBlock>
-
-We should still use a Text *Editable Region* to visually edit the Markdown content, so the value is stored outside of the blog layout. However, because `<slot />` is not a DOM element, we can't add the `data-editable` and `data-prop` attributes directly. Just like the `author` example above, we can wrap the `<slot />` element in a `<editable-text>` web component, which can take attributes.
-
-The `<editable-text>` web component replaces the need for `data-editable`. But, what should the value of the `data-prop` be? There are no front matter keys we can reference to tell CloudCannon where the data is stored. In this case, we can use the special value `@content` to specify Markdown content in the body of a content file.
-
-Here's what our blog layout code should look like:
-
-<comp.CodeBlock language="Astro" source="BlogPost.astro">
-``````````
-
-<editable-text data-prop="@content"> /*1*/
-    <slot />
-</editable-text>
-
-``````````
-<comp.Annotation number="1">
-  The `<editable-text>` web component defines what kind of data this element contains, and the `data-prop` attribute defines the path to the data we want to edit. In this case, we used the web component to wrap the `<slot />` element, which will be populated by Markdown content at build time, and we want to edit the Markdown content of the file, as signified by the special value `@content`.
-</comp.Annotation>
-</comp.CodeBlock>
-
-Once we save and rebuild our *Site*, CloudCannon will show a yellow *Editable Region* box around the content on the webpage. When you click into the *Editable Region*, CloudCannon will also display a WYSIWYG toolbar for formatting your content.
-
-<comp.DocShot docshot_key="CloudCannon-Documentation-Visual-Editor-Content-Text-Editable-Region" alt="A screenshot of the Visual Editor shows a yellow Editable Regions box around the blog content and a WYSIWYG toolbar." title="A Text Editable Region in the Visual Editor" type="screenshot"/>
-
-## Rich text formatting options
-
-When you click into an *Editable Region* for a text value, sometimes the Visual Editor will display a WYSIWYG toolbar with rich text formatting options. CloudCannon determines whether your text value is rich text automatically, but you can also define this behavior manually using the `data-type` HTML attribute.
-
-<comp.CodeBlock language="Astro" source="BlogPost.astro">
-``````````
-
-<p>By: <editable-text data-prop="author" data-type="">{author}</editable-text></p> /*1*/
-
-``````````
-<comp.Annotation number="1">
-  The `<editable-text>` web component defines what kind of data this element contains, and the `data-prop` attribute defines the path to the data we want to edit. In this case, we used the web component to wrap the `{author}` templating specifically, and we want to edit the `author` structured data key in the file front matter.
-</comp.Annotation>
-</comp.CodeBlock>
-
-The `data-type` attribute accepts three values: `span`, `text`, or `block`. Setting `data-type` as `span` does not allow any rich text formatting (i.e., plain, inline text), while `text` allows paragraph-level rich text, with a WYSIWYG toolbar containing formatting tools such as bold, italics, and links. Setting `data-type` to `block` allows all rich text formatting options, from paragraph-level to block-level formatting like lists, block-quotes, images, snippets, and text styling.
-
-<comp.Notice info_type="info">
-  <p>If you want to specify exactly which formatting tools are available, you can manually define your WYSIWYG toolbar under the <code>_editables</code> key in your CloudCannon Configuration File. For more information, please read our documentation on <a href="/documentation/articles/configure-your-rich-text-editors/#editable-regions">Configuring your rich text editors</a>.</p>
-</comp.Notice>
-
-Not all text values need rich text formatting options, and, in some cases, adding rich text formatting to an element that can only support plain text can be destructive to your content and HTML. When `data-type` is not defined, CloudCannon will determine an appropriate default value using the following process.
-
-<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/guides/configure-visual-editing/2025-10/CloudCannon-Documentation-Editables-Data-Type-Flowchart.png" alt="An illustration of the flowchart CloudCannon uses to decide if rich text formatting is appropriate for an element." title="The Data Type Flowchart" type="ui-snippet"/>
-
-To begin, CloudCannon determines whether the Editable is for content or front matter. Content is any Source *Editable Region* (i.e., `data-attribute="source"` or `<source-editable>`), or Text *Editable Region* where `data-prop="@content"`. Front matter is any Text Editable where `data-prop` is set to a structured data key.
-
-If the *Editable Region* is for content, CloudCannon will use either `text` or `block` as the default value of `data-type`, as the content is likely to need rich text formatting. Whether paragraph-level rich text formatting or all rich text formatting options are available will depend on the HTML element in the output file(e.g., `<h1>` elements can only support `text` level formatting, while `<div>` elements can support `block` level formatting).
-
-If the *Editable Region* is for a value stored in front matter, CloudCannon will determine whether you have input configuration for that front matter key. If you do not, CloudCannon will use `data-type="span"` by default. Similarly, if you do have input configuration, but the input type is not defined as rich text (i.e., `markdown` or `html`), CloudCannon will use `data-type="span"` by default.
-
-If your front matter key is configured as a rich text input, CloudCannon will use either `text` or `block` as the default value of `data-type`, whichever is appropriate for the HTML element in the output file.
-
-For a complete list of configuration options for *Editable Regions*, please read our [Visual Editing reference](/documentation/articles/editables-reference) documentation.
-
-## Common errors
-
-If you accidentally misconfigure your *Editable Regions*, CloudCannon will display a red warning box in the Visual Editor.
-
-<comp.DocShot docshot_key="" alt="" title="" type="screenshot"/>
-
-Here are a few common errors you might encounter with Source and Text *Editable Regions*:
-
-* You did not define the `data-path` or `data-key` HTML attribute for your Source *Editable Region*, or the `data-prop` HTML attribute for your Text *Editable Region*.
-* The file path defined by `data-path` does not exist.
-* The *Editable Region* has an invalid data type (e.g., your Text region has a number or object, instead of a string).
-* You have an unsupported value for `data-type`. It must be `span`, `text`, or `block`.
-* There are Source *Editable Regions* with the same `data-key` value. This value should be unique.
-
-<comp.Notice info_type="important">
-  <p>Do not nest an Image <em>Editable Region</em> inside a Text or Source <em>Editable Region</em>.</p>
-</comp.Notice>
-
-In the next step of this guide, we'll cover how to define *Editable Regions* for image values stored in HTML-like files or structured data.
+###
