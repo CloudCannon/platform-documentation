@@ -26,7 +26,7 @@ Standalone
 
 Let's take a look at an example.
 
-Here is an excerpt from the "Home" page of our website, which contains an `<img>` tag with an image path.
+Here is an excerpt from the "Home" page of our website, which contains an `<img>` tag with an image path in the `src` attribute.
 
 <comp.CodeBlock language="Astro" source="index.astro">
 ``````````
@@ -35,7 +35,7 @@ Here is an excerpt from the "Home" page of our website, which contains an `<img>
 <html lang="en">
   <body>
     <main>
-      <img src="/cloudcannon-logo.jpg">
+      <img src="/cloudcannon-logo.jpg" />
       <h1>Hello!</h1>
       <p>
           Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
@@ -63,38 +63,20 @@ This file outputs a webpage that looks like this:
 
 In this example, we want to visually edit the image path in the Visual Editor. We can add a Source *Editable Region* to our Home page.
 
-&nbsp;
+The text value of our page title is "Hello!" which is hard-coded in the `src` attribute of the `<img>` tag. To define a Source *Editable Region*, we can add the `data-editable`, `data-path`, and `data-key` HTML attributes to the `<img>` DOM element. The `data-editable` HTML attribute defines which type of *Editable Region* you want to use which, in this case, is `source`.
 
-&nbsp;
-
-&nbsp;
-
-&nbsp;
-
-&nbsp;
-
-&nbsp;
-
-Standalone pages on your website, like a "Home" or "About" page, are probably generated from a single file with HTML-like content and templating. These pages are often landing pages, so an accurate visual editing experience is important to help your team understand exactly what a website visitor will see.
-
-The term "HTML-like" refers to any file that incorporates HTML structure and templating. Based on the SSG your *Site* uses, the format and extension of these files may differ (e.g., Astro uses `.astro` files, Eleventy uses `.liquid` files), but as long as they output to an HTML file after a Site build, you can still add *Editable Regions*.
-
-&nbsp;
-
-The text value of our page title is "Hello!" which is hard-coded in an `<h1>` tag. To define a Source *Editable Region*, we can add the `data-editable`, `data-path`, and `data-key` HTML attributes to the `<h1>` DOM element. The `data-editable` HTML attribute defines which type of *Editable Region* you want to use.
-
-The `data-path` HTML attribute defines where your data is stored which, in this case, in the the path of the file: `/src/pages/index.astro`. The `data-key` HTML attribute acts as a unique identifier for an *Editable Region*, so CloudCannon knows which value to update if you have several *Editable Regions* in one file. We recommend choosing a key that provides context for which area of your code an editable region affects. In this example, we'll use the value `title`.
+As in the [previous step of this guide](/documentation/guides/set-up-visual-editing/visual-editing-for-text/), we can use the `data-path` HTML attribute to define where the image value is stored, `/src/pages/index.astro`, and the `data-key` HTML attribute to provide a unique identifier, `homeImage`.
 
 Here's what our Home page code should look like:
 
 <comp.CodeBlock language="Astro" source="index.astro">
 ``````````
 
-<h1 data-editable="source" data-path="/src/pages/index.astro" data-key="title">Hello!</h1> /*1*/
+<img src="/cloudcannon-logo.jpg" data-editable="source" data-path="/src/pages/index.astro" data-key="homeImage" /> /*1*/
 
 ``````````
 <comp.Annotation number="1">
-  The `data-editable` attribute defines what kind of data this element contains, the `data-path` attribute defines the path to the file we want to edit, and the `data-key` attribute defines the unique identifier for this region if there are multiple regions in the file. In this case, we want a Source *Editable Region*, so the value of `data-editable` is `source`, we want to edit the `/src/pages/index.astro` file, and the unique key is `title`.
+  The `data-editable` attribute defines what kind of data this element contains, the `data-path` attribute defines the path to the file we want to edit, and the `data-key` attribute defines the unique identifier for this region if there are multiple regions in the file. In this case, we want a Source *Editable Region*, so the value of `data-editable` is `source`, we want to edit the `/src/pages/index.astro` file, and the unique key is `homeImage`.
 </comp.Annotation>
 </comp.CodeBlock>
 
@@ -102,19 +84,9 @@ Once we save and rebuild our *Site*, CloudCannon will show a yellow *Editable Re
 
 <comp.DocShot docshot_key="CloudCannon-Documentation-Visual-Editor-Source-Editable-Region" alt="A screenshot of the Visual Editor shows yellow Editable Region boxes around the rich text content on the Home webpage." title="Source Editable Region in the Visual Editor" type="screenshot"/>
 
-<comp.Notice info_type="important">
-  <p>Do not nest Text or Image <em>Editable Regions</em> inside Source <em>Editable Regions</em>.</p>
-</comp.Notice>
-
-###
-
-&nbsp;
-
-&nbsp;
-
 ## Image values in structured data
 
-Many...
+Content files, which contain structured data keys that populate templating in a layout file at build time, often store information image data.
 
 Let's take a look at an example.
 
@@ -142,18 +114,9 @@ Here is an excerpt from our blog layout file, containing HTML for the blog webpa
 ``````````
 
 ---
-const { title, author, heroImage, heroImageTitle, heroImageAlt } = Astro.props;
+const { title, author } = Astro.props;
 ---
 <article>
-    <div class="hero-image">
-        {heroImage &&
-            <img
-              src={heroImage}
-              title={heroImageTitle}
-              alt={heroImageAlt}
-            />
-          }
-    </div>
     <div class="prose">
         <div class="title">
             <h1>{title}</h1> /*1*/
@@ -253,4 +216,4 @@ Here are a few common errors you might encounter with Source and Text *Editable 
   <p>Do not nest an Image <em>Editable Region</em> inside a Text or Source <em>Editable Region</em>.</p>
 </comp.Notice>
 
-In the next step of this guide, we'll cover how to define *Editable Regions* for image values stored in HTML-like files or structured data.
+In the next step of this guide, we'll cover how to define *Editable Regions* for arrays.
