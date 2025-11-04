@@ -9,53 +9,305 @@ published: true
 image: >-
   https://cc-dam.imgix.net/documentation/images/guides/getting-started/guide-thumbnails/CloudCannon-Getting-Started-Thumbnail-Universal.png
 description: >-
-  Learn how to define Source or Text Editable Regions to edit text values stored
-  in HTML, structured data, or Markup.
+  Learn how to define Array and Array Item Editable Regions to add, delete, and
+  reorder array items in structured data.
 ---
-x
+Some webpages, or webpage components, are constructed from arrays. An array is an ordered list of data, where data is grouped into array items. An array could be simple, where each item has the same structure (e.g., a testimonial component), or more complex, where each item has a different structure (e.g., a page with various components). You can use Array and Array Item *Editable Regions* to enable your team to visually edit arrays, including adding, deleting, and reordering items.
+
+Array content is defined using structured data keys in the front matter of hybrid files (e.g., `.mdx`) or in data files (e.g., `.yml`) and referenced by templating in a layout. In both these cases, you should use Array and Array Item *Editable Regions*; however, there are some extra steps for complex arrays. Let's cover how to define these.
 
 <comp.Notice info_type="info">
-  <p><strong>Nested text values</strong></p><p>To avoid misconfiguration errors, it is best practice to define your <em>Editable Regions</em> from the root of your file first (i.e., from parent elements to child elements). If your text values are nested inside an array or a component, you should define <em>Editable</em> <em>Regions</em> for those parent elements first. We'll cover this more in later steps of this guide.</p>
+  <p><strong>Nested text or image values</strong></p><p>To avoid <code>data-prop</code> misconfiguration errors, it is best practice to define your <em>Editable Regions</em> from the root of your file first (i.e., from parent elements to child elements). If you want to edit text or image values in an array using the Visual Editor, you should define your Array and Array Item <em>Editable Regions</em> on the parent element before Text and Image.</p>
 </comp.Notice>
 
-## *Editable Regions* for text values
+## Simple arrays in structured data
 
-Text is the primary content of most websites, and also the easiest value to edit visually. You can use the Source or Text *Editable Regions* to edit text values. Which one you should use will depend on where the text is stored.
-
-Text content can be in one of three places: hard-coded in an HTML-like file (e.g., `.astro`, `.liquid`, etc), stored in a structured data key and referenced by templating in a layout, or in the body of your content files as Markup. In these three cases, you should use a Source *Editable Region* for the first, and a Text *Editable Region* for the second and third. Let's cover how to define these.
-
-### Hard-coded text values in HTML-like files
-
-Standalone pages on your website, like a "Home" or "About" page, are probably generated from a single file with HTML-like content and templating. These pages are often landing pages, so an accurate visual editing experience is important to help your team understand exactly what a website visitor will see.
-
-The term "HTML-like" refers to any file that incorporates HTML structure and templating. Based on the SSG your *Site* uses, the format and extension of these files may differ (e.g., Astro uses `.astro` files, Eleventy uses `.liquid` files), but as long as they output to an HTML file after a Site build, you can still add *Editable Regions*.
+A simple array is one where all the array items have the same structure (i.e., each item has the same fields).
 
 Let's take a look at an example.
 
-Here is an excerpt from the "Home" page of our website. It is mainly comprised of text inside `<h1>`, `<p>`, and `<ul>` tags, as well as an `<img>` tag.
+Our "Quotes" page is generated using an HTML layout and populated by a data file containing testimonial content. This file contains our `testimonials` array, with structured data keys for `image`, `image_alt`, `name`, `job_title`, and `quote` in each array item.
 
-<comp.CodeBlock language="Astro" source="index.astro">
+<comp.CodeBlock language="Markdown" source="testimonials.md">
 ``````````
+
+---
+layout: ../layouts/TestimonialsLayout.astro
+testimonials:
+  - image: ../../assets/placeholder-1.jpg
+    image_alt: Profile photo of D. Gale
+    name: D. Gale
+    job_title: CEO at Yellow Brick Industries
+    quote: >-
+      "In pretium libero sed velit posuere sagittis."
+  - image: ../../assets/placeholder-2.jpg
+    image_alt: Profile photo of S. Crow
+    name: S. Crow
+    job_title: CBO at Yellow Brick Industries
+    quote: >-
+      "Mauris at augue quis orci egestas eu in nulla."
+  - image: ../../assets/placeholder-3.jpg
+    image_alt: Profile photo of T. Man
+    name: T. Man
+    job_title: CHO at Yellow Brick Industries
+    quote: >-
+      "Nunc ut sem vitae tortor volutpat varius."
+  - image: ../../assets/placeholder-4.jpg
+    image_alt: Profile photo of C. Lion
+    name: C. Lion
+    job_title: CCO at Yellow Brick Industries
+    quote: >-
+      "Aenean pharetra orci ac tincidunt lobortis."
+---
+
+``````````
+</comp.CodeBlock>
+
+Here is an excerpt from our Testimonial Layout file. This section loops over all the items in the `testimonials` array, and populates the layout using the values.
+
+<comp.CodeBlock language="Astro" source="TestimonialsLayout.astro">
+``````````
+
+---
+const { testimonials } = Astro.props.frontmatter;
+---
+
+<ul>
+  {
+    testimonials.map((testimonial) => (
+      <li>
+        {testimonial.image && (
+          <img
+            src={testimonial.image}
+            alt={testimonial.image_alt}
+          /> /*1*/
+        )}
+        <h4>{testimonial.name}</h4> /*2*/
+        <p>{testimonial.job_title}</p> /*3*/
+        <p>{testimonial.quote}</p> /*4*/
+      </li>
+    ))
+  }
+</ul>
+
+``````````
+<comp.Annotation number="1">
+  This `<img>` element contains image width, height, source, and alt text attributes. The `src` and `alt` attributes are set to the template `{testimonial.image}` and `{testimonial.image_alt}` respectively.
+</comp.Annotation>
+<comp.Annotation number="2">
+  This `<h4>` element surrounds the template value `{testimonial.name}`.
+</comp.Annotation>
+<comp.Annotation number="3">
+  This `<p>` element surrounds the template value `{testimonial.job_title}`.
+</comp.Annotation>
+<comp.Annotation number="4">
+  This `<p>` element surrounds the template value `{testimonial.quote}`.
+</comp.Annotation>
+</comp.CodeBlock>
+
+Together, these files output a webpage that looks like this:
+
+<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/guides/configure-visual-editing/2025-11/CloudCannon-Documentation-Visual-Editing-Guide-Quotes-Page.png" alt="A screenshot of the quotes page on our Astro website shows four items, each with an image, title, author, and quote." title="The quotes page" type="screenshot"/>
+
+In this example, the `<ul>` element wraps our array, with its contents looping over every array item stored under the `testimonials` key. We can add Array and Array Item *Editable Region* to our layout file to enable adding, deleting, and reordering of items using the Visual Editor.
+
+Array and Array Item *Editable Regions* always work together, one defining the boundary of the array, and the other each item within the array. You must always have both.
+
+To define an Array *Editable Region*, we can add the `data-editable` and `data-prop` HTML attributes to the `<ul>` DOM element. The `data-editable` HTML attribute defines which type of *Editable Region* you want to use which, in this case, is `array`. Alternatively, we could choose to wrap the array templating in the equivalent web component `<editable-array>`, however that is not as efficient as adding attributes to existing elements. Our Array *Editable Region* also needs a `data-prop` to define where our array data is stored which, in this case, will be the `testimonials` front matter key.
+
+For the Array Item *Editable Region*, we can add the `data-editable="array-item"` HTML attribute to the `<li>` DOM element containing all our repeated content, or wrap the `<li>` in the equivalent web component `<editable-array-item>`.
+
+<comp.Notice info_type="info">
+  <p><strong>Where should the Array and Array Item </strong><em><strong>Editable Regions</strong></em> <strong>go?</strong></p><p>The Array <em>Editable Region </em>attribute or web component should be the immediate parent element of your array templating. The Array Item <em>Editable Region</em> attribute or web component should be the first child element of your array templating. This way, Array and Array Item should flank the templating for looping over your array.</p><p>Try to avoid any nested elements between them; they should be as close together as possible, regardless of whether you use HTML attributes, web components, or both.</p>
+</comp.Notice>
+
+If we also want to visually edit the text and images inside each array item, we can define three Text *Editable Regions* for the name, job title, and quote, and an Image *Editable Region* for our image and alt text.
+
+Here's what our Testimonial Layout code should look like:
+
+<comp.CodeBlock language="Astro" source="TestimonialsLayout.astro">
+``````````
+
+---
+const { testimonials } = Astro.props.frontmatter;
+---
 
 <!doctype html>
 <html lang="en">
   <body>
     <main>
-      <img src="/cloudcannon-logo.jpg">
-      <h1>Hello!</h1>
-      <p>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
-          labore et dolore magna aliqua. Vitae ultricies leo integer malesuada nunc vel risus commodo
-          viverra. Adipiscing enim eu turpis egestas pretium.
-      </p>
-      <p>Varius sit amet mattis vulputate enim. Habitasse platea dictumst:</p>
-      <ul>
-          <li>Morbi tristique senectus et netus.</li>
-          <li>Id semper risus in hendrerit gravida rutrum quisque non tellus.</li>
-          <li>Habitasse platea dictumst quisque sagittis purus sit amet.</li>
-          <li>Tellus molestie nunc non blandit massa.</li>
-          <li>Cursus vitae congue mauris rhoncus.</li>
-      </ul>
+      <section>
+        <ul data-editable="array" data-prop="testimonials"> /*1*/
+          {
+            testimonials.map((testimonial) => (
+              <li data-editable="array-item">
+                {testimonial.image && (
+                  <img
+                    data-editable="image"
+                    data-prop-src="image"
+                    data-prop-alt="image_alt"
+                    src={testimonial.image}
+                    alt={testimonial.image_alt}
+                  /> /*2*/
+                )}
+                <h4 data-editable="text" data-prop="name">{testimonial.name}</h4> /*3*/
+                <p data-editable="text" data-prop="job_title">{testimonial.job_title}</p> /*4*/
+                <p data-editable="text" data-prop="quote">{testimonial.quote}</p> /*5*/
+              </li>
+            ))
+          }
+        </ul>
+      </section>
+    </main>
+  </body>
+</html>
+
+``````````
+<comp.Annotation number="1">
+  The `data-editable` attribute defines what kind of data this element contains, and the `data-prop` attribute defines the path to the data we want to edit. In this case, we want an Array *Editable Region*, so the value of `data-editable` is `array`, and we want to edit the `testimonials` structured data key in the file front matter.
+</comp.Annotation>
+<comp.Annotation number="2">
+  This `<img>` element contains `data-editable="image"`, `data-prop-src="image"`, and `data-prop-alt="image_alt"` to define an Image *Editable Region*.
+</comp.Annotation>
+<comp.Annotation number="3">
+  This `<h4>` element contains `data-editable="text"` and `data-prop="name"` to define a Text *Editable Region*.
+</comp.Annotation>
+<comp.Annotation number="4">
+  This `<p>` element contains `data-editable="text"` and `data-prop="job_title"` to define a Text *Editable Region*.
+</comp.Annotation>
+<comp.Annotation number="5">
+  This `<p>` element contains `data-editable="text"` and `data-prop="quote"` to define a Text *Editable Region*.
+</comp.Annotation>
+</comp.CodeBlock>
+
+Once we save and rebuild our *Site*, CloudCannon will show a yellow *Editable Regions* box around each array item on the Testimonials page, and around each image and text field.
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Visual-Editor-Simple-Array-Editable-Region" alt="A screenshot of the Visual Editor shows yellow Editable Region boxes around the array items, text, and images on the Quotes webpage." title="Array Editable Region in the Visual Editor" type="screenshot"/>
+
+When you hover an array item, CloudCannon will show a small toolbar in the top right, containing an *Edit* button and a *Drag* handler. Clicking the *Edit* button will open a data panel containing your array item fields. Clicking the *Drag* handler will open a dropdown with options to move an array item one position to the left or right, and to delete the item, while clicking and holding the *Drag* handler allows you to visually move an array item to any position in the array.
+
+<comp.DocsVideo url="https://player.vimeo.com/progressive_redirect/playback/1127384254/rendition/1080p/file.mp4?loc=external&signature=2a13816e5104cb323e411f0d83f84fe060f24975a7dc81fe5fe80155591af1a7" title="Array Editable Regions in the Visual Editor" autoplay={true} loop={true}/>
+
+## Complex arrays or page building
+
+&nbsp;
+
+&nbsp;
+
+&nbsp;
+
+A complex array is one where the array items may not have the same structure. A common use case for complex arrays is page building, where you define the structure for several "content blocks" (e.g., a hero banner, video, image gallery, call-to-action) and add, remove, or reorder them within an array to build the content for your page.
+
+Let's look at an example.
+
+Our "About" page is generated using an HTML layout populated by several data files defining content blocks. Here are three of the content blocks we use on the "About" page: Hero, Stats, and Contact.
+
+<comp.CodeBlock language="Astro" source="HeroBlock.astro">
+``````````
+
+---
+const { title, description } = Astro.props;
+---
+
+<h2>{title}</h2>
+<p>{description}</p>
+
+``````````
+</comp.CodeBlock>
+
+<comp.CodeBlock language="Astro" source="StatsBlock.astro">
+``````````
+
+---
+const { stats } = Astro.props;
+---
+
+<div>
+    {stats.map(({figure, text}) => {
+    return <div>
+        <p>{figure}</p>
+        <p>{text}</p>
+    </div>
+    })}
+</div>
+
+``````````
+</comp.CodeBlock>
+
+<comp.CodeBlock language="Astro" source="ContactBlock.astro">
+``````````
+
+---
+const { text, button, image } = Astro.props;
+---
+
+<img src={image} />
+<p>{text}</p>
+<button type="button">{button}</button>
+
+``````````
+</comp.CodeBlock>
+
+This file is the About page, containing the structured data key `contentBlocks`.
+
+<comp.CodeBlock language="Markdown" source="about.md">
+``````````
+
+---
+layout: ../layouts/AboutLayout.astro
+contentBlocks:
+  - _name: HeroBlock
+    title: We're on a mission
+    description: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce lobortis mi sed est dapibus, sit amet consectetur quam euismod. Cras pretium quam vitae malesuada placerat. Curabitur ac sagittis ligula. Nunc sed ultrices leo. Vestibulum malesuada lobortis nisl, a feugiat est viverra et.
+  - _name: StatsBlock
+    stats:
+      - figure: $200m
+        text: Venture capital raised
+      - figure: "2016"
+        text: Established in
+      - figure: 40+
+        text: Amazing team members
+      - figure: 44325+
+        text: Active users and growing
+  - _name: ContactBlock
+    text: Want to get in contact with us?
+    button: Click here
+    image: https://preview.astro.new/blog/_astro/blog-placeholder-about.BtEdEmGp_1cKsnD.webp
+---
+
+``````````
+</comp.CodeBlock>
+
+Here is an excerpt from our About Layout File. This section loops over all the items in the `contentBlocks` array, and populates the layout using the values.
+
+<comp.CodeBlock language="Astro" source="AboutLayout.astro">
+``````````
+
+---
+const components = {};
+const componentImports = import.meta.glob("../components/**/*.astro", {
+  eager: true,
+});
+Object.entries(componentImports).forEach(([path, obj]) => {
+  const name = path.replace("../components/", "").split(".")[0];
+  components[name] = obj.default;
+});
+
+const { contentBlocks } = Astro.props.frontmatter;
+---
+
+<!doctype html>
+<html lang="en">
+  <body>
+    <main>
+      <section>
+        {
+          contentBlocks.map((block) => {
+            const Component = components[block._name];
+            return <Component {...block} />;
+          })
+        }
+      </section>
     </main>
   </body>
 </html>
@@ -63,263 +315,112 @@ Here is an excerpt from the "Home" page of our website. It is mainly comprised o
 ``````````
 </comp.CodeBlock>
 
-This file outputs a webpage that looks like this:
-
-<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/guides/configure-visual-editing/2025-11/CloudCannon-Documentation-Visual-Editing-Guide-Home-Page.png" alt="A screenshot of the home page on our Astro website shows a header image, title, and content." title="The home page" type="screenshot"/>
-
-In this example, we want to visually edit the title of our Home page in the Visual Editor. We can add a Source *Editable Region* to our Home page.
-
-The text value of our page title is "Hello!" which is hard-coded in an `<h1>` tag. To define a Source *Editable Region*, we can add the `data-editable`, `data-path`, and `data-key` HTML attributes to the `<h1>` DOM element. The `data-editable` HTML attribute defines which type of *Editable Region* you want to use.
-
-The `data-path` HTML attribute defines where your data is stored which, in this case, in the the path of the file: `/src/pages/index.astro`. The `data-key` HTML attribute acts as a unique identifier for an *Editable Region*, so CloudCannon knows which value to update if you have several *Editable Regions* in one file. We recommend choosing a key that provides context for which area of your code an editable region affects. In this example, we'll use the value `title`.
-
-Here's what our Home page code should look like:
-
-<comp.CodeBlock language="Astro" source="index.astro">
-``````````
-
-<h1 data-editable="source" data-path="/src/pages/index.astro" data-key="title">Hello!</h1> /*1*/
-
-``````````
-<comp.Annotation number="1">
-  The `data-editable` attribute defines what kind of data this element contains, the `data-path` attribute defines the path to the file we want to edit, and the `data-key` attribute defines the unique identifier for this region if there are multiple regions in the file. In this case, we want a Source *Editable Region*, so the value of `data-editable` is `source`, we want to edit the `/src/pages/index.astro` file, and the unique key is `title`.
-</comp.Annotation>
-</comp.CodeBlock>
-
-Once we save and rebuild our *Site*, CloudCannon will show a yellow *Editable Region* box around the `<h1>` tag content in the Visual Editor. When you click into the *Editable Region*, you can type inline to change the value of the `<h1>` tag.
-
-<comp.DocShot docshot_key="CloudCannon-Documentation-Visual-Editor-Source-Editable-Region" alt="A screenshot of the Visual Editor shows yellow Editable Region boxes around the rich text content on the Home webpage." title="Source Editable Region in the Visual Editor" type="screenshot"/>
-
-<comp.Notice info_type="important">
-  <p>Do not nest Text or Image <em>Editable Regions</em> inside Source <em>Editable Regions</em>.</p>
-</comp.Notice>
-
-### Text values in structured data
-
-Many of the files on your website are likely to be content files, containing structured data keys (e.g., `title`, `publish_date`, `author`) in the front matter which populate templating in a layout file at build time.
-
-Let's take a look at an example.
-
-This file is a blog post, containing structured data keys for `title`, `author`, `heroImage`, `heroImageTitle`, and `heroImageAlt` in the front matter, and Markdown content in the body of the file.
-
-<comp.CodeBlock language="markdown" source="first-post.mdx">
-``````````
-
----
-title: 'First post'
-author: 'C. Kent'
-heroImage: '../../assets/blog-banner.jpg'
-heroImageTitle: 'Blog gradient'
-heroImageAlt: 'An eye-catching color gradient banner.'
----
-
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Vitae ultricies leo integer malesuada nunc vel risus commodo viverra.
-
-``````````
-</comp.CodeBlock>
-
-Here is an excerpt from our blog layout file, containing HTML for the blog webpage and templating to populate elements with the values from each blog file.
-
-<comp.CodeBlock language="Astro" source="BlogPost.astro">
-``````````
-
----
-const { title, author, heroImage, heroImageTitle, heroImageAlt } = Astro.props;
----
-<article>
-    <div class="hero-image">
-        {heroImage &&
-            <img
-              src={heroImage}
-              title={heroImageTitle}
-              alt={heroImageAlt}
-            />
-          }
-    </div>
-    <div class="prose">
-        <div class="title">
-            <h1>{title}</h1> /*1*/
-            <p>By: {author}</p> /*2*/
-            <hr />
-        </div>
-        <slot />
-    </div>
-</article>
-
-``````````
-<comp.Annotation number="1">
-  This `<h1>` element surrounds the template value `{title}`. This value comes from the `title` key in the front matter of a blog file.
-</comp.Annotation>
-<comp.Annotation number="2">
-  This `<p>` element surrounds the template value `{author}`, prepended by the plain text "By:". This value comes from the `author` key in the front matter of a blog file.
-</comp.Annotation>
-</comp.CodeBlock>
-
-<comp.Notice info_type="info">
-  <p>The file type for your layouts will be different depending on your SSG (e.g., Astro uses <code>.astro</code> files, Eleventy uses <code>.liquid</code> files). You can add <em>Editable Regions</em> to any of these files as long as they output to an HTML file after a <em>Site</em> build.</p>
-</comp.Notice>
-
 Together, these files output a webpage that looks like this:
 
-<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/guides/configure-visual-editing/2025-11/CloudCannon-Documentation-Visual-Editing-Guide-Content-Page.png" alt="A screenshot of a blog page on our Astro website shows a header image, title, author, and content." title="A blog page" type="screenshot"/>
+<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/guides/configure-visual-editing/2025-11/CloudCannon-Documentation-Visual-Editing-Guide-About-Page.png" alt="A screenshot of the About page on our Astro website shows header content, some statistics, an image, and a button." title="The about page" type="screenshot"/>
 
-In this example, each blog file contains two text front matter keys we want to visually edit: `title` and `author`. We can add Text *Editable Regions* to the blog layout file to enable visual editing for these text values in the entire *Collection*.
+As with the earlier example, we want to be able to edit the `contentBlocks` array to build our About page in the Visual Editor.
 
-Let's start with `title`.
+Let's add the `data-editable="array"` and `data-prop="contentBlocks"` HTML attributes to the `<section>` tag to define our *Editable Region* type and the path to the structured data key we want to edit.
 
-The `title` key in the front matter of each blog file populates the `{title}` templating field in our blog layout, which is inside an `<h1>` tag. To define a Text *Editable Region*, we can add the `data-editable` and `data-prop` HTML attributes to the `<h1>` DOM element. In this case, the value of `data-editable` should be `text`, as we want to edit a text value stored outside of the blog layout. The `data-prop` HTML attribute defines where your data is stored which, in this case, will be the `title` front matter key.
+Because this array is more complex, we also need to identify different items in the array. To do this, we can define the `data-id-key` and `data-id` HTML attributes.
 
-Here's what our blog layout code should look like:
+By adding `data-id-key="_name"` to the `<section>` tag surrounding our array, we can tell the Visual Editor to use the `_name` structured data key as the unique identifier for each array item.
 
-<comp.CodeBlock language="Astro" source="BlogPost.astro">
-``````````
+For the Array Item *Editable Region*, there are no obvious DOM elements we can use. In this case, we'll wrap each item in the `<editable-array-item>` web component. Here, we can add the `data-id` HTML attribute with the templating value `{block._name}` so that each array item has the correct identifier.
 
-<h1 data-editable="text" data-prop="title">{title}</h1> /*1*/
+Here's what our About Layout code should look like:
 
-``````````
-<comp.Annotation number="1">
-  The `data-editable` attribute defines what kind of data this element contains, and the `data-prop` attribute defines the path to the data we want to edit. In this case, we want a Text *Editable Region*, so the value of `data-editable` is `text`, and we want to edit the `title` structured data key in the file front matter.
-</comp.Annotation>
-</comp.CodeBlock>
-
-Adding a Text *Editable Region* for `{author}` is slightly more complicated.
-
-The `author` key in the front matter of each blog file populates the `{author}` templating field in our blog layout, which is inside an `<p>` tag. The `{author}` templating field is not the only content inside the `<p>` tag: the plain text "By:" prepends the author value. If we added `data-editable="text" data-prop="author"` to the `<p>` tag in our blog layout, the Visual Editor would re-render the field to only show the value of `author`, hiding the plain text.
-
-It is important to note that Text *Editable Regions* don't modify the code in your layout file, so the "By:" plain text is not destroyed. Instead, they update the value of the front matter key and re-render the webpage preview in the Visual Editor. This leads to a mismatch in the appearance of the built *Site*, which includes "By:" before the author name, and the preview in the Visual Editor, which would not.
-
-To avoid this issue, we can use the web component `<editable-text>` instead. The `<editable-text>` web component replaces the need for the `data-editable="text"` attribute, telling CloudCannon what type of data we are editing. This is useful if you want to edit an element that can't take attributes, or a specific section of a string.
-
-We can add the `data-prop="author"` attribute to this web component.
-
-Here's what our blog layout code should look like:
-
-<comp.CodeBlock language="Astro" source="BlogPost.astro">
-``````````
-
-<p>By: <editable-text data-prop="author">{author}</editable-text></p> /*1*/
-
-``````````
-<comp.Annotation number="1">
-  The `<editable-text>` web component defines what kind of data this element contains, and the `data-prop` attribute defines the path to the data we want to edit. In this case, we used the web component to wrap the `{author}` templating specifically, and we want to edit the `author` structured data key in the file front matter.
-</comp.Annotation>
-</comp.CodeBlock>
-
-Once we save and rebuild our *Site*, CloudCannon will show yellow boxes around the title and author fields on the webpage, indicating *Editable Regions* in the Visual Editor. You can edit the text value of `title` and `author` inline on the page when you click into the *Editable Region*.
-
-<comp.DocShot docshot_key="CloudCannon-Documentation-Visual-Editor-Frontmatter-Text-Editable-Regions" alt="A screenshot of the Visual Editor shows yellow Editable Regions boxes around the title and author fields on the webpage." title="Text Editable Regions in the Visual Editor" type="screenshot"/>
-
-### Markdown text
-
-The majority of the text content on your website is likely to be Markdown in the body of your content files. This is also the text value that content teams will edit most often, such as when writing a new blog or updating a product description. This Markdown will populate the `<slot />` element in a layout file at build time.
-
-Let's take another look at the above example.
-
-<comp.CodeBlock language="markdown" source="first-post.mdx">
+<comp.CodeBlock language="Astro" source="AboutLayout.astro">
 ``````````
 
 ---
-title: 'First post'
-author: 'C. Kent'
-heroImage: '../../assets/blog-banner.jpg'
-heroImageTitle: 'Blog gradient'
-heroImageAlt: 'An eye-catching color gradient banner.'
+const components = {};
+const componentImports = import.meta.glob("../components/**/*.astro", {
+  eager: true,
+});
+Object.entries(componentImports).forEach(([path, obj]) => {
+  const name = path.replace("../components/", "").split(".")[0];
+  components[name] = obj.default;
+});
+
+const { contentBlocks } = Astro.props.frontmatter;
 ---
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Vitae ultricies leo integer malesuada nunc vel risus commodo viverra.
+<!doctype html>
+<html lang="en">
+  <body>
+    <main>
+      <section data-editable="array" data-prop="contentBlocks" data-id-key="_name">
+        {
+          contentBlocks.map((block) => {
+            const Component = components[block._name];
+            return <editable-array-item data-id={block._name}><Component {...block} /></editable-array-item>;
+          })
+        }
+      </section>
+    </main>
+  </body>
+</html>
 
 ``````````
 </comp.CodeBlock>
 
-<comp.CodeBlock language="Astro" source="BlogPost.astro">
+If we add a few more *Editable Regions* to our content block files, we can edit the content inside each array item too.
+
+<comp.CodeBlock language="Astro" source="HeroBlock.astro">
 ``````````
 
 ---
-const { title, author, heroImage, heroImageTitle, heroImageAlt } = Astro.props;
+const { title, description } = Astro.props;
 ---
-<article>
-    <div class="hero-image">
-        {heroImage &&
-            <img
-              src={heroImage}
-              title={heroImageTitle}
-              alt={heroImageAlt}
-            />
-          }
+
+<h2 data-editable="text" data-prop="title">{title}</h2>
+<p data-editable="text" data-prop="description">{description}</p>
+
+``````````
+</comp.CodeBlock>
+
+<comp.CodeBlock language="Astro" source="StatsBlock.astro">
+``````````
+
+---
+const { stats } = Astro.props;
+---
+
+<div data-editable="array" data-prop="stats">
+    {stats.map(({figure, text}) => {
+    return <div data-editable="array-item">
+        <p data-editable="text" data-prop="figure">{figure}</p>
+        <p data-editable="text" data-prop="text">{text}</p>
     </div>
-    <div class="prose">
-        <div class="title">
-            <h1>{title}</h1>
-            <p>By: {author}</p>
-            <hr />
-        </div>
-        <slot /> /*1*/
-    </div>
-</article>
+    })}
+</div>
 
 ``````````
-<comp.Annotation number="1">
-  This `<slot />` element marks where the markup content from a blog file will go.
-</comp.Annotation>
 </comp.CodeBlock>
 
-We should still use a Text *Editable Region* to visually edit the Markdown content, so the value is stored outside of the blog layout. However, because `<slot />` is not a DOM element, we can't add the `data-editable` and `data-prop` attributes directly. Just like the `author` example above, we can wrap the `<slot />` element in a `<editable-text>` web component, which can take attributes.
-
-The `<editable-text>` web component replaces the need for `data-editable`. But, what should the value of the `data-prop` be? There are no front matter keys we can reference to tell CloudCannon where the data is stored. In this case, we can use the special value `@content` to specify Markdown content in the body of a content file.
-
-Here's what our blog layout code should look like:
-
-<comp.CodeBlock language="Astro" source="BlogPost.astro">
+<comp.CodeBlock language="Astro" source="ContactBlock.astro">
 ``````````
 
-<editable-text data-prop="@content"> /*1*/
-    <slot />
-</editable-text>
+---
+const { text, button, image } = Astro.props;
+---
+
+<img data-editable="image" data-prop-src="image" src={image} />
+<p data-editable="text" data-prop="text">{text}</p>
+<button type="button" data-editable="text" data-prop="button">{button}</button>
 
 ``````````
-<comp.Annotation number="1">
-  The `<editable-text>` web component defines what kind of data this element contains, and the `data-prop` attribute defines the path to the data we want to edit. In this case, we used the web component to wrap the `<slot />` element, which will be populated by Markdown content at build time, and we want to edit the Markdown content of the file, as signified by the special value `@content`.
-</comp.Annotation>
 </comp.CodeBlock>
 
-Once we save and rebuild our *Site*, CloudCannon will show a yellow *Editable Region* box around the content on the webpage. When you click into the *Editable Region*, CloudCannon will also display a WYSIWYG toolbar for formatting your content.
+Once we save and rebuild our *Site*, CloudCannon will show a yellow *Editable Regions* box around each array item, in this case the content blocks that make up the page.
 
-<comp.DocShot docshot_key="CloudCannon-Documentation-Visual-Editor-Content-Text-Editable-Region" alt="A screenshot of the Visual Editor shows a yellow Editable Regions box around the blog content and a WYSIWYG toolbar." title="A Text Editable Region in the Visual Editor" type="screenshot"/>
+<comp.DocShot docshot_key="CloudCannon-Documentation-Visual-Editor-Complex-Array-Editable-Region" alt="A screenshot of the Visual Editor shows yellow Editable Region boxes around the array items, text, and images on the About webpage." title="Array Editable Region in the Visual Editor" type="screenshot"/>
 
-## Rich text formatting options
+We can now build pages in the Visual Editor. We can add or delete content blocks, and reorder the content blocks in the array using the options in the *Edit* menu, or the *Drag* handler.
 
-When you click into an *Editable Region* for a text value, sometimes the Visual Editor will display a WYSIWYG toolbar with rich text formatting options. CloudCannon determines whether your text value is rich text automatically, but you can also define this behavior manually using the `data-type` HTML attribute.
-
-<comp.CodeBlock language="Astro" source="BlogPost.astro">
-``````````
-
-<p>By: <editable-text data-prop="author" data-type="">{author}</editable-text></p> /*1*/
-
-``````````
-<comp.Annotation number="1">
-  The `<editable-text>` web component defines what kind of data this element contains, and the `data-prop` attribute defines the path to the data we want to edit. In this case, we used the web component to wrap the `{author}` templating specifically, and we want to edit the `author` structured data key in the file front matter.
-</comp.Annotation>
-</comp.CodeBlock>
-
-The `data-type` attribute accepts three values: `span`, `text`, or `block`. Setting `data-type` as `span` does not allow any rich text formatting (i.e., plain, inline text), while `text` allows paragraph-level rich text, with a WYSIWYG toolbar containing formatting tools such as bold, italics, and links. Setting `data-type` to `block` allows all rich text formatting options, from paragraph-level to block-level formatting like lists, block-quotes, images, snippets, and text styling.
-
-<comp.Notice info_type="info">
-  <p>If you want to specify exactly which formatting tools are available, you can manually define your WYSIWYG toolbar under the <code>_editables</code> key in your CloudCannon Configuration File. For more information, please read our documentation on <a href="/documentation/articles/configure-your-rich-text-editors/#editable-regions">Configuring your rich text editors</a>.</p>
-</comp.Notice>
-
-Not all text values need rich text formatting options, and, in some cases, adding rich text formatting to an element that can only support plain text can be destructive to your content and HTML. When `data-type` is not defined, CloudCannon will determine an appropriate default value using the following process.
-
-<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/guides/configure-visual-editing/2025-10/CloudCannon-Documentation-Editables-Data-Type-Flowchart.png" alt="An illustration of the flowchart CloudCannon uses to decide if rich text formatting is appropriate for an element." title="The Data Type Flowchart" type="ui-snippet"/>
-
-To begin, CloudCannon determines whether the Editable is for content or front matter. Content is any Source *Editable Region* (i.e., `data-attribute="source"` or `<source-editable>`), or Text *Editable Region* where `data-prop="@content"`. Front matter is any Text Editable where `data-prop` is set to a structured data key.
-
-If the *Editable Region* is for content, CloudCannon will use either `text` or `block` as the default value of `data-type`, as the content is likely to need rich text formatting. Whether paragraph-level rich text formatting or all rich text formatting options are available will depend on the HTML element in the output file(e.g., `<h1>` elements can only support `text` level formatting, while `<div>` elements can support `block` level formatting).
-
-If the *Editable Region* is for a value stored in front matter, CloudCannon will determine whether you have input configuration for that front matter key. If you do not, CloudCannon will use `data-type="span"` by default. Similarly, if you do have input configuration, but the input type is not defined as rich text (i.e., `markdown` or `html`), CloudCannon will use `data-type="span"` by default.
-
-If your front matter key is configured as a rich text input, CloudCannon will use either `text` or `block` as the default value of `data-type`, whichever is appropriate for the HTML element in the output file.
-
-For a complete list of configuration options for *Editable Regions*, please read our [Visual Editing reference](/documentation/articles/editables-reference) documentation.
+<comp.DocsVideo url="" title="" autoplay={true} loop={true}/>
 
 ## Common errors
 
@@ -327,16 +428,11 @@ If you accidentally misconfigure your *Editable Regions*, CloudCannon will displ
 
 <comp.DocShot docshot_key="" alt="" title="" type="screenshot"/>
 
-Here are a few common errors you might encounter with Source and Text *Editable Regions*:
+Here are a few common errors you might encounter with Array *Editable Regions*:
 
-* You did not define the `data-path` or `data-key` HTML attribute for your Source *Editable Region*, or the `data-prop` HTML attribute for your Text *Editable Region*.
-* The file path defined by `data-path` does not exist.
+* You did not define the `data-prop` HTML attribute.
+* You did not define the `data-id-key` or `data-id` HTML attributes for a complex array.
 * The *Editable Region* has an invalid data type (e.g., your Text region has a number or object, instead of a string).
-* You have an unsupported value for `data-type`. It must be `span`, `text`, or `block`.
-* There are Source *Editable Regions* with the same `data-key` value. This value should be unique.
+* You have one or more orphaned Array Item *Editable Regions* that are not contained within an Array *Editable Region*.
 
-<comp.Notice info_type="important">
-  <p>Do not nest an Image <em>Editable Region</em> inside a Text or Source <em>Editable Region</em>.</p>
-</comp.Notice>
-
-In the next step of this guide, we'll cover how to define *Editable Regions* for image values stored in HTML-like files or structured data.
+In the next step of this guide, we'll cover how to add Component *Editable Regions* for editing Astro or React components in the Visual Editor.
