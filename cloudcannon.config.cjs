@@ -74,7 +74,11 @@ const _snippets = {
 
 module.exports = {
   _snippets_imports: {
-    mdx: true,
+    mdx: {
+      exclude: [
+        "import",
+      ],
+    },
   },
   _snippets,
   data_config: {
