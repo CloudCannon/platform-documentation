@@ -1,46 +1,90 @@
 ---
 _schema: default
-_uuid: 039e14a4-5d9b-4a53-aa50-c27e977c4e71
-_created_at: 2025-08-27T14:51:55+12:00
-title: Visual editing for components
-nav_title: Visual editing for components
-order: 7
+_uuid: 299cf74d-49d0-421c-bffd-ffcd2873e8b8
+_created_at: 2025-11-04T12:53:18+13:00
+title: Visual Editing for components
+nav_title: Visual Editing for components
+order: 9
 published: true
-start_nav_group:
 image: >-
   https://cc-dam.imgix.net/documentation/images/guides/getting-started/guide-thumbnails/CloudCannon-Getting-Started-Thumbnail-Universal.png
 description: >-
-  Learn how to configure Editable Regions for Astro or React components, 
-  allowing you to edit them in the Visual Editor.
+  Learn how to define Component Editable Regions to enable component live
+  re-rendering in the Visual Editor.
 ---
 <comp.Notice info_type="important">
   <p>Currently, Component <em>Editable Regions</em> are only available for Astro and React. We are working to support more types. Please get in touch with our friendly <a href="/support/">support team</a> to make a request.</p>
 </comp.Notice>
 
-Depending on your SSG, you may use predefined components on your webpages.
+Many static website use reusable code components (a.k.a., partials) ranging from a small snippet of HTML, to UI elements like a header, profile card, or an entire page layout.
 
-Let's complete the next task in the *Set up Visual Editing* in-app guide: *Make your components visually editable*.
+You can use the Component *Editable Regions* to re-render changes to your components in the Visual Editor, or enable inline editing of component text and images in conjunction with other *Editable Regions*. Let's cover how to define one.
 
-<comp.DocShot docshot_key="CloudCannon-Documentation-Site-Dashboard-Component-Editable-Regions-Task" alt="A screenshot of the Make your components visually editable task from the Set up Visual Editing in-app guide." title="The component visual editing task" type="screenshot"/>
+<comp.Notice info_type="info">
+  <p><strong>Nested text or image values</strong></p><p>To avoid <code>data-prop</code> misconfiguration errors, it is best practice to define your <em>Editable Regions</em> from the root of your file first (i.e., from parent elements to child elements). If you want to edit text or image values in a component using the Visual Editor, you should define your Component <em>Editable Region</em> on the parent element before Text and Image.</p>
+</comp.Notice>
 
-In this step of the guide, we'll cover how to add *Editable Regions* to components. If you don't have any appropriate files or don't want to add this type of *Editable Region*, you can skip this step of the guide.
+## Install the NPM package
 
-## What is a component?
+Before you can use Component *Editable Regions*, you will need to install CloudCannon's *Editable Regions* NPM package.
 
-A component is a resuable piece of code, ranging from a small snippet of HTML, like a `<meta>` tag that make SEO easier, to UI elements like a header, profile card, or an entire page layout. Because components render to HTML at build time, you can edit them in the Visual Editor.
+With your website project open in your local development environment, run the following command in your terminal:
+
+<comp.CodeBlock language="">
+``````````
+
+npm install @cloudcannon/editable-regions
+
+``````````
+</comp.CodeBlock>
+
+For more information, you can visit CloudCannon's GitHub repository for the [Editable Regions NPM package](https://github.com/CloudCannon/editable-regions).
+
+## Register your components
+
+Next, you need to register your components with the NPM package. To do this, you'll need to create a registration script and include it in your layout.
+
+Here's an example registration script for the CTA component.
+
+<comp.CodeBlock language="JavaScript" source="src/scripts/register-components.js">
+``````````
+
+import { registerAstroComponent } from '@cloudcannon/editable-regions/astro';
+import CTA from '../components/CTA.astro';
+
+// Register your components
+registerAstroComponent('cta', CTA);
+
+``````````
+</comp.CodeBlock>
+
+<comp.Notice info_type="info">
+                    If you use React components, please use `{ registerReactComponent }` instead.
+
+  <comp.CodeBlock language="JavaScript" source="src/scripts/register-components.js">
+                    ``````````
+                    import { registerReactComponent } from '@cloudcannon/editable-regions/integrations/react.js';
+                    import MyComponent from './MyComponent.jsx';
+
+                    registerReactComponent('my_component', MyComponent);
+                    ``````````
+                    </comp.CodeBlock>
+</comp.Notice>
+
+## Components in layout files
+
+Components use templating to reference structured data keys. Layout files then reference a component file. At build time, CloudCannon populates the component with the correct values and outputs it to the layout's HTML webpage.
 
 Let's take a look at an example.
 
-Here's our blog post from earlier in the guide. This time we've added a `cta` object to the front matter, containing the structured data keys `description`, `link`, `buttonText`, and `buttonColor`.
+This file is a blog post, containing the `cta` object to the front matter, and the structured data keys `description`, `link`, `buttonText`, and `buttonColor`.
 
 <comp.CodeBlock language="Markdown" source="first-post.mdx">
 ``````````
 
 ---
 title: 'First post'
-description: 'Lorem ipsum dolor sit amet'
 author: 'C. Kent'
-pubDate: 'Jul 10 2025'
 heroImage: '../../assets/blog-banner.jpg'
 heroImageTitle: 'Blog gradient'
 heroImageAlt: 'An eye-catching color gradient banner.'
@@ -56,7 +100,7 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor i
 ``````````
 </comp.CodeBlock>
 
-Here's an excerpt from the Blog layout file, containing a Call-To-Action component called `CTA` at the bottom of every blog post.
+Here is an excerpt from our blog layout file, containing a Call-To-Action component called `CTA` at the bottom of every blog post.
 
 <comp.CodeBlock language="Astro" source="BlogPost.astro">
 ``````````
@@ -103,68 +147,13 @@ Together, these files output a webpage that looks like this:
 
 <comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/guides/configure-visual-editing/2025-10/CloudCannon-Documentation-Visual-Editing-Guide-CTA-Component.png" alt="A screenshot of a blog page on our Astro website shows a call to action component under the blog content." title="A blog page" type="screenshot"/>
 
-In this example, we want to be able to edit the text for the CTA component description and button inline in the Visual Editor, and be able to open a data panel to edit other values like the link and button color.
+In this example, the `<CTA>` component uses the properties in the `cta` object in each blog post. We can add a Component *Editable Regions* to our layout file to enable the Visual Editor to re-render any changes made with the data panel or sidebar.
 
-<comp.Notice info_type="important">
-  <p>Don't use a Source <em>Editable Region</em> if you have a component in your HTML-like file, as the component will not function correctly in the Visual Editor.</p>
-</comp.Notice>
+First you need to import the component registration file you made earlier. Inside the `<body>` element of our layout, you can add a `<script>` HTML element with instructions to import the component registration file if the window is in Editor Mode (i.e., your webpage is open in CloudCannon's Visual Editor).
 
-## Install the npm package
+Next, since the `<CTA>` component lacks an appropriate parent DOM element, you should wrap it in the `<editable-component>` web component. Our Component *Editable Region* also needs a `data-prop` to define where our component data is stored which, in this case, will be the `cta` front matter object in our blog post.
 
-Before you can use Component *Editable Regions*, you will need to install CloudCannon's *Editable Regions* NPM package.
-
-With your website project open in your local development environment, run the following command in your terminal:
-
-<comp.CodeBlock language="">
-``````````
-
-npm install @cloudcannon/editable-regions
-
-``````````
-</comp.CodeBlock>
-
-For more information, you can visit CloudCannon's GitHub repository for the [Editable Regions NPM package](https://github.com/CloudCannon/editable-regions).
-
-## Register your components
-
-Next, we need to register your components with the NPM package. To do this, you'll need to create a registration script and include it in your layout.
-
-Here's an example registration script for the CTA component.
-
-<comp.CodeBlock language="JavaScript" source="src/scripts/register-components.js">
-``````````
-
-import { registerAstroComponent } from '@cloudcannon/editable-regions/astro';
-import CTA from '../components/CTA.astro';
-
-// Register your components
-registerAstroComponent('cta', CTA);
-
-``````````
-</comp.CodeBlock>
-
-<comp.Notice info_type="info">
-          If you use React components, please use `{ registerReactComponent }` instead.
-
-  <comp.CodeBlock language="JavaScript" source="src/scripts/register-components.js">
-          ``````````
-          import { registerReactComponent } from '@cloudcannon/editable-regions/integrations/react.js';
-          import MyComponent from './MyComponent.jsx';
-
-          registerReactComponent('my_component', MyComponent);
-          ``````````
-          </comp.CodeBlock>
-</comp.Notice>
-
-## Adding Component *Editable Regions*
-
-Let's start with importing the component registration to our layout file.
-
-Inside the `<body>` element of our layout, we can add a `<script>` HTML element with instructions to import the component registration file if the window is in Editor Mode (i.e., your webpage is open in CloudCannon's Visual Editor).
-
-Next, since the `<CTA>` component lacks an appropriate parent DOM element, we should wrap it in the `<editable-component>` web component.
-
-Our Component *Editable Region* needs a `data-prop` to define the path to the data property we want to edit, and a `data-component` to define which registered component we are using. Let's add the HTML attribute `data-prop="cta"`, as `cta` is the key for our object in `first-post.mdx`, and `data-component="cta"`, as `cta` is also the name of the component we registered.
+Finally, you need to add the `data-component` HTML attribute to define which registered component we are using which, in this case, is also called `cta`.
 
 Here's what our Blog Layout code should look like:
 
@@ -199,7 +188,7 @@ Here's what our Blog Layout code should look like:
 </comp.Annotation>
 </comp.CodeBlock>
 
-Finally, we can add `data-editable` and `data-prop` attributes to define two Text *Editable Regions* for the description and button text data keys. This follows the same steps outlined in the [Visual editing for content files](/documentation/guides/set-up-visual-editing/visual-editing-for-content-files/) step of this guide.
+If we were to save and rebuild our *Site* now, the Visual Editor would allow you to re-render the CTA component when you edit values using the data panel or sidebar, but would not allow inline editing for the text values `description` and `buttonText`. To achieve this, we also need to add Text *Editable Regions* to the CTA component file.
 
 Here's what our CTA component code should look like:
 
@@ -230,13 +219,9 @@ Once we save and rebuild our *Site*, CloudCannon will show a yellow *Editable Re
 
 When you click into the *Editable Region*, CloudCannon will open a data panel with inputs for all four structured data keys in the component: `description`, `link`, `buttonText`, and `buttonColor`.
 
-<comp.DocsVideo url="" title="" autoplay={true} loop={true}/>
-
 ## Common errors
 
 If you accidentally misconfigure your *Editable Regions*, CloudCannon will display a red warning box in the Visual Editor.
-
-<comp.DocShot docshot_key="" alt="" title="" type="screenshot"/>
 
 Here are a few common errors you might encounter with Component *Editable Regions*:
 
@@ -246,4 +231,4 @@ Here are a few common errors you might encounter with Component *Editable Region
 * Component rendering errors
 * Invalid component return values
 
-In the next step of this guide, we'll cover some more advanced rules for the `data-prop` HTML attribute, allowing you to...
+And that's it! Your *Site* is built, has output *Collections*, and you have learnt how to apply every type of *Editable Region* to enable visual editing. In the next step of this guide, we'll direct you to resources for further configuration or user guides on how to edit your files in CloudCannon.
