@@ -1,0 +1,108 @@
+---
+_schema: instructions
+_uuid: 1347006b-6731-40c8-9fe0-62b816ad3242
+_created_at: 2025-09-25T11:05:46+12:00
+title: Configure Text Editable Regions
+nav_title: Configure Text Editable Regions
+published: true
+image: >-
+ https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+description: >-
+ Learn how to configure Text Editable Regions in your layout files to enable
+ plain and rich text editing in the Visual Editor.
+article_category:
+ - Instructions
+article_topic:
+author_notes:
+ docshots_status: Needs docshots
+---
+<comp.Notice info_type="permissions">
+  <p><strong>Permissions required</strong></p><p>Members of the Owners, Developers, and Technical Editors <a href="/documentation/articles/what-are-default-permission-groups/">Default Permission Groups</a>, or <a href="/documentation/articles/what-are-custom-permission-groups/">Custom Permission Groups</a> with the <code>site:source-editor:write</code> permission, can add <em>Editable Regions</em> to files using the Source Editor in CloudCannon.</p>
+</comp.Notice>
+
+Text *Editable Regions* are one type of [Editable Region](/documentation/articles/what-are-editable-regions/) you can add to your layout and HTML-like files to enable visual editing. Text *Editable Regions* allow you to edit text values stored in front matter, content, or HTML with plain text or rich text formatting options.
+
+<comp.Notice info_type="info">
+  <p>To avoid misconfiguration issues where CloudCannon cannot find the data property you want to edit, always add <em>Editable Regions</em> to values closest to the root of the file first (i.e., work from parent elements towards child elements).</p>
+</comp.Notice>
+
+These instructions assume you have configured your [build settings](/documentation/articles/configure-your-first-build/) and are comfortable editing HTML layouts, either in CloudCannon's [Source Editor](/documentation/articles/the-source-editor/) or your local development environment.
+
+To configure Text *Editable Regions* in the [Visual Editor](/documentation/articles/the-visual-editor/):
+
+1. Identify the file you want to which you want to add a Text *Editable Regions*. We recommend any layout files that contain templating that is populated by content files at build time.
+2. Open the file in CloudCannon's Source Editor or your local development environment.
+3. Identify the HTML tag that contains your templating and add the HTML attribute `data-editable="text"` . If no DOM element is available, you can wrap the templating in the `<editable-text>` web component.
+4. Add the `data-prop=""` HTML attribute to the same DOM element, or to the `<editable-text>` web component. The value of `data-prop` should be the path the to data property you want to edit.
+5. Save the change to your *Site*. CloudCannon will automatically rebuild your *Site*.
+
+When you open the file in the Visual Editor, CloudCannon will show yellow *Editable Region* boxes around the text field. If your text field contains rich text, CloudCannon will show a WYSIWYG toolbar for formatting your content when you click into the *Editable Region*.
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Visual-Editor-Content-Text-Editable-Region" alt="A screenshot of the Visual Editor shows a yellow Editable Regions box around the blog content and a WYSIWYG toolbar." title="A Text Editable Region in the Visual Editor" type="screenshot"/>
+
+<comp.Notice info_type="info">
+  <p><strong>Want to make a standalone HTML-like file visually editable?</strong></p><p>We recommend configuring <a href="/documentation/articles/configure-source-editable-regions/">Source Editable Regions</a> to HTML-like files (i.e., files that contain HTML structure and templating, like <code>.astro</code> or <code>.liquid</code>) rather than several Text and Image <em>Editable Regions</em>.</p>
+</comp.Notice>
+
+## Examples
+
+Here are a few examples of different Text *Editable Regions*:
+
+<comp.CodeBlock language="Astro" source="BlogPost.astro">
+``````````
+
+<h1 data-editable="text" data-prop="title" >{title}</h1> /*1*/
+
+``````````
+<comp.Annotation number="1">
+  The `data-editable` attribute defines what kind of data this element contains, and the `data-prop` attribute defines the path to the data we want to edit. In this case, we want a Text *Editable Region*, so the value of `data-editable` is `text`, and we want to edit the `title` structured data key in the file front matter.
+</comp.Annotation>
+</comp.CodeBlock>
+
+<comp.CodeBlock language="Astro" source="BlogPost.astro">
+``````````
+
+<p>By: <editable-text data-prop="author">{author}</ editable-text></p> /*1*/
+
+``````````
+<comp.Annotation number="1">
+  The `<editable-text>` web component defines what kind of data this element contains, and the `data-prop` attribute defines the path to the data we want to edit. In this case, we used the web component to wrap the `{author}` templating specifically, and we want to edit the `author` structured data key in the file front matter.
+</comp.Annotation>
+</comp.CodeBlock>
+
+<comp.CodeBlock language="Astro" source="BlogPost.astro">
+``````````
+
+<text-editable data-prop="@content"> /*1*/
+    <slot />
+</text-editable>
+
+``````````
+<comp.Annotation number="1">
+  The `<editable-text>` web component defines what kind of data this element contains, and the `data-prop` attribute defines the path to the data we want to edit. In this case, we used the web component to wrap the `<slot />` element, which will be populated by Markdown content at build time, and we want to edit the Markdown content of the file, as signified by the special value `@content`.
+</comp.Annotation>
+</comp.CodeBlock>
+
+## WYSIWYG toolbar formatting options
+
+Depending on whether your *Editable Region* contains plain text or rich text, CloudCannon may show you a WYSIWYG toolbar with different formatting options. These options are controlled by the `data-type` HTML attribute. You can manually define this attribute, or rely of CloudCannon's default behavior.
+
+The `data-type` attribute accepts three values: `span` for plain text, `text` for paragraph-level rich text formatting options (e.g., bold, links, superscript), or `block` for multi-paragraph rich text formatting (e.g., bulleted lists, quote blocks).
+
+When `data-type` is not defined, CloudCannon uses `block` or `text` for any Source *Editable Regions*, `data-prop="@content"`, or Rich Text Inputs, and `span` where Input type is not Rich Text, or is not configured.
+
+<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/guides/configure-visual-editing/2025-10/CloudCannon-Documentation-Editables-Data-Type-Flowchart.png" alt="An illustration of the flowchart CloudCannon uses to decide if rich text formatting is appropriate for an element." title="The Data Type Flowchart" type="ui-snippet"/>
+
+<comp.Notice info_type="info">
+  <p>If you want to specify exactly which formatting tools are available, you can manually define your WYSIWYG toolbar under the <code>_editables</code> key in your CloudCannon Configuration File. For more information, please read our documentation on <a href="/documentation/articles/configure-your-rich-text-editors/#editable-regions">Configuring your rich text editors</a>.</p>
+</comp.Notice>
+
+## Misconfigured Text *Editable Regions*
+
+CloudCannon will display an orange warning box in the Visual Editor if your Text *Editable Regions* is misconfigured.
+
+Text *Editable Regions* are misconfigured if:
+
+* You did not define the `data-prop` HTML attribute.
+* The *Editable Region* has an invalid data type (e.g., your Text region has a number or object, instead of a string).
+* You have an unsupported value for `data-type`. It must be `span`, `text`, or `block`.
