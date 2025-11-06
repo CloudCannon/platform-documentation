@@ -65,9 +65,9 @@ This file outputs a webpage that looks like this:
 
 In this example, we want to visually edit the title of our Home page in the Visual Editor. We can add a Source *Editable Region* to our Home page.
 
-The text value of our page title is "Hello!" which is hard-coded in an `<h1>` tag. To define a Source *Editable Region*, we can add the `data-editable`, `data-path`, and `data-key` HTML attributes to the `<h1>` DOM element. The `data-editable` HTML attribute defines which type of *Editable Region* you want to use.
+The text value of our page title is "Hello!" which is hard-coded in an `<h1>` tag. To define a Source *Editable Region*, we can add the `data-editable`, `data-path`, and `data-key` HTML attributes to the `<h1>` DOM element.
 
-The `data-path` HTML attribute defines where your data is stored which, in this case, in the the path of the file: `/src/pages/index.astro`. The `data-key` HTML attribute acts as a unique identifier for an *Editable Region*, so CloudCannon knows which value to update if you have several *Editable Regions* in one file. We recommend choosing a key that provides context for which area of your code an editable region affects. In this example, we'll use the value `title`.
+The `data-editable` HTML attribute defines which type of *Editable Region* you want to use. To edit text values in HTML, we want this to be `source`. The `data-path` HTML attribute defines where your data is stored which, in this case, is the path of the file: `/src/pages/index.astro`. The `data-key` HTML attribute acts as a unique identifier for an *Editable Region*, so CloudCannon knows which value to update if you have several *Editable Regions* in one file. We recommend choosing a key that provides context for which area of your code an editable region affects. In this example, we'll use the value `title`.
 
 Here's what our Home page code should look like:
 
@@ -237,7 +237,7 @@ const { title, author } = Astro.props;
 
 We should still use a Text *Editable Region* to visually edit the Markdown content, so the value is stored outside of the blog layout. However, because `<slot />` is not a DOM element, we can't add the `data-editable` and `data-prop` attributes directly. Just like the `author` example above, we can wrap the `<slot />` element in a `<editable-text>` web component, which can take attributes.
 
-The `<editable-text>` web component replaces the need for `data-editable`. But, what should the value of the `data-prop` be? There are no front matter keys we can reference to tell CloudCannon where the data is stored. In this case, we can use the special value `@content` to specify Markdown content in the body of a content file.
+The `<editable-text>` web component replaces the need for `data-editable`. In this case, there are no front matter keys we can reference with `data-prop` to tell CloudCannon where the data is stored. Instead, we can use the special value `@content` to specify Markdown content in the body of a content file.
 
 Here's what our blog layout code should look like:
 
@@ -287,7 +287,7 @@ To begin, CloudCannon determines whether the Editable is for content or front ma
 
 If the *Editable Region* is for content, CloudCannon will use either `text` or `block` as the default value of `data-type`, as the content is likely to need rich text formatting. Whether paragraph-level rich text formatting or all rich text formatting options are available will depend on the HTML element in the output file(e.g., `<h1>` elements can only support `text` level formatting, while `<div>` elements can support `block` level formatting).
 
-If the *Editable Region* is for a value stored in front matter, CloudCannon will determine whether you have input configuration for that front matter key. If you do not, CloudCannon will use `data-type="span"` by default. Similarly, if you do have input configuration, but the input type is not defined as rich text (i.e., `markdown` or `html`), CloudCannon will use `data-type="span"` by default.
+If the *Editable Region* is for a value stored in front matter, CloudCannon will determine whether you have [input configuration](/documentation/articles/what-are-inputs/) for that front matter key. If you do not, CloudCannon will use `data-type="span"` by default. Similarly, if you do have input configuration, but the input type is not defined as rich text (i.e., `markdown` or `html`), CloudCannon will use `data-type="span"` by default.
 
 If your front matter key is configured as a rich text input, CloudCannon will use either `text` or `block` as the default value of `data-type`, whichever is appropriate for the HTML element in the output file.
 

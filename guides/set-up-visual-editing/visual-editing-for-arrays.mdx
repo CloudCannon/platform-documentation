@@ -276,14 +276,18 @@ Here is an excerpt from our About Layout File. This section loops over all the i
 const { contentBlocks } = Astro.props.frontmatter;
 ---
 
-<section>
+<main>
   {
     contentBlocks.map((block) => {
       const Component = components[block._name];
-      return <Component {...block} />;
+      return (
+        <section>
+          <Component {...block} />
+        </section>
+      );
     })
   }
-</section>
+</main>
 
 ``````````
 </comp.CodeBlock>
@@ -292,11 +296,11 @@ Together, these files output a webpage that looks like this:
 
 <comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/guides/configure-visual-editing/2025-11/CloudCannon-Documentation-Visual-Editing-Guide-About-Page.png" alt="A screenshot of the About page on our Astro website shows header content, some statistics, an image, and a button." title="The about page" type="screenshot"/>
 
-In this example, the `<section>` element wraps our array, with its contents looping over every array item stored under the `contentBlocks` key.
+In this example, the `<main>` element wraps our array, with its contents looping over every array item stored under the `contentBlocks` key.
 
-To define an Array *Editable Region*, we can add the `data-editable="array"` and `data-prop="contentBlocks"` HTML attributes to the `<section>` DOM element. Because this array is more complex, there is an extra step when defining the Array *Editable Region*: adding the `data-id-key` HTML attribute. The `data-id-key` attribute defines where the unique identifier for each array item is stored which, in this case, is `_name`.
+To define an Array *Editable Region*, we can add the `data-editable="array"` and `data-prop="contentBlocks"` HTML attributes to the `<main>` DOM element. Because this array is more complex, there is an extra step when defining the Array *Editable Region*: adding the `data-id-key` HTML attribute. The `data-id-key` attribute defines where the unique identifier for each array item is stored which, in this case, is `_name`.
 
-There are no obvious DOM elements we can use to define the Array Item *Editable Region*. In this case, we'll wrap each item in the `<editable-array-item>` web component. Because this is a complex array, we must also add the `data-id` HTML attribute with a templating value, such as `{block._name}`. This field will populate with the unique identifier for each array item at build time.
+To define an Array Item *Editable Region*, we can add the `data-editable="array-item"` to the `<section>` tag. Because this is a complex array, we must also add the `data-id` HTML attribute with a templating value, such as `{block._name}`. This field will populate with the unique identifier for each array item at build time.
 
 Here's what our About Layout code should look like:
 
@@ -307,14 +311,18 @@ Here's what our About Layout code should look like:
 const { contentBlocks } = Astro.props.frontmatter;
 ---
 
-<section data-editable="array" data-prop="contentBlocks" data-id-key="_name">
+<main data-editable="array" data-prop="contentBlocks" data-id-key="_name">
   {
     contentBlocks.map((block) => {
       const Component = components[block._name];
-      return <editable-array-item data-id={block._name}><Component {...block} /></editable-array-item>;
+      return (
+        <section data-editable="array-item" data-id={block._name}>
+          <Component {...block} />
+        </section>
+      );
     })
   }
-</section>
+</main>
 
 ``````````
 </comp.CodeBlock>
