@@ -28,6 +28,10 @@ You can split the following configuration into dedicated *Configuration Files*:
 * Snippets
 * Rich Text (`_editables`)
 
+You will still have one main *Configuration File* (i.e., `cloudcannon.config.yml`) that uses `*_from_glob` keys to point at other *Configuration Files* on your *Site*.
+
+For more information, please read our documentation on [best practices for split configuration](/documentation/articles/best-practice-for-split-configuration-files/) and [splitting your Configuration File](/documentation/articles/splitting-your-configuration-file/).
+
 ## Why split your *Configuration File*?
 
 There are several reasons why splitting your CloudCannon configuration across multiple files might be right for your *Site*.
@@ -38,12 +42,101 @@ Collaborating with your team is easier with split *Configuration Files*, as you 
 
 Split *Configuration Files* also allow you to reduce configuration redundancy. For example, rather than defining a common Input under several *Collections*, you can reference a single Inputs *Configuration File* from each *Collection*.
 
-## How do split *Configuration Files* work?
+## Examples
 
-You will still have one main *Configuration File* (i.e., `cloudcannon.config.yml`) that uses `*_from_glob` keys to point at other *Configuration Files* on your *Site*.
+### Split your Collection and Schema configuration
 
 &nbsp;
 
-For more information of splitting your
+In this example, we have two *Collections*: Pages and Posts.
 
-CloudCannon introduces new `*_from_glob` keys that allow you to specify glob patterns pointing to other configuration files. These files are loaded and merged with your main configuration.
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+``````````
+
+collections_config:
+  pages:
+    path: content
+    icon: wysiwyg
+  posts:
+    path: content/posts
+    icon: event
+    schemas:
+      default:
+        path: .cloudcannon/schemas/posts-default.md
+      news:
+        path: .cloudcannon/schemas/posts-news.md
+        _inputs:
+          author:
+            type: text
+
+``````````
+</comp.MultiCodeBlock>
+
+We can move each *Collection* into a dedicated *Configuration File*.
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+``````````
+
+collections_config_from_glob:
+  - '/.cloudcannon/*.cloudcannon.collections.yml'
+
+``````````
+</comp.MultiCodeBlock>
+
+&nbsp;
+
+&nbsp;
+
+### Split your Input configuration into one or more files
+
+Input configuration often takes up a significant amount of space in your *CloudCannon Configuration File*.
+
+&nbsp;
+
+This example shows how to split your `_inputs` and `_structures` into separate files.
+
+* Globbed files can contain one or more entries for both objects (`_inputs`) and arrays (`_structures.*.values`)
+* For clashing object entries, globbed files overwrite the base config, and globbed entries overwrite themselves in import order
+* Array items do not overwrite as they are not keyed
+* You can use negative glob patterns (starting with `!`) to exclude specific files
+* You can mix globbed and inline configuration in the same file
+
+Before
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+``````````
+
+_inputs:
+  title:
+    type: text
+    options:
+      max_length: 100
+  url:
+    type: url
+    options:
+      hide_link_to_file: true
+
+``````````
+</comp.MultiCodeBlock>
+
+After
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+``````````
+
+_inputs_from_glob:
+  - '/.cloudcannon/*.cloudcannon.inputs.yml'
+
+``````````
+</comp.MultiCodeBlock>
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source=".cloudcannon/title.cloudcannon.inputs.yml">
+``````````
+
+title:
+  type: text
+  options:
+    max_length: 100
+
+``````````
+</comp.MultiCodeBlock>
