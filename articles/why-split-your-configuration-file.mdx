@@ -36,7 +36,9 @@ Collaborating with your team is easier with split *Configuration Files*, as you 
 
 Split *Configuration Files* also allow you to reduce configuration redundancy. For example, rather than defining a common Input under several *Collections*, you can reference a single *Inputs* *Configuration File* from each *Collection*.
 
-## How do split *Configuration Files* work?
+For more information, please read our documentation on [best practices for split configuration](/documentation/articles/best-practice-for-split-configuration-files/) and [splitting your Configuration File](/documentation/articles/splitting-your-configuration-file/), and our [Configuration File](/documentation/articles/configuration-file-reference/) reference documentation.
+
+## How does splitting your *Configuration File* work?
 
 When you split your *Site* configuration across multiple *Configuration Files*, CloudCannon still requires one main *Configuration File* (i.e., `cloudcannon.config.yml`). Your main *Configuration File* will point to other *Configuration Files* on your *Site* using `*_from_glob` keys.
 
@@ -53,6 +55,7 @@ You can also reference other *Configuration Files* outside of your main file (as
 
 <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="/.cloudcannon/collections/posts.cloudcannon.collections.yml">
 ``````````
+
 path: content/posts
 icon: event
 schemas_from_glob:
@@ -72,15 +75,93 @@ _inputs:
 
 Whenever you load your *Site* or update a *Configuration File*, CloudCannon will merge your configuration and apply it to your *Site*. CloudCannon's merge behavior is different depending on whether the configuration key is an object (e.g., `_inputs`, `collection_config`) or an array (e.g., `_structures.*.values`).
 
-When you define conflicting object keys in the main *Configuration File* and in another *Configuration File* reference in a `*_from_glob` keymerged using a glob, CloudCannon will preferentially use the configuration defined outside of the main *Configuration File*. Additionally, if you define the same object key in multiple *Configuration Files* merged using a glob
+### Merging behavior for object keys
 
-For object keys, CloudCannon will merge all keys
+When you define conflicting object keys in the main *Configuration File* and in another *Configuration File* referenced in a `*_from_glob` key, CloudCannon will preferentially use the configuration defined outside of the main *Configuration File*.
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+``````````
+
+_inputs_from_glob___1___:
+  - '/.cloudcannon/contact_address.cloudcannon.inputs.yml'
+_inputs:
+  contact_address:
+    type: url
+    options:
+      hide_link_to_address___2___: true
+
+``````````
+<comp.Annotation number="1">
+  The main *Configuration File* references another *Configuration File*, `contact_address.cloudcannon.inputs.yml`, using `_inputs_from_glob`.
+</comp.Annotation>
+<comp.Annotation number="2">
+  In the main *Configuration File*, the value of `contact_address.options.hide_link_to_address` is `true`. This conflicts with the value defined in `contact_address.cloudcannon.inputs.yml`.
+</comp.Annotation>
+</comp.MultiCodeBlock>
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="/.cloudcannon/contact_address.cloudcannon.inputs.yml'">
+``````````
+
+_inputs:
+  contact_address:
+    type: url
+    options:
+      hide_link_to_address___1___: false
+
+``````````
+<comp.Annotation number="1">
+  In `contact_address.cloudcannon.inputs.yml`, the value of `contact_address.options.hide_link_to_address` is `false`. CloudCannon will preferentially use this configuration over the conflicting configuration defined in the main *Configuration File*.
+</comp.Annotation>
+</comp.MultiCodeBlock>
+
+Additionally, if you define a conflicting object key in multiple *Configuration Files* referenced in a `*_from_glob` key, CloudCannon will preferentially use the configuration defined in later files over earlier ones.
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+``````````
+
+_collections_config_from_glob___1___:
+  - '/.cloudcannon/posts.cloudcannon.structures.yml'
+  - '/.cloudcannon/blog.cloudcannon.structures.yml'
+
+``````````
+<comp.Annotation number="1">
+  All *Collections* are defined under the `collections_config` key in your *CloudCannon Configuration File*.
+</comp.Annotation>
+</comp.MultiCodeBlock>
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="/.cloudcannon/posts.cloudcannon.structures.yml">
+``````````
+
+content:
+  path: content
+   icon___1___: wysiwyg
+
+``````````
+<comp.Annotation number="1">
+  All *Collections* are defined under the `collections_config` key in your *CloudCannon Configuration File*.
+</comp.Annotation>
+</comp.MultiCodeBlock>
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="/.cloudcannon/blog.cloudcannon.structures.yml">
+``````````
+
+content:
+  path: content
+   icon___1___: post_add
+
+``````````
+<comp.Annotation number="1">
+  All *Collections* are defined under the `collections_config` key in your *CloudCannon Configuration File*.
+</comp.Annotation>
+</comp.MultiCodeBlock>
+
+### Merging behavior for array keys
 
 &nbsp;
 
 &nbsp;
 
-For more information, please read our documentation on [best practices for split configuration](/documentation/articles/best-practice-for-split-configuration-files/) and [splitting your Configuration File](/documentation/articles/splitting-your-configuration-file/), and our [Configuration File](/documentation/articles/configuration-file-reference/) reference documentation.
+&nbsp;
 
 &nbsp;
 
