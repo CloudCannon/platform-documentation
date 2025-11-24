@@ -157,31 +157,60 @@ content:
 
 ### Merging behavior for array keys
 
-&nbsp;
+As items in an array key do not have keys, CloudCannon will not overwrite any array item with another. Instead, array items referenced in another *Configuration* using a `*_from_glob` key are appended to arrays defined in your main *Configuration File*. The order of array items will be the same
 
-&nbsp;
+in the order they're loaded from the globbed files
 
-&nbsp;
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+``````````
 
-&nbsp;
+_structures:
+  staff:
+    style: modal
+    values_from_glob___1___:
+      - '/.cloudcannon/board_member.cloudcannon.structure_value.yml'
+    values___2___:
+      - value:
+          _type: Employee
+          name:
+          title:
+          profile_picture:
+      - value:
+          _type: Manager
+          name:
+          title:
+          profile_picture:
+          url:
 
-&nbsp;
+``````````
+<comp.Annotation number="1">
+  The main *Configuration File* references another *Configuration File*, `contact_address.cloudcannon.inputs.yml`, using `_inputs_from_glob`.
+</comp.Annotation>
+<comp.Annotation number="2">
+  In the main *Configuration File*, the value of `contact_address.options.hide_link_to_address` is `true`. This conflicts with the value defined in `contact_address.cloudcannon.inputs.yml`.
+</comp.Annotation>
+</comp.MultiCodeBlock>
 
-### Merge Behavior Explained
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="/.cloudcannon/board_member.cloudcannon.structure_value.yml">
+``````````
 
-Understanding how globbed files merge with your main configuration is important:
+values___1___:
+  - value:
+      _type: Board
+      name:
+      title:
+      profile_picture:
+      url:
+      descriptions:
 
-### Object Keys (e.g., `_inputs`, `collections_config`)
-
-* **Clobbering**: If a key exists in both the main config and a globbed file, the globbed file's value **overwrites** the main config's value
-* **Order matters**: If multiple globbed files define the same key, later files (in glob order) overwrite earlier ones
-* **Merging**: Keys that don't conflict are merged together
-
-### Array Values (e.g., `_structures.*.values`)
-
-* **Appending**: Array items from globbed files are **appended** to the array
-* **No overwriting**: Array items are not keyed, so they don't overwrite each other
-* **Order**: Items appear in the order they're loaded from the globbed files
+``````````
+<comp.Annotation number="1">
+  The main *Configuration File* references another *Configuration File*, `contact_address.cloudcannon.inputs.yml`, using `_inputs_from_glob`.
+</comp.Annotation>
+<comp.Annotation number="2">
+  In the main *Configuration File*, the value of `contact_address.options.hide_link_to_address` is `true`. This conflicts with the value defined in `contact_address.cloudcannon.inputs.yml`.
+</comp.Annotation>
+</comp.MultiCodeBlock>
 
 ## Limitations
 
