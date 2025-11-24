@@ -28,10 +28,6 @@ You can split the following configuration into dedicated *Configuration Files*:
 * Snippets
 * Rich Text (`_editables`)
 
-You will still have one main *Configuration File* (i.e., `cloudcannon.config.yml`) that uses `*_from_glob` keys to point at other *Configuration Files* on your *Site*.
-
-For more information, please read our documentation on [best practices for split configuration](/documentation/articles/best-practice-for-split-configuration-files/) and [splitting your Configuration File](/documentation/articles/splitting-your-configuration-file/).
-
 ## Why split your *Configuration File*?
 
 There are several reasons why splitting your CloudCannon configuration across multiple files might be right for your *Site*.
@@ -41,3 +37,25 @@ Splitting your configuration across multiple files allows you to keep related co
 Collaborating with your team is easier with split *Configuration Files*, as you can work on different parts of your *Site* configuration simultaneously.
 
 Split *Configuration Files* also allow you to reduce configuration redundancy. For example, rather than defining a common Input under several *Collections*, you can reference a single Inputs *Configuration File* from each *Collection*.
+
+## How
+
+You will still have one main *Configuration File* (i.e., `cloudcannon.config.yml`) that uses `*_from_glob` keys to point at other *Configuration Files* on your *Site*.
+
+For more information, please read our documentation on [best practices for split configuration](/documentation/articles/best-practice-for-split-configuration-files/) and [splitting your Configuration File](/documentation/articles/splitting-your-configuration-file/).
+
+### Merge Behavior Explained
+
+Understanding how globbed files merge with your main configuration is important:
+
+### Object Keys (e.g., `_inputs`, `collections_config`)
+
+* **Clobbering**: If a key exists in both the main config and a globbed file, the globbed file's value **overwrites** the main config's value
+* **Order matters**: If multiple globbed files define the same key, later files (in glob order) overwrite earlier ones
+* **Merging**: Keys that don't conflict are merged together
+
+### Array Values (e.g., `_structures.*.values`)
+
+* **Appending**: Array items from globbed files are **appended** to the array
+* **No overwriting**: Array items are not keyed, so they don't overwrite each other
+* **Order**: Items appear in the order they're loaded from the globbed files

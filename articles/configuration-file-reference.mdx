@@ -465,6 +465,21 @@ These `*_from_glob` keys configure where CloudCannon should look for split *Conf
         - '/.cloudcannon/collections/*.cloudcannon.collections.yml'
       ``````````
       </comp.MultiCodeBlock>
+      <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="/.cloudcannon/collections/posts.cloudcannon.collections.yml">
+      ``````````
+      path: content/posts
+      icon: event
+      preview:
+        text:
+          - key: title
+        subtext:
+          - key: author
+        metadata:
+          - icon: event
+            text:
+              - template: Published on {date|date_long}
+      ``````````
+      </comp.MultiCodeBlock>
     </comp.Example>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="schemas_from_glob" type_markdown="Array of Strings">
@@ -494,7 +509,7 @@ These `*_from_glob` keys configure where CloudCannon should look for split *Conf
     This key has no default.
     
     <comp.Example>
-      In this example, we have several *Input Configuration Files* in the `.cloudcannon/inputs/` folder, with each file containing multiple *Input* definitions. The value of the `inputs_from_glob` key tells CloudCannon to only use the `seo.cloudcannon.inputs.yml` and `blog-details.cloudcannon.inputs.yml` files in that folder.
+      In this example, we have several *Input Configuration Files* in the `.cloudcannon/inputs/` folder, with each file containing multiple *Input* definitions. The value of the `_inputs_from_glob` key tells CloudCannon to only use the `seo.cloudcannon.inputs.yml` and `blog-details.cloudcannon.inputs.yml` files in that folder.
       
       <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
       ``````````
@@ -507,26 +522,97 @@ These `*_from_glob` keys configure where CloudCannon should look for split *Conf
             - '/.cloudcannon/inputs/blog-details.cloudcannon.inputs.yml'
       ``````````
       </comp.MultiCodeBlock>
+      <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="/.cloudcannon/inputs/seo.cloudcannon.inputs.yml">
+      ``````````
+      seo_title:
+        type: text
+        options:
+          required: true
+          max_length: 50
+      seo_description:
+        type: textarea
+        options:
+          show_count: true
+          required: true
+          max_length: 125
+      seo_image:
+        type: image
+        options:
+          path:
+            uploads: images
+          accepts_mime_types:
+            - image/png
+            - image/jpeg
+          required: true
+          pattern: (?i)\.(jpe?g|png)$
+          pattern_message: Please select a JPG or PNG image file
+      ``````````
+      </comp.MultiCodeBlock>
     </comp.Example>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="_structures_from_glob" type_markdown="Array of Strings">
-    This key defines globs that filter which files CloudCannon should use for *Collection* configuration. Values in this array are relative to the root of your repository (i.e., `/`, not the value of `source`) and must end in the file extension `.cloudcannon.collections.yml`.
+    This key defines globs that filter which files CloudCannon should use for *Structure* configuration. Values in this array are relative to the root of your repository (i.e., `/`, not the value of `source`) and must end in the file extension `.cloudcannon.strucutres.yml`. Please see our documentation on [values_from_glob](/documentation/articles/configuration-file-reference/#values_from_glob) for defining individual *Structure* values in a split *Configuration File*.
     
     This key has no default.
     
     <comp.Example>
-      In this example, each *Collection* has its own *Configuration File* in the `.cloudcannon/collections/` folder. The value of the `collections_config_from_glob` key tells CloudCannon to use all files in that folder that match the glob `*.cloudcannon.collections.yml`.
+      In this example, we have several *Structure Configuration Files* in the `.cloudcannon/structures/` folder. The value of the `_structures_from_glob` key tells CloudCannon to only use the `seo.cloudcannon.inputs.yml` and `blog-details.cloudcannon.inputs.yml` files in that folder.
       
       <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
       ``````````
-      collections_config_from_glob:
-        - '/.cloudcannon/collections/*.cloudcannon.collections.yml'
+      _inputs:
+      
+      collections_config:
+        posts:
+          path: content/posts
+          icon: event
+          inputs_from_glob:
+            - '/.cloudcannon/inputs/seo.cloudcannon.inputs.yml'
+            - '/.cloudcannon/inputs/blog-details.cloudcannon.inputs.yml'
+      ``````````
+      </comp.MultiCodeBlock>
+      <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+      ``````````
+      staff:
+        style: modal
+        values:
+          - value:
+              _type: Employee
+              name: 
+              job_description: 
+              profile_picture: 
+            preview:
+              text:
+                - key: name
+                - Employee
+              subtext:
+                - key: job_description
+                - Description of position
+              image:
+                - key: profile_picture
+              icon: support_agent
+          - value:
+              _type: Manager
+              name: 
+              job_description: 
+              profile_picture: 
+              url: 
+            preview:
+              text:
+                - key: name
+                - Manager
+              subtext:
+                - key: job_description
+                - Description of position
+              image:
+                - key: profile_picture
+              icon: face
       ``````````
       </comp.MultiCodeBlock>
     </comp.Example>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="values_from_glob" type_markdown="Array of Strings">
-    This key defines globs that filter which files CloudCannon should use for *Collection* configuration. Values in this array are relative to the root of your repository (i.e., `/`, not the value of `source`) and must end in the file extension `.cloudcannon.collections.yml`.
+    This key defines globs that filter which files CloudCannon should use for *Structure* value configuration. Values in this array are relative to the root of your repository (i.e., `/`, not the value of `source`) and must end in the file extension `.cloudcannon.structure-value.yml`. Please see our documentation on [structures_from_glob](/documentation/articles/configuration-file-reference/#_structures_from_glob) for defining a *Structure* in a split *Configuration File*.
     
     This key has no default.
     
