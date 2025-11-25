@@ -39,48 +39,340 @@ To split your *CloudCannon Configuration File*:
 
 CloudCannon will...
 
-<comp.DocShot docshot_key="" alt="" title="" type="screenshot"/>
-
-## Allowed configuration options
-
-CloudCannon allows you to split the following configuration keys into separate *Configuration Files*.
-
-<table><thead><tr><th><p>Original key</p></th><th><p>Split configuration key</p></th><th><p>File extension</p></th></tr></thead><tbody><tr><td><p><code>collections_config</code></p></td><td><p><code>collections_config_from_glob</code></p></td><td><p><code>.cloudcannon.collections.yml</code></p></td></tr><tr><td><p></p></td><td><p></p></td><td><p></p></td></tr><tr><td><p></p></td><td><p></p></td><td><p></p></td></tr><tr><td><p></p></td><td><p></p></td><td><p></p></td></tr></tbody></table>
-
 &nbsp;
 
-* Use `collections_config_from_glob` where you would normally use `collections_config` to point to a file with the extension `.cloudcannon.collections.yml`
-* Use `schemas_from_glob` where you would normally use `schemas` to point to a file with the extension `.cloudcannon.schemas.yml`
-* Use `_inputs_from_glob` where you would normally use `_inputs` to point to a file with the extension `.cloudcannon.inputs.yml`
-* Use `_structures_from_glob` where you would normally use `_structures` to point to a file with the extension `.cloudcannon.structures.yml`
-* Use `values_from_glob` where you would normally use `_structures.*.values` to point to a file with the extension `.cloudcannon.structures-value.yml`
-* Use `_snippets_from_glob` where you would normally use `_snippets` to point to a file with the extension `.cloudcannon.snippets.yml`
-* Use `_snippets_templates_from_glob` where you would normally use `_snippets_templates` to point to a file with the extension `.cloudcannon.snippets.yml`
-* Use `_snippets_imports_from_glob` where you would normally use `_snippets_imports` to point to a file with the extension `cloudcannon.snippets-imports.yml`
-* Use `_snippets_definitions_from_glob` where you would normally use `_snippets_definitions` to point to a file with the extension `.cloudcannon.snippets-definitions.yml`
-* Use `_editables_from_glob` where you would normally use `_editables` to point to a file with the extension `.cloudcannon.editables.yml`
+## Configuration keys
+
+CloudCannon allows you to split the specific configuration keys into separate *Configuration Files*. Here is an example of two *Configuration Files* using some of the most commonly used keys for splitting configuration.
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+``````````
+
+source: /
+collections_config_from_glob:
+  - '/.cloudcannon/collections/*.cloudcannon.collections.yml'
+_inputs_from_glob:
+  - '/.cloudcannon/inputs/*.cloudcannon.inputs.yml'
+_structures_from_glob:
+  - '/.cloudcannon/structures/*.cloudcannon.structures.yml'
+
+``````````
+</comp.MultiCodeBlock>
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+``````````
+
+posts:
+    path: src/content/
+    schemas_from_glob:
+      - '/.cloudcannon/schemas/blogPost.cloudcannon.schemas.yml'
+      - '/.cloudcannon/schemas/companyAnnouncement.cloudcannon.schemas.yml'
+      - '/.cloudcannon/schemas/caseStudy.cloudcannon.schemas.yml'
+
+``````````
+</comp.MultiCodeBlock>
+
+For a complete list of configuration keys available for the *CloudCannon Configuration File*, please read our [Configuration File reference](/documentation/articles/configuration-file-reference/) documentation.
+
+These keys configure which files CloudCannon should use for *Site* configuration.
+
+<comp.DataReference>
+  <comp.DataReferenceRow label="collections_config_from_glob" type_markdown="Array of Strings">
+    This key defines globs that filter which files CloudCannon should use for *Collection* configuration. Values in this array are relative to the root of your repository (i.e., `/`, not the value of `source`) and must end in the file extension `.cloudcannon.collections.yml`. You can use this key anywhere you would use the `collections_config` key.
+
+    This key has no default.
+
+    <comp.Example>
+      In this example, each *Collection* has its own *Configuration File* in the `.cloudcannon/collections/` folder. The value of the `collections_config_from_glob` key tells CloudCannon to use all files in that folder that match the glob `*.cloudcannon.collections.yml`.
+
+      <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+                              ``````````
+                              collections_config_from_glob:
+                                - '/.cloudcannon/collections/*.cloudcannon.collections.yml'
+                              ``````````
+                              </comp.MultiCodeBlock>
+      <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="/.cloudcannon/collections/posts.cloudcannon.collections.yml">
+                              ``````````
+                              path: content/posts
+                              icon: event
+                              preview:
+                                text:
+                                  - key: title
+                                subtext:
+                                  - key: author
+                                metadata:
+                                  - icon: event
+                                    text:
+                                      - template: Published on {date|date_long}
+                              ``````````
+                              </comp.MultiCodeBlock>
+    </comp.Example>
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="schemas_from_glob" type_markdown="Array of Strings">
+    This key defines globs that filter which files CloudCannon should use for *Schema* configuration. Values in this array are relative to the root of your repository (i.e., `/`, not the value of `source`) and must end in the file extension `.cloudcannon.schemas.yml`. You can use this key anywhere you would use the `schemas` key.
+
+    This key has no default.
+
+    <comp.Example>
+      In this example, we have several *Schemas Configuration Files* in the `.cloudcannon/schemas/` folder. The value of the `schemas_from_glob` key tells CloudCannon to use all files in that folder that match the glob `*.cloudcannon.schemas.yml` except for `pages.cloudcannon.schemas.yml` due to the negative glob.
+
+      <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+                              ``````````
+                              collections_config:
+                                posts:
+                                  path: content/posts
+                                  icon: event
+                                  schemas_from_glob:
+                                    - '/.cloudcannon/schemas/*.cloudcannon.schemas.yml'
+                                    - '!/.cloudcannon/schemas/pages.cloudcannon.schemas.yml'
+                              ``````````
+                              </comp.MultiCodeBlock>
+    </comp.Example>
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="_inputs_from_glob" type_markdown="Array of Strings">
+    This key defines globs that filter which files CloudCannon should use for *Input* configuration. Values in this array are relative to the root of your repository (i.e., `/`, not the value of `source`) and must end in the file extension `.cloudcannon.inputs.yml`. You can use this key anywhere you would use the `_inputs` key in the configuration cascade.
+
+    This key has no default.
+
+    <comp.Example>
+      In this example, we have several *Input Configuration Files* in the `.cloudcannon/inputs/` folder, with each file containing multiple *Input* definitions. The value of the `_inputs_from_glob` key tells CloudCannon to only use the `seo.cloudcannon.inputs.yml` and `blog-details.cloudcannon.inputs.yml` files in that folder.
+
+      <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+                              ``````````
+                              collections_config:
+                                posts:
+                                  path: content/posts
+                                  icon: event
+                                  inputs_from_glob:
+                                    - '/.cloudcannon/inputs/seo.cloudcannon.inputs.yml'
+                                    - '/.cloudcannon/inputs/blog-details.cloudcannon.inputs.yml'
+                              ``````````
+                              </comp.MultiCodeBlock>
+      <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="/.cloudcannon/inputs/seo.cloudcannon.inputs.yml">
+                              ``````````
+                              seo_title:
+                                type: text
+                                options:
+                                  required: true
+                                  max_length: 50
+                              seo_description:
+                                type: textarea
+                                options:
+                                  show_count: true
+                                  required: true
+                                  max_length: 125
+                              seo_image:
+                                type: image
+                                options:
+                                  path:
+                                    uploads: images
+                                  accepts_mime_types:
+                                    - image/png
+                                    - image/jpeg
+                                  required: true
+                                  pattern: (?i)\.(jpe?g|png)$
+                                  pattern_message: Please select a JPG or PNG image file
+                              ``````````
+                              </comp.MultiCodeBlock>
+    </comp.Example>
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="_structures_from_glob" type_markdown="Array of Strings">
+    This key defines globs that filter which files CloudCannon should use for *Structure* configuration. Values in this array are relative to the root of your repository (i.e., `/`, not the value of `source`) and must end in the file extension `.cloudcannon.structures.yml`. You can use this key anywhere you would use the `_structures` key in the configuration cascade. Please see our documentation on [values_from_glob](/documentation/articles/configuration-file-reference/#values_from_glob) for defining individual *Structure* values in a split *Configuration File*.
+
+    This key has no default.
+
+    <comp.Example>
+      In this example, we have several *Structure Configuration Files* in the `.cloudcannon/structures/` folder. The value of the `_structures_from_glob` key tells CloudCannon to use the `staffMembers.cloudcannon.structures.yml` file in that folder.
+
+      <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+                              ``````````
+                              _inputs:
+                                staff:
+                                  type: array
+                                  options:
+                                    _structures_from_glob:
+                                      - '/.cloudcannon/structures/staffMembers.cloudcannon.structures.yml'
+                              ``````````
+                              </comp.MultiCodeBlock>
+      <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="/.cloudcannon/structures/staffMembers.cloudcannon.structures.yml">
+                              ``````````
+                              values:
+                                - label: Employee
+                                  value:
+                                    name:
+                                    job_description:
+                                    profile_picture:
+                                - label: Manager
+                                  value:
+                                    name:
+                                    job_description:
+                                    profile_picture:
+                                    url:
+                              ``````````
+                              </comp.MultiCodeBlock>
+    </comp.Example>
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="values_from_glob" type_markdown="Array of Strings">
+    This key defines globs that filter which files CloudCannon should use for *Structure* value configuration. Values in this array are relative to the root of your repository (i.e., `/`, not the value of `source`) and must end in the file extension `.cloudcannon.structure-value.yml` (note the singular form of "value"). You can use this key anywhere you would use the `_structures.*.values` key. Please see our documentation on [structures_from_glob](/documentation/articles/configuration-file-reference/#_structures_from_glob) for defining a *Structure* in a split *Configuration File*.
+
+    This key has no default.
+
+    <comp.Example>
+      In this example, the `staff` Array Input uses inline *Structure* values from the main *Configuration File* and also references another value from the `boardMember.cloudcannon.structure_value.yml` in the `/.cloudcannon/structures/` folder.
+
+      <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+                              ``````````
+                              _structures:
+                                staff:
+                                  style: modal
+                                  values_from_glob: /.cloudcannon/structures/boardMember.cloudcannon.structure_value.yml
+                                  values:
+                                    - label: Employee
+                                      value:
+                                        name:
+                                        title:
+                                        profile_picture:
+                                    - label: Manager
+                                      value:
+                                        name:
+                                        title:
+                                        profile_picture:
+                                        url:
+                              ``````````
+                              </comp.MultiCodeBlock>
+      <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="/.cloudcannon/structures/boardMember.cloudcannon.structure_value.yml">
+                              ``````````
+                              label: Board
+                              value:
+                                name:
+                                title:
+                                profile_picture:
+                                url:
+                                description:
+                              ``````````
+                              </comp.MultiCodeBlock>
+    </comp.Example>
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="_snippets_from_glob" type_markdown="Array of Strings">
+    This key defines globs that filter which files CloudCannon should use for Snippet configuration. Values in this array are relative to the root of your repository (i.e., `/`, not the value of `source`) and must end in the file extension `.cloudcannon.snippets.yml`. You can use this key anywhere you would use the `_snippets` key in the configuration cascade.
+
+    This key has no default.
+
+    <comp.Example>
+      In this example, each Custom Snippet has its own *Configuration File* in the `.cloudcannon/snippets/` folder. The value of the `_snippets_from_glob` key tells CloudCannon to use the `callout.cloudcannon.snippets.yml` file in that folder.
+
+      <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+                              ``````````
+                              _snippets_imports:
+                                  eleventy_liquid: true
+                              _snippets_from_glob:
+                                - '/.cloudcannon/snippets/callout.cloudcannon.snippets.yml'
+                              ``````````
+                              </comp.MultiCodeBlock>
+      <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="/.cloudcannon/snippets/callout.cloudcannon.snippets.yml">
+                              ``````````
+                              callout:
+                                template: eleventy_liquid_include
+                                inline: false
+                                preview:
+                                  text: Callout
+                                definitions:
+                                  include_name: callout
+                                  named_args:
+                                    - source_key: type
+                                      editor_key: label
+                                      type: string
+                                    - editor_key: message
+                                      type: string
+                                _inputs:
+                                  label:
+                                    type: select
+                                    options:
+                                      values:
+                                        - info
+                                        - warning
+                                        - error
+                              ``````````
+                              </comp.MultiCodeBlock>
+    </comp.Example>
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="_snippets_imports_from_glob" type_markdown="Array of Strings">
+    This key defines globs that filter which files CloudCannon should use for *Collection* configuration. Values in this array are relative to the root of your repository (i.e., `/`, not the value of `source`) and must end in the file extension `.cloudcannon.snippets_imports.yml`. You can use this key anywhere you would use the `_snippets_imports` key in the configuration cascade.
+
+    This key has no default.
+
+    <comp.Example>
+      In this example, we have several Snippet *Configuration Files* in the `.cloudcannon/snippets/` folder. The value of the `_snippets_import_from_glob` key tells CloudCannon all files in that folder that match the glob `*.cloudcannon.snippets_import.yml`.
+
+      <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+                              ``````````
+                              _snippets_imports_from_glob:
+                                - '/.cloudcannon/snippets/*.cloudcannon.snippets_imports.yml'
+
+                              ``````````
+                              </comp.MultiCodeBlock>
+      <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="/.cloudcannon/snippets/docusaurusSnippets.cloudcannon.snippets_imports.yml">
+                              ``````````
+                              mdx: true
+                              docusaurus_mdx:
+                                exclude:
+                                  - docusaurus_mdx_truncate
+                              ``````````
+                              </comp.MultiCodeBlock>
+    </comp.Example>
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="_editables_from_glob" type_markdown="Array of Strings">
+    This key defines globs that filter which files CloudCannon should use for configuring Rich Text formatting. Values in this array are relative to the root of your repository (i.e., `/`, not the value of `source`) and must end in the file extension `.cloudcannon.editables.yml`. You can use this key anywhere you would use the `_editables` key in the configuration cascade.
+
+    This key has no default.
+
+    <comp.Example>
+      In this example, we have several WYSIWYG Toolbar *Configuration Files* in the `.cloudcannon/editables/` folder, with each file containing multiple definitions. The value of the `_editables_from_glob` key tells CloudCannon all files in that folder that match the glob `*.cloudcannon.editables.yml`.
+
+      <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+                              ``````````
+                              _editables_from_glob:
+                                - '/.cloudcannon/editables/*.cloudcannon.editables.yml'
+
+                              ``````````
+                              </comp.MultiCodeBlock>
+      <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="/.cloudcannon/editables/textEditableRegions.cloudcannon.editables.yml">
+                              ``````````
+                              text:
+                                bold: true
+                                italic: true
+                                underline: true
+                              block:
+                                format: p h3
+                                undo: true
+                                redo: true
+                              link:
+                                bold: true
+                                italic: true
+                                underline: true
+                              ``````````
+                              </comp.MultiCodeBlock>
+    </comp.Example>
+  </comp.DataReferenceRow>
+</comp.DataReference>
 
 ## Common errors
 
-## Make sure your key and file extension match
+If you have any questions about configuring your *Site* on CloudCannon, don't hesitate to contact our friendly [support team](/support/).
 
-**Use consistent naming**: Follow the recommended naming convention (`.cloudcannon.{section}.yml`) for better tooling support
+### *Site* configuration is not loading
 
-For clashing object entries, globbed files overwrite the base config, and globbed entries overwrite themselves in import order
+* Check that the glob pattern in your `*_from_glob` key correctly matches the name of your *Configuration File*.
+* Check that the value of your `*_from_glob` key references the correct file extension (e.g., `collections_config_from_glob` must reference a file with the `.cloudcannon.collections.yml` extension).
+* Ensure that the value of `*_from_glob` is relative to the root repository, not the source directory.
+* Verify that your *Site* uses [Unified Configuration](/documentation/guides/unified-configuration-migration-guide/).
 
-### Configuration not loading
+### One configuration is overwriting another
 
-* Check that your glob patterns match the actual file paths
-* Ensure files are relative to the repository root (not the `source` directory)
-* Verify you're using Unified configuration
+* Check which definitions are inline versus in *Configuration Files* referenced by your `*_from_glob` key, as CloudCannon will preferentially use the configuration defined outside of the main *Configuration File* (i.e., `cloudcannon.config.yml`).
+* If you have defined the same key in multiple*Configuration Files* referenced by your `*_from_glob` key, check the names of those files as CloudCannon will preferentially use the configuration defined in files later in the [import order](/documentation/articles/why-split-your-configuration-file/#merging-behavior-for-object-keys).
 
-### Unexpected overwrites
+### Array items are missing
 
-* Remember that object keys in globbed files overwrite main config values
-* Check the order of your glob patterns - later files overwrite earlier ones
-* Review which keys are being defined in multiple files
-
-### Array items missing
-
-* Array items are appended, not merged - ensure all items are present in your globbed files
-* Check that your glob patterns are matching all intended files
+* Check that the glob pattern in your `*_from_glob` key correctly matches the name of your *Configuration File*.
+* Array items referenced in another *Configuration File* using a `*_from_glob` key are appended to any array items defined in your main *Configuration File*. Check all array items are present in the files referenced by your `values_from_glob` key.

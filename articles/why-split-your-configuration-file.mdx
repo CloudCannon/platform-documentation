@@ -73,7 +73,55 @@ _inputs:
 ``````````
 </comp.MultiCodeBlock>
 
-Whenever you load your *Site* or update a *Configuration File*, CloudCannon will merge your configuration and apply it to your *Site*. CloudCannon's merge behavior is different depending on whether the configuration key is an object (e.g., `_inputs`, `collection_config`) or an array (e.g., `_structures.*.values`).
+Whenever you load your *Site* or update a *Configuration File*, CloudCannon will merge your configuration and apply it to your *Site*. CloudCannon's merge behavior is different depending on whether the configuration key is an array (e.g., `_structures.*.values`) or an object (e.g., `_inputs`, `collection_config`).
+
+### Merging behavior for array keys
+
+As items in an array do not have keys, CloudCannon will not overwrite any array item with another. Instead, array items referenced in another *Configuration File* using a `*_from_glob` key are appended to arrays defined in your main *Configuration File*. The order of array items in the array will be the same as the order in your main *Configuration File*.
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+``````````
+
+_structures:
+  staff:
+    style: modal
+    values_from_glob___1___:
+      - '/.cloudcannon/boardMember.cloudcannon.structure_value.yml'
+    values___2___:
+      - label: Employee
+        value:
+          name:
+          title:
+          profile_picture:
+      - label: Manager
+        value:
+          name:
+          title:
+          profile_picture:
+          url:
+
+``````````
+<comp.Annotation number="1">
+  The main *Configuration File* references another *Configuration File*, `board_member.cloudcannon.structure_value.yml`, using `_structures.staff.values_from_glob`.
+</comp.Annotation>
+<comp.Annotation number="2">
+  In the main *Configuration File*, there are two array items in `_structures.staff.values`, "Employee" and "Manager".
+</comp.Annotation>
+</comp.MultiCodeBlock>
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="/components/team/boardMember.cloudcannon.structure-value.yml">
+``````````
+
+label___3___: Board
+value:
+  name:
+  title:
+  profile_picture:
+  url:
+  description:
+
+``````````
+</comp.MultiCodeBlock>
 
 ### Merging behavior for object keys
 
@@ -155,53 +203,7 @@ content:
 </comp.Annotation>
 </comp.MultiCodeBlock>
 
-### Merging behavior for array keys
-
-As items in an array key do not have keys, CloudCannon will not overwrite any array item with another. Instead, array items referenced in another *Configuration File* using a `*_from_glob` key are appended to arrays defined in your main *Configuration File*. The order of array items in the array will be the same as the order in your main *Configuration File*.
-
-<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
-``````````
-
-_structures:
-  staff:
-    style: modal
-    values_from_glob___1___:
-      - '/.cloudcannon/boardMember.cloudcannon.structure_value.yml'
-    values___2___:
-      - label: Employee
-        value:
-          name:
-          title:
-          profile_picture:
-      - label: Manager
-        value:
-          name:
-          title:
-          profile_picture:
-          url:
-
-``````````
-<comp.Annotation number="1">
-  The main *Configuration File* references another *Configuration File*, `board_member.cloudcannon.structure_value.yml`, using `_structures.staff.values_from_glob`.
-</comp.Annotation>
-<comp.Annotation number="2">
-  In the main *Configuration File*, there are two array items in `_structures.staff.values`, "Employee" and "Manager".
-</comp.Annotation>
-</comp.MultiCodeBlock>
-
-<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="/components/team/boardMember.cloudcannon.structure-value.yml">
-``````````
-
-label___3___: Board
-value:
-  name:
-  title:
-  profile_picture:
-  url:
-  description:
-
-``````````
-</comp.MultiCodeBlock>
+###
 
 ## Limitations
 
