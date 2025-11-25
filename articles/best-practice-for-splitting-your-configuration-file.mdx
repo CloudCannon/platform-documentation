@@ -2,45 +2,21 @@
 _schema: default
 _uuid: 9b83e4fa-fbc3-47b8-a4ef-a3a6fe6f29e1
 _created_at: 2025-11-21T13:14:57+13:00
-title: Best practice for splitting your Configuration Files
-nav_title: Best practice for splitting your Configuration Files
+title: Best practice for splitting your Configuration File
+nav_title: Best practice for splitting your Configuration File
 published: true
 image: >-
  https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
-description:
+description: Learn about the best practices for splitting your Configuration File.
 article_category:
  - Explanation
 article_topic:
 author_notes:
  docshots_status:
 ---
-On CloudCannon, you can [split your *Site* configuration](/documentation/articles/split-your-configuration-file/) across multiple *Configuration Files*.
+It is important to find the right balance between organization and maintainability when [splitting your *Site* configuration](/documentation/articles/split-your-configuration-file/) across multiple *Configuration Files*. If you split your configuration too granularly, finding a specific configuration can be as difficult as if it were all in the same file.
 
-&nbsp;
-
-Let's go over a few
-
-1. Make sure the
-2. &nbsp;
-3. **Use consistent naming**: Follow the recommended naming convention (`.cloudcannon.{section}.yml`) for better tooling support
-4. **Keep it readable**: Don't split too granularly - find a balance between organization and maintainability
-5. **Use negative patterns wisely**: Exclude files you don't want to include, but be explicit about it
-
-&nbsp;
-
-&nbsp;
-
-###
-
-&nbsp;
-
-&nbsp;
-
-## Best Practices
-
-##
-
-##
+Let's walk through a list of best practices to help you split your configuration. All these examples are optional, but might help you determine the right balance for splitting your *Site* configuration.
 
 ## Create a dedicated *Configuration File* for each *Collection*
 
@@ -84,6 +60,7 @@ collections_config_from_glob:
 
 <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="pages.cloudcannon.collections.yml">
 ``````````
+
 pages:
   path: content
   icon: wysiwyg
@@ -93,6 +70,7 @@ pages:
 
 <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="posts.cloudcannon.collections.yml">
 ``````````
+
 posts:
   path: content/posts
   icon: event
@@ -105,6 +83,34 @@ posts:
       - icon: event
         text:
           - template: Published on {date|date_long}
+
+``````````
+</comp.MultiCodeBlock>
+
+## Create chains of *Configuration Files*
+
+When you split your *Site* configuration across multiple *Configuration Files*, your main *Configuration File* will point to other *Configuration Files* on your *Site* using `*_from_glob` keys.
+
+However, you can also use `*_from_glob` keys in in second or third tier *Configuration Files* allowing you to create chains of configuration across several files. As long as every *Configuration File* ultimately connects back to your main *Configuration File*, CloudCannon will be able to merge. your configuration.
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+``````````
+
+_collections_configuration_from_glob___1___:
+  - /.cloudcannon/collections/*.cloudcannon.structures.yml
+
+``````````
+</comp.MultiCodeBlock>
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="/.cloudcannon/collections/posts.cloudcannon.structures.yml">
+``````````
+
+path: content/posts
+icon: event
+schemas_from_glob:
+  - /.cloudcannon/schemas/blogPost.cloudcannon.schemas.yml
+  - /.cloudcannon/schemas/companyAnnouncement.cloudcannon.schemas.yml
+  - /.cloudcannon/schemas/caseStudy.cloudcannon.schemas.yml
 
 ``````````
 </comp.MultiCodeBlock>
@@ -133,7 +139,7 @@ We can tell CloudCannon to use all *Schema Configuration Files* in this folder u
 
 ## Define related configuration in the same file
 
-x
+For configuration keys that contain objectYou can define more than one
 
 <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
 ``````````
@@ -149,37 +155,60 @@ collections_config:
 ``````````
 </comp.MultiCodeBlock>
 
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="/.cloudcannon/inputs/seo.cloudcannon.inputs.yml">
+``````````
+
+seo_title:
+  type: text
+  options:
+    required: true
+    max_length: 50
+seo_description:
+  type: textarea
+  options:
+    show_count: true
+    required: true
+    max_length: 125
+seo_image:
+  type: image
+  options:
+    path:
+      uploads: images
+    accepts_mime_types:
+      - image/png
+      - image/jpeg
+    required: true
+    pattern: (?i)\.(jpe?g|png)$
+    pattern_message: Please select a JPG or PNG image file
+
+``````````
+</comp.MultiCodeBlock>
+
 Globbed files can contain one or more entries for both objects (\_inputs) and arrays (\_structures.\*.values)
 
-## Use split config and inline config in the same file
+Globbed files can contain one or more entries for both objects (`_inputs`) and arrays (`_structures.*.values`)
+
+Globbed files can contain nested globs themselves (`schemas_from_glob`)
+
+## Use split and inline configuration in the same file
+
+You don't have to split all your configuration into separate files. Instead, you can use inline configuration and reference other *Configuration Files* using `*_from_glob` keys simultaneously.
 
 <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
 ``````````
 
 _inputs_from_glob:
-  - '/.cloudcannon/*.cloudcannon.inputs.yml'
+  - /.cloudcannon/inputs/seo.cloudcannon.inputs.yml
+  - /.cloudcannon/inputs/blog-details.cloudcannon.inputs.yml
 _inputs:
-  url:
-    type: url
+  authors:
+    type: multiselect
     options:
-      hide_link_to_file: true
+      values: collections.authors
 
 ``````````
 </comp.MultiCodeBlock>
 
-## Create chains of *Configuration Files*
-
-&nbsp;
-
-x
-
 ---
 
-* Globbed files can contain one or more entries for both objects (`_inputs`) and arrays (`_structures.*.values`)
 * For clashing object entries, globbed files overwrite the base config, and globbed entries overwrite themselves in import order
-* Array items do not overwrite as they are not keyed
-* You can use negative glob patterns (starting with `!`) to exclude specific files
-* You can mix globbed and inline configuration in the same file
-* Globbed files can contain nested globs themselves (`schemas_from_glob`)
-* Not everything has to be split - you can keep some configuration inline (like `_inputs.author` in the schema)
-* Each collection can be in its own file for better organization
