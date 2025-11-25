@@ -556,7 +556,7 @@ These `*_from_glob` keys configure where CloudCannon should look for split *Conf
     This key has no default.
     
     <comp.Example>
-      In this example, we have several *Structure Configuration Files* in the `.cloudcannon/structures/` folder. The value of the `_structures_from_glob` key tells CloudCannon to only use the `seo.cloudcannon.inputs.yml` and `blog-details.cloudcannon.inputs.yml` files in that folder.
+      In this example, we have several *Structure Configuration Files* in the `.cloudcannon/structures/` folder. The value of the `_structures_from_glob` key tells CloudCannon to use the `staffMembers.cloudcannon.structures.yml` file in that folder.
       
       <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
       ``````````
@@ -633,12 +633,39 @@ These `*_from_glob` keys configure where CloudCannon should look for split *Conf
     This key has no default.
     
     <comp.Example>
-      In this example, each *Collection* has its own *Configuration File* in the `.cloudcannon/collections/` folder. The value of the `collections_config_from_glob` key tells CloudCannon to use all files in that folder that match the glob `*.cloudcannon.collections.yml`.
+      In this example, each Custom Snippet has its own *Configuration File* in the `.cloudcannon/snippets/` folder. The value of the `_snippets_from_glob` key tells CloudCannon to use the `callout.cloudcannon.snippets.yml` file in that folder.
       
       <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
       ``````````
-      collections_config_from_glob:
-        - '/.cloudcannon/collections/*.cloudcannon.collections.yml'
+      _snippets_imports:
+          eleventy_liquid: true
+      _snippets_from_glob:
+        - '/.cloudcannon/snippets/callout.cloudcannon.snippets.yml'
+      ``````````
+      </comp.MultiCodeBlock>
+      <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="/.cloudcannon/snippets/callout.cloudcannon.snippets.yml">
+      ``````````
+      callout:
+        template: eleventy_liquid_include
+        inline: false
+        preview:
+          text: Callout
+        definitions:
+          include_name: callout
+          named_args:
+            - source_key: type
+              editor_key: label
+              type: string
+            - editor_key: message
+              type: string
+        _inputs:
+          label:
+            type: select
+            options:
+              values:
+                - info
+                - warning
+                - error
       ``````````
       </comp.MultiCodeBlock>
     </comp.Example>
@@ -649,7 +676,7 @@ These `*_from_glob` keys configure where CloudCannon should look for split *Conf
     This key has no default.
     
     <comp.Example>
-      In this example, each *Collection* has its own *Configuration File* in the `.cloudcannon/collections/` folder. The value of the `collections_config_from_glob` key tells CloudCannon to use all files in that folder that match the glob `*.cloudcannon.collections.yml`.
+      In this example, we have several Snippet *Configuration Files* in the `.cloudcannon/snippets/` folder. The value of the `_snippets_import_from_glob` key tells CloudCannon all files in that folder that match the glob `*.cloudcannon.snippets_import.yml`.
       
       <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
       ``````````
@@ -660,17 +687,26 @@ These `*_from_glob` keys configure where CloudCannon should look for split *Conf
     </comp.Example>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="_snippets_imports_from_glob" type_markdown="Array of Strings">
-    This key defines globs that filter which files CloudCannon should use for *Collection* configuration. Values in this array are relative to the root of your repository (i.e., `/`, not the value of `source`) and must end in the file extension `.cloudcannon.collections.yml`.
+    This key defines globs that filter which files CloudCannon should use for *Collection* configuration. Values in this array are relative to the root of your repository (i.e., `/`, not the value of `source`) and must end in the file extension `.cloudcannon.snippets_imports.yml`.
     
     This key has no default.
     
     <comp.Example>
-      In this example, each *Collection* has its own *Configuration File* in the `.cloudcannon/collections/` folder. The value of the `collections_config_from_glob` key tells CloudCannon to use all files in that folder that match the glob `*.cloudcannon.collections.yml`.
+      In this example, we have several Snippet *Configuration Files* in the `.cloudcannon/snippets/` folder. The value of the `_snippets_import_from_glob` key tells CloudCannon all files in that folder that match the glob `*.cloudcannon.snippets_import.yml`.
       
       <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
       ``````````
-      collections_config_from_glob:
-        - '/.cloudcannon/collections/*.cloudcannon.collections.yml'
+      _snippets_imports_from_glob:
+        - '/.cloudcannon/snippets/*.cloudcannon.snippets_imports.yml'
+
+      ``````````
+      </comp.MultiCodeBlock>
+      <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="/.cloudcannon/snippets/docusaurusSnippets.cloudcannon.snippets_imports.yml">
+      ``````````
+      mdx: true
+      docusaurus_mdx:
+        exclude:
+          - docusaurus_mdx_truncate
       ``````````
       </comp.MultiCodeBlock>
     </comp.Example>
