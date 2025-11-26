@@ -12,7 +12,7 @@ article_category:
  - Explanation
 article_topic:
 author_notes:
- docshots_status:
+ docshots_status: Not applicable
 ---
 It is important to find the right balance between organization and maintainability when [splitting your *Site* configuration](/documentation/articles/split-your-configuration-file/) across multiple *Configuration Files*. If you split your configuration too granularly, finding a specific configuration can be as difficult as if it were all in the same file.
 
@@ -106,6 +106,7 @@ collections_config_from_glob___1___:
 
 <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="/.cloudcannon/collections/posts.cloudcannon.collections.yml">
 ``````````
+
 posts:
   path: content/posts
   icon: event
@@ -125,6 +126,7 @@ In this example, we have several *Schema Configuration Files* in the `.cloudcann
 
 <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="/.cloudcannon/collections/posts.cloudcannon.collections.yml">
 ``````````
+
 posts:
   path: content/posts
   icon: event
@@ -202,3 +204,64 @@ _inputs:
 
 ``````````
 </comp.MultiCodeBlock>
+
+## Working with structures
+
+It is important to note the correct places to use `structures_from_glob` and `values_from_glob`.
+
+All `.cloudcannon.structures.yml` *Configuration Files* need to have the *Structure*  key at the root of the file.
+
+The following configuration is incorrect, as the `_structures` key is no the same as the `_inputs.*.options.structures` key:
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+``````````
+
+_inputs:
+  staff:
+    type: array
+    options:
+      _structures_from_glob:
+        - /.cloudcannon/structures/staffTypes.cloudcannon.structure.yml
+
+``````````
+</comp.MultiCodeBlock>
+
+Instead, use
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+``````````
+
+_structures:
+  staffTypes:
+    style: modal
+    values:
+      - label: Employee
+        value:
+          name:
+          job_description:
+          profile_picture:
+_inputs:
+  staff:
+    type: array
+    options:
+      structures: _structures.staffTypes
+
+``````````
+</comp.MultiCodeBlock>
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+``````````
+
+_inputs:
+  staff:
+    type: array
+    options:
+      structures:
+        values_from_glob: /.cloudcannon/structures/staffTypes.cloudcannon.structure-value.yml
+
+``````````
+</comp.MultiCodeBlock>
+
+&nbsp;
+
+&nbsp;
