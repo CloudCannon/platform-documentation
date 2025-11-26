@@ -14,7 +14,7 @@ article_category:
  - Explanation
 article_topic:
 author_notes:
- docshots_status:
+ docshots_status: Not applicable
 ---
 Rather than have a single [CloudCannon Configuration File](/documentation/articles/what-is-the-cloudcannon-configuration-file/), you can split your configuration across multiple files. With a split *Configuration File*, you can organize your configuration more effectively, especially for larger sites or when working with shared configurations.
 
@@ -128,6 +128,9 @@ value:
   description:
 
 ``````````
+<comp.Annotation number="2">
+  In `boardMember.cloudcannon.structure-value.yml`, there is one array item, "Board". CloudCannon will append this value after the inline values defined in the main *Configuration File*.
+</comp.Annotation>
 </comp.MultiCodeBlock>
 
 ### Multiple configurations for an object key
@@ -141,7 +144,7 @@ This means, when you define conflicting object keys inline in your main *Configu
 
 _inputs_from_glob___1___:
   - '/.cloudcannon/contact_address.cloudcannon.inputs.yml'
-_inputs:
+_inputs___2___:
   contact_address:
     type: url
     options:
@@ -152,7 +155,7 @@ _inputs:
   The main *Configuration File* references another *Configuration File*, `contact_address.cloudcannon.inputs.yml`, using `_inputs_from_glob`.
 </comp.Annotation>
 <comp.Annotation number="2">
-  In the main *Configuration File*, the value of `contact_address.options.hide_link_to_address` is `true`. This conflicts with the value defined in `contact_address.cloudcannon.inputs.yml`.
+  The main *Configuration File* defines the `contact_address` Input inline. CloudCannon will not use this configuration as it is first in the import order.
 </comp.Annotation>
 </comp.MultiCodeBlock>
 
@@ -167,7 +170,7 @@ _inputs:
 
 ``````````
 <comp.Annotation number="3">
-  In `contact_address.cloudcannon.inputs.yml`, the value of `contact_address.options.hide_link_to_address` is `false`. CloudCannon will preferentially use this configuration over the conflicting configuration defined in the main *Configuration File*.
+  The `contact_address.cloudcannon.inputs.yml` file also defines the `contact_address` Input inline. CloudCannon will use this configuration as it is last in the import order.
 </comp.Annotation>
 </comp.MultiCodeBlock>
 
@@ -182,33 +185,33 @@ collections_config_from_glob___1___:
 
 ``````````
 <comp.Annotation number="1">
-  The main *Configuration File* references two other *Configuration Files*, `posts.cloudcannon.structures.yml` and `blog.cloudcannon.structures.yml`, using `collections_config_from_glob`.
+  The main *Configuration File* references two *Configuration Files* using `collections_config_from_glob`, `posts.cloudcannon.structures.yml` and `blog.cloudcannon.structures.yml`. However, both these *Configuration Files* define the same *Collection*, `content`.
 </comp.Annotation>
 </comp.MultiCodeBlock>
 
 <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="/.cloudcannon/posts.cloudcannon.structures.yml">
 ``````````
 
-content:
+content___2___:
   path: content
-  icon___2___: wysiwyg
+  icon: wysiwyg
 
 ``````````
 <comp.Annotation number="2">
-  In `posts.cloudcannon.structures.yml`, the value of `content.icon` is `wysiwyg`. This conflicts with the value defined in `blog.cloudcannon.structures.yml`.
+  The `posts.cloudcannon.structures.yml` defines the `content` *Collection*. CloudCannon will use this configuration as it is last in the import order (`posts` is after `blog` in Unicode order).
 </comp.Annotation>
 </comp.MultiCodeBlock>
 
 <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="/.cloudcannon/blog.cloudcannon.structures.yml">
 ``````````
 
-content:
+content___3___:
   path: content
-  icon___3___: post_add
+  icon: post_add
 
 ``````````
 <comp.Annotation number="3">
-  In `blog.cloudcannon.structures.yml`, the value of `content.icon` is `post_add`. CloudCannon will preferentially use this configuration over the conflicting configuration defined in `posts.cloudcannon.structures.yml` due to the order of values under `collections_config_from_glob` in the main *Configuration File*.
+  The `blog.cloudcannon.structures.yml` also defines the `content` *Collection*. CloudCannon will not use this configuration as it is first in the import order (`posts` is after `blog` in Unicode order).
 </comp.Annotation>
 </comp.MultiCodeBlock>
 
