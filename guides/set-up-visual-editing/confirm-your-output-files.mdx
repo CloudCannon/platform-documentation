@@ -12,49 +12,43 @@ description: >-
   Learn how to see which files were output to a live URL during your Site build
   and update the URL slug for your Collections.
 ---
-The Visual Editor needs a preview of each webpage to facilitate visual editing. Webpage previews are generated at build time for each page that outputs to a live URL. During your *Site* build, CloudCannon automatically determined which files should be output to a live URL.
+The Visual Editor needs a preview of each webpage to facilitate visual editing. Whenever you complete a successful Site build, CloudCannon will automatically generate a webpage preview for every output file as it appears on the Internet.
 
-You can see your website live on your [Testing Domain](/documentation/articles/what-is-a-testing-domain/). A link to your Testing Domain will appear in your *Site Header* after a successful build.
-
-<comp.DocShot docshot_key="CloudCannon-Documentation-Site-Header-Tools-Post-Build" alt="A screenshot of the Site Header shows a link to the Testing Domain, which appears after your first successful Site build." title="The Site Header" type="ui-snippet"/>
-
-<comp.Notice info_type="info">
-  <p>If you have already configured a <a href="/documentation/articles/what-is-a-custom-domain/">Custom Domain</a>, such as by completing the <em>Host your Site on the</em> <em>Internet</em> guide, your <em>Site</em> build will also output your files to same slug on your Custom Domain.</p>
-</comp.Notice>
-
-It is important to review which files CloudCannon has output to a live URL. The next task in the *Set up Visual Editing* in-app guide asks you to confirm your output files.
+It is important to review which files your Static Site Generator (SSG) has output to a live URL. The next task in the *Set up Visual Editing* in-app guide asks you to confirm your output files.
 
 <comp.DocShot docshot_key="CloudCannon-Documentation-Site-Dashboard-Confirm-Output-Files-Task" alt="A screenshot of the Confirm your output files task shows two collections with eight output files." title="The Confirm output files task" type="ui-snippet"/>
 
-If all your files were successfully output to the correct live URLs, you can mark this task as complete. However, if CloudCannon has not determined the correct output URLs automatically, you can update your *Collection* configuration.
+## What is an output file?
 
-## What is an output URL?
+When you build your *Site*, CloudCannon will run the build command appropriate for your SSG. Your SSG will output each of your website files to a unique URL, allowing visitors to access your webpages on the Internet.
 
-An output URL is the URL your SSG outputs your files to during a *Site* build. Each output file will have a unique URL path, made of a subpath (optional) and a slug. The domain section of each URL will be the name of your [Testing Domain](/documentation/articles/what-is-a-testing-domain/), or [Custom Domain](/documentation/articles/what-is-a-custom-domain/) if you have one configured.
+Each output URL is made of a subpath (optional) and a slug. The domain section of each URL will be the name of your [Testing Domain](/documentation/articles/what-is-a-testing-domain/), or [Custom Domain](/documentation/articles/what-is-a-custom-domain/) if you have one configured.
 
 <comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/hosting/what-is-web-hosting/2025-05/CloudCannon-Documentation-URL-Structure-Diagram.png" alt="A diagram of a URL shows labels for protocol, subdomain, domain, top-level domain, subpath, slug, and path." title="The structure of a URL" type="photo"/>
 
-When you build your *Site*, CloudCannon will automatically determine the unique URL path to which your SSG output each file. If a *Collection* does not have an output URL, CloudCannon cannot output webpages or generate a preview for the Visual Editor.
+Once your SSG has built your *Site*, CloudCannon will generate a webpage preview for each *Collection* item and automatically match webpage previews with each file by determining the likely output URL for each file. These webpage previews are the basis of visual editing.
 
-<comp.Notice info_type="info">
-  <p>CloudCannon will look for output files from every <em>Collection</em> unless the <code>disable_url</code> key for that <em>Collection</em> is set to <code>true</code>.</p>
-</comp.Notice>
+Try opening some of your output files in the Visual Editor. If all your files open correctly, you can mark this task as complete and move on to the next step of this guide.
 
-## Update your output URLs
+However, if a file will not open in the Visual Editor or opens to an incorrect webpage preview, it is most likely because CloudCannon has not determined the correct output URL for matching webpage previews to your *Collection*. You can fix this issue by updating the output URL CloudCannon uses to match a webpage preview to a file.
 
-If CloudCannon has incorrectly determined your output URL, your webpages will not appear in the Visual Editor. To help CloudCannon find your output files, you can specify the output URL for each *Collection* using a template string. A template string is made of plain text and placeholder values, allowing you to use structured data from your files in the *Collection*.
+## Update the output URL for a webpage preview
 
-Click the *Configuration Mode switch* on the right of the *Site Header* to turn it on. Purple *Edit configuration* buttons will appear in several places across the CloudCannon UI, including the *Edit Advanced* in the top right of the *Collection Browser*.
+To help CloudCannon match webpage previews to your output files, you can specify the output URL for each *Collection* using a template string. A template string is made of plain text and placeholder values, allowing you to use structured data from your files in the *Collection*.
+
+Navigate to one of the *Collections* that does not correctly open in the Visual Editor and click the *Configuration Mode switch* on the right of the *Site Header* to turn it on. Purple *Edit configuration* buttons will appear in several places across the CloudCannon UI, including the *Edit Advanced* in the top right of the *Collection Browser*.
 
 Click on the *Edit Advanced* button to open the data panel.
 
 <comp.DocShot docshot_key="CloudCannon-Documentation-Collection-Browser-Configuration-Mode-Edit-Advanced-URL" alt="A screenshot of the Collection Browser shows the Edit Advanced data panel open with a text field for URL configuration." title="The Collection Browser with Edit Advanced panel" type="screenshot"/>
 
-Find the *URL* text field in the *Edit Advanced* data panel. Here, you can specify what live URL files in a *Collection* should output to.
+Find the *URL* text field in the *Edit Advanced* data panel. Here, you can specify which output URL CloudCannon should use to match webpage previews to the *Collection* using a template string.
 
-By default, CloudCannon uses `/collection/[slug]/`, with the name of the *Collection* as the subpath (unless it is the "Pages" *Collection*).
+Template strings allow you to use plain text, fixed or data placeholders, and filters to modify the value of data placeholders to create the correct URL format.
 
-You can customise your template string using the following fixed placeholders:
+### Fixed placeholders
+
+The following fixed placeholders are available for your output URL template string:
 
 * `[filename]` — Populated by the original filename including the file extension.
 * `[slug]` — Populated by the original filename excluding the file extension. If the filename is "index", this will result in an empty string.
@@ -66,12 +60,31 @@ You can customise your template string using the following fixed placeholders:
 * `[collection]` — Populated by the key for the *Collection* to which the file belongs.
 * `[ext]` — Populated by the last file extension in the original file path.
 
-You can reference any front matter field from your file in your output URL template string by using the key name in curly brackets (e.g., `{key}`), and apply filters using the `|` character after your front matter key name and then the name of the filter.
+Let's go through an example.
 
-For a complete list of filters are available for data placeholders in your output URL template string, please read our documentation on [template strings](/documentation/articles/configure-your-template-strings/).
+The `url` template string `/[relative_bath_path]/[slug]/` for our "Pages" *Collection* will resolve to the following output URLs:
 
-Once you have updated the template string in the *URL* text field, save the changes to your *Configuration File*. CloudCannon will rebuild your *Site* and generate new previews for the Visual Editor.
+* The file `/pages/index.md` becomes the output URL `/` (e.g., a Home landing page).
+* The file `/pages/about.md` becomes the output URL `/about`.
+* The file `/pages/contact/index.md` becomes the output URL `/contact/`.
+* The file `/pages/contact/book-an-appointment.md` becomes the output URL `/contact/book-an-appointment`
 
-When you are happy with the output files from your website, you can mark the *Confirm your output file* task as complete.
+### Data placeholders
+
+You can reference any front matter field from your file in your output URL template string by using the key name in curly brackets (e.g., `{key}`).
+
+You can also apply filters to your data placeholders by using the `|` character after your front matter key name, followed by the name of the filter.
+
+Let's go through an example.
+
+The `url` template string `/news/{date|year}/{date|month}-{date|day}_{title|slugify}/` for our "News" *Collection* will resolve to the following output URLs:
+
+* The file `/news/our-next-feature.md` with the front matter fields `title: Our next feature!` and `date:05/11/2026` becomes the output URL `/2026/05-11_our-next-feature`.
+
+For a complete list of filters available for data placeholders in your output URL template string, please read our documentation on [template strings](/documentation/articles/configure-your-template-strings/).
+
+Once you have updated the template string in the *URL* text field, save the changes to your *Configuration File*. CloudCannon will automatically update which webpage previews it uses for that *Collection*.
+
+When you are happy that all your output files open in the Visual Editor successfully, you can mark the *Confirm your output files* task as complete.
 
 In the next step of this guide, we'll learn about *Editable Regions*, including their types and best practices for implementing them.
