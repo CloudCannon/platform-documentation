@@ -9,177 +9,207 @@ published: true
 image: >-
   https://cc-dam.imgix.net/documentation/images/guides/getting-started/guide-thumbnails/CloudCannon-Getting-Started-Thumbnail-Universal.png
 description: >-
-  Learn how to define Array and Array Item Editable Regions to add, delete, and
-  reorder array items in structured data.
+  Learn how to define Array, Array Item, and Component Editable Regions to add,
+  delete, and reorder array items in a complex array.
 ---
-Some webpages, or webpage components, are constructed from arrays. An array is an ordered list of data, where data is grouped into array items. An array could be simple, where each item has the same structure (e.g., a testimonial component), or more complex, where each item has a different structure (e.g., a page with various components). You can use Array and Array Item *Editable Regions* to enable your team to visually edit arrays, including adding, deleting, and reordering items.
+We've covered how to use Array, Array Item, and Component *Editable Regions* in the previous steps of this guide. We can use these *Editable Regions* in conjunction to enable visual editing for a complex array.
 
-Array content is defined using structured data keys in the front matter of hybrid files (e.g., `.mdx`) or in data files (e.g., `.yml`) and referenced by templating in a layout. In both these cases, you should use Array and Array Item *Editable Regions*; however, there are some extra steps for complex arrays. Let's cover how to define these.
+Array items in complex arrays can have different structured data keys. Complex arrays are often used to create a page-building experience, where each array item represents a block of content on your page. To enable visual editing for a complex array, including adding, deleting, and reordering items in the Visual Editor, we need to add Array, Array Item, and Component *Editable Regions*.
 
 <comp.Notice info_type="info">
-  <p><strong>Nested text or image values</strong></p><p>To avoid <code>data-prop</code> misconfiguration errors, it is best practice to define your <em>Editable Regions</em> from the root of your file first (i.e., from parent elements to child elements). If you want to edit text or image values in an array using the Visual Editor, you should define your Array and Array Item <em>Editable Regions</em> on the parent element before Text and Image.</p>
+  <p><strong>Nested text or image values in an array</strong></p><p>To avoid <code>data-prop</code> misconfiguration errors, it is best practice to define your <em>Editable Regions</em> from the root of your file first (i.e., from parent elements to child elements). If you want to edit text or image values in an array using the Visual Editor, you should define your Array and Array Item <em>Editable Regions</em> on the parent element before Text and Image.</p>
 </comp.Notice>
 
-## Simple arrays
+## Arrays with different array items
 
-A simple array is one where all the array items have the same structure (i.e., each item has the same fields).
+Just like simple arrays, complex array content is defined using structured data keys in the front matter of hybrid files (e.g., `.mdx`) or in data files (e.g., `.yml`) and referenced by templating in a layout file. Simple arrays have the same structured data keys for every array item.
 
 Let's take a look at an example.
 
-Our "Quotes" page is generated using an HTML layout and populated by a data file containing testimonial content. This file contains our `testimonials` array, with structured data keys for `image`, `image_alt`, `name`, `job_title`, and `quote` in each array item.
+Our website has an "About" page, where we display information about our company. We use a complex array to build this page, allowing us to add several different kinds of content blocks. The data for these content blocks is stored in the front matter of a Markdown file using array items with different structured data keys.
 
-<comp.CodeBlock language="Markdown" source="testimonials.md">
+Here is our content file, `about.md`, containing the `contentBlocks` array.
+
+<comp.CodeBlock language="Markdown" source="about.md">
 ``````````
 
 ---
-layout: ../layouts/TestimonialsLayout.astro
-testimonials:
-  - image: ../../assets/placeholder-1.jpg
-    image_alt: Profile photo of D. Gale
-    name: D. Gale
-    job_title: CEO at Yellow Brick Industries
-    quote: >-
-      "In pretium libero sed velit posuere sagittis."
-  - image: ../../assets/placeholder-2.jpg
-    image_alt: Profile photo of S. Crow
-    name: S. Crow
-    job_title: CBO at Yellow Brick Industries
-    quote: >-
-      "Mauris at augue quis orci egestas eu in nulla."
-  - image: ../../assets/placeholder-3.jpg
-    image_alt: Profile photo of T. Man
-    name: T. Man
-    job_title: CHO at Yellow Brick Industries
-    quote: >-
-      "Nunc ut sem vitae tortor volutpat varius."
-  - image: ../../assets/placeholder-4.jpg
-    image_alt: Profile photo of C. Lion
-    name: C. Lion
-    job_title: CCO at Yellow Brick Industries
-    quote: >-
-      "Aenean pharetra orci ac tincidunt lobortis."
+layout: ../layouts/AboutLayout.astro
+contentBlocks:
+  - _name: HeroBlock
+    title: We're on a mission
+    description: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce lobortis mi sed est dapibus, sit amet consectetur quam euismod. Cras pretium quam vitae malesuada placerat. Curabitur ac sagittis ligula. Nunc sed ultrices leo. Vestibulum malesuada lobortis nisl, a feugiat est viverra et.
+  - _name: StatsBlock
+    stats:
+      - figure: $200m
+        text: Venture capital raised
+      - figure: "2016"
+        text: Established in
+      - figure: 40+
+        text: Amazing team members
+      - figure: 44325+
+        text: Active users and growing
+  - _name: ContactBlock
+    text: Want to get in contact with us?
+    button: Click here
+    image: https://preview.astro.new/blog/_astro/blog-placeholder-about.BtEdEmGp_1cKsnD.webp
 ---
 
 ``````````
 </comp.CodeBlock>
 
-Here is an excerpt from our Testimonial Layout file. This section loops over all the items in the `testimonials` array, and populates the layout using the values.
+Content from each array item in the `contentBlocks` array populates a layout specific to that block. Here are the layout files we use for our three blocks: Hero, Stats, and Contact.
 
-<comp.CodeBlock language="Astro" source="TestimonialsLayout.astro">
+<comp.CodeBlock language="Astro" source="HeroBlock.astro">
 ``````````
 
 ---
-const { testimonials } = Astro.props.frontmatter;
+const { title, description } = Astro.props;
 ---
 
-<ul>
+<h2>{title}</h2>
+<p>{description}</p>
+
+``````````
+</comp.CodeBlock>
+
+<comp.CodeBlock language="Astro" source="StatsBlock.astro">
+``````````
+
+---
+const { stats } = Astro.props;
+---
+
+<div>
   {
-    testimonials.map((testimonial) => (
-      <li>
-        {testimonial.image && (
-          <img
-            src={testimonial.image}
-            alt={testimonial.image_alt}
-          /> /*1*/
-        )}
-        <h4>{testimonial.name}</h4> /*2*/
-        <p>{testimonial.job_title}</p> /*3*/
-        <p>{testimonial.quote}</p> /*4*/
-      </li>
-    ))
+    stats.map(({ figure, text }) => {
+      return (
+        <div>
+          <p>{figure}</p>
+          <p>{text}</p>
+        </div>
+      );
+    })
   }
-</ul>
+</div>
 
 ``````````
-<comp.Annotation number="1">
-  This `<img>` element contains image source and alt text attributes. The `src` and `alt` attributes are set to the template `{testimonial.image}` and `{testimonial.image_alt}` respectively.
-</comp.Annotation>
-<comp.Annotation number="2">
-  This `<h4>` element surrounds the template value `{testimonial.name}`.
-</comp.Annotation>
-<comp.Annotation number="3">
-  This `<p>` element surrounds the template value `{testimonial.job_title}`.
-</comp.Annotation>
-<comp.Annotation number="4">
-  This `<p>` element surrounds the template value `{testimonial.quote}`.
-</comp.Annotation>
+</comp.CodeBlock>
+
+<comp.CodeBlock language="Astro" source="ContactBlock.astro">
+``````````
+
+---
+const { text, button, image } = Astro.props;
+---
+
+<img src={image} />
+<p>{text}</p>
+<button type="button">{button}</button>
+
+``````````
+</comp.CodeBlock>
+
+Finally, our page layout file, `AboutLayout.astro`, loops over all the items in the `contentBlocks` array, finding the appropriate layout for each item and populating that layout using values from `about.md`. Here is an excerpt from our About layout file.
+
+<comp.CodeBlock language="Astro" source="AboutLayout.astro">
+``````````
+
+---
+const components = {};
+const componentImports = import.meta.glob("../components/**/*.astro", {
+  eager: true,
+});
+Object.entries(componentImports).forEach(([path, obj]) => {
+  const name = path.replace("../components/", "").split(".")[0];
+  components[name] = obj.default;
+});
+
+const { contentBlocks } = Astro.props.frontmatter;
+---
+
+<main>
+  {
+    contentBlocks.map((block) => {
+      const Component = components[block._name];
+      return (
+        <section>
+          <Component {...block} />
+        </section>
+      );
+    })
+  }
+</main>
+
+``````````
 </comp.CodeBlock>
 
 Together, these files output a webpage that looks like this:
 
-<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/guides/configure-visual-editing/2025-11/CloudCannon-Documentation-Visual-Editing-Guide-Quotes-Page.png" alt="A screenshot of the quotes page on our Astro website shows four items, each with an image, title, author, and quote." title="The quotes page" type="screenshot"/>
+<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/guides/configure-visual-editing/2025-11/CloudCannon-Documentation-Visual-Editing-Guide-About-Page.png" alt="A screenshot of the About page on our Astro website shows header content, some statistics, an image, and a button." title="The about page" type="screenshot"/>
 
-In this example, the `<ul>` element wraps our array, with its contents looping over every array item stored under the `testimonials` key. We can add Array and Array Item *Editable Region* to our layout file to enable adding, deleting, and reordering of items using the Visual Editor.
+To enable visual editing for this complex array, we can add Array, Array Item, and Component *Editable Regions*. Let's start with Component.
 
-Array and Array Item *Editable Regions* always work together, one defining the boundary of the array, and the other each item within the array. You must always have both.
+Just like the [previous step of this guide](/documentation/guides/set-up-visual-editing/visually-edit-components/), we need to install CloudCannon's *Editable Regions* NPM package and update our Astro config file (if applicable). Next, we can register each of our content blocks as a component.
 
-To define an Array *Editable Region*, we can add the `data-editable` and `data-prop` HTML attributes to the `<ul>` DOM element. The `data-editable` HTML attribute defines which type of *Editable Region* you want to use which, in this case, is `array`. Alternatively, we could choose to wrap the array templating in the equivalent web component `<editable-array>`, however that is not as convenient as adding attributes to existing elements. Our Array *Editable Region* also needs a `data-prop` to define where our array data is stored which, in this case, will be the `testimonials` front matter key.
-
-For the Array Item *Editable Region*, we can add the `data-editable="array-item"` HTML attribute to the `<li>` DOM element containing all our repeated content, or wrap the `<li>` in the equivalent web component `<editable-array-item>`.
-
-<comp.Notice info_type="info">
-  <p><strong>Where should the Array and Array Item </strong><em><strong>Editable Regions</strong></em> <strong>go?</strong></p><p>The Array <em>Editable Region </em>attribute or web component should be the immediate parent element of your array templating. The Array Item <em>Editable Region</em> attribute or web component should be the first child element of your array templating. This way, Array and Array Item should flank the templating for looping over your array.</p><p>Try to avoid any nested elements between them; they should be as close together as possible, regardless of whether you use HTML attributes, web components, or both.</p>
-</comp.Notice>
-
-If we also want to visually edit the text and images inside each array item, we can define three Text *Editable Regions* for the name, job title, and quote, and an Image *Editable Region* for our image and alt text.
-
-Here's what our Testimonial Layout code should look like:
-
-<comp.CodeBlock language="Astro" source="TestimonialsLayout.astro">
+<comp.CodeBlock language="JavaScript" source="src/scripts/register-components.js">
 ``````````
 
----
-const { testimonials } = Astro.props.frontmatter;
----
+import { registerAstroComponent } from '@cloudcannon/editable-regions/astro';
+import '@cloudcannon/editable-regions/astro-react-renderer'; /*1*/
+import HeroBlock from '../components/HeroBlock.astro';
+import StatsBlock from '../components/StatsBlock.astro';
+import ContactBlock from '../components/ContactBlock.astro';
 
-<ul data-editable="array" data-prop="testimonials"> /*1*/
-  {
-    testimonials.map((testimonial) => (
-      <li data-editable="array-item">
-        {testimonial.image && (
-          <img
-            data-editable="image"
-            data-prop-src="image"
-            data-prop-alt="image_alt"
-            src={testimonial.image}
-            alt={testimonial.image_alt}
-          /> /*2*/
-        )}
-        <h4 data-editable="text" data-prop="name">{testimonial.name}</h4> /*3*/
-        <p data-editable="text" data-prop="job_title">{testimonial.job_title}</p> /*4*/
-        <p data-editable="text" data-prop="quote">{testimonial.quote}</p> /*5*/
-      </li>
-    ))
-  }
-</ul>
+// Register your components
+registerAstroComponent('HeroBlock', HeroBlock);
+registerAstroComponent('StatsBlock', StatsBlock);
+registerAstroComponent('ContactBlock', ContactBlock);
 
 ``````````
 <comp.Annotation number="1">
-  The `data-editable` attribute defines what kind of data this element contains, and the `data-prop` attribute defines the path to the data we want to edit. In this case, we want an Array *Editable Region*, so the value of `data-editable` is `array`, and we want to edit the `testimonials` structured data key in the file front matter.
-</comp.Annotation>
-<comp.Annotation number="2">
-  This `<img>` element contains `data-editable="image"`, `data-prop-src="image"`, and `data-prop-alt="image_alt"` to define an Image *Editable Region*.
-</comp.Annotation>
-<comp.Annotation number="3">
-  This `<h4>` element contains `data-editable="text"` and `data-prop="name"` to define a Text *Editable Region*.
-</comp.Annotation>
-<comp.Annotation number="4">
-  This `<p>` element contains `data-editable="text"` and `data-prop="job_title"` to define a Text *Editable Region*.
-</comp.Annotation>
-<comp.Annotation number="5">
-  This `<p>` element contains `data-editable="text"` and `data-prop="quote"` to define a Text *Editable Region*.
+  This import is only necessary if you use React components nested inside your Astro components.
 </comp.Annotation>
 </comp.CodeBlock>
 
-Once we save and rebuild our *Site*, CloudCannon will show a yellow *Editable Regions* box around each array item on the Testimonials page, and around each image and text field.
+If you use `.tsx` or `.jsx` component files, you will need to import `{ registerReactComponent }` in your registration script. Here's an example for the CTA component.
 
-<comp.DocShot docshot_key="CloudCannon-Documentation-Visual-Editor-Simple-Array-Editable-Region" alt="A screenshot of the Visual Editor shows yellow Editable Region boxes around the array items, text, and images on the Quotes webpage." title="Array Editable Region in the Visual Editor" type="screenshot"/>
+<comp.CodeBlock language="JavaScript" source="src/scripts/register-components.js">
+``````````
 
-When you hover an array item, CloudCannon will show a small toolbar in the top right, containing an *Edit* button and a *Drag* handler. Clicking the *Edit* button will open a data panel containing your array item fields. Clicking the *Drag* handler will open a dropdown with options to move an array item one position to the left or right, and to delete the item, while clicking and holding the *Drag* handler allows you to visually move an array item to any position in the array.
+import { registerReactComponent } from '@cloudcannon/editable-regions/react';
+import MyComponent from './MyComponent.jsx';
 
-<comp.DocsVideo url="https://player.vimeo.com/progressive_redirect/playback/1127384254/rendition/1080p/file.mp4?loc=external&signature=2a13816e5104cb323e411f0d83f84fe060f24975a7dc81fe5fe80155591af1a7" title="Array Editable Regions in the Visual Editor" autoplay={true} loop={true}/>
+registerReactComponent('my_component', MyComponent);
 
-## Complex arrays or page building
+``````````
+</comp.CodeBlock>
+
+Registering your components tells CloudCannon that those components should be bundled for client side use in the Visual Editor.
+
+&nbsp;
+
+&nbsp;
+
+&nbsp;
+
+---
+
+To enable visual editing for this array, we can add Array and Array Item *Editable Regions* to our layout file. Array *Editable Regions* define the boundary of the array and Array Item *Editable Regions* define each array item. Array and Array Item *Editable Regions* work together, so we must always have both.
+
+The **`<ul>`** element wraps the array in our layout file, with its contents looping over every array item stored under the **`testimonials`** key. To define an Array *Editable Region*, let's add the **`data-editable`** and **`data-prop`** HTML attributes to the **`<ul>`** DOM element. The **`data-editable`** HTML attribute defines which type of *Editable Region* you want to use which, in this case, is **`array`**. Alternatively, we could choose to wrap the array templating in the equivalent web component **`<editable-array>`**, however that is not as convenient as adding attributes to existing elements. Our Array *Editable Region* also needs a **`data-prop`** to define where our array data is stored which, in this case, will be the **`testimonials`** front matter key.
+
+The **`<li>`** element wraps each array item in our layout file, containing the HTML structure for each testimonial's content. To define an Array Item *Editable Region*, let's add the **`data-editable`** HTML attributes to the **`<li>`** DOM element. The value of **`data-editable`** HTML attribute should be **`array-item`**.
+
+**<br>**
+
+&nbsp;
+
+&nbsp;
+
+&nbsp;
+
+---
 
 A complex array is one where the array items may not have the same structure. A common use case for complex arrays is page building, where you define the structure for several "content blocks" (e.g., a hero banner, video, image gallery, call-to-action) and add, remove, or reorder them within an array to build the content for your page.
 
@@ -278,7 +308,7 @@ const componentImports = import.meta.glob("../components/**/*.astro", {
   eager: true,
 });
 Object.entries(componentImports).forEach(([path, obj]) => {
-  const name = path.replace("../components/", "").split(".")[0];  
+  const name = path.replace("../components/", "").split(".")[0];
   components[name] = obj.default;
 });
 
@@ -322,7 +352,7 @@ const componentImports = import.meta.glob("../components/**/*.astro", {
   eager: true,
 });
 Object.entries(componentImports).forEach(([path, obj]) => {
-  const name = path.replace("../components/", "").split(".")[0];  
+  const name = path.replace("../components/", "").split(".")[0];
   components[name] = obj.default;
 });
 
