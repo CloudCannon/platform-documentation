@@ -143,6 +143,11 @@ site.use(sitemap({
     }
 }));
 
+site.loadPages([".md"], (page) => {
+  if (page.src.path.startsWith("user/glossary/")) {
+    page.data.collection = "glossary";
+  }
+});
 
 // JSX doesn't like to output some alpine attributes,
 // so we write them with an `alpine` prefix and re-map them here.
@@ -484,6 +489,12 @@ site.filter("render_common", (file: string, data: object = {}) => {
     const content_id = injectedSections.push(site.renderer.render(body, data, file));
 
     return content_id - 1;
+})
+
+site.filter("get_glossary_term", (file: string) => {
+    const file_content = Deno.readTextFileSync(`${file.slice(1)}`);
+    let yml = jsYaml.load(file_content)
+    return yml.term_description;
 })
 
 let changelogsData = {};
