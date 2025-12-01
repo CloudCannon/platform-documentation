@@ -28,11 +28,12 @@ deno run --allow-read --allow-write migrate-to-new-docs.ts
 - The script will preserve `new_changelogs/_data.js` and `new_changelogs/year.page.js` during cleanup
 
 **What it does:**
-- Cleans and recreates target directories (`developer/articles/`, `user/articles/`, `unused/`, `new_changelogs/`)
+- Ensures target directories exist without removing existing files (`developer/articles/`, `user/articles/`, `unused/`, `new_changelogs/`)
+- Preserves all existing files in git state (skips files that already exist)
 - Transforms front matter (removes `nav_title`, `published`; moves fields to `details` object; handles docshots)
 - Organizes changelogs by year and removes `type` field from front matter
-- Generates `.cloudcannon/routing.json` with 301 redirects for all migrated articles
-- Preserves existing routing configuration and creates backups
+- Generates `.cloudcannon/new-routing.json` with 301 redirects for all migrated articles
+- Preserves original routing configuration unchanged
 - Provides detailed progress logging and final migration summary
 
 **Output:**

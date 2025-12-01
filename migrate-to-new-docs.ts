@@ -47,7 +47,7 @@ async function createLookupTable(): Promise<Map<string, string>> {
 }
 
 async function cleanAndCreateDirectories(): Promise<void> {
-  console.log("🧹 Cleaning and creating directories...");
+  console.log("🧹 Ensuring directories exist (preserving existing files)...");
   
   const regularDirectories = [
     "developer/articles",
@@ -56,73 +56,43 @@ async function cleanAndCreateDirectories(): Promise<void> {
     "unused"
   ];
   
-  // Clean regular directories completely
+  // Ensure directories exist without removing existing files
   for (const dir of regularDirectories) {
-    try {
-      // Remove existing directory if it exists
-      await Deno.remove(dir, { recursive: true });
-    } catch (error) {
-      if (!(error instanceof Deno.errors.NotFound)) {
-        console.warn(`⚠️  Warning removing ${dir}:`, (error as Error).message);
-      }
-    }
-    
-    // Create fresh directory
     await ensureDir(dir);
-    console.log(`📁 Created directory: ${dir}`);
+    console.log(`📁 Ensured directory exists: ${dir}`);
   }
   
-  // Handle new_changelogs specially to preserve _data.js
-  await cleanChangelogsDirectory();
+  // Handle new_changelogs specially to preserve _data.js and year.page.js
+  await ensureChangelogsDirectory();
 }
 
-async function cleanChangelogsDirectory(): Promise<void> {
+async function ensureChangelogsDirectory(): Promise<void> {
   const changelogsDir = "new_changelogs";
+  
+  // Ensure directory exists without removing existing files
+  await ensureDir(changelogsDir);
+  console.log(`📁 Ensured directory exists: ${changelogsDir}`);
+  
+  // Check if important files exist and report their status
   const dataFile = join(changelogsDir, "_data.js");
   const yearPageFile = join(changelogsDir, "year.page.js");
   
-  // Check if files exist and back them up temporarily
-  let dataFileContent: string | null = null;
-  let yearPageFileContent: string | null = null;
-  
   try {
-    dataFileContent = await Deno.readTextFile(dataFile);
+    await Deno.stat(dataFile);
+    console.log(`💾 Preserved existing: ${dataFile}`);
   } catch (error) {
-    if (!(error instanceof Deno.errors.NotFound)) {
-      console.warn(`⚠️  Warning reading ${dataFile}:`, (error as Error).message);
+    if (error instanceof Deno.errors.NotFound) {
+      console.log(`📄 File not found (will be created if needed): ${dataFile}`);
     }
   }
   
   try {
-    yearPageFileContent = await Deno.readTextFile(yearPageFile);
+    await Deno.stat(yearPageFile);
+    console.log(`💾 Preserved existing: ${yearPageFile}`);
   } catch (error) {
-    if (!(error instanceof Deno.errors.NotFound)) {
-      console.warn(`⚠️  Warning reading ${yearPageFile}:`, (error as Error).message);
+    if (error instanceof Deno.errors.NotFound) {
+      console.log(`📄 File not found (will be created if needed): ${yearPageFile}`);
     }
-  }
-  
-  // Remove the entire directory
-  try {
-    await Deno.remove(changelogsDir, { recursive: true });
-  } catch (error) {
-    if (!(error instanceof Deno.errors.NotFound)) {
-      console.warn(`⚠️  Warning removing ${changelogsDir}:`, (error as Error).message);
-    }
-  }
-  
-  // Create fresh directory
-  await ensureDir(changelogsDir);
-  console.log(`📁 Created directory: ${changelogsDir}`);
-  
-  // Restore files if they existed
-  if (dataFileContent !== null) {
-    await Deno.writeTextFile(dataFile, dataFileContent);
-    console.log(`💾 Preserved: ${dataFile}`);
-  }
-  
-  if (yearPageFileContent !== null) {
-    await Deno.writeTextFile(yearPageFile, yearPageFileContent);
-    console.log(`💾 Preserved: ${yearPageFile}`);
   }
 }
 
@@ -146,12 +116,26 @@ async function getArticleFiles(): Promise<string[]> {
   return articles;
 }
 
-async function copyFile(source: string, destination: string): Promise<void> {
+async function copyFile(source: string, destination: string): Promise<boolean> {
   try {
-    await Deno.copyFile(source, destination);
+    // Check if destination already exists
+    await Deno.stat(destination);
+    console.log(`⏭️  Skipped (already exists): ${destination}`);
+    return false; // File was skipped
   } catch (error) {
-    console.error(`❌ Error copying ${source} to ${destination}:`, error);
-    throw error;
+    if (error instanceof Deno.errors.NotFound) {
+      // File doesn't exist, proceed with copy
+      try {
+        await Deno.copyFile(source, destination);
+        return true; // File was copied
+      } catch (copyError) {
+        console.error(`❌ Error copying ${source} to ${destination}:`, copyError);
+        throw copyError;
+      }
+    } else {
+      console.error(`❌ Error checking ${destination}:`, error);
+      throw error;
+    }
   }
 }
 
@@ -199,13 +183,15 @@ async function migrateArticles(): Promise<{ developerCount: number, userCount: n
       }
     }
     
-    await copyFile(sourcePath, targetPath);
-    console.log(`📋 ${articleFile} -> ${targetPath}`);
-    
-    // Transform front matter for articles (not unused files)
-    if (destination === "Developer Articles" || destination === "User Articles") {
-      console.log(`🔄 Transforming: ${articleFile}`);
-      await transformArticleFrontMatter(targetPath);
+    const wasCopied = await copyFile(sourcePath, targetPath);
+    if (wasCopied) {
+      console.log(`📋 ${articleFile} -> ${targetPath}`);
+      
+      // Transform front matter for articles (not unused files)
+      if (destination === "Developer Articles" || destination === "User Articles") {
+        console.log(`🔄 Transforming: ${articleFile}`);
+        await transformArticleFrontMatter(targetPath);
+      }
     }
   }
   
@@ -401,9 +387,21 @@ async function migrateGuides(): Promise<{ guideCount: number }> {
         const sourceDir = join("guides", entry.name);
         const targetGuideDir = join(targetDir, entry.name);
         
-        console.log(`📋 Copying guide: ${entry.name}`);
-        await copy(sourceDir, targetGuideDir, { overwrite: true });
-        guideCount++;
+        // Check if guide directory already exists
+        try {
+          await Deno.stat(targetGuideDir);
+          console.log(`⏭️  Skipped guide (already exists): ${entry.name}`);
+          continue; // Skip this guide entirely
+        } catch (error) {
+          if (error instanceof Deno.errors.NotFound) {
+            // Directory doesn't exist, proceed with copy
+            console.log(`📋 Copying guide: ${entry.name}`);
+            await copy(sourceDir, targetGuideDir, { overwrite: false });
+            guideCount++;
+          } else {
+            throw error;
+          }
+        }
         
         // Transform all .mdx files in the guide
         for await (const file of Deno.readDir(targetGuideDir)) {
@@ -502,14 +500,18 @@ async function migrateChangelogs(): Promise<{ migratedCount: number, skippedCoun
         const targetPath = join(yearDir, newFilename);
         
         // Copy the file
-        await copyFile(sourcePath, targetPath);
+        const wasCopied = await copyFile(sourcePath, targetPath);
         
-        // Transform front matter to remove type field
-        console.log(`🔄 Transforming: ${newFilename}`);
-        await transformChangelogFrontMatter(targetPath);
-        
-        console.log(`📋 ${entry.name} -> ${year}/${newFilename}`);
-        migratedCount++;
+        if (wasCopied) {
+          // Transform front matter to remove type field
+          console.log(`🔄 Transforming: ${newFilename}`);
+          await transformChangelogFrontMatter(targetPath);
+          
+          console.log(`📋 ${entry.name} -> ${year}/${newFilename}`);
+          migratedCount++;
+        } else {
+          skippedCount++;
+        }
       }
     }
   } catch (error) {
@@ -655,3 +657,4 @@ if (import.meta.main) {
     Deno.exit(1);
   }
 }
+
