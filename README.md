@@ -8,6 +8,36 @@ Getting things prepared:
 
 Deno doesn't have a specific step for installing dependencies, instead the first run will download and cache what is needed.
 
+## Migration Script
+
+This repository includes a migration script (`migrate-to-new-docs.ts`) that reorganizes documentation content from the legacy structure to the new structure. The script handles:
+
+- **Articles**: Migrates articles from `articles/` to `developer/articles/` and `user/articles/` based on CSV mapping
+- **Guides**: Moves guides from `guides/` to `developer/guides/` with front matter transformations
+- **Changelogs**: Reorganizes changelogs from `changelogs/` to `new_changelogs/` by year with filename cleanup
+
+### Running the Migration
+
+```bash
+# Run the complete migration (articles, guides, and changelogs)
+deno run --allow-read --allow-write migrate-to-new-docs.ts
+```
+
+**Prerequisites:**
+- Ensure `migration-destinations.csv` exists in the project root
+- The script will preserve `new_changelogs/_data.js` and `new_changelogs/year.page.js` during cleanup
+
+**What it does:**
+- Cleans and recreates target directories (`developer/articles/`, `user/articles/`, `unused/`, `new_changelogs/`)
+- Transforms front matter (removes `nav_title`, `published`; moves fields to `details` object; handles docshots)
+- Organizes changelogs by year and removes `type` field from front matter
+- Generates `.cloudcannon/routing.json` with 301 redirects for all migrated articles
+- Preserves existing routing configuration and creates backups
+- Provides detailed progress logging and final migration summary
+
+**Output:**
+The script will show progress for each migration phase and provide a comprehensive summary at the end showing how many files were migrated to each destination.
+
 ## Directory Layout
 
 - `_components`

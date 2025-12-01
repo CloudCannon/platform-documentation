@@ -79,14 +79,25 @@ async function cleanAndCreateDirectories(): Promise<void> {
 async function cleanChangelogsDirectory(): Promise<void> {
   const changelogsDir = "new_changelogs";
   const dataFile = join(changelogsDir, "_data.js");
+  const yearPageFile = join(changelogsDir, "year.page.js");
   
-  // Check if _data.js exists and back it up temporarily
+  // Check if files exist and back them up temporarily
   let dataFileContent: string | null = null;
+  let yearPageFileContent: string | null = null;
+  
   try {
     dataFileContent = await Deno.readTextFile(dataFile);
   } catch (error) {
     if (!(error instanceof Deno.errors.NotFound)) {
       console.warn(`⚠️  Warning reading ${dataFile}:`, (error as Error).message);
+    }
+  }
+  
+  try {
+    yearPageFileContent = await Deno.readTextFile(yearPageFile);
+  } catch (error) {
+    if (!(error instanceof Deno.errors.NotFound)) {
+      console.warn(`⚠️  Warning reading ${yearPageFile}:`, (error as Error).message);
     }
   }
   
@@ -103,10 +114,15 @@ async function cleanChangelogsDirectory(): Promise<void> {
   await ensureDir(changelogsDir);
   console.log(`📁 Created directory: ${changelogsDir}`);
   
-  // Restore _data.js if it existed
+  // Restore files if they existed
   if (dataFileContent !== null) {
     await Deno.writeTextFile(dataFile, dataFileContent);
     console.log(`💾 Preserved: ${dataFile}`);
+  }
+  
+  if (yearPageFileContent !== null) {
+    await Deno.writeTextFile(yearPageFile, yearPageFileContent);
+    console.log(`💾 Preserved: ${yearPageFile}`);
   }
 }
 
@@ -152,26 +168,35 @@ async function migrateArticles(): Promise<{ developerCount: number, userCount: n
   
   for (const articleFile of articles) {
     const filename = basename(articleFile, ".mdx");
-    const destination = lookup.get(filename);
     const sourcePath = join("articles", articleFile);
     
     let targetPath: string;
+    let destination: string;
     
-    switch (destination) {
-      case "Developer Articles":
-        targetPath = join("developer/articles", articleFile);
-        developerCount++;
-        break;
-        
-      case "User Articles":
-        targetPath = join("user/articles", articleFile);
-        userCount++;
-        break;
-        
-      default:
-        targetPath = join("unused", articleFile);
-        unusedCount++;
-        break;
+    // Special handling for articles/index.mdx - always goes to developer/articles/
+    if (articleFile === "index.mdx") {
+      targetPath = join("developer/articles", articleFile);
+      destination = "Developer Articles";
+      developerCount++;
+    } else {
+      destination = lookup.get(filename) || "Unknown";
+      
+      switch (destination) {
+        case "Developer Articles":
+          targetPath = join("developer/articles", articleFile);
+          developerCount++;
+          break;
+          
+        case "User Articles":
+          targetPath = join("user/articles", articleFile);
+          userCount++;
+          break;
+          
+        default:
+          targetPath = join("unused", articleFile);
+          unusedCount++;
+          break;
+      }
     }
     
     await copyFile(sourcePath, targetPath);
@@ -497,6 +522,99 @@ async function migrateChangelogs(): Promise<{ migratedCount: number, skippedCoun
   return { migratedCount, skippedCount };
 }
 
+interface RouteRule {
+  from: string;
+  to: string;
+  status: number;
+}
+
+interface RoutingConfig {
+  routes?: RouteRule[];
+  headers?: unknown[];
+}
+
+async function generateRoutingFile(lookup: Map<string, string>): Promise<{ redirectCount: number }> {
+  console.log("\n🚀 Starting routing.json generation...");
+  
+  const originalRoutingPath = ".cloudcannon/routing.json";
+  const newRoutingPath = ".cloudcannon/new-routing.json";
+  
+  // Ensure .cloudcannon directory exists
+  await ensureDir(".cloudcannon");
+  
+  // Read existing routing file if it exists
+  let existingRouting: RoutingConfig = {};
+  try {
+    const existingContent = await Deno.readTextFile(originalRoutingPath);
+    existingRouting = JSON.parse(existingContent);
+    console.log(`📖 Read existing routing.json with ${existingRouting.routes?.length || 0} existing routes`);
+  } catch (error) {
+    if (!(error instanceof Deno.errors.NotFound)) {
+      console.warn(`⚠️  Warning reading existing routing.json:`, (error as Error).message);
+    }
+  }
+  
+  // Generate redirect rules for migrated articles
+  const newRoutes: RouteRule[] = [];
+  
+  // Add special redirect for articles/index.mdx
+  newRoutes.push({
+    from: "/documentation/articles/",
+    to: "/documentation/developer-articles/",
+    status: 301
+  });
+  console.log(`🔗 /documentation/articles/ -> /documentation/developer-articles/`);
+  
+  for (const [filename, destination] of lookup.entries()) {
+    if (destination === "Developer Articles" || destination === "User Articles") {
+      const oldPath = `/documentation/articles/${filename}/`;
+      let newPath: string;
+      
+      if (destination === "Developer Articles") {
+        newPath = `/documentation/developer-articles/${filename}/`;
+      } else {
+        newPath = `/documentation/user-articles/${filename}/`;
+      }
+      
+      newRoutes.push({
+        from: oldPath,
+        to: newPath,
+        status: 301
+      });
+      
+      console.log(`🔗 ${oldPath} -> ${newPath}`);
+    }
+  }
+  
+  // Create new routing configuration preserving original structure and order
+  const newRouting: RoutingConfig = {};
+  // Add other properties in their original order
+  if (existingRouting.headers) {
+    newRouting.headers = existingRouting.headers;
+  }
+  
+  // Preserve original key order and add existing routes first
+  if (existingRouting.routes && existingRouting.routes.length > 0) {
+    newRouting.routes = [...existingRouting.routes];
+  } else {
+    newRouting.routes = [];
+  }
+  
+  // Add new routes at the end
+  newRouting.routes.push(...newRoutes);
+  
+  
+  // Write the new routing file (preserve original routing.json unchanged)
+  const routingContent = JSON.stringify(newRouting, null, 2);
+  await Deno.writeTextFile(newRoutingPath, routingContent);
+  
+  console.log(`📄 Generated new-routing.json with ${newRoutes.length} new redirects appended to ${existingRouting.routes?.length || 0} existing routes`);
+  console.log(`💾 Original routing.json preserved unchanged`);
+  console.log(`✅ Routing generation completed successfully!`);
+  
+  return { redirectCount: newRoutes.length };
+}
+
 
 // Run the migration
 if (import.meta.main) {
@@ -504,6 +622,10 @@ if (import.meta.main) {
     const articleStats = await migrateArticles();
     const guideStats = await migrateGuides();
     const changelogStats = await migrateChangelogs();
+    
+    // Generate routing.json with redirects (reuse the lookup table)
+    const lookup = await createLookupTable();
+    const routingStats = await generateRoutingFile(lookup);
     
     // Display consolidated migration summary
     console.log("\n🎉 ===== MIGRATION COMPLETE =====");
@@ -521,8 +643,12 @@ if (import.meta.main) {
     console.log(`   Migrated: ${changelogStats.migratedCount} files`);
     console.log(`   Skipped: ${changelogStats.skippedCount} files`);
     
+    console.log("\n🔗 Routing:");
+    console.log(`   Generated Redirects: ${routingStats.redirectCount} rules`);
+    
     const grandTotal = articleStats.totalCount + guideStats.guideCount + changelogStats.migratedCount;
     console.log(`\n🏆 Grand Total: ${grandTotal} items migrated successfully!`);
+    console.log(`📄 Routing: ${routingStats.redirectCount} redirect rules generated`);
     console.log("\n✅ All migrations completed successfully! 🎊");
   } catch (error) {
     console.error("❌ Migration failed:", error);
