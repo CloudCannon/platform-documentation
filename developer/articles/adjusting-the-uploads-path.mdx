@@ -1,0 +1,133 @@
+---
+_schema: default
+_uuid: dc783d96-c19c-44ed-81ac-dbe46d9953bc
+_created_at: '2022-08-18 03:41:00 +0000'
+details:
+  title: Adjusting the uploads path
+  description: >-
+    Uploads paths are locations where new asset files are uploaded to within the
+    editor. They also defines the default location when selecting existing
+    files. There are a number of placeholders available to aid in organization.
+  image: /documentation/static/CloudCannonDocumentationog.jpg
+tags: []
+related_links: null
+---
+
+Upload paths control the location that new asset files are uploaded to. You can configure your upload paths using these options:
+
+<comp.DataReference>
+ <comp.DataReferenceRow label="paths.uploads" type_markdown="String">
+  Determines the directory to upload to, for site files.
+ </comp.DataReferenceRow>
+ <comp.DataReferenceRow label="paths.uploads_filename" type_markdown="String">
+  Determines the name of the uploaded file, for site files.
+  
+  The default value is `[asset_filename_without_ext|slugify|deburr][count].[asset_ext|lowercase]`.
+ </comp.DataReferenceRow>
+ <comp.DataReferenceRow label="paths.uploads_use_relative_path" type_markdown="Boolean">
+  If this is set, files will be referenced relative to the path of the file they were uploaded to.
+
+  For example, if `paths.uploads` is configured as `[base_path]/images` and you upload `image.jpg` to `/blog/my-post.md`, the path will be saved as `images/image.jpg`.
+  In the same scenario, if you select an existing image `/siteicon.png`, the path will be saved as `../siteicon.png`.
+  
+  The default value is `false`.
+ </comp.DataReferenceRow>
+ <comp.DataReferenceRow label="paths.static" type_markdown="String">
+  Determines the location of statically copied site assets.
+ </comp.DataReferenceRow>
+ <comp.DataReferenceRow label="paths.dam_uploads" type_markdown="String">
+  Determines the directory to upload to, when uploading [DAM](/documentation/articles/introduction-to-assets-and-dams/) files.
+ </comp.DataReferenceRow>
+ <comp.DataReferenceRow label="paths.dam_uploads_filename" type_markdown="String">
+  Determines the name of the uploaded file, when uploading [DAM](/documentation/articles/introduction-to-assets-and-dams/) files.
+  
+  The default value is `[asset_filename]`.
+ </comp.DataReferenceRow>
+</comp.DataReference>
+
+Uploads paths are configured alongside other paths in a number of places:
+
+* Globally in the [global configuration file](/documentation/articles/create-a-global-configuration-file/).
+* Per Content Editor or Editable Region with [editables configuration options](/documentation/articles/define-editable-regions-in-your-html/#options).
+* Per input with inputs configuration:
+  * [File input options](/documentation/articles/what-is-a-file-input/#options).
+  * [URL input options](/documentation/articles/what-is-a-url-input/#options).
+  * [Rich Text input options](/documentation/articles/what-is-a-rich-text-input/#options).
+
+Here's an example for a fixed path:
+
+```yaml
+paths:
+  uploads: assets/uploads
+  dam_uploads: raw
+```
+
+Here's an example for a path that changes depending on where new assets files are uploaded:
+
+```yaml
+paths:
+  uploads: static/assets/[collection]/{title|slugify}
+  dam_uploads: raw/{date|year}-{date|month}-{date|day}
+```
+
+<comp.Notice info_type="info">
+  The uploads path also defines the default location when selecting existing files.
+</comp.Notice>
+
+## Placeholders
+
+Uploads paths have a number of placeholders available, depending on whether you are configuring the upload directory (with `path.uploads` or `path.dam_uploads`) or the upload filename (with `path.uploads_filename` or `path.dam_uploads_filename`).
+
+### Directory placeholders
+
+There are two types of placeholders: file and data placeholders.
+
+File placeholders are always available, and relate to the file the editor is open on:
+
+* `[collection]` is the collection key the file is assigned to.
+* `[path]` is the full path of the file, relative to site source.
+* `[base_path]` is the path of the file excluding filename, relative to site source.
+* `[slug]` is the filename, excluding extension. Is an empty string if this results in "index".
+* `[filename]` is the filename, including extension.
+* `[ext]` is the last extension.
+* `[relative_path]` is the full path of the file, relative to the collection path.
+* `[relative_base_path]` is the path of the file excluding filename, relative to the collection path.
+* `[full_slug]` is an alias for `[relative_base_path]/[slug]`.
+
+Data placeholders are populated from front matter or data values in the editor, and support a number of filters:
+
+* `{title}` is the title from inside the file.
+* `{id}` is the id from inside the file.
+* `{title|lowercase}` is title from inside the file, lower cased.
+* `{category|slugify}` is category from inside the file, slugified.
+* `{tag|slugify|uppercase}` is tag from inside the file, slugified, then upper cased.
+* `{date|year}` is date from inside the file, with the 4-digit year extracted.
+* `{date|month}` is date from inside the file, with the 2-digit month extracted.
+* `{date|day}` is date from inside the file, with the 2-digit day extracted.
+
+The placeholders are processed when the new asset is added. This means that changes to front matter or data after adding an asset file are not updated for that processed upload path.
+
+### Filename placeholders
+
+* `[asset_filename]` is the full name of uploaded file (e.g. "my-document.pdf").
+* `[asset_filename_without_ext]` is filename without any extension (e.g. "my-document").
+* `[asset_ext]` is the file's extension without a "." (e.g. "png").
+* `[date]`
+* `[count]` becomes a hyphen and number if the processed file path clashes with an existing file (e.g. `my-document-1.pdf`)
+
+You can use filters to transform these placeholders. For example `[asset_filename|slugify].[asset_ext]` will convert "My Document.pdf" into "my-document.pdf". You can read more about using placeholders, and see a list of all available filters, [in this article](/documentation/articles/configure-your-template-strings/).
+
+<comp.Notice info_type="info">
+  Placeholders that result in empty values may result in sequential slashes — these are collapsed into one after applying placeholders.
+</comp.Notice>
+
+## Migrating from old format
+The `uploads_dir` option and legacy placeholders are an old configuration that we have since improved on. These are backwards compatible so there's no need to change anything. If you do want to update, the legacy placeholders and their new equivalents are:
+
+* `:categories` is now `{categories|slugify}`.
+* `:title` is now `{title|slugify}`.
+* `:slug` is now `{slug}`.
+* `:year` is now `{date|year}`.
+* `:month` is now `{date|month}`.
+* `:day` is now `{date|day}`.
+* `:collection` is now `[collection]`.

@@ -1,0 +1,158 @@
+---
+_schema: default
+_uuid: 8a9b0c1d-2e3f-4a5b-6c7d-8e9f0a1b2c3d
+_created_at: '2022-02-26 00:00:00 +0000'
+details:
+  title: Configure your rich text editors
+  description: >-
+    Learn how to configure the Content Editor, editable regions, and Rich Text
+    inputs in CloudCannon.
+  image: >-
+    https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+  category:
+    - Instructions
+  related_articles:
+    - articles/introducing-the-content-editor.mdx
+    - articles/introducing-the-visual-editor.mdx
+tags:
+  - editor
+related_links: []
+---
+You can configure your [rich text editors](/documentation/articles/what-are-rich-text-editors/) to control which text and image formatting tools are available in the WYSIWYG toolbar, the upload paths or filenames for any assets uploaded through an editor, and how CloudCannon should handle custom markup.
+
+There are multiple ways to configure your rich text editors, depending on which editor you want to configure: [the Content Editor](/documentation/articles/what-is-the-content-editor/), [editable regions](/documentation/articles/define-editable-regions-in-your-html/) in the [Visual Editor](/documentation/articles/what-is-the-visual-editor/), or [Rich Text inputs](/documentation/articles/what-is-a-rich-text-input/).
+
+For a complete list of options available for rich text editors, please read our [rich text editor reference](/documentation/articles/rich-text-editor-reference/).
+
+## The Content Editor
+
+To configure your Content Editor:
+
+1. Navigate to your global configuration file and open it in the Source Editor.
+2. Identify the `_editables` key, or create one at the top level of your configuration file.
+3. Add the `content` key under `_editables`.
+4. Add any keys you want to configure under the `content` key.
+5. [Save your changes](/documentation/articles/save-your-changes/) to the global configuration file.
+
+Let's walk through an example. We want to allow our team members to be able to apply bold, italic, and underline formatting to text in the Content Editor. The global configuration file should look like this:
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+```
+
+_editables___1___:
+  content___2___:
+    bold: true
+    italic: true
+    underline: true
+
+```
+<comp.Annotation number="1">
+  Configure the Content Editor and all editable regions under the `_editables` key anywhere in the [configuration cascade](/documentation/articles/using-the-configuration-cascade/).
+</comp.Annotation>
+<comp.Annotation number="2">
+  Configuration options for the Content Editor are nested keys under `content`. As soon as you define one key, CloudCannon will interpret any omitted keys as false and disable those options.
+</comp.Annotation>
+</comp.MultiCodeBlock>
+
+## Rich Text inputs
+
+To configure your Rich Text inputs:
+
+1. Navigate to your global configuration file and open it in the Source Editor.
+2. Identify the `_inputs` key, or create one at the top level of your configuration file.
+3. Enter the key name for your input under the `_inputs` key.
+4. Add the `options` key under your input name.
+5. Add any keys you want to configure under the `options` key.
+6. [Save your changes](/documentation/articles/save-your-changes/) to the global configuration file.
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+```
+
+_inputs___1___:
+  example___2___:
+    type___3___: html
+    options___4___:
+      bold: true
+      italic: true
+      underline: true
+
+```
+<comp.Annotation number="1">
+  Configure a Rich Text input under the `_inputs` key anywhere in the [configuration cascade](/documentation/articles/using-the-configuration-cascade/).
+</comp.Annotation>
+<comp.Annotation number="2">
+  Enter the key name of the input here. In this example, the input name is `example`.
+</comp.Annotation>
+<comp.Annotation number="3">
+  This input is an HTML Rich Text input. For more information, please read our documentation on [Rich Text inputs](/documentation/articles/what-is-a-rich-text-input/).
+</comp.Annotation>
+<comp.Annotation number="4">
+  Configuration options for the Rich Text inputs are nested keys under `options`.
+</comp.Annotation>
+</comp.MultiCodeBlock>
+
+## Editable regions
+
+There are four types of editable regions in the Visual Editor:
+
+* `text` for inline editable regions (e.g. `<p>` or `<h1>`)
+* `block` for block editable regions (e.g. `<div>` or `<section>`)
+* `link` for inline editable regions on `<a>` tags
+* `image` for image editable regions (i.e. `<img>`)
+
+To configure your editable regions:
+
+1. Navigate to your global configuration file and open it in the Source Editor.
+2. Identify the `_editables` key, or create one at the top level of your configuration file.
+3. Add the key for the type of editable region under `_editables` (i.e., `text`, `block`, `link`, or `image`).
+4. Add any keys you want to configure under the editable region key.
+5. [Save your changes](/documentation/articles/save-your-changes/) to the global configuration file.
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+```
+
+_editables___1___:
+  text___2___:
+    bold: true
+    italic: true
+    underline: true
+  block___3___:
+    format: p h3
+    undo: true
+    redo: true
+  link___4___:
+    bold: true
+    italic: true
+    underline: true
+  image___5___:
+    mime_type: image/png
+    allowed_sources:
+      - site-files
+
+```
+<comp.Annotation number="1">
+  Configure the Content Editor and all editable regions under the `_editables` key anywhere in the [configuration cascade](/documentation/articles/using-the-configuration-cascade/).
+</comp.Annotation>
+<comp.Annotation number="2">
+  Configuration options for the text editable regions are nested keys under `text`.
+</comp.Annotation>
+<comp.Annotation number="3">
+  Configuration options for the block editable regions are nested keys under `block`.
+</comp.Annotation>
+<comp.Annotation number="4">
+  Configuration options for the link editable regions are nested keys under `link`.
+</comp.Annotation>
+<comp.Annotation number="5">
+  Configuration options for the image editable regions are nested keys under `image`.
+</comp.Annotation>
+</comp.MultiCodeBlock>
+
+Alternatively, you can configure options directly on the element with a JSON value in the `data-cms-options` attribute.
+
+<comp.CodeBlock language="HTML" source="page.html">
+```
+<p class="editable" data-cms-options='{ "bold": true, "italic": true, "underline": true}'>
+  ...
+</p>
+```
+</comp.CodeBlock>

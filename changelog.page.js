@@ -2,7 +2,7 @@ export const layout = "layouts/changelog-list.njk";
 
 export default function* ({ search }) {
   // Correct method in Lume v3
-  const entries = search.pages("changelogs");
+  const entries = search.pages("new_changelogs");
 
   // Sort newest first
   const sorted = entries.sort(

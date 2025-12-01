@@ -55,6 +55,7 @@ import remarkParse from "npm:remark-parse";
 import strip from "npm:strip-markdown";
 
 import { format, formatDistanceToNowStrict, differenceInMonths } from 'npm:date-fns';
+import { parseChangelogFilename } from "./parseChangelogFilename.ts";
 
 function stripHTML(html) {
     const doc = new DOMParser().parseFromString(html, 'text/html');
@@ -77,7 +78,7 @@ const injectedSections: Promise<string>[] = [];
 
 const mdFilter = site.renderer.helpers.get('md')[0];
 
-site.ignore("README.md");
+site.ignore("README.md", 'articles', 'changelogs', 'unused');
 
 // Sets `/documentation/` through the url filter when running locally
 if (Deno.args.includes("-s") || Deno.args.includes("--serve")) {
@@ -93,7 +94,12 @@ site.preprocess("*", (pages) => pages.forEach((page) => {
 
 // Creates an excerpt for all changelogs saved in description.
 site.preprocess(['.md', '.mdx'], (pages) => pages.forEach((page) => {
-    if (!page.data.description && page.src.path.startsWith('/changelogs/')) {
+    if (!page.data.description && page.src.path.startsWith('/new_changelogs/')) {
+        const parsedDate = parseChangelogFilename(page.src.path);
+        if (parsedDate) {
+            page.data.date = parsedDate;
+        }
+
         const firstLine = page.data.content.trim().split('\n')[0];
         if (!firstLine) {
             return;
@@ -489,7 +495,7 @@ site.filter("render_common", (file: string, data: object = {}) => {
 let changelogsData = {};
 
 site.addEventListener("beforeBuild", async () => {
-  const dir = "changelogs";
+  const dir = "new_changelogs";
   const years = {"keys":[]};
 
   for await (const entry of Deno.readDir(dir)) {

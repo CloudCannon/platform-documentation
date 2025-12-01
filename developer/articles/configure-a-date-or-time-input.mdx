@@ -1,0 +1,398 @@
+---
+_schema: instructions
+_uuid: 5d6e7f8a-9b0c-1d2e-3f4a-5b6c7d8e9f0a
+_created_at: 2025-06-04T21:39:11.000Z
+details:
+  title: Configure a Date or Time input
+  description: >-
+    Learn how to configure Date and Time inputs to edit date and time values in
+    your data files or front matter.
+  image: >-
+    https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+  category:
+    - Instructions
+docshots:
+  docshots_status: Needs docshots
+article_topic:
+  - Editing
+  - Editing interfaces
+  - Inputs
+---
+<comp.Notice info_type="permissions">
+  **Permissions required**
+
+  Members of all [Default Permission Groups](/documentation/articles/what-are-default-permission-groups/), or [Custom Permission Groups](/documentation/articles/what-are-custom-permission-groups/) with the `site:file:write` permission, can configure inputs in all locations in the configuration cascade. You can limit permission to specific locations in the configuration using [file globs](/documentation/articles/what-are-custom-permission-groups/#specify-a-file-glob).
+</comp.Notice>
+
+[Date and Time inputs](/documentation/articles/what-are-date-and-time-inputs/) are editing interfaces for date and time values. By configuring your inputs, you can customize the appearance and functionality for a better editing experience.
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Datetime-Input-Open" alt="A screenshot of the Datetime input in the Data Editor shows an open calendar widget under the date text field." title="The Datetime Input " type="ui-snippet"/>
+
+These instructions assume that you know what type of Date or Time input you want to configure and where in the configuration cascade. For more information, please read our documentation on [Date and Time inputs](/documentation/articles/what-are-date-and-time-inputs/), [inputs](/documentation/articles/what-are-inputs/) in general, and the [configuration cascade](/documentation/articles/using-the-configuration-cascade/).
+
+To configure a Date or Time input:
+
+1. Open your website files in your local development environment, or log in to CloudCannon and select the Site for which you want to configure your input.
+2. Navigate to the location in the configuration cascade where you want to configure your input. This can be the root of your CloudCannon Configuration File, within the `collections_config.*` key in your CloudCannon Configuration File, a Schema file, the frontmatter of a markup file, or any where you configure a Structure.
+3. Identify the `_inputs` key, or create one at that level of the configuration cascade.
+4. Add an input name key for your input under the `_inputs` key (a.k.a., `_inputs.*`). We recommend naming your input something simple that indicates the function or context.
+5. Add the `type` key under your input name key, with the value `datetime`, `date`, or `time`.
+6. (Optional.) Add any other general configuration keys (e.g., `label`, `comment`, `context`) under your input name key.
+7. (Optional.) Add any specific configuration keys under `_inputs.*.options` (e.g., `timezone`, `start_from`, `end_before`).
+
+CloudCannon will now apply this input configuration to all markup files that use your input name key, without needing to save your configuration. This allows you to make changes to your input configuration and see those changes affect inputs live.
+
+When you are happy with your input configuration, you must save your input configuration.
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+```
+
+_inputs___1___:
+  published___2___:
+    type___3___: datetime
+  due___4___:
+    type___5___: date
+  event_opens___6___:
+    type___7___: time
+
+```
+<comp.Annotation number="1">
+  All inputs are defined under the `_inputs` key, regardless of where they are in the [configuration cascade](/documentation/articles/using-the-configuration-cascade/).
+</comp.Annotation>
+<comp.Annotation number="2">
+  This Datetime input is called `published`.
+</comp.Annotation>
+<comp.Annotation number="3">
+  The value of the `type` key determines the input type. This is a `datetime` input.
+</comp.Annotation>
+<comp.Annotation number="4">
+  This Date input is called `due`.
+</comp.Annotation>
+<comp.Annotation number="5">
+  The value of the `type` key determines the input type. This is a `date` input.
+</comp.Annotation>
+<comp.Annotation number="6">
+  This Time input is called `event_opens`.
+</comp.Annotation>
+<comp.Annotation number="7">
+  The value of the `type` key determines the input type. This is a `time` input.
+</comp.Annotation>
+</comp.MultiCodeBlock>
+
+When you add your input key name to a data or markup file, your configured Date or Time input will appear in the Data Editor, Visual Editor, or Content Editor.
+
+<comp.CodeBlock language="YAML" source="data.yml">
+```
+
+published: 2024-07-16T12:00:00Z
+due: 2024-07-16T00:00:00Z
+event_opens: 12:00 pm
+
+```
+</comp.CodeBlock>
+
+<comp.Notice info_type="info">
+  Even though the Date input does not display the time, CloudCannon will automatically add `00:00:00` to the end of Date values, separated by a "T" character. This is for consistency with Datetime inputs, and to store timezone information necessary for determining the current date.
+</comp.Notice>
+
+## Input configuration options
+
+General configuration options are available for all input types. You can define the label, comment, and context box for your Date and Time input, whether it is hidden or disabled, and how CloudCannon should handle configuration at multiple levels of the configuration cascade.
+
+Specific configuration options for Date and Time inputs include defining the timezone and how CloudCannon handles empty values. You can also add input validation to require a value, or specify a valid date range.
+
+Here is an example of a Datetime input using some of the most commonly used configuration keys.
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+```
+
+_inputs:
+  event_datetime:
+    type: datetime
+    label: Event Date and Time
+    comment: Select when the event will occur
+    options:
+      timezone: America/New_York
+      required: true
+      start_from: 2024-01-01T00:00:00Z
+      end_before: 2025-01-01T00:00:00Z
+
+```
+</comp.MultiCodeBlock>
+
+For a complete list of configuration keys available for inputs please read our [inputs reference](/documentation/articles/inputs-reference/) documentation.
+
+These keys configure the appearance and functionality of Date and Time inputs in CloudCannon.
+
+<comp.DataReference>
+  <comp.DataReferenceRow label="_inputs.*.options.timezone" type_markdown="String">
+    This key determines which timezone to use when displaying and editing dates. This will also change the suffix of the date value. Defaults to the `timezone` configured in your [configuration file](/documentation/articles/create-a-global-configuration-file/), which defaults to `Etc/UTC`.
+
+    Values must be in [tz database name](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones) format (e.g. `Pacific/Auckland` or `America/New_York`).
+
+    Available for Datetime and Date inputs only.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="_inputs.*.options.empty_type" type_markdown="string">
+    This key determines how CloudCannon handles an empty value. This key does not apply to existing empty values.
+
+    Value must be one of the following:
+
+    * `string` - an empty value for this input will be stored as `""`.
+    * `null` - an empty value for this input will be stored as a null value (default). This does not apply to TOML files.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="_inputs.*.options.required" type_markdown="Boolean">
+    This key toggles whether CloudCannon requires this Input to have a value. If set to `true`, CloudCannon will require you to enter a value to save your changes, or discard your unsaved changes.
+
+    By default, this key is `false` (i.e, CloudCannon does not require this Input to have a value).
+
+    This key is available for Array, Code, Color, Date and Time, File, Number, Object, Select and Multiselect, Text, Rich Text, and URL Inputs.
+
+    <comp.Example>
+      In this example, we want to require our team to enter an `author` value for markup files with this Input.
+
+      <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+                                                      ``````````
+                                                        _inputs:
+                                                          author:
+                                                            type: text
+                                                            comment: Enter the name of the author for this blog post.
+                                                            options:
+                                                              required: true
+
+                                                        ``````````
+                                                        </comp.MultiCodeBlock>
+    </comp.Example>
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="_inputs.*.options.required_message" type_markdown="String">
+    This key defines a custom error message that explains why a value has failed the validation criteria from `options.required`. This key requires you to define `options.required`.
+
+    This key has no default.
+
+    This key is available for Array, Code, Color, Date and Time, File, Number, Object, Select and Multiselect, Text, Rich Text, and URL Inputs.
+
+    <comp.Example>
+      In this example, we prompt our team to use enter an Input value using a required message.
+
+      <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+      ``````````
+        _inputs:
+          author:
+            type: text
+            comment: Enter the name of the author for this blog post.
+            options:
+              required: true
+              required_message: You are not allowed to leave this blank.
+
+      ``````````
+      </comp.MultiCodeBlock>
+    </comp.Example>
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="_inputs.*.options.start_from" type_markdown="Date">
+    This key defines the earliest date and time, inclusive, that CloudCannon will allow in an Input. When configured, CloudCannon will prevent you from selecting an earlier date and time. If the Input already contains an earlier date and time, CloudCannon will require you to change it to a valid value to save your changes, or discard your unsaved changes.
+
+    Value must be in [ISO8601](https://www.iso.org/iso-8601-date-and-time-format.html) format. If `options.end_before` is also configured, this key cannot be a later date and time.
+
+    This key has no default.
+
+    This key is available for Date and Time Inputs.
+
+    <comp.Example>
+      In this example, we want our team to enter the date and time of an event in the `2022_event` Input. This Input will only allow dates on or after January 1st, 2022.
+
+      <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+      ``````````
+      _inputs:
+        2022_event:
+          type: datetime
+          options:
+            start_from: 2022-01-01T00:00:00Z
+            end_before: 2023-01-01T00:00:00Z
+      ``````````
+      </comp.MultiCodeBlock>
+    </comp.Example>
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="_inputs.*.options.start_from_message" type_markdown="String">
+    This key defines a custom error message that explains why a value has failed the validation criteria from `options.start_from`. This key requires you to define `options.start_from`.
+
+    This key has no default.
+
+    This key is available for Date and Time Inputs.
+
+    <comp.Example>
+      In this example, we prompt our team to enter a valid date using a custom message.
+
+      <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+      ``````````
+      _inputs:
+        2022_event:
+          type: datetime
+          options:
+            start_from: 2022-01-01T00:00:00Z
+            start_from_message: Date is too early. Must be during 2022.
+            end_before: 2023-01-01T00:00:00Z
+            end_before_message: Date is too late. Must be during 2022.
+      ``````````
+      </comp.MultiCodeBlock>
+    </comp.Example>
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="_inputs.*.options.end_before" type_markdown="Date">
+    This key defines the date and time, exclusive, that CloudCannon will allow in an Input. When configured, CloudCannon will prevent you from selecting a later date and time. If the Input already contains a  later date and time, CloudCannon will require you to change it to a valid value to save your changes, or discard your unsaved changes.
+
+    Value must be in [ISO8601](https://www.iso.org/iso-8601-date-and-time-format.html) format. If `options.start_from` is also configured, this key cannot be an earlier date and time.
+
+    This key has no default.
+
+    This key is available for Date and Time Inputs.
+
+    <comp.Example>
+      In this example, we want our team to enter the date and time of an event in the `2022_event` Input. This Input will only allow dates before January 1st, 2023.
+
+      <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+      ``````````
+      _inputs:
+        2022_event:
+          type: datetime
+          options:
+            start_from: 2022-01-01T00:00:00Z
+            end_before: 2023-01-01T00:00:00Z
+      ``````````
+      </comp.MultiCodeBlock>
+    </comp.Example>
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="_inputs.*.options.end_before_message" type_markdown="String">
+    This key defines a custom error message that explains why a value has failed the validation criteria from `options.end_before`. This key requires you to define `options.end_before`.
+
+    This key has no default.
+
+    This key is available for Date and Time Inputs.
+
+    <comp.Example>
+      In this example, we prompt our team to enter a valid date using a custom message.
+
+      <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+      ``````````
+      _inputs:
+        2022_event:
+          type: datetime
+          options:
+            start_from: 2022-01-01T00:00:00Z
+            start_from_message: Date is too early. Must be during 2022.
+            end_before: 2023-01-01T00:00:00Z
+            end_before_message: Date is too late. Must be during 2022.
+      ``````````
+      </comp.MultiCodeBlock>
+    </comp.Example>
+  </comp.DataReferenceRow>
+</comp.DataReference>
+
+## Valid values
+
+Here are some examples of valid values for Date and Time inputs.
+
+<comp.Tabs label="Languages">
+  <comp.Tab name="YAML">
+    Empty/null value:
+    * `datetime: `
+    * `time: `
+
+    Empty string:
+    * `datetime: ""`
+    * `datetime: ''`
+    * `time: ""`
+    * `time: ''`
+
+    ISO 8601 formatted datetime (quoted or unquoted):
+    * `datetime: 2020-07-15T12:00:00Z`
+    * `datetime: '2020-07-15T12:00:00Z'`
+    * `datetime: "2020-07-15T12:00:00Z"`
+
+    12hr time (quoted or unquoted):
+    * `time: 1:23 pm`
+    * `time: '1:23 pm'`
+    * `time: "1:23 pm"`
+
+    24hr time (quoted or unquoted):
+    * `time: 13:23:00`
+    * `time: '13:23:00'`
+    * `time: "13:23:00"`
+  </comp.Tab>
+  <comp.Tab name="TOML">
+    Empty string:
+    * `datetime = ""`
+    * `datetime = ''`
+    * `time = ""`
+    * `time = ''`
+
+    ISO 8601 formatted datetime (quoted or unquoted):
+    * `datetime = 2020-07-15T12:00:00Z`
+    * `datetime = "2020-07-15T12:00:00Z"`
+    * `datetime = '2020-07-15T12:00:00Z'`
+
+    ISO 8601 formatted datetime with space instead of `T` (quoted or unquoted):
+    * `datetime = 2020-07-15 12:00:00Z`
+    * `datetime = "2020-07-15 12:00:00Z"`
+
+    The space will be converted to a T when loaded into the Data Editor.
+
+    12hr time:
+    * `time = "1:23 pm"`
+    * `time = '1:23 pm'`
+
+    24hr time:
+    * `time = "13:23:00"`
+    * `time = '13:23:00'`
+  </comp.Tab>
+  <comp.Tab name="JSON">
+    Null value:
+    * `"datetime": null`
+    * `"time": null`
+
+    Empty string:
+    * `"datetime": ""`
+    * `"time": ""`
+
+    ISO 8601 formatted datetime:
+    * `"datetime": "2020-07-15T12:00:00Z"`
+
+    12hr time:
+    * `"time": "1:23 pm"`
+
+    24hr time:
+    * `"time": "13:23:00"`
+  </comp.Tab>
+</comp.Tabs>
+
+<comp.Notice info_type="info">
+  CloudCannon may alter your input value under the following circumstances:
+
+  * When loaded in the Data Editor, date, time, and datetime inputs surrounded by quotation marks will be automatically unquoted.
+  * When loaded in the Data Editor, 24hr times will be converted to 12hr times.
+</comp.Notice>
+
+## Unconfigured Date and Time inputs
+
+In some cases, CloudCannon can still detect a Date or Time input even if you have not configured it.
+
+CloudCannon will interpret any unconfigured input with the key name:
+
+* `datetime` or `at`, or that ends in `_datetime` or `_at`, as a Datetime input.
+* `date`, or that ends in `_date`, as a Date input.
+* `time`, or that ends in `_time`, as a Time input.
+
+<comp.CodeBlock language="Markdown" source="about.md">
+```
+
+---
+at: 2024-07-16T12:00:00Z
+---
+
+Content goes here.
+
+```
+</comp.CodeBlock>
+
+This behavior is convenient if you have simple inputs or do not want to configure inputs. It is also beneficial for new websites on CloudCannon where you have yet to create any CloudCannon-specific configuration.
+
+<comp.Notice info_type="info">
+  We recommend configuring your inputs for greater control over their functionality and appearance.
+</comp.Notice>
