@@ -32,6 +32,8 @@ deno run --allow-read --allow-write migrate-to-new-docs.ts
 - Preserves all existing files in git state (skips files that already exist)
 - Transforms front matter (removes `nav_title`, `published`; moves fields to `details` object; handles docshots)
 - Organizes changelogs by year and removes `type` field from front matter
+- Updates internal links from old format (`/documentation/articles/`) to new format (`/documentation/developer-articles/` or `/documentation/user-articles/`)
+- Preserves hash routes and query parameters in updated links
 - Generates `.cloudcannon/new-routing.json` with 301 redirects for all migrated articles
 - Preserves original routing configuration unchanged
 - Provides detailed progress logging and final migration summary

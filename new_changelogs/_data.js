@@ -13,7 +13,7 @@ export function url(page) {
     }
     const title = page.data.title;
 
-    return `/changelog/${dateObj.getFullYear()}/${dateObj.getMonth() + 1}-${dateObj.getDate()}_${slugify(title)}/`;
+    return `/changelog/${dateObj.getFullYear()}/${dateObj.getMonth() + 1}/${dateObj.getDate()}/${slugify(title)}/`;
   }
   return page.src.slug
 }

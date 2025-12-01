@@ -567,6 +567,22 @@ async function generateRoutingFile(lookup: Map<string, string>): Promise<{ redir
   });
   console.log(`🔗 /documentation/articles/ -> /documentation/developer-articles/`);
   
+  // Add redirects for guides (all guides go to developer-guides)
+  newRoutes.push({
+    from: "/documentation/changelog/(.*).html",
+    to: "/documentation/changelog/$1/",
+    status: 301
+  });
+  console.log(`🔗 /documentation/changelog/ -> /documentation/changelog/ (without html extension)`);
+
+  // Add redirects for changelogs (all changelogs go to new_changelogs)
+  newRoutes.push({
+    from: "/documentation/guides/(.*)",
+    to: "/documentation/developer-guides/$1",
+    status: 301
+  });
+  console.log(`🔗 /documentation/guides/ -> /documentation/developer-guides/`);
+
   for (const [filename, destination] of lookup.entries()) {
     if (destination === "Developer Articles" || destination === "User Articles") {
       const oldPath = `/documentation/articles/${filename}/`;
@@ -617,6 +633,115 @@ async function generateRoutingFile(lookup: Map<string, string>): Promise<{ redir
   return { redirectCount: newRoutes.length };
 }
 
+async function updateInternalLinks(lookup: Map<string, string>): Promise<{ updatedFiles: number, totalUpdates: number }> {
+  console.log("\n🚀 Starting internal link updates...");
+  
+  let updatedFiles = 0;
+  let totalUpdates = 0;
+  
+  const directories = ["developer/articles", "user/articles", "developer/guides"];
+  
+  for (const dir of directories) {
+    try {
+      for await (const entry of Deno.readDir(dir)) {
+        if (entry.isFile && entry.name.endsWith(".mdx")) {
+          const filePath = join(dir, entry.name);
+          const updated = await updateLinksInFile(filePath, lookup);
+          if (updated > 0) {
+            updatedFiles++;
+            totalUpdates += updated;
+            console.log(`🔗 Updated ${updated} links in: ${filePath}`);
+          }
+        } else if (entry.isDirectory) {
+          // Handle guide subdirectories
+          const subDir = join(dir, entry.name);
+          try {
+            for await (const subEntry of Deno.readDir(subDir)) {
+              if (subEntry.isFile && subEntry.name.endsWith(".mdx")) {
+                const filePath = join(subDir, subEntry.name);
+                const updated = await updateLinksInFile(filePath, lookup);
+                if (updated > 0) {
+                  updatedFiles++;
+                  totalUpdates += updated;
+                  console.log(`🔗 Updated ${updated} links in: ${filePath}`);
+                }
+              }
+            }
+          } catch (_error) {
+            // Skip if not a directory or can't read
+          }
+        }
+      }
+    } catch (error) {
+      if (!(error instanceof Deno.errors.NotFound)) {
+        console.warn(`⚠️  Warning reading directory ${dir}:`, (error as Error).message);
+      }
+    }
+  }
+  
+  console.log(`✅ Internal link updates completed: ${totalUpdates} links updated in ${updatedFiles} files`);
+  return { updatedFiles, totalUpdates };
+}
+
+async function updateLinksInFile(filePath: string, lookup: Map<string, string>): Promise<number> {
+  try {
+    let content = await Deno.readTextFile(filePath);
+    let updateCount = 0;
+    
+    // Regex to match internal documentation article links
+    // Matches: /documentation/articles/filename/ (with optional hash and query params)
+    const articleLinkRegex = /\/documentation\/articles\/([^\/\s\)]+)\/((?:#[^?\s\)]*)?(?:\?[^\s\)]*)?)/g;
+    
+    content = content.replace(articleLinkRegex, (match, filename, suffix) => {
+      const destination = lookup.get(filename);
+      
+      if (destination === "Developer Articles") {
+        updateCount++;
+        return `/documentation/developer-articles/${filename}/${suffix}`;
+      } else if (destination === "User Articles") {
+        updateCount++;
+        return `/documentation/user-articles/${filename}/${suffix}`;
+      }
+      
+      // If not in lookup or going to unused, leave unchanged
+      return match;
+    });
+    
+    // Special case for articles index page
+    const articleIndexRegex = /\/documentation\/articles\/((?:#[^?\s\)]*)?(?:\?[^\s\)]*)?)/g;
+    content = content.replace(articleIndexRegex, (_match, suffix) => {
+      updateCount++;
+      return `/documentation/developer-articles/${suffix}`;
+    });
+    
+    // Regex to match internal documentation guide links
+    // Matches: /documentation/guides/guide-name/ (with optional hash and query params)
+    const guideLinkRegex = /\/documentation\/guides\/([^\/\s\)]+)\/((?:#[^?\s\)]*)?(?:\?[^\s\)]*)?)/g;
+    
+    content = content.replace(guideLinkRegex, (_match, guideName, suffix) => {
+      updateCount++;
+      return `/documentation/developer-guides/${guideName}/${suffix}`;
+    });
+    
+    // Special case for guides index page
+    const guideIndexRegex = /\/documentation\/guides\/((?:#[^?\s\)]*)?(?:\?[^\s\)]*)?)/g;
+    content = content.replace(guideIndexRegex, (_match, suffix) => {
+      updateCount++;
+      return `/documentation/developer-guides/${suffix}`;
+    });
+    
+    // Write back if any updates were made
+    if (updateCount > 0) {
+      await Deno.writeTextFile(filePath, content);
+    }
+    
+    return updateCount;
+  } catch (error) {
+    console.warn(`⚠️  Warning updating links in ${filePath}:`, (error as Error).message);
+    return 0;
+  }
+}
+
 
 // Run the migration
 if (import.meta.main) {
@@ -628,6 +753,9 @@ if (import.meta.main) {
     // Generate routing.json with redirects (reuse the lookup table)
     const lookup = await createLookupTable();
     const routingStats = await generateRoutingFile(lookup);
+    
+    // Update internal links in migrated files
+    const linkStats = await updateInternalLinks(lookup);
     
     // Display consolidated migration summary
     console.log("\n🎉 ===== MIGRATION COMPLETE =====");
@@ -648,9 +776,14 @@ if (import.meta.main) {
     console.log("\n🔗 Routing:");
     console.log(`   Generated Redirects: ${routingStats.redirectCount} rules`);
     
+    console.log("\n🔗 Internal Links:");
+    console.log(`   Updated Files: ${linkStats.updatedFiles} files`);
+    console.log(`   Total Link Updates: ${linkStats.totalUpdates} links`);
+    
     const grandTotal = articleStats.totalCount + guideStats.guideCount + changelogStats.migratedCount;
     console.log(`\n🏆 Grand Total: ${grandTotal} items migrated successfully!`);
     console.log(`📄 Routing: ${routingStats.redirectCount} redirect rules generated`);
+    console.log(`🔗 Links: ${linkStats.totalUpdates} internal links updated`);
     console.log("\n✅ All migrations completed successfully! 🎊");
   } catch (error) {
     console.error("❌ Migration failed:", error);
