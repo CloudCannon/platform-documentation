@@ -1,4 +1,5 @@
 export const layout = "layouts/changelog-list.njk";
+import { parseChangelogFilename } from "./parseChangelogFilename.ts";
 
 export default function* ({ search }) {
   // Correct method in Lume v3
@@ -6,7 +7,7 @@ export default function* ({ search }) {
 
   // Sort newest first
   const sorted = entries.sort(
-    (a, b) => new Date(b.date) - new Date(a.date)
+    (a, b) => parseChangelogFilename(b.src.path) - parseChangelogFilename(a.src.path)
   );
 
   const recent = sorted.slice(0, 3);
