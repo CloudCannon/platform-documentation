@@ -1,0 +1,56 @@
+---
+_schema: default
+_uuid: f8566a0a-fb49-4f5d-85f5-3c434cdf6140
+_created_at: '2023-05-17 00:00:00 +0000'
+details:
+  title: Best practices for HTML in rich text
+  description: 'Some HTML elements cannot be edited in the rich text editor. '
+  image: >-
+    https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+  category:
+    - Explanation
+  related_articles: []
+tags: []
+related_links: []
+---
+You can edit markup content in one of CloudCannon's three [rich text editors](/documentation/developer-articles/what-are-rich-text-editors/): the [Content Editor](/documentation/user-articles/what-is-the-content-editor/), [editable regions](/documentation/developer-articles/define-editable-regions-in-your-html/) in the [Visual Editor](/documentation/user-articles/what-is-the-visual-editor/), or [Rich Text inputs](/documentation/developer-articles/rich-text-inputs). However, CloudCannon will handle some markup content differently.
+
+CloudCannon uses the following definitions:
+
+* **Rich text content** — any HTML, Markdown, or MDX content you might want to edit in the Content Editor, an editable region in the Visual Editor, or a Rich Text input.
+* **Custom markup** — any HTML, Markdown, or MDX structure that cannot be recreated in a rich text editor (e.g., `<div>` tags or style attributes). This is usually any structure that the *WYSIWYG toolbar* cannot produce.
+
+Editing custom markup in a rich text editor comes with risk. This is because:
+
+* You can unintentionally delete custom markup from your files. CloudCannon cannot render custom markup in the rich text editor; therefore, it would be easy to backspace or accidentally delete your HTML structures. Because the *WYSIWYG toolbar* cannot produce custom markup, it cannot be recreated if you accidentally delete it.
+* Some custom markup structures pose a security risk to your Site by enabling cross-site scripting attacks (e.g., `<script>` tags) and other unwanted interactions between your code and the editing interface (e.g., `<style>` tags).
+
+To get the most out of your editing experience, we recommend that you only include markup that can be rendered and edited in a CloudCannon rich text editor.
+
+## Unsupported HTML elements in rich text editors
+
+To protect your content and your site, CloudCannon does not allow you to edit custom markup using the [Content Editor](/documentation/user-articles/what-is-the-content-editor/) or a [Rich Text input](/documentation/developer-articles/rich-text-inputs) by default. Although you cannot edit your custom markup in the Content Editor or rich text inputs, CloudCannon will preserve it. Your custom markup will appear as an uneditable Snippet.
+
+<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/editing/unsupported-html-rich-text/2024-Q1/CloudCannon-Documentation-Unsupported-HTML-Snippets.png" alt="Unsupported HTML in the rich text editor will appear as an uneditable Snippet." title="Uneditable Snippets in rich text" type="ui-snippet"/>
+
+By default, you can edit some custom markup using [editable regions](/documentation/developer-articles/define-editable-regions-in-your-html/), but not any custom markup that poses a risk for cross-site scripting attacks.
+
+You can still edit the surrounding content in your files using a rich text editor and edit your custom markup in the [Source Editor](/documentation/user-articles/what-is-the-source-editor/).
+
+## Best practice for custom markup
+
+To ensure your files remain editable in the rich text editor, we recommend the following solutions to avoid some common pitfalls:
+
+* Remove custom markup from inside elements with `class='editable'`. Any other markup inside your editable region may cause the region to become an uneditable Snippet.
+* Create a [Snippet](/documentation/user-articles/what-is-a-snippet/). Depending on your SSG, there are libraries of Snippets available, or you can create custom Snippets.
+* Use postprocessing to add the desired HTML during the build (e.g., using Hugo's [Markdown render hooks](https://gohugo.io/templates/render-hooks/)).
+
+## Configure how CloudCannon handles custom markup
+
+You can configure how CloudCannon handles custom markup using the `allow_custom_markup` and `remove_custom_markup` keys.
+
+The `allow_custom_markup` key enables you to edit custom markup in rich text editors and explicitly accept the risk of unintentionally deleting elements that cannot be recreated. By default, `allow_custom_markup` is `false` for inputs and the Content Editor and `true` for editable regions.
+
+The `remove_custom_markup` key enables you to strip custom markup from content edited in a rich text editor, allowing you to clean files of unnecessary HTML content. By default, `remove_custom_markup` is `false` for inputs, the Content Editor, and editable regions.
+
+For more information, please read our [rich text editor reference](/documentation/developer-articles/rich-text-editor-reference/#custom-markup).
