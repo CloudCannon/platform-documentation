@@ -1,6 +1,6 @@
 #!/usr/bin/env -S deno run --allow-read --allow-write
 
-import { ensureDir, copy } from "https://deno.land/std@0.208.0/fs/mod.ts";
+import { ensureDir } from "https://deno.land/std@0.208.0/fs/mod.ts";
 import { join, basename } from "https://deno.land/std@0.208.0/path/mod.ts";
 import { parse as parseYaml, stringify as stringifyYaml } from "https://deno.land/std@0.208.0/yaml/mod.ts";
 
@@ -116,26 +116,52 @@ async function getArticleFiles(): Promise<string[]> {
   return articles;
 }
 
+async function readExistingUuid(filePath: string): Promise<string | undefined> {
+  try {
+    const content = await Deno.readTextFile(filePath);
+    if (filePath.endsWith('.yml')) {
+      const data = parseYaml(content) as Record<string, unknown>;
+      return data._uuid as string;
+    } else {
+      const { frontMatter } = extractFrontMatter(content);
+      return frontMatter._uuid as string;
+    }
+  } catch {
+    return undefined;
+  }
+}
+
 async function copyFile(source: string, destination: string): Promise<boolean> {
   try {
-    // Check if destination already exists
-    await Deno.stat(destination);
-    console.log(`⏭️  Skipped (already exists): ${destination}`);
-    return false; // File was skipped
-  } catch (error) {
-    if (error instanceof Deno.errors.NotFound) {
-      // File doesn't exist, proceed with copy
-      try {
+    // Get source file stats
+    const sourceStats = await Deno.stat(source);
+    
+    try {
+      // Check if destination exists and compare modification times
+      const destStats = await Deno.stat(destination);
+      
+      // If source is newer than destination, copy it
+      if (sourceStats.mtime && destStats.mtime && sourceStats.mtime > destStats.mtime) {
         await Deno.copyFile(source, destination);
-        return true; // File was copied
-      } catch (copyError) {
-        console.error(`❌ Error copying ${source} to ${destination}:`, copyError);
-        throw copyError;
+        console.log(`🔄 Updated (source newer): ${destination}`);
+        return true; // File was updated
+      } else {
+        console.log(`⏭️  Skipped (up to date): ${destination}`);
+        return false; // File was skipped
       }
-    } else {
-      console.error(`❌ Error checking ${destination}:`, error);
-      throw error;
+    } catch (error) {
+      if (error instanceof Deno.errors.NotFound) {
+        // Destination doesn't exist, proceed with copy
+        await Deno.copyFile(source, destination);
+        console.log(`📄 Copied: ${destination}`);
+        return true; // File was copied
+      } else {
+        throw error;
+      }
     }
+  } catch (error) {
+    console.error(`❌ Error processing ${source} -> ${destination}:`, error);
+    throw error;
   }
 }
 
@@ -234,14 +260,14 @@ function createFrontMatter(frontMatter: Record<string, unknown>, body: string): 
   return `---\n${yamlString}---\n${body}`;
 }
 
-async function transformArticleFrontMatter(filePath: string): Promise<void> {
+async function transformArticleFrontMatter(filePath: string, existingUuid?: string): Promise<void> {
   const content = await Deno.readTextFile(filePath);
   const { frontMatter, body } = extractFrontMatter(content);
   
   // Create new front matter structure
   const newFrontMatter: Record<string, unknown> = {
     _schema: frontMatter._schema || "default",
-    _uuid: frontMatter._uuid || generateUUID(),
+    _uuid: existingUuid || frontMatter._uuid || generateUUID(),
   };
   
   // Add _created_at if it exists
@@ -307,14 +333,14 @@ async function transformArticleFrontMatter(filePath: string): Promise<void> {
   await Deno.writeTextFile(filePath, newContent);
 }
 
-async function transformGuideFrontMatter(filePath: string): Promise<void> {
+async function transformGuideFrontMatter(filePath: string, existingUuid?: string): Promise<void> {
   const content = await Deno.readTextFile(filePath);
   const { frontMatter, body } = extractFrontMatter(content);
   
   // Create new front matter structure
   const newFrontMatter: Record<string, unknown> = {
     _schema: frontMatter._schema || "default",
-    _uuid: frontMatter._uuid || generateUUID(),
+    _uuid: existingUuid || frontMatter._uuid || generateUUID(),
   };
   
   // Add _created_at if it exists
@@ -347,7 +373,7 @@ async function transformGuideFrontMatter(filePath: string): Promise<void> {
   await Deno.writeTextFile(filePath, newContent);
 }
 
-async function transformGuideDataFile(filePath: string): Promise<void> {
+async function transformGuideDataFile(filePath: string, existingUuid?: string): Promise<void> {
   const content = await Deno.readTextFile(filePath);
   const data = parseYaml(content) as Record<string, unknown>;
   
@@ -362,10 +388,8 @@ async function transformGuideDataFile(filePath: string): Promise<void> {
   // Remove guide_image
   delete newData.guide_image;
   
-  // Add _uuid if it doesn't exist
-  if (!newData._uuid) {
-    newData._uuid = generateUUID();
-  }
+  // Preserve existing UUID or add one if it doesn't exist
+  newData._uuid = existingUuid || data._uuid || generateUUID();
   
   // Remove show_guide_image_on_page
   delete newData.show_guide_image_on_page;
@@ -387,40 +411,72 @@ async function migrateGuides(): Promise<{ guideCount: number }> {
         const sourceDir = join("guides", entry.name);
         const targetGuideDir = join(targetDir, entry.name);
         
-        // Check if guide directory already exists
-        try {
-          await Deno.stat(targetGuideDir);
-          console.log(`⏭️  Skipped guide (already exists): ${entry.name}`);
-          continue; // Skip this guide entirely
-        } catch (error) {
-          if (error instanceof Deno.errors.NotFound) {
-            // Directory doesn't exist, proceed with copy
-            console.log(`📋 Copying guide: ${entry.name}`);
-            await copy(sourceDir, targetGuideDir, { overwrite: false });
-            guideCount++;
-          } else {
-            throw error;
+        // Ensure target guide directory exists
+        await Deno.mkdir(targetGuideDir, { recursive: true });
+        
+        console.log(`📋 Processing guide: ${entry.name}`);
+        let filesCopied = 0;
+        
+        // Copy individual files from source to target, preserving existing UUIDs
+        for await (const file of Deno.readDir(sourceDir)) {
+          const sourcePath = join(sourceDir, file.name);
+          const targetPath = join(targetGuideDir, file.name);
+          
+          // Read existing UUID before copying
+          const existingUuid = await readExistingUuid(targetPath);
+          
+          if (await copyFile(sourcePath, targetPath)) {
+            filesCopied++;
+            
+            // Transform the copied file with preserved UUID
+            if (file.name.endsWith(".mdx")) {
+              console.log(`🔄 Transforming: ${file.name}`);
+              await transformGuideFrontMatter(targetPath, existingUuid);
+            } else if (file.name === "_data.yml") {
+              console.log(`🔄 Transforming: _data.yml`);
+              await transformGuideDataFile(targetPath, existingUuid);
+            }
           }
         }
         
-        // Transform all .mdx files in the guide
+        if (filesCopied > 0) {
+          guideCount++;
+          console.log(`✅ Copied ${filesCopied} files for guide: ${entry.name}`);
+        } else {
+          console.log(`⏭️  No new files copied for guide: ${entry.name}`);
+        }
+        
+        // Transform any remaining files in the target guide directory that weren't just copied
         for await (const file of Deno.readDir(targetGuideDir)) {
-          if (file.isFile && file.name.endsWith(".mdx")) {
+          if (file.isFile) {
             const filePath = join(targetGuideDir, file.name);
-            console.log(`🔄 Transforming: ${file.name}`);
-            await transformGuideFrontMatter(filePath);
-          }
-        }
-        
-        // Transform _data.yml file if it exists
-        const dataFilePath = join(targetGuideDir, "_data.yml");
-        try {
-          await Deno.stat(dataFilePath);
-          console.log(`🔄 Transforming: _data.yml`);
-          await transformGuideDataFile(dataFilePath);
-        } catch (error) {
-          if (!(error instanceof Deno.errors.NotFound)) {
-            console.warn(`⚠️  Warning processing _data.yml:`, (error as Error).message);
+            const sourcePath = join(sourceDir, file.name);
+            
+            // Only transform if this file wasn't just copied (to avoid double transformation)
+            try {
+              const sourceStats = await Deno.stat(sourcePath);
+              const destStats = await Deno.stat(filePath);
+              
+              // If destination is newer or same age, it wasn't just copied, so transform it
+              if (!sourceStats.mtime || !destStats.mtime || destStats.mtime >= sourceStats.mtime) {
+                if (file.name.endsWith(".mdx")) {
+                  console.log(`🔄 Transforming existing: ${file.name}`);
+                  await transformGuideFrontMatter(filePath);
+                } else if (file.name === "_data.yml") {
+                  console.log(`🔄 Transforming existing: _data.yml`);
+                  await transformGuideDataFile(filePath);
+                }
+              }
+            } catch {
+              // If source doesn't exist, this is a destination-only file, transform it
+              if (file.name.endsWith(".mdx")) {
+                console.log(`🔄 Transforming existing: ${file.name}`);
+                await transformGuideFrontMatter(filePath);
+              } else if (file.name === "_data.yml") {
+                console.log(`🔄 Transforming existing: _data.yml`);
+                await transformGuideDataFile(filePath);
+              }
+            }
           }
         }
       }
@@ -450,7 +506,7 @@ function createNewChangelogFilename(month: string, day: string, title: string): 
   return `${month}-${day}_${title}.mdx`;
 }
 
-async function transformChangelogFrontMatter(filePath: string): Promise<void> {
+async function transformChangelogFrontMatter(filePath: string, existingUuid?: string): Promise<void> {
   const content = await Deno.readTextFile(filePath);
   const { frontMatter, body } = extractFrontMatter(content);
   
@@ -462,6 +518,11 @@ async function transformChangelogFrontMatter(filePath: string): Promise<void> {
     if (key !== 'type') {
       newFrontMatter[key] = value;
     }
+  }
+  
+  // Preserve existing UUID if it exists
+  if (existingUuid) {
+    newFrontMatter._uuid = existingUuid;
   }
   
   const newContent = createFrontMatter(newFrontMatter, body);
