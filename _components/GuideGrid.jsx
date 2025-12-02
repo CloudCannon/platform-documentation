@@ -1,5 +1,5 @@
-export default function ({comp, search, series = "starters", card_type = "interactive", card_eyebrow, title_replace}, helpers) {
-    const guide_pages = search.pages(`url^=/documentation/guides/ guide_series=${series}`, "date=desc");
+export default function ({comp, search, card_type = "interactive", card_eyebrow, title_replace}, helpers) {
+    const guide_pages = search.pages(`url^=/documentation/guides/`, "date=desc");
     const guide_indexes = guide_pages.filter(data => data.page.src.entry.name === "index.mdx");
     const guide_data = guide_indexes.map(data => {
         return {
