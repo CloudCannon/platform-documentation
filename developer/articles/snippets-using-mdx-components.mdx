@@ -9,11 +9,13 @@ details:
     CloudCannon.
   image: >-
     https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
-  category: []
   related_articles:
     - /articles/introducing-the-content-editor
-author_notes:
-  docshots:
+tags:
+  - content editor
+  - snippets
+  - MDX
+related_links: null
 ---
 CloudCannon supports embedding rich Snippets in Markdown content when using the CloudCannon Content Editor. Once configured,  Snippets in your content will be presented as blocks in rich text views, with the ability to add them as Snippets via the toolbar:
 
@@ -35,7 +37,7 @@ _snippets_imports:
 By default, CloudCannon will show the `snippet` toolbar action in the content editor if snippets are available.
 
 <comp.Notice info_type="important">
-  If you have already customized which options are available via `_editables` in your CloudCannon config, you will need to include `snippet: true` for Snippets to be available. See the [Editables options documentation](/documentation/articles/configuring-toolbars) for more details.
+  If you have already customized which options are available via `_editables` in your CloudCannon config, you will need to include `snippet: true` for Snippets to be available. See the [Editables options documentation](/documentation/developer-articles/configuring-toolbars) for more details.
 </comp.Notice>
 
 ## Custom MDX Components
@@ -90,7 +92,7 @@ Each snippet definition lives under a top level key, `mdx_tint` in this example.
 
 We specify the template that this snippet should inherit from, and also specify that it is an `inline` snippet, since it can live anywhere in the content (such as in the middle of a sentence).
 
-In the `preview` object we configure how this snippet is displayed while editing, using the [CloudCannon card preview options](/documentation/articles/configure-your-card-previews/).
+In the `preview` object we configure how this snippet is displayed while editing, using the [CloudCannon card preview options](/documentation/developer-articles/configure-your-card-previews/).
 
 In `definitions` we need to specify some values that are required for the template we picked. For the `mdx_paired_component` template, we need to specify:
 
@@ -98,7 +100,7 @@ In `definitions` we need to specify some values that are required for the templa
 * The `content_key` — this controls the key that CloudCannon will use to edit the text in between the start and end tags of the component.
 * The `named_args` — for our `tint` component we need to configure that the `tint_color` should be captured with the key `color`
 
-Finally, we can specify any other keys from the [CloudCannon configuration cascade](/documentation/articles/using-the-configuration-cascade/) here. In this example, we configure the inputs for the keys that this snippet will generate. With that in place, we can now add and edit our tint component anywhere on our site.
+Finally, we can specify any other keys from the [CloudCannon configuration cascade](/documentation/developer-articles/using-the-configuration-cascade/) here. In this example, we configure the inputs for the keys that this snippet will generate. With that in place, we can now add and edit our tint component anywhere on our site.
 
 <comp.DocsImage path="ye_olde_images/tint-shortcode.png" alt={"A screenshot of the \"tint\" component in the Content Editor, with the editing panel open showing the snippet data"} title="" type="regular"/>
 
@@ -108,7 +110,7 @@ Next, let's quickly look at a component with a different syntax:
 ```
 # My Post
 
-<Callout type="info" message="This is my shortcode"/>
+<Callout type="info" message="This is my component"/>
 
 ```
 </comp.CodeBlock>
@@ -168,7 +170,7 @@ The following options are available for MDX component snippets:
     Whether this component can appear inline (within a sentence). Defaults to `false`, which will treat this component as a block-level element in the content editor.
  </comp.DataReferenceRow>
   <comp.DataReferenceRow label="preview" type_markdown="Object">
-    A preview definition for displaying this component in the CloudCannon editor. See the [preview options documentation](/documentation/articles/configure-your-card-previews/).
+    A preview definition for displaying this component in the CloudCannon editor. See the [preview options documentation](/documentation/developer-articles/configure-your-card-previews/).
  </comp.DataReferenceRow>
   <comp.DataReferenceRow label="_inputs" type_markdown="Object">
     Input configurations for the keys contained in this component.
@@ -214,7 +216,7 @@ _snippets:
     The name of your component, as used in your MDX content files.
  </comp.DataReferenceRow>
   <comp.DataReferenceRow label="named_args" type_markdown="Array of [argument options](#argument-options)">
-    A list of each key-value pair the shortcode takes.
+    A list of each key-value pair the component takes.
  </comp.DataReferenceRow>
 </comp.DataReference>
 
@@ -222,7 +224,7 @@ _snippets:
 
 <comp.CodeBlock language="markdown" source="example.md">
 ```
-<CustomComponent arg1="my arg1" arg2="my arg2"> content </CustomShortcode>
+<CustomComponent arg1="my arg1" arg2="my arg2"> content </CustomComponent>
 ```
 </comp.CodeBlock>
 
@@ -251,13 +253,13 @@ _snippets:
 
 <comp.DataReference>
  <comp.DataReferenceRow label="component_name" type_markdown="String">
-    The name of your shortcode, as used in your MDX content files.
+    The name of your component, as used in your MDX content files.
  </comp.DataReferenceRow>
   <comp.DataReferenceRow label="content_key" type_markdown="String">
     The key to use in the data panel for editing the inner contents of the component.
  </comp.DataReferenceRow>
   <comp.DataReferenceRow label="named_args" type_markdown="Array of [argument options](#argument-options)">
-    A list of each key-value pair the shortcode takes.
+    A list of each key-value pair the component takes.
  </comp.DataReferenceRow>
 </comp.DataReference>
 
@@ -270,7 +272,7 @@ The following options are available for named argument option objects:
     Determines the key that will be used for this argument in the CloudCannon data panel.
  </comp.DataReferenceRow>
   <comp.DataReferenceRow label="source_key" type_markdown="String">
-    Determines the key of the key-value pair as it appears in the shortcode.
+    Determines the key of the key-value pair as it appears in the component.
 
     Will default to the `editor_key` if unset.
  </comp.DataReferenceRow>
@@ -288,16 +290,16 @@ The following options are available for named argument option objects:
     * array
  </comp.DataReferenceRow>
   <comp.DataReferenceRow label="optional" type_markdown="Boolean">
-    Whether this argument is required for the shortcode. If `false`, shortcodes in your templates missing this argument will not match this snippet definition.
+    Whether this argument is required for the component. If `false`, components in your templates missing this argument will not match this snippet definition.
 
     Defaults to `false`.
  </comp.DataReferenceRow>
   <comp.DataReferenceRow label="remove_empty" type_markdown="Boolean">
-    Whether this argument should be omitted from the output shortcode if the value is empty.
+    Whether this argument should be omitted from the output component if the value is empty.
 
     Defaults to `false`.
  </comp.DataReferenceRow>
   <comp.DataReferenceRow label="allowed_values" type_markdown="Array of values">
-    A list of values that this argument must be in order to match this snippet definition. Allows you to match different usages of the same shortcode to separate snippet definitions based on the value of an argument.
+    A list of values that this argument must be in order to match this snippet definition. Allows you to match different usages of the same component to separate snippet definitions based on the value of an argument.
  </comp.DataReferenceRow>
 </comp.DataReference>
