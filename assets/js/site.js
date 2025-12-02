@@ -510,10 +510,8 @@ search.on("results", (results) => {
     if(pages > 1 && currPage != 0)
     {
       let prevbox = makePaginationBox(pagination,"",currPage); // prev
-      let prevsvg = document.createElement("img");
-      prevsvg.src = "https://cdn.jsdelivr.net/npm/@material-design-icons/svg@0.14.15/outlined/arrow_back_ios.svg"
-      prevsvg.setAttribute("inline", '');
-      prevbox.append(prevsvg);
+      let prevsvg = document.getElementById("pagination-prev__template").innerHTML;
+      prevbox.innerHTML = prevsvg;
     }
 
     if(pages > 1 && pages <= 7)
@@ -553,11 +551,9 @@ search.on("results", (results) => {
 
     if(pages > 1 && currPage != pages-1)
     {
-      let nextbox = makePaginationBox(pagination,"",currPage+2); // next
-      let nextsvg = document.createElement("img");
-      nextsvg.src = "https://cdn.jsdelivr.net/npm/@material-design-icons/svg@0.14.15/outlined/arrow_forward_ios.svg"
-      nextsvg.setAttribute("inline", '');
-      nextbox.append(nextsvg);
+      let nextbox = makePaginationBox(pagination,"",currPage); // next
+      let nextsvg = document.getElementById("pagination-next__template").innerHTML;
+      nextbox.innerHTML = nextsvg;
     }
   }
   else{
