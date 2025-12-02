@@ -27,12 +27,18 @@ description: ''
             <div class="l-content-split" x-data="$visibleNavHighlighter">
                 <main class="l-content-cards glossary-cards">
                   {% set entries = user_glossary | get_by_letter(letter) %}
-                  {% for entry in entries %}
+                  {% if entries and entries.length > 0 %}
+                    {% for entry in entries %}
+                      <div class="glossary-entry">
+                        <h2>{{ entry.glossary_term_name }}</h2>
+                        <p>{{ entry.term_description }}</p>
+                      </div>
+                    {% endfor %}
+                  {% else %}
                     <div class="glossary-entry">
-                      <h2>{{ entry.glossary_term_name }}</h2>
-                      <p>{{ entry.term_description }}</p>
+                      <p>No glossary entries found for the letter "{{ letter | upper }}".</p>
                     </div>
-                  {% endfor %}
+                  {% endif %}
                 </main>
             
                 <aside data-pagefind-ignore class="l-right">
