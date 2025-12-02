@@ -259,18 +259,6 @@ module.exports = {
         guide_data: {
           path: ".cloudcannon/schemas/guide-data.yml",
           _inputs: {
-            guide_target_ssgs: {
-              type: "multiselect",
-              options: {
-                values: "_select_data.docs_ssgs",
-                value_key: "name",
-                preview: {
-                  label: {
-                    key: "name",
-                  },
-                },
-              },
-            },
             guide_series: {
               type: "select",
               options: {

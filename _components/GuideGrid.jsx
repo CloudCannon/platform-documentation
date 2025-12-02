@@ -8,7 +8,6 @@ export default function ({comp, search, series = "starters", card_type = "intera
             image: data.guide_image,
             title: title_replace ? data.guide_title.replace(new RegExp(title_replace, 'i'), '') : data.guide_title,
             description: data.description,
-            ssgs: data.guide_target_ssgs,
         }
     });
     guide_data.sort((a, b) => a.title.localeCompare(b.title));
