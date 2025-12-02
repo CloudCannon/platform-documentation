@@ -1,0 +1,222 @@
+---
+_schema: instructions
+_uuid: 95aff2c0-7b77-4653-a2f2-ad5801787ee1
+_created_at: 2025-09-25T11:06:41+12:00
+title: Configure Array Editable Regions
+nav_title: Configure Array Editable Regions
+published: true
+image: >-
+ https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+description: >-
+ Learn how to configure Array and Array Item Editable Regions to enable array
+ editing in the Visual Editor.
+article_category:
+ - Instructions
+article_topic:
+author_notes:
+ docshots_status: Needs docshots
+---
+<comp.Notice info_type="permissions">
+  <p><strong>Permissions required</strong></p><p>Members of the Owners, Developers, and Technical Editors <a href="/documentation/articles/what-are-default-permission-groups/">Default Permission Groups</a>, or <a href="/documentation/articles/what-are-custom-permission-groups/">Custom Permission Groups</a> with the <code>site:source-editor:write</code> permission, can add <em>Editable Regions</em> to files using the Source Editor in CloudCannon.</p>
+</comp.Notice>
+
+Array and Array Item *Editable Regions* are one type of [Editable Region](/documentation/articles/what-are-editable-regions/) you can add to your layout and HTML-like files to enable visual editing. Array *Editable Regions* allow you to add, remove, and reorder array values stored in structured data or front matter that populate templating in layout files. You can use Array *Editable Regions* to edit array components or support page building in the Visual Editor.
+
+<comp.Notice info_type="info">
+  <p>To avoid misconfiguration issues where CloudCannon cannot find the data property you want to edit, always add <em>Editable Regions</em> to values closest to the root of the file first (i.e., work from parent elements towards child elements).</p>
+</comp.Notice>
+
+These instructions assume you have configured your [build settings](/documentation/articles/configure-your-first-build/) and are comfortable editing HTML layouts, either in CloudCannon's [Source Editor](/documentation/articles/what-is-the-source-editor/) or your local development environment.
+
+To configure Array *Editable Regions* in the [Visual Editor](/documentation/articles/what-is-the-visual-editor/):
+
+1. Identify the file to which you want to add an Array *Editable Regions*.
+2. Open the file in CloudCannon's Source Editor or your local development environment.
+3. Identify the templating responsible for looping over your array and add the `data-editable="array"` HTML attribute to the immediate parent element tag. If no appropriate tags are available, wrap the templating in the `<editable-array>` web component.
+4. Add the `data-prop=""` HTML attribute to the same DOM element, or to the `<editable-array>` web component. The value of `data-prop` should be the path the to data property you want to edit.
+5. If your array can contain array items with different structures, you must add the `data-id-key` HTML attribute to the same DOM element, or to the `<editable-array>` web component. The value of `data-id-key` should be the structured data key that stores the name of your array item (e.g., `block_name`).
+6. Identify the HTML attribute within your array templating that contains your array item and add the `data-editable="array-item"` HTML attribute. If no appropriate tags are available, wrap the content of the array item in the `<editable-array-item>` web component.
+7. If your array can contain array items with different structures, you must add the `data-id` HTML attribute to the same DOM element, or to the `<editable-array-item>` web component. The value of `data-id` should be a templating that will populate with the value of the ID key (i.e. `{block_name}`).
+8. Optional. If you also want to edit the contents of each array item in the Visual Editor, add [Text Editable Regions](/documentation/articles/configure-text-editable-regions/) or [Image Editable Regions](/documentation/articles/configure-image-editable-regions/) to the content inside each array item.
+9. Save the change to your *Site*. CloudCannon will automatically rebuild your *Site*.
+
+When you open the file in the Visual Editor, CloudCannon will show yellow *Editable Region* boxes around each array item. When you hover an array item, CloudCannon will show a small toolbar in the top right, containing an *Edit* button and a *Drag* handler. Clicking the *Edit* button will open a dropdown with options to move an array item one position to the left or right, and to delete the item. Clicking and holding the *Drag* handler allows you to visually move an array item to any position in the array.
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Visual-Editor-Complex-Array-Editable-Region" alt="A screenshot of the Visual Editor shows yellow Editable Region boxes around the array items, text, and images on the About webpage." title="Array Editable Region in the Visual Editor" type="screenshot"/>
+
+<comp.Notice info_type="info">
+  <p><strong>Where should the Array and Array Item </strong><em><strong>Editable Regions</strong></em> <strong>go?</strong></p><p>The Array attribute or web component should be the immediate parent element of your array templating. The Array Item attribute or web component should be the first child element of your array templating. This way, Array and Array Item should flank the templating for looping over your array.</p><p>Try to avoid any nested elements between them; they should be as close together as possible, regardless of whether you use HTML attributes, web components, or both.</p>
+</comp.Notice>
+
+## Examples
+
+Here are a few examples of different Array *Editable Regions*.
+
+In this example of a simple array, the `testimonials.md` file contains array items with the same structure.
+
+<comp.CodeBlock language="Markdown" source="testimonials.md">
+``````````
+
+---
+layout: ../layouts/TestimonialsLayout.astro
+testimonials:
+  - image: /astro-blog/blog-placeholder-2.jpg
+    image_alt: Profile photo of D. Gale
+    name: D. Gale
+    job_title: CEO at Yellow Brick Industries
+    quote: >-
+      "In pretium libero sed velit posuere sagittis."
+  - image: /astro-blog/blog-placeholder-3.jpg
+    image_alt: Profile photo of S. Crow
+    name: S. Crow
+    job_title: CBO at Yellow Brick Industries
+    quote: >-
+      "Mauris at augue quis orci egestas eu in nulla."
+  - image: /astro-blog/blog-placeholder-4.jpg
+    image_alt: Profile photo of T. Man
+    name: T. Man
+    job_title: CHO at Yellow Brick Industries
+    quote: >-
+      "Nunc ut sem vitae tortor volutpat varius."
+  - image: /astro-blog/blog-placeholder-5.jpg
+    image_alt: Profile photo of C. Lion
+    name: C. Lion
+    job_title: CCO at Yellow Brick Industries
+    quote: >-
+      "Aenean pharetra orci ac tincidunt lobortis."
+---
+
+``````````
+</comp.CodeBlock>
+
+<comp.CodeBlock language="Astro" source="TestimonialsLayout.astro">
+``````````
+
+---
+const { testimonials } = Astro.props.frontmatter;
+---
+
+<!doctype html>
+<html lang="en">
+  <body>
+    <main>
+      <section>
+        <ul data-editable="array" data-prop="testimonials"> /*1*/
+          {
+            testimonials.map((testimonial) => (
+              <li data-editable="array-item" >
+                {testimonial.image && (
+                  <img
+                    data-editable="image"
+                    data-prop-src="image"
+                    data-prop-alt="image_alt"
+                    width={720}
+                    height={360}
+                    src={testimonial.image}
+                    alt={testimonial.image_alt}
+                  /> /*2*/
+                )}
+                <h4 class="name" data-editable="text" data-prop="name">{testimonial.name}</h4> /*3*/
+                <p class="job" data-editable="text" data-prop="job_title">{testimonial.job_title}</p> /*4*/
+                <p class="quote" data-editable="text" data-prop="quote">{testimonial.quote}</p> /*5*/
+              </li>
+            ))
+          }
+        </ul>
+      </section>
+    </main>
+  </body>
+</html>
+
+``````````
+<comp.Annotation number="1">
+  The `data-editable` attribute defines what kind of data this element contains, and the `data-prop` attribute defines the path to the data we want to edit. In this case, we want an Array *Editable Region*, so the value of `data-editable` is `array`, and we want to edit the `testimonials` structured data key in the file front matter.
+</comp.Annotation>
+<comp.Annotation number="2">
+  This `<img>` element contains `data-editable="image"`, `data-prop-src="image"`, and `data-prop-alt="image_alt"` to define an Image *Editable Region*.
+</comp.Annotation>
+<comp.Annotation number="3">
+  This `<h4>` element contains `data-editable="text"` and `data-prop="name"` to define a Text *Editable Region*.
+</comp.Annotation>
+<comp.Annotation number="4">
+  This `<p>` element contains `data-editable="text"` and `data-prop="job_title"` to define a Text *Editable Region*.
+</comp.Annotation>
+<comp.Annotation number="5">
+  This `<p>` element contains `data-editable="text"` and `data-prop="quote"` to define a Text *Editable Region*.
+</comp.Annotation>
+</comp.CodeBlock>
+
+In this example of a complex array, the `about.md` file contains array items with different structures.
+
+<comp.CodeBlock language="Markdown" source="about.md">
+``````````
+
+---
+layout: ../layouts/AboutLayout.astro
+contentBlocks:
+  - _name: HeroBlock
+    title: We're on a mission
+    description: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce lobortis mi sed est dapibus, sit amet consectetur quam euismod. Cras pretium quam vitae malesuada placerat. Curabitur ac sagittis ligula. Nunc sed ultrices leo. Vestibulum malesuada lobortis nisl, a feugiat est viverra et.
+  - _name: StatsBlock
+    stats:
+      - number: $200m
+        text: Venture capital raised
+      - number: "2016"
+        text: Established in
+      - number: 40+
+        text: Amazing team members
+      - number: 44325+
+        text: Active users and growing
+  - _name: ContactBlock
+    text: Want to get in contact with us?
+    button: Click here
+    image: https://preview.astro.new/blog/_astro/blog-placeholder-about.BtEdEmGp_1cKsnD.webp
+---
+
+``````````
+</comp.CodeBlock>
+
+<comp.CodeBlock language="Astro" source="AboutLayout.astro">
+``````````
+
+---
+const components = {};
+const componentImports = import.meta.glob("../components/**/*.astro", {
+  eager: true,
+});
+Object.entries(componentImports).forEach(([path, obj]) => {
+  const name = path.replace("../components/", "").split(".")[0];
+  components[name] = obj.default;
+});
+
+const { contentBlocks } = Astro.props.frontmatter;
+---
+
+<!doctype html>
+<html lang="en">
+  <body>
+    <main>
+      <section data-prop="contentBlocks" data-id-key="_name">
+        {
+          contentBlocks.map((block) => {
+            const Component = components[block._name];
+            return <editable-array-item data-id={block._name}><Component {...block} /></editable-array-item>;
+          })
+        }
+      </section>
+    </main>
+  </body>
+</html>
+
+``````````
+</comp.CodeBlock>
+
+## Misconfigured Array *Editable Regions*
+
+CloudCannon will display an orange warning box in the Visual Editor if your Array *Editable Regions* is misconfigured.
+
+Array *Editable Regions* are misconfigured if:
+
+* You did not define the `data-prop` HTML attribute.
+* The *Editable Region* has an invalid data type (e.g., your Text region has a number or object, instead of a string).
+* You have one or more orphaned Array Item *Editable Regions* that are not contained within an Array *Editable Region*.

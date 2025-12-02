@@ -1,0 +1,83 @@
+---
+_schema: default
+_uuid: 01ecefe3-3841-4d5d-aacc-450959563c57
+_created_at: 2024-05-31T15:53:59+12:00
+title: Create IAM policies
+nav_title: Create IAM policies
+order: 4
+published: true
+image: >-
+  https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+description: >-
+  Learn how to edit your Identity and Access Management policies to allow
+  CloudCannon and imgix to interact with your S3 bucket.
+tags: []
+related_links: []
+explicit_canonical:
+---
+Identity and Access Management (IAM) policies determine what actions are allowed for content in your S3 bucket. We must create policies to allow CloudCannon and imgix to perform specific actions for your bucket and any object stored within it. CloudCannon requires permission to upload, edit, and preview your assets, while imgix only requires permission to read and list content from your S3 bucket in order to serve your assets.
+
+For more information about Amazon S3 policies, please see their <a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/access-policy-language-overview.html" target="_blank" rel="noopener">documentation</a>.
+
+In this step, you will create two policies, one for CloudCannon and one for imgix.
+
+1. Open the AWS console and navigate to *IAM* under *Security, Identity, & Compliance* section in the main menu.
+2. Navigate to *Policies* under *Access management*.
+3. Click the *Create Policy* button.
+4. Open the *JSON* tab of the new policy and paste the following JSON code. Make sure to replace “PlaceholderBucketName” with your S3 bucket name.
+
+<comp.CodeBlock language="JSON" source="policy.json">
+``````````
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:PutObject",
+        "s3:GetBucketLocation",
+        "s3:GetObjectAcl",
+        "s3:GetObject",
+        "s3:ListBucketMultipartUploads",
+        "s3:AbortMultipartUpload",
+        "s3:ListBucket",
+        "s3:PutObjectAcl",
+        "s3:ListMultipartUploadParts"
+      ],
+      "Resource": [
+        "arn:aws:s3:::<PlaceholderBucketName>",
+        "arn:aws:s3:::<PlaceholderBucketName>/*"
+      ]
+    }
+  ]
+}
+``````````
+</comp.CodeBlock>
+
+5. Click the *Next: Tags* button, then click *Next* again.
+6. Name your policy “CloudCannon Access Policy”, then click *Create policy*.
+7. Repeat steps 3 to 5 and paste the following JSON code. Make sure to replace “PlaceholderBucketName” with your S3 bucket name.
+
+<comp.CodeBlock language="JSON" source="policy.json">
+``````````
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:GetBucketLocation",
+        "s3:GetObject",
+        "s3:ListBucket"
+      ],
+      "Resource": [
+        "arn:aws:s3:::<PlaceholderBucketName>",
+        "arn:aws:s3:::<PlaceholderBucketName>/*"
+      ]
+    }
+  ]
+}
+``````````
+</comp.CodeBlock>
+
+8. Name your policy “imgix Access Policy”, then click *Create policy*.
