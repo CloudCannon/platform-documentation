@@ -414,12 +414,20 @@ site.filter("get_by_uuid", (resources, uuid) => {
 site.filter("get_by_letter", async (resources, letter) => {
     const dir = `user/glossary/${letter}`;
     let entries = [];
-    for await(const entry of Deno.readDir(dir)){
-        const file_content = Deno.readTextFileSync(`${dir}/${entry.name}`);
-        const yml = jsYaml.load(file_content);
-        entries.push(yml)
+    try {
+        for await(const entry of Deno.readDir(dir)){
+            const file_content = Deno.readTextFileSync(`${dir}/${entry.name}`);
+            const yml = jsYaml.load(file_content);
+            entries.push(yml)
+        }
+        entries.sort((a,b) => a.glossary_term_name < b.glossary_term_name ? -1 : 1)
+    } catch (error) {
+        // Directory doesn't exist, return empty array
+        if (error instanceof Deno.errors.NotFound) {
+            return [];
+        }
+        throw error; // Re-throw other errors
     }
-    entries.sort((a,b) => a.glossary_term_name < b.glossary_term_name ? -1 : 1)
     return entries;
 }, true)
 
