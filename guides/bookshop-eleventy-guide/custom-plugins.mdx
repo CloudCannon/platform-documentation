@@ -1,0 +1,63 @@
+---
+_schema: default
+_uuid: 5f6ee0b7-5412-4c5e-94b2-746e6cba7b0a
+_created_at: "2023-02-01 02:40:30 +0000"
+title: "Defining Custom Plugins"
+nav_title: "Defining Custom Plugins"
+order: 13
+published: true
+image: /documentation/static/bookshop-11ty/bookshop-eleventy-og.png
+description: "Add custom Liquid plugins to Bookshop's Eleventy engine"
+tags: []
+related_articles: null
+related_links: []
+---
+
+Bookshop allows you to specify custom Liquid plugins to extend the live editing interface. For example,
+custom tags and plugins can be defined to allow your components to render in the Visual Editor.
+
+There are some limitations here — for example, plugins that interact with the filesystem or network will not work.
+In these cases, providing Bookshop a fallback plugin can be enough to unblock your components in the Visual Editor.
+
+## Configuring plugins
+
+Plugins be specified in your Bookshop configuration file:
+
+<comp.CodeBlock language="javascript" source="bookshop/bookshop.config.cjs">
+```
+module.exports = {
+    engines: {
+        "@bookshop/eleventy-engine": {
+            "plugins": ["./custom-plugin-one.js", "./custom-plugin-two.js"]
+        }
+    }
+}
+```
+</comp.CodeBlock>
+
+The paths specified here should be a path to each plugin file, relative to the `bookshop.config.cjs` file.
+
+## Writing plugins
+
+Plugins defined for Eleventy target LiquidJS.
+See the LiquidJS documentation on [Registering Filters/Tags](https://liquidjs.com/tutorials/register-filters-tags.html) for in-depth instructions.
+
+Each plugin file should export a function that takes a `Liquid` argument, which gives you access to configure the LiquidJS instance as required.
+
+## Example custom LiquidJS filter
+
+<comp.CodeBlock language="javascript" source="bookshop/custom-filter.js">
+```
+import yaml from "js-yaml";
+
+module.exports = function (Liquid) {
+    this.registerFilter("load_yaml", (text) => {
+        return yaml.load(text)
+    });
+}
+```
+</comp.CodeBlock>
+
+This example also includes pulling in a dependency.
+This dependency should be installed in the working directory, likely the root of your repository.
+Any dependencies referenced must support being bundled for web targets, so packages that rely on NodeJS APIs will not work here.

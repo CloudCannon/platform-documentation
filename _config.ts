@@ -78,7 +78,7 @@ const injectedSections: Promise<string>[] = [];
 
 const mdFilter = site.renderer.helpers.get('md')[0];
 
-site.ignore("README.md", 'articles', 'changelogs', 'unused');
+site.ignore("README.md", 'articles', 'changelogs', 'unused', 'guides');
 
 // Sets `/documentation/` through the url filter when running locally
 if (Deno.args.includes("-s") || Deno.args.includes("--serve")) {
