@@ -15,9 +15,6 @@ console.log(`Loading common content from ${common_content_files.join(", ")}`);
 const ssg_data = yaml.load(
   fs.readFileSync(path.join(__dirname, "_data/ssgs.yml"), "utf8"),
 );
-const guide_series_data = yaml.load(
-  fs.readFileSync(path.join(__dirname, "_data/guide_series.yml"), "utf8"),
-);
 const docshot_data = yaml.load(
   fs.readFileSync(path.join(__dirname, "_data/docshots.yml"), "utf8"),
 );
@@ -88,7 +85,6 @@ module.exports = {
   },
   _select_data: {
     docs_ssgs: ssg_data.ssgs,
-    docs_guide_series: guide_series_data.series,
     docshots_status: [
       {
         name: 'Needs docshots',
@@ -212,32 +208,6 @@ module.exports = {
         },
         guide_data: {
           path: ".cloudcannon/schemas/guide-data.yml",
-          _inputs: {
-            guide_target_ssgs: {
-              type: "multiselect",
-              options: {
-                values: "_select_data.docs_ssgs",
-                value_key: "name",
-                preview: {
-                  label: {
-                    key: "name",
-                  },
-                },
-              },
-            },
-            guide_series: {
-              type: "select",
-              options: {
-                values: "_select_data.docs_guide_series",
-                value_key: "id",
-                preview: {
-                  label: {
-                    key: "name",
-                  },
-                },
-              },
-            },
-          },
         },
       },
     },
