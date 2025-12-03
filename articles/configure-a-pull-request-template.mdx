@@ -32,11 +32,11 @@ To configure a Pull Request template:
 4. (Optional.) Add any other configuration keys (e.g., `label`, `title`, `body`) under your array item.
 5. Save your changes.
 
-CloudCannon will...
+CloudCannon will update the list of available Pull Request templates on the *Publishing* page.
 
 ## Configuration options
 
-Here is an example of a File input using some of the most commonly used configuration keys.
+Here is an example of two Pull Request templates using some of the most commonly used configuration keys.
 
 <comp.MultiCodeBlock language="yaml" translate_into={["json"]} source="cloudcannon.config.yml">
 ``````````
@@ -60,7 +60,7 @@ pull_request_templates:
       title:
         options:
           disabled___4___: true 
-    template_path___5___: .github/templates/bug-fix.md 
+    template_path___5___: .github/templates/delete-content.md 
 
 ``````````
 <comp.Annotation number="1">
@@ -76,11 +76,11 @@ pull_request_templates:
   We have configured the `title` Input in this Pull Request template. CloudCannon will not allow you to change the value of the `title` Input as the `disabled` option is `true`.
 </comp.Annotation>
 <comp.Annotation number="5">
-  The default value for the pull request body will be filled from the specified file.
+  We want the `body` field in our Pull Request template to use the content of the `.github/templates/delete-content.md` file by default.
 </comp.Annotation>
 </comp.MultiCodeBlock>
 
-x
+These keys configure the Pull Request templates available on your *Site*.
 
 <comp.DataReference>
   <comp.DataReferenceRow label="pull_request_templates" type_markdown="Array">
@@ -117,49 +117,40 @@ x
                 italic: true
                 link: true
                 format: p h1 h2 h3
-        - label: Breaking changes
-          title: Breaking changes
+        - label: Delete content
+          title: Delete content
           _inputs:
             title:
               options:
-                disabled: true
-          template_path: .github/templates/bug-fix.md
+                disabled: true 
+          template_path: .github/templates/delete-content.md 
       ``````````
       </comp.MultiCodeBlock>
     </comp.Example>
   </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="pull_request_templates[*].label" type_markdown="string">
+  <comp.DataReferenceRow label="pull_request_templates[*].label" type_markdown="String">
     This key defines the name of a Pull Request template, which appears in the dropdown menu on the *Publishing* page.
     
     This key has no default.
     <comp.Example>
-      In this example...
+      In this example, the name of the Pull Request template in the dropdown menu on the *Publishing* page will be "Content Update".
 
       <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
       ``````````
       pull_request_templates:
-        - label: General changes
-          _inputs:
-            title:
-              options:
-                required: true
-            body:
-              type: markdown
-              options:
-                bold: true
-                italic: true
-                link: true
-                format: p h1 h2 h3
+        - label: Content Update
+          title: Updates to...
+          body: In this update, I have made the following changes...
       ``````````
       </comp.MultiCodeBlock>
     </comp.Example>
   </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="pull_request_templates[*].title" type_markdown="string">
+  <comp.DataReferenceRow label="pull_request_templates[*].title" type_markdown="String">
     This key defines the default value of the "Title" field in your Pull Request.
     
     This key has no default.
     <comp.Example>
-      In this example...
+      In this example, the `title` field of our Pull Request template is populated by the string "Updates to..." by default.
 
       <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
       ``````````
@@ -171,12 +162,12 @@ x
       </comp.MultiCodeBlock>
     </comp.Example>
   </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="pull_request_templates[*].body" type_markdown="string">
+  <comp.DataReferenceRow label="pull_request_templates[*].body" type_markdown="String">
     This key defines the default value of the "Body" field in your Pull Request.
     
     This key has no default.
     <comp.Example>
-      In this example...
+      In this example, the `body` field of our Pull Request template is populated by the string "In this update, I have made the following changes..." by default.
 
       <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
       ``````````
@@ -188,67 +179,44 @@ x
       </comp.MultiCodeBlock>
     </comp.Example>
   </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="pull_request_templates[*].template_path" type_markdown="string">
-    This key defines the path to the file CloudCannon should use as the value of the `body` field in a Pull Request template. This file path must be relative to the root of your repository (i.e., `/`, not the value of `source`). CloudCannon will not use the content of this file if the `body` key is also defined for the Pull Request template.
+  <comp.DataReferenceRow label="pull_request_templates[*].template_path" type_markdown="String">
+    This key defines the path to the file CloudCannon should use as the value of the `body` field in a Pull Request template. This file path must be relative to the root of your repository (i.e., `/`, not the value of `source`). This allows you to create more complex default content for your Pull Request.
+    
+    CloudCannon will not use the content of this file if the `body` key is also defined for the Pull Request template.
     
     This key has no default.
     <comp.Example>
-      In this example...
+      In this example, the `body` field of our Pull Request template is populated by the contents of `.github/templates/delete-content.md` by default.
 
       <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
       ``````````
-      key:
+      pull_request_templates:
+        - label: Delete content
+          title: Delete content
+          _inputs:
+            title:
+              options:
+                disabled: true 
+          template_path: .github/templates/delete-content.md
       ``````````
       </comp.MultiCodeBlock>
     </comp.Example>
   </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="pull_request_templates[*]._inputs" type_markdown="">
+  <comp.DataReferenceRow label="pull_request_templates[*]._inputs" type_markdown="Object">
     This key defines which inputs are available at a given level of the configuration cascade.
 
     The following nested keys are available for each input inside `_inputs`:
 
-    * `type`
-    * `label`
-    * `comment`
-    * `context`
-    * `hidden`
-    * `disabled`
-    * `instance_value`
-    * `cascade`
-    * `options`
+    * `*.type`
+    * `*.label`
+    * `*.comment`
+    * `*.context`
+    * `*.hidden`
+    * `*.disabled`
+    * `*.instance_value`
+    * `*.cascade`
+    * `*.options`
 
     This key has no default. If undefined at higher levels of the [configuration cascade](/documentation/articles/using-the-configuration-cascade/), `_inputs` will default to any values configured in the [CloudCannon configuration file](/documentation/articles/what-is-the-cloudcannon-configuration-file/).
-  </comp.DataReferenceRow>
-</comp.DataReference>
-
-&nbsp;
-
-&nbsp;
-
-<comp.DataReference>
-  <comp.DataReferenceRow label="label" type_markdown="<p>String</p>">
-    <p>If you have multiple pull request templates defined, users will see a select box to choose their template when creating a pull request. CloudCannon will use this label to help identify which is which.</p>
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="title" type_markdown="<p>String</p>">
-    <p>Define the default value of the title of the pull request.</p>
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="body" type_markdown="<p>String</p>">
-    <p>Define the default value of the body of the pull request.</p>
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="template_path" type_markdown="<p>String</p>">
-    <p>Sets the path for a file containing your pull request template. The file path should be relative to your root directory. CloudCannon will use the contents of this file as the default value for the pull request body.</p><p>This value will not be used if <code>body</code> is set on this pull request template.</p>
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="_inputs" type_markdown="<p>Object</p>">
-    <p>This key allows you to define _inputs configuration for the title and body inputs. The default value is:</p>
-    <comp.CodeBlock language="yaml">
-                ``````````
-
-                _inputs:
-                  body:
-                    type: textarea
-
-                ``````````
-                </comp.CodeBlock>
-    <p>See <a href="/documentation/articles/what-are-inputs/">this article</a> for more information about configuring inputs.</p>
   </comp.DataReferenceRow>
 </comp.DataReference>
