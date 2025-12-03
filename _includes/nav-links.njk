@@ -1,12 +1,25 @@
-<ol class="l-header__links" x-data="{ open: -1 }">
+<ol class="l-header__links" x-data="{ open: -1,
+  lockScroll() {
+      if (this.open > -1) {
+        document.documentElement.style.overflow = 'hidden';
+        document.documentElement.style.paddingRight = '0px'; // keep Alpine parity
+      } else {
+        document.documentElement.style.overflow = '';
+        document.documentElement.style.paddingRight = '';
+      }
+    }
+  }"
+  x-init="
+    $watch('open', () => lockScroll())
+  ">
+  <li x-text="open"></li>
   {% for item in headingnav.items %}
     <li><a 
       tabindex="0"
-      x-data="{index: {{ loop.index }}}"
-      @click="open = open == index ? -1 : index;$focus.within($refs.dropdown_menu_{{ loop.index0 }}).first()"
-      @keydown.down="open = open == index ? -1 : index;$focus.within($refs.dropdown_menu_{{ loop.index0 }}).first()"
-      @keydown.up="open = open == index ? -1 : index;$focus.within($refs.dropdown_menu_{{ loop.index0 }}).last()"
-      :class="open == index ? 'open' : ''"
+      @click="open = open == {{ loop.index }} ? -1 : {{ loop.index }};$focus.within($refs.dropdown_menu_{{ loop.index0 }}).first()"
+      @keydown.down="open = open == {{ loop.index }} ? -1 : {{ loop.index }};$focus.within($refs.dropdown_menu_{{ loop.index0 }}).first()"
+      @keydown.up="open = open == {{ loop.index }} ? -1 : {{ loop.index }};$focus.within($refs.dropdown_menu_{{ loop.index0 }}).last()"
+      :class="open == {{ loop.index }} ? 'open' : ''"
       {% if item.href in url %} aria-current="page"{% endif %}
       {% if item.href %}href="{{ item.href }}"{% endif %}>{{ item.text }} {% if item.items | length %}<img src="{{ "chevron_right:filled" | icon("material") }}" inline>{% endif %}</a>
       {% if item.items | length %}
@@ -15,7 +28,7 @@
           @keydown.down="$focus.wrap().next()"
           @keydown.up="$focus.wrap().previous()"
           @keydown.escape="open = -1"
-          x-trap.noscroll.inert="open != -1">
+          x-trap.inert="open == {{ loop.index }}">
             {% for subitem in item.items %}
               <li>
                 <a class="c-card-grid__card--item" href="{{ subitem.href }}">
