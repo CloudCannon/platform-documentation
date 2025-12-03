@@ -1,0 +1,82 @@
+---
+_schema: default
+_uuid: 5a1d2e3b-4c5f-6d7e-8a9b-0c1d2e3f4a5b
+_created_at: '2021-09-15 23:13:40 +0000'
+details:
+  title: Scheduling your next build automatically
+  description: >-
+    After building your site, CloudCannon will read your _schedule.txt file and
+    automatically configure a build at the specified time.
+  image: /documentation/static/CloudCannonDocumentationog.jpg
+tags:
+  - builds
+  - schedule
+related_links:
+  - name: Jekyll CloudCannon Schedule
+    url: 'https://github.com/CloudCannon/jekyll-cloudcannon-schedule'
+---
+
+Automatic builds are configured by creating a `_schedule.txt` file in your site. After building your site, CloudCannon will read your `_schedule.txt` file and automatically configure a build at the specified time. This is useful for future posts.
+
+### Schedule file format
+
+
+The `_schedule.txt` is a comma separated list of values. It contains three values, which are used to schedule a build and generate the management UI.
+
+
+1. **Run date**: Defines the date and time your build will be scheduled for.
+2. **Build name**: A label that will be shown in the Scheduled Builds UI in CloudCannon.
+3. **Source filename**: Path to a source file. The UI will show a button linking to the editor for that file. This is useful if you're scheduling a build to publish a particular file.
+
+For example:
+
+<comp.CodeBlock language="plaintext" source="_schedule.txt">
+```
+2020-10-22T10:00:00+00:00,Publish Post,_posts/2020-10-22-because-of-the-internet.md
+2020-11-22T10:00:00+00:00,Publish Post,_posts/2020-11-22-the-history-of-marketing.md
+```
+</comp.CodeBlock>
+
+### Generating the schedule
+For convenience, it's likely you'll want to generate `_schedule.txt` programmatically.
+
+<comp.Notice info_type="info">
+  For Jekyll sites we recommend using our plugin, [jekyll-cloudcannon-schedule](https://github.com/CloudCannon/jekyll-cloudcannon-schedule) to generate `_schedule.txt`. This will parse all posts set for the future and generate a build on that date.
+
+  If automatic builds are not working, try adding the `–-future` flag to your Jekyll build command.
+
+  [![Build Status](https://travis-ci.com/CloudCannon/jekyll-cloudcannon-schedule.svg?branch=master)](https://travis-ci.com/CloudCannon/jekyll-cloudcannon-schedule)
+  [![Gem Status](https://badge.fury.io/rb/jekyll-cloudcannon-schedule.svg)](https://badge.fury.io/rb/jekyll-cloudcannon-schedule)
+
+  Add the following to your `Gemfile`\:
+
+  <comp.CodeBlock language="ruby" source="Gemfile">
+  ```
+  group :jekyll_plugins do
+    gem 'jekyll-cloudcannon-schedule'
+  end
+  ```
+  </comp.CodeBlock>
+
+  Then add the following to your `_config.yml`\:
+
+  <comp.CodeBlock language="yaml" source="_config.yml">
+  ```
+  plugins:
+    - jekyll-cloudcannon-schedule
+  ```
+  </comp.CodeBlock>
+
+  For Jekyll versions before 3.5.0, use `gems` instead of `plugins`.
+</comp.Notice>
+
+### Viewing automatic builds
+When `_schedule.txt` is correctly set up, your site will be built automatically at the specified times.
+
+To view all available automatic builds:
+
+1. Go to *Site Settings* / *Schedule*
+2. Select the **Automatic** tab
+3. Clicking **Update** will open the source filename in the content editor
+
+<comp.DocsImage path="ye_olde_images/builds-automatic-builds.png" alt="Automatic Builds Schedule interface" type="screenshot" />

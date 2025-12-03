@@ -250,18 +250,18 @@ This article covers all HTML attributes available for configuring *Editable Regi
     This HTML attribute is optional for simple Array <em>Editable Regions</em>, but required for complex Array <em>Editable Regions</em> (i.e., the array items do not share the same structure).
 
     <comp.Example>
-      In this example, we have added `data-id-key="_name"` to the `<main>` tag. For each Array Item in this Array <em>Editable Region</em>, CloudCannon will look for the `data-id` under the `_name` key.
+      In this example, we have added `data-id-key="_name"` to the `<section>` tag. For each Array Item in this Array <em>Editable Region</em>, CloudCannon will look for the `data-id` under the `_name` key.
 
       <comp.CodeBlock language="Astro" source="file.astro">
       ``````````
       <html lang="en">
         <body>
           <main>
-            <section data-prop="contentBlocks" data-id-key="_name">
+            <section data-prop="contentBlocks" data-id-key="_name" data-component-key="_name">
               {
                 contentBlocks.map((block) => {
                   const Component = components[block._name];
-                  return <editable-array-item data-id={block._name}><Component {...block} /></editable-array-item>;
+                  return <editable-array-item data-id={block._name} data-component={block._name}><Component {...block} /></editable-array-item>;
                 })
               }
             </section>
@@ -284,11 +284,11 @@ This article covers all HTML attributes available for configuring *Editable Regi
       <html lang="en">
         <body>
           <main>
-            <section data-prop="contentBlocks" data-id-key="_name">
+            <section data-prop="contentBlocks" data-id-key="_name" data-component-key="_name">
               {
                 contentBlocks.map((block) => {
                   const Component = components[block._name];
-                  return <editable-array-item data-id={block._name}><Component {...block} /></editable-array-item>;
+                  return <editable-array-item data-id={block._name} data-component={block._name}><Component {...block} /></editable-array-item>;
                 })
               }
             </section>
@@ -302,13 +302,13 @@ This article covers all HTML attributes available for configuring *Editable Regi
   <comp.DataReferenceRow label="data-direction" type_markdown="HTML Attribute">
     This HTML attribute defines the behavior of the Array <em>Editable Region</em> when dragging items in the Visual Editor. CloudCannon displays a yellow line to indicate where it will insert an array item when dragging and dropping. You can match the direction of the array on your webpage by defining this HTML attribute.
 
-    Values can be one of the following: `column` for vertical ascending order, `row` for horizontal ascending order, `column-reserve` for vertical descending order, and `row-reserve` for horizontal descending order.
+    Values can be one of the following: `column` for vertical ascending order, `row` for horizontal ascending order, `column-reverse` for vertical descending order, and `row-reverse` for horizontal descending order.
 
     By default, `data-direction` is `column` (i.e., a vertical array with array position one at the top).
 
     This HTML attribute is optional for Array <em>Editable Regions</em>.
     <comp.Example>
-      In this example, we have added `data-direction=row` to the `<main>` tag, as the array on our webpage is horizontal, with array position one on the left. This way, CloudCannon will highlight the left and right edges of array items to indicate where an array item will be moved to when dragging and dropping.
+      In this example, we have added `data-direction=row` to the `<ul>` tag, as the array on our webpage is horizontal, with array position one on the left. This way, CloudCannon will highlight the left and right edges of array items to indicate where an array item will be moved to when dragging and dropping.
 
       <comp.CodeBlock language="Astro" source="file.astro">
       ``````````
@@ -333,10 +333,38 @@ This article covers all HTML attributes available for configuring *Editable Regi
       </comp.CodeBlock>
     </comp.Example>
   </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="data-component" type_markdown="HTML Attribute">
-    This HTML attribute defines which registered component a Component <em>Editable Region</em> should reference. The value of `data-component` should be the same name as the component in your registration script.
+  <comp.DataReferenceRow label="data-component-key" type_markdown="HTML Attribute">
+    This HTML attribute defines the path to the structured data key where `data-component` is defined. Must be used in conjunction with `data-component` on Array Item <em>Editable Regions</em>.
 
-    This HTML attribute is required for Component <em>Editable Regions</em>.
+    This HTML attribute is optional for simple Array <em>Editable Regions</em>, but required for complex Array <em>Editable Regions</em> (i.e., the array items do not share the same structure).
+
+    <comp.Example>
+      In this example, we have added `data-component-key="_name"` to the `<section>` tag. For each Array Item in this Array <em>Editable Region</em>, CloudCannon will look for the `data-component` under the `_name` key.
+
+      <comp.CodeBlock language="Astro" source="file.astro">
+      ``````````
+      <html lang="en">
+        <body>
+          <main>
+            <section data-prop="contentBlocks" data-id-key="_name" data-component-key="_name">
+              {
+                contentBlocks.map((block) => {
+                  const Component = components[block._name];
+                  return <editable-array-item data-id={block._name} data-component={block._name}><Component {...block} /></editable-array-item>;
+                })
+              }
+            </section>
+          </main>
+        </body>
+      </html>
+      ``````````
+      </comp.CodeBlock>
+    </comp.Example>
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="data-component" type_markdown="HTML Attribute">
+    This HTML attribute defines which registered component an Array, Array Item, or Component <em>Editable Region</em> should reference. The value of `data-component` should be the same name as the component in your registration script.
+
+    This HTML attribute is optional for simple Array <em>Editable Regions</em>, but required for Component <em>Editable Regions</em> and complex Array <em>Editable Regions</em> (i.e., the array items do not share the same structure). required for Component <em>Editable Regions</em>.
     <comp.Example>
       In this example, we have added `data-component="cta"` to the `<editable-component>` web component, using the same name as the `cta` component in our registration script.
 
@@ -355,6 +383,27 @@ This article covers all HTML attributes available for configuring *Editable Regi
       
       // Register your components
       registerAstroComponent('cta', CTA);
+      ``````````
+      </comp.CodeBlock>
+
+      In this example, we have added `data-component={block._name}` to the `<editable-array-item>` web component, so that it will populate with the name of the component in our registration script at build time.
+
+      <comp.CodeBlock language="Astro" source="file.astro">
+      ``````````
+      <html lang="en">
+        <body>
+          <main>
+            <section data-prop="contentBlocks" data-id-key="_name" data-component-key="_name">
+              {
+                contentBlocks.map((block) => {
+                  const Component = components[block._name];
+                  return <editable-array-item data-id={block._name} data-component={block._name}><Component {...block} /></editable-array-item>;
+                })
+              }
+            </section>
+          </main>
+        </body>
+      </html>
       ``````````
       </comp.CodeBlock>
     </comp.Example>

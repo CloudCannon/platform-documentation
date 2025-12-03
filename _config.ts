@@ -1,4 +1,8 @@
 import lume from "lume/mod.ts";
+import icons from "lume/plugins/icons.ts";
+
+import nunjucks from "lume/plugins/nunjucks.ts";
+
 import pagefind from "lume/plugins/pagefind.ts";
 import date from "lume/plugins/date.ts";
 import sass from "lume/plugins/sass.ts";
@@ -11,6 +15,8 @@ import jsx from "lume/plugins/jsx.ts";
 import mdx from "lume/plugins/mdx.ts";
 
 import slugify from "npm:@sindresorhus/slugify@2.2.0";
+
+import jsYaml from "npm:js-yaml";
 
 // Data highlights
 import "npm:prismjs@1.29.0/components/prism-yaml.js";
@@ -40,15 +46,21 @@ import "./_config/prism-tree.js";
 import "./_config/prism-annotated.js";
 
 import { DOMParser } from "https://deno.land/x/deno_dom@v0.1.38/deno-dom-wasm.ts";
-import { Page } from "lume/core.ts";
+//import { Page } from "lume/core.ts";
 import { Element, Node } from "lume/deps/dom.ts";
 import { extract } from "lume/deps/front_matter.ts";
+
+import { remark } from "npm:remark";
+import remarkParse from "npm:remark-parse";
+import strip from "npm:strip-markdown";
+
+import { format, formatDistanceToNowStrict, differenceInMonths } from 'npm:date-fns';
+import { parseChangelogFilename } from "./parseChangelogFilename.ts";
 
 function stripHTML(html) {
     const doc = new DOMParser().parseFromString(html, 'text/html');
     return doc.body.textContent || '';
 }
-
 
 const domainsRegExp = new RegExp('cloudcannon.com|^\/|^\#');
 
@@ -59,11 +71,14 @@ const site = lume({
     }
 });
 
+site.use(nunjucks());
+site.use(icons());
+
 const injectedSections: Promise<string>[] = [];
 
 const mdFilter = site.renderer.helpers.get('md')[0];
 
-site.ignore("README.md");
+site.ignore("README.md", 'articles', 'changelogs', 'unused', 'guides');
 
 // Sets `/documentation/` through the url filter when running locally
 if (Deno.args.includes("-s") || Deno.args.includes("--serve")) {
@@ -73,13 +88,18 @@ if (Deno.args.includes("-s") || Deno.args.includes("--serve")) {
 // Output all files to `/documentation/*` to match the location
 // (by default `_site/index.html` would represent `https://cloudcannon.com/documentation/`,
 //  but to subpath it on CloudCannon we want this at `_site/documentation/index.html`)
-site.preprocess("*", (page) => {
+site.preprocess("*", (pages) => pages.forEach((page) => {
     page.data.url = `/documentation${page.data.url}`;
-});
+}));
 
 // Creates an excerpt for all changelogs saved in description.
-site.preprocess(['.md', '.mdx'], (page) => {
-    if (!page.data.description && page.src.path.startsWith('/changelogs/')) {
+site.preprocess(['.md', '.mdx'], (pages) => pages.forEach((page) => {
+    if (!page.data.description && page.src.path.startsWith('/new_changelogs/')) {
+        const parsedDate = parseChangelogFilename(page.src.path);
+        if (parsedDate) {
+            page.data.date = parsedDate;
+        }
+
         const firstLine = page.data.content.trim().split('\n')[0];
         if (!firstLine) {
             return;
@@ -88,7 +108,7 @@ site.preprocess(['.md', '.mdx'], (page) => {
         const markdownInline = mdFilter(firstLine, true) || '';
         page.data.description = stripHTML(markdownInline);
     }
-});
+}));
 
 site.copy("ye_olde_images", "documentation/ye_olde_images");
 site.copy("uploads", "documentation/static");
@@ -113,11 +133,27 @@ site.formats.get(".md").engines[0].engine.disable("code");
 site.use(jsx());
 site.use(mdx());
 site.use(esbuild());
+site.add("/assets/js/site.js");
+site.copy("/assets/js/custom-live.js");
+
 site.use(sass());
+site.add("/assets/css/site.scss");
+
+site.add("/assets/img");
+site.add("/uploads");
+
 site.use(date());
 site.use(sitemap({
-    filename: '/documentation/sitemap.xml'
+    items:{
+        filename: '=/documentation/sitemap.xml'
+    }
 }));
+
+site.loadPages([".md"], (page) => {
+  if (page.src.path.startsWith("user/glossary/")) {
+    page.data.collection = "glossary";
+  }
+});
 
 // JSX doesn't like to output some alpine attributes,
 // so we write them with an `alpine` prefix and re-map them here.
@@ -264,7 +300,7 @@ const injectReusableContent = async (el: Element) => {
     }
 }
 
-site.process([".html"], async (page) => {
+site.process([".html"], (pages) => Promise.all(pages.map(async (page) => {
     if (page.document) await injectReusableContent(page.document.body);
 
     for (const [attr, newattr] of Object.entries(alpineRemaps)) {
@@ -288,8 +324,9 @@ site.process([".html"], async (page) => {
         return slug;
     }
 
-    const tocContainer = page.document?.querySelectorAll(`.l-toc`)?.[0];
+    let tocContainer = page.document?.querySelectorAll(`.l-toc`)?.[0];
     const toc = page.document.createElement('ol');
+    toc.setAttribute("x-data","")
     toc.classList.add("l-toc__list");
     function appendAnchorHeader(el, slug) {
         el.setAttribute('id', slug);
@@ -301,7 +338,15 @@ site.process([".html"], async (page) => {
     }
 
     let hasItems = false;
-    page.document?.querySelectorAll(`main h1, main h2, main h3`).forEach((el) => {
+    let selector = `main h1, main h2`;
+    
+    if(!tocContainer){
+        tocContainer = page.document?.querySelectorAll(`.l-toc-changelog-list`)?.[0];
+        if(tocContainer)
+            selector = `main .changelog-entry > h2`;
+    }
+
+    page.document?.querySelectorAll(selector).forEach((el) => {
         if (el.hasAttribute("data-skip-anchor")) return;
 
         const text = el.innerText;
@@ -315,6 +360,11 @@ site.process([".html"], async (page) => {
         if (tocContainer) {
             hasItems = true;
             const li = page.document.createElement('li');
+            li.setAttribute(
+            "x-bind:class",
+            `visibleHeadingId === '${slug}' ? 'active' : ''`
+            );
+
             li.appendChild(createLink(page, text, `#${slug}`));
             toc.appendChild(li);
         }
@@ -329,7 +379,7 @@ site.process([".html"], async (page) => {
     if (hasItems) {
         const h3 = page.document.createElement('h3');
         h3.classList.add("l-toc__heading");
-        const headingText = page.document.createTextNode('On this page');
+        const headingText = page.document.createTextNode('Table of contents');
         h3.appendChild(headingText);
         tocContainer?.appendChild(h3);
         tocContainer?.appendChild(toc);
@@ -338,7 +388,14 @@ site.process([".html"], async (page) => {
     page.document?.querySelectorAll('a').forEach((el) => {
         appendTargetBlank(page, el);
     });
-});
+
+    let mobile_toc = page.document.querySelector(".l-toc-mobile > .l-toc__list");
+    if(mobile_toc){
+        mobile_toc.innerHTML = toc?.innerHTML;
+        if(!toc || toc.childNodes.length == 0)
+            mobile_toc.closest(".l-toc-mobile").remove();
+    }
+})));
 
 // These MUST appear after our custom site.process([".html"] handling,
 // as in that function we inject content that should then be processed by the inline plugin,
@@ -348,26 +405,68 @@ site.use(prism());
 
 // This annotation process relies on the syntax highlighting,
 // so needs to run after prism
-site.process([".html"], async (page) => {
+site.process([".html"], (pages) => Promise.all(pages.map(async (page) => {
     annotateCodeBlocks(page);
-});
+})));
+
+site.filter("get_by_uuid", (resources, uuid) => {
+    let found = resources.filter(x => x._uuid === uuid)
+    if(found && found.length > 0)
+        return found[0]
+    return []
+})
+
+site.filter("get_by_letter", async (resources, letter) => {
+    const dir = `user/glossary/${letter}`;
+    let entries = [];
+    try {
+        for await(const entry of Deno.readDir(dir)){
+            const file_content = Deno.readTextFileSync(`${dir}/${entry.name}`);
+            const yml = jsYaml.load(file_content);
+            entries.push(yml)
+        }
+        entries.sort((a,b) => a.glossary_term_name < b.glossary_term_name ? -1 : 1)
+    } catch (error) {
+        // Directory doesn't exist, return empty array
+        if (error instanceof Deno.errors.NotFound) {
+            return [];
+        }
+        throw error; // Re-throw other errors
+    }
+    return entries;
+}, true)
 
 // TODO: Redo docnav as JSX and move this logic into the component
 const bubble_up_nav = (obj) => {
     if (obj._bubbled) return;
     if (obj._type === "heading" || obj._type === "group") {
-        let articles = obj.items.flatMap(o => bubble_up_nav(o));
+        let articles = obj.items ? obj.items.flatMap(o => bubble_up_nav(o)) : [];
         obj._bubbled = articles;
         return articles;
     } else {
         // TODO: Temporary URL map, until a UUID refactor.
-        return obj.articles?.map(a => `/documentation/articles/${a}/`) ?? [];
+        return obj.articles
     }
 }
 
-site.filter("render_page_content", async (page: Page) => {
+site.filter("render_page_content", async (page: Lume.Page) => {
     return await site.renderer.render(page.data.content, page.data, `${page.src.path}.${page.src.ext || "mdx"}`);
 }, true)
+
+site.filter("render_text_only", async (markdown: string) => {
+    const result = await remark()
+      .use(remarkParse)
+      .use(strip)
+      .process(markdown);
+
+    return String(result).trim();
+}, true)
+
+site.filter("DATE_TO_NOW", (date) => {
+    let difference_in_months = differenceInMonths(new Date(), date)
+    let date_to_now = formatDistanceToNowStrict(date, {addSuffix: true})
+    return difference_in_months < 5 ? date_to_now : format(date, "d MMMM yyyy")
+})
 
 site.filter("bubble_up_nav", (blocks) => {
     blocks.forEach(bubble_up_nav);
@@ -405,6 +504,40 @@ site.filter("render_common", (file: string, data: object = {}) => {
 
     return content_id - 1;
 })
+
+site.filter("get_glossary_term", (file: string) => {
+    const file_content = Deno.readTextFileSync(`${file.slice(1)}`);
+    let yml = jsYaml.load(file_content)
+    return yml.term_description;
+})
+
+let changelogsData = {};
+
+site.addEventListener("beforeBuild", async () => {
+  const dir = "new_changelogs";
+  const years = {"keys":[]};
+
+  for await (const entry of Deno.readDir(dir)) {
+    if (entry.isDirectory) {
+        let dirname = entry.name;
+        years.keys.push(dirname);
+        years[dirname] = 0;
+        let subdir = `${dir}/${dirname}`
+        for await (const entry of Deno.readDir(subdir)) {
+            if (entry.isFile) {
+                years[dirname]++;
+            }
+        }
+    }
+  }
+
+  years.keys.sort((a,b) => b - a)
+
+  changelogsData = years;
+});
+
+site.data("changelog_years", () => changelogsData);
+site.data("all_letters", () => [...Array(26).keys()].map((n) => String.fromCharCode(97 + n)))
 
 /* Environment data */
 

@@ -1,0 +1,83 @@
+---
+_schema: default
+_uuid: 19f32e2a-f772-4526-8820-0f80eeece35c
+_created_at: 2025-11-20T08:44:46.000Z
+details:
+  title: Why split your Configuration File?
+  description: >-
+    Learn about splitting your CloudCannon configuration across several files,
+    including why split configuration might work for you.
+  image: >-
+    https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+  category:
+    - Explanation
+docshots:
+  docshots_status: Not applicable
+article_topic: null
+---
+Rather than have a single [CloudCannon Configuration File](/documentation/developer-articles/what-is-the-cloudcannon-configuration-file/), you can split your configuration across multiple files. With a split *Configuration File*, you can organize your configuration more effectively, especially for larger sites or when working with shared configurations.
+
+You can split the following configuration into dedicated *Configuration Files*:
+
+* [Collections](/documentation/user-articles/what-is-a-collection/) (`_collection_config`)
+* [Schemas](/documentation/developer-articles/what-is-a-schema/) (`collections_config.*.schemas`)
+* [Inputs](/documentation/user-articles/what-are-inputs/) (`_inputs`
+* [Structures](/documentation/developer-articles/what-is-a-structure/) and Structure values (`_structures`, `_structures.*.values.value`)
+* [Snippets](/documentation/user-articles/what-is-a-snippet/) (`_snippets`, `_snippets_imports`)
+* [Rich Text](/documentation/developer-articles/what-are-rich-text-editors/) (`_editables`)
+
+There are several reasons why splitting your CloudCannon configuration across multiple files might be right for your *Site*:
+
+* Splitting your configuration across multiple files allows you to keep related configurations in dedicated files (e.g., Input configuration in one file and Schema configuration in another). When updating your *Site,* you can navigate directly to the file you need, without going through a single long *Configuration File*.
+* Collaborating with your team is easier with split *Configuration Files*, as you can work on different parts of your *Site* configuration simultaneously.
+* You can use [Custom Permission Groups](/documentation/developer-articles/what-are-custom-permission-groups/) to only allow your team members to edit specific *Site* configuration.
+* Split *Configuration Files* also allow you to reduce configuration redundancy. For example, rather than defining a common Input under several *Collections*, you can reference a single *Inputs* *Configuration File* from each *Collection*.
+
+For more information, please read our documentation on [best practices for splitting your configuration](/documentation/developer-articles/best-practice-for-splitting-your-configuration-file/), [defining the same key in multiple Configuration Files](/documentation/developer-articles/defining-the-same-key-in-multiple-configuration-files/), and [split your Configuration File](/documentation/developer-articles/split-your-configuration-file/), and our [Configuration File](/documentation/developer-articles/configuration-file-reference/) reference documentation.
+
+## How does splitting your *Configuration File* work?
+
+When you split your *Site* configuration across multiple *Configuration Files*, CloudCannon still requires one main *Configuration File* (i.e., `cloudcannon.config.yml`). Your main *Configuration File* will point to other *Configuration Files* on your *Site* using `*_from_glob` keys.
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+``````````
+
+collections_config_from_glob:
+  - '/.cloudcannon/collections/*.cloudcannon.collections.yml'
+
+``````````
+</comp.MultiCodeBlock>
+
+Each *Configuration File* can reference any other *Configuration File* (as long as they all ultimately connect back to your main *Configuration File*), allowing you to organize your content to the level you require.
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="/.cloudcannon/collections/posts.cloudcannon.collections.yml">
+``````````
+
+path: content/posts
+icon: event
+schemas_from_glob:
+  - '/.cloudcannon/schemas/*.cloudcannon.schemas.yml'
+  - '!/.cloudcannon/schemas/pages.cloudcannon.schemas.yml'
+_inputs_from_glob:
+  - '/.cloudcannon/inputs/seo.cloudcannon.inputs.yml'
+  - '/.cloudcannon/inputs/blog-details.cloudcannon.inputs.yml'
+_inputs:
+  authors:
+    type: multiselect
+    options:
+      values: collections.authors
+
+``````````
+</comp.MultiCodeBlock>
+
+Whenever you load your *Site* or update a *Configuration File*, CloudCannon will merge your configuration and apply it to your *Site*.
+
+## Limitations
+
+There are a few reasons that split *Configuration Files* may not be right for your *Site.*
+
+1. Currently, you can only split your *Configuration File* for *Sites* using [Unified Configuration](/documentation/developer-guides/unified-configuration-migration-guide/).
+2. You cannot use `*_from_glob` keys in the front matter of content files.
+3. While you can split out several sections of your *Configuration File*, the equivalent `*_from_glob` key for `_select_data` is intentionally not supported. Please use `data_config` instead.
+
+If you have any questions about configuring your *Site* on CloudCannon, don't hesitate to contact our friendly [support team](/support/).

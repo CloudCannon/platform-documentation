@@ -6,8 +6,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.cloudcannon.com/css/2025-TT-Norms-Pro_400_500_800-swap.css" rel="stylesheet" type="text/css" async>
-    <link href="{{ '/assets/css/site.css' | url }}" rel="stylesheet" type="text/css">
-    <link href="{{ '/_pagefind/pagefind-modular-ui.css' | url }}" rel="stylesheet" type="text/css">
+    <link href="{{ '/assets/css/site.css' }}" rel="stylesheet" type="text/css">
+    <link href="{{ '/_pagefind/pagefind-modular-ui.css' }}" rel="stylesheet" type="text/css">
     <link rel="apple-touch-icon" sizes="180x180" href="/documentation/static/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/documentation/static/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/documentation/static/favicon-16x16.png">
@@ -81,25 +81,47 @@
             document.getElementsByTagName('head')[0].appendChild(base);
         })();
     </script>
+
+    <script src="{{ '/assets/js/site.js' }}" type="text/javascript" defer></script>
 </head>
 
-<body x-data="{'isModalOpen': false, 'isMainNavOpen': false, 'isPageNavOpen': false}" 
+<body x-cloak
+ x-init="mobiledocnav = $refs.mobiledocnav"
+ x-data="{'isModalOpen': false, 
+    'isMainNavOpen': false, 
+    'isPageNavOpen': false, 
+    'showmobilenav': false,
+    darkMode: localStorage.getItem('cc_darkMode') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')}" 
       @keydown.escape="isModalOpen=false; $focusSearch(isModalOpen);"
       @keydown.window.prevent.ctrl.k="isModalOpen=!isModalOpen; $focusSearch(isModalOpen);"
-      @keydown.window.prevent.cmd.k="isModalOpen=!isModalOpen; $focusSearch(isModalOpen);">
-    
+      @keydown.window.prevent.cmd.k="isModalOpen=!isModalOpen; $focusSearch(isModalOpen);"
+      :class="darkMode == 'dark' ? 'dark' : ''">
     {% if headingnav.banner_html %}
       <div class="l-banner">
-        <p class="l-banner__inner">{{ headingnav.banner_html | safe }}</p>
+        <div class="l-banner__inner">{{ headingnav.banner_html | safe }}</div>
       </div>
     {% endif %}
     
     <div class="l-nav">
         {% include "nav.njk" %}
     </div>
-    {% include "search.njk" %}
+    {% if url != "/documentation/" %}
+        <div class="t-searcher-modal"
+        role="dialog"
+        tabindex="-1"
+        x-transition
+        x-show="isModalOpen"
+        x-cloak>
+            {% include 'search.njk' %}
+        </div>
+        <div class="t-overlay" x-show="isModalOpen" x-cloak></div>
+    {% endif %}
 
     {{ content | safe }}
+
+    <div class="l-footer">
+        {% include "footer.njk" %}
+    </div>
 
     {% include "hubspot.njk" %}
 
@@ -109,8 +131,6 @@
             <img src="/assets/img/open_in_new.svg" inline>
         </a>
     </div>
-
-    <script src="{{ '/assets/js/site.js' | url }}" type="text/javascript"></script>
 
     <script src="https://status.cloudcannon.com/embed/script.js"></script>
 </body>

@@ -1,0 +1,48 @@
+---
+_schema: default
+_uuid: 3c5c59e1-c552-4507-be50-c5e1d52b3fd7
+_created_at: '2022-04-07 05:13:01 +0000'
+details:
+  title: Creating an Azure DAM
+  description: Link your Azure DAM to your CloudCannon Organization
+  image: /documentation/static/CloudCannonDocumentationog.jpg
+tags: []
+related_links: null
+---
+
+Adding a Digital Asset Manager (DAM) to your site enables you to store your images and other assets in an external service, separate from your content. DAMs improve site build times and allow you to reuse the same assets across different sites. With Azure Blob Storage and Azure CDN, you can host your own DAM while still managing your files directly from CloudCannon.
+
+You will need an Azure account to use Blob Storage.
+
+### Settings in Azure
+
+You will need to configure the *Resource sharing (CORS)* settings in Azure Blob Storage to allow access from CloudCannon. Ensure that your CORS policies include a single rule with all of the following details:
+
+* *AllowedOrigins* must include `https://app.cloudcannon.com`
+* *AllowedMethods* must include `GET` and `PUT`.
+* *AllowedHeaders* must include at least `content-type`, `x-ms-blob-type`, `x-ms-client-request-id`, `x-ms-version`. You will also need `x-ms-blob-content-type` unless this has been disabled in Advanced Options. See the section below about metadata for more details.
+
+### Connecting your DAM to CloudCannon
+
+Open your site settings in CloudCannon. Navigate to *Files* */* *Assets*. Under *Link DAM*, select **New DAM**.
+
+Choose **Azure Blob Storage** as your DAM type and enter a name - this will be used to identify your DAM in CloudCannon.
+
+Set *Base URL* to the domain name of your Azure CDN distribution or, if you chose to configure them, one of its alternate domain names.
+
+Set *Container name* to the name of your container on Azure storage.
+
+Enter your *Storage account name* and *Access key*.
+
+Click **Authenticate**, to save and close the modal, then click **Link DAM**.
+
+### Attach metadata to uploaded files
+
+In the organization-level settings for the DAM, there are some *Advanced Options* for attach metadata to your files as they are uploaded.
+
+The *Email of user* option will attach a piece of metadata `uploadedBy` to files uploaded to Azure from CloudCannon, with the email of the user who uploaded them. To enable this setting, you may need to update your "Resource sharing (CORS)" settings in Azure. Please ensure that the *AllowedHeaders* include `x-ms-meta-uploadedBy`.
+
+The *X-Ms-Blob-Content-Type* option will set the content type on a file after it has been uploaded to Azure from CloudCannon. If this setting is enabled, you need to update your "Resource sharing (CORS)" settings in Azure, to ensure that the *AllowedHeaders* include `x-ms-blob-content-type`.
+
+To edit these settings, navigate to the _Advanced Options_ section under _Org Settings_ > _Assets_ > _Azure DAM_. Enabling the metadata option will only affect files uploaded after the setting is applied. 
+

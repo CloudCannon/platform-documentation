@@ -2,8 +2,9 @@
 layout: layouts/base.njk
 ---
 
-{% set articles = search.pages("guide_id=" + guide_id, "order") %}
+{% set articles = search.pages("guide_id=" + guide_id, "details.order") %}
 {% set currentIndex = 0 %}
+{% set totalPages = articles.length %}
 
 <div class="l-page">
     <div class="l-column">
@@ -12,7 +13,7 @@ layout: layouts/base.njk
         }">
           <nav id="t-docs-nav" class="t-docs-nav" :class="isPageNavOpen ? 't-docs-nav t-docs-nav--open' : 't-docs-nav'">
             <div class="t-docs-nav__heading">
-                {% if show_guide_image_on_page %}{% if guide_image %}<img src="{{ guide_image }}" width="50" height="50" />{% endif %}{% endif %}
+                {% if guide_icon %}<img src="{{ guide_icon }}" width="50" height="50" />{% endif %}
                 <h2 data-pagefind-meta="guide_title">{{ guide_title }}</h2>
 
                 <button class="t-docs-nav__control" x-on:click="isPageNavOpen = true; $focusNav(true);" x-show="!isPageNavOpen" aria-label="Open guide menu">
@@ -23,51 +24,65 @@ layout: layouts/base.njk
                 </button>
             </div>
             <ol class="t-docs-nav__main-list">
-            <li class="t-docs-nav__main-list__item" >
-                <span class="t-docs-nav__main-list__item__heading">{{ initial_secton_heading | default("In this guide") }}</span>
-                <ol class="t-docs-nav__sub-list">
-                    {% set complete_class = 'guide-complete' %}
-                    {% for article in articles %}
+                <li class="t-docs-nav__main-list__item guide" >
+                    <ol class="t-docs-nav__sub-list">
+                        {% set complete_class = 'guide-complete' %}
+                        {% for data in articles %}
+                            {% set completed = false %}
+                            {% if data.start_nav_group %}
+                                </ol>
+                                <span class="t-docs-nav__main-list__item__heading">{{ data.start_nav_group }}</span>
+                                <ol class="t-docs-nav__sub-list">
+                            {% endif %}
 
-                    {% if article.data.start_nav_group %}
-                        </ol>
-                        <span class="t-docs-nav__main-list__item__heading">{{ article.data.start_nav_group }}</span>
-                        <ol class="t-docs-nav__sub-list">
-                    {% endif %}
+                            {% if data.url == url %}
+                                {% set complete_class = 'current-guide' %}
+                                {% set currentIndex = loop.index0 %}
+                            {% else %}
+                                {% if data.details.order < page.data.details.order %}
+                                    {% set completed = true %}
+                                {% else %}
+                                    {% set complete_class = '' %}
+                                {% endif %}
+                            {% endif %}
 
-                    <li>
-                        <a class="t-docs-nav__sub-list__article"
-                            {% if article.data.url == url %} aria-current="page"{% endif %}
-                            href="{{ article.data.url | url }}">
-
-                            <span class="t-docs-nav__sub-list__index {{ complete_class }}">{{ loop.index }}</span>
-                            {{ article.data.nav_title }}
-                        </a>
-                        {% if article.data.url == url %}
-                            {% set complete_class = '' %}
-                            {% set currentIndex = loop.index0 %}
-                        {% endif %}
-                        <span class="t-docs-nav__sub-list__connector {{ complete_class }}"></span>
-                    </li>
-                    {% endfor %}
-                </ol>
-            </li>
+                            <li>
+                                <a class="t-docs-nav__sub-list__article guide"
+                                    {% if data.url == url %} aria-current="page"{% endif %}
+                                    href="{{ data.url | url }}">
+                                    <div class="t-docs-nav__sub-list__connector-group">
+                                        <span class="t-docs-nav__sub-list__index {{ complete_class }}">{% if completed == true %}<img src="{{ "check:outlined" | icon("material") }}" inline />{% else %}{{ data.details.order }}{% endif %}</span>
+                                        {% if data.details.order < articles.length %}
+                                        <span class="t-docs-nav__sub-list__connector {{ complete_class }}"></span>
+                                        {% endif %}
+                                    </div>
+                                    <div class="guide-title">{{ data.details.title }}</div>
+                                </a>
+                            </li>
+                        {% endfor %}
+                    </ol>
+                </li>
             </ol>
             <div x-intersect="more = false" x-intersect:leave="more = true"></div>
           </nav>
-          <div class="t-docs-nav__base" :data-show="more">
+         <!-- <div class="t-docs-nav__base" :data-show="more">
               <img src="/assets/img/arrow.svg" class="t-docs-nav__base__icon" inline>
-          </div>
+          </div>-->
         </aside>
-        <div class="u-card-box l-content">
-            <h1 data-pagefind-body class="l-heading u-margin-bottom-0">{{ title }}</h1>
-            <p data-pagefind-body class="l-subheading">{{ description }}</h1>
+        <div class="u-card-box l-content" x-data="$visibleNavHighlighter">
+            <h1 data-pagefind-body class="l-heading u-margin-bottom-0">{{ details.title }}</h1>
+            <p data-pagefind-body class="l-subheading">{{ details.description }}</h1>
+            <div class="l-toc-mobile" x-data="{toc_open:false}" @click="toc_open = !toc_open">
+                <h3 :class="toc_open ? 'open' : ''">Table of contents <img src="{{ "arrow_forward_ios:outlined" | icon("material") }}" inline/></h3>
+                <div class="l-toc__list" :class="toc_open ? 'open' : ''"></div>
+                <!-- "On this page" -->
+            </div>
             <div data-pagefind-body data-pagefind-filter="site:Guides" data-pagefind-meta="site:Guides" class="l-content-split">
                 <main>
                     {{ content | safe }}
                 </main>
                 <aside data-pagefind-ignore class="l-right">
-                    <div class="l-toc">
+                    <div class="l-toc" x-on:scroll.window.throttle.50ms="onScroll()">
                         <!-- "On this page" -->
                     </div>
                 </aside>

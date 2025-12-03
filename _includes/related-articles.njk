@@ -1,39 +1,27 @@
-{% if related_articles | length %}
+{% if details.related_articles | length %}
 
-<h2>Related Articles</h2>
+<h2>Related Resources</h2>
 
 <div>
-  <ul class="c-related-article-container">
-    {% for related_article_id in related_articles %}
-      {% set article = search.page("url*=" + related_article_id) %}
+  <ul class="c-related-article-container" data-editable="array" data-prop="details.related_articles">
+    {% for related_article in details.related_articles %}
+      {% set article = search.page("_uuid="+related_article.item) %}
       {% if article %}
-        <li>
-          <a class="c-related-article" href="{{ article.data.url}}">
-              <h3 class="c-related-article__title">{{article.data.title}}</h3>
-              {% if article.data.description %}
-                <p class="c-related-article__desc">{{ article.data.description}}</p>
+        <li data-editable="array-item">
+          <a class="c-related-article" href="{{ article.url}}">
+              <h3 class="c-related-article__title">{{article.details.title}}</h3>
+              {% if article.details.description %}
+                <p class="c-related-article__desc">{{ article.details.description}}</p>
               {% endif %}
+              <div class="c-related-article__footer">
+                {% if article.details.category %}
+                  <div class="c-related-article__footer--category">{{ article.details.category }}</div>
+                {% endif %}
+                <img src="{{ "arrow_forward:outlined" | icon("material") }}" inline>
+              </div>
           </a>
         </li>
       {% endif %}
-    {% endfor %}
-  </ul>
-</div>
-
-{% endif %}
-
-{% if related_links | length %}
-
-<h2>Related links</h2>
-
-<div>
-  <ul>
-    {% for related_link in related_links %}
-        <li>
-          <a href="{{ related_link.url }}" target="_blank">
-            {{ related_link.name }}
-          </a>
-        </li>
     {% endfor %}
   </ul>
 </div>
