@@ -176,22 +176,39 @@ async function cleanupOrphanedFiles(lookup: Map<string, string>, sourceArticles:
   const sourceFilenames = new Set(sourceArticles.map(file => basename(file, ".mdx")));
   let removedCount = 0;
   
+  // Files that should never be deleted
+  const protectedFiles = new Set([
+    "developer/guides/_data.js",
+    "developer/articles/_data.js",
+    "user/articles/_data.js"
+  ]);
+  
   // Check developer/articles directory
   try {
     for await (const entry of Deno.readDir("developer/articles")) {
-      if (entry.isFile && entry.name.endsWith(".mdx")) {
-        const filename = basename(entry.name, ".mdx");
-        // index.mdx always goes to Developer Articles
-        const expectedDestination = entry.name === "index.mdx" 
-          ? "Developer Articles" 
-          : (lookup.get(filename) || "Unknown");
+      if (entry.isFile) {
+        const filePath = join("developer/articles", entry.name);
+        const relativePath = filePath.replace(/\\/g, '/'); // Normalize path separators
         
-        // Remove if file doesn't exist in source OR is in wrong destination
-        if (!sourceFilenames.has(filename) || expectedDestination !== "Developer Articles") {
-          const filePath = join("developer/articles", entry.name);
-          await Deno.remove(filePath);
-          console.log(`🗑️  Removed orphaned file: ${filePath}`);
-          removedCount++;
+        // Skip protected files
+        if (protectedFiles.has(relativePath)) {
+          console.log(`🛡️  Protected file skipped: ${filePath}`);
+          continue;
+        }
+        
+        if (entry.name.endsWith(".mdx")) {
+          const filename = basename(entry.name, ".mdx");
+          // index.mdx always goes to Developer Articles
+          const expectedDestination = entry.name === "index.mdx" 
+            ? "Developer Articles" 
+            : (lookup.get(filename) || "Unknown");
+          
+          // Remove if file doesn't exist in source OR is in wrong destination
+          if (!sourceFilenames.has(filename) || expectedDestination !== "Developer Articles") {
+            await Deno.remove(filePath);
+            console.log(`🗑️  Removed orphaned file: ${filePath}`);
+            removedCount++;
+          }
         }
       }
     }
@@ -204,22 +221,52 @@ async function cleanupOrphanedFiles(lookup: Map<string, string>, sourceArticles:
   // Check user/articles directory
   try {
     for await (const entry of Deno.readDir("user/articles")) {
-      if (entry.isFile && entry.name.endsWith(".mdx")) {
-        const filename = basename(entry.name, ".mdx");
-        const expectedDestination = lookup.get(filename) || "Unknown";
+      if (entry.isFile) {
+        const filePath = join("user/articles", entry.name);
+        const relativePath = filePath.replace(/\\/g, '/'); // Normalize path separators
         
-        // Remove if file doesn't exist in source OR is in wrong destination
-        if (!sourceFilenames.has(filename) || expectedDestination !== "User Articles") {
-          const filePath = join("user/articles", entry.name);
-          await Deno.remove(filePath);
-          console.log(`🗑️  Removed orphaned file: ${filePath}`);
-          removedCount++;
+        // Skip protected files
+        if (protectedFiles.has(relativePath)) {
+          console.log(`🛡️  Protected file skipped: ${filePath}`);
+          continue;
+        }
+        
+        if (entry.name.endsWith(".mdx")) {
+          const filename = basename(entry.name, ".mdx");
+          const expectedDestination = lookup.get(filename) || "Unknown";
+          
+          // Remove if file doesn't exist in source OR is in wrong destination
+          if (!sourceFilenames.has(filename) || expectedDestination !== "User Articles") {
+            await Deno.remove(filePath);
+            console.log(`🗑️  Removed orphaned file: ${filePath}`);
+            removedCount++;
+          }
         }
       }
     }
   } catch (error) {
     if (!(error instanceof Deno.errors.NotFound)) {
       console.warn(`⚠️  Warning reading user/articles:`, (error as Error).message);
+    }
+  }
+  
+  // Check developer/guides directory for protected files
+  try {
+    for await (const entry of Deno.readDir("developer/guides")) {
+      if (entry.isFile) {
+        const filePath = join("developer/guides", entry.name);
+        const relativePath = filePath.replace(/\\/g, '/'); // Normalize path separators
+        
+        // Skip protected files
+        if (protectedFiles.has(relativePath)) {
+          console.log(`🛡️  Protected file skipped: ${filePath}`);
+          continue;
+        }
+      }
+    }
+  } catch (error) {
+    if (!(error instanceof Deno.errors.NotFound)) {
+      console.warn(`⚠️  Warning reading developer/guides:`, (error as Error).message);
     }
   }
   
