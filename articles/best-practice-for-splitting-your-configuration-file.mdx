@@ -1,0 +1,278 @@
+---
+_schema: default
+_uuid: 9b83e4fa-fbc3-47b8-a4ef-a3a6fe6f29e1
+_created_at: 2025-11-21T13:14:57+13:00
+title: Best practice for splitting your Configuration File
+nav_title: Best practice for splitting your Configuration File
+published: true
+image: >-
+ https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+description: Learn about the best practices for splitting your Configuration File.
+article_category:
+ - Explanation
+article_topic:
+author_notes:
+ docshots_status: Not applicable
+---
+It is important to find the right balance between organization and maintainability when [splitting your *Site* configuration](/documentation/articles/split-your-configuration-file/) across multiple *Configuration Files*. If you split your configuration too granularly, finding a specific configuration can be as difficult as if it were all in the same file.
+
+When you split your configuration, we recommend starting with a single section (e.g., one *Collection* under `collections_config` or your *Site*\-scope Inputs under `_inputs`) and testing that the configuration behaves as expected before moving on to other sections.
+
+Let's walk through a list of best practices to help you split your configuration. All these examples are optional, but might help you determine the right balance for splitting your *Site* configuration.
+
+## Create a dedicated *Configuration File* for each *Collection*
+
+If you have many *Collections* on your *Site*, scrolling through all your configuration to find the right one is not efficient. In this case, it might be easier to create a dedicated *Configuration File* for each *Collection*, rather than list each one in your main *CloudCannon Configuration File*.
+
+In this example, we have two *Collections*: Pages and Posts.
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+``````````
+
+collections_config:
+  pages:
+    path: content
+    icon: wysiwyg
+  posts:
+    path: content/posts
+    icon: event
+    preview:
+      text:
+        - key: title
+      subtext:
+        - key: author
+      metadata:
+        - icon: event
+          text:
+            - template: Published on {date|date_long}
+
+``````````
+</comp.MultiCodeBlock>
+
+We can move all the content under each *Collection* key into the dedicated files, `pages.cloudcannon.collections.yml` and `posts.cloudcannon.collections.yml`, in a new folder, `.cloudcannon/collections/`. Then, we can reference all *Collection Configuration Files* in the new folder using the `collections_config_from_glob` key in our main *CloudCannon Configuration File.*
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+``````````
+
+collections_config_from_glob:
+  - '/.cloudcannon/collections/*.cloudcannon.collections.yml'
+
+``````````
+</comp.MultiCodeBlock>
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="pages.cloudcannon.collections.yml">
+``````````
+
+pages:
+  path: content
+  icon: wysiwyg
+
+``````````
+</comp.MultiCodeBlock>
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="posts.cloudcannon.collections.yml">
+``````````
+
+posts:
+  path: content/posts
+  icon: event
+  preview:
+    text:
+      - key: title
+    subtext:
+      - key: author
+    metadata:
+      - icon: event
+        text:
+          - template: Published on {date|date_long}
+
+``````````
+</comp.MultiCodeBlock>
+
+## Create chains of *Configuration Files*
+
+When you split your *Site* configuration across multiple *Configuration Files*, your main *Configuration File* will point to other *Configuration Files* on your *Site* using `*_from_glob` keys.
+
+However, you can also use `*_from_glob` key in any other *Configuration File*, allowing you to create chains of configuration across several files. As long as every *Configuration File* ultimately connects back to your main *Configuration File*, CloudCannon will be able to merge your configuration.
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+``````````
+
+collections_config_from_glob___1___:
+  - '/.cloudcannon/collections/*.cloudcannon.collections.yml'
+
+``````````
+</comp.MultiCodeBlock>
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="/.cloudcannon/collections/posts.cloudcannon.collections.yml">
+``````````
+
+posts:
+  path: content/posts
+  icon: event
+  schemas_from_glob:
+    - '/.cloudcannon/schemas/blogPost.cloudcannon.schemas.yml'
+    - '/.cloudcannon/schemas/companyAnnouncement.cloudcannon.schemas.yml'
+    - '/.cloudcannon/schemas/caseStudy.cloudcannon.schemas.yml'
+
+``````````
+</comp.MultiCodeBlock>
+
+## Use negative globs for finer control
+
+The value of each `*_from_glob` key is an array of strings, where each string is a glob pattern matching specific files on your *Site*. You can use the array to specify multiple files. However, if you want to match all files with a few exceptions, it is more efficient to use a negative glob.
+
+In this example, we have several *Schema Configuration Files* in the `.cloudcannon/schemas/` folder (e.g., Announcement, Customer Story, Blog, Pages). We want to use most, but not all, of these *Schemas* in our Posts *Collection*.
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="/.cloudcannon/collections/posts.cloudcannon.collections.yml">
+``````````
+
+posts:
+  path: content/posts
+  icon: event
+  schemas_from_glob:
+    - '/.cloudcannon/schemas/*.cloudcannon.schemas.yml'
+    - '!/.cloudcannon/schemas/pages.cloudcannon.schemas.yml'
+
+``````````
+</comp.MultiCodeBlock>
+
+We can tell CloudCannon to use all *Schema Configuration Files* in this folder using the `*.cloudcannon.schemas.yml` glob, but exclude `pages.cloudcannon.schemas.yml` by prefixing the string with an `!` character to create a negative glob.
+
+## Define related configuration in the same file
+
+Your *Configuration Files* can contain multiple entries for object configuration keys, allowing you to store related configuration together in the same file.
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+``````````
+
+collections_config:
+  posts:
+    path: content/posts
+    icon: event
+    inputs_from_glob:
+      - '/.cloudcannon/inputs/seo.cloudcannon.inputs.yml'
+      - '/.cloudcannon/inputs/blog-details.cloudcannon.inputs.yml'
+
+``````````
+</comp.MultiCodeBlock>
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="/.cloudcannon/inputs/seo.cloudcannon.inputs.yml">
+``````````
+
+seo_title:
+  type: text
+  options:
+    required: true
+    max_length: 50
+seo_description:
+  type: textarea
+  options:
+    show_count: true
+    required: true
+    max_length: 125
+seo_image:
+  type: image
+  options:
+    path:
+      uploads: images
+    accepts_mime_types:
+      - image/png
+      - image/jpeg
+    required: true
+    pattern: (?i)\.(jpe?g|png)$
+    pattern_message: Please select a JPG or PNG image file
+
+``````````
+</comp.MultiCodeBlock>
+
+## Use split and inline configuration in the same file
+
+You don't have to split all your configuration into separate files. Instead, you can use inline configuration and reference other *Configuration Files* using `*_from_glob` keys simultaneously.
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+``````````
+
+_inputs_from_glob:
+  - '/.cloudcannon/inputs/seo.cloudcannon.inputs.yml'
+  - '/.cloudcannon/inputs/blog-details.cloudcannon.inputs.yml'
+_inputs:
+  authors:
+    type: multiselect
+    options:
+      values: collections.authors
+
+``````````
+</comp.MultiCodeBlock>
+
+## Configuring Structures inside Inputs
+
+It is important to note the correct places to use `_structures_from_glob` and `values_from_glob`. CloudCannon expects `.cloudcannon.structures.yml` *Configuration Files* need to have the *Structure*  key at the root of the file, while `.cloudcannon.structure-value.yml` *Configuration Files* only contain the keys for a single array item.
+
+Please use one of the following configurations:
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+``````````
+
+_structures:
+  staffTypes:
+    style: modal
+    values:
+      - label: Employee
+        value:
+          name:
+          job_description:
+          profile_picture:
+_inputs:
+  staff:
+    type: array
+    options:
+      structures: _structures.staffTypes
+
+``````````
+</comp.MultiCodeBlock>
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+``````````
+
+_structures_from_glob:
+  - /.cloudcannon/structures/staffTypes.cloudcannon.structure.yml
+_inputs:
+  staff:
+    type: array
+    options:
+      structures: _structures.staffTypes
+
+``````````
+</comp.MultiCodeBlock>
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+``````````
+
+_inputs:
+  staff:
+    type: array
+    options:
+      structures:
+        values_from_glob:
+          - /.cloudcannon/structures/staffTypes.cloudcannon.structure-value.yml
+
+``````````
+</comp.MultiCodeBlock>
+
+<comp.Notice info_type="important">
+  The following configuration is incorrect, as the `_structures` key is not the same as the `_inputs.*.options.structures` key:
+    
+    <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+    ``````````
+
+    _inputs:
+      staff:
+        type: array
+        options:
+          _structures_from_glob:
+            - /.cloudcannon/structures/staffTypes.cloudcannon.structure.yml
+
+    ``````````
+    </comp.MultiCodeBlock>
+</comp.Notice>
