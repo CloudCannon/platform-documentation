@@ -35,8 +35,13 @@ async function createLookupTable(): Promise<Map<string, string>> {
       
       // Extract filename from old link path
       // e.g., "/documentation/articles/add-a-custom-domain-to-your-site" -> "add-a-custom-domain-to-your-site"
-      const filename = oldLink.split('/').pop();
-      if (filename) {
+      // Handle trailing slashes by removing them first
+      const cleanLink = oldLink.replace(/\/+$/, ''); // Remove trailing slashes
+      const pathParts = cleanLink.split('/').filter(part => part.length > 0);
+      const filename = pathParts[pathParts.length - 1];
+      // Skip base path entries (e.g., "/documentation/articles" -> "articles")
+      // These are handled by special redirects, not as individual article routes
+      if (filename && filename !== "articles") {
         lookup.set(filename, moveTo);
       }
     }
@@ -165,6 +170,66 @@ async function copyFile(source: string, destination: string): Promise<boolean> {
   }
 }
 
+async function cleanupOrphanedFiles(lookup: Map<string, string>, sourceArticles: string[]): Promise<void> {
+  console.log("🧹 Cleaning up orphaned files in destination directories...");
+  
+  const sourceFilenames = new Set(sourceArticles.map(file => basename(file, ".mdx")));
+  let removedCount = 0;
+  
+  // Check developer/articles directory
+  try {
+    for await (const entry of Deno.readDir("developer/articles")) {
+      if (entry.isFile && entry.name.endsWith(".mdx")) {
+        const filename = basename(entry.name, ".mdx");
+        // index.mdx always goes to Developer Articles
+        const expectedDestination = entry.name === "index.mdx" 
+          ? "Developer Articles" 
+          : (lookup.get(filename) || "Unknown");
+        
+        // Remove if file doesn't exist in source OR is in wrong destination
+        if (!sourceFilenames.has(filename) || expectedDestination !== "Developer Articles") {
+          const filePath = join("developer/articles", entry.name);
+          await Deno.remove(filePath);
+          console.log(`🗑️  Removed orphaned file: ${filePath}`);
+          removedCount++;
+        }
+      }
+    }
+  } catch (error) {
+    if (!(error instanceof Deno.errors.NotFound)) {
+      console.warn(`⚠️  Warning reading developer/articles:`, (error as Error).message);
+    }
+  }
+  
+  // Check user/articles directory
+  try {
+    for await (const entry of Deno.readDir("user/articles")) {
+      if (entry.isFile && entry.name.endsWith(".mdx")) {
+        const filename = basename(entry.name, ".mdx");
+        const expectedDestination = lookup.get(filename) || "Unknown";
+        
+        // Remove if file doesn't exist in source OR is in wrong destination
+        if (!sourceFilenames.has(filename) || expectedDestination !== "User Articles") {
+          const filePath = join("user/articles", entry.name);
+          await Deno.remove(filePath);
+          console.log(`🗑️  Removed orphaned file: ${filePath}`);
+          removedCount++;
+        }
+      }
+    }
+  } catch (error) {
+    if (!(error instanceof Deno.errors.NotFound)) {
+      console.warn(`⚠️  Warning reading user/articles:`, (error as Error).message);
+    }
+  }
+  
+  if (removedCount > 0) {
+    console.log(`✅ Cleaned up ${removedCount} orphaned file(s)`);
+  } else {
+    console.log(`✅ No orphaned files found`);
+  }
+}
+
 async function migrateArticles(): Promise<{ developerCount: number, userCount: number, unusedCount: number, totalCount: number }> {
   console.log("🚀 Starting article migration...");
   
@@ -220,6 +285,9 @@ async function migrateArticles(): Promise<{ developerCount: number, userCount: n
       }
     }
   }
+  
+  // Clean up orphaned files in destination directories
+  await cleanupOrphanedFiles(lookup, articles);
   
   console.log("✅ Article migration completed successfully!");
   
@@ -291,18 +359,6 @@ async function transformArticleFrontMatter(filePath: string, existingUuid?: stri
   // Handle docshots transformation from author_notes
   if (frontMatter.author_notes && typeof frontMatter.author_notes === 'object') {
     const authorNotes = frontMatter.author_notes as Record<string, unknown>;
-    const docshots: Record<string, unknown> = {};
-    
-    if (authorNotes.docshots_status) {
-      docshots.docshots_status = authorNotes.docshots_status;
-    }
-    if (authorNotes.doc_shots) {
-      docshots.doc_shots = authorNotes.doc_shots;
-    }
-    
-    if (Object.keys(docshots).length > 0) {
-      newFrontMatter.docshots = docshots;
-    }
     
     // Keep other author_notes fields that aren't docshots-related
     const remainingAuthorNotes: Record<string, unknown> = {};
@@ -312,18 +368,21 @@ async function transformArticleFrontMatter(filePath: string, existingUuid?: stri
       }
     }
     
-    // Add docshots to author_notes if it doesn't exist
-    if (!remainingAuthorNotes.docshots) {
-      remainingAuthorNotes.docshots = Object.keys(docshots).length > 0 ? docshots : {};
+    // Add docshots to author_notes - use the value directly, not an object
+    // Prefer docshots_status over doc_shots if both exist
+    if (authorNotes.docshots_status) {
+      remainingAuthorNotes.docshots = authorNotes.docshots_status;
+    } else if (authorNotes.doc_shots) {
+      remainingAuthorNotes.docshots = authorNotes.doc_shots;
+    } else {
+      remainingAuthorNotes.docshots = null;
     }
     
-    if (Object.keys(remainingAuthorNotes).length > 0) {
-      newFrontMatter.author_notes = remainingAuthorNotes;
-    }
+    newFrontMatter.author_notes = remainingAuthorNotes;
   } else {
-    // If author_notes doesn't exist, create it with an empty docshots field
+    // If author_notes doesn't exist, create it with a null docshots field
     newFrontMatter.author_notes = {
-      docshots: {}
+      docshots: null
     };
   }
   
@@ -606,6 +665,62 @@ interface RoutingConfig {
   headers?: unknown[];
 }
 
+function optimizeRedirectChains(routes: RouteRule[]): RouteRule[] {
+  // Build a map of redirect destinations (only for exact matches, not regex/star patterns)
+  const redirectMap = new Map<string, string>();
+  const hasPattern = (path: string): boolean => {
+    return path.includes('(') || path.includes('.*') || path.includes('$') || path.includes('*');
+  };
+  
+  for (const route of routes) {
+    // Only track exact path matches for chain optimization
+    if (!hasPattern(route.from) && !hasPattern(route.to)) {
+      redirectMap.set(route.from, route.to);
+    }
+  }
+  
+  // Follow chains to find final destinations
+  const optimizedRoutes: RouteRule[] = [];
+  const processed = new Set<string>();
+  
+  for (const route of routes) {
+    // Skip patterns - they're harder to optimize and match
+    if (hasPattern(route.from) || hasPattern(route.to)) {
+      optimizedRoutes.push(route);
+      continue;
+    }
+    
+    if (processed.has(route.from)) continue;
+    
+    let currentTo = route.to;
+    const visitedInChain = new Set<string>([route.from]);
+    let depth = 0;
+    const maxDepth = 10; // Prevent infinite loops
+    
+    // Follow the chain until we reach a final destination
+    while (redirectMap.has(currentTo) && depth < maxDepth) {
+      if (visitedInChain.has(currentTo)) {
+        // Circular reference detected, stop here
+        break;
+      }
+      visitedInChain.add(currentTo);
+      currentTo = redirectMap.get(currentTo)!;
+      depth++;
+    }
+    
+    // Create optimized route pointing to final destination
+    optimizedRoutes.push({
+      from: route.from,
+      to: currentTo,
+      status: route.status
+    });
+    
+    processed.add(route.from);
+  }
+  
+  return optimizedRoutes;
+}
+
 async function generateRoutingFile(lookup: Map<string, string>): Promise<{ redirectCount: number }> {
   console.log("\n🚀 Starting routing.json generation...");
   
@@ -692,6 +807,10 @@ async function generateRoutingFile(lookup: Map<string, string>): Promise<{ redir
   // Add new routes at the end
   newRouting.routes.push(...newRoutes);
   
+  // Optimize redirect chains (excluding patterns)
+  if (newRouting.routes && newRouting.routes.length > 0) {
+    newRouting.routes = optimizeRedirectChains(newRouting.routes);
+  }
   
   // Write the new routing file (preserve original routing.json unchanged)
   const routingContent = JSON.stringify(newRouting, null, 2);
