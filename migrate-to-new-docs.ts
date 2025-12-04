@@ -389,7 +389,7 @@ async function transformArticleFrontMatter(filePath: string, existingUuid?: stri
   // Copy any other fields that aren't nav_title, published, or the ones we moved to details
   const excludedFields = [
     'nav_title', 'published', 'title', 'description', 'image', 'article_category', 
-    'related_articles', 'article_topic', 'tags', '_schema', '_uuid', '_created_at', 'author_notes'
+    'related_articles', 'related_links', 'article_topic', 'tags', 'explicit_canonical', '_schema', '_uuid', '_created_at', 'author_notes'
   ];
   
   for (const [key, value] of Object.entries(frontMatter)) {
