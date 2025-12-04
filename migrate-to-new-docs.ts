@@ -312,15 +312,25 @@ async function transformArticleFrontMatter(filePath: string, existingUuid?: stri
       }
     }
     
+    // Add docshots to author_notes if it doesn't exist
+    if (!remainingAuthorNotes.docshots) {
+      remainingAuthorNotes.docshots = Object.keys(docshots).length > 0 ? docshots : {};
+    }
+    
     if (Object.keys(remainingAuthorNotes).length > 0) {
       newFrontMatter.author_notes = remainingAuthorNotes;
     }
+  } else {
+    // If author_notes doesn't exist, create it with an empty docshots field
+    newFrontMatter.author_notes = {
+      docshots: {}
+    };
   }
   
   // Copy any other fields that aren't nav_title, published, or the ones we moved to details
   const excludedFields = [
     'nav_title', 'published', 'title', 'description', 'image', 'article_category', 
-    'related_articles', '_schema', '_uuid', '_created_at', 'author_notes'
+    'related_articles', 'article_topic', 'tags', '_schema', '_uuid', '_created_at', 'author_notes'
   ];
   
   for (const [key, value] of Object.entries(frontMatter)) {
