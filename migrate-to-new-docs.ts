@@ -35,8 +35,13 @@ async function createLookupTable(): Promise<Map<string, string>> {
       
       // Extract filename from old link path
       // e.g., "/documentation/articles/add-a-custom-domain-to-your-site" -> "add-a-custom-domain-to-your-site"
-      const filename = oldLink.split('/').pop();
-      if (filename) {
+      // Handle trailing slashes by removing them first
+      const cleanLink = oldLink.replace(/\/+$/, ''); // Remove trailing slashes
+      const pathParts = cleanLink.split('/').filter(part => part.length > 0);
+      const filename = pathParts[pathParts.length - 1];
+      // Skip base path entries (e.g., "/documentation/articles" -> "articles")
+      // These are handled by special redirects, not as individual article routes
+      if (filename && filename !== "articles") {
         lookup.set(filename, moveTo);
       }
     }
@@ -53,7 +58,8 @@ async function cleanAndCreateDirectories(): Promise<void> {
     "developer/articles",
     "developer/guides", 
     "user/articles",
-    "unused"
+    "unused",
+    "beta"
   ];
   
   // Ensure directories exist without removing existing files
@@ -165,6 +171,113 @@ async function copyFile(source: string, destination: string): Promise<boolean> {
   }
 }
 
+async function cleanupOrphanedFiles(lookup: Map<string, string>, sourceArticles: string[]): Promise<void> {
+  console.log("🧹 Cleaning up orphaned files in destination directories...");
+  
+  const sourceFilenames = new Set(sourceArticles.map(file => basename(file, ".mdx")));
+  let removedCount = 0;
+  
+  // Files that should never be deleted
+  const protectedFiles = new Set([
+    "developer/guides/_data.js",
+    "developer/articles/_data.js",
+    "user/articles/_data.js"
+  ]);
+  
+  // Check developer/articles directory
+  try {
+    for await (const entry of Deno.readDir("developer/articles")) {
+      if (entry.isFile) {
+        const filePath = join("developer/articles", entry.name);
+        const relativePath = filePath.replace(/\\/g, '/'); // Normalize path separators
+        
+        // Skip protected files
+        if (protectedFiles.has(relativePath)) {
+          console.log(`🛡️  Protected file skipped: ${filePath}`);
+          continue;
+        }
+        
+        if (entry.name.endsWith(".mdx")) {
+          const filename = basename(entry.name, ".mdx");
+          // index.mdx always goes to Developer Articles
+          const expectedDestination = entry.name === "index.mdx" 
+            ? "Developer Articles" 
+            : (lookup.get(filename) || "Unknown");
+          
+          // Remove if file doesn't exist in source OR is in wrong destination
+          if (!sourceFilenames.has(filename) || expectedDestination !== "Developer Articles") {
+            await Deno.remove(filePath);
+            console.log(`🗑️  Removed orphaned file: ${filePath}`);
+            removedCount++;
+          }
+        }
+      }
+    }
+  } catch (error) {
+    if (!(error instanceof Deno.errors.NotFound)) {
+      console.warn(`⚠️  Warning reading developer/articles:`, (error as Error).message);
+    }
+  }
+  
+  // Check user/articles directory
+  try {
+    for await (const entry of Deno.readDir("user/articles")) {
+      if (entry.isFile) {
+        const filePath = join("user/articles", entry.name);
+        const relativePath = filePath.replace(/\\/g, '/'); // Normalize path separators
+        
+        // Skip protected files
+        if (protectedFiles.has(relativePath)) {
+          console.log(`🛡️  Protected file skipped: ${filePath}`);
+          continue;
+        }
+        
+        if (entry.name.endsWith(".mdx")) {
+          const filename = basename(entry.name, ".mdx");
+          const expectedDestination = lookup.get(filename) || "Unknown";
+          
+          // Remove if file doesn't exist in source OR is in wrong destination
+          if (!sourceFilenames.has(filename) || expectedDestination !== "User Articles") {
+            await Deno.remove(filePath);
+            console.log(`🗑️  Removed orphaned file: ${filePath}`);
+            removedCount++;
+          }
+        }
+      }
+    }
+  } catch (error) {
+    if (!(error instanceof Deno.errors.NotFound)) {
+      console.warn(`⚠️  Warning reading user/articles:`, (error as Error).message);
+    }
+  }
+  
+  // Check developer/guides directory for protected files
+  try {
+    for await (const entry of Deno.readDir("developer/guides")) {
+      if (entry.isFile) {
+        const filePath = join("developer/guides", entry.name);
+        const relativePath = filePath.replace(/\\/g, '/'); // Normalize path separators
+        
+        // Skip protected files
+        if (protectedFiles.has(relativePath)) {
+          console.log(`🛡️  Protected file skipped: ${filePath}`);
+          continue;
+        }
+      }
+    }
+  } catch (error) {
+    if (!(error instanceof Deno.errors.NotFound)) {
+      console.warn(`⚠️  Warning reading developer/guides:`, (error as Error).message);
+    }
+  }
+  
+  if (removedCount > 0) {
+    console.log(`✅ Cleaned up ${removedCount} orphaned file(s)`);
+  } else {
+    console.log(`✅ No orphaned files found`);
+  }
+}
+
 async function migrateArticles(): Promise<{ developerCount: number, userCount: number, unusedCount: number, totalCount: number }> {
   console.log("🚀 Starting article migration...");
   
@@ -176,8 +289,18 @@ async function migrateArticles(): Promise<{ developerCount: number, userCount: n
   let userCount = 0;
   let unusedCount = 0;
   
+  // Get beta lookup to exclude beta files from article migration
+  const betaLookup = await createBetaLookupTable();
+  
   for (const articleFile of articles) {
     const filename = basename(articleFile, ".mdx");
+    
+    // Skip beta files - they're handled by migrateBetaFiles()
+    if (betaLookup.has(filename)) {
+      console.log(`⏭️  Skipping beta file (handled separately): ${articleFile}`);
+      continue;
+    }
+    
     const sourcePath = join("articles", articleFile);
     
     let targetPath: string;
@@ -220,6 +343,9 @@ async function migrateArticles(): Promise<{ developerCount: number, userCount: n
       }
     }
   }
+  
+  // Clean up orphaned files in destination directories
+  await cleanupOrphanedFiles(lookup, articles);
   
   console.log("✅ Article migration completed successfully!");
   
@@ -291,18 +417,6 @@ async function transformArticleFrontMatter(filePath: string, existingUuid?: stri
   // Handle docshots transformation from author_notes
   if (frontMatter.author_notes && typeof frontMatter.author_notes === 'object') {
     const authorNotes = frontMatter.author_notes as Record<string, unknown>;
-    const docshots: Record<string, unknown> = {};
-    
-    if (authorNotes.docshots_status) {
-      docshots.docshots_status = authorNotes.docshots_status;
-    }
-    if (authorNotes.doc_shots) {
-      docshots.doc_shots = authorNotes.doc_shots;
-    }
-    
-    if (Object.keys(docshots).length > 0) {
-      newFrontMatter.docshots = docshots;
-    }
     
     // Keep other author_notes fields that aren't docshots-related
     const remainingAuthorNotes: Record<string, unknown> = {};
@@ -312,15 +426,28 @@ async function transformArticleFrontMatter(filePath: string, existingUuid?: stri
       }
     }
     
-    if (Object.keys(remainingAuthorNotes).length > 0) {
-      newFrontMatter.author_notes = remainingAuthorNotes;
+    // Add docshots to author_notes - use the value directly, not an object
+    // Prefer docshots_status over doc_shots if both exist
+    if (authorNotes.docshots_status) {
+      remainingAuthorNotes.docshots = authorNotes.docshots_status;
+    } else if (authorNotes.doc_shots) {
+      remainingAuthorNotes.docshots = authorNotes.doc_shots;
+    } else {
+      remainingAuthorNotes.docshots = null;
     }
+    
+    newFrontMatter.author_notes = remainingAuthorNotes;
+  } else {
+    // If author_notes doesn't exist, create it with a null docshots field
+    newFrontMatter.author_notes = {
+      docshots: null
+    };
   }
   
   // Copy any other fields that aren't nav_title, published, or the ones we moved to details
   const excludedFields = [
     'nav_title', 'published', 'title', 'description', 'image', 'article_category', 
-    'related_articles', '_schema', '_uuid', '_created_at', 'author_notes'
+    'related_articles', 'related_links', 'article_topic', 'tags', 'explicit_canonical', '_schema', '_uuid', '_created_at', 'author_notes'
   ];
   
   for (const [key, value] of Object.entries(frontMatter)) {
@@ -585,6 +712,103 @@ async function migrateChangelogs(): Promise<{ migratedCount: number, skippedCoun
   return { migratedCount, skippedCount };
 }
 
+async function createBetaLookupTable(): Promise<Map<string, string>> {
+  console.log("📖 Reading beta file mappings from migration-destinations.csv...");
+  
+  const csvContent = await Deno.readTextFile("migration-destinations.csv");
+  const lines = csvContent.split('\n');
+  
+  const lookup = new Map<string, string>();
+  
+  // Skip header row (index 0)
+  for (let i = 1; i < lines.length; i++) {
+    const line = lines[i].trim();
+    if (!line) continue;
+    
+    // Split by comma, but handle quoted fields
+    const fields = line.split(',');
+    if (fields.length >= 3) {
+      const oldLink = fields[0].trim();
+      const moveTo = fields[1].trim();
+      const newLink = fields[2].trim();
+      
+      // Only process Beta destination files
+      if (moveTo === "Beta") {
+        // Extract filename from old link path
+        const cleanLink = oldLink.replace(/\/+$/, '');
+        const pathParts = cleanLink.split('/').filter(part => part.length > 0);
+        const filename = pathParts[pathParts.length - 1];
+        
+        // Extract new filename from new link path
+        const cleanNewLink = newLink.replace(/\/+$/, '');
+        const newPathParts = cleanNewLink.split('/').filter(part => part.length > 0);
+        // If the new link ends with just "/documentation/beta", it should be index.mdx
+        // Otherwise, use the last path part as the filename
+        let newFilename: string;
+        if (newPathParts.length > 0 && newPathParts[newPathParts.length - 1] === "beta") {
+          newFilename = "index";
+        } else {
+          newFilename = newPathParts[newPathParts.length - 1] || "index";
+        }
+        
+        if (filename) {
+          lookup.set(filename, newFilename);
+        }
+      }
+    }
+  }
+  
+  console.log(`✅ Created beta lookup table with ${lookup.size} entries`);
+  return lookup;
+}
+
+async function migrateBetaFiles(): Promise<{ migratedCount: number }> {
+  console.log("\n🚀 Starting beta files migration...");
+  
+  const sourceDir = "articles";
+  const targetDir = "beta";
+  const betaLookup = await createBetaLookupTable();
+  
+  let migratedCount = 0;
+  
+  try {
+    for await (const entry of Deno.readDir(sourceDir)) {
+      if (entry.isFile && entry.name.endsWith(".mdx")) {
+        const filename = basename(entry.name, ".mdx");
+        const newFilename = betaLookup.get(filename);
+        
+        if (newFilename) {
+          const sourcePath = join(sourceDir, entry.name);
+          // Handle index.mdx specially - it should be index.mdx in beta/
+          const targetFilename = newFilename === "index" ? "index.mdx" : `${newFilename}.mdx`;
+          const targetPath = join(targetDir, targetFilename);
+          
+          // Read existing UUID before copying
+          const existingUuid = await readExistingUuid(targetPath);
+          
+          const wasCopied = await copyFile(sourcePath, targetPath);
+          
+          if (wasCopied) {
+            // Transform front matter for beta files (similar to articles)
+            console.log(`🔄 Transforming: ${targetFilename}`);
+            await transformArticleFrontMatter(targetPath, existingUuid);
+            
+            console.log(`📋 ${entry.name} -> ${targetFilename}`);
+            migratedCount++;
+          }
+        }
+      }
+    }
+  } catch (error) {
+    console.error("❌ Error migrating beta files:", error);
+    throw error;
+  }
+  
+  console.log("✅ Beta files migration completed successfully!");
+  
+  return { migratedCount };
+}
+
 interface RouteRule {
   from: string;
   to: string;
@@ -594,6 +818,62 @@ interface RouteRule {
 interface RoutingConfig {
   routes?: RouteRule[];
   headers?: unknown[];
+}
+
+function optimizeRedirectChains(routes: RouteRule[]): RouteRule[] {
+  // Build a map of redirect destinations (only for exact matches, not regex/star patterns)
+  const redirectMap = new Map<string, string>();
+  const hasPattern = (path: string): boolean => {
+    return path.includes('(') || path.includes('.*') || path.includes('$') || path.includes('*');
+  };
+  
+  for (const route of routes) {
+    // Only track exact path matches for chain optimization
+    if (!hasPattern(route.from) && !hasPattern(route.to)) {
+      redirectMap.set(route.from, route.to);
+    }
+  }
+  
+  // Follow chains to find final destinations
+  const optimizedRoutes: RouteRule[] = [];
+  const processed = new Set<string>();
+  
+  for (const route of routes) {
+    // Skip patterns - they're harder to optimize and match
+    if (hasPattern(route.from) || hasPattern(route.to)) {
+      optimizedRoutes.push(route);
+      continue;
+    }
+    
+    if (processed.has(route.from)) continue;
+    
+    let currentTo = route.to;
+    const visitedInChain = new Set<string>([route.from]);
+    let depth = 0;
+    const maxDepth = 10; // Prevent infinite loops
+    
+    // Follow the chain until we reach a final destination
+    while (redirectMap.has(currentTo) && depth < maxDepth) {
+      if (visitedInChain.has(currentTo)) {
+        // Circular reference detected, stop here
+        break;
+      }
+      visitedInChain.add(currentTo);
+      currentTo = redirectMap.get(currentTo)!;
+      depth++;
+    }
+    
+    // Create optimized route pointing to final destination
+    optimizedRoutes.push({
+      from: route.from,
+      to: currentTo,
+      status: route.status
+    });
+    
+    processed.add(route.from);
+  }
+  
+  return optimizedRoutes;
 }
 
 async function generateRoutingFile(lookup: Map<string, string>): Promise<{ redirectCount: number }> {
@@ -644,6 +924,22 @@ async function generateRoutingFile(lookup: Map<string, string>): Promise<{ redir
   });
   console.log(`🔗 /documentation/guides/ -> /documentation/developer-guides/`);
 
+  // Add redirects for beta files
+  const betaLookup = await createBetaLookupTable();
+  for (const [filename, newFilename] of betaLookup.entries()) {
+    const oldPath = `/documentation/articles/${filename}/`;
+    const targetFilename = newFilename === "index" ? "" : `${newFilename}/`;
+    const newPath = `/documentation/beta/${targetFilename}`;
+    
+    newRoutes.push({
+      from: oldPath,
+      to: newPath,
+      status: 301
+    });
+    
+    console.log(`🔗 ${oldPath} -> ${newPath}`);
+  }
+
   for (const [filename, destination] of lookup.entries()) {
     if (destination === "Developer Articles" || destination === "User Articles") {
       const oldPath = `/documentation/articles/${filename}/`;
@@ -682,6 +978,10 @@ async function generateRoutingFile(lookup: Map<string, string>): Promise<{ redir
   // Add new routes at the end
   newRouting.routes.push(...newRoutes);
   
+  // Optimize redirect chains (excluding patterns)
+  if (newRouting.routes && newRouting.routes.length > 0) {
+    newRouting.routes = optimizeRedirectChains(newRouting.routes);
+  }
   
   // Write the new routing file (preserve original routing.json unchanged)
   const routingContent = JSON.stringify(newRouting, null, 2);
@@ -700,14 +1000,15 @@ async function updateInternalLinks(lookup: Map<string, string>): Promise<{ updat
   let updatedFiles = 0;
   let totalUpdates = 0;
   
-  const directories = ["developer/articles", "user/articles", "developer/guides"];
+  const betaLookup = await createBetaLookupTable();
+  const directories = ["developer/articles", "user/articles", "developer/guides", "beta"];
   
   for (const dir of directories) {
     try {
       for await (const entry of Deno.readDir(dir)) {
         if (entry.isFile && entry.name.endsWith(".mdx")) {
           const filePath = join(dir, entry.name);
-          const updated = await updateLinksInFile(filePath, lookup);
+          const updated = await updateLinksInFile(filePath, lookup, betaLookup);
           if (updated > 0) {
             updatedFiles++;
             totalUpdates += updated;
@@ -720,7 +1021,7 @@ async function updateInternalLinks(lookup: Map<string, string>): Promise<{ updat
             for await (const subEntry of Deno.readDir(subDir)) {
               if (subEntry.isFile && subEntry.name.endsWith(".mdx")) {
                 const filePath = join(subDir, subEntry.name);
-                const updated = await updateLinksInFile(filePath, lookup);
+                const updated = await updateLinksInFile(filePath, lookup, betaLookup);
                 if (updated > 0) {
                   updatedFiles++;
                   totalUpdates += updated;
@@ -744,7 +1045,7 @@ async function updateInternalLinks(lookup: Map<string, string>): Promise<{ updat
   return { updatedFiles, totalUpdates };
 }
 
-async function updateLinksInFile(filePath: string, lookup: Map<string, string>): Promise<number> {
+async function updateLinksInFile(filePath: string, lookup: Map<string, string>, betaLookup: Map<string, string>): Promise<number> {
   try {
     let content = await Deno.readTextFile(filePath);
     let updateCount = 0;
@@ -762,6 +1063,14 @@ async function updateLinksInFile(filePath: string, lookup: Map<string, string>):
       } else if (destination === "User Articles") {
         updateCount++;
         return `/documentation/user-articles/${filename}/${suffix}`;
+      }
+      
+      // Check if it's a beta file
+      const betaNewFilename = betaLookup.get(filename);
+      if (betaNewFilename) {
+        updateCount++;
+        const targetFilename = betaNewFilename === "index" ? "" : `${betaNewFilename}/`;
+        return `/documentation/beta/${targetFilename}${suffix}`;
       }
       
       // If not in lookup or going to unused, leave unchanged
@@ -810,6 +1119,7 @@ if (import.meta.main) {
     const articleStats = await migrateArticles();
     const guideStats = await migrateGuides();
     const changelogStats = await migrateChangelogs();
+    const betaStats = await migrateBetaFiles();
     
     // Generate routing.json with redirects (reuse the lookup table)
     const lookup = await createLookupTable();
@@ -834,6 +1144,9 @@ if (import.meta.main) {
     console.log(`   Migrated: ${changelogStats.migratedCount} files`);
     console.log(`   Skipped: ${changelogStats.skippedCount} files`);
     
+    console.log("\n🧪 Beta Files:");
+    console.log(`   Migrated: ${betaStats.migratedCount} files`);
+    
     console.log("\n🔗 Routing:");
     console.log(`   Generated Redirects: ${routingStats.redirectCount} rules`);
     
@@ -841,7 +1154,7 @@ if (import.meta.main) {
     console.log(`   Updated Files: ${linkStats.updatedFiles} files`);
     console.log(`   Total Link Updates: ${linkStats.totalUpdates} links`);
     
-    const grandTotal = articleStats.totalCount + guideStats.guideCount + changelogStats.migratedCount;
+    const grandTotal = articleStats.totalCount + guideStats.guideCount + changelogStats.migratedCount + betaStats.migratedCount;
     console.log(`\n🏆 Grand Total: ${grandTotal} items migrated successfully!`);
     console.log(`📄 Routing: ${routingStats.redirectCount} redirect rules generated`);
     console.log(`🔗 Links: ${linkStats.totalUpdates} internal links updated`);

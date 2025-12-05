@@ -537,7 +537,7 @@ site.addEventListener("beforeBuild", async () => {
 });
 
 site.data("changelog_years", () => changelogsData);
-site.data("all_letters", () => [...Array(26).keys()].map((n) => String.fromCharCode(97 + n)))
+site.data("all_letters", () => [...Array(26).keys()].map((n) => String.fromCharCode(65 + n)))
 
 /* Environment data */
 
