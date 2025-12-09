@@ -511,6 +511,30 @@ site.filter("get_glossary_term", (file: string) => {
     return yml.term_description;
 })
 
+site.filter("get_index_page", (page: string) => {
+    page = page.replace("/documentation","").split("/")[1]
+    if(page.indexOf("-") != -1)
+    {
+        try
+        {
+            let page_parts = page.split("-")
+            const file_content = Deno.readTextFileSync(`${page_parts[0]}/${page_parts[1]}/index.mdx`)
+            const {body, attrs} = extract(file_content)
+            let obj = {attrs:"", url:""};
+            obj.attrs = attrs;
+            obj.url = `/documentation/${page_parts[0]}-${page_parts[1]}/`;
+            return obj;
+        }
+        catch(e){
+            console.log(e);
+        }
+    }
+    else
+        console.log("no")
+
+    return null;
+})
+
 let changelogsData = {};
 
 site.addEventListener("beforeBuild", async () => {
