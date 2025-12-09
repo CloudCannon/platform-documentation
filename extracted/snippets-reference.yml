@@ -1,0 +1,1689 @@
+- name: argument
+  json_path: type.snippet.params.*.(argument-parser-config)
+  description: |-
+    Parses a single argument, optionally delimited by characters. Useful for matching a single positional argument.
+
+
+
+    The argument parser is also used to parse a list of repeating arguments.
+  examples:
+    - description: ""
+      language: markdown
+      code: |-
+        {{<figure image.png>}}
+                      └───────┘
+      annotations: []
+    - description: ""
+      language: markdown
+      code: |-
+        {{<images image1.png image2.png image3.png>}}
+                      └──────────────────────────────┘
+      annotations: []
+- name: argument_list
+  json_path: type.snippet.params.*.(argument-list-parser-config)
+  description: Parses a list of distinct positional arguments based on their position.
+  examples:
+    - description: ""
+      language: markdown
+      code: |-
+        {{<figure "image.png" "My image title">}}
+                      └──────────────────────────┘
+      annotations: []
+- name: key_values
+  json_path: type.snippet.params.*.(key-value-list-parser-config)
+  description: |-
+    Parses repeating pairs of keys and values. Useful for most SSG snippets that take properties.
+
+
+
+    Can be configured to handle most syntax forms of key value pairs.
+  examples:
+    - description: ""
+      language: liquid
+      code: |-
+        {% include "image.html" image: "tree.png" alt: "Image of a tree" %}
+          └──────────────────────────────────────┘
+      annotations: []
+    - description: ""
+      language: markdown
+      code: |-
+        <Link href="/about/" new_tab={true}/>
+                  └───────────────────────────┘
+      annotations: []
+- name: content
+  json_path: type.snippet.params.*.(content-parser-config)
+  description: Parses rich multiline content, such as the content between paired tags. Can be configured to parse nested snippets within.
+  examples:
+    - description: ""
+      language: liquid
+      code: |-
+        {% highlight "js" %} let a = b; {% endhighlight %}
+                                └──────────┘
+      annotations: []
+- name: literal
+  json_path: type.snippet.params.*.(literal-parser-config)
+  description: Parses an exact literal value. Mainly useful when configuring a snippet template.
+  examples: []
+- name: repeating_literal
+  json_path: type.snippet.params.*.(repeating-literal-parser-config)
+  description: Parses a repeating set of exact literal values.
+  examples: []
+- name: optional
+  json_path: type.snippet.params.*.(optional-parser-config)
+  description: Higher-order parser that wraps a snippet string and makes it optional.
+  examples: []
+- name: repeating
+  json_path: type.snippet.params.*.(repeating-parser-config)
+  description: Higher-order parser that wraps a snippet string and allows it to repeat.
+  examples: []
+- name: model
+  json_path: type.snippet.params.*.(argument-parser-config).options.model
+  description: Defines the parsing configuration for this argument.
+  examples: []
+- name: model.editor_key
+  json_path: type.snippet.params.*.(argument-parser-config).options.model.editor_key
+  description: |-
+    Specifies the key that a user in CloudCannon will see when editing this value.
+    This key will also be used if you want to specify any input configuration using `_inputs`.
+  examples:
+    - description: ""
+      language: yaml
+      code: |-
+        parser: "argument"
+          options:
+            model:
+              editor_key: video_id
+      annotations: []
+    - description: ""
+      language: yaml
+      code: |-
+        parser: "argument"
+          options:
+            model:
+              editor_key: video_id
+      annotations: []
+- name: model.allowed_values
+  json_path: type.snippet.params.*.(argument-parser-config).options.model.allowed_values
+  description: |-
+    A list of valid values for the parser. If specified, values not in the provided list will cause this snippet to be skipped,
+    and a different snippet will be matched if possible.
+    A user entering a different value while editing this snippet will cause it to error, so this option is
+    best paired with a select input configured on the `editor_key`.
+  examples:
+    - description: ""
+      language: yaml
+      code: |-
+        parser: "argument"
+          options:
+            model:
+              editor_key: video_id
+              allowed_values: ["riXoAr6gO-E", "CZcNgDN81Sw", "0iwNjcFIHNM"]
+      annotations: []
+    - description: |-
+        <comp.MultiCodeBlock language="yaml" translate_into={["json"]} source="cloudcannon.config.yml">
+        ```
+        parser: "argument"
+        options:
+          model:
+            editor_key: video_id
+            allowed_values: ["riXoAr6gO-E", "CZcNgDN81Sw", "0iwNjcFIHNM"]
+        ```
+        </comp.MultiCodeBlock>
+
+        Example usage:
+      language: markdown
+      code: |-
+        ## My blog post
+
+              <<video "CZcNgDN81Sw">> <!--1-->
+
+              <<video "riXoAr6gO-E">> <!--1-->
+
+              <<video "RuvMHkfOpvg">> <!--2-->
+
+              Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
+      annotations: []
+    - description: ""
+      language: yaml
+      code: |-
+        parser: "argument"
+          options:
+            model:
+              editor_key: video_id
+              allowed_values: ["riXoAr6gO-E", "CZcNgDN81Sw", "0iwNjcFIHNM"]
+      annotations: []
+    - description: ""
+      language: markdown
+      code: |-
+        ## My blog post
+
+              <<video "CZcNgDN81Sw">> <!--1-->
+
+              <<video "riXoAr6gO-E">> <!--1-->
+
+              <<video "RuvMHkfOpvg">> <!--2-->
+
+              Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
+      annotations: []
+- name: model.default
+  json_path: type.snippet.params.*.(argument-parser-config).options.model.default
+  description: |-
+    The default value for this argument, which is used when adding a new snippet to a page in CloudCannon.
+
+
+
+     With this config, adding a new `video` snippet to a page in CloudCannon will instantiate it as `<<video "riXoAr6gO-E">>`.
+  examples:
+    - description: ""
+      language: yaml
+      code: |-
+        parser: "argument"
+          options:
+            model:
+              editor_key: video_id
+              default: "riXoAr6gO-E"
+      annotations: []
+    - description: ""
+      language: yaml
+      code: |-
+        parser: "argument"
+          options:
+            model:
+              editor_key: video_id
+              default: "riXoAr6gO-E"
+      annotations: []
+- name: model.implied_boolean
+  json_path: type.snippet.params.*.(argument-parser-config).options.model.implied_boolean
+  description: |-
+    If `implied_boolean` is set to `true`, then any value in this argument will alias to `true`, and an empty value will alias
+    to `false`.
+  examples:
+    - description: ""
+      language: yaml
+      code: |-
+        parser: "argument"
+          options:
+            model:
+              editor_key: has_video_id
+              implied_boolean: true
+      annotations: []
+    - description: ""
+      language: yaml
+      code: |-
+        parser: "argument"
+          options:
+            model:
+              editor_key: has_video_id
+              implied_boolean: true
+      annotations: []
+- name: model.optional
+  json_path: type.snippet.params.*.(argument-parser-config).options.model.optional
+  description: Whether a value must exist for this parser. Useful for a snippet that takes zero or one positional arguments.
+  examples:
+    - description: ""
+      language: yaml
+      code: |-
+        parser: "argument"
+          options:
+            model:
+              editor_key: video_id
+              optional: true
+      annotations: []
+    - description: |-
+        <comp.MultiCodeBlock language="yaml" translate_into={["json"]} source="cloudcannon.config.yml">
+        ```
+        parser: "argument"
+        options:
+          model:
+            editor_key: video_id
+            optional: true
+        ```
+        </comp.MultiCodeBlock>
+
+        With this config, both of the following snippet examples will parse:
+      language: markdown
+      code: |-
+        ## My blog post
+
+              <<video "CZcNgDN81Sw">>
+
+              <<video>>
+
+              Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
+      annotations: []
+    - description: ""
+      language: yaml
+      code: |-
+        parser: "argument"
+          options:
+            model:
+              editor_key: video_id
+              optional: true
+      annotations: []
+    - description: ""
+      language: markdown
+      code: |-
+        ## My blog post
+
+              <<video "CZcNgDN81Sw">>
+
+              <<video>>
+
+              Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
+      annotations: []
+- name: model.remove_empty
+  json_path: type.snippet.params.*.(argument-parser-config).options.model.remove_empty
+  description: |-
+    If `true`, the output of this parser will be omitted entirely if the value is empty, rather than saving an empty value such as `""`.
+    In most cases, you will want to make sure to set `optional: true` so that the output is able to be parsed again.
+  examples:
+    - description: ""
+      language: yaml
+      code: |-
+        parser: "argument"
+          options:
+            model:
+              editor_key: video_id
+              remove_empty: true
+      annotations: []
+    - description: ""
+      language: yaml
+      code: |-
+        parser: "argument"
+          options:
+            model:
+              editor_key: video_id
+              remove_empty: true
+      annotations: []
+- name: format
+  json_path: type.snippet.params.*.(argument-parser-config).options.format
+  description: This should be an object containing keys from the available Format keys.
+  examples:
+    - description: |-
+        A common option to configure for the
+        argument parser is the `string_boundary`:
+      language: yaml
+      code: |-
+        _snippets:
+          video:
+            snippet: "<<video [[video_arg]]>>"
+            params:
+              video_arg:
+                parser: "argument"
+                options:
+                  model:
+                    editor_key: video_id
+                  format:
+                    string_boundary: ['"', "`"]
+      annotations: []
+    - description: |-
+        A common option to configure for the
+        argument parser is the `string_boundary`:
+
+        <comp.MultiCodeBlock language="yaml" translate_into={["json"]} source="cloudcannon.config.yml">
+        ```
+        _snippets:
+          video:
+            snippet: "<<video [[video_arg]]>>"
+            params:
+              video_arg:
+                parser: "argument"
+                options:
+                  model:
+                    editor_key: video_id
+                  format:
+                    string_boundary: ['"', "`"]
+        ```
+        </comp.MultiCodeBlock>
+
+        This would make our snippet match `<<video "CZcNgDN81Sw">>` or `` <<video `CZcNgDN81Sw`>> `` but not `<<video 'CZcNgDN81Sw'>>` or `<<video CZcNgDN81Sw>>`.
+
+        Another common requirement is specifying `forbidden_tokens`,
+        especially when defining an argument with no string boundary.
+      language: yaml
+      code: |-
+        _snippets:
+          video:
+            snippet: "<<video [[video_arg]]>>"
+            params:
+              video_arg:
+                parser: "argument"
+                options:
+                  model:
+                    editor_key: video_id
+                  format:
+                    forbidden_tokens:
+                      - ">"
+                    string_boundary:
+                      - ""
+      annotations: []
+    - description: ""
+      language: yaml
+      code: |-
+        _snippets:
+          video:
+            snippet: "<<video [[video_arg]]>>"
+            params:
+              video_arg:
+                parser: "argument"
+                options:
+                  model:
+                    editor_key: video_id
+                  format:
+                    string_boundary: ['"', "`"]
+      annotations: []
+    - description: ""
+      language: yaml
+      code: |-
+        _snippets:
+          video:
+            snippet: "<<video [[video_arg]]>>"
+            params:
+              video_arg:
+                parser: "argument"
+                options:
+                  model:
+                    editor_key: video_id
+                  format:
+                    forbidden_tokens:
+                      - ">"
+                    string_boundary:
+                      - ""
+      annotations: []
+- name: models
+  json_path: type.snippet.params.*.(argument-list-parser-config).options.models
+  description: Defines the parsing configurations for each argument. Matches the `model` options from the argument parser.
+  examples: []
+- name: format
+  json_path: type.snippet.params.*.(argument-parser-config).options.format
+  description: |-
+    This should be an object containing keys from the available Format keys.
+    These options will apply to all argument models.
+  examples: []
+- name: editor_key
+  json_path: type.snippet.params.*.editor_key
+  description: |-
+    Specifies the key that a user in CloudCannon will see when editing this value.
+    This key will also be used if you want to specify any input configuration using `_inputs`.
+  examples:
+    - description: ""
+      language: yaml
+      code: |-
+        _snippets:
+          highlight:
+            snippet: "<<highlight>>[[inner]]<</highlight>>"
+            params:
+              inner:
+                parser: "content"
+                options:
+                  editor_key: highlighted_text
+            _inputs:
+              highlighted_text:
+                type: markdown
+                comment: Enter the text that should be highlighted
+      annotations: []
+    - description: ""
+      language: yaml
+      code: |-
+        _snippets:
+          highlight:
+            snippet: "<<highlight>>[[inner]]<</highlight>>"
+            params:
+              inner:
+                parser: "content"
+                options:
+                  editor_key: highlighted_text
+            _inputs:
+              highlighted_text:
+                type: markdown
+                comment: Enter the text that should be highlighted
+      annotations: []
+- name: indented_by
+  json_path: type.snippet.params.*.indented_by
+  description: |-
+    Configures the content parser to **require** whitespace indentation when parsing.
+    Used when a snippet continues for as long as content is indented.
+
+    This option should only be used if required, since it prevents your Snippet from parsing if the whitespace does not match.
+    If you want parsing to be flexible, but the output to be formatted, use the Style options instead.
+  examples:
+    - description: ""
+      language: yaml
+      code: |-
+        _snippets:
+          highlight:
+            snippet: "<<highlight>>\n[[inner]]\n<</highlight>>"
+            params:
+              inner:
+                parser: "content"
+                options:
+                  editor_key: highlighted_text
+                  indented_by___0___: "  "
+      annotations: []
+    - description: |-
+        <comp.MultiCodeBlock language="yaml" translate_into={["json"]} source="cloudcannon.config.yml">
+        ```
+        _snippets:
+          highlight:
+            snippet: "<<highlight>>\n[[inner]]\n<</highlight>>"
+            params:
+              inner:
+                parser: "content"
+                options:
+                  editor_key: highlighted_text
+                  indented_by___0___: "  "
+        ```
+        </comp.MultiCodeBlock>
+
+        Example usage:
+      language: markdown
+      code: |-
+        ## My blog post
+
+              <<highlight>>
+                My highlighted content!   <!--1-->
+              <</highlight>>
+
+              <<highlight>>
+                  My highlighted content! <!--2-->
+              <</highlight>>
+
+              <<highlight>>
+              My highlighted content!     <!--3-->
+              <</highlight>>
+
+              Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
+      annotations: []
+    - description: ""
+      language: yaml
+      code: |-
+        _snippets:
+          highlight:
+            snippet: "<<highlight>>\n[[inner]]\n<</highlight>>"
+            params:
+              inner:
+                parser: "content"
+                options:
+                  editor_key: highlighted_text
+                  indented_by___0___: "  "
+      annotations: []
+    - description: ""
+      language: markdown
+      code: |-
+        ## My blog post
+
+              <<highlight>>
+                My highlighted content!   <!--1-->
+              <</highlight>>
+
+              <<highlight>>
+                  My highlighted content! <!--2-->
+              <</highlight>>
+
+              <<highlight>>
+              My highlighted content!     <!--3-->
+              <</highlight>>
+
+              Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
+      annotations: []
+- name: allow_leading
+  json_path: type.snippet.params.*.allow_leading
+  description: |-
+    If an `indented_by` value is set, `allow_leading: true` signifies that the _first_
+    line of the content does **not** need to be indented, but subsequent lines do.
+  examples:
+    - description: ""
+      language: yaml
+      code: |-
+        parser: "content"
+          options:
+            editor_key: highlighted_text
+            indented_by: "  "
+            allow_leading: true
+      annotations: []
+    - description: |-
+        <comp.MultiCodeBlock language="yaml" translate_into={["json"]} source="cloudcannon.config.yml">
+        ```
+        parser: "content"
+        options:
+            editor_key: highlighted_text
+            indented_by: "  "
+            allow_leading: true
+        ```
+        </comp.MultiCodeBlock>
+
+        Example usage:
+      language: markdown
+      code: |-
+        ## My blog post
+
+              <<highlight>>
+                My highlighted content!   <!--1-->
+              <</highlight>>
+
+              <<highlight>>Some initial content
+                  More highlighted content!   <!--2-->
+              <</highlight>>
+
+              Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
+      annotations: []
+    - description: ""
+      language: yaml
+      code: |-
+        parser: "content"
+          options:
+            editor_key: highlighted_text
+            indented_by: "  "
+            allow_leading: true
+      annotations: []
+    - description: ""
+      language: markdown
+      code: |-
+        ## My blog post
+
+              <<highlight>>
+                My highlighted content!   <!--1-->
+              <</highlight>>
+
+              <<highlight>>Some initial content
+                  More highlighted content!   <!--2-->
+              <</highlight>>
+
+              Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
+      annotations: []
+- name: trim_text
+  json_path: type.snippet.params.*.trim_text
+  description: |-
+    If true, all whitespace and newlines will be trimmed from the start and end of the content
+    before it is presented to an editor in CloudCannon.
+  examples:
+    - description: ""
+      language: yaml
+      code: |-
+        parser: "content"
+          options:
+            editor_key: highlighted_text
+            trim_text: true
+      annotations: []
+    - description: |-
+        <comp.MultiCodeBlock language="yaml" translate_into={["json"]} source="cloudcannon.config.yml">
+        ```
+        parser: "content"
+        options:
+            editor_key: highlighted_text
+            trim_text: true
+        ```
+        </comp.MultiCodeBlock>
+
+        Example usage:
+      language: markdown
+      code: |-
+        ## My blog post
+
+              <<highlight>>
+                My highlighted content!   <!--1-->
+              <</highlight>>
+
+              <<highlight>>  My highlighted content!  <</highlight>> <!--1-->
+
+              Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
+      annotations: []
+    - description: ""
+      language: yaml
+      code: |-
+        parser: "content"
+          options:
+            editor_key: highlighted_text
+            trim_text: true
+      annotations: []
+    - description: ""
+      language: markdown
+      code: |-
+        ## My blog post
+
+              <<highlight>>
+                My highlighted content!   <!--1-->
+              <</highlight>>
+
+              <<highlight>>  My highlighted content!  <</highlight>> <!--1-->
+
+              Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
+      annotations: []
+- name: allow_nested
+  json_path: type.snippet.params.*.allow_nested
+  description: If set, nested snippets will be parsed and returned.
+  examples:
+    - description: ""
+      language: yaml
+      code: |-
+        parser: "content"
+          options:
+            editor_key: highlighted_text
+            allow_nested: true
+      annotations: []
+    - description: |-
+        <comp.MultiCodeBlock language="yaml" translate_into={["json"]} source="cloudcannon.config.yml">
+        ```
+        parser: "content"
+        options:
+            editor_key: highlighted_text
+            allow_nested: true
+        ```
+        </comp.MultiCodeBlock>
+
+        Example usage:
+      language: markdown
+      code: |-
+        ## My blog post
+
+              <<highlight>>
+                My highlighted <<highlight>>content!<</highlight>>   <!--1-->
+              <</highlight>>
+
+              Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
+      annotations: []
+    - description: ""
+      language: yaml
+      code: |-
+        parser: "content"
+          options:
+            editor_key: highlighted_text
+            allow_nested: true
+      annotations: []
+    - description: ""
+      language: markdown
+      code: |-
+        ## My blog post
+
+              <<highlight>>
+                My highlighted <<highlight>>content!<</highlight>>   <!--1-->
+              <</highlight>>
+
+              Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
+      annotations: []
+- name: raw
+  json_path: type.snippet.params.*.raw
+  description: |-
+    A stricter version of `allow_nested: false` that performs no parsing of the inner text.
+    Useful to improve the performance of the content parser, but can misbehave.
+  examples:
+    - description: ""
+      language: yaml
+      code: |-
+        parser: "content"
+          options:
+            editor_key: highlighted_text
+            raw: true
+      annotations: []
+    - description: |-
+        <comp.MultiCodeBlock language="yaml" translate_into={["json"]} source="cloudcannon.config.yml">
+        ```
+        parser: "content"
+        options:
+            editor_key: highlighted_text
+            raw: true
+        ```
+        </comp.MultiCodeBlock>
+
+        Example usage:
+      language: markdown
+      code: |-
+        ## My blog post
+
+              <<highlight>>
+                My highlighted <<highlight>>content!<</highlight>>   <!--1-->
+              <</highlight>>
+
+              Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
+      annotations: []
+    - description: ""
+      language: yaml
+      code: |-
+        parser: "content"
+          options:
+            editor_key: highlighted_text
+            raw: true
+      annotations: []
+    - description: ""
+      language: markdown
+      code: |-
+        ## My blog post
+
+              <<highlight>>
+                My highlighted <<highlight>>content!<</highlight>>   <!--1-->
+              <</highlight>>
+
+              Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
+      annotations: []
+- name: forbidden_tokens
+  json_path: type.snippet.params.*.forbidden_tokens
+  description: |-
+    Stops parsing content as soon as one of these tokens is encountered.
+    Useful when the content parser is being greedy and consuming more input than intended.
+  examples:
+    - description: ""
+      language: yaml
+      code: |-
+        parser: "content"
+          options:
+            editor_key: highlighted_text
+            forbidden_tokens: ['<']
+      annotations: []
+    - description: |-
+        <comp.MultiCodeBlock language="yaml" translate_into={["json"]} source="cloudcannon.config.yml">
+        ```
+        parser: "content"
+        options:
+            editor_key: highlighted_text
+            forbidden_tokens: ['<']
+        ```
+        </comp.MultiCodeBlock>
+
+        Example usage:
+      language: markdown
+      code: |-
+        ## My blog post
+
+              <<highlight>> My content <</highlight>> <!--1-->
+
+              <<highlight>> My < content <</highlight>> <!--2-->
+
+              Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
+      annotations: []
+    - description: ""
+      language: yaml
+      code: |-
+        parser: "content"
+          options:
+            editor_key: highlighted_text
+            forbidden_tokens: ['<']
+      annotations: []
+    - description: ""
+      language: markdown
+      code: |-
+        ## My blog post
+
+              <<highlight>> My content <</highlight>> <!--1-->
+
+              <<highlight>> My < content <</highlight>> <!--2-->
+
+              Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
+      annotations: []
+- name: parse_newline_character
+  json_path: type.snippet.params.*.parse_newline_character
+  description: |-
+    This tells the parser to treat `\n` as line breaks instead of literal characters.
+    This is useful if you are editing your content in a multiline editing interface.
+  examples:
+    - description: ""
+      language: yaml
+      code: |-
+        parser: "content"
+          options:
+            parse_newline_character: true
+      annotations: []
+    - description: |-
+        <comp.MultiCodeBlock language="yaml" translate_into={["json"]} source="cloudcannon.config.yml">
+        ```
+        parser: "content"
+        options:
+            parse_newline_character: true
+        ```
+        </comp.MultiCodeBlock>
+
+        Example usage:
+      language: markdown
+      code: |-
+        ## My blog post
+
+              <<highlight>> Line One\nLine Two <</highlight>> <!--1-->
+      annotations: []
+    - description: ""
+      language: yaml
+      code: |-
+        parser: "content"
+          options:
+            parse_newline_character: true
+      annotations: []
+    - description: ""
+      language: markdown
+      code: |-
+        ## My blog post
+
+              <<highlight>> Line One\nLine Two <</highlight>> <!--1-->
+      annotations: []
+- name: optional
+  json_path: type.snippet.params.*.(optional-parser-config)
+  description: Whether content is required for this snippet to match.
+  examples: []
+- name: style
+  json_path: type.snippet.params.*.(wrapper-parser-config).options.style
+  description: A style object to control how content is parsed and stringified, to produce cleaner source code.
+  examples:
+    - description: ""
+      language: yaml
+      code: |-
+        parser: "content"
+          options:
+            editor_key: highlighted_text
+            style:
+              inline:
+                leading: " "
+                trailing: " "
+              block:
+                leading: "\n"
+                trailing: "\n"
+                indent: "  "
+      annotations: []
+    - description: |-
+        <comp.MultiCodeBlock language="yaml" translate_into={["json"]} source="cloudcannon.config.yml">
+        ```
+        parser: "content"
+        options:
+          editor_key: highlighted_text
+          style:
+            inline:
+              leading: " "
+              trailing: " "
+            block:
+              leading: "\n"
+              trailing: "\n"
+              indent: "  "
+        ```
+        </comp.MultiCodeBlock>
+
+        For example, we'll look at the following input file:
+      language: markdown
+      code: |-
+        ## My blog post
+
+              <<highlight>>My content<</highlight>> <!--1-->
+
+              <<highlight>>My
+              multiline               <!--2-->
+              content<</highlight>>
+
+              Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
+      annotations: []
+    - description: |-
+        <comp.MultiCodeBlock language="yaml" translate_into={["json"]} source="cloudcannon.config.yml">
+        ```
+        parser: "content"
+        options:
+          editor_key: highlighted_text
+          style:
+            inline:
+              leading: " "
+              trailing: " "
+            block:
+              leading: "\n"
+              trailing: "\n"
+              indent: "  "
+        ```
+        </comp.MultiCodeBlock>
+
+        For example, we'll look at the following input file:
+
+        <comp.CodeBlock language="markdown" source="page.md">
+        ```
+        ## My blog post
+
+        <<highlight>>My content<</highlight>> <!--1-->
+
+        <<highlight>>My
+        multiline               <!--2-->
+        content<</highlight>>
+
+        Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
+        ```
+        <comp.Annotation number="1">
+          As this snippet contains a single line of text, it will be formatted as `inline`.
+        </comp.Annotation>
+        <comp.Annotation number="2">
+          This snippet contains multiple lines, so will be auto-formatted as `block`.
+        </comp.Annotation>
+        </comp.CodeBlock>
+
+        When the above file is opened in CloudCannon and saved, the source will be formatted to:
+      language: markdown
+      code: |-
+        ## My blog post
+
+              <<highlight>> My content <</highlight>> <!--1-->
+
+              <<highlight>>
+                My
+                multiline               <!--2-->
+                content
+              <</highlight>>
+
+              Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
+      annotations: []
+    - description: ""
+      language: yaml
+      code: |-
+        parser: "content"
+          options:
+            editor_key: highlighted_text
+            style:
+              inline:
+                leading: " "
+                trailing: " "
+              block:
+                leading: "\n"
+                trailing: "\n"
+                indent: "  "
+      annotations: []
+    - description: ""
+      language: markdown
+      code: |-
+        ## My blog post
+
+              <<highlight>>My content<</highlight>> <!--1-->
+
+              <<highlight>>My
+              multiline               <!--2-->
+              content<</highlight>>
+
+              Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
+      annotations: []
+    - description: ""
+      language: markdown
+      code: |-
+        ## My blog post
+
+              <<highlight>> My content <</highlight>> <!--1-->
+
+              <<highlight>>
+                My
+                multiline               <!--2-->
+                content
+              <</highlight>>
+
+              Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
+      annotations: []
+- name: models
+  json_path: type.snippet.params.*.(argument-list-parser-config).options.models
+  description: Defines the parsing configurations for each argument.
+  examples: []
+- name: models[*].editor_key
+  json_path: type.snippet.params.*.(argument-list-parser-config).options.models.[*].editor_key
+  description: |-
+    Specifies the key that a user in CloudCannon will see when editing this value.
+    This key will also be used if you want to specify any input configuration using `_inputs`.
+
+    If no `source_key` is set, this key will also be assumed to be the source key.
+  examples:
+    - description: ""
+      language: yaml
+      code: |-
+        parser: "key_values"
+          options:
+            models___1___:
+              - editor_key: href
+              - editor_key: class
+              - editor_key: target
+      annotations: []
+    - description: |-
+        <comp.MultiCodeBlock language="yaml" translate_into={["json"]} source="cloudcannon.config.yml">
+        ```
+        parser: "key_values"
+        options:
+          models___1___:
+            - editor_key: href
+            - editor_key: class
+            - editor_key: target
+        ```
+        <comp.Annotation number="1">
+          Key/value models can be specified in any order, so do not have to match the order
+          of they keys in the source code.
+        </comp.Annotation>
+        </comp.MultiCodeBlock>
+
+        Example usage:
+      language: markdown
+      code: |-
+        ## My blog post
+
+              <a href="#link" target="_blank" class="my_link"> ... </a>
+              Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
+      annotations: []
+    - description: |-
+        <comp.MultiCodeBlock language="yaml" translate_into={["json"]} source="cloudcannon.config.yml">
+        ```
+        parser: "key_values"
+        options:
+          models___1___:
+            - editor_key: href
+            - editor_key: class
+            - editor_key: target
+        ```
+        <comp.Annotation number="1">
+          Key/value models can be specified in any order, so do not have to match the order
+          of they keys in the source code.
+        </comp.Annotation>
+        </comp.MultiCodeBlock>
+
+        Example usage:
+
+        <comp.CodeBlock language="markdown" source="page.md">
+        ```
+        ## My blog post
+
+        <a href="#link" target="_blank" class="my_link"> ... </a>
+        Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
+        ```
+        </comp.CodeBlock>
+
+        When edited in CloudCannon, this will edit as the data model:
+
+        {/* TODO: Use screenshot here instead */}
+      language: yaml
+      code: |-
+        href: "#link"
+          target: "_blank"
+          class: "my_link"
+      annotations: []
+    - description: ""
+      language: yaml
+      code: |-
+        parser: "key_values"
+          options:
+            models___1___:
+              - editor_key: href
+              - editor_key: class
+              - editor_key: target
+      annotations: []
+    - description: ""
+      language: markdown
+      code: |-
+        ## My blog post
+
+              <a href="#link" target="_blank" class="my_link"> ... </a>
+              Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
+      annotations: []
+    - description: ""
+      language: yaml
+      code: |-
+        href: "#link"
+          target: "_blank"
+          class: "my_link"
+      annotations: []
+- name: models[*].source_key
+  json_path: type.snippet.params.*.(argument-list-parser-config).options.models.[*].source_key
+  description: |-
+    Specifies the key that the parser should look for in the source text.
+
+    This only needs to be set if it differs from the `editor_key`.
+  examples:
+    - description: ""
+      language: yaml
+      code: |-
+        parser: "key_values"
+          options:
+            models___1___:
+              - source_key: href
+                editor_key: link
+              - source_key: target
+                editor_key: link_target
+              - source_key: class
+                editor_key: classnames
+      annotations: []
+    - description: |-
+        <comp.MultiCodeBlock language="yaml" translate_into={["json"]} source="cloudcannon.config.yml">
+        ```
+        parser: "key_values"
+        options:
+          models___1___:
+            - source_key: href
+              editor_key: link
+            - source_key: target
+              editor_key: link_target
+            - source_key: class
+              editor_key: classnames
+        ```
+        <comp.Annotation number="1">
+          Key/value models can be specified in any order, so do not have to match the order
+          of they keys in the source code.
+        </comp.Annotation>
+        </comp.MultiCodeBlock>
+
+        Example usage:
+      language: markdown
+      code: |-
+        ## My blog post
+
+              <a href="#link" target="_blank" class="my_link"> ... </a>
+              Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
+      annotations: []
+    - description: |-
+        <comp.MultiCodeBlock language="yaml" translate_into={["json"]} source="cloudcannon.config.yml">
+        ```
+        parser: "key_values"
+        options:
+          models___1___:
+            - source_key: href
+              editor_key: link
+            - source_key: target
+              editor_key: link_target
+            - source_key: class
+              editor_key: classnames
+        ```
+        <comp.Annotation number="1">
+          Key/value models can be specified in any order, so do not have to match the order
+          of they keys in the source code.
+        </comp.Annotation>
+        </comp.MultiCodeBlock>
+
+        Example usage:
+
+        <comp.CodeBlock language="markdown" source="page.md">
+        ```
+        ## My blog post
+
+        <a href="#link" target="_blank" class="my_link"> ... </a>
+        Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
+        ```
+        </comp.CodeBlock>
+
+        When edited in CloudCannon, this will edit as the data model:
+
+        {/* TODO: Use screenshot here instead */}
+      language: yaml
+      code: |-
+        link: "#link"
+          link_target: "_blank"
+          classnames: "my_link"
+      annotations: []
+    - description: ""
+      language: yaml
+      code: |-
+        parser: "key_values"
+          options:
+            models___1___:
+              - source_key: href
+                editor_key: link
+              - source_key: target
+                editor_key: link_target
+              - source_key: class
+                editor_key: classnames
+      annotations: []
+    - description: ""
+      language: markdown
+      code: |-
+        ## My blog post
+
+              <a href="#link" target="_blank" class="my_link"> ... </a>
+              Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
+      annotations: []
+    - description: ""
+      language: yaml
+      code: |-
+        link: "#link"
+          link_target: "_blank"
+          classnames: "my_link"
+      annotations: []
+- name: models[*].default
+  json_path: type.snippet.params.*.(argument-list-parser-config).options.models.[*].default
+  description: The default value for this argument, which is used when adding a new snippet to a page in CloudCannon.
+  examples:
+    - description: ""
+      language: yaml
+      code: |-
+        parser: "key_values"
+          options:
+            models:
+              - editor_key: href
+                default: "/"
+              - editor_key: target
+                default: "_blank"
+      annotations: []
+    - description: ""
+      language: yaml
+      code: |-
+        parser: "key_values"
+          options:
+            models:
+              - editor_key: href
+                default: "/"
+              - editor_key: target
+                default: "_blank"
+      annotations: []
+- name: models[*].optional
+  json_path: type.snippet.params.*.(argument-list-parser-config).options.models.[*].optional
+  description: Whether a value must exist for this parser. Useful for long sets of key-value pairs that are not all required.
+  examples:
+    - description: ""
+      language: yaml
+      code: |-
+        parser: "key_values"
+          options:
+            models:
+              - editor_key: href
+              - editor_key: target
+                optional: true
+              - editor_key: class
+                optional: true
+      annotations: []
+    - description: |-
+        <comp.MultiCodeBlock language="yaml" translate_into={["json"]} source="cloudcannon.config.yml">
+        ```
+        parser: "key_values"
+        options:
+          models:
+            - editor_key: href
+            - editor_key: target
+              optional: true
+            - editor_key: class
+              optional: true
+        ```
+        </comp.MultiCodeBlock>
+
+        Example usage:
+      language: markdown
+      code: |-
+        ## My blog post
+
+              <a href="#link" target="_blank" class="my_link"> ... </a> <!--1-->
+              <a href="#link" target="_blank"> ... </a> <!--1-->
+              <a href="#link"> ... </a> <!--1-->
+
+              <a target="_blank"> ... </a> <!--2-->
+
+              Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
+      annotations: []
+    - description: ""
+      language: yaml
+      code: |-
+        parser: "key_values"
+          options:
+            models:
+              - editor_key: href
+              - editor_key: target
+                optional: true
+              - editor_key: class
+                optional: true
+      annotations: []
+    - description: ""
+      language: markdown
+      code: |-
+        ## My blog post
+
+              <a href="#link" target="_blank" class="my_link"> ... </a> <!--1-->
+              <a href="#link" target="_blank"> ... </a> <!--1-->
+              <a href="#link"> ... </a> <!--1-->
+
+              <a target="_blank"> ... </a> <!--2-->
+
+              Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
+      annotations: []
+- name: models[*].remove_empty
+  json_path: type.snippet.params.*.(argument-list-parser-config).options.models.[*].remove_empty
+  description: |-
+    Whether this key-value pair should be omitted altogether if the value is empty.
+    Requires that this key is also set as optional, as otherwise the snippet would not re-parse.
+  examples:
+    - description: ""
+      language: yaml
+      code: |-
+        parser: "key_values"
+          options:
+            models:
+              - editor_key: href
+              - editor_key: target
+              - editor_key: class
+                optional: true
+                remove_empty: true
+      annotations: []
+    - description: |-
+        <comp.MultiCodeBlock language="yaml" translate_into={["json"]} source="cloudcannon.config.yml">
+        ```
+        parser: "key_values"
+        options:
+          models:
+            - editor_key: href
+            - editor_key: target
+            - editor_key: class
+              optional: true
+              remove_empty: true
+        ```
+        </comp.MultiCodeBlock>
+
+        Example usage:
+      language: markdown
+      code: |-
+        ## My blog post
+
+              <a href="#link" target="_blank" class=""> ... </a> <!--1-->
+              <a href="#link" target="_blank"> ... </a> <!--1--> <!--2-->
+
+              Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
+      annotations: []
+    - description: ""
+      language: yaml
+      code: |-
+        parser: "key_values"
+          options:
+            models:
+              - editor_key: href
+              - editor_key: target
+              - editor_key: class
+                optional: true
+                remove_empty: true
+      annotations: []
+    - description: ""
+      language: markdown
+      code: |-
+        ## My blog post
+
+              <a href="#link" target="_blank" class=""> ... </a> <!--1-->
+              <a href="#link" target="_blank"> ... </a> <!--1--> <!--2-->
+
+              Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
+      annotations: []
+- name: format
+  json_path: type.snippet.params.*.(argument-parser-config).options.format
+  description: This should be an object containing keys from the available Format keys.
+  examples: []
+- name: literal
+  json_path: type.snippet.params.*.(literal-parser-config)
+  description: The exact literal string that should be matched.
+  examples: []
+- name: literal
+  json_path: type.snippet.params.*.(literal-parser-config)
+  description: The exact literal string that should be matched.
+  examples: []
+- name: minimum
+  json_path: type.snippet.params.*.minimum
+  description: |-
+    The minimum number of times that the literal string must occur to match this parser.
+    A good example is a markdown code block, which can open with any number of backticks
+    greater than or equal to three.
+  examples: []
+- name: editor_key
+  json_path: type.snippet.params.*.editor_key
+  description: |-
+    Specifies a key that a user in CloudCannon will see to edit this value.
+    The value returned by this parser is a number input that can be edited to change how
+    many literals are output by the parser.
+  examples:
+    - description: ""
+      language: yaml
+      code: |-
+        _snippets:
+          custom_title:
+            snippet: "[[hashes]] [[title]]"
+            params:
+              hashes:
+                parser: repeating_literal
+                options:
+                  literal: '#'
+                  minimum: 1
+                  editor_key: heading_level
+              title:
+                parser: "content"
+                options:
+                  editor_key: title
+                  forbidden_tokens: ["\n"]
+      annotations: []
+    - description: |-
+        <comp.MultiCodeBlock language="yaml" translate_into={["json"]} source="cloudcannon.config.yml">
+        ```
+        _snippets:
+          custom_title:
+            snippet: "[[hashes]] [[title]]"
+            params:
+              hashes:
+                parser: repeating_literal
+                options:
+                  literal: '#'
+                  minimum: 1
+                  editor_key: heading_level
+              title:
+                parser: "content"
+                options:
+                  editor_key: title
+                  forbidden_tokens: ["\n"]
+        ```
+        </comp.MultiCodeBlock>
+
+        Example usage:
+      language: markdown
+      code: |-
+        # My blog post <!--1-->
+
+              Aenean lacinia bibendum nulla sed consectetur.
+
+              ## My heading <!--1-->
+
+              Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
+      annotations: []
+    - description: ""
+      language: yaml
+      code: |-
+        _snippets:
+          custom_title:
+            snippet: "[[hashes]] [[title]]"
+            params:
+              hashes:
+                parser: repeating_literal
+                options:
+                  literal: '#'
+                  minimum: 1
+                  editor_key: heading_level
+              title:
+                parser: "content"
+                options:
+                  editor_key: title
+                  forbidden_tokens: ["\n"]
+      annotations: []
+    - description: ""
+      language: markdown
+      code: |-
+        # My blog post <!--1-->
+
+              Aenean lacinia bibendum nulla sed consectetur.
+
+              ## My heading <!--1-->
+
+              Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
+      annotations: []
+- name: default
+  json_path: type.snippet.params.*.default
+  description: The default number of literals, which is used when adding a new snippet to a page in CloudCannon.
+  examples: []
+- name: snippet
+  json_path: type.snippet.params.*.(wrapper-parser-config).options.snippet
+  description: |-
+    A snippet string to wrap and make optional.
+
+    This shares the same params as the outermost snippet, so may reference itself or other params.
+  examples: []
+- name: remove_empty
+  json_path: type.snippet.params.*.remove_empty
+  description: |-
+    Whether to output an empty string, or no value at all.
+    This will bubble up to any outer parsers, so may control whether they
+    return output.
+  examples: []
+- name: snippet
+  json_path: type.snippet.params.*.(wrapper-parser-config).options.snippet
+  description: |-
+    A snippet string to wrap and make repeatable.
+
+    This shares the same params as the outermost snippet, so may reference itself or other params.
+  examples: []
+- name: editor_key
+  json_path: type.snippet.params.*.editor_key
+  description: |-
+    The key to use when editing the data for this snippet in CloudCannon.
+
+    This key will become an array of objects, each containing the data for
+    an iteration of the repeated snippet.
+  examples: []
+- name: default_length
+  json_path: type.snippet.params.*.default_length
+  description: Used when initializing a new Snippet, and determines how many repetitions should be created in the initial data.
+  examples: []
+- name: optional
+  json_path: type.snippet.params.*.(optional-parser-config)
+  description: |-
+    If `false` this parser requires at least one matching value. If `true`,
+    matching zero times is a valid state.
+
+    Setting this to `true` is preferred to wrapping the `repeating` parser inside an `optional` parser.
+  examples: []
+- name: style
+  json_path: type.snippet.params.*.(wrapper-parser-config).options.style
+  description: |-
+    A style object to control how content is parsed and stringified, to produce cleaner source code.
+
+    Can be customized to indent each repetition, add leading and trailing tokens to the entire block, and add tokens between each repetition.
+  examples: []
+- name: output
+  json_path: type.snippet.params.*.output
+  description: |-
+    Either `inline` or `block`. For parsers such as the content and repeating parsers,
+    determines how to format the output.
+
+    When set to `block`, values will always be output with leading and trailing newlines.
+
+    When set to `inline`, values will always be output on a single line, with newlines inserted as `\n`.
+
+    If unspecified, `inline` will be chosen when the value is a single line, otherwise `block`
+    formatting will be used.
+  examples: []
+- name: between
+  json_path: type.snippet.params.*.between
+  description: |-
+    Used only in the repeating parser. Specifies the text to insert between each repetition.
+    Useful for adding newlines between each repetition of the parser.
+  examples: []
+- name: inline.leading
+  json_path: type.snippet.params.*.inline.leading
+  description: For inline content, what should lead the value. Useful for adding whitespace around strings.
+  examples: []
+- name: inline.trailing
+  json_path: type.snippet.params.*.inline.trailing
+  description: For inline content, what should trail the value. Useful for adding whitespace around strings.
+  examples: []
+- name: block.leading
+  json_path: type.snippet.params.*.block.leading
+  description: For block content, what should lead the value. Useful for adding newlines around content.
+  examples: []
+- name: block.trailing
+  json_path: type.snippet.params.*.block.trailing
+  description: For block content, what should trail the value. Useful for adding newlines around content.
+  examples: []
+- name: block.indent
+  json_path: type.snippet.params.*.block.indent
+  description: |-
+    For block content, how should the value be indented.
+    Nested snippets only need to specify the indentation relative to their parent.
+  examples: []
+- name: root_boundary
+  json_path: type.snippet.params.*.root_boundary
+  description: For key-value segments, what boundary is required (if any).
+  examples: []
+- name: remove_empty_root_boundary
+  json_path: type.snippet.params.*.remove_empty_root_boundary
+  description: If a key-value segment is empty, but it has a root boundary, should that boundary be removed from the source code?
+  examples: []
+- name: root_value_delimiter
+  json_path: type.snippet.params.*.root_value_delimiter
+  description: |-
+    For key-value pairs, what delimits the key from the value.
+
+    - For pairs such as `key="value"`, this would be `=`.
+    - For pairs such as `key: "value"`, this would be `: `.
+  examples: []
+- name: root_pair_delimiter
+  json_path: type.snippet.params.*.root_pair_delimiter
+  description: |-
+    For key-value pairs, what delimits the each key-value pair from the next.
+
+    - For segments such as `href="about" title="Hello World"`, this would be ` ` (a space).
+    - For segments such as `href: about, title: "Hello World"`, this would be `,`.
+  examples: []
+- name: root_value_boundary
+  json_path: type.snippet.params.*.root_value_boundary
+  description: |-
+    For arguments and values, what boundary is required (if any).
+
+    For example, MDX specifies `{ start: "{", end: "}" }`, which allows syntax such as: `<Component flag={true} />`.
+  examples: []
+- name: root_value_boundary_optional
+  json_path: type.snippet.params.*.root_value_boundary_optional
+  description: |-
+    Where a `root_value_boundary` applies, what types do not require a boundary?
+
+    For example, MDX specifies `{ string: true }`, which allows strings to exist as `<Component arg="true" />` rather than `<Component arg={"true"} />`.
+  examples: []
+- name: string_boundary
+  json_path: type.snippet.params.*.string_boundary
+  description: |-
+    The valid tokens that can bound a string. The parser will ensure the matched end token
+    is the same as the start token.
+
+    To handle common strings with either single or double quotes, this would usually be `["'", "\""]`
+  examples: []
+- name: string_escape_character
+  json_path: type.snippet.params.*.string_escape_character
+  description: |-
+    What character can be placed before a string boundary to escape it?
+
+    If required, this will usually be `\`.
+  examples: []
+- name: object_boundary
+  json_path: type.snippet.params.*.object_boundary
+  description: |-
+    For snippets which can parse object literals, what characters start and end an object?
+
+    If required, this will usually be `{ start: "{", end: "}" }`.
+  examples: []
+- name: object_value_delimiter
+  json_path: type.snippet.params.*.object_value_delimiter
+  description: |-
+    Within an object, what delimits a key from a value?
+
+    If required, this will usually be `:`.
+  examples: []
+- name: object_pair_delimiter
+  json_path: type.snippet.params.*.object_pair_delimiter
+  description: |-
+    Within an object, what delimits each key-value pair from the next.
+
+    If required, this will usually be `,`.
+  examples: []
+- name: array_boundary
+  json_path: type.snippet.params.*.array_boundary
+  description: |-
+    For snippets which can parse array literals, what characters start and end an array?
+
+    If required, this will usually be `{ start: "[", end: "]" }`.
+  examples: []
+- name: array_delimiter
+  json_path: type.snippet.params.*.array_delimiter
+  description: |-
+    Within an array, what delimits each value from the next"?
+
+    If required, this will usually be `,`.
+  examples: []
+- name: forbidden_tokens
+  json_path: type.snippet.params.*.forbidden_tokens
+  description: |-
+    For the given parser, what tokens are strictly not allowed in values.
+    Most often used to limit what the content parser will consume.
+  examples: []
+- name: allow_booleans
+  json_path: type.snippet.params.*.allow_booleans
+  description: Whether unquoted booleans like `true` and `false` can be used as values.
+  examples: []
+- name: allow_numbers
+  json_path: type.snippet.params.*.allow_numbers
+  description: Whether unquoted numbers like `5` and `-0.4` can be used as values.
+  examples: []
+- name: allow_implied_values
+  json_path: type.snippet.params.*.allow_implied_values
+  description: When parsing key-value pairs, can a key be specified without a value to imply a value of `true`?
+  examples: []
