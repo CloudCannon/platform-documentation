@@ -1,1 +1,55 @@
-DOC TYPE
+{% macro docType(entry) %}
+
+<dt>Type:</dt>
+<dd>
+  <code>
+    {%- if entry.url and not parent -%}
+      <a href="{{ entry.url }}">{{ entry.title | default(key, true) }}</a>
+    {%- elif entry.type == "array" -%}
+      Array
+      {%- if entry.items | length -%}
+        {%- set join = joiner(" | ") -%}
+        <span style="opacity: 0.5;">&lt;</span>
+        {%- for itemRef in entry.items -%}
+          {{- join() -}}
+
+        {%- endfor -%}
+        <span style="opacity: 0.5;">&gt;</span>
+      {%- endif -%}
+    {%- elif entry.type == "object" -%}
+      Object
+      {%- if entry.additionalProperties.length == 1 -%}
+        <span style="opacity: 0.5;">&lt;</span>
+
+        <span style="opacity: 0.5;">&gt;</span>
+      {%- endif -%}
+    {%- elif entry.type == "string" -%}
+      {%- if const -%}"{{ const }}"{%- else -%}string{%- endif -%}
+    {%- elif entry.type == "number" or type == "integer" -%}
+      {%- if const or const == 0 -%}
+        {{ const }}{%- else -%}number{%- endif -%}
+    {%- elif entry.type == "boolean" -%}
+      {%- if entry.const or entry.const == false -%}
+        {{ entry.const }}{%- else -%}boolean{%- endif -%}
+    {%- elif entry.anyOf | length -%}
+      {%- set join = joiner(" | ") -%}
+      {%- for anyOfRef in entry.anyOf -%}
+        {{- join() -}}
+
+      {%- endfor -%}
+    {%- elif entry.type == "null" -%}
+      null
+    {%- elif entry.type == "date" -%}
+      date
+    {%- elif entry.title -%}
+      {{ entry.title }}
+    {%- else -%}
+      unknown
+    {%- endif -%}
+  </code>
+  {%- if entry.required %}
+    <small style="color: red;">(Required)</small>
+  {%- endif -%}
+</dd>
+
+{% endmacro %}
