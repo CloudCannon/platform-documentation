@@ -1,6 +1,6 @@
 import Alpine from "npm:alpinejs@latest";
 import intersect from "npm:@alpinejs/intersect@latest";
-import focus from "npm:@alpinejs/focus@latest";
+import focus from "https://esm.sh/@alpinejs/focus@latest";
 import ScrollPadlock from "npm:scroll-padlock@2.2.0";
 
 const scrollElement = document.body,

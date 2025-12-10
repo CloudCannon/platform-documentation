@@ -57,6 +57,9 @@ import strip from "npm:strip-markdown";
 import { format, formatDistanceToNowStrict, differenceInMonths } from 'npm:date-fns';
 import { parseChangelogFilename } from "./parseChangelogFilename.ts";
 
+import documentation from 'npm:@cloudcannon/configuration-types@0.0.44/dist/documentation.json' with { type: 'json' };
+globalThis.DOCS = documentation;
+
 function stripHTML(html) {
     const doc = new DOMParser().parseFromString(html, 'text/html');
     return doc.body.textContent || '';
@@ -416,6 +419,13 @@ site.filter("get_by_uuid", (resources, uuid) => {
     return []
 })
 
+site.filter("get_docs_by_gid", (gid) => {
+    let found = Object.values(DOCS).filter(x => x.gid === gid)
+    if(found && found.length > 0)
+        return found[0]
+    return []
+})
+
 site.filter("get_by_letter", async (resources, letter) => {
     const dir = `user/glossary/${letter}`;
     let entries = [];
@@ -526,11 +536,11 @@ site.filter("get_index_page", (page: string) => {
             return obj;
         }
         catch(e){
-            console.log(e);
+            //console.log(e);
         }
     }
-    else
-        console.log("no")
+    //else
+        //console.log("no")
 
     return null;
 })
