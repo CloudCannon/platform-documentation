@@ -1,11 +1,9 @@
 ---
 layout: layouts/base.njk
 ---
-
-{% set articles = search.pages("guide_id=" + guide_id, "details.order") %}
+{% set guide_articles = search.pages("guide_id=" + guide_id, "details.order") %}
 {% set currentIndex = 0 %}
-{% set totalPages = articles.length %}
-
+{% set totalPages = guide_articles.length %}
 <div class="l-page">
     <div class="l-column">
         <aside class="l-left" x-data="{
@@ -27,7 +25,7 @@ layout: layouts/base.njk
                 <li class="t-docs-nav__main-list__item guide" >
                     <ol class="t-docs-nav__sub-list">
                         {% set complete_class = 'guide-complete' %}
-                        {% for data in articles %}
+                        {% for data in guide_articles %}
                             {% set completed = false %}
                             {% if data.start_nav_group %}
                                 </ol>
@@ -52,7 +50,7 @@ layout: layouts/base.njk
                                     href="{{ data.url | url }}">
                                     <div class="t-docs-nav__sub-list__connector-group">
                                         <span class="t-docs-nav__sub-list__index {{ complete_class }}">{% if completed == true %}<img src="{{ "check:outlined" | icon("material") }}" inline />{% else %}{{ data.details.order }}{% endif %}</span>
-                                        {% if data.details.order < articles.length %}
+                                        {% if data.details.order < guide_articles.length %}
                                         <span class="t-docs-nav__sub-list__connector {{ complete_class }}"></span>
                                         {% endif %}
                                     </div>
@@ -88,8 +86,8 @@ layout: layouts/base.njk
                 </aside>
             </div>
 
-            {% set prev = articles[currentIndex - 1] %}
-            {% set next = articles[currentIndex + 1] %}
+            {% set prev = guide_articles[currentIndex - 1] %}
+            {% set next = guide_articles[currentIndex + 1] %}
             {% include "prev-next.njk" %}
         </div>
     </div>

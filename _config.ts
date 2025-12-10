@@ -57,6 +57,9 @@ import strip from "npm:strip-markdown";
 import { format, formatDistanceToNowStrict, differenceInMonths } from 'npm:date-fns';
 import { parseChangelogFilename } from "./parseChangelogFilename.ts";
 
+import documentation from 'npm:@cloudcannon/configuration-types@0.0.44/dist/documentation.json' with { type: 'json' };
+globalThis.DOCS = documentation;
+
 function stripHTML(html) {
     const doc = new DOMParser().parseFromString(html, 'text/html');
     return doc.body.textContent || '';
@@ -416,6 +419,13 @@ site.filter("get_by_uuid", (resources, uuid) => {
     return []
 })
 
+site.filter("get_docs_by_gid", (gid) => {
+    let found = Object.values(DOCS).filter(x => x.gid === gid)
+    if(found && found.length > 0)
+        return found[0]
+    return []
+})
+
 site.filter("get_by_letter", async (resources, letter) => {
     const dir = `user/glossary/${letter}`;
     let entries = [];
@@ -509,6 +519,30 @@ site.filter("get_glossary_term", (file: string) => {
     const file_content = Deno.readTextFileSync(`${file.slice(1)}`);
     let yml = jsYaml.load(file_content)
     return yml.term_description;
+})
+
+site.filter("get_index_page", (page: string) => {
+    page = page.replace("/documentation","").split("/")[1]
+    if(page.indexOf("-") != -1)
+    {
+        try
+        {
+            let page_parts = page.split("-")
+            const file_content = Deno.readTextFileSync(`${page_parts[0]}/${page_parts[1]}/index.mdx`)
+            const {body, attrs} = extract(file_content)
+            let obj = {attrs:"", url:""};
+            obj.attrs = attrs;
+            obj.url = `/documentation/${page_parts[0]}-${page_parts[1]}/`;
+            return obj;
+        }
+        catch(e){
+            //console.log(e);
+        }
+    }
+    //else
+        //console.log("no")
+
+    return null;
 })
 
 let changelogsData = {};
