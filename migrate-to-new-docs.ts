@@ -482,16 +482,48 @@ async function transformGuideFrontMatter(filePath: string, existingUuid?: string
   if (frontMatter.order) details.order = frontMatter.order;
   if (frontMatter.image) details.image = frontMatter.image;
   if (frontMatter.description) details.description = frontMatter.description;
-  if (frontMatter.tags) details.tags = frontMatter.tags;
-  if (frontMatter.related_links) details.related_links = frontMatter.related_links;
+  // Preserve start_nav_group and move to details, or add if it doesn't exist
+  details.start_nav_group = frontMatter.start_nav_group ?? null;
+  // Preserve related_articles and move to details, or add if it doesn't exist
+  details.related_articles = frontMatter.related_articles ?? null;
+  // tags and related_links are removed, not moved to details
   
-  if (Object.keys(details).length > 0) {
-    newFrontMatter.details = details;
+  // Always create details object (even if empty) to ensure start_nav_group and related_articles are present
+  newFrontMatter.details = details;
+  
+  // Handle docshots transformation from author_notes
+  if (frontMatter.author_notes && typeof frontMatter.author_notes === 'object') {
+    const authorNotes = frontMatter.author_notes as Record<string, unknown>;
+    
+    // Keep other author_notes fields that aren't docshots-related
+    const remainingAuthorNotes: Record<string, unknown> = {};
+    for (const [key, value] of Object.entries(authorNotes)) {
+      if (!['docshots_status', 'doc_shots'].includes(key)) {
+        remainingAuthorNotes[key] = value;
+      }
+    }
+    
+    // Add docshots to author_notes - use the value directly, not an object
+    // Prefer docshots_status over doc_shots if both exist
+    if (authorNotes.docshots_status) {
+      remainingAuthorNotes.docshots = authorNotes.docshots_status;
+    } else if (authorNotes.doc_shots) {
+      remainingAuthorNotes.docshots = authorNotes.doc_shots;
+    } else {
+      remainingAuthorNotes.docshots = null;
+    }
+    
+    newFrontMatter.author_notes = remainingAuthorNotes;
+  } else {
+    // If author_notes doesn't exist, create it with a null docshots field
+    newFrontMatter.author_notes = {
+      docshots: null
+    };
   }
   
-  // Copy any other fields that aren't nav_title or published
+  // Copy any other fields that aren't nav_title, published, or the removed fields
   for (const [key, value] of Object.entries(frontMatter)) {
-    if (!['nav_title', 'published', 'title', 'order', 'image', 'description', 'tags', 'related_links', '_schema', '_uuid', '_created_at'].includes(key)) {
+    if (!['nav_title', 'published', 'title', 'order', 'image', 'description', 'tags', 'related_links', 'related_articles', 'start_nav_group', 'explicit_canonical', 'guide_listing', '_schema', '_uuid', '_created_at', 'author_notes'].includes(key)) {
       newFrontMatter[key] = value;
     }
   }
