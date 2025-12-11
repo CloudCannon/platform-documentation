@@ -198,11 +198,14 @@ async function cleanupOrphanedFiles(lookup: Map<string, string>, sourceArticles:
         }
         
         if (entry.name.endsWith(".mdx")) {
+          // Never remove index.mdx from developer/articles
+          if (entry.name === "index.mdx") {
+            console.log(`🛡️  Protected file skipped: ${filePath}`);
+            continue;
+          }
+          
           const filename = basename(entry.name, ".mdx");
-          // index.mdx always goes to Developer Articles
-          const expectedDestination = entry.name === "index.mdx" 
-            ? "Developer Articles" 
-            : (lookup.get(filename) || "Unknown");
+          const expectedDestination = lookup.get(filename) || "Unknown";
           
           // Remove if file doesn't exist in source OR is in wrong destination
           if (!sourceFilenames.has(filename) || expectedDestination !== "Developer Articles") {
@@ -233,6 +236,12 @@ async function cleanupOrphanedFiles(lookup: Map<string, string>, sourceArticles:
         }
         
         if (entry.name.endsWith(".mdx")) {
+          // Never remove index.mdx from user/articles
+          if (entry.name === "index.mdx") {
+            console.log(`🛡️  Protected file skipped: ${filePath}`);
+            continue;
+          }
+          
           const filename = basename(entry.name, ".mdx");
           const expectedDestination = lookup.get(filename) || "Unknown";
           
@@ -538,6 +547,11 @@ async function transformGuideDataFile(filePath: string, existingUuid?: string): 
   
   // Transform the data
   const newData: Record<string, unknown> = { ...data };
+  
+  // Preserve guide_id if it exists
+  if (data.guide_id) {
+    newData.guide_id = data.guide_id;
+  }
   
   // Move guide_image to guide_icon if guide_image exists and guide_icon doesn't
   if (data.guide_image && !data.guide_icon) {
