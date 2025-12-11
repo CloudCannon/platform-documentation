@@ -567,6 +567,12 @@ async function transformGuideDataFile(filePath: string, existingUuid?: string): 
   // Remove show_guide_image_on_page
   delete newData.show_guide_image_on_page;
   
+  // Remove color_variant, guide_priority, guide_series, and guide_target_ssgs
+  delete newData.color_variant;
+  delete newData.guide_priority;
+  delete newData.guide_series;
+  delete newData.guide_target_ssgs;
+  
   const newContent = stringifyYaml(newData, { indent: 2 });
   await Deno.writeTextFile(filePath, newContent);
 }
