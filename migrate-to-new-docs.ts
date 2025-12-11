@@ -14,13 +14,10 @@ interface MigrationRow {
   addNewReroute: string;
 }
 
-async function createLookupTable(): Promise<Map<string, string>> {
-  console.log("📖 Reading migration-destinations.csv...");
-  
+async function parseMigrationCSV(): Promise<string[][]> {
   const csvContent = await Deno.readTextFile("migration-destinations.csv");
   const lines = csvContent.split('\n');
-  
-  const lookup = new Map<string, string>();
+  const rows: string[][] = [];
   
   // Skip header row (index 0)
   for (let i = 1; i < lines.length; i++) {
@@ -28,22 +25,36 @@ async function createLookupTable(): Promise<Map<string, string>> {
     if (!line) continue;
     
     // Split by comma, but handle quoted fields
-    const fields = line.split(',');
+    const fields = line.split(',').map(f => f.trim());
     if (fields.length >= 2) {
-      const oldLink = fields[0].trim();
-      const moveTo = fields[1].trim();
-      
-      // Extract filename from old link path
-      // e.g., "/documentation/articles/add-a-custom-domain-to-your-site" -> "add-a-custom-domain-to-your-site"
-      // Handle trailing slashes by removing them first
-      const cleanLink = oldLink.replace(/\/+$/, ''); // Remove trailing slashes
-      const pathParts = cleanLink.split('/').filter(part => part.length > 0);
-      const filename = pathParts[pathParts.length - 1];
-      // Skip base path entries (e.g., "/documentation/articles" -> "articles")
-      // These are handled by special redirects, not as individual article routes
-      if (filename && filename !== "articles") {
-        lookup.set(filename, moveTo);
-      }
+      rows.push(fields);
+    }
+  }
+  
+  return rows;
+}
+
+function extractFilenameFromPath(path: string): string | null {
+  const cleanLink = path.replace(/\/+$/, ''); // Remove trailing slashes
+  const pathParts = cleanLink.split('/').filter(part => part.length > 0);
+  return pathParts[pathParts.length - 1] || null;
+}
+
+async function createLookupTable(): Promise<Map<string, string>> {
+  console.log("📖 Reading migration-destinations.csv...");
+  
+  const rows = await parseMigrationCSV();
+  const lookup = new Map<string, string>();
+  
+  for (const fields of rows) {
+    const oldLink = fields[0];
+    const moveTo = fields[1];
+    const filename = extractFilenameFromPath(oldLink);
+    
+    // Skip base path entries (e.g., "/documentation/articles" -> "articles")
+    // These are handled by special redirects, not as individual article routes
+    if (filename && filename !== "articles") {
+      lookup.set(filename, moveTo);
     }
   }
   
@@ -137,6 +148,19 @@ async function readExistingUuid(filePath: string): Promise<string | undefined> {
   }
 }
 
+async function readGuideSummary(filePath: string): Promise<string | undefined> {
+  try {
+    const content = await Deno.readTextFile(filePath);
+    if (filePath.endsWith('.yml')) {
+      const data = parseYaml(content) as Record<string, unknown>;
+      return data.guide_summary as string;
+    }
+  } catch {
+    // File doesn't exist or can't be read
+  }
+  return undefined;
+}
+
 async function copyFile(source: string, destination: string): Promise<boolean> {
   try {
     // Get source file stats
@@ -171,6 +195,55 @@ async function copyFile(source: string, destination: string): Promise<boolean> {
   }
 }
 
+async function cleanupOrphanedFilesInDirectory(
+  dir: string,
+  lookup: Map<string, string>,
+  sourceFilenames: Set<string>,
+  expectedDestination: string,
+  protectedFiles: Set<string>
+): Promise<number> {
+  let removedCount = 0;
+  
+  try {
+    for await (const entry of Deno.readDir(dir)) {
+      if (entry.isFile) {
+        const filePath = join(dir, entry.name);
+        const relativePath = filePath.replace(/\\/g, '/'); // Normalize path separators
+        
+        // Skip protected files
+        if (protectedFiles.has(relativePath)) {
+          console.log(`🛡️  Protected file skipped: ${filePath}`);
+          continue;
+        }
+        
+        if (entry.name.endsWith(".mdx")) {
+          // Never remove index.mdx
+          if (entry.name === "index.mdx") {
+            console.log(`🛡️  Protected file skipped: ${filePath}`);
+            continue;
+          }
+          
+          const filename = basename(entry.name, ".mdx");
+          const fileDestination = lookup.get(filename) || "Unknown";
+          
+          // Remove if file doesn't exist in source OR is in wrong destination
+          if (!sourceFilenames.has(filename) || fileDestination !== expectedDestination) {
+            await Deno.remove(filePath);
+            console.log(`🗑️  Removed orphaned file: ${filePath}`);
+            removedCount++;
+          }
+        }
+      }
+    }
+  } catch (error) {
+    if (!(error instanceof Deno.errors.NotFound)) {
+      console.warn(`⚠️  Warning reading ${dir}:`, (error as Error).message);
+    }
+  }
+  
+  return removedCount;
+}
+
 async function cleanupOrphanedFiles(lookup: Map<string, string>, sourceArticles: string[]): Promise<void> {
   console.log("🧹 Cleaning up orphaned files in destination directories...");
   
@@ -185,82 +258,24 @@ async function cleanupOrphanedFiles(lookup: Map<string, string>, sourceArticles:
   ]);
   
   // Check developer/articles directory
-  try {
-    for await (const entry of Deno.readDir("developer/articles")) {
-      if (entry.isFile) {
-        const filePath = join("developer/articles", entry.name);
-        const relativePath = filePath.replace(/\\/g, '/'); // Normalize path separators
-        
-        // Skip protected files
-        if (protectedFiles.has(relativePath)) {
-          console.log(`🛡️  Protected file skipped: ${filePath}`);
-          continue;
-        }
-        
-        if (entry.name.endsWith(".mdx")) {
-          // Never remove index.mdx from developer/articles
-          if (entry.name === "index.mdx") {
-            console.log(`🛡️  Protected file skipped: ${filePath}`);
-            continue;
-          }
-          
-          const filename = basename(entry.name, ".mdx");
-          const expectedDestination = lookup.get(filename) || "Unknown";
-          
-          // Remove if file doesn't exist in source OR is in wrong destination
-          if (!sourceFilenames.has(filename) || expectedDestination !== "Developer Articles") {
-            await Deno.remove(filePath);
-            console.log(`🗑️  Removed orphaned file: ${filePath}`);
-            removedCount++;
-          }
-        }
-      }
-    }
-  } catch (error) {
-    if (!(error instanceof Deno.errors.NotFound)) {
-      console.warn(`⚠️  Warning reading developer/articles:`, (error as Error).message);
-    }
-  }
+  removedCount += await cleanupOrphanedFilesInDirectory(
+    "developer/articles",
+    lookup,
+    sourceFilenames,
+    "Developer Articles",
+    protectedFiles
+  );
   
   // Check user/articles directory
-  try {
-    for await (const entry of Deno.readDir("user/articles")) {
-      if (entry.isFile) {
-        const filePath = join("user/articles", entry.name);
-        const relativePath = filePath.replace(/\\/g, '/'); // Normalize path separators
-        
-        // Skip protected files
-        if (protectedFiles.has(relativePath)) {
-          console.log(`🛡️  Protected file skipped: ${filePath}`);
-          continue;
-        }
-        
-        if (entry.name.endsWith(".mdx")) {
-          // Never remove index.mdx from user/articles
-          if (entry.name === "index.mdx") {
-            console.log(`🛡️  Protected file skipped: ${filePath}`);
-            continue;
-          }
-          
-          const filename = basename(entry.name, ".mdx");
-          const expectedDestination = lookup.get(filename) || "Unknown";
-          
-          // Remove if file doesn't exist in source OR is in wrong destination
-          if (!sourceFilenames.has(filename) || expectedDestination !== "User Articles") {
-            await Deno.remove(filePath);
-            console.log(`🗑️  Removed orphaned file: ${filePath}`);
-            removedCount++;
-          }
-        }
-      }
-    }
-  } catch (error) {
-    if (!(error instanceof Deno.errors.NotFound)) {
-      console.warn(`⚠️  Warning reading user/articles:`, (error as Error).message);
-    }
-  }
+  removedCount += await cleanupOrphanedFilesInDirectory(
+    "user/articles",
+    lookup,
+    sourceFilenames,
+    "User Articles",
+    protectedFiles
+  );
   
-  // Check developer/guides directory for protected files
+  // Check developer/guides directory for protected files (no cleanup, just check)
   try {
     for await (const entry of Deno.readDir("developer/guides")) {
       if (entry.isFile) {
@@ -270,7 +285,6 @@ async function cleanupOrphanedFiles(lookup: Map<string, string>, sourceArticles:
         // Skip protected files
         if (protectedFiles.has(relativePath)) {
           console.log(`🛡️  Protected file skipped: ${filePath}`);
-          continue;
         }
       }
     }
@@ -370,6 +384,37 @@ function generateUUID(): string {
   return crypto.randomUUID();
 }
 
+function transformAuthorNotes(authorNotes: unknown): Record<string, unknown> {
+  if (authorNotes && typeof authorNotes === 'object') {
+    const notes = authorNotes as Record<string, unknown>;
+    
+    // Keep other author_notes fields that aren't docshots-related
+    const remainingNotes: Record<string, unknown> = {};
+    for (const [key, value] of Object.entries(notes)) {
+      if (!['docshots_status', 'doc_shots'].includes(key)) {
+        remainingNotes[key] = value;
+      }
+    }
+    
+    // Add docshots to author_notes - use the value directly, not an object
+    // Prefer docshots_status over doc_shots if both exist
+    if (notes.docshots_status) {
+      remainingNotes.docshots = notes.docshots_status;
+    } else if (notes.doc_shots) {
+      remainingNotes.docshots = notes.doc_shots;
+    } else {
+      remainingNotes.docshots = null;
+    }
+    
+    return remainingNotes;
+  } else {
+    // If author_notes doesn't exist, create it with a null docshots field
+    return {
+      docshots: null
+    };
+  }
+}
+
 function extractFrontMatter(content: string): { frontMatter: Record<string, unknown>, body: string } {
   const frontMatterRegex = /^---\n([\s\S]*?)\n---\n([\s\S]*)$/;
   const match = content.match(frontMatterRegex);
@@ -424,34 +469,7 @@ async function transformArticleFrontMatter(filePath: string, existingUuid?: stri
   }
   
   // Handle docshots transformation from author_notes
-  if (frontMatter.author_notes && typeof frontMatter.author_notes === 'object') {
-    const authorNotes = frontMatter.author_notes as Record<string, unknown>;
-    
-    // Keep other author_notes fields that aren't docshots-related
-    const remainingAuthorNotes: Record<string, unknown> = {};
-    for (const [key, value] of Object.entries(authorNotes)) {
-      if (!['docshots_status', 'doc_shots'].includes(key)) {
-        remainingAuthorNotes[key] = value;
-      }
-    }
-    
-    // Add docshots to author_notes - use the value directly, not an object
-    // Prefer docshots_status over doc_shots if both exist
-    if (authorNotes.docshots_status) {
-      remainingAuthorNotes.docshots = authorNotes.docshots_status;
-    } else if (authorNotes.doc_shots) {
-      remainingAuthorNotes.docshots = authorNotes.doc_shots;
-    } else {
-      remainingAuthorNotes.docshots = null;
-    }
-    
-    newFrontMatter.author_notes = remainingAuthorNotes;
-  } else {
-    // If author_notes doesn't exist, create it with a null docshots field
-    newFrontMatter.author_notes = {
-      docshots: null
-    };
-  }
+  newFrontMatter.author_notes = transformAuthorNotes(frontMatter.author_notes);
   
   // Copy any other fields that aren't nav_title, published, or the ones we moved to details
   const excludedFields = [
@@ -501,34 +519,7 @@ async function transformGuideFrontMatter(filePath: string, existingUuid?: string
   newFrontMatter.details = details;
   
   // Handle docshots transformation from author_notes
-  if (frontMatter.author_notes && typeof frontMatter.author_notes === 'object') {
-    const authorNotes = frontMatter.author_notes as Record<string, unknown>;
-    
-    // Keep other author_notes fields that aren't docshots-related
-    const remainingAuthorNotes: Record<string, unknown> = {};
-    for (const [key, value] of Object.entries(authorNotes)) {
-      if (!['docshots_status', 'doc_shots'].includes(key)) {
-        remainingAuthorNotes[key] = value;
-      }
-    }
-    
-    // Add docshots to author_notes - use the value directly, not an object
-    // Prefer docshots_status over doc_shots if both exist
-    if (authorNotes.docshots_status) {
-      remainingAuthorNotes.docshots = authorNotes.docshots_status;
-    } else if (authorNotes.doc_shots) {
-      remainingAuthorNotes.docshots = authorNotes.doc_shots;
-    } else {
-      remainingAuthorNotes.docshots = null;
-    }
-    
-    newFrontMatter.author_notes = remainingAuthorNotes;
-  } else {
-    // If author_notes doesn't exist, create it with a null docshots field
-    newFrontMatter.author_notes = {
-      docshots: null
-    };
-  }
+  newFrontMatter.author_notes = transformAuthorNotes(frontMatter.author_notes);
   
   // Copy any other fields that aren't nav_title, published, or the removed fields
   for (const [key, value] of Object.entries(frontMatter)) {
@@ -541,37 +532,59 @@ async function transformGuideFrontMatter(filePath: string, existingUuid?: string
   await Deno.writeTextFile(filePath, newContent);
 }
 
-async function transformGuideDataFile(filePath: string, existingUuid?: string): Promise<void> {
+async function transformGuideDataFile(filePath: string, existingUuid?: string, preservedGuideSummary?: string): Promise<void> {
   const content = await Deno.readTextFile(filePath);
   const data = parseYaml(content) as Record<string, unknown>;
   
-  // Transform the data
-  const newData: Record<string, unknown> = { ...data };
+  // Build new data object in the correct order
+  const newData: Record<string, unknown> = {};
   
-  // Preserve guide_id if it exists
+  // 1. _schema
+  newData._schema = data._schema || "guide_data";
+  
+  // 2. _uuid - Always use source UUID if provided, otherwise use UUID from file, or generate if neither exists
+  newData._uuid = existingUuid || data._uuid || generateUUID();
+  
+  // 3. guide_id
   if (data.guide_id) {
     newData.guide_id = data.guide_id;
   }
   
-  // Move guide_image to guide_icon if guide_image exists and guide_icon doesn't
-  if (data.guide_image && !data.guide_icon) {
+  // 4. guide_title
+  if (data.guide_title) {
+    newData.guide_title = data.guide_title;
+  }
+  
+  // 5. guide_summary - use from source if it exists, otherwise use preserved from destination
+  if (data.guide_summary) {
+    newData.guide_summary = data.guide_summary;
+  } else if (preservedGuideSummary) {
+    newData.guide_summary = preservedGuideSummary;
+  }
+  
+  // 6. guide_icon - Move guide_image to guide_icon if guide_image exists and guide_icon doesn't
+  if (data.guide_icon) {
+    newData.guide_icon = data.guide_icon;
+  } else if (data.guide_image) {
     newData.guide_icon = data.guide_image;
   }
   
-  // Remove guide_image
-  delete newData.guide_image;
+  // 7. initial_section_heading - Fix typo: initial_secton_heading -> initial_section_heading
+  if (data.initial_section_heading) {
+    newData.initial_section_heading = data.initial_section_heading;
+  } else if (data.initial_secton_heading) {
+    newData.initial_section_heading = data.initial_secton_heading;
+  }
   
-  // Preserve existing UUID or add one if it doesn't exist
-  newData._uuid = existingUuid || data._uuid || generateUUID();
+  // Add any other fields that aren't in the ordered list or removed fields
+  const orderedKeys = ['_schema', '_uuid', 'guide_id', 'guide_title', 'guide_summary', 'guide_icon', 'initial_section_heading'];
+  const removedKeys = ['guide_image', 'show_guide_image_on_page', 'initial_secton_heading', 'color_variant', 'guide_priority', 'guide_series', 'guide_target_ssgs'];
   
-  // Remove show_guide_image_on_page
-  delete newData.show_guide_image_on_page;
-  
-  // Remove color_variant, guide_priority, guide_series, and guide_target_ssgs
-  delete newData.color_variant;
-  delete newData.guide_priority;
-  delete newData.guide_series;
-  delete newData.guide_target_ssgs;
+  for (const [key, value] of Object.entries(data)) {
+    if (!orderedKeys.includes(key) && !removedKeys.includes(key)) {
+      newData[key] = value;
+    }
+  }
   
   const newContent = stringifyYaml(newData, { indent: 2 });
   await Deno.writeTextFile(filePath, newContent);
@@ -596,26 +609,40 @@ async function migrateGuides(): Promise<{ guideCount: number }> {
         console.log(`📋 Processing guide: ${entry.name}`);
         let filesCopied = 0;
         
+        // Helper function to transform guide files
+        const transformGuideFile = async (filePath: string, fileName: string, sourceUuid?: string, preservedGuideSummary?: string, isExisting = false) => {
+          const prefix = isExisting ? "🔄 Transforming existing: " : "🔄 Transforming: ";
+          if (fileName.endsWith(".mdx")) {
+            console.log(`${prefix}${fileName}`);
+            await transformGuideFrontMatter(filePath, sourceUuid);
+          } else if (fileName === "_data.yml") {
+            console.log(`${prefix}_data.yml`);
+            await transformGuideDataFile(filePath, sourceUuid, preservedGuideSummary);
+          }
+        };
+        
         // Copy individual files from source to target, preserving existing UUIDs
         for await (const file of Deno.readDir(sourceDir)) {
           const sourcePath = join(sourceDir, file.name);
           const targetPath = join(targetGuideDir, file.name);
           
-          // Read existing UUID before copying
-          const existingUuid = await readExistingUuid(targetPath);
+          // Read UUID from source file - always use source UUID, never destination
+          const sourceUuid = await readExistingUuid(sourcePath);
           
-          if (await copyFile(sourcePath, targetPath)) {
-            filesCopied++;
-            
-            // Transform the copied file with preserved UUID
-            if (file.name.endsWith(".mdx")) {
-              console.log(`🔄 Transforming: ${file.name}`);
-              await transformGuideFrontMatter(targetPath, existingUuid);
-            } else if (file.name === "_data.yml") {
-              console.log(`🔄 Transforming: _data.yml`);
-              await transformGuideDataFile(targetPath, existingUuid);
-            }
+          // Read guide_summary from destination before copying (to preserve it if source doesn't have it)
+          let preservedGuideSummary: string | undefined;
+          if (file.name === "_data.yml") {
+            preservedGuideSummary = await readGuideSummary(targetPath);
           }
+          
+          const wasCopied = await copyFile(sourcePath, targetPath);
+          
+          if (wasCopied) {
+            filesCopied++;
+          }
+          
+          // Always transform (whether copied or not) to ensure correct format
+          await transformGuideFile(targetPath, file.name, sourceUuid, preservedGuideSummary);
         }
         
         if (filesCopied > 0) {
@@ -631,6 +658,22 @@ async function migrateGuides(): Promise<{ guideCount: number }> {
             const filePath = join(targetGuideDir, file.name);
             const sourcePath = join(sourceDir, file.name);
             
+            // Read UUID from source file if it exists, otherwise undefined (will generate if needed)
+            let sourceUuid: string | undefined;
+            try {
+              sourceUuid = await readExistingUuid(sourcePath);
+            } catch {
+              // Source doesn't exist, this is a destination-only file
+              // Don't use destination UUID - let it generate if needed
+              sourceUuid = undefined;
+            }
+            
+            // Read guide_summary from destination to preserve it
+            let preservedGuideSummary: string | undefined;
+            if (file.name === "_data.yml") {
+              preservedGuideSummary = await readGuideSummary(filePath);
+            }
+            
             // Only transform if this file wasn't just copied (to avoid double transformation)
             try {
               const sourceStats = await Deno.stat(sourcePath);
@@ -638,23 +681,11 @@ async function migrateGuides(): Promise<{ guideCount: number }> {
               
               // If destination is newer or same age, it wasn't just copied, so transform it
               if (!sourceStats.mtime || !destStats.mtime || destStats.mtime >= sourceStats.mtime) {
-                if (file.name.endsWith(".mdx")) {
-                  console.log(`🔄 Transforming existing: ${file.name}`);
-                  await transformGuideFrontMatter(filePath);
-                } else if (file.name === "_data.yml") {
-                  console.log(`🔄 Transforming existing: _data.yml`);
-                  await transformGuideDataFile(filePath);
-                }
+                await transformGuideFile(filePath, file.name, sourceUuid, preservedGuideSummary, true);
               }
             } catch {
               // If source doesn't exist, this is a destination-only file, transform it
-              if (file.name.endsWith(".mdx")) {
-                console.log(`🔄 Transforming existing: ${file.name}`);
-                await transformGuideFrontMatter(filePath);
-              } else if (file.name === "_data.yml") {
-                console.log(`🔄 Transforming existing: _data.yml`);
-                await transformGuideDataFile(filePath);
-              }
+              await transformGuideFile(filePath, file.name, sourceUuid, preservedGuideSummary, true);
             }
           }
         }
@@ -767,40 +798,29 @@ async function migrateChangelogs(): Promise<{ migratedCount: number, skippedCoun
 async function createBetaLookupTable(): Promise<Map<string, string>> {
   console.log("📖 Reading beta file mappings from migration-destinations.csv...");
   
-  const csvContent = await Deno.readTextFile("migration-destinations.csv");
-  const lines = csvContent.split('\n');
-  
+  const rows = await parseMigrationCSV();
   const lookup = new Map<string, string>();
   
-  // Skip header row (index 0)
-  for (let i = 1; i < lines.length; i++) {
-    const line = lines[i].trim();
-    if (!line) continue;
-    
-    // Split by comma, but handle quoted fields
-    const fields = line.split(',');
+  for (const fields of rows) {
     if (fields.length >= 3) {
-      const oldLink = fields[0].trim();
-      const moveTo = fields[1].trim();
-      const newLink = fields[2].trim();
+      const oldLink = fields[0];
+      const moveTo = fields[1];
+      const newLink = fields[2];
       
       // Only process Beta destination files
       if (moveTo === "Beta") {
-        // Extract filename from old link path
-        const cleanLink = oldLink.replace(/\/+$/, '');
-        const pathParts = cleanLink.split('/').filter(part => part.length > 0);
-        const filename = pathParts[pathParts.length - 1];
+        const filename = extractFilenameFromPath(oldLink);
+        const newPathParts = extractFilenameFromPath(newLink);
         
-        // Extract new filename from new link path
-        const cleanNewLink = newLink.replace(/\/+$/, '');
-        const newPathParts = cleanNewLink.split('/').filter(part => part.length > 0);
         // If the new link ends with just "/documentation/beta", it should be index.mdx
         // Otherwise, use the last path part as the filename
+        const cleanNewLink = newLink.replace(/\/+$/, '');
+        const newPathPartsArray = cleanNewLink.split('/').filter(part => part.length > 0);
         let newFilename: string;
-        if (newPathParts.length > 0 && newPathParts[newPathParts.length - 1] === "beta") {
+        if (newPathPartsArray.length > 0 && newPathPartsArray[newPathPartsArray.length - 1] === "beta") {
           newFilename = "index";
         } else {
-          newFilename = newPathParts[newPathParts.length - 1] || "index";
+          newFilename = newPathParts || "index";
         }
         
         if (filename) {
@@ -835,15 +855,15 @@ async function migrateBetaFiles(): Promise<{ migratedCount: number }> {
           const targetFilename = newFilename === "index" ? "index.mdx" : `${newFilename}.mdx`;
           const targetPath = join(targetDir, targetFilename);
           
-          // Read existing UUID before copying
-          const existingUuid = await readExistingUuid(targetPath);
+          // Read UUID from source file - always use source UUID, never destination
+          const sourceUuid = await readExistingUuid(sourcePath);
           
           const wasCopied = await copyFile(sourcePath, targetPath);
           
           if (wasCopied) {
             // Transform front matter for beta files (similar to articles)
             console.log(`🔄 Transforming: ${targetFilename}`);
-            await transformArticleFrontMatter(targetPath, existingUuid);
+            await transformArticleFrontMatter(targetPath, sourceUuid);
             
             console.log(`📋 ${entry.name} -> ${targetFilename}`);
             migratedCount++;
