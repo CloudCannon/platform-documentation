@@ -1,0 +1,20 @@
+{% macro navItem(item) %}
+{% set hasActiveParent = doc.gid | isGidInside(propDoc.gid) %}
+{% set isActive = propDoc.url == doc.url %}
+
+<li>
+	{% if isActive %}
+		<span>{{ propDoc.title | default(propDoc.key, true) }}</span>
+	{% elif propDoc.url %}
+		<a href="{{ propDoc.url }}">{{ propDoc.title | default(propDoc.key, true) }}</a>
+	{% endif %}
+
+	{% if propDoc.url and (isActive or hasActiveParent) %}
+		{% if propDoc.type == "object" %}
+			{% include "nav/object.njk" %}
+		{% elif propDoc.anyOf | length %}
+			{% include "nav/any-of.njk" %}
+		{% endif %}
+	{% endif %}
+</li>
+{% endmacro %}

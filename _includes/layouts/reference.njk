@@ -6,13 +6,27 @@ layout: layouts/base.njk
         <aside class="l-left" x-data="{
             more: true
         }">
-            
+            {% import "referencenav.njk" as referencenav %}
+            {% set url = page.data.url | replace("/documentation/", "") %}
+            {% set url = url.split("/") %}
+            {{ referencenav.nav(entry, full_docs) }}
+
+            <template x-teleport="#mobile-docnav">
+                {{ referencenav.nav(entry, full_docs) }}
+            </template>
         </aside>
         <div class="u-card-box l-content" x-data="$visibleNavHighlighter">
             <div class="l-breadcrumb">{{ url[0] | replace("-", " ") | title }} <img src="{{ "arrow_forward_ios:outlined" | icon("material") }}" inline/> <span>{{ entry.title | default(entry.key, true) }}</span></div>
             <h1 data-pagefind-body class="l-heading u-margin-bottom-0">{{ entry.title | default(entry.key, true) }}</h1>
 
-            <dl>
+            <div class="l-toc-mobile" x-data="{toc_open:false}" @click="toc_open = !toc_open">
+                <h3 :class="toc_open ? 'open' : ''">Table of contents <img src="{{ "arrow_forward_ios:outlined" | icon("material") }}" inline/></h3>
+                <div class="l-toc__list" :class="toc_open ? 'open' : ''"></div>
+                <!-- "On this page" -->
+            </div>
+            <div data-pagefind-body data-pagefind-filter="site:Documentation" data-pagefind-meta="site:Documentation" class="l-content-split">
+                <main>
+                    <dl>
             {% set parent = entry.parent | get_docs_by_gid %}
             {% if entry.appears_in | length or parent %}
               <dt>Appears in:</dt>
@@ -38,17 +52,19 @@ layout: layouts/base.njk
               <dd><code>{{ entry.full_key }}</code></dd>
             {% endif %}
 
-            <dt>GID:</dt>
-            <dd><code>{{ entry.gid }}</code></dd>
-
-            
-              {% from 'doc-type.njk' import docType with context %}
-              {{ docType(entry) }}
-          
-
+            {% from 'doc-type.njk' import docType with context %}
+            <dt>Type:</dt>
+            <dd>
+              <code>
+                {{ docType(entry) }}
+              </code>
+              {%- if entry.required %}
+                <small style="color: red;">(Required)</small>
+              {%- endif -%}
+            </dd>
             <dt {% if not entry.description %} class="show-in-cms"{% endif %}>Description:</dt>
             <dd
-            >{% if entry.description %}{{ entry.description | safe }}{% endif %}</dd>
+            >{% if entry.description %}{{ entry.description | md | safe }}{% endif %}</dd>
 
             {% if entry.default %}
               <dt>Default value:</dt>
@@ -69,17 +85,17 @@ layout: layouts/base.njk
               </dd>
             {% endfor %}
           </dl>
-            
-            <div class="l-toc-mobile" x-data="{toc_open:false}" @click="toc_open = !toc_open">
-                <h3 :class="toc_open ? 'open' : ''">Table of contents <img src="{{ "arrow_forward_ios:outlined" | icon("material") }}" inline/></h3>
-                <div class="l-toc__list" :class="toc_open ? 'open' : ''"></div>
-                <!-- "On this page" -->
-            </div>
-            <div data-pagefind-body data-pagefind-filter="site:Documentation" data-pagefind-meta="site:Documentation" class="l-content-split">
-                <main>
-                    <editable-text data-prop="@content">
-                        {{ content | safe }}
-                    </editable-text>
+            {% from 'array.njk' import array with context %}
+            {% from 'object.njk' import objectMacro with context %}
+            {% from 'any-of.njk' import anyOf with context %}
+            {% from 'doc-summary.njk' import summary with context %}
+            {% if entry.type == "array" %}
+              {{ array(entry) }}
+            {% elif entry.type == "object" %}
+              {{ objectMacro(entry) }}
+            {% elif entry.anyOf | length %}
+              {{ anyOf(entry) }}
+            {% endif %}
                 </main>
                 <aside data-pagefind-ignore class="l-right">
                     <div class="l-toc" x-on:scroll.window.throttle.50ms="onScroll()">

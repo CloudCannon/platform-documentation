@@ -1,0 +1,90 @@
+{% macro docTypeNested(entry) %}
+
+  {%- if entry.url and entry.title -%}
+    <a href="{{ entry.url }}">{{ entry.title }}</a>
+  {%- elif entry.type == "array" -%}
+    {%- if entry.url and page.url != entry.url -%}
+      <a href="{{ entry.url }}">Array</a>
+    {%- else -%}
+      Array
+    {%- endif -%}
+    {%- if entry.items | length -%}
+      {%- set join = joiner(" | ") -%}
+      <span style="opacity: 0.5;">&lt;</span>
+      {%- for itemRef in entry.items -%}
+        {{- join() -}}
+        {%- set itemDoc = itemRef | get_docs_by_ref -%}
+        {{- docTypeNested(itemDoc) -}}
+      {%- endfor -%}
+      <span style="opacity: 0.5;">&gt;</span>
+    {%- endif -%}
+  {%- elif entry.type == "object" -%}
+    {%- if entry.url and page.url != entry.url -%}
+      <a href="{{ entry.url }}">Object</a>
+    {%- else -%}
+      Object
+    {%- endif -%}
+    {%- if entry.additionalProperties.length == 1 -%}
+      {%- set additionalPropDoc = entry.additionalProperties[0] | get_docs_by_ref -%}
+      <span style="opacity: 0.5;">&lt;</span>
+      {{- docTypeNested(additionalPropDoc) -}}
+      <span style="opacity: 0.5;">&gt;</span>
+    {%- endif -%}
+  {%- elif entry.type == "string" -%}
+    {%- if entry.const -%}
+      {%- if entry.url and page.url != entry.url -%}
+        <a href="{{ entry.url }}">"{{ entry.const }}"</a>
+      {%- else -%}
+        "{{ entry.const }}"
+      {%- endif -%}
+    {%- else -%}
+      {%- if entry.url and page.url != entry.url -%}
+        <a href="{{ entry.url }}">{{ entry.type }}</a>
+      {%- else -%}
+        {{ entry.type }}
+      {%- endif -%}
+    {%- endif -%}
+  {%- elif entry.type == "number" or entry.type == "integer" -%}
+    {%- if entry.const or entry.const == 0 -%}
+      {%- if entry.url and page.url != entry.url -%}
+        <a href="{{ entry.url }}">{{ entry.const }}</a>
+      {%- else -%}
+        {{ entry.const }}
+      {%- endif -%}
+    {%- else -%}
+      {%- if entry.url and page.url != entry.url -%}
+        <a href="{{ entry.url }}">{{ entry.type }}</a>
+      {%- else -%}
+        {{ entry.type }}
+      {%- endif -%}
+    {%- endif -%}
+  {%- elif entry.type == "boolean" -%}
+    {%- if entry.const or entry.const == false -%}
+      {%- if entry.url and page.url != entry.url -%}
+        <a href="{{ entry.url }}">{{ entry.const }}</a>
+      {%- else -%}
+        {{ entry.const }}
+      {%- endif -%}
+    {%- else -%}
+      {%- if entry.url and page.url != entry.url -%}
+        <a href="{{ entry.url }}">{{ entry.type }}</a>
+      {%- else -%}
+        {{ entry.type }}
+      {%- endif -%}
+    {%- endif -%}
+  {%- elif entry.anyOf | length -%}
+    {%- set join = joiner(" | ") -%}
+    {%- for anyOfRef in entry.anyOf -%}
+      {{- join() -}}
+      {%- set anyOfDoc = anyOfRef | get_docs_by_ref -%}
+      {{- docTypeNested(anyOfDoc) -}}
+    {%- endfor -%}
+  {%- else -%}
+    {%- if entry.url and page.url != entry.url -%}
+      <a href="{{ entry.url }}">{{ entry.type | default(entry.title) | default('unknown') }}</a>
+    {%- else -%}
+      {{ entry.type | default(entry.title) | default('unknown') }}
+    {%- endif -%}
+  {%- endif -%}
+
+{% endmacro %}

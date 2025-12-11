@@ -57,7 +57,7 @@ import strip from "npm:strip-markdown";
 import { format, formatDistanceToNowStrict, differenceInMonths } from 'npm:date-fns';
 import { parseChangelogFilename } from "./parseChangelogFilename.ts";
 
-import documentation from 'npm:@cloudcannon/configuration-types@0.0.44/dist/documentation.json' with { type: 'json' };
+import documentation from 'npm:@cloudcannon/configuration-types@0.0.46/dist/documentation.json' with { type: 'json' };
 globalThis.DOCS = documentation;
 
 function stripHTML(html) {
@@ -73,6 +73,8 @@ const site = lume({
         port: 9010,
     }
 });
+
+site.data("full_docs", Object.values(documentation));
 
 site.use(nunjucks());
 site.use(icons());
@@ -423,8 +425,37 @@ site.filter("get_docs_by_gid", (gid) => {
     let found = Object.values(DOCS).filter(x => x.gid === gid)
     if(found && found.length > 0)
         return found[0]
-    return []
+    return null
 })
+
+site.filter("get_docs_by_ref", (docRef) => {
+    let doc = DOCS[docRef.gid] || docRef;
+    
+    if (docRef.documentation) {
+        // Use more specific documentation entry
+        return {
+            ...doc,
+            title: docRef.documentation.title || doc.title,
+            description: docRef.documentation.description || doc.description,
+            examples: docRef.documentation.examples.length
+                ? docRef.documentation.examples
+                : doc.examples,
+            documentation: docRef.documentation,
+        };
+    }
+
+    return doc
+})
+
+site.filter('parent_gids_from_doc', (doc) => {
+    const parentGids = [];
+    let parentGid = doc.parent;
+    while (parentGid) {
+        parentGids.unshift(parentGid);
+        parentGid = DOCS[parentGid].parent;
+    }
+    return parentGids;
+});
 
 site.filter("get_by_letter", async (resources, letter) => {
     const dir = `user/glossary/${letter}`;

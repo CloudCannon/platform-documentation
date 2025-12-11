@@ -1,0 +1,28 @@
+{% macro summary(entry) %}
+  <div>{% if entry.description %}{{ entry.description | safe }}{% endif %}</div>
+
+  <details {% if not entry.documentation.examples | length %} class="show-in-cms"{% endif %}>
+    <summary><em>Examples</em></summary>
+      {% for example in entry.documentation.examples %}
+        <pre><code>{{ example }}</code></pre>
+      {% endfor %}
+  </details>
+
+  {% if entry.default %}
+    <p><em>Defaults to:</em> <code>{{ entry.default }}</code></p>
+  {% endif %}
+
+  {% set maxLength = 10 %}
+  {% set enumLength = maxLength if entry.enum.length > maxLength else entry.enum.length %}
+  {% if enumLength %}
+    <p>
+      <em>Allowed values:</em>
+      {% for i in range(0, enumLength) %}
+        <code>{{ entry.enum[i] }}</code>
+      {% endfor %}
+
+      {% set enumMore = entry.enum.length - enumLength %}
+      {% if enumMore %}and {{ enumMore }} more.{% endif %}
+    </p>
+  {% endif %}
+{% endmacro %}
