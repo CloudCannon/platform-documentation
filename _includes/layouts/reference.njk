@@ -6,15 +6,13 @@ layout: layouts/base.njk
         <aside class="l-left" x-data="{
             more: true
         }">
-            {% import "referencenav.njk" as referencenav %}
-            {% set url = page.data.url | replace("/documentation/", "") %}
-            {% set url = url.split("/") %}
+        {% from 'nav-item.njk' import navItem with context %}
+            {% import "referencenav.njk" as referencenav with context %}
+            
             {{ referencenav.nav(entry, full_docs) }}
-
-            <template x-teleport="#mobile-docnav">
-                {{ referencenav.nav(entry, full_docs) }}
-            </template>
         </aside>
+        {% set url = page.data.url | replace("/documentation/", "") %}
+        {% set url = url.split("/") %}
         <div class="u-card-box l-content" x-data="$visibleNavHighlighter">
             <div class="l-breadcrumb">{{ url[0] | replace("-", " ") | title }} <img src="{{ "arrow_forward_ios:outlined" | icon("material") }}" inline/> <span>{{ entry.title | default(entry.key, true) }}</span></div>
             <h1 data-pagefind-body class="l-heading u-margin-bottom-0">{{ entry.title | default(entry.key, true) }}</h1>
@@ -53,15 +51,19 @@ layout: layouts/base.njk
             {% endif %}
 
             {% from 'doc-type.njk' import docType with context %}
-            <dt>Type:</dt>
-            <dd>
-              <code>
-                {{ docType(entry) }}
-              </code>
-              {%- if entry.required %}
-                <small style="color: red;">(Required)</small>
-              {%- endif -%}
-            </dd>
+            {% from 'doc-type-nested.njk' import docTypeNested with context %}
+            {% if not entry.anyOf | length %}
+              <dt>Type:</dt>
+              <dd>
+                <code>
+                  {{ docType(entry) }}
+                </code>
+                {%- if entry.required %}
+                  <small style="color: red;">(Required)</small>
+                {%- endif -%}
+              </dd>
+            {% endif %}
+
             <dt {% if not entry.description %} class="show-in-cms"{% endif %}>Description:</dt>
             <dd
             >{% if entry.description %}{{ entry.description | md | safe }}{% endif %}</dd>
