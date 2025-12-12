@@ -4,49 +4,45 @@
     Array
     {%- if entry.items | length -%}
       {%- set join = joiner(" | ") -%}
-      <span style="opacity: 0.5;">&lt;</span>
-      {%- for itemRef in entry.items -%}
+      <span style="opacity: 0.5;">&lt;</span>{%- for itemRef in entry.items -%}
         {{- join() -}}
         {%- set itemDoc = itemRef | get_docs_by_ref -%}
-        {{- docTypeNested(itemDoc) -}}
-      {%- endfor -%}
-      <span style="opacity: 0.5;">&gt;</span>
+        {{- docTypeNested(itemDoc, entry) -}}
+      {%- endfor -%}<span style="opacity: 0.5;">&gt;</span>
     {%- endif -%}
   {%- elif entry.type == "object" -%}
     Object
     {%- if entry.additionalProperties.length == 1 -%}
       {%- set additionalPropDoc = entry.additionalProperties[0] | get_docs_by_ref -%}
-      <span style="opacity: 0.5;">&lt;</span>
-      {{- docTypeNested(additionalPropDoc) -}}
-      <span style="opacity: 0.5;">&gt;</span>
+      <span style="opacity: 0.5;">&lt;</span>{{- docTypeNested(additionalPropDoc, entry) -}}<span style="opacity: 0.5;">&gt;</span>
     {%- endif -%}
   {%- elif entry.type == "string" -%}
     {%- if entry.const -%}
-      "{{ entry.const }}"
+      "{{- entry.const -}}"
     {%- else -%}
-      {{ entry.type }}
+      {{- entry.type -}}
     {%- endif -%}
   {%- elif entry.type == "number" or entry.type == "integer" -%}
     {%- if entry.const or entry.const == 0 -%}
-      {{ entry.const }}
+      {{- entry.const -}}
     {%- else -%}
-      {{ entry.type }}
+      {{- entry.type -}}
     {%- endif -%}
   {%- elif entry.type == "boolean" -%}
     {%- if entry.const or entry.const == false -%}
-      {{ entry.const }}
+      {{- entry.const -}}
     {%- else -%}
-      {{ entry.type }}
+      {{- entry.type -}}
     {%- endif -%}
   {%- elif entry.anyOf | length -%}
     {%- set join = joiner(" | ") -%}
     {%- for anyOfRef in entry.anyOf -%}
       {{- join() -}}
       {%- set anyOfDoc = anyOfRef | get_docs_by_ref -%}
-      {{- docTypeNested(anyOfDoc) -}}
+      {{- docTypeNested(anyOfDoc, entry) -}}
     {%- endfor -%}
   {%- else -%}
-    {{ entry.type | default(entry.title) | default('unknown') }}
+    {{- entry.type | default(entry.title) | default('unknown') -}}
   {%- endif -%}
 
 {% endmacro %}

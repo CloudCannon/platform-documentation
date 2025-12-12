@@ -1,15 +1,14 @@
 {% macro objectNav(propDoc,doc) %}
+  {% from "nav/any-of.njk" import anyOfNav with context %}
   <ul>
     {% for innerKey, innerPropRef in propDoc.properties %}
       {% set innerPropDoc = innerPropRef | get_docs_by_ref %}
       {% if innerPropDoc.url == doc.url %}
         <li>
-          <span class="icon flip-x">&crarr;</span>
           {{ innerKey }}
         </li>
       {% elif innerPropDoc.url %}
         <li>
-          <span class="icon flip-x">&crarr;</span>
           <a href="/documentation/developer-reference{{ innerPropDoc.url }}">{{ innerKey }}</a>
         </li>
       {% endif %}
@@ -19,12 +18,10 @@
       {% set additionalPropDoc = additionalPropRef | get_docs_by_ref %}
       {% if additionalPropDoc.url == doc.url %}
         <li>
-          <span class="icon">&searr;</span>
           <span>{{ additionalPropDoc.title | default(additionalPropDoc.key, true) }}</span>
         </li>
       {% elif additionalPropDoc.url %}
         <li>
-          <span class="icon">&searr;</span>
           <a href="/documentation/developer-reference{{ additionalPropDoc.url }}">{{ additionalPropDoc.title | default(additionalPropDoc.key, true) }}</a>
         </li>
       {% endif %}
@@ -33,7 +30,7 @@
     {% if propDoc.additionalProperties | length == 1 %}
       {% set propDoc = propDoc.additionalProperties[0] | get_docs_by_ref %}
       {% if propDoc.anyOf | length %}
-        <li>{% include "nav/any-of.njk" %}</li>
+        <li>{{ anyOfNav(propDoc) }}</li>
       {% endif %}
     {% endif %}
   </ul>
