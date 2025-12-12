@@ -1,20 +1,23 @@
-{% macro navItem(item) %}
-{% set hasActiveParent = doc.gid | isGidInside(propDoc.gid) %}
-{% set isActive = propDoc.url == doc.url %}
+{% macro navItem(propDoc, doc) %}
+  {% set hasActiveParent = doc.gid | is_gid_inside(propDoc.gid) %}
+  {% set isActive = propDoc.url == doc.url %}
 
-<li>
-	{% if isActive %}
-		<span>{{ propDoc.title | default(propDoc.key, true) }}</span>
-	{% elif propDoc.url %}
-		<a href="{{ propDoc.url }}">{{ propDoc.title | default(propDoc.key, true) }}</a>
-	{% endif %}
+  <li class="t-docs-nav__main-list__item">
+    {% if isActive %}
+      <span class="t-docs-nav__main-list__item__heading">{{ propDoc.title | default(propDoc.key, true) }}</span>
+    {% elif propDoc.url %}
+      <a class="t-docs-nav__main-list__item__heading" href="/documentation/developer-reference{{ propDoc.url }}">{{ propDoc.title | default(propDoc.key, true) }}</a>
+    {% endif %}
 
-	{% if propDoc.url and (isActive or hasActiveParent) %}
-		{% if propDoc.type == "object" %}
-			{% include "nav/object.njk" %}
-		{% elif propDoc.anyOf | length %}
-			{% include "nav/any-of.njk" %}
-		{% endif %}
-	{% endif %}
-</li>
+    {% from 'nav/object.njk' import objectNav with context %}
+    {% from 'nav/any-of.njk' import anyOfNav with context %}
+
+    {% if propDoc.url and (isActive or hasActiveParent) %}
+      {% if propDoc.type == "object" %}
+        {{ objectNav(propDoc, doc) }}
+      {% elif propDoc.anyOf | length %}
+        {{ anyOfNav(propDoc, doc) }}
+      {% endif %}
+    {% endif %}
+  </li>
 {% endmacro %}

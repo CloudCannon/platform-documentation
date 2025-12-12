@@ -421,6 +421,10 @@ site.filter("get_by_uuid", (resources, uuid) => {
     return []
 })
 
+site.filter('is_gid_inside', (gid, parentGid) =>
+	parentGid === 'type.Configuration' ? !gid.startsWith('type.') : gid.startsWith(`${parentGid}.`)
+);
+
 site.filter("get_docs_by_gid", (gid) => {
     let found = Object.values(DOCS).filter(x => x.gid === gid)
     if(found && found.length > 0)

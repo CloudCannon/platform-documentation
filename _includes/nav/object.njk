@@ -1,0 +1,37 @@
+{% macro objectNav(propDoc,doc) %}
+  {% from "nav/any-of.njk" import anyOfNav with context %}
+  <ul>
+    {% for innerKey, innerPropRef in propDoc.properties %}
+      {% set innerPropDoc = innerPropRef | get_docs_by_ref %}
+      {% if innerPropDoc.url == doc.url %}
+        <li>
+          {{ innerKey }}
+        </li>
+      {% elif innerPropDoc.url %}
+        <li>
+          <a href="/documentation/developer-reference{{ innerPropDoc.url }}">{{ innerKey }}</a>
+        </li>
+      {% endif %}
+    {% endfor %}
+
+    {% for additionalPropRef in propDoc.additionalProperties %}
+      {% set additionalPropDoc = additionalPropRef | get_docs_by_ref %}
+      {% if additionalPropDoc.url == doc.url %}
+        <li>
+          <span>{{ additionalPropDoc.title | default(additionalPropDoc.key, true) }}</span>
+        </li>
+      {% elif additionalPropDoc.url %}
+        <li>
+          <a href="/documentation/developer-reference{{ additionalPropDoc.url }}">{{ additionalPropDoc.title | default(additionalPropDoc.key, true) }}</a>
+        </li>
+      {% endif %}
+    {% endfor %}
+
+    {% if propDoc.additionalProperties | length == 1 %}
+      {% set propDoc = propDoc.additionalProperties[0] | get_docs_by_ref %}
+      {% if propDoc.anyOf | length %}
+        <li>{{ anyOfNav(propDoc) }}</li>
+      {% endif %}
+    {% endif %}
+  </ul>
+{% endmacro %}

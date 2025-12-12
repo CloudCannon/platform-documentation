@@ -1,0 +1,16 @@
+{% macro anyOfNav(propDoc, doc) %}
+  <ul>
+    {% for anyOfRef in propDoc.anyOf %}
+      {% set anyOfDoc = anyOfRef | get_docs_by_ref %}
+      {% if anyOfDoc.url == doc.url %}
+        <li>
+          <span>{{ anyOfDoc.title | default(anyOfDoc.key, true) }}</span>
+        </li>
+      {% elif anyOfDoc.url %}
+        <li>
+          <a href="/documentation/developer-reference{{ anyOfDoc.url }}">{{ anyOfDoc.title | default(anyOfDoc.key, true) }}</a>
+        </li>
+      {% endif %}
+    {% endfor %}
+  </ul>
+{% endmacro %}
