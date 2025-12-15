@@ -7,14 +7,14 @@
       <span style="opacity: 0.5;">&lt;</span>{%- for itemRef in entry.items -%}
         {{- join() -}}
         {%- set itemDoc = itemRef | get_docs_by_ref -%}
-        {{- docTypeNested(itemDoc, entry) -}}
+        {{- docTypeNested(itemDoc, page) -}}
       {%- endfor -%}<span style="opacity: 0.5;">&gt;</span>
     {%- endif -%}
   {%- elif entry.type == "object" -%}
     Object
     {%- if entry.additionalProperties.length == 1 -%}
       {%- set additionalPropDoc = entry.additionalProperties[0] | get_docs_by_ref -%}
-      <span style="opacity: 0.5;">&lt;</span>{{- docTypeNested(additionalPropDoc, entry) -}}<span style="opacity: 0.5;">&gt;</span>
+      <span style="opacity: 0.5;">&lt;</span>{{- docTypeNested(additionalPropDoc, page) -}}<span style="opacity: 0.5;">&gt;</span>
     {%- endif -%}
   {%- elif entry.type == "string" -%}
     {%- if entry.const -%}
@@ -39,7 +39,7 @@
     {%- for anyOfRef in entry.anyOf -%}
       {{- join() -}}
       {%- set anyOfDoc = anyOfRef | get_docs_by_ref -%}
-      {{- docTypeNested(anyOfDoc, entry) -}}
+      {{- docTypeNested(anyOfDoc, page) -}}
     {%- endfor -%}
   {%- else -%}
     {{- entry.type | default(entry.title) | default('unknown') -}}
