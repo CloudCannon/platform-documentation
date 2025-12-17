@@ -15,7 +15,7 @@
   {% for item in headingnav.items %}
     <li><a 
       tabindex="0"
-      @click="open = open == {{ loop.index }} ? -1 : {{ loop.index }};$focus.within($refs.dropdown_menu_{{ loop.index0 }}).first()"
+      @click.stop="open = open == {{ loop.index }} ? -1 : {{ loop.index }};$focus.within($refs.dropdown_menu_{{ loop.index0 }}).first()"
       @keydown.down="open = open == {{ loop.index }} ? -1 : {{ loop.index }};$focus.within($refs.dropdown_menu_{{ loop.index0 }}).first()"
       @keydown.up="open = open == {{ loop.index }} ? -1 : {{ loop.index }};$focus.within($refs.dropdown_menu_{{ loop.index0 }}).last()"
       :class="open == {{ loop.index }} ? 'open' : ''"
@@ -24,6 +24,7 @@
       {% if item.items | length %}
         <div class="l-header__links--sub-list">
           <ul x-ref="dropdown_menu_{{ loop.index0 }}"
+          @click.outside="open = -1"
           @keydown.down="$focus.wrap().next()"
           @keydown.up="$focus.wrap().previous()"
           @keydown.escape="open = -1"
