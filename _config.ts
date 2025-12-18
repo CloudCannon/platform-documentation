@@ -39,6 +39,9 @@ import "npm:prismjs@1.29.0/components/prism-jsx.js";
 import "./_config/prism-tree.js";
 import "./_config/prism-annotated.js";
 
+// LLMs.txt generator
+import llmsTxt from "./_config/llms-txt.ts";
+
 import { DOMParser } from "https://deno.land/x/deno_dom@v0.1.38/deno-dom-wasm.ts";
 import { Page } from "lume/core.ts";
 import { Element, Node } from "lume/deps/dom.ts";
@@ -118,6 +121,7 @@ site.use(date());
 site.use(sitemap({
     filename: '/documentation/sitemap.xml'
 }));
+site.use(llmsTxt());
 
 // JSX doesn't like to output some alpine attributes,
 // so we write them with an `alpine` prefix and re-map them here.
