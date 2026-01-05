@@ -145,9 +145,7 @@ _inputs:
 ```
 </comp.MultiCodeBlock>
 
-<comp.Notice info_type="info">
-  For a complete list of configuration keys available for inputs please read our [inputs reference](/documentation/articles/inputs-reference/) documentation.
-</comp.Notice>
+For a complete list of configuration keys available for inputs please read our [inputs reference](/documentation/articles/inputs-reference/) documentation.
 
 These keys configure the appearance and functionality of Select inputs in CloudCannon.
 
@@ -176,6 +174,8 @@ These keys configure the appearance and functionality of Select inputs in CloudC
 
     * `text`
     * `icon` (Choice/Multichoice only)
+    * `icon_color` (Choice/Multichoice only)
+    * `icon_background_color` (Choice/Multichoice only)
     * `image` (Choice/Multichoice only)
 
     Defaults to:
@@ -199,13 +199,112 @@ These keys configure the appearance and functionality of Select inputs in CloudC
     If set to `false`, no text is displayed.
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="_inputs.*.options.preview.icon" type_markdown="Array, string or boolean">
-    This key determines the icon displayed for a value option. The value must match a name from the [Material Icons](https://material.io/tools/icons/) list.
+    This key determines the icon displaye beside the text and subtext on a Card. The value must match a name from the [Google's Material Icons](https://fonts.google.com/icons) list.
+    
+    This key defaults to checking the `icon` key, then falls back to the `notes` icon.
 
     If set to `false`, no icon is displayed.
 
-    If image is defined, the image replace icon when loaded successfully.
+    If `image` is defined, the image replaces `icon` when loaded successfully.
+
+    This key supports cascading options, which can be either an Array or a single value. Value can be one of the following:
+    * A String of the exact value (e.g `"edit_note"`)
+    * A reference to a key within the connected item (e.g `key: icon` in YAML or `{ "key": "icon" }` in JSON)
+    * A String with placeholders that will be replaced with values (e.g. `template: {icon_type}` in YAML or `{ "template": "{icon_type}" }` in JSON)
 
     Available for Choice and Multichoice inputs.
+
+    <comp.Example>
+      In this example, we configure a static icon for the card.
+
+      <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+          ``````````
+          preview:
+            icon: edit_note
+          ``````````
+          </comp.MultiCodeBlock>
+
+      In this example, we use a dynamic icon from the data.
+
+      <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+          ``````````
+          preview:
+            icon:
+              - key: icon_type
+              - support_agent
+          ``````````
+          </comp.MultiCodeBlock>
+    </comp.Example>
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="_inputs.*.options.preview.icon_color" type_markdown="Array, string or boolean">
+    This key determines the color of the icon displayed on a Card.
+
+    This key supports cascading options, which can be either an Array or a single value. Value can be one of the following:
+    * A String of the exact value (e.g `"#ff0000"`)
+    * A reference to a key within the connected item (e.g `key: color` in YAML or `{ "key": "color" }` in JSON)
+    * A String with placeholders that will be replaced with values (e.g. `template: {color_code}` in YAML or `{ "template": "{color_code}" }` in JSON)
+
+    By default, this key is `#000000` (black).
+
+    <comp.Example>
+      In this example, we configure a dynamic icon color from the data with a fallback to red.
+
+      <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+          ``````````
+          preview:
+            icon: edit_note
+            icon_color:
+              - key: color
+              - '#ff0000'
+          ``````````
+          </comp.MultiCodeBlock>
+
+      In this example, we use a static icon color.
+
+      <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+          ``````````
+          preview:
+            icon: nature_people
+            icon_color:
+              - '#00ff00'
+          ``````````
+          </comp.MultiCodeBlock>
+    </comp.Example>
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="_inputs.*.options.preview.icon_background_color" type_markdown="Array, string or boolean">
+    This key determines the background color of the icon displayed on a Card. This is useful if your `icon_color` value has poor contrast on a white background.
+
+    This key supports cascading options, which can be either an Array or a single value.Value can be one of the following:
+    * A String of the exact value (e.g `"#ff0000"`)
+    * A reference to a key within the connected item (e.g `key: color` in YAML or `{ "key": "color" }` in JSON)
+    * A String with placeholders that will be replaced with values (e.g. `template: {color_code}` in YAML or `{ "template": "{color_code}" }` in JSON)
+
+    This key has no default.
+
+    <comp.Example>
+      In this example, we configure a dynamic icon background color from the data with a fallback to red.
+
+      <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+          ``````````
+          preview:
+            icon: edit_note
+            icon_background_color:
+              - key: color
+              - '#ff0000'
+          ``````````
+          </comp.MultiCodeBlock>
+
+      In this example, we use a static icon background color.
+
+      <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+          ``````````
+          preview:
+            icon: nature_people
+            icon_background_color:
+              - '#00ff00'
+          ``````````
+          </comp.MultiCodeBlock>
+    </comp.Example>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="_inputs.*.options.preview.image" type_markdown="array, string, or boolean">
     This key determines the image displayed for a value option. This key has no default and, if the value option is an Object, falls back to `thumbnail_image`, `thumbnail_image_path`, `image`, and `image_path` in that order. If no image is found, `icon` is displayed instead.
@@ -347,7 +446,7 @@ These keys configure the appearance and functionality of Select inputs in CloudC
   <comp.DataReferenceRow label="_inputs.*.options.min_items" type_markdown="Number">
     This key defines the minimum number of items CloudCannon will allow in an Input. When configured, CloudCannon will prevent you from removing items from this Input below this value. If the Input already contains fewer items, CloudCannon will require you to add items until the Input contains a valid number to save your changes, or discard your unsaved changes.
 
-    Value can be any positive integer. If `options.min_items` is also configured, this key cannot be a greater number.
+    Value can be any positive integer. If `options.max_items` is also configured, this key cannot be a greater number.
 
     This key has no default.
 
@@ -497,7 +596,7 @@ These keys configure the appearance and functionality of Select inputs in CloudC
   <comp.DataReferenceRow label="_inputs.*.options.pattern" type_markdown="String">
     This key defines a [regular expression](https://re2js.leopard.in.ua/) that the Input value must match. When configured, CloudCannon will require you to enter a value that matches the REGEX pattern. If the Input already contains an invalid value, CloudCannon will require you to enter a valid string to save your changes, or discard your unsaved changes.
 
-    Value must be a valid REGEX string.
+    Value must be a valid REGEX string. If your REGEX string includes a `\` character and CloudCannon Configuration File is a `.yml` file, use single quotes `'` around the string to avoid a build error.
 
     This key has no default.
 

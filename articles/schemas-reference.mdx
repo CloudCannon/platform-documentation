@@ -70,18 +70,103 @@ Each entry in `schemas` has the following options available:
     If any inputs conflict with schema (e.g. a file's `title` is a string and the schema's `title` is an object), the schema version takes priority.
  </comp.DataReferenceRow>
   <comp.DataReferenceRow label="preview" type_markdown="Object">
-    The preview definition for changing the way collection items with this schema are previewed across the editor. Defaults to using the collection's `preview`.
+    This key defines the appearance of a Card. You can configure Card preview for [Collections](/documentation/articles/what-is-a-collection/), [Schemas](/documentation/articles/what-is-a-schema/), [Object inputs](/documentation/articles/what-is-an-object-input/), [Array inputs](/documentation/articles/what-is-an-array-input/), [Select inputs](/documentation/articles/what-is-a-select-input/), [Structures](/documentation/articles/what-is-a-structure/), the Structure modal, [Snippets](/documentation/articles/what-is-a-snippet/), and the Snippet modal.
 
-    All preview options are available for schemas, and are the same as the ones listed in the [collections configuration options](/documentation/articles/configure-your-collections/#options)\:
+    The following nested keys are available:
 
-    * `gallery`
+    * `text`
+    * `subtext`
     * `icon`
+    * `icon_color`
+    * `icon_background_color`
     * `image`
     * `metadata`
-    * `subtext`
-    * `text`
+    * `gallery`
 
-    See the [preview options documentation](/documentation/articles/configure-your-card-previews/) for detailed information on setting this option.
+    This key defaults to:
+
+      <comp.CodeBlock language="YAML" source="cloudcannon.config.yml">
+      ``````````
+      preview:
+        text:
+          - key: title
+          - key: name
+        icon:
+          - key: icon
+      ``````````
+      </comp.CodeBlock>
+
+    For more information about previews, please read our documentation on [configuring card previews](/documentation/articles/configure-your-card-previews/).
+
+    <comp.Example>
+    In this example, we have configured the appearance of file Cards in the *Collection browser*.
+
+    <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+    ``````````
+    collections_config:
+      blog:
+        preview:
+          text:
+            - key: title
+          subtext:
+            - key: author
+          icon: edit_note
+          icon_color:
+            - key: color
+            - '#ff0000'
+          image:
+            - key: image
+          metadata:
+            - template: [url]
+            - icon: event
+              text:
+                - template: 'Published on {date|date_long}'
+          gallery:
+            - key: featured_image
+    ``````````
+    </comp.MultiCodeBlock>
+
+    In this example, we have configured the appearance of Cards in inputs using the Structure `staff`.
+
+    <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+    ``````````
+    _structures:
+      staff:
+        values:
+          - value:
+              _type: Employee
+              name:
+              job_description:
+              profile_picture:
+            preview:
+              text:
+                - key: name
+                - Employee
+              subtext:
+                - key: job_description
+                - Description of position
+              image:
+                - key: profile_picture
+              icon: support_agent
+          - value:
+              _type: Manager
+              name:
+              job_description:
+              profile_picture:
+              url:
+            preview:
+              text:
+                - key: name
+                - Manager
+              subtext:
+                - key: job_description
+                - Description of position
+              image:
+                - key: profile_picture
+              icon: face
+    ``````````
+    </comp.MultiCodeBlock>
+  </comp.Example>
  </comp.DataReferenceRow>
 </comp.DataReference>
 

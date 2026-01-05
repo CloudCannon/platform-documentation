@@ -74,7 +74,11 @@ const _snippets = {
 
 module.exports = {
   _snippets_imports: {
-    mdx: true,
+    mdx: {
+      exclude: [
+        "import",
+      ],
+    },
   },
   _snippets,
   data_config: {
@@ -173,56 +177,6 @@ module.exports = {
         "articles/index.mdx",
         "404/*"
       ]
-    },
-    common_content: {
-      paths: {
-        dam_uploads:
-          "[collection|slugify]/{date|year}/{date|month}/[asset-filename]",
-      },
-      path: "_common_content",
-      output: false,
-      icon: "copy_all",
-      parser: "front-matter",
-      schemas: {
-        default: {
-          path: ".cloudcannon/schemas/common_content.mdx",
-        },
-      },
-      _inputs: {
-        content_name: {
-          comment:
-            "Give this piece of reusable content a descriptive name, as this is what you will select when inserting it in a page",
-        },
-        parameters: {
-          type: "object",
-          comment: "Define any keys you created in Substitution snippets here",
-          options: {
-            subtype: "mutable",
-            entries: {
-              structures: {
-                values: [
-                  {
-                    value: {
-                      comment: null,
-                      type: null,
-                    },
-                    _inputs: {
-                      comment: {
-                        comment:
-                          "Text that will be shown alongside this parameter when using this piece of custom content",
-                      },
-                      type: {
-                        comment:
-                          "The CloudCannon input type that should be used for editing this parameter",
-                      },
-                    },
-                  },
-                ],
-              },
-            },
-          },
-        },
-      },
     },
     articles: {
       path: "articles",
@@ -627,8 +581,7 @@ module.exports = {
     {
       heading: "Data",
       collections: [
-        "data",
-        "common_content"
+        "data"
       ]
     }
   ],
