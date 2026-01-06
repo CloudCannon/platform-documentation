@@ -4,84 +4,70 @@ _uuid: d927f075-234f-4c73-aebb-645da21754cd
 _created_at: '2021-09-15 23:13:40 +0000'
 details:
   title: Configure external DNS
-  description: Use your own DNS servers.
+  description: Learn how to configure your external DNS when hosting on CloudCannon.
   image: >-
     https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
   category:
     - Instructions
 author_notes:
-  docshots: null
+  docshots: Needs docshots
 ---
-External DNS allows you to host your Site on CloudCannon but manage your [DNS records](/documentation/developer-articles/what-is-dns/#what-are-dns-records) elsewhere. You can set up external DNS through a different provider (e.g., Cloudflare) or your own servers.
+<comp.Notice info_type="permissions">
+  **Permissions required**
 
-Before configuring your Site's DNS, you must [add a Custom Domain](/documentation/developer-articles/add-a-custom-domain-to-your-site/).
-
-<comp.Notice info_type="important">
-  If you are using Cloudflare as your DNS provider, you will need to configure your DNS records differently. For more information, please read the section on [configuring Cloudflare proxy](/documentation/developer-articles/configure-external-dns/#configure-cloudflare-proxy).
+  Members of the Owners or Developers [Default Permission Groups](/documentation/articles/what-are-default-permission-groups/), or [Custom Permission Groups](/documentation/articles/what-are-custom-permission-groups/) with the `base-domain:settings:dns` permission, can edit DNS details on a Custom Domain's dedicated Domain page.
 </comp.Notice>
 
-## Enable external DNS
+If you are hosting your website through CloudCannon and selected external DNS as your DNS provider, CloudCannon will ask you to update the DNS records on your DNS provider. Specifically, you need to add a CNAME record to direct queries for any subdomains to CloudCannon's hosting servers, and two A records to specify the IP addresses of the appropriate CloudCannon hosting servers for the your Custom Domain.
 
-By default, CloudCannon will enable CloudCannon DNS for your Site.
-
-Edit the settings on the *Domain Settings* page to switch to external DNS for a site hosted on CloudCannon.
+For more information on DNS records, please read our documentation on [DNS](/documentation/articles/what-is-dns/#what-is-a-nameserver).
 
 <comp.Notice info_type="important">
-  Updating your DNS provider can cause downtime for anything connected to your domain, such as your website or custom email address. Please make sure you have a copy of your existing DNS records before you change providers.
-
-  If you need help updating your DNS, please contact our friendly [support team](/support/).
+  If you are using Cloudflare as your DNS provider, you will need to configure your DNS records differently. For more information, please read the section on [configuring Cloudflare proxy](/documentation/articles/configure-external-dns/#configure-cloudflare-proxy).
 </comp.Notice>
 
-To switch to External DNS:
+These instructions assume you have [connected a Custom Domain to your Organization](/documentation/articles/connect-a-custom-domain-to-your-organization/) and selected external DNS.
 
-1. Navigate to the *Domain browser* by clicking the globe icon in your *App Navigation*.
-2. Select the domain for which you want to configure DNS.
-3. Under the *Domain Settings* tab, open the *DNS* section.
-4. Select the *External DNS* option in the *DNS Provider* dropdown.
-5. Click the *Update DNS Provider* button.
+To configure DNS records for an external provider:
 
-You can now manage your DNS records through an external provider.
+1. Log in to CloudCannon and select the Organization with the Custom Domain you want to update.
+2. Click the *Domains* button in the *App Sidebar*. CloudCannon will open the *Domains browser*.
+3. Identify the domain you want to configure and click on the *Domain* card. CloudCannon will open the *Domain* page for this Custom Domain.
+4. On the *DNS* tab, CloudCannon will list the CNAME record and A records for your Custom Domain.
+5. Log in to your DNS Provider and follow their instructions to update your DNS records to match those provided by CloudCannon.
 
-<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/hosting/configure-external-dns/2024-12/CloudCannon-Documentation-Domain-Settings-External-DNS.png" alt="A screenshot of the Domain Settings page shows the DNS Provider dropdown is set to External DNS." title="The Domain Settings page" type="screenshot"/>
+Your DNS Provider will process your updated DNS records. This should take a few minutes, but may take up to 24 hours.
 
-### Load balancing on external DNS
-
-Load balancing is a method of distributing incoming traffic requests across multiple servers, providing redundancy in case one or more servers are offline. This reduces the potential downtime risk for your Site.
-
-If you use an external DNS provider, CloudCannon will not be able to dynamically load balance incoming traffic to your Site. We recommend using CloudCannon DNS, particularly for Sites on your base domain, or investigating if your third-party DNS service provides load balancing.
-
-### CloudCannon DNS records
-
-When you enable external DNS for a Site hosted on CloudCannon, CloudCannon will ask you to add three DNS records to your DNS provider: two A Records and a CNAME Record.
-
-The two A Records specify the IP addresses of the appropriate CloudCannon hosting servers for the your base domain. The CNAME Record will direct queries for any subdomains to CloudCannon's hosting servers.
-
-<comp.Notice info_type="important">
-  If you use a Cloudflare, setting up a CNAME Record for your base domain while using external DNS will result in a 1001 DNS Error.
-</comp.Notice>
+<comp.DocShot docshot_key="" alt="" title=""/>
 
 ## Configure Cloudflare Proxy
 
-CloudCannon hosting uses Cloudflare. If you are using Cloudflare as your DNS provider and have Cloudflare's Proxy feature enabled for your DNS records, you will not be able to proxy directly to the normal CloudCannon CNAME (i.e., sites.cloudcannon.com).
+CloudCannon hosting uses Cloudflare. This means if you use Cloudflare as your DNS Provider and have Cloudflare's Proxy feature enabled for your DNS records, you will not be able to proxy directly to the normal CloudCannon CNAME (i.e., sites.cloudcannon.com) as it will result in a 1001 DNS Error.
 
 To resolve this issue, you can either turn off Orange Cloud or set up Cloudflare Proxy with CloudCannon Origin and add a CNAME record to your DNS provider.
 
-To set up Cloudflare Proxy with CloudCannon Origin:
+These instructions assume you have [connected a Custom Domain to your Organization](/documentation/articles/connect-a-custom-domain-to-your-organization/), selected external DNS, and use Cloudflare Proxy.
 
-1. Navigate to the *Custom Domain* page under *Site Settings*.
-2. Under the *Setup* tab, select the *Cloudflare Proxy with CloudCannon Origin* option in the *Hosting Setup* dropdown.
-3. Click the *Switch to Cloudflare Proxy with CloudCannon Origin* to confirm.
+To configure DNS records for an external provider:
 
-To add a CNAME record:
+1. Log in to CloudCannon and select the Organization with the Custom Domain you want to update.
+2. Click the *Domains* button in the *App Sidebar*. CloudCannon will open the *Domains browser*.
+3. Identify the domain you want to configure and click on the *Domain* card. CloudCannon will open the *Domain* page for this Custom Domain.
+4. On the *Network* tab, CloudCannon will list all your subdomains in the *Subdomains browser*. Identify the subdomain you want to configure and click on the *Subdomain* card (Note: this could be your base domain).
+5. Under *Hosting Setup*, click the *Configure* button. CloudCannon will open the *Configure hosting setup* modal.
+6. &nbsp;
+7. &nbsp;
+8. CNAME record and A records for your Custom Domain.
 
-1. Log in to Cloudflare and navigate to your DNS settings.
-2. Add a CNAME record pointing to your Domain Name (e.g., example.com) at *orange-cloud.cloudcannon.com*.
+&nbsp;
+
+&nbsp;
 
 <comp.Notice info_type="important">
   Your Site might be cached externally if you use Cloudflare Proxy. In this case, your Site won't show any updates until you manually clear your cache.
 </comp.Notice>
 
-<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/hosting/configure-external-dns/2024-12/CloudCannon-Documentation-Custom-Domain-Orange-Cloud.png" alt="A screenshot of the Custom Domain page shows the Cloudflare Proxy with CloudCannon Origin option in the Hosting Setup dropdown." title="The Custom Domain page" type="screenshot"/>
+<comp.DocShot docshot_key="" alt="" title=""/>
 
 ## Single Origin
 
@@ -96,17 +82,35 @@ In some cases, you may need to configure your DNS records to point directly at C
 
 Most commonly, you might use this setup if you need to point your base domain at CloudCannon while also using an external DNS.
 
+x
+
+<comp.DocShot docshot_key="" alt="" title=""/>
+
+---
+
+## Configure Cloudflare Proxy
+
+CloudCannon hosting uses Cloudflare. If you are using Cloudflare as your DNS provider and have Cloudflare's Proxy feature enabled for your DNS records, you will not be able to proxy directly to the normal CloudCannon CNAME (i.e., sites.cloudcannon.com).
+
+&nbsp;
+
+To set up Cloudflare Proxy with CloudCannon Origin:
+
+	@@ -86,24 +109,9 @@ To add a CNAME record:
+1. Log in to Cloudflare and navigate to your DNS settings.
+2. Add a CNAME record pointing to your Domain Name (e.g., example.com) at *orange-cloud.cloudcannon.com*.
+
+## Single Origin
+
+&nbsp;
+
 To achieve this, you can set up Single Origin hosting and add DNS records to your DNS provider.
 
 To set up Single Origin hosting:
-
 1. Navigate to the *Custom Domain* page under *Site Settings*.
 2. Under the *Setup* tab, select the *Single Origin* option in the *Hosting Setup* dropdown.
 3. Click the *Switch to Single Origin* to confirm.
-
 To add a DNS records:
 
 1. Log in to your third-party DNS provider.
 2. Add the CNAME record displayed on the *Setup* tab of the *Custom Domain* page. If your DNS provider does not allow CNAME records on a base domain, add the two A records instead.
-
-<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/hosting/configure-external-dns/2024-12/CloudCannon-Documentation-Custom-Domain-Single-Origin.png" alt="A screenshot of the Custom Domain page shows the Single Origin option in the Hosting Setup dropdown." title="The Custom Domain page" type="screenshot"/>
