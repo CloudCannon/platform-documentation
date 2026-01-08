@@ -357,7 +357,7 @@ Use bold for headings, labels, or important callouts within Notice components.
 
 **Don't Use Bold For:**
 - UI elements (always use *italics* instead, even for external services)
-  - Older documentation may use bold - should be updated to italics)
+  - Older documentation may use bold (should be updated to italics)
 - Inline term definitions
 - Emphasis (use Notice components instead)
 - Button names or menu options
@@ -422,7 +422,7 @@ Welcome to my blog post!
 
 **Avoid Simple Code Blocks:**
 
-Do not use plain markdown code fences (````yaml`, ````json`, ````javascript`, etc.) for examples in documentation.
+Do not use plain markdown code fences (` ```yaml `, ` ```json `, ` ```javascript `, etc.) for examples in documentation.
 
 ❌ **Avoid:**
 ````markdown
@@ -501,7 +501,7 @@ For all internal CloudCannon documentation links, use Markdown link syntax with 
 
 Path structure:
 - `/documentation/user-articles/` or `/documentation/developer-articles/` for most documentation articles
-- `/documentation/user-guides/` or `/developer-documentation/guides/` for guide series
+- `/documentation/user-guides/` or `/documentation/developer-guides/` for guide series
 - `/documentation/changelog/` for changelog entries
 
 
@@ -540,7 +540,7 @@ CloudCannon documentation uses custom components for enhanced formatting. Use th
 
 #### 1.5.1 Notice Component
 
-Use for tips, information, warnings, and important notes.
+Use for informational notes, important callouts, permissions requirements, and pricing information.
 
 ```mdx
 <comp.Notice info_type="info">
@@ -1067,7 +1067,7 @@ Instruction articles describe actions to take and their immediate outcomes. Use 
 **Numbered Lists for Steps**
 - Use numbered lists for sequential actions
 - Start each step with an action verb (imperative mood)
-- Keep steps concise (one action per step, followed by an outcome sentence is applicable)
+- Keep steps concise (one action per step, followed by an outcome sentence if applicable)
 
 **Example:**
 
@@ -1223,12 +1223,12 @@ author_notes:
 - **Important:** Articles should never use "we" — use "you" for all actions
 
 Examples:
-- ✅ **Good** (guide purpose):** "In this guide, we'll cover how to set up visual editing."
-- ✅ **Good** (guide progression):** "In the next step, we'll look at configuring your build settings."
-- ✅ **Good** (guide navigation):** "We'll extend our existing workflow..."
-- ✅ **Good** (reader action):** "You can configure your collections..."
-- ✅ **Good** (reader action):** "You should select your Git repository..."
-- ❌ **Avoid** (using "we" for reader action):** "We can configure our collections..."
+- ✅ **Good** (guide purpose): "In this guide, we'll cover how to set up visual editing."
+- ✅ **Good** (guide progression): "In the next step, we'll look at configuring your build settings."
+- ✅ **Good** (guide navigation): "We'll extend our existing workflow..."
+- ✅ **Good** (reader action): "You can configure your collections..."
+- ✅ **Good** (reader action): "You should select your Git repository..."
+- ❌ **Avoid** (using "we" for reader action): "We can configure our collections..."
 
 **Celebrate Progress**
 - Acknowledge completion: "Great! You've created your first Site."
@@ -1764,21 +1764,30 @@ link_formats:
       - "/documentation/developer-articles/configure-your-collections/"
   
   internal_guides:
-    pattern: "/documentation/guides/[guide-name]/[page-slug]/"
+    user_pattern: "/documentation/user-guides/[guide-name]/[page-slug]/"
+    developer_pattern: "/documentation/developer-guides/[guide-name]/[page-slug]/"
     examples:
-      - "/documentation/guides/getting-started-with-cloudcannon/create-a-site/"
+      - "/documentation/user-guides/getting-started/create-a-site/"
+      - "/documentation/developer-guides/okta-sso-saml/"
   
-  glossary_links:
-    pattern: "/[user|developer]-articles/[slug]/"
-    note: "Glossary links omit the /documentation/ prefix"
+  glossary_documentation_links:
+    articles_pattern: "/documentation/[user|developer]-articles/[slug]/"
+    guides_pattern: "/documentation/[user|developer]-guides/[guide-name]/"
+    other_pages_pattern: "/[page-name]/"
+    note: "Glossary documentation_link field requires /documentation/ prefix for articles and guides only"
+    examples:
+      - "/documentation/user-articles/what-is-a-collection/"
+      - "/documentation/developer-guides/okta-sso-saml/"
+      - "/pricing/"
 
 components:
   notice:
-    usage: "Tips, warnings, important information"
+    usage: "Tips, important information, permissions, and pricing notices"
     types:
       - "info"
       - "important"
-      - "warning"
+      - "permissions"
+      - "pricing"
     syntax: "<comp.Notice info_type=\"[type]\">...</comp.Notice>"
   
   docshot:
@@ -1798,6 +1807,8 @@ components:
       - "language"
       - "translate_into"
       - "source"
+    annotation_marker: "___NUMBER___"
+    annotation_example: "_inputs___1___:"
     use_cases:
       - "CloudCannon configuration files"
       - "Input configuration examples"
@@ -1808,11 +1819,21 @@ components:
     required_attributes:
       - "language"
       - "source"
+    annotation_marker: "/*NUMBER*/"
+    annotation_example: "<h1 data-editable>Title</h1> /*1*/"
     use_cases:
       - "HTML files"
       - "Markdown files"
       - "JavaScript files"
       - "Any single-format file content"
+  
+  annotation:
+    usage: "Numbered explanations for code examples"
+    placement: "Immediately after closing code block tag"
+    numbering: "Sequential starting from 1"
+    length: "1-2 sentences (concise)"
+    syntax: "<comp.Annotation number=\"N\">Explanation</comp.Annotation>"
+    note: "Used with both MultiCodeBlock and CodeBlock components"
 
 validation_rules:
   check_for:
