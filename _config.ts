@@ -345,7 +345,7 @@ site.process([".html"], (pages) => Promise.all(pages.map(async (page) => {
     }
 
     let hasItems = false;
-    let selector = `main h1, main h2`;
+    let selector = `main h1:not(.exclude-from-toc), main h2:not(.exclude-from-toc)`;
     
     if(!tocContainer){
         tocContainer = page.document?.querySelectorAll(`.l-toc-changelog-list`)?.[0];
