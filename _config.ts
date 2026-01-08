@@ -471,7 +471,6 @@ site.filter("get_by_letter", async (resources, letter) => {
         "glossary",
         letter.toLowerCase(),
     );
-    console.log(dir);
     let entries = [];
     try {
         for await(const entry of Deno.readDir(dir)){
