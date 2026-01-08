@@ -46,6 +46,8 @@ import "./_config/prism-tree.js";
 import "./_config/prism-annotated.js";
 
 import { DOMParser } from "https://deno.land/x/deno_dom@v0.1.38/deno-dom-wasm.ts";
+import { join } from "https://deno.land/std/path/mod.ts";
+
 //import { Page } from "lume/core.ts";
 import { Element, Node } from "lume/deps/dom.ts";
 import { extract } from "lume/deps/front_matter.ts";
@@ -462,7 +464,14 @@ site.filter('parent_gids_from_doc', (doc) => {
 });
 
 site.filter("get_by_letter", async (resources, letter) => {
-    const dir = `user/glossary/${letter}`;
+    //const dir = `user/glossary/${letter}`;
+    const dir = join(
+        Deno.cwd(),
+        "user",
+        "glossary",
+        letter.toLowerCase(),
+    );
+    console.log(dir);
     let entries = [];
     try {
         for await(const entry of Deno.readDir(dir)){
@@ -474,6 +483,7 @@ site.filter("get_by_letter", async (resources, letter) => {
     } catch (error) {
         // Directory doesn't exist, return empty array
         if (error instanceof Deno.errors.NotFound) {
+            console.log("Directory doesn't exist, return empty array");
             return [];
         }
         throw error; // Re-throw other errors
