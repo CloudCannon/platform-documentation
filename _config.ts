@@ -474,6 +474,7 @@ site.filter("get_by_letter", async (resources, letter) => {
     } catch (error) {
         // Directory doesn't exist, return empty array
         if (error instanceof Deno.errors.NotFound) {
+            console.log("Directory doesn't exist, return empty array");
             return [];
         }
         throw error; // Re-throw other errors

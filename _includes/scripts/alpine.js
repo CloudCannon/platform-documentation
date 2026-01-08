@@ -37,11 +37,11 @@ Alpine.magic('visibleNavHighlighter', (el, { Alpine }) => ({
         let headingsByDistanceFromTop = {}
 
         this.headings.forEach(heading => {
-            console.log(heading,heading.getBoundingClientRect(),relativeTop)
+            //console.log(heading,heading.getBoundingClientRect(),relativeTop)
             headingsByDistanceFromTop[heading.getBoundingClientRect().top - relativeTop] = heading
         })
 
-        console.log(headingsByDistanceFromTop)
+        //console.log(headingsByDistanceFromTop)
 
         let closestNegativeTop = Math.max(...Object.keys(headingsByDistanceFromTop).filter(top => top < 0))
 
