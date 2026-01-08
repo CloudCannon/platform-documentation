@@ -7,6 +7,39 @@ This style guide establishes writing standards for all CloudCannon documentation
 
 This guide is designed to be readable by both humans and AI agents. A machine-readable section is included at the end for automated validation.
 
+## Documentation Architecture
+
+CloudCannon documentation follows a **modified Diátaxis framework**, which organizes content by user needs rather than by product features. [Diátaxis](https://diataxis.fr/) is a systematic approach to technical documentation that divides content into four categories based on whether it serves a user's *practical* or *theoretical* needs, and whether they are *studying* or *working*.
+
+### Our Modified Diátaxis Structure
+
+CloudCannon uses the following documentation types:
+
+1. **Explanation Articles** (*Understanding-oriented*)
+   - Answer "What is...?" questions
+   - Help users understand concepts, features, and how things work
+   - Correspond to Diátaxis "Explanation" category
+
+2. **Instruction Articles** (*Task-oriented*)
+   - Answer "How do I...?" questions
+   - Provide step-by-step guidance for specific tasks
+   - Correspond to Diátaxis "How-to guides" category
+
+3. **Guides** (*Learning-oriented*)
+   - Walk users through a complete workflow or getting started process
+   - Provide hands-on learning experiences
+   - Correspond to Diátaxis "Tutorials" category
+
+4. **Glossary and Reference** (*Reference-oriented*)
+   - Provide quick lookup of terminology and definitions
+   - Correspond to Diátaxis "Reference" category
+
+5. **Changelogs** (*Informational*)
+   - Document product changes and updates over time
+   - Not part of the traditional Diátaxis framework, but essential for keeping users informed
+
+This structure helps users find the right information at the right time, whether they're learning a new concept, completing a specific task, or looking up a term.
+
 ---
 
 ## Table of Contents
@@ -56,9 +89,9 @@ Write as if you're explaining something to a colleague. Be friendly and approach
 - ❌ **Too casual:** "Alright, let's go create a Site real quick!"
 - ❌ **Too formal:** "The user shall proceed to instantiate a Site entity."
 
-#### 1.1.4 Present Tense (with exceptions)
+#### 1.1.4 Present Tense for Articles, Past Tense for Changelogs
 
-Use present tense to describe how features work and what they do. Use future tense ("will") for outcomes immediately following user actions in instructions.
+**For Documentation Articles:** Use present tense to describe how features work and what they do. Use future tense ("will") for outcomes immediately following user actions in instructions.
 
 **Present Tense for General Descriptions:**
 - ✅ **Good:** "Collections appear in the *Site Navigation* for easy access."
@@ -71,16 +104,22 @@ Use present tense to describe how features work and what they do. Use future ten
 - ✅ **Good:** "CloudCannon will commit your changes to your Git repository." (after you save)
 - This signals to users what will happen next as a direct result of their action.
 
-**Why Present Tense for Features?**
-- Creates a sense of immediacy and confidence
-- Describes current state and behavior, not hypothetical future
-- Aligns with how users think ("What does this do?" not "What will this do?")
-- More authoritative and direct
+**For Changelogs:** Use past tense exclusively to document completed work in a release.
+- ✅ **Good:** "Added the ability to split your Configuration File."
+- ✅ **Good:** "Fixed an issue where Rich Text Inputs were not resizable."
+- ❌ **Avoid:** "You can now split..." (present tense in changelogs)
+- See [2.1.4 Writing Style](#214-writing-style) for detailed changelog guidelines.
+
+**Why This Distinction?**
+- **Articles (present tense):** Describes current state and behavior, creating immediacy and confidence
+- **Changelogs (past tense):** Documents historical record of what was completed in each release
+- Aligns with how users think: "What does this do?" (articles) vs. "What changed?" (changelogs)
 
 **Pattern to Follow:**
-- **Explaining features:** Present tense
-- **Describing UI behavior:** Present tense
+- **Explaining features (articles):** Present tense
+- **Describing UI behavior (articles):** Present tense
 - **Step outcomes in instructions:** Future tense ("will")
+- **Changelog entries:** Past tense
 - **General capabilities:** Present tense
 
 #### 1.1.5 Positive Language
@@ -313,43 +352,164 @@ Use bold for headings, labels, or important callouts within Notice components.
   - CSS classes: `.c-docs-image`
   - Command-line commands: `deno task serve`
 
-**Code Blocks**
-- Use fenced code blocks with language specification.
-- For configuration examples, use the `MultiCodeBlock` component with YAML/JSON translation.
+**Code Blocks: Use Components**
 
-```yaml
-# Example configuration
+CloudCannon documentation uses specialized components for code blocks instead of simple markdown code fences. Always use `<comp.MultiCodeBlock>` or `<comp.CodeBlock>` instead of plain code blocks.
+
+**Use `<comp.MultiCodeBlock>` for CloudCannon Configuration:**
+
+Use this component when showing CloudCannon configuration that users can write in either YAML or JSON format.
+
+```mdx
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+```
 collections_config:
   blog:
     path: content/posts
 ```
+</comp.MultiCodeBlock>
+```
+
+- Allows users to toggle between YAML and JSON formats
+- Provides better user experience for developers who prefer different formats
+- Supports numbered annotations with `<comp.Annotation>` components
+- Shows the source file name for context
+- Consistent with 99% of configuration examples in the documentation
+
+**Use `<comp.CodeBlock>` for File Content Examples:**
+
+Use this component when showing the content of specific files in a single format (HTML, Markdown, JavaScript, etc.).
+
+```mdx
+<comp.CodeBlock language="Markdown" source="blog.md">
+```
+---
+title: My Blog Post
+date: 2025-01-08
+---
+
+Welcome to my blog post!
+```
+</comp.CodeBlock>
+```
+
+- Shows the source file name for context
+- Provides syntax highlighting
+- Consistent styling across documentation
+- Better visual distinction from body text
+
+**Avoid Simple Code Blocks:**
+
+Do not use plain markdown code fences (````yaml`, ````json`, ````javascript`, etc.) for examples in documentation.
+
+❌ **Avoid:**
+````markdown
+```yaml
+collections_config:
+  blog:
+    path: content/posts
+```
+````
+
+- No source file context
+- Cannot toggle between formats
+- Inconsistent with documentation standards
+- Harder to annotate with explanations
+- Less accessible for users
 
 **Annotations in Code**
-- Use numbered annotations (e.g., `___1___`, `___2___`) to mark code that needs explanation.
-- Follow with `<comp.Annotation number="1">` components to explain each marker.
+
+Both `<comp.MultiCodeBlock>` and `<comp.CodeBlock>` support numbered annotations to explain specific parts of code examples. However, the marker syntax differs between the two components.
+
+**For `<comp.MultiCodeBlock>` — Use `___1___` markers:**
+
+```mdx
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+```
+_inputs___1___:
+  example___2___:
+    type___3___: text
+```
+</comp.MultiCodeBlock>
+<comp.Annotation number="1">
+  All inputs are defined under the `_inputs` key.
+</comp.Annotation>
+<comp.Annotation number="2">
+  This input is called `example`.
+</comp.Annotation>
+<comp.Annotation number="3">
+  The `type` key determines the input type.
+</comp.Annotation>
+```
+
+**For `<comp.CodeBlock>` — Use `/*1*/` markers:**
+
+```mdx
+<comp.CodeBlock language="Astro" source="BlogPost.astro">
+```
+<h1 data-editable="text" data-prop="title">{title}</h1> /*1*/
+<p data-editable="text" data-prop="content">{content}</p> /*2*/
+```
+</comp.CodeBlock>
+<comp.Annotation number="1">
+  The `data-editable` attribute defines a Text Editable Region.
+</comp.Annotation>
+<comp.Annotation number="2">
+  This creates another Text Editable Region for the content.
+</comp.Annotation>
+```
+
+**Why the different syntax:**
+- `___1___` markers work for any language in MultiCodeBlock (YAML, JSON, etc.)
+- `/*1*/` markers use comment syntax that's visually appropriate for code files (HTML, JavaScript, Astro, etc.)
+
+**Always:**
+- Place `<comp.Annotation>` components immediately after the closing tag of the code block
+- Number annotations sequentially starting from 1
+- Keep annotation explanations concise (1-2 sentences)
 
 #### 1.4.4 Links
 
-**Internal Links**
-- Use absolute paths starting with `/documentation/`:
-  - `/documentation/user-articles/` for user-focused articles
-  - `/documentation/developer-articles/` for developer-focused articles
-  - `/documentation/guides/` for guide series
+**Internal Links — Always Use Markdown**
 
-**Link Text**
-- Use descriptive link text. Don't use "click here" or "read more."
-- ✅ **Good:** "For more information, read our documentation on [Collections](/documentation/user-articles/what-is-a-collection/)."
-- ❌ **Avoid:** "For more information, click [here](/documentation/user-articles/what-is-a-collection/)."
+For all internal CloudCannon documentation links, use Markdown link syntax with absolute paths starting with `/documentation/`:
 
-**External Links**
-- Use full URLs for external links.
-- Add `target="_blank" rel="noopener"` for external links in HTML.
+- ✅ **Good:** `[Collections](/documentation/articles/what-is-a-collection/)`
+- ❌ **Avoid:** `<a href="/documentation/articles/what-is-a-collection/">Collections</a>`
 
-**Cross-Referencing**
-- Link to related articles at the end of articles.
-- Link to glossary terms on first use in articles.
-- In glossary terms, don't use asterisks or special formatting for cross-references—just plain text.
+Path structure:
+- `/documentation/user-articles/` or `/documentation/developer-articles/` for most documentation articles
+- `/documentation/user-guides/` or `/developer-documentation/guides/` for guide series
+- `/documentation/changelog/` for changelog entries
 
+
+Use descriptive link text that tells readers what they'll find when they click. Don't use "click here" or "read more."
+
+- ✅ **Good:** "For more information, read our documentation on [Collections](/documentation/articles/what-is-a-collection/)."
+- ❌ **Avoid:** "For more information, click [here](/documentation/articles/what-is-a-collection/)."
+
+**External Links — Use HTML Anchor Tags**
+
+For links to external websites (outside CloudCannon documentation), use HTML anchor tags with `target="_blank"` and `rel="noopener"` to open in a new tab.
+
+- ✅ **Good:** `<a href="https://example.com" target="_blank" rel="noopener">Example Website</a>`
+- ❌ **Avoid:** `[Example Website](https://example.com)` (for external links)
+
+Why use HTML for external links:
+- Opens in a new tab so users don't lose their place in documentation
+- `rel="noopener"` provides security benefits
+
+**UI Elements in Links — Drop the Italics**
+
+When a UI element term needs to be a link, drop the italics formatting. The link formatting replaces the italics.
+
+- ✅ **Good:** `[Data Editor](/documentation/articles/what-is-the-data-editor/)`
+- ❌ **Avoid:** `[*Data Editor*](/documentation/articles/what-is-the-data-editor/)`
+
+Why drop italics for links:
+- Link formatting (underline/color) already provides visual distinction
+- Combining italics and links creates visual clutter
+- Maintains readability
 ---
 
 ### 1.5 Components
@@ -366,15 +526,66 @@ Use for tips, information, warnings, and important notes.
 </comp.Notice>
 ```
 
-**Info Types:**
-- `info` - General information or tips
-- `important` - Important information that affects functionality
-- `warning` - Cautions about potential problems
+**Notice Types:**
 
-**Guidelines:**
-- Place notices close to the relevant content.
-- Keep notice text concise.
-- Use proper HTML paragraph tags inside notices if needed: `<p>...</p>`
+**`info` — General information, tips, or helpful context**
+
+```mdx
+<comp.Notice info_type="info">
+  You can insert snippets in any rich text editor. This includes the Content Editor and rich text inputs.
+</comp.Notice>
+```
+
+Placement:
+- Use inline, close to the relevant content within the article
+- For helpful tips, context, or supplementary information
+- Should not be the first thing in an article
+
+**`important` — Important information that affects functionality or workflow**
+
+```mdx
+<comp.Notice info_type="important">
+  If you have already customized which options are available via `_editables` in your CloudCannon config, you will need to include `snippet: true` for Snippets to be available.
+</comp.Notice>
+```
+
+Placement:
+- Can be first in article if the information affects the entire article
+- Can be inline when the information relates to a specific section
+- Use for information that significantly impacts functionality or workflow
+
+**`permissions` — Information about required permissions for a feature or action**
+
+```mdx
+<comp.Notice info_type="permissions">
+  <p><strong>Permissions required</strong></p>
+  <p>Members of all [Default Permission Groups](/documentation/articles/what-are-default-permission-groups/), or [Custom Permission Groups](/documentation/articles/what-are-custom-permission-groups/) with the `site:file:write` permission, can configure inputs.</p>
+</comp.Notice>
+```
+
+Placement:
+- **Must be first in article** — always place immediately after the front matter, before any other content
+- Required for any feature or action that needs specific permissions
+- Always start with "**Permissions required**" as the heading
+
+**`pricing` — Information about features available on specific pricing plans**
+
+```mdx
+<comp.Notice info_type="pricing">
+  **This feature is available on our [Enterprise plan](/pricing/).**
+  
+  Want to chat about whether this feature is right for you? Our support team is always happy to hear from you.
+</comp.Notice>
+```
+
+Placement:
+- Can be first in article if the entire feature is plan-specific
+- Makes it immediately clear what plan is required before users read further
+- Clearly state which plan the feature is available on
+
+**General Guidelines:**
+- Keep notice text concise
+- Only use one notice at the start of an article (either permissions, pricing, or important)
 
 #### 1.5.2 DocShot Component
 
@@ -412,7 +623,7 @@ collections_config:
 
 #### 1.5.4 DocsImage Component
 
-Use for inline images that don't need the DocShot workflow.
+Use for illustrations and diagrams. This component is being phased out in favor of DocShots for images of the CloudCannon app.
 
 ```mdx
 <comp.DocsImage 
@@ -421,6 +632,14 @@ Use for inline images that don't need the DocShot workflow.
   title="Image Title" 
   type="screenshot"/>
 ```
+
+**When to use DocsImage:**
+- Illustrations, diagrams, or conceptual graphics
+- Images that are not screenshots of the CloudCannon interface
+
+**When NOT to use DocsImage:**
+- Screenshots of the CloudCannon app (use `<comp.DocShot>` instead)
+- UI snippets showing CloudCannon interface elements (use `<comp.DocShot>` instead)
 
 ---
 
@@ -451,27 +670,30 @@ Use for inline images that don't need the DocShot workflow.
 Changelogs announce new features, improvements, and bug fixes for CloudCannon releases.
 
 #### 2.1.1 File Naming
-- Format: `YYYY-MM-DD_descriptive-title.mdx`
-- Example: `2025-12-05_use-a-filename-as-the-value-key-for-select-inputs.mdx`
-- Use lowercase and hyphens
+- Location: `changelogs/YYYY/` (where YYYY is the year)
+- Format: `MM-DD_descriptive-title.mdx`
+- Example: `changelogs/2025/12-05_use-a-filename-as-the-value-key-for-select-inputs.mdx`
+- Use lowercase and hyphens in the descriptive title
 
 #### 2.1.2 Front Matter
 ```yaml
 ---
 _schema: default
-title: Descriptive Title of the Release
+title: Use a filename as the value_key for Select Inputs
 ---
 ```
 
-- Title should be descriptive, not just a date
-- Title should be sentence case
+**Title Guidelines:**
+- Should be descriptive, not just a date
+- Use sentence case (capitalize first word and proper nouns only)
 - Use feature names as they appear in CloudCannon
+- Focus on the main feature or improvement of the release
 
 #### 2.1.3 Structure
 
 **Introduction Paragraph**
 - Brief summary of the release (1-2 sentences)
-- Mention the main features and that bug fixes are included
+- Highlight the primary features or improvements, and any important bug fixes
 
 **Sections**
 
@@ -490,13 +712,35 @@ title: Descriptive Title of the Release
 
 #### 2.1.4 Writing Style
 
-**Present Tense for Features**
-- ✅ **Good:** "You can now use `value_key: filename`..."
-- ❌ **Avoid:** "You will now be able to use..."
+**Use Past Tense Exclusively**
 
-**Past Tense for Fixes**
+Changelogs document completed work in a release. All entries should use past tense.
+
+Why past tense for changelogs:
+- Documents what was completed in this release
+- Clear distinction from documentation articles (which use present tense)
+- Provides historical record of changes
+
+Standard past-tense verbs:
+- **Added** - for new features or capabilities
+- **Changed** - for modifications to existing functionality
+- **Improved** - for enhancements or optimizations
+- **Removed** - for deleted features or deprecated functionality
+- **Fixed** - for bug fixes
+
+**Features & Improvements:**
+- ✅ **Good:** "Added the ability to split your *Site* configuration across multiple *Configuration Files*."
+- ✅ **Good:** "Improved loading time for the *Projects Browser*."
+- ✅ **Good:** "Added syntax highlighting for `.rb` files in the Code Editor."
+- ✅ **Good:** "Removed the *Needs Attention* warning when two or more *Collections* have the same path."
+- ✅ **Good:** "Changed the default behavior for Rich Text Inputs to be resizable."
+- ❌ **Avoid:** "You can now use `value_key: filename`..." (present tense)
+- ❌ **Avoid:** "Better copy for..." (incomplete verb)
+
+**Fixes:**
 - ✅ **Good:** "Fixed an issue where Rich Text Inputs were not resizable."
-- ❌ **Avoid:** "Fixes an issue where..."
+- ✅ **Good:** "Fixed an issue where adding a date to a Datetime Input did not work unless time was also added."
+- ❌ **Avoid:** "Fixes an issue where..." (present tense)
 
 **Specificity**
 - Be specific about what changed.
@@ -510,35 +754,56 @@ title: Descriptive Title of the Release
 
 ### 2.2 Explanation Articles
 
-Explanation articles answer "What is..." questions and provide conceptual understanding.
+Explanation articles help users understand concepts, features, and context. They answer questions like "What is...?", "Why...?", and "What are the best practices for...?". These articles provide conceptual understanding without step-by-step instructions.
 
 #### 2.2.1 File Naming
-- Use descriptive, lowercase names with hyphens
-- Example: `what-is-a-collection.mdx`
+
+The filename is the slugified version of the article title (lowercase, hyphens instead of spaces, no special characters).
+
+- Title: "What is a Collection?" → Filename: `what-is-a-collection.mdx`
+- Title: "Why split your Configuration File?" → Filename: `why-split-your-configuration-file.mdx`
+- Title: "Best practice for splitting your Configuration File" → Filename: `best-practice-for-splitting-your-configuration-file.mdx`
 
 #### 2.2.2 Front Matter
 ```yaml
 ---
 _schema: default
 _uuid: [generated]
-_created_at: [generated]
-title: What is a [Concept]?
-nav_title: What is a [Concept]?
-published: true
-image: [URL to thumbnail]
-description: Learn about [Concept] in CloudCannon.
-article_category:
-  - Explanation
-article_topic:
-  - [Relevant Topic]
-tags: []
-related_articles: []
-related_links: []
+_created_at: '[timestamp]'
+details:
+  title: [Explanation Article Title]
+  description: Learn about [concept/topic] in CloudCannon.
+  image: >-
+    https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+  category:
+    - Explanation
+  related_articles:
+    - _type: developer_articles
+      item: [UUID of related article]
+author_notes:
+  docshots: Needs docshots
 ---
 ```
 
-#### 2.2.3 Title Pattern
-- Always start with "What is" or "What are"
+**Notes:**
+- `_uuid` and `_created_at` are auto-generated by the CMS
+- `details` contains all the article metadata
+- `category` should always include "Explanation" for explanation articles
+- `title` format varies by article type:
+  - Concept definition: "What is a [Concept]?"
+  - Context/benefits: "Why [action/feature]?"
+  - Best practices: "Best practice for [topic]" or "Best practices for [topic]"
+- `related_articles` is an optional array (maximum of 3 items). Each item has:
+  - `_type`: The collection type (accepted values: `developer_articles`, `user_articles`, `developer_guides`, `user_guides`)
+  - `item`: UUID of the related article or guide
+- `author_notes.docshots` can be null, "Added!", "Needs docshots", or "Not applicable"
+
+#### 2.2.3 Title Patterns
+
+Explanation articles use different title patterns depending on their purpose:
+
+**Concept Definition Articles** ("What is...?")
+- Start with "What is" or "What are"
 - Use "a" or "an" for singular concepts
 - Use "are" for plural concepts
 - Examples:
@@ -547,7 +812,25 @@ related_links: []
   - "What are Permission Groups?"
   - "What are Editable Regions?"
 
+**Context and Benefits Articles** ("Why...?")
+- Start with "Why" to explain reasoning, benefits, or use cases
+- Examples:
+  - "Why split your Configuration File?"
+  - "Why use Schemas?"
+
+**Best Practice Articles**
+- Start with "Best practice for" or "Best practices for"
+- Provide guidance on approach without step-by-step instructions
+- Examples:
+  - "Best practice for splitting your Configuration File"
+  - "Best practices for Rich Text"
+  - "Best practices for custom Permission Groups"
+
 #### 2.2.4 Structure
+
+The structure of an explanation article depends on its purpose:
+
+**Concept Definition Articles** ("What is...?")
 
 1. **Opening Definition** (1-2 sentences)
    - Define the concept clearly and concisely
@@ -568,21 +851,85 @@ related_links: []
    - Link to instructional articles
    - Link to related concepts
 
+**Context and Benefits Articles** ("Why...?")
+
+1. **Introduction** (1-2 paragraphs)
+   - Briefly introduce the topic or feature
+   - Set context for why this matters
+
+2. **Benefits and Use Cases** (multiple paragraphs)
+   - Explain the advantages or reasoning
+   - Provide specific scenarios where this applies
+   - Use bullet points for clarity
+
+3. **How It Works** (optional section)
+   - Provide high-level overview of the mechanism
+   - Use code examples if applicable
+   - Include diagrams or screenshots
+
+4. **Limitations** (optional section)
+   - Document any constraints or caveats
+   - Help users understand when this might not be suitable
+
+5. **Related Information** (final paragraph)
+   - Link to instructional articles
+   - Link to related explanation articles
+
+**Best Practice Articles**
+
+1. **Introduction** (1-2 paragraphs)
+   - Context about the feature or concept
+   - Why best practices matter for this topic
+
+2. **Best Practices** (multiple sections with subheadings)
+   - Each best practice gets its own section
+   - Include code examples demonstrating the practice
+   - Explain the reasoning behind each recommendation
+   - Use Notice components to highlight important points
+
+3. **Related Information** (final paragraph)
+   - Link to instructional articles
+   - Link to related explanation articles
+
 #### 2.2.5 Writing Style
 
-**Start with the Definition**
+**Use Present Tense**
+
+Explanation articles describe how features work and what they do. Use present tense throughout.
+
+- ✅ **Good:** "A Collection is a group of related files..."
+- ✅ **Good:** "CloudCannon automatically detects your Collections..."
+- ✅ **Good:** "Your Collections appear in the Site Navigation..."
+- ❌ **Avoid:** "CloudCannon will detect..." (future tense)
+- ❌ **Avoid:** "Collections were designed to..." (past tense)
+
+**Opening Approach Varies by Article Type**
+
+For concept definition articles:
 - ✅ **Good:** "A Collection is a group of related files with a similar format."
 - ❌ **Avoid:** "When you're working in CloudCannon, you might wonder what Collections are."
 
+For context/benefits articles:
+- ✅ **Good:** "Rather than have a single CloudCannon Configuration File, you can split your configuration across multiple files. With a split Configuration File, you can organize your configuration more effectively, especially for larger sites or when working with shared configurations."
+- Explain the feature first, then move into benefits and use cases
+
+For best practice articles:
+- ✅ **Good:** "It is important to find the right balance between organization and maintainability when splitting your Site configuration across multiple Configuration Files. If you split your configuration too granularly, finding a specific configuration can be as difficult as if it were all in the same file."
+- ✅ **Good:** "Custom Permission Groups give you fine-grained control over the permissions in your Organizations. When creating a Custom Permission Group, there are some common pitfalls you can fall into. In this article, we will go over a few examples."
+- Set context about why best practices matter for this topic, or introduce the feature and then note potential issues
+
 **Use Examples**
 - Include concrete examples: "(e.g., a folder of pages, blog posts, or data files)"
+- For best practices, show code examples demonstrating both good and poor approaches
 
 **Show, Don't Just Tell**
 - Include screenshots for visual concepts
 - Use code examples for technical concepts
+- For best practices, include multiple examples showing different scenarios
 
 **Link to Practical Actions**
 - End with next steps: "For more information, please read our documentation on [configuring your Collections]."
+- Link to related instruction articles that show how to implement concepts
 
 ---
 
@@ -591,37 +938,61 @@ related_links: []
 Instruction articles provide step-by-step directions for completing specific tasks.
 
 #### 2.3.1 File Naming
-- Use action-oriented names: `add-a-file.mdx`, `configure-your-collections.mdx`
-- Start with a verb when possible
+
+The filename is the slugified version of the article title (lowercase, hyphens instead of spaces, no special characters).
+
+- Title: "Add a file" → Filename: `add-a-file.mdx`
+- Title: "Configure your collections" → Filename: `configure-your-collections.mdx`
+- Title: "Create a schema" → Filename: `create-a-schema.mdx`
 
 #### 2.3.2 Front Matter
 ```yaml
 ---
 _schema: default
 _uuid: [generated]
-_created_at: [generated]
-title: [Action-oriented Title]
-nav_title: [Shorter Version]
-published: true
-image: [URL to thumbnail]
-description: Learn how to [action] in CloudCannon.
-article_category:
-  - Instructions
-article_topic:
-  - [Relevant Topic]
-tags: []
-related_articles: []
-related_links: []
+_created_at: '[timestamp]'
+details:
+  title: [Action-oriented Title]
+  description: Learn how to [action] in CloudCannon.
+  image: >-
+    https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+  category:
+    - Instructions
+  related_articles:
+    - _type: developer_articles
+      item: [UUID of related article]
+author_notes:
+  docshots: Needs docshots
 ---
 ```
 
+**Notes:**
+- `_uuid` and `_created_at` are auto-generated by the CMS
+- `details` contains all the article metadata
+- `category` should always include "Instructions" for instruction articles
+- `related_articles` is an optional array (maximum of 3 items). Each item has:
+  - `_type`: The collection type (accepted values: `developer_articles`, `user_articles`, `developer_guides`, `user_guides`)
+  - `item`: UUID of the related article or guide
+- `author_notes.docshots` can be null, "Added!", "Needs docshots", or "Not applicable"
+
 #### 2.3.3 Title Patterns
+
+Use imperative mood (base form of verbs) for instruction article titles. This matches how users search for help — they search "add a file" not "adding a file".
+
 - "Add a [thing]"
 - "Configure [feature]"
 - "Create a [thing]"
 - "Enable [feature]"
 - "Connect [integration]"
 - "How to [action]"
+
+**Never use gerunds (-ing verbs):**
+- ❌ **Avoid:** "Adding a file"
+- ❌ **Avoid:** "Configuring your collections"
+- ❌ **Avoid:** "Creating a schema"
+- ✅ **Good:** "Add a file"
+- ✅ **Good:** "Configure your collections"
+- ✅ **Good:** "Create a schema"
 
 #### 2.3.4 Structure
 
@@ -630,9 +1001,11 @@ related_links: []
    - Provide context about when/why to do this
    - Link to related explanation articles if needed
 
-2. **Prerequisites** (optional, if needed)
+2. **Prerequisites**
    - List what must be done first
    - Link to prerequisite instructions
+   - Use the pattern: "Before we begin, this article assumes..."
+   - Example: "Before we begin, this article assumes you have already configured your Collections."
 
 3. **Main Instructions** (multiple sections)
    - Use clear subheadings for different methods or sections
@@ -646,34 +1019,42 @@ related_links: []
 
 #### 2.3.5 Writing Style
 
+**Use Present and Future Tense**
+
+Instruction articles describe actions to take and their immediate outcomes. Use present tense for general descriptions and imperative mood for steps. Use future tense ("will") to describe outcomes that follow user actions.
+
+- ✅ **Good (imperative for steps):** "Navigate to the location you want to create the file."
+- ✅ **Good (future for outcomes):** "CloudCannon will open a new file in an editing interface."
+- ✅ **Good (present for general descriptions):** "The Data Editor provides a simple way to manage structured data."
+- ❌ **Avoid:** "CloudCannon opened a new file..." (past tense)
+
 **Numbered Lists for Steps**
 - Use numbered lists for sequential actions
-- Start each step with an action verb
-- Keep steps concise (one action per step)
+- Start each step with an action verb (imperative mood)
+- Keep steps concise (one action per step, followed by an outcome sentence is applicable)
 
 **Example:**
 
 ```mdx
-To create a file in the collection browser:
+To upload a file or folder from the File Browser:
 
-1. Navigate to the location you want to create the file using the collection or File Browser.
-2. Click the *+ Add* button in the top right of the browser.
-3. Select the Schema or template you want to use.
+1. Navigate to the location where you want to upload the file in your File Browser.
+2. Click the *+ Add* button in the top right of the browser and select *Upload files* or *Upload a folder*.
+3. CloudCannon will open a local File Browser. Select the file or folder you want to upload.
+4. Review the files you want to upload in the *Confirm your files* modal.
+5. Click the *Confirm selection* button.
 
-CloudCannon will open a new file in an editing interface and save it to the location open in your collection browser.
+CloudCannon will upload your file or folder to the location open in your File Browser.
 ```
 
-**Bullet Points for Options**
-- Use bullet points for lists of options or features
-- Use bullet points for non-sequential information
-
 **Action Verbs**
-- Start instructions with clear action verbs:
+- Start instructions with clear action verbs (imperative mood):
   - Click, Select, Enter, Open, Navigate, Type, Upload, Choose, Enable, Configure
 
 **Describe Outcomes**
-- After steps, describe what happens
+- After steps, describe what happens using future tense ("will")
 - ✅ **Good:** "CloudCannon will open your file in the Data Editor."
+- ✅ **Good:** "CloudCannon will commit your Collection configuration to your Git repository."
 
 **Alternative Methods**
 - Use subheadings to separate different methods
@@ -690,47 +1071,72 @@ CloudCannon will open a new file in an editing interface and save it to the loca
 Guides are multi-page tutorials that walk users through a complete task or workflow.
 
 #### 2.4.1 File Structure
+
 - Each guide is a folder containing multiple MDX files
-- Include an `index.mdx` as the introduction
+- Include an `index.mdx` as the introduction (title is always "Introduction")
 - Include a `_data.yml` file with guide metadata
-- Name files descriptively: `create-a-site.mdx`, `configure-collections.mdx`
+- All other filenames are the slugified version of the page title (lowercase, hyphens instead of spaces, no special characters)
+  - Title: "Create a Site" → Filename: `create-a-site.mdx`
+  - Title: "Group files into Collections" → Filename: `group-files-into-collections.mdx`
 
 #### 2.4.2 Front Matter for index.mdx
 ```yaml
 ---
 _schema: default
 _uuid: [generated]
-_created_at: [generated]
-title: Introduction
-nav_title: Introduction
-order: 1
-published: true
-image: [guide thumbnail URL]
-description: >-
-  Brief description of what the guide will teach.
+_created_at: '[timestamp]'
+details:
+  title: Introduction
+  order: 1
+  image: >-
+    https://cc-dam.imgix.net/documentation/images/guides/getting-started/guide-thumbnails/CloudCannon-Getting-Started-Thumbnail-Universal.png
+  description: >-
+    Learn how to create a Site on CloudCannon and set up WYSIWYG editing for
+    your website files.
+  start_nav_group: null
+  related_articles: null
+author_notes:
+  docshots: null
 ---
 ```
+
+**Notes:**
+- Title is always "Introduction" for `index.mdx`
+- `order` is always `1` for the introduction
+- `start_nav_group` is always `null` for the introduction
+- `related_articles` is typically `null`
 
 #### 2.4.3 Front Matter for Guide Pages
 ```yaml
 ---
 _schema: default
 _uuid: [generated]
-_created_at: [generated]
-title: Descriptive Page Title
-nav_title: Shorter Nav Title
-order: [number]
-published: true
-image: [guide thumbnail URL]
-description: Brief description of this page.
+_created_at: '[timestamp]'
+details:
+  title: [Descriptive Page Title]
+  order: [number]
+  image: >-
+    https://cc-dam.imgix.net/documentation/images/guides/getting-started/guide-thumbnails/CloudCannon-Getting-Started-Thumbnail-Universal.png
+  description: Learn about [topic] and how to [action].
+  start_nav_group: null
+  related_articles: null
+author_notes:
+  docshots: null
 ---
 ```
+
+**Notes:**
+- All pages in a guide typically use the same thumbnail image
+- `order` determines the sequence of pages in the guide
+- `start_nav_group` creates a second heading in the navigation to group related pages:
+  - Use `start_nav_group: null` for pages that don't start a new section
+  - Use `start_nav_group: "Section Name"` (e.g., `"Advanced Bookshop"`) on the first page of a new conceptual section within the guide
+- `related_articles` is typically `null`
 
 #### 2.4.4 Order Property
 - Use the `order` property to sequence pages
 - Start with `1` for the introduction
 - Number sequentially: `1, 2, 3, 4...`
-- Leave gaps if you might add pages later: `1, 5, 10, 15...`
 
 #### 2.4.5 Structure for Introduction (index.mdx)
 
@@ -745,6 +1151,8 @@ description: Brief description of this page.
 3. **Prerequisites** (optional)
    - State what readers need before starting
    - Link to prerequisite guides or documentation
+   - Use the pattern: "Before we begin, this guide assumes..."
+   - Example: "Before we begin, this guide assumes you already have a website and your files are uploaded to a Git repository."
 
 #### 2.4.6 Structure for Guide Pages
 
@@ -1117,7 +1525,11 @@ prohibited_phrases:
 voice_and_tense:
   voice: "active"
   person: "second"
-  tense: "present"
+  tense:
+    articles: "present"
+    instruction_steps: "imperative"
+    instruction_outcomes: "future"
+    changelogs: "past"
   contractions: "allowed"
 
 formatting_rules:
@@ -1144,51 +1556,97 @@ formatting_rules:
         - "Each Collection in your Site..."
 
 documentation_types:
+  # CloudCannon uses a modified Diátaxis framework with the following types:
+  # - Explanation (understanding-oriented)
+  # - Instructions (task-oriented, like "how-to guides")
+  # - Guides (learning-oriented, like "tutorials")
+  # - Glossary (reference)
+  # - Changelogs (informational, not part of traditional Diátaxis)
+  
   changelog:
-    filename_pattern: "YYYY-MM-DD_descriptive-title.mdx"
+    diataxis_category: "informational"
+    purpose: "Document product changes and updates over time"
+    filename_pattern: "MM-DD_descriptive-title.mdx within changelogs/YYYY/"
     required_front_matter:
       - "_schema"
       - "title"
     required_sections:
       - "Features & Improvements"
       - "Fixes"
-    tense:
-      features: "present"
-      fixes: "past"
+    tense: "past"
+    preferred_verbs:
+      - "Added"
+      - "Changed"
+      - "Improved"
+      - "Removed"
+      - "Fixed"
   
   explanation:
-    filename_pattern: "what-is-*.mdx"
-    title_pattern: "What is|What are"
+    diataxis_category: "understanding-oriented"
+    purpose: "Help users understand concepts, features, context, and best practices"
+    filename_patterns:
+      concept_definition: "what-is-*.mdx"
+      context_benefits: "why-*.mdx"
+      best_practices: "best-practice-*.mdx | best-practices-*.mdx"
+    title_patterns:
+      concept_definition: "What is|What are"
+      context_benefits: "Why [action/feature]"
+      best_practices: "Best practice for|Best practices for"
     required_front_matter:
-      - "_schema"
-      - "title"
-      - "nav_title"
-      - "published"
-      - "image"
-      - "description"
-      - "article_category: [Explanation]"
-      - "article_topic"
-    required_sections:
-      - "Opening definition"
-      - "Context and purpose"
-      - "Features and functionality"
+      - "_schema: default"
+      - "_uuid: [auto-generated UUID]"
+      - "_created_at: [auto-generated timestamp]"
+      - "details.title"
+      - "details.description"
+      - "details.image"
+      - "details.category: [Explanation]"
+      - "details.related_articles: [optional array, max 3 items]"
+      - "author_notes.docshots: [null or status note]"
+    related_articles_structure:
+      max_items: 3
+      _type: ["developer_articles", "user_articles", "developer_guides", "user_guides"]
+      item: "[UUID of related article]"
+    structure_varies_by_type:
+      concept_definition:
+        - "Opening definition"
+        - "Context and purpose"
+        - "Features and functionality"
+        - "Related information"
+      context_benefits:
+        - "Introduction"
+        - "Benefits and use cases"
+        - "How it works (optional)"
+        - "Limitations (optional)"
+        - "Related information"
+      best_practices:
+        - "Introduction"
+        - "Best practices (multiple sections)"
+        - "Related information"
   
   guide:
+    diataxis_category: "learning-oriented"
+    purpose: "Provide hands-on learning experiences through complete workflows"
     filename_pattern: "[descriptive-name].mdx"
     required_files:
       - "index.mdx"
       - "_data.yml"
     required_front_matter:
-      - "_schema"
-      - "title"
-      - "nav_title"
-      - "order"
-      - "published"
-      - "image"
-      - "description"
+      - "_schema: default"
+      - "_uuid: [auto-generated UUID]"
+      - "_created_at: [auto-generated timestamp]"
+      - "details.title"
+      - "details.order"
+      - "details.image"
+      - "details.description"
+      - "details.start_nav_group: [null or section name string to group pages]"
+      - "details.related_articles: [typically null]"
+      - "author_notes.docshots: [null or status note]"
     index_title: "Introduction"
+    note: "Guides use nested 'details' structure like articles"
   
   instructions:
+    diataxis_category: "task-oriented"
+    purpose: "Provide step-by-step guidance for specific tasks"
     filename_pattern: "[action-verb]-*.mdx"
     title_patterns:
       - "Add a [thing]"
@@ -1196,17 +1654,24 @@ documentation_types:
       - "Create a [thing]"
       - "How to [action]"
     required_front_matter:
-      - "_schema"
-      - "title"
-      - "nav_title"
-      - "published"
-      - "image"
-      - "description"
-      - "article_category: [Instructions]"
-      - "article_topic"
+      - "_schema: default"
+      - "_uuid: [auto-generated UUID]"
+      - "_created_at: [auto-generated timestamp]"
+      - "details.title"
+      - "details.description"
+      - "details.image"
+      - "details.category: [Instructions]"
+      - "details.related_articles: [optional array, max 3 items]"
+      - "author_notes.docshots: [null or status note]"
+    related_articles_structure:
+      max_items: 3
+      _type: ["developer_articles", "user_articles", "developer_guides", "user_guides"]
+      item: "[UUID of related article]"
     step_format: "numbered_list"
   
   glossary:
+    diataxis_category: "reference"
+    purpose: "Provide quick lookup of terminology and definitions"
     filename_pattern: "[first-letter]/[term-name].yml"
     location: "user/glossary/"
     required_fields:
@@ -1347,6 +1812,21 @@ components:
       - "language"
       - "translate_into"
       - "source"
+    use_cases:
+      - "CloudCannon configuration files"
+      - "Input configuration examples"
+      - "Any config users can write in YAML or JSON"
+  
+  codeblock:
+    usage: "File content examples in a single format"
+    required_attributes:
+      - "language"
+      - "source"
+    use_cases:
+      - "HTML files"
+      - "Markdown files"
+      - "JavaScript files"
+      - "Any single-format file content"
 
 validation_rules:
   check_for:
@@ -1361,6 +1841,7 @@ validation_rules:
     - "changelog_fixes_present_tense"
     - "instructions_without_numbered_steps"
     - "explanation_without_opening_definition"
+    - "plain_code_blocks_instead_of_components"
   
   ignore:
     - "Passive voice in: changelog features, technical descriptions"
