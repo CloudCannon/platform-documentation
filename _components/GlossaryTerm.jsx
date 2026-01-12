@@ -1,6 +1,6 @@
 
 export default function ({comp, term, children}, helpers) {
-  const content = helpers.get_glossary_term(term);
+  const content = `<h3>children</h3>${helpers.get_glossary_term(term)}`;
 
   return (
     <span
