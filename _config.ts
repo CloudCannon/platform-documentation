@@ -420,7 +420,7 @@ site.filter("get_by_uuid", (resources, uuid) => {
     let found = resources.filter(x => x._uuid === uuid)
     if(found && found.length > 0)
         return found[0]
-    return []
+    return null
 })
 
 site.filter('is_gid_inside', (gid, parentGid) =>
@@ -560,9 +560,11 @@ site.filter("render_common", (file: string, data: object = {}) => {
 })
 
 site.filter("get_glossary_term", (file: string) => {
+    const mdFilter = site.renderer.helpers.get('md')[0];
     const file_content = Deno.readTextFileSync(`${file.slice(1)}`);
     let yml = jsYaml.load(file_content)
-    return yml.term_description;
+    const description = mdFilter(yml.term_description)
+    return description;
 })
 
 site.filter("get_index_page", (page: string) => {
