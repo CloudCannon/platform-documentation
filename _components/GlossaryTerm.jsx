@@ -1,7 +1,6 @@
 
 export default function ({comp, term, children}, helpers) {
   const content = helpers.get_glossary_term(term);
-  console.log(content)
 
   return (
     <span
@@ -14,7 +13,7 @@ export default function ({comp, term, children}, helpers) {
             rect.left + window.scrollX + 'px';
         } 
       }"
-      x-on:mouseover="console.log('HERE!');tooltipopen = true; $nextTick(() => update())"
+      x-on:mouseover="tooltipopen = true; $nextTick(() => update())"
       x-on:mouseout="tooltipopen = false"
       class="glossary-term-highlight"
     >
@@ -27,7 +26,6 @@ export default function ({comp, term, children}, helpers) {
           class="term-definition"
           x-ref="tooltip"
         >
-          {/* this can contain <p>, <ul>, whatever */}
           <div dangerouslySetInnerHTML={{ __html: content }} />
         </div>
       </template>

@@ -563,7 +563,7 @@ site.filter("get_glossary_term", (file: string) => {
     const mdFilter = site.renderer.helpers.get('md')[0];
     const file_content = Deno.readTextFileSync(`${file.slice(1)}`);
     let yml = jsYaml.load(file_content)
-    const description = mdFilter(yml.term_description)
+    const description = `<h3>Glossary Term</h3>${mdFilter(yml.term_description)}`
     return description;
 })
 
