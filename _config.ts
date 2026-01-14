@@ -46,6 +46,8 @@ import "./_config/prism-tree.js";
 import "./_config/prism-annotated.js";
 
 import { DOMParser } from "https://deno.land/x/deno_dom@v0.1.38/deno-dom-wasm.ts";
+import { join } from "https://deno.land/std/path/mod.ts";
+
 //import { Page } from "lume/core.ts";
 import { Element, Node } from "lume/deps/dom.ts";
 import { extract } from "lume/deps/front_matter.ts";
@@ -343,7 +345,7 @@ site.process([".html"], (pages) => Promise.all(pages.map(async (page) => {
     }
 
     let hasItems = false;
-    let selector = `main h1, main h2`;
+    let selector = `main h1:not(.exclude-from-toc), main h2:not(.exclude-from-toc)`;
     
     if(!tocContainer){
         tocContainer = page.document?.querySelectorAll(`.l-toc-changelog-list`)?.[0];
@@ -418,7 +420,7 @@ site.filter("get_by_uuid", (resources, uuid) => {
     let found = resources.filter(x => x._uuid === uuid)
     if(found && found.length > 0)
         return found[0]
-    return []
+    return null
 })
 
 site.filter('is_gid_inside', (gid, parentGid) =>
@@ -462,7 +464,13 @@ site.filter('parent_gids_from_doc', (doc) => {
 });
 
 site.filter("get_by_letter", async (resources, letter) => {
-    const dir = `user/glossary/${letter}`;
+    //const dir = `user/glossary/${letter}`;
+    const dir = join(
+        Deno.cwd(),
+        "user",
+        "glossary",
+        letter.toLowerCase(),
+    );
     let entries = [];
     try {
         for await(const entry of Deno.readDir(dir)){
@@ -474,6 +482,7 @@ site.filter("get_by_letter", async (resources, letter) => {
     } catch (error) {
         // Directory doesn't exist, return empty array
         if (error instanceof Deno.errors.NotFound) {
+            console.log("Directory doesn't exist, return empty array");
             return [];
         }
         throw error; // Re-throw other errors
@@ -551,9 +560,11 @@ site.filter("render_common", (file: string, data: object = {}) => {
 })
 
 site.filter("get_glossary_term", (file: string) => {
+    const mdFilter = site.renderer.helpers.get('md')[0];
     const file_content = Deno.readTextFileSync(`${file.slice(1)}`);
     let yml = jsYaml.load(file_content)
-    return yml.term_description;
+    const description = `<h3>Glossary Term</h3>${mdFilter(yml.term_description)}`
+    return description;
 })
 
 site.filter("get_index_page", (page: string) => {

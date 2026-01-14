@@ -11,12 +11,18 @@
                 </button>
             </div>
 
-        <ol class="t-docs-nav__main-list glossary">
+        <ol class="t-docs-nav__main-list glossary" x-data="{ active: window.location.hash || '#a' }"
+        x-init="
+            window.addEventListener('hashchange', () => {
+                active = window.location.hash
+            })
+        ">
             {% set letters = all_letters() %}
             
             {% for letter in letters %}
                 <li class="t-docs-nav__main-list__item glossary-nav" >
-                    <a class="cc-helper__button {% if url == "/documentation/user-glossary/"+letter+"/" %}selected{% endif %}" href="/documentation/user-glossary#{{ letter }}/">
+                    <a class="cc-helper__button"
+                    :class="{ 'selected': active === '#{{ letter | lower }}' }" href="/documentation/user-glossary/#{{ letter | lower }}">
                         {{ letter }}
                     </a>
                 </li>
