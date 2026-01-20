@@ -17,7 +17,7 @@ Alpine.magic('visibleNavHighlighter', (el, { Alpine }) => ({
 
     init() {
       this.$nextTick(() => {
-        this.headings = document.querySelectorAll('main h2, main h3')
+        this.headings = document.querySelectorAll('main h2')
         this.assignHeadingIds()
         this.onScroll()
       })
@@ -49,6 +49,7 @@ Alpine.magic('visibleNavHighlighter', (el, { Alpine }) => ({
         if (closestNegativeTop >= 0 || [Infinity, NaN, -Infinity].includes(closestNegativeTop)) return this.visibleHeadingId = null
 
         this.visibleHeadingId = headingsByDistanceFromTop[closestNegativeTop].id
+        console.log(this.visibleHeadingId)
     },
 }))
 
