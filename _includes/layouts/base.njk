@@ -86,19 +86,43 @@
 </head>
 
 <body x-cloak
- x-init="mobiledocnav = $refs.mobiledocnav"
+ x-init="mobiledocnav = $refs.mobiledocnav;init()"
  x-data="{'isModalOpen': false, 
     'isMainNavOpen': false, 
     'isPageNavOpen': false, 
     'showmobilenav': false,
-    darkMode: localStorage.getItem('cc_darkMode') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')}" 
+    darkMode: localStorage.getItem('cc_darkMode') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'),
+    ...$layoutOffsets
+    }" 
       @keydown.escape="isModalOpen=false; $focusSearch(isModalOpen);"
       @keydown.window.prevent.ctrl.k="isModalOpen=!isModalOpen; $focusSearch(isModalOpen);"
       @keydown.window.prevent.cmd.k="isModalOpen=!isModalOpen; $focusSearch(isModalOpen);"
-      :class="darkMode == 'dark' ? 'dark' : ''">
+      :class="darkMode == 'dark' ? 'dark' : ''"
+      
+  @scroll.window="updateOffset()">
     {% if headingnav.banner_html %}
-      <div class="l-banner">
-        <div class="l-banner__inner">{{ headingnav.banner_html | safe }}</div>
+      <script>
+        let announcementBannerOpen = sessionStorage.getItem("announcementBannerOpenDocs") ? JSON.parse(sessionStorage.getItem("announcementBannerOpenDocs")) : true;
+        var root = document.documentElement;
+        if(!announcementBannerOpen)
+            root.style.setProperty('--announcementBanner', 'none');
+        else
+            root.style.setProperty('--announcementBanner', 'flex');
+    </script>
+      <div class="l-banner" x-ref="announcement" style="display: var(--announcementBanner);">
+        <div class="l-banner__inner">
+            <div>{{ headingnav.banner_html | safe }}</div>
+            <button aria-label="close announcement banner"
+            @click="sessionStorage.setItem('announcementBannerOpenDocs', false);
+                    document.querySelector('.l-banner').style.display = 'none';">
+                <div class="flex items-center">
+                    <div class="inner-cross">
+                        <span></span>
+                        <span></span>
+                    </div> 	
+                </div>
+            </button>
+        </div>
       </div>
     {% endif %}
     
