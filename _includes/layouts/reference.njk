@@ -27,7 +27,49 @@ layout: layouts/base.njk
                 <div class="l-toc__list" :class="toc_open ? 'open' : ''"></div>
                 <!-- "On this page" -->
             </div>
-            
+            <div data-pagefind-body data-pagefind-filter="site:Documentation" data-pagefind-meta="site:Documentation" class="l-content-split">
+                <main>
+                    <dl>
+                      {% if key %}
+                        <dt>Key:</dt>
+                        <dd><code>{{ key }}</code></dd>
+                      {% endif %}
+
+                      {% if full_key %}
+                        <dt>Full key:</dt>
+                        <dd><code>{{ full_key }}</code></dd>
+                      {% endif %}
+
+                      <dt {% if not description %} class="show-in-cms"{% endif %}>Description:</dt>
+                      <dd
+                      >{% if description %}{{ description | md | safe }}{% endif %}</dd>
+
+                      
+                    </dl>
+                  {% from 'array.njk' import array with context %}
+                  {% from 'object.njk' import objectMacro with context %}
+                  {% from 'any-of.njk' import anyOf with context %}
+                  {% from 'doc-summary.njk' import summary with context %}
+                  {% if entry.type == "array" %}
+                    {{ array(entry) }}
+                  {% elif entry.type == "object" %}
+                    {{ objectMacro(entry) }}
+                  {% elif entry.anyOf | length %}
+                    {{ anyOf(entry) }}
+                  {% endif %}
+
+                  <dt {% if not examples | length %} class="show-in-cms"{% endif %}>Examples:</dt>
+                  {% for example in examples %}
+                    <div>{{ example.description | md | safe }}</div>
+                    <pre><code>{{ example.code }}</code></pre>
+                  {% endfor %}
+                </main>
+                <aside data-pagefind-ignore class="l-right">
+                    <div class="l-toc" x-on:scroll.window.throttle.50ms="onScroll()">
+                        <!-- "On this page" -->
+                    </div>
+                </aside>
+            </div>
 
 
         </div>
