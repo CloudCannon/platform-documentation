@@ -15,18 +15,18 @@
         <ol class="t-docs-nav__main-list">
             <li class="t-docs-nav__main-list__item">
                 {% set index_page = url | get_index_page %}
-                <a class="t-docs-nav__main-list__item__heading-group t-docs-nav__sub-list__article {% if page.data._uuid == index_page.attrs._uuid %}is-active{% endif %}"  href="{{ index_page.url }}">
-                    
-                    {% set icon = "home:outlined" %}
-                    <img src="{{ icon | icon("material") }}" inline>
-                    
+                <a class="t-docs-nav__main-list__item__heading-group t-docs-nav__sub-list__article {% if page.data._uuid == index_page.attrs._uuid %}nav-open{% endif %}" :class="navOpen ? 'nav-open' : ''" href="{{ index_page.url }}">
+                    {% if url != "/documentation/developer-reference/" %}
+                        {% set icon = "home:outlined" %}
+                        <img src="{{ icon | icon("material") }}" inline>
+                    {% endif %}
                     <span class="t-docs-nav__main-list__item__heading">{{ index_page.attrs.details.title }}</span>
                 </a>
             </li>
             {% for block in navigation.headings | bubble_up_nav %}
-                <li class="t-docs-nav__main-list__item" x-data="{ navOpen: {{ page.data._uuid in block._bubbled }}, isActive: {{ page.data._uuid in block._bubbled }} }">
+                <li class="t-docs-nav__main-list__item" x-data="{ navOpen: {{ page.data._uuid in block._bubbled }} }">
                     {% if not block.heading_hidden %}
-                        <div class="t-docs-nav__main-list__item__heading-group {% if page.data._uuid in block._bubbled %}nav-open{% endif %} {% if page.data._uuid in block._bubbled %}is-active{% endif %}" :class="navOpen ? 'nav-open' : ''" @click="navOpen = !navOpen">
+                        <div class="t-docs-nav__main-list__item__heading-group {% if page.data._uuid in block._bubbled %}nav-open{% endif %}" :class="navOpen ? 'nav-open' : ''" @click="navOpen = !navOpen">
                             {% if block.icon %}
                                 {% set icon = block.icon + ":outlined" %}
                                 <img src="{{ icon | icon("material") }}" inline>
@@ -52,7 +52,6 @@
                 {% if item._type == "group" %}
                     <li>
                         <details {% if page.data._uuid in item._bubbled %}open{% endif %}
-                        class="{% if page.data._uuid in item._bubbled %}nav-open{% endif %} {% if page.data._uuid in item._bubbled %}is-active{% endif %}"
                         @click="$setNavMemory?.()">
                             <summary class="t-docs-nav__sub-list__heading">
                                 {{ item.name }}
@@ -63,8 +62,7 @@
                     </li>
                 {% else %}
                     {% for article in item.articles %}
-                    
-                        {% set article_page = search.page("_uuid="+article) %}
+                        {% set article_page = search.page("gid="+article) %}
                         
                         {% if article_page %}
                         <li>
@@ -72,7 +70,7 @@
                                 {% if article_page.url == url %} aria-current="page"{% endif %}
                                 href="{{ article_page.url }}"
                                 @click="$setNavMemory?.()">
-                                {{ article_page.page.data.details.title }}
+                                {{ article_page.page.data.title }}
                             </a>
                         </li>
                         {% endif %}
