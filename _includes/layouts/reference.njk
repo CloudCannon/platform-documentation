@@ -6,15 +6,15 @@ layout: layouts/base.njk
         <aside class="l-left" x-data="{
             more: true
         }">
-            {% from 'nav-item.njk' import navItem with context %}
-            {% from 'nav/object.njk' import objectNav with context %}
-            {% from 'nav/any-of.njk' import anyOfNav with context %}
-            {% from 'doc-type.njk' import docType with context %}
-            {% from 'doc-type-nested.njk' import docTypeNested with context %}
-            {% from 'doc-summary.njk' import summary with context %}
-            {% import "referencenav.njk" as referencenav with context %}
-            
-            
+            {% import "docnav-developer-reference.njk" as docnav with context %}
+            {% set url = page.data.url | replace("/documentation/", "") %}
+            {% set url = url.split("/") %}
+
+            {{ docnav.nav(navigation[url[0]]) }}
+
+            <template x-teleport="#mobile-docnav">
+                {{ docnav.nav(navigation[url[0]]) }}
+            </template>
         </aside>
         {% set url = page.data.url | replace("/documentation/", "") %}
         {% set url = url.split("/") %}
@@ -27,86 +27,7 @@ layout: layouts/base.njk
                 <div class="l-toc__list" :class="toc_open ? 'open' : ''"></div>
                 <!-- "On this page" -->
             </div>
-            <div data-pagefind-body data-pagefind-filter="site:Documentation" data-pagefind-meta="site:Documentation" class="l-content-split">
-                <main>
-                    <dl>
-                      {% if key %}
-                        <dt>Key:</dt>
-                        <dd><code>{{ key }}</code></dd>
-                      {% endif %}
-
-                      {% if full_key %}
-                        <dt>Full key:</dt>
-                        <dd><code>{{ full_key }}</code></dd>
-                      {% endif %}
-
-                      <dt {% if not description %} class="show-in-cms"{% endif %}>Description:</dt>
-                      <dd
-                      >{% if description %}{{ description | md | safe }}{% endif %}</dd>
-
-                      {% if not entry.anyOf | length %}
-                        <dt>Type:</dt>
-                        <dd>
-                          <code>
-                            {{- docType(entry) -}}
-                          </code>
-                          {%- if entry.required -%}
-                            <small style="color: red;">(Required)</small>
-                          {%- endif -%}
-                        </dd>
-                      {% endif %}
-
-                      {% set parent = entry.parent | get_docs_by_gid %}
-                      {% if entry.appears_in | length or parent %}
-                        <dt>Appears in:</dt>
-                        {% if parent %}
-                          <dd><a href="/documentation/developer-reference{{ parent.url }}"><code>{{ parent.url }}</code></a></dd>
-                        {% endif %}
-
-                        {% if entry.appears_in | length %}
-                          {% for appearsInGid in entry.appears_in %}
-                            {% set appearsInDoc = appearsInGid | get_docs_by_gid %}
-                            <dd><a href="/documentation/developer-reference{{ appearsInDoc.url }}"><code>{{ appearsInDoc.url }}</code></a></dd>
-                          {% endfor %}
-                        {% endif %}
-                      {% endif %}
-
-                      {% if entry.default %}
-                        <dt>Default value:</dt>
-                        <dd><code>{{ entry.default }}</code></dd>
-                      {% endif %}
-
-                      {% if entry.enum | length %}
-                        <dt>Allowed values:</dt>
-                        {% for value in entry.enum %}
-                          <dd><code>{{ value }}</code></dd>
-                        {% endfor %}
-                      {% endif %}
-                    </dl>
-                  {% from 'array.njk' import array with context %}
-                  {% from 'object.njk' import objectMacro with context %}
-                  {% from 'any-of.njk' import anyOf with context %}
-                  {% from 'doc-summary.njk' import summary with context %}
-                  {% if entry.type == "array" %}
-                    {{ array(entry) }}
-                  {% elif entry.type == "object" %}
-                    {{ objectMacro(entry) }}
-                  {% elif entry.anyOf | length %}
-                    {{ anyOf(entry) }}
-                  {% endif %}
-
-                  <dt {% if not examples | length %} class="show-in-cms"{% endif %}>Examples:</dt>
-                  {% for example in examples %}
-                    <div>{{ example.description | md | safe }}</div>
-                    <pre><code>{{ example.code }}</code></pre>
-                  {% endfor %}
-                </main>
-                <aside data-pagefind-ignore class="l-right">
-                    <div class="l-toc" x-on:scroll.window.throttle.50ms="onScroll()">
-                        <!-- "On this page" -->
-                    </div>
-                </aside>
-            </div>
+            
 
 
         </div>
