@@ -162,5 +162,34 @@ Alpine.magic("focusNav", () => {
   };
 });
 
+Alpine.magic('layoutOffsets', () => ({
+  headerHeight: 64,
+  announcementHeight: 0,
+
+  init() {
+    this.$nextTick(() => {
+      this.measure()
+      this.updateOffset()
+    })
+  },
+
+  measure() {
+    this.announcementHeight = this.$refs.announcement ? this.$refs.announcement.offsetHeight : 0
+  },
+
+  updateOffset() {
+    const scrolled = window.scrollY
+
+    const visibleAnnouncement = Math.max(
+      this.announcementHeight - scrolled,
+      0
+    )
+    const offset = this.headerHeight + visibleAnnouncement
+
+    document.documentElement.style
+      .setProperty('--offset-height', `${offset}px`)
+  }
+}));
+
 window.Alpine = Alpine;
 Alpine.start();

@@ -159,8 +159,8 @@ site.use(sitemap({
 site.loadPages([".md"], (page) => {
   if (page.src.path.startsWith("user/glossary/")) {
     page.data.collection = "glossary";
-  }
-});
+}});
+
 
 // JSX doesn't like to output some alpine attributes,
 // so we write them with an `alpine` prefix and re-map them here.
