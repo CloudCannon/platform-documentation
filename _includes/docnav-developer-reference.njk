@@ -22,9 +22,10 @@
                 </a>
             </li>
             {% for block in navigation.headings | bubble_up_nav %}
-                <li class="t-docs-nav__main-list__item" x-data="{ navOpen: {{ page.data._uuid in block._bubbled }}, isActive: {{ page.data._uuid in block._bubbled }} }">
+                {% set bool = (page.data._uuid in block._bubbled) or (entry is defined and entry.gid and block.configuration_types_documentation) %}
+                <li class="t-docs-nav__main-list__item" x-data="{ navOpen: {{ bool }}, isActive: {{ bool }} }">
                     {% if not block.heading_hidden %}
-                        <div class="t-docs-nav__main-list__item__heading-group {% if page.data._uuid in block._bubbled %}nav-open{% endif %} {% if page.data._uuid in block._bubbled %}is-active{% endif %}" :class="navOpen ? 'nav-open' : ''" @click="navOpen = !navOpen">
+                        <div class="t-docs-nav__main-list__item__heading-group {% if bool %}is-active{% endif %}" :class="navOpen ? 'nav-open' : ''" @click="navOpen = !navOpen">
                             {% if block.icon %}
                                 {% set icon = block.icon + ":outlined" %}
                                 <img src="{{ icon | icon("material") }}" inline>
@@ -46,38 +47,44 @@
 {% endmacro %}
 
 {% macro subnav(block) %}
-    {% if block.items | length %}
-        <ol class="t-docs-nav__sub-list">
-            {% for item in block.items %}
-                {% if item._type == "group" %}
-                    <li>
-                        <details {% if page.data._uuid in item._bubbled %}open{% endif %}
-                        class="{% if page.data._uuid in item._bubbled %}nav-open{% endif %} {% if page.data._uuid in item._bubbled %}is-active{% endif %}"
-                        @click="$setNavMemory?.()">
-                            <summary class="t-docs-nav__sub-list__heading">
-                                {{ item.name }}
-                                <img src="{{ "chevron_right:outlined" | icon("material") }}" inline>
-                            </summary>
-                            {{ subnav(item) }}
-                        </details>
-                    </li>
-                {% else %}
-                    {% for article in item.articles %}
-                        {% set article_page = search.page("_uuid="+article) %}
-                        
-                        {% if article_page %}
+    {% if block.configuration_types_documentation %}
+        {% from 'referencenav.njk' import nav with context %}
+
+        {{ nav(block, full_docs) }}
+    {% else %}
+        {% if block.items | length %}
+            <ol class="t-docs-nav__sub-list">
+                {% for item in block.items %}
+                    {% if item._type == "group" %}
                         <li>
-                            <a class="t-docs-nav__sub-list__article"
-                                {% if article_page.url == url %} aria-current="page"{% endif %}
-                                href="{{ article_page.url }}"
-                                @click="$setNavMemory?.()">
-                                {{ article_page.page.data.title }}
-                            </a>
+                            <details {% if page.data._uuid in item._bubbled %}open{% endif %}
+                            class="{% if page.data._uuid in item._bubbled %}nav-open{% endif %} {% if page.data._uuid in item._bubbled %}is-active{% endif %}"
+                            @click="$setNavMemory?.()">
+                                <summary class="t-docs-nav__sub-list__heading">
+                                    {{ item.name }}
+                                    <img src="{{ "chevron_right:outlined" | icon("material") }}" inline>
+                                </summary>
+                                {{ subnav(item) }}
+                            </details>
                         </li>
-                        {% endif %}
-                    {% endfor %}
-                {% endif %}
-            {% endfor %}
-        </ol>
+                    {% else %}
+                        {% for article in item.articles %}
+                            {% set article_page = search.page("_uuid="+article) %}
+                            
+                            {% if article_page %}
+                            <li>
+                                <a class="t-docs-nav__sub-list__article"
+                                    {% if article_page.url == url %} aria-current="page"{% endif %}
+                                    href="{{ article_page.url }}"
+                                    @click="$setNavMemory?.()">
+                                    {{ article_page.page.data.title }}
+                                </a>
+                            </li>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                {% endfor %}
+            </ol>
+        {% endif %}
     {% endif %}
 {% endmacro %}
