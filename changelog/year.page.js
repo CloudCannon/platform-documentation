@@ -26,9 +26,10 @@ export default function* ({ search }) {
     yearMap.get(month).push(entry);
   }
 
-  // Find the oldest year
-  const years = Array.from(changelogsByYear.keys());
-  const oldestYear = Math.min(...years);
+  // Sort years and find oldest/newest
+  const years = Array.from(changelogsByYear.keys()).sort((a, b) => b - a);
+  const newestYear = years[0];
+  const oldestYear = years[years.length - 1];
 
   // Generate a page for each year
   for (const [year, monthsMap] of changelogsByYear.entries()) {
@@ -45,6 +46,10 @@ export default function* ({ search }) {
         };
       });
 
+    // Find the previous year (if any)
+    const yearIndex = years.indexOf(year);
+    const previousYear = yearIndex < years.length - 1 ? years[yearIndex + 1] : null;
+
     yield {
       url: `/changelog/${year}/`,
       data: {
@@ -52,6 +57,8 @@ export default function* ({ search }) {
         year,
         months,
         isOldestYear: year === oldestYear,
+        isNewestYear: year === newestYear,
+        previousYear,
       },
     };
   }
