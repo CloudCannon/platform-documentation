@@ -2,12 +2,12 @@ export const layout = "layouts/changelog-list.njk";
 import { parseChangelogFilename } from "./parseChangelogFilename.ts";
 
 export default function* ({ search }) {
-  // Correct method in Lume v3
-  const entries = search.pages("new_changelogs");
+  // Search by URL pattern - pages in new_changelogs folder
+  const entries = search.pages("url^=/documentation/changelog/");
 
   // Sort newest first
   const sorted = entries.sort(
-    (a, b) => parseChangelogFilename(b.src.path) - parseChangelogFilename(a.src.path)
+    (a, b) => parseChangelogFilename(b.page.src.path) - parseChangelogFilename(a.page.src.path)
   );
 
   const recent = sorted.slice(0, 3);
