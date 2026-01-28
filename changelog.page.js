@@ -12,11 +12,17 @@ export default function* ({ search }) {
 
   const recent = sorted.slice(0, 3);
 
+  // Find the newest year from the results
+  const newestYear = recent.length > 0 
+    ? new Date(recent[0].date).getFullYear() 
+    : new Date().getFullYear();
+
   yield {
     url: "/changelog/",
     data: {
       title: "Changelog",
       results: recent,
+      newestYear,
     },
   };
 }
