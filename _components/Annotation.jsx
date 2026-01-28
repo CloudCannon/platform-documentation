@@ -1,4 +1,4 @@
-export default function ({comp, number, children}) {
+export default function ({number, children}) {
     return (
         <div 
             className="c-annotation" 

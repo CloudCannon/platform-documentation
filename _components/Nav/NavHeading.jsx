@@ -21,6 +21,7 @@ export default function NavHeading({
             {icon}
             <h2>{title}</h2>
             <button 
+                type="button"
                 className="t-docs-nav__control" 
                 x-on:click="isPageNavOpen = true; $focusNav(true);" 
                 x-show="!isPageNavOpen" 
@@ -29,6 +30,7 @@ export default function NavHeading({
                 <img src="/assets/img/expand.svg" inline="true" />
             </button>
             <button 
+                type="button"
                 className="t-docs-nav__control" 
                 x-on:click="isPageNavOpen = false; $focusNav(false);" 
                 x-show="isPageNavOpen" 

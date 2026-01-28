@@ -13,8 +13,7 @@
 export default function NavWrapper({ 
     children, 
     id = "t-docs-nav", 
-    className = "",
-    withGradients = false
+    className = ""
 }) {
     const baseClass = "t-docs-nav";
     

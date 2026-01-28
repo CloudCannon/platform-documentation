@@ -1,4 +1,4 @@
-export default function NotFoundLayout(props, helpers) {
+export default function NotFoundLayout() {
     return (
         <div className="l-page">
             <div className="l-column">
@@ -9,7 +9,7 @@ export default function NotFoundLayout(props, helpers) {
                                 <h1 className="l-heading l-center-heading" data-skip-anchor="">Page not found</h1>
                                 <p style={{ textAlign: 'center' }}>We couldn't find the page you were looking for. It either doesn't exist or has been moved.</p>
 
-                                <button x-on:click="isModalOpen = true; $focusSearch(true);" className="c-faux-search" title="Search">
+                                <button type="button" x-on:click="isModalOpen = true; $focusSearch(true);" className="c-faux-search" title="Search">
                                     <img src="/assets/img/search.svg" inline="true" />
                                     <span className="c-faux-search--text">Search</span>
                                     <span x-show="$platformMac" className="c-faux-search--shortcut">⌘ K</span>

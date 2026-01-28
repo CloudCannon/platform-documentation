@@ -11,7 +11,7 @@ Alpine.plugin(intersect);
 Alpine.plugin(focus);
 
 
-Alpine.magic('visibleNavHighlighter', (el, { Alpine }) => ({
+Alpine.magic('visibleNavHighlighter', (_el, { Alpine: _Alpine }) => ({
     headings: undefined,
     visibleHeadingId: null,
 
@@ -32,9 +32,9 @@ Alpine.magic('visibleNavHighlighter', (el, { Alpine }) => ({
     },
 
     onScroll() {
-        let relativeTop = globalThis.innerHeight / 2
+        const relativeTop = globalThis.innerHeight / 2
 
-        let headingsByDistanceFromTop = {}
+        const headingsByDistanceFromTop = {}
 
         this.headings.forEach(heading => {
             //console.log(heading,heading.getBoundingClientRect(),relativeTop)
@@ -43,7 +43,7 @@ Alpine.magic('visibleNavHighlighter', (el, { Alpine }) => ({
 
         //console.log(headingsByDistanceFromTop)
 
-        let closestNegativeTop = Math.max(...Object.keys(headingsByDistanceFromTop).filter(top => top < 0))
+        const closestNegativeTop = Math.max(...Object.keys(headingsByDistanceFromTop).filter(top => top < 0))
 
 
         if (closestNegativeTop >= 0 || [Infinity, NaN, -Infinity].includes(closestNegativeTop)) return this.visibleHeadingId = null
@@ -123,9 +123,8 @@ Alpine.magic("clipboard", (el) => {
     toastMessage.classList.remove("active");
     await navigator.clipboard.writeText(decodeURIComponent(atob(code)));
     toastMessage.classList.add("active");
-    let timer = setTimeout(function () {
-      copied = toastMessage.classList.remove("active");
-      timer = null;
+    const _timer = setTimeout(function () {
+      toastMessage.classList.remove("active");
     }, 2000);
   };
 });

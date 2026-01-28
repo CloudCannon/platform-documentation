@@ -1,4 +1,4 @@
-export default function* ({ search }) {
+export default function* () {
   for (const entry of Object.values(DOCS)) {
     if(entry.gid && entry.url != "/")
       yield {

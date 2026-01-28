@@ -1,4 +1,4 @@
-class CloudCannonLive {
+export default class CloudCannonLive {
   constructor(renderFn) {
     this.renderFn = renderFn;
     this.data = {};

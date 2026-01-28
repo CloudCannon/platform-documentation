@@ -3,7 +3,7 @@ import icons from "lume/plugins/icons.ts";
 
 import nunjucks from "lume/plugins/nunjucks.ts";
 
-import pagefind from "lume/plugins/pagefind.ts";
+// import pagefind from "lume/plugins/pagefind.ts";
 import date from "lume/plugins/date.ts";
 import sass from "lume/plugins/sass.ts";
 import inline from "lume/plugins/inline.ts";
@@ -50,7 +50,7 @@ import { DOMParser } from "https://deno.land/x/deno_dom@v0.1.38/deno-dom-wasm.ts
 import { join } from "https://deno.land/std/path/mod.ts";
 
 //import { Page } from "lume/core.ts";
-import { Element, Node } from "lume/deps/dom.ts";
+import { Element } from "lume/deps/dom.ts";
 import { extract } from "lume/deps/front_matter.ts";
 
 import { remark } from "npm:remark";
@@ -357,9 +357,9 @@ function createLink(page, text, href) {
     return a;
 }
 
-function appendTargetBlank(page, el) {
+function appendTargetBlank(_page, el) {
     if (el.hasAttribute("href")) {
-        let href = el.getAttribute('href')
+        const href = el.getAttribute('href')
         if (!domainsRegExp.test(href)){
             el.setAttribute('target', '_blank')
             el.setAttribute('rel', 'noopener')
@@ -593,7 +593,7 @@ site.process([".html"], (pages) => Promise.all(pages.map(async (page) => {
         appendTargetBlank(page, el);
     });
 
-    let mobile_toc = page.document.querySelector(".l-toc-mobile > .l-toc__list");
+    const mobile_toc = page.document.querySelector(".l-toc-mobile > .l-toc__list");
     if(mobile_toc){
         mobile_toc.innerHTML = toc?.innerHTML;
         if(!toc || toc.childNodes.length == 0)
@@ -604,17 +604,19 @@ site.process([".html"], (pages) => Promise.all(pages.map(async (page) => {
 // These MUST appear after our custom site.process([".html"] handling,
 // as in that function we inject content that should then be processed by the inline plugin,
 // and processing runs in the order it was instantiated.
+// Note: inline should be used before feed per lume best practices, but we need it after our custom HTML processing
+// deno-lint-ignore lume/plugin-order
 site.use(inline());
 site.use(prism());
 
 // This annotation process relies on the syntax highlighting,
 // so needs to run after prism
-site.process([".html"], (pages) => Promise.all(pages.map(async (page) => {
+site.process([".html"], (pages) => Promise.all(pages.map((page) => {
     annotateCodeBlocks(page);
 })));
 
 site.filter("get_by_uuid", (resources, uuid) => {
-    let found = resources.filter(x => x._uuid === uuid)
+    const found = resources.filter(x => x._uuid === uuid)
     if(found && found.length > 0)
         return found[0]
     return null
@@ -627,14 +629,14 @@ site.filter('is_gid_inside', (gid, parentGid) =>{
 });
 
 site.filter("get_docs_by_gid", (gid) => {
-    let found = Object.values(DOCS).filter(x => x.gid === gid)
+    const found = Object.values(DOCS).filter(x => x.gid === gid)
     if(found && found.length > 0)
         return found[0]
     return null
 })
 
 site.filter("get_docs_by_ref", (docRef) => {
-    let doc = DOCS[docRef.gid] || docRef;
+    const doc = DOCS[docRef.gid] || docRef;
     
     if (docRef.documentation) {
         // Use more specific documentation entry
@@ -683,7 +685,7 @@ site.filter('breadcrumb_chain_to_type_reset', (startDoc) => {
     return breadcrumbChain;
 });
 
-site.filter("get_by_letter", async (resources, letter) => {
+site.filter("get_by_letter", async (_resources, letter) => {
     // Check cache first
     const cacheKey = letter.toLowerCase();
     const cached = glossaryByLetterCache.get(cacheKey);
@@ -697,7 +699,7 @@ site.filter("get_by_letter", async (resources, letter) => {
         "glossary",
         cacheKey,
     );
-    let entries = [];
+    const entries = [];
     try {
         for await(const entry of Deno.readDir(dir)){
             const file_content = Deno.readTextFileSync(`${dir}/${entry.name}`);
@@ -721,7 +723,7 @@ site.filter("get_by_letter", async (resources, letter) => {
 const bubble_up_nav = (obj) => {
     if (obj._bubbled) return;
     if (obj._type === "heading" || obj._type === "group") {
-        let articles = obj.items ? obj.items.flatMap(o => bubble_up_nav(o)) : [];
+        const articles = obj.items ? obj.items.flatMap(o => bubble_up_nav(o)) : [];
         obj._bubbled = articles;
         return articles;
     } else {
@@ -748,8 +750,8 @@ site.filter("render_text_only", async (markdown: string) => {
 }, true)
 
 site.filter("DATE_TO_NOW", (date) => {
-    let difference_in_months = differenceInMonths(new Date(), date)
-    let date_to_now = formatDistanceToNowStrict(date, {addSuffix: true})
+    const difference_in_months = differenceInMonths(new Date(), date)
+    const date_to_now = formatDistanceToNowStrict(date, {addSuffix: true})
     return difference_in_months < 5 ? date_to_now : format(date, "d MMMM yyyy")
 })
 
@@ -777,14 +779,14 @@ site.filter("unslug", (str) => {
 })
 
 const summaryMarker = '</p>';
-site.filter("changelog_summary", (block, item) => {
+site.filter("changelog_summary", (block, _item) => {
     return block.substring(0, block.indexOf(summaryMarker) + summaryMarker.length);
 });
 
 site.filter("render_common", (file: string, data: object = {}) => {
     // TODO: Remove the `/usr/local/__site/src/` replacement after fixing path selection
     const file_content = Deno.readTextFileSync(file.replace("/usr/local/__site/src/", ""));
-    const {body, attrs} = extract(file_content);
+    const {body} = extract(file_content);
     const content_id = injectedSections.push(site.renderer.render(body, data, file));
 
     return content_id - 1;
@@ -799,7 +801,7 @@ site.filter("get_glossary_term", (file: string) => {
 
     const mdFilter = site.renderer.helpers.get('md')[0];
     const file_content = Deno.readTextFileSync(`${file.slice(1)}`);
-    let yml = jsYaml.load(file_content)
+    const yml = jsYaml.load(file_content)
     const description = mdFilter(yml.term_description)
     glossaryTermCache.set(file, description);
     return description;
@@ -811,15 +813,15 @@ site.filter("get_index_page", (page: string) => {
     {
         try
         {
-            let page_parts = page.split("-")
+            const page_parts = page.split("-")
             const file_content = Deno.readTextFileSync(`${page_parts[0]}/${page_parts[1]}/index.mdx`)
-            const {body, attrs} = extract(file_content)
-            let obj = {attrs:"", url:""};
+            const {attrs} = extract(file_content)
+            const obj = {attrs:"", url:""};
             obj.attrs = attrs;
             obj.url = `/documentation/${page_parts[0]}-${page_parts[1]}/`;
             return obj;
         }
-        catch(e){
+        catch(_e){
             //console.log(e);
         }
     }
@@ -840,10 +842,10 @@ site.addEventListener("beforeBuild", async () => {
 
   for await (const entry of Deno.readDir(dir)) {
     if (entry.isDirectory) {
-        let dirname = entry.name;
+        const dirname = entry.name;
         years.keys.push(dirname);
         years[dirname] = 0;
-        let subdir = `${dir}/${dirname}`
+        const subdir = `${dir}/${dirname}`
         for await (const entry of Deno.readDir(subdir)) {
             if (entry.isFile) {
                 years[dirname]++;
@@ -862,19 +864,19 @@ site.data("all_letters", () => [...Array(26).keys()].map((n) => String.fromCharC
 
 /* Environment data */
 
-let hubspot_id = Deno.env.get("HUBSPOT_ID");
+const hubspot_id = Deno.env.get("HUBSPOT_ID");
 if (!hubspot_id) {
     console.error("No HUBSPOT_ID environment variable set");
 }
 site.data("hubspot_id", hubspot_id || false);
 
-let ga_id = Deno.env.get("GA_ID");
+const ga_id = Deno.env.get("GA_ID");
 if (!ga_id) {
     console.error("No GA_ID environment variable set");
 }
 site.data("ga_id", ga_id || false);
 
-let ga_verify = Deno.env.get("GA_VERIFICATION");
+const ga_verify = Deno.env.get("GA_VERIFICATION");
 if (!ga_verify) {
     console.error("No GA_VERIFICATION environment variable set");
 }

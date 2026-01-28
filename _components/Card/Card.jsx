@@ -41,10 +41,10 @@ export default function Card({
     const arrowIconUrl = helpers?.icon?.(`${arrowIconName}:outlined`, 'material');
     
     // Common link props for interactive cards
-    const linkProps = isInteractive ? { href } : {};
+    const allProps = isInteractive ? { href, ...rest } : { ...rest };
     
     return (
-        <Element className={cardClasses} {...linkProps} {...rest}>
+        <Element className={cardClasses} {...allProps}>
             {/* Optional label (e.g., "Previous", "Next") */}
             {label && (
                 <strong className="c-card__label">{label}</strong>

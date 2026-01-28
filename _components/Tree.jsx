@@ -6,7 +6,7 @@ const tree = (str, placeholder = ">") => {
 		for (let c = 0; c < line.length; c++) {
 			if (line[c] !== placeholder) continue;
 			
-			const lineAbove = lines[l-1]?.[c] === placeholder;
+			const _lineAbove = lines[l-1]?.[c] === placeholder;
 			const lineBelow = lines[l+1]?.[c] === placeholder;
 			const lineLeft= lines[l][c-1] === placeholder;
 			const lineRight= lines[l][c+1] === placeholder;
@@ -27,7 +27,7 @@ const tree = (str, placeholder = ">") => {
 	return lines.join('\n');
 };
 
-export default function ({ comp, children }) {
+export default function ({ children }) {
   const code_str = children?.props?.children?.props?.children;
   const tree_str = tree(code_str);
   return (

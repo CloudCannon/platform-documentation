@@ -64,7 +64,7 @@ const parseFromLanguage = (str, lang) => {
       default:
         console.warn(`MultiCodeBlock found a code block tagged with an unknown language ${lang}. Returning a normal code block.`);
     }
-  } catch (e) {
+  } catch (_e) {
     buildError([`ERR: MultiCodeBlock found an unparseable code block tagged as the language ${lang}:\n${str}`]);
   }
 }
@@ -118,7 +118,7 @@ const tabNames = {
 
 const tabButton = (tab) => {
   return (
-    <button className="c-tabs__tab"
+    <button type="button" className="c-tabs__tab"
       alpine:click={`selectedTab = '${tab}'`}
       //{...{ ":aria-selected": `selectedTab === '${tab}'` }}
       role="tab"
@@ -142,7 +142,7 @@ const tabPane = ([lang, codeBlock]) => {
 };
 
 const codeBlock = (str, lang, source, annotations) => {
-  source = source ? <div className="c-code-block__source">{source}</div> : <></>;
+  source = source ? <div className="c-code-block__source">{source}</div> : null;
   const strippedStr = str.replace(/___\d+___/g, '');
   const codeEncoded = btoa(encodeURIComponent(strippedStr))
   return (
@@ -166,7 +166,7 @@ const codeBlock = (str, lang, source, annotations) => {
   )
 }
 
-export default function ({ comp, language, translate_into = [], source, children }) {
+export default function ({ language, translate_into = [], source, children }) {
 
   let code_block = children;
   let annotations = null;
@@ -182,7 +182,7 @@ export default function ({ comp, language, translate_into = [], source, children
   const code_str = code_block?.props?.children?.props?.children;
   if (!code_str) {
     console.warn("MultiCodeBlock component encountered an empty code block (or another error). Skipping.");
-    return (<></>);
+    return null;
   }
   const parsed_code = parseFromLanguage(code_str, language);
 

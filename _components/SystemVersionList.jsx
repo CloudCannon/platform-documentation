@@ -1,4 +1,4 @@
-export default function ({comp, language, item, showdefault, systemversions}) {
+export default function ({language, item, showdefault, systemversions}) {
   const lookup = systemversions?.[language]?.[item];
   return (
       <ul>

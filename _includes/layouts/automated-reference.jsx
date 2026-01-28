@@ -3,9 +3,7 @@ import {
     getRefUrl, 
     getBreadcrumbChain, 
     getDocByGid,
-    resolveRef,
-    isGidInside,
-    BASE_URL 
+    resolveRef 
 } from '../../_components/Reference/helpers.js';
 import { parseDocUrl, slugify } from '../../_components/utils/index.js';
 import MobileTOC from '../../_components/Layout/MobileTOC.jsx';
@@ -13,12 +11,11 @@ import NavSidebar from '../../_components/Layout/NavSidebar.jsx';
 
 import TypeDisplay from '../../_components/Reference/TypeDisplay.jsx';
 import RefItem from '../../_components/Reference/RefItem.jsx';
-import RefList from '../../_components/Reference/RefList.jsx';
 import DocNav from '../../_components/Reference/DocNav.jsx';
 import MultiCodeBlock from '../../_components/MultiCodeBlock.jsx';
 import Annotation from '../../_components/Annotation.jsx';
 
-function Breadcrumbs({ entry, parent, appearsIn, helpers }) {
+function Breadcrumbs({ parent, appearsIn, helpers }) {
     const totalAppearsIn = (parent ? 1 : 0) + appearsIn.length;
     if (totalAppearsIn !== 1) return null;
     

@@ -3,7 +3,7 @@ import NavSidebar from '../../_components/Layout/NavSidebar.jsx';
 import Card from '../../_components/Card/Card.jsx';
 
 export default async function GlossaryListLayout(props, helpers) {
-    const { url, all_letters } = props;
+    const { all_letters } = props;
     const letters = all_letters?.() || [];
 
     // Pre-fetch all glossary entries by letter (async)

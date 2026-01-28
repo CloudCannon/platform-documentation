@@ -1,4 +1,4 @@
-export default function ({comp, label, type_markdown, children}, helpers) {
+export default function ({label, type_markdown, children}, helpers) {
     return (
         <div className="c-data-reference__item">
             <div className="c-data-reference__header">

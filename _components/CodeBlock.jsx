@@ -1,8 +1,8 @@
 import LanguageIcon from "./LanguageIcon.jsx";
 import CodeBlockCopyButton from "./CodeBlockCopyButton.jsx";
 
-export default function ({ comp, language, source, frameless = false, content, children }) {
-  source = source ? <div className="c-code-block__source">{source}</div> : <></>;
+export default function ({ language, source, frameless = false, children }) {
+  source = source ? <div className="c-code-block__source">{source}</div> : null;
 
   let code_block = children;
   let annotations = null;

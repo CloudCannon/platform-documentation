@@ -5,7 +5,7 @@
  * Renders the complete reference page with navigation, breadcrumbs, content, and TOC
  */
 
-import { getDisplayName, getRefUrl, getBreadcrumbChain, getDocByGid, BASE_URL } from './helpers.js';
+import { getDisplayName, getRefUrl, getBreadcrumbChain, getDocByGid } from './helpers.js';
 import { parseDocUrl, formatTitle } from '../utils/index.js';
 import MobileTOC from '../Layout/MobileTOC.jsx';
 import TypeDisplay from './TypeDisplay.jsx';
@@ -17,7 +17,7 @@ import Annotation from '../Annotation.jsx';
 /**
  * Renders the breadcrumb trail
  */
-function Breadcrumbs({ entry, parent, appearsIn }, helpers) {
+function Breadcrumbs({ parent, appearsIn }, helpers) {
     const totalAppearsIn = (parent ? 1 : 0) + appearsIn.length;
     
     // Only show breadcrumbs if there's exactly one parent
@@ -139,7 +139,7 @@ function Examples({ examples }, helpers) {
  * @param {Array} props.full_docs - All documentation entries
  * @param {Object} helpers - Lume helpers (icon, md, etc.)
  */
-export default function ReferencePage({ entry, page, navigation, full_docs }, helpers) {
+export default function ReferencePage({ entry, page, full_docs }, helpers) {
     if (!entry) {
         return <div>Error: No entry provided</div>;
     }

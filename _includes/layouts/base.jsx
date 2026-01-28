@@ -129,6 +129,7 @@ export default function BaseLayout(props, helpers) {
                             <div className="l-banner__inner">
                                 <div dangerouslySetInnerHTML={{ __html: headingnav.banner_html }} />
                                 <button 
+                                    type="button"
                                     aria-label="close announcement banner"
                                     alpine:click={`sessionStorage.setItem('announcementBannerOpenDocs', false);
                                         document.querySelector('.l-banner').style.display = 'none';`}

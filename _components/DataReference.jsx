@@ -1,4 +1,4 @@
-export default function ({comp, children}) {
+export default function ({children}) {
     return (
       <div className="c-data-reference">
         {children}

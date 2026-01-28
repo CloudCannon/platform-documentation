@@ -1,4 +1,4 @@
-export default function ({comp, title, url, autoplay, loop}, helpers) {
+export default function ({title, url, autoplay, loop}) {
     let videoProps = {};
     if (autoplay) {
         videoProps = {autoPlay: true, muted: true, defaultmuted: "true", playsInline: true, ...videoProps};
@@ -9,9 +9,9 @@ export default function ({comp, title, url, autoplay, loop}, helpers) {
 
     return (
         <video 
-            {...videoProps}
             className="c-docs-video"
-            title={title}>
+            title={title}
+            {...videoProps}>
                 <source src={url} type="video/mp4"></source>
         </video>
     );

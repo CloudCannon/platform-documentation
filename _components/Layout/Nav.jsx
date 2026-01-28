@@ -21,7 +21,7 @@ export default function Nav({ headingnav, url, helpers }) {
             </div>
             
             <div className="l-header__right">
-                <button x-on:click="isModalOpen = true; $focusSearch(true);" className="l-header__search" title="Search">
+                <button type="button" x-on:click="isModalOpen = true; $focusSearch(true);" className="l-header__search" title="Search">
                     <img src={helpers.icon("search:outlined", "material")} inline="true" />
                 </button>
                 <input 
@@ -43,6 +43,7 @@ export default function Nav({ headingnav, url, helpers }) {
             
             <div className="l-header__mobile-controls">
                 <button 
+                    type="button"
                     x-on:click="isModalOpen = true; $focusSearch(true);" 
                     className="l-header__search" 
                     alpine:class="isMainNavOpen ? 'hidden' : ''" 
@@ -51,6 +52,7 @@ export default function Nav({ headingnav, url, helpers }) {
                     <img src={helpers.icon("search:outlined", "material")} inline="true" />
                 </button>
                 <button 
+                    type="button"
                     x-on:click="isMainNavOpen = !isMainNavOpen; $focusNav(isMainNavOpen);" 
                     className="l-header__search menu" 
                     alpine:class="isMainNavOpen ? 'hidden' : ''" 
@@ -59,6 +61,7 @@ export default function Nav({ headingnav, url, helpers }) {
                     <img src={helpers.icon("menu:outlined", "material")} inline="true" />
                 </button>
                 <button 
+                    type="button"
                     x-on:click="isMainNavOpen = !isMainNavOpen; $focusNav(isMainNavOpen);$refs.back_button.parentElement.style.left = '0'" 
                     className="l-header__search menu close" 
                     alpine:class="!isMainNavOpen ? 'hidden' : ''" 

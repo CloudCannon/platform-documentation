@@ -1,9 +1,9 @@
-export default function ({comp, name, children}) {
+export default function ({name, children}) {
     children = Array.isArray(children) ? children : [children];
     const tabs = children?.map(child => child?.props?.name ?? "") ?? [];
     const tabButtons = tabs.map(tab => {
         return (
-            <button className="c-tabs__tab"
+            <button type="button" className="c-tabs__tab"
                 alpine:click={`selectedTab = '${tab}'`} 
                 //{...{":aria-selected": `selectedTab === '${tab}'`}}
                 role="tab"

@@ -1,7 +1,7 @@
 import NavWrapper from './NavWrapper.jsx';
 import NavHeading from './NavHeading.jsx';
 
-export default function GlossaryNav({ title, allLetters, helpers }) {
+export default function GlossaryNav({ title, allLetters }) {
     const letters = allLetters?.() || [];
     
     return (

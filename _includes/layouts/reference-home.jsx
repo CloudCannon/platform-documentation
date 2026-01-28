@@ -2,7 +2,7 @@ import DocNav from '../../_components/Reference/DocNav.jsx';
 import MobileTOC from '../../_components/Layout/MobileTOC.jsx';
 import NavSidebar from '../../_components/Layout/NavSidebar.jsx';
 import Card from '../../_components/Card/Card.jsx';
-import { parseDocUrl, formatTitle } from '../../_components/utils/index.js';
+import { parseDocUrl } from '../../_components/utils/index.js';
 
 export default function ReferenceHomeLayout({ content, details, date, page, navigation, full_docs, url, search }, helpers) {
     const currentUrl = page?.data?.url || url || '';

@@ -1,5 +1,5 @@
 
-export default function ({comp, term, children}, helpers) {
+export default function ({term, children}, helpers) {
   const content = `<span class="eyebrow">Glossary term</span><h3>${children.__html}</h3>${helpers.get_glossary_term(term)}`;
   return (
     <span

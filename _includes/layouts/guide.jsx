@@ -36,10 +36,10 @@ export default function GuideLayout(props, helpers) {
                             {guide_icon && <img src={guide_icon} width="50" height="50" />}
                             <h2 data-pagefind-meta="guide_title">{guide_title}</h2>
 
-                            <button className="t-docs-nav__control" x-on:click="isPageNavOpen = true; $focusNav(true);" x-show="!isPageNavOpen" aria-label="Open guide menu">
+                            <button type="button" className="t-docs-nav__control" x-on:click="isPageNavOpen = true; $focusNav(true);" x-show="!isPageNavOpen" aria-label="Open guide menu">
                                 <img src="/assets/img/expand.svg" inline="true" />
                             </button>
-                            <button className="t-docs-nav__control" x-on:click="isPageNavOpen = false; $focusNav(false);" x-show="isPageNavOpen" aria-label="Close guide menu">
+                            <button type="button" className="t-docs-nav__control" x-on:click="isPageNavOpen = false; $focusNav(false);" x-show="isPageNavOpen" aria-label="Close guide menu">
                                 <img src="/assets/img/close.svg" inline="true" />
                             </button>
                         </div>

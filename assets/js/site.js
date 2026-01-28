@@ -32,7 +32,7 @@ const originalClear = document.querySelector(".pagefind-modular-input-clear");
 const clonedClear = originalClear.cloneNode(true);
 originalClear.parentNode.replaceChild(clonedClear, originalClear);
 
-clonedClear.addEventListener("click", e => {
+clonedClear.addEventListener("click", _e => {
   clonedElement.value = "";
   search.triggerSearch("");
   document.getElementById("searchsummary").style.display = "none";
@@ -42,7 +42,7 @@ clonedClear.addEventListener("click", e => {
 
 clonedElement.placeholder = "Search this site";
 clonedElement.addEventListener("input", e => {
-  let query = e.target.value;
+  const query = e.target.value;
   if(query && query?.length && query?.length > 1){
     search.triggerSearch(`${query.trim()}`);
     document.querySelector(".mobile-filters").removeAttribute("data-pfmod-suppressed");
@@ -55,7 +55,7 @@ clonedElement.addEventListener("input", e => {
 })
 
 let currPage = 0;
-let perPage = 10;
+const perPage = 10;
 
 const templateNodes = (templateResult) => {
     if (templateResult instanceof Element) {
@@ -63,7 +63,7 @@ const templateNodes = (templateResult) => {
     } else if (Array.isArray(templateResult) && templateResult.every(r => r instanceof Element)) {
         return templateResult;
     } else if (typeof templateResult === "string" || templateResult instanceof String) {
-        let wrap = document.createElement("div");
+        const wrap = document.createElement("div");
         wrap.innerHTML = templateResult;
         return [...wrap.childNodes]
     } else {
@@ -86,9 +86,9 @@ const placeholderTemplate = () => {
 }
 
 const resultTemplate = (result) => {
-    let wrapper = new El("li").class("pagefind-modular-list-result");
+    const wrapper = new El("li").class("pagefind-modular-list-result");
 
-    let thumb = new El("div").class("pagefind-modular-list-thumb").addTo(wrapper);
+    const thumb = new El("div").class("pagefind-modular-list-thumb").addTo(wrapper);
     if (result?.meta?.image) {
         new El("img").class("pagefind-modular-list-image").attrs({
             src: result.meta.image,
@@ -96,8 +96,8 @@ const resultTemplate = (result) => {
         }).addTo(thumb);
     }
 
-    let inner = new El("div").class("pagefind-modular-list-inner").addTo(wrapper);
-    let title = new El("p").class("pagefind-modular-list-title").addTo(inner);
+    const inner = new El("div").class("pagefind-modular-list-inner").addTo(wrapper);
+    const title = new El("p").class("pagefind-modular-list-title").addTo(inner);
     new El("a").class("pagefind-modular-list-link").text(result.meta?.title).attrs({
         href: result.meta?.url || result.url
     }).addTo(title);
@@ -107,7 +107,7 @@ const resultTemplate = (result) => {
     return wrapper.element;
 }
 
-const nearestScrollParent = (el) => {
+const _nearestScrollParent = (el) => {
     if (!(el instanceof HTMLElement)) return null;
     const overflowY = globalThis.getComputedStyle(el).overflowY;
     const isScrollable = overflowY !== 'visible' && overflowY !== 'hidden';
@@ -115,7 +115,7 @@ const nearestScrollParent = (el) => {
     if (isScrollable) {
         return el;
     } else {
-        return nearestScrollParent(el.parentNode);
+        return _nearestScrollParent(el.parentNode);
     }
 }
 
@@ -180,9 +180,9 @@ class ResultListCustom {
         instance.on("results", (results) => {
             if (!this.containerEl) return;
             this.containerEl.innerHTML = "";
-            let totalLength = results.results.length;
-            let pageResults = results.results.slice(currPage * perPage,(currPage+1)*perPage);
-            let endResults = (currPage+1)*perPage < totalLength ? (currPage+1)*perPage : totalLength;
+            const totalLength = results.results.length;
+            const pageResults = results.results.slice(currPage * perPage,(currPage+1)*perPage);
+            const endResults = (currPage+1)*perPage < totalLength ? (currPage+1)*perPage : totalLength;
 
             if(totalLength > 0){
               document.getElementById("searchsummary").style.display = "block"
@@ -190,7 +190,7 @@ class ResultListCustom {
             }
 
             this.results = pageResults.map(r => {
-                let placeholderNodes = templateNodes(this.placeholderTemplate());
+                const placeholderNodes = templateNodes(this.placeholderTemplate());
                 this.append(placeholderNodes);
                 return new ResultCustom({ result: r, placeholderNodes, resultFn: this.resultTemplate, intersectionEl: this.intersectionEl });
             })
@@ -295,11 +295,11 @@ class FilterPillsCustom {
             wrapper.setAttribute("data-pfmod-hidden",true)
         }
 
-        let heading = document.createElement("h3")
+        const heading = document.createElement("h3")
         heading.innerText = "Category"
         wrapper.append(heading)
         
-        let div = document.createElement("div")
+        const div = document.createElement("div")
         div.id = id
         div.classList.add("pagefind-modular-filter-pills-label")
         div.setAttribute("data-pfmod-sr-hidden",true)
@@ -340,7 +340,7 @@ class FilterPillsCustom {
 
     renderNew() {
         this.available.forEach(([val, count]) => {
-          let button = document.createElement("button")
+          const button = document.createElement("button")
           button.classList.add("pagefind-modular-filter-pill")
           button.innerHTML = this.pillInner(val, count)
           button.setAttribute("aria-pressed",this.selected.includes(val))
@@ -389,7 +389,7 @@ class FilterPillsCustom {
                 filters = filters.total;
             }
 
-            let newlyAvailable = filters[this.filter];
+            const newlyAvailable = filters[this.filter];
             if (!newlyAvailable) {
                 console.warn(`[Pagefind FilterPills component]: No possible values found for the ${this.filter} filter`);
                 return;
@@ -407,7 +407,7 @@ class FilterPillsCustom {
                     return a[0].localeCompare(b[0]);
                 });
             }
-            let total = this.available.reduce(function (acc, obj) { return acc + obj[1]; }, 0);
+            const total = this.available.reduce(function (acc, obj) { return acc + obj[1]; }, 0);
             this.available.push(["All", total]);
             this.update();
         });
@@ -430,7 +430,7 @@ class FilterPillsCustom {
     }
 }
 
-document.querySelector(".mobile-filters").addEventListener("click", e => {
+document.querySelector(".mobile-filters").addEventListener("click", _e => {
   document.getElementById("searchfilter").classList.toggle("open");
 })
 
@@ -484,13 +484,13 @@ if (messageElement) {
 
 function makePaginationBox(pagination,text,num = text)
 {
-  let box = document.createElement("div");
+  const box = document.createElement("div");
   box.classList.add("pagination-box");
   if(currPage+1 == num)
     box.classList.add("active");
 
   box.innerHTML = text;
-  box.addEventListener("click", e => {
+  box.addEventListener("click", _e => {
     currPage = num-1;
     search.triggerSearch(search.searchTerm);
   })
@@ -499,18 +499,18 @@ function makePaginationBox(pagination,text,num = text)
 }
 
 search.on("results", (results) => {
-  let pagination = document.getElementById("searchpagination");
+  const pagination = document.getElementById("searchpagination");
   pagination.innerHTML = "";
   if(results.results.length > 0){
     document.getElementById("searchcontainer").classList.add("has-results");
     pagination.classList.add("show");
-    let pages = Math.ceil(results.results.length / perPage);
+    const pages = Math.ceil(results.results.length / perPage);
 
     /* FIGURE OUT HOW TO MAKE THIS BETTER */
     if(pages > 1 && currPage != 0)
     {
-      let prevbox = makePaginationBox(pagination,"",currPage); // prev
-      let prevsvg = document.getElementById("pagination-prev__template").innerHTML;
+      const prevbox = makePaginationBox(pagination,"",currPage); // prev
+      const prevsvg = document.getElementById("pagination-prev__template").innerHTML;
       prevbox.innerHTML = prevsvg;
     }
 
@@ -551,8 +551,8 @@ search.on("results", (results) => {
 
     if(pages > 1 && currPage != pages-1)
     {
-      let nextbox = makePaginationBox(pagination,"",currPage); // next
-      let nextsvg = document.getElementById("pagination-next__template").innerHTML;
+      const nextbox = makePaginationBox(pagination,"",currPage); // next
+      const nextsvg = document.getElementById("pagination-next__template").innerHTML;
       nextbox.innerHTML = nextsvg;
     }
   }
