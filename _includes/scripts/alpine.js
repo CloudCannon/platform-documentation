@@ -17,7 +17,7 @@ Alpine.magic('visibleNavHighlighter', (el, { Alpine }) => ({
 
     init() {
       this.$nextTick(() => {
-        this.headings = document.querySelectorAll('main h2')
+        this.headings = document.querySelectorAll('main h2, main dt[id], main dd[id]')
         this.assignHeadingIds()
         this.onScroll()
       })

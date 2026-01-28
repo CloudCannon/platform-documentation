@@ -329,6 +329,7 @@ site.loadPages([".md"], (page) => {
 const alpineRemaps = {
     "alpine:class": ":class",
     "alpine:click": "@click",
+    "alpine:scroll": "x-on:scroll.window.throttle.50ms",
 }
 
 function createLink(page, text, href) {
@@ -625,6 +626,27 @@ site.filter('parent_gids_from_doc', (doc) => {
         parentGid = DOCS[parentGid].parent;
     }
     return parentGids;
+});
+
+site.filter('breadcrumb_chain_to_type_reset', (startDoc) => {
+    if (!startDoc) return [];
+    
+    const breadcrumbChain = [startDoc];
+    let currentParent = startDoc;
+    
+    // Walk up until we find a type-resetting node
+    // (node where parent === 'type.Configuration')
+    while (currentParent && currentParent.parent !== 'type.Configuration') {
+        const parentDoc = DOCS[currentParent.parent];
+        if (parentDoc) {
+            breadcrumbChain.unshift(parentDoc);
+            currentParent = parentDoc;
+        } else {
+            break;
+        }
+    }
+    
+    return breadcrumbChain;
 });
 
 site.filter("get_by_letter", async (resources, letter) => {
