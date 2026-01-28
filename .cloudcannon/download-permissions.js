@@ -1,3 +1,4 @@
+import process from "node:process";
 const fs = require("fs");
 const filepath = "_data/permissions.json";
 const treeUrl = "https://app.cloudcannon.com/permissions-tree";

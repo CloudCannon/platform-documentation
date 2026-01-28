@@ -256,7 +256,7 @@ export default function AutomatedReferenceLayout({ entry, page, navigation, full
                         
                         <aside data-pagefind-ignore className="l-right">
                             <div className="l-toc" alpine:scroll="onScroll()">
-                                <TableOfContents items={tocItems} withHeading={true} />
+                                <TableOfContents items={tocItems} withHeading />
                             </div>
                         </aside>
                     </div>
@@ -297,7 +297,7 @@ function ObjectPropertiesWithIds({ entry, currentUrl, helpers }) {
                         <RefItem 
                             docRef={ref} 
                             currentUrl={currentUrl} 
-                            useKey={true}
+                            useKey
                             keyOverride={key}
                             helpers={helpers} 
                         />

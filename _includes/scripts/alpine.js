@@ -32,7 +32,7 @@ Alpine.magic('visibleNavHighlighter', (el, { Alpine }) => ({
     },
 
     onScroll() {
-        let relativeTop = window.innerHeight / 2
+        let relativeTop = globalThis.innerHeight / 2
 
         let headingsByDistanceFromTop = {}
 
@@ -113,7 +113,7 @@ Alpine.magic("deleteRecentSearch", () => {
 
 Alpine.magic("triggerSearch", () => {
   return (term) => {
-    window.searchInstance.triggerSearch(term);
+    globalThis.searchInstance.triggerSearch(term);
   };
 });
 
@@ -142,9 +142,9 @@ Alpine.magic("focusSearch", () => {
   return (isModalOpen) => {
     if (isModalOpen) {
       scrollElement.classList.add(LOCKED_CLASS);
-      window?.searchInput?.focus?.();
+      globalThis?.searchInput?.focus?.();
       setTimeout(() => {
-        window?.searchInput?.focus?.();
+        globalThis?.searchInput?.focus?.();
       }, 100);
     } else {
       scrollElement.classList.remove(LOCKED_CLASS);
@@ -178,7 +178,7 @@ Alpine.magic('layoutOffsets', () => ({
   },
 
   updateOffset() {
-    const scrolled = window.scrollY
+    const scrolled = globalThis.scrollY
 
     const visibleAnnouncement = Math.max(
       this.announcementHeight - scrolled,
@@ -191,5 +191,5 @@ Alpine.magic('layoutOffsets', () => ({
   }
 }));
 
-window.Alpine = Alpine;
+globalThis.Alpine = Alpine;
 Alpine.start();

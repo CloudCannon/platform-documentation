@@ -14,8 +14,8 @@ class CloudCannonLive {
       this.loadNewPropsFromCloudCannon(e.detail.CloudCannon);
     });
 
-    if (window.CloudCannon) {
-      this.onCloudCannonLoad(window.CloudCannon);
+    if (globalThis.CloudCannon) {
+      this.onCloudCannonLoad(globalThis.CloudCannon);
     }
   }
 

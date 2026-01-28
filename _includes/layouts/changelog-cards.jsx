@@ -1,6 +1,7 @@
 import ChangeNav from '../../_components/Nav/ChangeNav.jsx';
 import MobileTOC from '../../_components/Layout/MobileTOC.jsx';
 import NavSidebar from '../../_components/Layout/NavSidebar.jsx';
+import Card from '../../_components/Card/Card.jsx';
 import { truncate } from '../../_components/utils/index.js';
 
 export default async function ChangelogCardsLayout(props, helpers) {
@@ -43,22 +44,17 @@ export default async function ChangelogCardsLayout(props, helpers) {
                             {data?.months?.map((monthGroup, mi) => (
                                 <div key={mi}>
                                     <h2 className="changelog-month-heading">{monthGroup.name}</h2>
-                                    <div className="l-content-cards changelog-cards">
+                                    <div className="c-card-container--changelog">
                                         {monthGroup.results?.map((changelog, ci) => (
-                                            <a key={ci} href={changelog.url} className="changelog-entry">
-                                                <h3 className={ci === 0 ? "u-margin-top-0" : ""}>
-                                                    {changelog.page?.data?.title}
-                                                </h3>
-                                                <p className="changelog-entry__date">
-                                                    {helpers.DATE_TO_NOW(changelog.page?.data?.date)}
-                                                </p>
-                                                <p className="changelog-entry__content">
-                                                    {renderedTextByMonth[mi]?.[ci] || ''}
-                                                </p>
-                                                <div className="changelog-entry__footer">
-                                                    <img src={helpers.icon("arrow_forward:outlined", "material")} inline="true" />
-                                                </div>
-                                            </a>
+                                            <Card
+                                                key={ci}
+                                                href={changelog.url}
+                                                title={changelog.page?.data?.title}
+                                                date={helpers.DATE_TO_NOW(changelog.page?.data?.date)}
+                                                description={renderedTextByMonth[mi]?.[ci] || ''}
+                                                variant="changelog"
+                                                helpers={helpers}
+                                            />
                                         ))}
                                     </div>
                                 </div>

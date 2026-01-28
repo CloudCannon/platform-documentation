@@ -1,5 +1,6 @@
 import GlossaryNav from '../../_components/Nav/GlossaryNav.jsx';
 import NavSidebar from '../../_components/Layout/NavSidebar.jsx';
+import Card from '../../_components/Card/Card.jsx';
 
 export default async function GlossaryListLayout(props, helpers) {
     const { url, all_letters } = props;
@@ -29,22 +30,30 @@ export default async function GlossaryListLayout(props, helpers) {
                     </h1>
 
                     <div className="l-content-split" x-data="$visibleNavHighlighter">
-                        <main className="l-content-cards glossary-cards">
+                        <main className="c-card-container--glossary">
                             {entriesByLetter.flatMap(({ letter, entries }) => [
                                 <h2 key={`heading-${letter}`} id={letter.toLowerCase()} className="l-heading u-margin-bottom-0 u-padding-bottom-0 glossary-letter-heading">
                                     {letter.toUpperCase()}
                                 </h2>,
                                 ...(entries && entries.length > 0 ? (
                                     entries.map((entry, i) => (
-                                        <div key={`${letter}-${i}`} className="glossary-entry">
-                                            <h3>{entry.glossary_term_name}</h3>
+                                        <Card
+                                            key={`${letter}-${i}`}
+                                            title={entry.glossary_term_name}
+                                            variant="glossary"
+                                            helpers={helpers}
+                                        >
                                             <div dangerouslySetInnerHTML={{ __html: helpers.md(entry.term_description) }} />
-                                        </div>
+                                        </Card>
                                     ))
                                 ) : [
-                                    <div key={`${letter}-empty`} className="glossary-entry">
+                                    <Card
+                                        key={`${letter}-empty`}
+                                        variant="glossary"
+                                        helpers={helpers}
+                                    >
                                         <p>No glossary entries found for the letter "{letter.toUpperCase()}".</p>
-                                    </div>
+                                    </Card>
                                 ])
                             ])}
                         </main>

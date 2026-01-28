@@ -12,19 +12,22 @@ export default function CardGrid({ helpers }) {
                     <div className="c-card-grid__card--items" x-show="card.items && card.items.length > 0">
                         <template x-for="(item, index) in card.items">
                             <div style={{ display: 'contents' }}>
-                                <a className="c-card-grid__card--item" alpine:href="item.url && item.url != '' ? item.url : null">
-                                    <div x-data="{ svg: '' }"
+                                <a className="c-card c-card--list-item" alpine:href="item.url && item.url != '' ? item.url : null">
+                                    <div className="c-card__icon" x-data="{ svg: '' }"
                                         x-init="fetch('https://cdn.jsdelivr.net/npm/@material-design-icons/svg@0.14.15/outlined/'+item.icon+'.svg').then(res => res.text()).then(txt => svg = txt)"
                                         x-html="svg">
                                     </div>
-                                    <h3 x-text="item.heading"></h3>
+                                    <h3 className="c-card__title" x-text="item.heading"></h3>
                                     <div>{/* spacer for grid layout */}</div>
-                                    <p x-html="item.description"></p>
-                                    <div x-show="item.url" style={{ gridColumn: 'span 2' }}>
-                                        <div className="c-card-grid__card-arrow" x-data="{ svg: '' }"
+                                    <p className="c-card__description" x-html="item.description"></p>
+                                    <div className="c-card__footer" x-show="item.url" style={{ gridColumn: 'span 2' }}>
+                                        <div 
+                                            className="c-card__arrow"
+                                            x-data="{ svg: '' }"
                                             x-init={`fetch('${arrowIconUrl}').then(res => res.text()).then(txt => svg = txt)`}
-                                            x-html="svg">
-                                        </div>
+                                            x-html="svg"
+                                            aria-hidden="true"
+                                        />
                                     </div>
                                 </a>
                                 <template x-if="(index+1) < card.items.length">

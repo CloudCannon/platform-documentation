@@ -16,15 +16,15 @@ const search = new Instance({
   //   },
   // ],
 });
-window.searchInstance = search;
+globalThis.searchInstance = search;
 
-window.searchInput = new Input({
+globalThis.searchInput = new Input({
   containerElement: "#searchbox",
 });
 
-search.add(window.searchInput);
+search.add(globalThis.searchInput);
 
-const originalElement = window.searchInput.inputEl;
+const originalElement = globalThis.searchInput.inputEl;
 const clonedElement = originalElement.cloneNode(true);
 originalElement.parentNode.replaceChild(clonedElement, originalElement);
 
@@ -109,7 +109,7 @@ const resultTemplate = (result) => {
 
 const nearestScrollParent = (el) => {
     if (!(el instanceof HTMLElement)) return null;
-    const overflowY = window.getComputedStyle(el).overflowY;
+    const overflowY = globalThis.getComputedStyle(el).overflowY;
     const isScrollable = overflowY !== 'visible' && overflowY !== 'hidden';
 
     if (isScrollable) {

@@ -14,7 +14,7 @@ function ObjectProperties({ entry, currentUrl, helpers }) {
                         <RefItem 
                             docRef={ref} 
                             currentUrl={currentUrl} 
-                            useKey={true}
+                            useKey
                             keyOverride={key}
                             helpers={helpers} 
                         />

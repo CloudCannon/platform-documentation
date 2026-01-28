@@ -1,6 +1,7 @@
 import DocNav from '../../_components/Reference/DocNav.jsx';
 import MobileTOC from '../../_components/Layout/MobileTOC.jsx';
 import NavSidebar from '../../_components/Layout/NavSidebar.jsx';
+import Card from '../../_components/Card/Card.jsx';
 import { parseDocUrl, formatTitle } from '../../_components/utils/index.js';
 
 export default function ReferenceHomeLayout({ content, details, date, page, navigation, full_docs, url, search }, helpers) {
@@ -77,7 +78,7 @@ function RelatedArticles({ details, search, helpers }) {
             <h2>Related Resources</h2>
             <div>
                 <ul 
-                    className="c-related-article-container" 
+                    className="c-card-container--related" 
                     data-editable="array" 
                     data-prop="details.related_articles"
                 >
@@ -87,24 +88,14 @@ function RelatedArticles({ details, search, helpers }) {
                         
                         return (
                             <li key={related.item} data-editable="array-item">
-                                <a className="c-related-article" href={article.url}>
-                                    <h3 className="c-related-article__title">
-                                        {article.details?.title}
-                                    </h3>
-                                    {article.details?.description && (
-                                        <p className="c-related-article__desc">
-                                            {article.details.description}
-                                        </p>
-                                    )}
-                                    <div className="c-related-article__footer">
-                                        {article.details?.category && (
-                                            <div className="c-related-article__footer--category">
-                                                {article.details.category}
-                                            </div>
-                                        )}
-                                        <img src={helpers.icon('arrow_forward:outlined', 'material')} inline="true" />
-                                    </div>
-                                </a>
+                                <Card
+                                    href={article.url}
+                                    title={article.details?.title}
+                                    description={article.details?.description}
+                                    category={article.details?.category}
+                                    variant="related"
+                                    helpers={helpers}
+                                />
                             </li>
                         );
                     })}

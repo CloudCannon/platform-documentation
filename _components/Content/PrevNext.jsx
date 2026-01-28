@@ -1,43 +1,31 @@
+import Card from '../Card/Card.jsx';
+
 export default function PrevNext({ prev, next, guideIcon, guideTitle, details, totalPages, helpers }) {
     return (
         <>
-            <div className="c-prev-next-block">
+            <div className="c-card-container--prev-next">
                 {prev?.url ? (
-                    <div className="c-prev-next-block__item c-prev-next-block__item--previous">
-                        <a className="c-prev-next-button" href={prev.url}>
-                            <strong className="c-prev-next-block__heading c-prev-next-block__heading--previous">
-                                Previous
-                            </strong>
-                            <div className="c-prev-next-button__details">
-                                <div className="c-prev-next-button__body">{prev.details?.title}</div>
-                                <div className="c-prev-next-button__header">
-                                    <div className="c-prev-next-button__category">{prev.details?.description}</div>
-                                </div>
-                            </div>
-                            <div className="c-prev-next-block__item--card-arrow">
-                                <img src={helpers.icon("arrow_forward:outline", "material")} inline="true" />
-                            </div>
-                        </a>
-                    </div>
+                    <Card
+                        href={prev.url}
+                        label="Previous"
+                        title={prev.details?.title}
+                        description={prev.details?.description}
+                        variant="prev-next"
+                        className="c-card--prev"
+                        arrowDirection="back"
+                        helpers={helpers}
+                    />
                 ) : <div />}
 
                 {next?.url ? (
-                    <div className="c-prev-next-block__item c-prev-next-block__item--next">
-                        <a className="c-prev-next-button" href={next.url}>
-                            <strong className="c-prev-next-block__heading c-prev-next-block__heading--next">
-                                Next
-                            </strong>
-                            <div className="c-prev-next-button__details">
-                                <div className="c-prev-next-button__body">{next.details?.title}</div>
-                                <div className="c-prev-next-button__header">
-                                    <div className="c-prev-next-button__category">{next.details?.description}</div>
-                                </div>
-                            </div>
-                            <div className="c-prev-next-block__item--card-arrow">
-                                <img src={helpers.icon("arrow_forward:outline", "material")} inline="true" />
-                            </div>
-                        </a>
-                    </div>
+                    <Card
+                        href={next.url}
+                        label="Next"
+                        title={next.details?.title}
+                        description={next.details?.description}
+                        variant="prev-next"
+                        helpers={helpers}
+                    />
                 ) : <div />}
             </div>
 
