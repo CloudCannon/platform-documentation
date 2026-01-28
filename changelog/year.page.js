@@ -48,7 +48,6 @@ export default function* ({ search }) {
     yield {
       url: `/changelog/${year}/`,
       data: {
-        tags: [], // Override inherited changelogs tag so these don't appear in feed
         title: `Changelog ${year}`,
         year,
         months,
