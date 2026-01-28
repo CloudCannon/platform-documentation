@@ -329,7 +329,24 @@ site.loadPages([".md"], (page) => {
 const alpineRemaps = {
     "alpine:class": ":class",
     "alpine:click": "@click",
+    "alpine:href": ":href",
+    "alpine:src": ":src",
+    "alpine:style": ":style",
+    "alpine:key": ":key",
+    "alpine-click-stop": "@click.stop",
+    "alpine-click-away": "@click.away",
+    "alpine-click-outside": "@click.outside",
+    "alpine:checked": ":checked",
     "alpine:scroll": "x-on:scroll.window.throttle.50ms",
+    "alpine-scroll-window": "@scroll.window",
+    "alpine-resize-window": "@resize.window",
+    "alpine-keydown-down": "@keydown.down",
+    "alpine-keydown-up": "@keydown.up",
+    "alpine-keydown-escape": "@keydown.escape",
+    "alpine-keydown-window-prevent-ctrl-k": "@keydown.window.prevent.ctrl.k",
+    "alpine-keydown-window-prevent-cmd-k": "@keydown.window.prevent.cmd.k",
+    "x-trap-inert": "x-trap.inert",
+    "x-trap-noscroll": "x-trap.noscroll",
 }
 
 function createLink(page, text, href) {
@@ -473,12 +490,23 @@ const injectReusableContent = async (el: Element) => {
 site.process([".html"], (pages) => Promise.all(pages.map(async (page) => {
     if (page.document) await injectReusableContent(page.document.body);
 
-    for (const [attr, newattr] of Object.entries(alpineRemaps)) {
-        page.document?.querySelectorAll(`[${attr}]`).forEach((el) => {
-            el.setAttribute(newattr, el.getAttribute(attr));
-            el.removeAttribute(attr);
+    // Helper function to remap Alpine attributes
+    function remapAlpineAttrs(root) {
+        for (const [attr, newattr] of Object.entries(alpineRemaps)) {
+            root?.querySelectorAll(`[${attr}]`).forEach((el) => {
+                el.setAttribute(newattr, el.getAttribute(attr));
+                el.removeAttribute(attr);
+            });
+        }
+        // Also process elements inside <template> tags
+        root?.querySelectorAll('template').forEach((template) => {
+            if (template.content) {
+                remapAlpineAttrs(template.content);
+            }
         });
     }
+    
+    remapAlpineAttrs(page.document);
 
     const collisions = {};
 
@@ -514,6 +542,12 @@ site.process([".html"], (pages) => Promise.all(pages.map(async (page) => {
         tocContainer = page.document?.querySelectorAll(`.l-toc-changelog-list`)?.[0];
         if(tocContainer)
             selector = `main .changelog-entry > h2`;
+    }
+
+    if(!tocContainer){
+        tocContainer = page.document?.querySelectorAll(`.l-toc-glossary`)?.[0];
+        if(tocContainer)
+            selector = `main .glossary-entry > h3`;
     }
 
     page.document?.querySelectorAll(selector).forEach((el) => {

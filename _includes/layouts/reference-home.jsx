@@ -130,4 +130,4 @@ function RelatedArticles({ details, search, helpers }) {
     );
 }
 
-export const layout = "layouts/base.njk";
+export const layout = "layouts/base.jsx";

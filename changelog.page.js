@@ -1,4 +1,4 @@
-export const layout = "layouts/changelog-list.njk";
+export const layout = "layouts/changelog-list.jsx";
 import { parseChangelogFilename } from "./parseChangelogFilename.ts";
 
 export default function* ({ search }) {

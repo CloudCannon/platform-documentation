@@ -1,5 +1,5 @@
 export const type = 'changelog'
-export const layout = 'layouts/changelog.njk'
+export const layout = 'layouts/changelog.jsx'
 
 export function url(page) {
   const dateObj = new Date(page.data.date);

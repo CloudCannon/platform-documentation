@@ -4,5 +4,5 @@ export default {
     u = u.split("/").slice(3)
     return `/user-guides/${u.join("/")}`;
   },
-  layout: "layouts/guide.njk"
+  layout: "layouts/guide.jsx"
 };

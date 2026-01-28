@@ -1,0 +1,121 @@
+import ChangeNav from '../../_components/Nav/ChangeNav.jsx';
+
+function truncate(str, length) {
+    const text = String(str || '');
+    if (text.length <= length) return text;
+    return text.substring(0, length) + '...';
+}
+
+export default async function ChangelogCardsLayout(props, helpers) {
+    const { 
+        url, 
+        data,
+        changelog_years
+    } = props;
+
+    // Pre-render all changelog text content (async)
+    const renderedTextByMonth = await Promise.all(
+        (data?.months || []).map(async (monthGroup) => {
+            return await Promise.all(
+                (monthGroup.results || []).map(async (changelog) => {
+                    const text = await helpers.render_text_only?.(changelog.content);
+                    return truncate(text || '', 100);
+                })
+            );
+        })
+    );
+
+    return (
+        <div className="l-page" x-init="showmobilenav = true">
+            <div className="l-column">
+                <aside className="l-left" x-data="{ more: true }">
+                    <ChangeNav 
+                        title="Changelog"
+                        url={url}
+                        changelogYears={changelog_years}
+                    />
+                    <template x-teleport="#mobile-docnav">
+                        <ChangeNav 
+                            title="Changelog"
+                            url={url}
+                            changelogYears={changelog_years}
+                        />
+                    </template>
+                </aside>
+                <div className="u-card-box l-small-content">
+                    <div className="l-breadcrumb">Changelog</div>
+                    <h1 className="l-heading u-margin-bottom-0">
+                        {data?.year}
+                    </h1>
+                    <div className="l-toc-mobile" x-data="{toc_open:false}" alpine:click="toc_open = !toc_open">
+                        <h3 alpine:class="toc_open ? 'open' : ''">
+                            Table of contents 
+                            <img src={helpers.icon("arrow_forward_ios:outlined", "material")} inline="true" />
+                        </h3>
+                        <div className="l-toc__list" alpine:class="toc_open ? 'open' : ''" />
+                    </div>
+                    <div className="l-content-split" x-data="$visibleNavHighlighter">
+                        <main>
+                            {data?.months?.map((monthGroup, mi) => (
+                                <div key={mi}>
+                                    <h2 className="changelog-month-heading">{monthGroup.name}</h2>
+                                    <div className="l-content-cards changelog-cards">
+                                        {monthGroup.results?.map((changelog, ci) => (
+                                            <a key={ci} href={changelog.url} className="changelog-entry">
+                                                <h3 className={ci === 0 ? "u-margin-top-0" : ""}>
+                                                    {changelog.page?.data?.title}
+                                                </h3>
+                                                <p className="changelog-entry__date">
+                                                    {helpers.DATE_TO_NOW(changelog.page?.data?.date)}
+                                                </p>
+                                                <p className="changelog-entry__content">
+                                                    {renderedTextByMonth[mi]?.[ci] || ''}
+                                                </p>
+                                                <div className="changelog-entry__footer">
+                                                    <img src={helpers.icon("arrow_forward:outlined", "material")} inline="true" />
+                                                </div>
+                                            </a>
+                                        ))}
+                                    </div>
+                                </div>
+                            ))}
+
+                            {data?.isOldestYear && (
+                                <div className="changelog-footer changelog-footer--origin">
+                                    <p>Everything before this point is lost to time.</p>
+                                    <p>We began writing changelogs on the 20th of July 2015 and never looked back.</p>
+                                </div>
+                            )}
+                            {data?.isNewestYear && data?.previousYear && (
+                                <div className="changelog-footer">
+                                    <p>That's all for {data.year} so far. Stay tuned!</p>
+                                    <a href={`/documentation/changelog/${data.previousYear}/`}>
+                                        Catch up on {data.previousYear} 
+                                        <img src={helpers.icon("arrow_forward:outlined", "material")} inline="true" />
+                                    </a>
+                                </div>
+                            )}
+                            {!data?.isOldestYear && !data?.isNewestYear && data?.previousYear && (
+                                <div className="changelog-footer">
+                                    <p>That's a wrap for {data.year}!</p>
+                                    <a href={`/documentation/changelog/${data.previousYear}/`}>
+                                        See what we shipped in {data.previousYear} 
+                                        <img src={helpers.icon("arrow_forward:outlined", "material")} inline="true" />
+                                    </a>
+                                </div>
+                            )}
+                        </main>
+
+                        <aside data-pagefind-ignore="" className="l-right">
+                            <div className="l-toc" alpine:scroll="onScroll()" />
+                        </aside>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+export const layout = "layouts/base.jsx";
+export const title = 'Changelog';
+export const description = 'List of all changes made to the CloudCannon app';

@@ -12,6 +12,8 @@ import TypeDisplay from '../../_components/Reference/TypeDisplay.jsx';
 import RefItem from '../../_components/Reference/RefItem.jsx';
 import RefList from '../../_components/Reference/RefList.jsx';
 import DocNav from '../../_components/Reference/DocNav.jsx';
+import MultiCodeBlock from '../../_components/MultiCodeBlock.jsx';
+import Annotation from '../../_components/Annotation.jsx';
 
 function Breadcrumbs({ entry, parent, appearsIn, helpers }) {
     const totalAppearsIn = (parent ? 1 : 0) + appearsIn.length;
@@ -252,11 +254,20 @@ export default function AutomatedReferenceLayout({ entry, page, navigation, full
                                         {example.description && (
                                             <div dangerouslySetInnerHTML={{ __html: helpers.md(example.description) }} />
                                         )}
-                                        <pre>
-                                            <code className={`language-${example.language || 'yaml'}`}>
+                                        <MultiCodeBlock 
+                                            language={example.language || 'yaml'} 
+                                            source={example.source || 'cloudcannon.config.yml'}
+                                            translate_into={(!example.language || example.language === 'yaml') ? ['json'] : []}
+                                        >
+                                            <pre><code className={`language-${example.language || 'yaml'}`}>
                                                 {example.code}
-                                            </code>
-                                        </pre>
+                                            </code></pre>
+                                            {example.annotations?.map((annotation, j) => (
+                                                <Annotation key={j} number={annotation.number}>
+                                                    {annotation.content}
+                                                </Annotation>
+                                            ))}
+                                        </MultiCodeBlock>
                                     </dd>
                                 ))}
                             </dl>
@@ -391,4 +402,4 @@ function AnyOfTypesWithIds({ entry, currentUrl, helpers }) {
     );
 }
 
-export const layout = "layouts/base.njk";
+export const layout = "layouts/base.jsx";

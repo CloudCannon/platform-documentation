@@ -1,4 +1,4 @@
-export const layout = "layouts/changelog-cards.njk";
+export const layout = "layouts/changelog-cards.jsx";
 
 const monthNames = [
   "January", "February", "March", "April", "May", "June",

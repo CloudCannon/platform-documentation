@@ -1,4 +1,4 @@
-export const layout = "layouts/article.njk"
+export const layout = "layouts/article.jsx"
 export const date = "git last modified"
 export function url(page) {
   let u = page.data.url

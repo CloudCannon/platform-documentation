@@ -1,5 +1,7 @@
 import { getDisplayName, getRefUrl, resolveRef } from './helpers.js';
 import TypeDisplay from './TypeDisplay.jsx';
+import MultiCodeBlock from '../MultiCodeBlock.jsx';
+import Annotation from '../Annotation.jsx';
 
 const MAX_ENUM_VALUES = 10;
 
@@ -28,11 +30,20 @@ function RefSummary({ entry, helpers }) {
                         {example.description && !helpers && (
                             <div>{example.description}</div>
                         )}
-                        <pre>
-                            <code className={`language-${example.language || 'yaml'}`}>
+                        <MultiCodeBlock 
+                            language={example.language || 'yaml'} 
+                            source={example.source || 'cloudcannon.config.yml'}
+                            translate_into={(!example.language || example.language === 'yaml') ? ['json'] : []}
+                        >
+                            <pre><code className={`language-${example.language || 'yaml'}`}>
                                 {example.code}
-                            </code>
-                        </pre>
+                            </code></pre>
+                            {example.annotations?.map((annotation, j) => (
+                                <Annotation key={j} number={annotation.number}>
+                                    {annotation.content}
+                                </Annotation>
+                            ))}
+                        </MultiCodeBlock>
                     </div>
                 ))}
             </details>

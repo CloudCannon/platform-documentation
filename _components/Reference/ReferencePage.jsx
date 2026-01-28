@@ -9,6 +9,8 @@ import { getDisplayName, getRefUrl, getBreadcrumbChain, getDocByGid, BASE_URL } 
 import TypeDisplay from './TypeDisplay.jsx';
 import RefList from './RefList.jsx';
 import RefNav from './RefNav.jsx';
+import MultiCodeBlock from '../MultiCodeBlock.jsx';
+import Annotation from '../Annotation.jsx';
 
 /**
  * Renders the breadcrumb trail
@@ -100,11 +102,20 @@ function Examples({ examples }, helpers) {
                     {example.description && (
                         <div dangerouslySetInnerHTML={{ __html: helpers.md(example.description) }} />
                     )}
-                    <pre>
-                        <code className={`language-${example.language || 'yaml'}`}>
+                    <MultiCodeBlock 
+                        language={example.language || 'yaml'} 
+                        source={example.source || 'cloudcannon.config.yml'}
+                        translate_into={(!example.language || example.language === 'yaml') ? ['json'] : []}
+                    >
+                        <pre><code className={`language-${example.language || 'yaml'}`}>
                             {example.code}
-                        </code>
-                    </pre>
+                        </code></pre>
+                        {example.annotations?.map((annotation, j) => (
+                            <Annotation key={j} number={annotation.number}>
+                                {annotation.content}
+                            </Annotation>
+                        ))}
+                    </MultiCodeBlock>
                 </div>
             ))}
         </>

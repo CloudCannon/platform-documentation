@@ -4,4 +4,4 @@ export const url = (page) => {
   u = u.split("/").slice(3)
   return `/developer-guides/${u.join("/")}`;
 }
-export const layout = "layouts/guide.njk"
+export const layout = "layouts/guide.jsx"
