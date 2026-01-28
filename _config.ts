@@ -10,6 +10,7 @@ import inline from "lume/plugins/inline.ts";
 import esbuild from "lume/plugins/esbuild.ts";
 import prism from "lume/plugins/prism.ts";
 import sitemap from "lume/plugins/sitemap.ts";
+import feed from "lume/plugins/feed.ts";
 
 import jsx from "lume/plugins/jsx.ts";
 import mdx from "lume/plugins/mdx.ts";
@@ -62,6 +63,34 @@ import { parseChangelogFilename } from "./parseChangelogFilename.ts";
 import documentation from 'npm:@cloudcannon/configuration-types@0.0.46/dist/documentation.json' with { type: 'json' };
 globalThis.DOCS = documentation;
 
+// Build timing instrumentation
+const buildTimings: Record<string, number> = {};
+const phaseStarts: Record<string, number> = {};
+
+// Caches for expensive operations (persist across incremental builds)
+const renderTextOnlyCache = new Map<string, string>();
+const glossaryTermCache = new Map<string, string>();
+const glossaryByLetterCache = new Map<string, object[]>();
+const changelogDescriptionCache = new Map<string, string>();
+
+// Reusable remark processor (avoid recreating on each call)
+// deno-lint-ignore no-explicit-any
+let remarkProcessor: any = null;
+function getRemarkProcessor() {
+    if (!remarkProcessor) {
+        remarkProcessor = remark().use(remarkParse).use(strip);
+    }
+    return remarkProcessor;
+}
+
+function startPhase(name: string) {
+    phaseStarts[name] = performance.now();
+}
+
+function endPhase(name: string) {
+    buildTimings[name] = performance.now() - phaseStarts[name];
+}
+
 function stripHTML(html) {
     const doc = new DOMParser().parseFromString(html, 'text/html');
     return doc.body.textContent || '';
@@ -78,6 +107,92 @@ const site = lume({
 
 site.data("full_docs", Object.values(documentation));
 
+// Track whether we're in an update cycle (vs initial build)
+let isUpdating = false;
+let updatePageCount = 0;
+
+// Build timing event listeners
+site.addEventListener("afterLoad", () => {
+    endPhase("load");
+    startPhase("render");
+    if (!isUpdating) {
+        console.log(`  Load files:    ${buildTimings.load.toFixed(0)}ms`);
+    }
+});
+
+site.addEventListener("afterRender", (event) => {
+    endPhase("render");
+    startPhase("process");
+    updatePageCount = event.pages.length;
+    if (!isUpdating) {
+        console.log(`  Render pages:  ${buildTimings.render.toFixed(0)}ms (${event.pages.length} pages)`);
+    }
+});
+
+site.addEventListener("beforeSave", () => {
+    endPhase("process");
+    startPhase("save");
+    if (!isUpdating) {
+        console.log(`  Process HTML:  ${buildTimings.process.toFixed(0)}ms`);
+    }
+});
+
+site.addEventListener("afterBuild", (event) => {
+    endPhase("save");
+    endPhase("total");
+    console.log(`  Save files:    ${buildTimings.save.toFixed(0)}ms`);
+    console.log(`  ─────────────────────────`);
+    console.log(`  TOTAL:         ${buildTimings.total.toFixed(0)}ms`);
+    console.log(`  Pages built:   ${event.pages.length}`);
+    console.log(`  Static files:  ${event.staticFiles.length}`);
+    console.log("=== BUILD TIMING END ===\n");
+});
+
+// Incremental update timing (for watch mode)
+site.addEventListener("beforeUpdate", (event) => {
+    isUpdating = true;
+    startPhase("update");
+    startPhase("load");
+    console.log(`\n=== UPDATE START (${event.files.size} files changed) ===`);
+    for (const file of event.files) {
+        console.log(`  Changed: ${file}`);
+    }
+});
+
+site.addEventListener("afterUpdate", (event) => {
+    endPhase("save");
+    endPhase("update");
+    console.log(`  ─────────────────────────`);
+    console.log(`  Load files:    ${buildTimings.load.toFixed(0)}ms`);
+    console.log(`  Render pages:  ${buildTimings.render.toFixed(0)}ms (${updatePageCount} pages)`);
+    console.log(`  Process HTML:  ${buildTimings.process.toFixed(0)}ms`);
+    console.log(`  Save files:    ${buildTimings.save.toFixed(0)}ms`);
+    console.log(`  ─────────────────────────`);
+    console.log(`  TOTAL:         ${buildTimings.update.toFixed(0)}ms`);
+    console.log(`  Pages rebuilt: ${event.pages.length}`);
+    console.log("=== UPDATE END ===\n");
+    isUpdating = false;
+});
+
+// Log the server URL when it starts (currently suppressed by LUME_LOGS=critical)
+site.addEventListener("afterStartServer", () => {
+    const port = site.options.server.port;
+    console.log(`\n  Server running at: http://localhost:${port}/documentation/\n`);
+});
+
+// Configure scoped updates for faster incremental rebuilds
+// Files in each scope only rebuild when files in that scope change
+site.scopedUpdates(
+    // CSS/SCSS files are independent
+    (path) => /\.(css|scss)$/.test(path),
+    
+    // JavaScript/TypeScript files are independent (except .page.js which generate pages)
+    (path) => /\.(js|ts)$/.test(path) && !path.endsWith(".page.js"),
+    
+    // Changelog MDX files are independent from other content
+    (path) => path.startsWith("/new_changelogs/") && path.endsWith(".mdx"),
+);
+
 site.use(nunjucks());
 site.use(icons());
 
@@ -87,8 +202,27 @@ const mdFilter = site.renderer.helpers.get('md')[0];
 
 site.ignore("README.md", 'articles', 'changelogs', 'unused', 'guides');
 
+// Detect dev mode (serve command uses -s flag)
+const isDevMode = Deno.args.includes("-s") || Deno.args.includes("--serve");
+
+// In dev mode, only load recent changelogs for faster builds
+if (isDevMode) {
+    site.ignore(
+        "new_changelogs/2015",
+        "new_changelogs/2016",
+        "new_changelogs/2017",
+        "new_changelogs/2018",
+        "new_changelogs/2019",
+        "new_changelogs/2020",
+        "new_changelogs/2021",
+        "new_changelogs/2022",
+        "new_changelogs/2023",
+    );
+    console.log("  Dev mode: Loading only recent changelogs (2024-2025)");
+}
+
 // Sets `/documentation/` through the url filter when running locally
-if (Deno.args.includes("-s") || Deno.args.includes("--serve")) {
+if (isDevMode) {
     site.options.location = new URL("http://localhost:9010/documentation/");
 }
 
@@ -107,13 +241,23 @@ site.preprocess(['.md', '.mdx'], (pages) => pages.forEach((page) => {
             page.data.date = parsedDate;
         }
 
-        const firstLine = page.data.content.trim().split('\n')[0];
+        const firstLine = String(page.data.content).trim().split('\n')[0];
         if (!firstLine) {
             return;
         }
 
+        // Cache key based on path + first line (description only depends on these)
+        const cacheKey = `${page.src.path}:${firstLine}`;
+        const cached = changelogDescriptionCache.get(cacheKey);
+        if (cached) {
+            page.data.description = cached;
+            return;
+        }
+
         const markdownInline = mdFilter(firstLine, true) || '';
-        page.data.description = stripHTML(markdownInline);
+        const description = stripHTML(markdownInline);
+        changelogDescriptionCache.set(cacheKey, description);
+        page.data.description = description;
     }
 }));
 
@@ -154,6 +298,24 @@ site.use(sitemap({
     items:{
         filename: '=/documentation/sitemap.xml'
     }
+}));
+
+// Changelog RSS feed - uses changelogs tag (year pages use changelog-year tag instead)
+site.use(feed({
+    output: ["/documentation/changelog/feed.xml"],
+    query: "changelogs",
+    sort: "date=desc",
+    limit: 20,
+    info: {
+        title: "CloudCannon Documentation Changelog",
+        description: "Latest updates and changes to CloudCannon",
+    },
+    items: {
+        title: "=title",
+        description: "=description",
+        published: "=date",
+        content: "=children",
+    },
 }));
 
 site.loadPages([".md"], (page) => {
@@ -466,12 +628,18 @@ site.filter('parent_gids_from_doc', (doc) => {
 });
 
 site.filter("get_by_letter", async (resources, letter) => {
-    //const dir = `user/glossary/${letter}`;
+    // Check cache first
+    const cacheKey = letter.toLowerCase();
+    const cached = glossaryByLetterCache.get(cacheKey);
+    if (cached !== undefined) {
+        return cached;
+    }
+
     const dir = join(
         Deno.cwd(),
         "user",
         "glossary",
-        letter.toLowerCase(),
+        cacheKey,
     );
     let entries = [];
     try {
@@ -484,11 +652,12 @@ site.filter("get_by_letter", async (resources, letter) => {
     } catch (error) {
         // Directory doesn't exist, return empty array
         if (error instanceof Deno.errors.NotFound) {
-            console.log("Directory doesn't exist, return empty array");
+            glossaryByLetterCache.set(cacheKey, []);
             return [];
         }
         throw error; // Re-throw other errors
     }
+    glossaryByLetterCache.set(cacheKey, entries);
     return entries;
 }, true)
 
@@ -510,12 +679,16 @@ site.filter("render_page_content", async (page: Lume.Page) => {
 }, true)
 
 site.filter("render_text_only", async (markdown: string) => {
-    const result = await remark()
-      .use(remarkParse)
-      .use(strip)
-      .process(markdown);
+    // Check cache first
+    const cached = renderTextOnlyCache.get(markdown);
+    if (cached !== undefined) {
+        return cached;
+    }
 
-    return String(result).trim();
+    const result = await getRemarkProcessor().process(markdown);
+    const text = String(result).trim();
+    renderTextOnlyCache.set(markdown, text);
+    return text;
 }, true)
 
 site.filter("DATE_TO_NOW", (date) => {
@@ -562,10 +735,17 @@ site.filter("render_common", (file: string, data: object = {}) => {
 })
 
 site.filter("get_glossary_term", (file: string) => {
+    // Check cache first
+    const cached = glossaryTermCache.get(file);
+    if (cached !== undefined) {
+        return cached;
+    }
+
     const mdFilter = site.renderer.helpers.get('md')[0];
     const file_content = Deno.readTextFileSync(`${file.slice(1)}`);
     let yml = jsYaml.load(file_content)
     const description = mdFilter(yml.term_description)
+    glossaryTermCache.set(file, description);
     return description;
 })
 
@@ -596,6 +776,9 @@ site.filter("get_index_page", (page: string) => {
 let changelogsData = {};
 
 site.addEventListener("beforeBuild", async () => {
+    startPhase("total");
+    startPhase("load");
+    console.log("\n=== BUILD TIMING START ===");
   const dir = "new_changelogs";
   const years = {"keys":[]};
 

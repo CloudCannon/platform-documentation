@@ -16,21 +16,55 @@ description: List of all changes made to the CloudCannon app
             </template>
         </aside>
         <div class="u-card-box l-small-content">
+            <div class="l-breadcrumb">Changelog</div>
             <h1 class="l-heading u-margin-bottom-0">
-                Changelog {{ data.year }}
+                {{ data.year }}
             </h1>
+            <div class="l-toc-mobile" x-data="{toc_open:false}" @click="toc_open = !toc_open">
+                <h3 :class="toc_open ? 'open' : ''">Table of contents <img src="{{ "arrow_forward_ios:outlined" | icon("material") }}" inline/></h3>
+                <div class="l-toc__list" :class="toc_open ? 'open' : ''"></div>
+            </div>
+            <div class="l-content-split" x-data="$visibleNavHighlighter">
+                <main>
+                    {% for monthGroup in data.months %}
+                    <h2 class="changelog-month-heading">{{ monthGroup.name }}</h2>
+                    <div class="l-content-cards changelog-cards">
+                        {% for changelog in monthGroup.results %}
+                            <a href="{{ changelog.url }}" class="changelog-entry">
+                                <h3 {% if loop.first %}class="u-margin-top-0"{% endif %}>{{ changelog.page.data.title }}</h3>
+                                <p class="changelog-entry__date">{{ changelog.page.data.date | DATE_TO_NOW }}</p>
+                                <p class="changelog-entry__content">{{ changelog.content | render_text_only | truncate(100) }}</p>
+                                <div class="changelog-entry__footer">
+                                    <img src="{{ "arrow_forward:outlined" | icon("material") }}" inline>
+                                </div>
+                            </a>
+                        {% endfor %}
+                    </div>
+                    {% endfor %}
 
-            <div class="l-content-cards changelog-cards">
-                {% for changelog in data.results %}
-                    <a href="{{ changelog.url }}" class="changelog-entry">
-                        <h2 {% if loop.first %}class="u-margin-top-0"{% endif %}>{{ changelog.page.data.title }}</h2>
-                        <p class="changelog-entry__date">{{ changelog.page.data.date | DATE_TO_NOW }}</p>
-                        <p class="changelog-entry__content">{{ changelog.content | render_text_only | truncate(100) }}</p>
-                        <div class="changelog-entry__footer">
-                            <img src="{{ "arrow_forward:outlined" | icon("material") }}" inline>
-                        </div>
-                    </a>
-                {% endfor %}
+                    {% if data.isOldestYear %}
+                    <div class="changelog-footer changelog-footer--origin">
+                        <p>Everything before this point is lost to time.</p>
+                        <p>We began writing changelogs on the 20th of July 2015 and never looked back.</p>
+                    </div>
+                    {% elif data.isNewestYear and data.previousYear %}
+                    <div class="changelog-footer">
+                        <p>That's all for {{ data.year }} so far. Stay tuned!</p>
+                        <a href="/documentation/changelog/{{ data.previousYear }}/">Catch up on {{ data.previousYear }} <img src="{{ "arrow_forward:outlined" | icon("material") }}" inline></a>
+                    </div>
+                    {% elif data.previousYear %}
+                    <div class="changelog-footer">
+                        <p>That's a wrap for {{ data.year }}!</p>
+                        <a href="/documentation/changelog/{{ data.previousYear }}/">See what we shipped in {{ data.previousYear }} <img src="{{ "arrow_forward:outlined" | icon("material") }}" inline></a>
+                    </div>
+                    {% endif %}
+                </main>
+
+                <aside data-pagefind-ignore class="l-right">
+                    <div class="l-toc" x-on:scroll.window.throttle.50ms="onScroll()">
+                        <!-- TOC auto-generated from h2 headings -->
+                    </div>
+                </aside>
             </div>
         </div>
     </div>
