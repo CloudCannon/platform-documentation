@@ -22,7 +22,7 @@ function RefSummary({ entry, helpers }) {
             
             <details className={!examples.length ? 'show-in-cms' : undefined}>
                 <summary><em>Examples</em></summary>
-                {examples.map((example, i) => (
+                {examples.filter(example => example.code).map((example, i) => (
                     <div key={i}>
                         {example.description && helpers && (
                             <div dangerouslySetInnerHTML={{ __html: helpers.md(example.description) }} />

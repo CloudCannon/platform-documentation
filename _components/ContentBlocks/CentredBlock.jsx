@@ -1,3 +1,5 @@
+import ButtonList from './ButtonList.jsx';
+
 export default function CentredBlock() {
     return (
         <div className="c-centred-block" alpine:style={`{ 
@@ -11,9 +13,7 @@ export default function CentredBlock() {
                 <h2 x-text="block.heading"></h2>
                 <p x-html="block.description"></p>
                 <div>
-                    <template x-for="button in block.buttons">
-                        <a alpine:href="button.button_link" className="cc-helper__button c-button" x-text="button.button_text"></a>
-                    </template>
+                    <ButtonList />
                 </div>
             </div>
         </div>

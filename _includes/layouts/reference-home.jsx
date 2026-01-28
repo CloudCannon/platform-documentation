@@ -1,17 +1,18 @@
 import DocNav from '../../_components/Reference/DocNav.jsx';
+import MobileTOC from '../../_components/Layout/MobileTOC.jsx';
+import NavSidebar from '../../_components/Layout/NavSidebar.jsx';
+import { parseDocUrl, formatTitle } from '../../_components/utils/index.js';
 
 export default function ReferenceHomeLayout({ content, details, date, page, navigation, full_docs, url, search }, helpers) {
     const currentUrl = page?.data?.url || url || '';
-    const urlPath = currentUrl.replace('/documentation/', '');
-    const urlParts = urlPath.split('/');
-    const sectionKey = urlParts[0];
+    const { navKey: sectionKey } = parseDocUrl(currentUrl);
     const navData = navigation?.[sectionKey];
     const sectionName = sectionKey?.replace(/-/g, ' ') || '';
     
     return (
         <div className="l-page" x-init="showmobilenav = true">
             <div className="l-column">
-                <aside className="l-left developer-reference" x-data="{ more: true }">
+                <NavSidebar className="developer-reference">
                     <DocNav 
                         navigation={navData}
                         currentDoc={null}
@@ -21,18 +22,7 @@ export default function ReferenceHomeLayout({ content, details, date, page, navi
                         search={search}
                         helpers={helpers}
                     />
-                    <template x-teleport="#mobile-docnav">
-                        <DocNav 
-                            navigation={navData}
-                            currentDoc={null}
-                            currentUrl={currentUrl}
-                            items={full_docs}
-                            page={page}
-                            search={search}
-                            helpers={helpers}
-                        />
-                    </template>
-                </aside>
+                </NavSidebar>
                 
                 <div className="u-card-box l-content" x-data="$visibleNavHighlighter">
                     <div className="l-breadcrumb">
@@ -54,13 +44,7 @@ export default function ReferenceHomeLayout({ content, details, date, page, navi
                         Last modified: {helpers.date(date, 'HUMAN_DATE')}
                     </p>
                     
-                    <div className="l-toc-mobile" x-data="{toc_open:false}" alpine:click="toc_open = !toc_open">
-                        <h3 alpine:class="toc_open ? 'open' : ''">
-                            Table of contents{' '}
-                            <img src={helpers.icon('arrow_forward_ios:outlined', 'material')} inline="true" />
-                        </h3>
-                        <div className="l-toc__list" alpine:class="toc_open ? 'open' : ''" />
-                    </div>
+                    <MobileTOC helpers={helpers} />
                     
                     <div 
                         data-pagefind-body 

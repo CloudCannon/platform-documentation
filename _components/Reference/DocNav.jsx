@@ -1,4 +1,7 @@
 import RefNavItem from './RefNavItem.jsx';
+import NavWrapper from '../Nav/NavWrapper.jsx';
+import NavHeading from '../Nav/NavHeading.jsx';
+import ScrollGradient from '../Nav/ScrollGradient.jsx';
 
 function RefNavList({ currentDoc, currentUrl, items }) {
     const navItems = (items || []).filter(item => item.documentation?.show_in_navigation);
@@ -71,53 +74,10 @@ export default function DocNav({ navigation, currentDoc, currentUrl, items, page
     const indexPage = search?.page?.(`url^=${currentUrl.split('/').slice(0, 3).join('/')}/`);
     const headings = navigation.headings || [];
     
-    const gradientStyle = {
-        position: 'sticky',
-        zIndex: 0,
-        pointerEvents: 'none',
-        width: 'calc(100% + 16px)',
-        opacity: 1,
-        height: '100px'
-    };
-    
     return (
-        <>
-            <nav 
-                id="t-docs-nav" 
-                className="t-docs-nav"
-                alpine:class="isPageNavOpen ? 't-docs-nav t-docs-nav--open' : 't-docs-nav'"
-                x-init="$getNavMemory?.()"
-            >
-                <div 
-                    className="c-scroll-area__gradient c-scroll-area__gradient--bottom"
-                    style={{
-                        ...gradientStyle,
-                        top: 0,
-                        marginBottom: '-100px',
-                        background: 'linear-gradient(to bottom, rgba(255, 255, 255, 1), transparent 70%)'
-                    }}
-                    x-show="$el.scrollHeight > $el.clientHeight"
-                />
-                
-                <div className="t-docs-nav__heading">
-                    <h2>{navigation.title}</h2>
-                    <button 
-                        className="t-docs-nav__control" 
-                        alpine:click="isPageNavOpen = true; $focusNav(true);"
-                        x-show="!isPageNavOpen"
-                        aria-label="Open docs menu"
-                    >
-                        <img src="/assets/img/expand.svg" inline="true" />
-                    </button>
-                    <button 
-                        className="t-docs-nav__control" 
-                        alpine:click="isPageNavOpen = false; $focusNav(false);"
-                        x-show="isPageNavOpen"
-                        aria-label="Close docs menu"
-                    >
-                        <img src="/assets/img/close.svg" inline="true" />
-                    </button>
-                </div>
+        <NavWrapper>
+            <ScrollGradient position="top" />
+            <NavHeading title={navigation.title} />
                 
                 <ol className="t-docs-nav__main-list">
                     {indexPage && (
@@ -184,19 +144,8 @@ export default function DocNav({ navigation, currentDoc, currentUrl, items, page
                         );
                     })}
                 </ol>
-                
-                <div 
-                    className="c-scroll-area__gradient c-scroll-area__gradient--bottom"
-                    style={{
-                        ...gradientStyle,
-                        bottom: 0,
-                        marginTop: '-100px',
-                        background: 'linear-gradient(to top, rgba(255, 255, 255, 1), transparent 70%)'
-                    }}
-                    x-show="$el.scrollHeight > $el.clientHeight"
-                />
-            </nav>
-        </>
+                <ScrollGradient position="bottom" />
+            </NavWrapper>
     );
 }
 

@@ -1,3 +1,7 @@
+import NavWrapper from './NavWrapper.jsx';
+import NavHeading from './NavHeading.jsx';
+import ScrollGradient from './ScrollGradient.jsx';
+
 function SubNav({ block, url, pageUuid, search, helpers }) {
     if (!block.items?.length) return null;
     
@@ -57,46 +61,9 @@ export default function DocNav({ navigation, url, page, search, helpers, getInde
     const pageUuid = page?.data?._uuid;
     
     return (
-        <nav 
-            id="t-docs-nav" 
-            className="t-docs-nav" 
-            alpine:class="isPageNavOpen ? 't-docs-nav t-docs-nav--open' : 't-docs-nav'" 
-            x-init="$getNavMemory?.()"
-        >
-            <div 
-                className="c-scroll-area__gradient c-scroll-area__gradient--bottom"
-                style={{ 
-                    position: 'sticky', 
-                    zIndex: 0, 
-                    pointerEvents: 'none', 
-                    width: 'calc(100% + 16px)', 
-                    opacity: 1, 
-                    height: '100px', 
-                    top: 0, 
-                    marginBottom: '-100px', 
-                    background: 'linear-gradient(to bottom, rgba(255, 255, 255, 1), transparent 70%)' 
-                }}
-                x-show="$el.scrollHeight > $el.clientHeight"
-            />
-            <div className="t-docs-nav__heading">
-                <h2>{navigation.title}</h2>
-                <button 
-                    className="t-docs-nav__control" 
-                    x-on:click="isPageNavOpen = true; $focusNav(true);" 
-                    x-show="!isPageNavOpen" 
-                    aria-label="Open docs menu"
-                >
-                    <img src="/assets/img/expand.svg" inline="true" />
-                </button>
-                <button 
-                    className="t-docs-nav__control" 
-                    x-on:click="isPageNavOpen = false; $focusNav(false);" 
-                    x-show="isPageNavOpen" 
-                    aria-label="Close docs menu"
-                >
-                    <img src="/assets/img/close.svg" inline="true" />
-                </button>
-            </div>
+        <NavWrapper>
+            <ScrollGradient position="top" />
+            <NavHeading title={navigation.title} />
             
             <ol className="t-docs-nav__main-list">
                 <li className="t-docs-nav__main-list__item">
@@ -147,21 +114,7 @@ export default function DocNav({ navigation, url, page, search, helpers, getInde
                     );
                 })}
             </ol>
-            <div 
-                className="c-scroll-area__gradient c-scroll-area__gradient--bottom"
-                style={{ 
-                    position: 'sticky', 
-                    zIndex: 0, 
-                    pointerEvents: 'none', 
-                    width: 'calc(100% + 16px)', 
-                    opacity: 1, 
-                    height: '100px', 
-                    bottom: 0, 
-                    marginTop: '-100px', 
-                    background: 'linear-gradient(to top, rgba(255, 255, 255, 1), transparent 70%)' 
-                }}
-                x-show="$el.scrollHeight > $el.clientHeight"
-            />
-        </nav>
+            <ScrollGradient position="bottom" />
+        </NavWrapper>
     );
 }

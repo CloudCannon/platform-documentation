@@ -1,4 +1,6 @@
 import ChangeNav from '../../_components/Nav/ChangeNav.jsx';
+import MobileTOC from '../../_components/Layout/MobileTOC.jsx';
+import NavSidebar from '../../_components/Layout/NavSidebar.jsx';
 
 export default async function ChangelogListLayout(props, helpers) {
     const { 
@@ -17,20 +19,13 @@ export default async function ChangelogListLayout(props, helpers) {
     return (
         <div className="l-page" x-init="showmobilenav = true">
             <div className="l-column">
-                <aside className="l-left" x-data="{ more: true }">
+                <NavSidebar>
                     <ChangeNav 
                         title="Changelog"
                         url={url}
                         changelogYears={changelog_years}
                     />
-                    <template x-teleport="#mobile-docnav">
-                        <ChangeNav 
-                            title="Changelog"
-                            url={url}
-                            changelogYears={changelog_years}
-                        />
-                    </template>
-                </aside>
+                </NavSidebar>
                 <div className="u-card-box l-small-content">
                     <div className="l-breadcrumb" />
                     <h1 className="l-heading u-margin-bottom-0 u-padding-bottom-0">
@@ -40,13 +35,7 @@ export default async function ChangelogListLayout(props, helpers) {
                         <a href="/documentation/changelog/feed.xml">Subscribe with RSS</a> to keep up with the latest changes.
                     </p>
                     
-                    <div className="l-toc-mobile" x-data="{toc_open:false}" alpine:click="toc_open = !toc_open">
-                        <h3 alpine:class="toc_open ? 'open' : ''">
-                            Table of contents 
-                            <img src={helpers.icon("arrow_forward_ios:outlined", "material")} inline="true" />
-                        </h3>
-                        <div className="l-toc__list" alpine:class="toc_open ? 'open' : ''" />
-                    </div>
+                    <MobileTOC helpers={helpers} />
                     <div className="l-content-split" x-data="$visibleNavHighlighter">
                         <main className="changelog-main">
                             {data?.results?.map((changelog, i) => (

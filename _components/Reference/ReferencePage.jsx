@@ -6,6 +6,8 @@
  */
 
 import { getDisplayName, getRefUrl, getBreadcrumbChain, getDocByGid, BASE_URL } from './helpers.js';
+import { parseDocUrl, formatTitle } from '../utils/index.js';
+import MobileTOC from '../Layout/MobileTOC.jsx';
 import TypeDisplay from './TypeDisplay.jsx';
 import RefList from './RefList.jsx';
 import RefNav from './RefNav.jsx';
@@ -88,7 +90,9 @@ function AppearsIn({ parent, appearsIn }) {
  * Renders the examples section
  */
 function Examples({ examples }, helpers) {
-    if (!examples?.length) {
+    const validExamples = (examples || []).filter(example => example.code);
+    
+    if (!validExamples.length) {
         return (
             <dt className="show-in-cms">Examples:</dt>
         );
@@ -97,7 +101,7 @@ function Examples({ examples }, helpers) {
     return (
         <>
             <dt>Examples:</dt>
-            {examples.map((example, i) => (
+            {validExamples.map((example, i) => (
                 <div key={i}>
                     {example.description && (
                         <div dangerouslySetInnerHTML={{ __html: helpers.md(example.description) }} />
@@ -147,9 +151,8 @@ export default function ReferencePage({ entry, page, navigation, full_docs }, he
     const examples = entry.documentation?.examples || [];
     
     // Parse URL for section name
-    const urlPath = currentUrl.replace('/documentation/', '');
-    const urlParts = urlPath.split('/');
-    const sectionName = urlParts[0]?.replace(/-/g, ' ') || 'Developer Reference';
+    const { navKey } = parseDocUrl(currentUrl);
+    const sectionName = formatTitle(navKey) || 'Developer Reference';
     
     return (
         <div className="l-page" x-init="showmobilenav = true">
@@ -182,20 +185,7 @@ export default function ReferencePage({ entry, page, navigation, full_docs }, he
                     </h1>
                     
                     {/* Mobile TOC */}
-                    <div 
-                        className="l-toc-mobile" 
-                        x-data="{toc_open:false}" 
-                        alpine:click="toc_open = !toc_open"
-                    >
-                        <h3 alpine:class="toc_open ? 'open' : ''">
-                            Table of contents{' '}
-                            <img 
-                                src={helpers.icon('arrow_forward_ios:outlined', 'material')} 
-                                inline="true"
-                            />
-                        </h3>
-                        <div className="l-toc__list" alpine:class="toc_open ? 'open' : ''" />
-                    </div>
+                    <MobileTOC helpers={helpers} />
                     
                     {/* Content Area */}
                     <div 

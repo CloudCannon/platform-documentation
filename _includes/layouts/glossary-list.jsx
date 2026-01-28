@@ -1,4 +1,5 @@
 import GlossaryNav from '../../_components/Nav/GlossaryNav.jsx';
+import NavSidebar from '../../_components/Layout/NavSidebar.jsx';
 
 export default async function GlossaryListLayout(props, helpers) {
     const { url, all_letters } = props;
@@ -15,20 +16,13 @@ export default async function GlossaryListLayout(props, helpers) {
     return (
         <div className="l-page" x-init="showmobilenav = true">
             <div className="l-column">
-                <aside className="l-left" x-data="{ more: true }">
+                <NavSidebar>
                     <GlossaryNav 
                         title="User Glossary"
                         allLetters={all_letters}
                         helpers={helpers}
                     />
-                    <template x-teleport="#mobile-docnav">
-                        <GlossaryNav 
-                            title="User Glossary"
-                            allLetters={all_letters}
-                            helpers={helpers}
-                        />
-                    </template>
-                </aside>
+                </NavSidebar>
                 <div className="u-card-box l-small-content">
                     <h1 className="l-heading u-margin-bottom-0 u-padding-bottom-0">
                         User Glossary

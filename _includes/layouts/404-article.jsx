@@ -1,4 +1,5 @@
 import DocNav from '../../_components/Nav/DocNav.jsx';
+import NavSidebar from '../../_components/Layout/NavSidebar.jsx';
 
 export default function NotFoundArticleLayout(props, helpers) {
     const { navigation, url, page, search } = props;
@@ -7,32 +8,19 @@ export default function NotFoundArticleLayout(props, helpers) {
     return (
         <div className="l-page">
             <div className="l-column">
-                <aside className="l-left" x-data="{ more: true }">
+                <NavSidebar>
                     {navData && (
-                        <>
-                            <DocNav 
-                                navigation={navData}
-                                url={url}
-                                page={page}
-                                search={search}
-                                helpers={helpers}
-                                getIndexPage={helpers.get_index_page}
-                                bubbleUpNav={helpers.bubble_up_nav}
-                            />
-                            <template x-teleport="#mobile-docnav">
-                                <DocNav 
-                                    navigation={navData}
-                                    url={url}
-                                    page={page}
-                                    search={search}
-                                    helpers={helpers}
-                                    getIndexPage={helpers.get_index_page}
-                                    bubbleUpNav={helpers.bubble_up_nav}
-                                />
-                            </template>
-                        </>
+                        <DocNav 
+                            navigation={navData}
+                            url={url}
+                            page={page}
+                            search={search}
+                            helpers={helpers}
+                            getIndexPage={helpers.get_index_page}
+                            bubbleUpNav={helpers.bubble_up_nav}
+                        />
                     )}
-                </aside>
+                </NavSidebar>
                 <div className="u-card-box l-content">
                     <main>
                         <div className="l-home-card">

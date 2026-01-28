@@ -7,6 +7,9 @@ import {
     isGidInside,
     BASE_URL 
 } from '../../_components/Reference/helpers.js';
+import { parseDocUrl, slugify } from '../../_components/utils/index.js';
+import MobileTOC from '../../_components/Layout/MobileTOC.jsx';
+import NavSidebar from '../../_components/Layout/NavSidebar.jsx';
 
 import TypeDisplay from '../../_components/Reference/TypeDisplay.jsx';
 import RefItem from '../../_components/Reference/RefItem.jsx';
@@ -38,9 +41,6 @@ function Breadcrumbs({ entry, parent, appearsIn, helpers }) {
     );
 }
 
-function slugify(text) {
-    return text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-}
 
 function getTocItems(entry) {
     const items = [];
@@ -102,11 +102,9 @@ export default function AutomatedReferenceLayout({ entry, page, navigation, full
     const appearsIn = entry.appears_in || [];
     const totalAppearsIn = (parent ? 1 : 0) + appearsIn.length;
     const currentUrl = page?.data?.url || url || '';
-    const examples = entry.documentation?.examples || [];
+    const examples = (entry.documentation?.examples || []).filter(ex => ex.code);
     
-    const urlPath = currentUrl.replace('/documentation/', '');
-    const urlParts = urlPath.split('/');
-    const sectionKey = urlParts[0];
+    const { navKey: sectionKey } = parseDocUrl(currentUrl);
     const navData = navigation?.[sectionKey];
     
     const tocItems = getTocItems(entry);
@@ -114,7 +112,7 @@ export default function AutomatedReferenceLayout({ entry, page, navigation, full
     return (
         <div className="l-page" x-init="showmobilenav = true">
             <div className="l-column">
-                <aside className="l-left developer-reference" x-data="{ more: true }">
+                <NavSidebar className="developer-reference">
                     <DocNav 
                         navigation={navData}
                         currentDoc={entry}
@@ -124,18 +122,7 @@ export default function AutomatedReferenceLayout({ entry, page, navigation, full
                         search={search}
                         helpers={helpers}
                     />
-                    <template x-teleport="#mobile-docnav">
-                        <DocNav 
-                            navigation={navData}
-                            currentDoc={entry}
-                            currentUrl={currentUrl}
-                            items={full_docs}
-                            page={page}
-                            search={search}
-                            helpers={helpers}
-                        />
-                    </template>
-                </aside>
+                </NavSidebar>
                 
                 <div className="u-card-box l-content" x-data="$visibleNavHighlighter">
                     <div className="l-breadcrumb">
@@ -152,15 +139,9 @@ export default function AutomatedReferenceLayout({ entry, page, navigation, full
                         {displayName}
                     </h1>
                     
-                    <div className="l-toc-mobile" x-data="{toc_open:false}" alpine:click="toc_open = !toc_open">
-                        <h3 alpine:class="toc_open ? 'open' : ''">
-                            Table of contents{' '}
-                            <img src={helpers.icon('arrow_forward_ios:outlined', 'material')} inline="true" />
-                        </h3>
-                        <div alpine:class="toc_open ? 'open' : ''">
-                            <TableOfContents items={tocItems} />
-                        </div>
-                    </div>
+                    <MobileTOC helpers={helpers} listClassName="">
+                        <TableOfContents items={tocItems} />
+                    </MobileTOC>
                     
                     <div 
                         data-pagefind-body 
