@@ -28,7 +28,7 @@ layout: layouts/base.njk
         {% set url = url.split("/") %}
         <div class="u-card-box l-content" x-data="$visibleNavHighlighter">
             <div class="l-breadcrumb"><a href="/documentation/{{ url[0] }}/">{{ url[0] | replace("-", " ") | title }}</a></div>
-            <h1 data-pagefind-body class="l-heading u-margin-bottom-0">{{ entry.title | default(entry.key, true) }}</h1>
+            <h1 data-pagefind-body class="l-heading u-margin-bottom-0">{{ entry.key }}</h1>
 
             <div class="l-toc-mobile" x-data="{toc_open:false}" @click="toc_open = !toc_open">
                 <h3 :class="toc_open ? 'open' : ''">Table of contents <img src="{{ "arrow_forward_ios:outlined" | icon("material") }}" inline/></h3>
@@ -38,16 +38,10 @@ layout: layouts/base.njk
             <div data-pagefind-body data-pagefind-filter="site:Documentation" data-pagefind-meta="site:Documentation" class="l-content-split">
                 <main>
                     <dl>
-                      {% if key %}
-                        <dt>Key:</dt>
-                        <dd><code>{{ key }}</code></dd>
-                      {% endif %}
-
-                      {% if full_key %}
+                      {% if full_key != key %}
                         <dt>Full key:</dt>
                         <dd><code>{{ full_key }}</code></dd>
                       {% endif %}
-
                       <dt {% if not description %} class="show-in-cms"{% endif %}>Description:</dt>
                       <dd
                       >{% if description %}{{ description | md | safe }}{% endif %}</dd>
