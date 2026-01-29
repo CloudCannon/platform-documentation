@@ -1,5 +1,5 @@
-import yaml from 'npm:js-yaml@4'
-import TOML from 'npm:@iarna/toml'
+import yaml from 'npm:js-yaml@4.1.1'
+import TOML from 'npm:@iarna/toml@2.2.5'
 import CodeBlockCopyButton from './CodeBlockCopyButton.tsx';
 
 const sentinalBread = '🥖';

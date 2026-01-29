@@ -1,8 +1,8 @@
 #!/usr/bin/env -S deno run --allow-read --allow-write
 
-import { ensureDir } from "https://deno.land/std@0.208.0/fs/mod.ts";
-import { join, basename } from "https://deno.land/std@0.208.0/path/mod.ts";
-import { parse as parseYaml, stringify as stringifyYaml } from "https://deno.land/std@0.208.0/yaml/mod.ts";
+import { ensureDir } from "jsr:@std/fs@1.0.21";
+import { join, basename } from "jsr:@std/path@1.0.8";
+import { parse as parseYaml, stringify as stringifyYaml } from "jsr:@std/yaml@1.0.10";
 
 interface MigrationRow {
   oldLink: string;

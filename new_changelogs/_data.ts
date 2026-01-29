@@ -1,4 +1,4 @@
-import slugify from "npm:@sindresorhus/slugify@2.2.0";
+import slugify from "npm:@sindresorhus/slugify@2.2.1";
 import { parseChangelogFilename } from "../parseChangelogFilename.ts";
 
 export const type = 'changelog';
