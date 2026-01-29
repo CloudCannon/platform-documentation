@@ -190,5 +190,34 @@ Alpine.magic('layoutOffsets', () => ({
   }
 }));
 
+// Theme management
+function getEffectiveTheme(preference) {
+  if (preference === 'system' || !preference) {
+    return globalThis.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+  return preference;
+}
+
+Alpine.magic('themeManager', () => ({
+  initTheme() {
+    this.effectiveTheme = getEffectiveTheme(this.themePreference);
+    
+    // Listen for OS preference changes
+    globalThis.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+      if (this.themePreference === 'system') {
+        this.effectiveTheme = e.matches ? 'dark' : 'light';
+      }
+    });
+  },
+  
+  setTheme(preference) {
+    this.themePreference = preference;
+    this.effectiveTheme = getEffectiveTheme(preference);
+    localStorage.setItem('cc_darkMode', preference);
+    // Close the popover
+    document.getElementById('theme-dropdown')?.hidePopover();
+  }
+}));
+
 globalThis.Alpine = Alpine;
 Alpine.start();

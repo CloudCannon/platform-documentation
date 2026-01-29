@@ -7,23 +7,36 @@ interface NavProps {
     helpers: Helpers;
 }
 
-function DarkLightToggle({helpers}: {helpers: Helpers}) {
+function ThemeDropdown({helpers, id = "theme-dropdown"}: {helpers: Helpers, id?: string}) {
     return (
         <>
-            <input 
-                type="checkbox" 
-                id="light_dark" 
-                alpine:click="darkMode = darkMode == 'dark' ? 'light' : 'dark'; localStorage.setItem('cc_darkMode',darkMode)" 
-                alpine:checked="darkMode == 'dark'" 
-            />
-            <label htmlFor="light_dark" className="l-header__search light-darkmode" title="Light/Dark mode">
-                <div className="light-darkmode__button dark">
+            <button
+                type="button"
+                className="l-header__search theme-toggle"
+                popovertarget={id}
+                title="Theme"
+            >
+                <template x-if="effectiveTheme === 'dark'">
                     <img src={helpers.icon("dark_mode:filled", "material")} inline="true" />
-                </div>
-                <div className="light-darkmode__button light">
+                </template>
+                <template x-if="effectiveTheme === 'light'">
                     <img src={helpers.icon("light_mode:filled", "material")} inline="true" />
-                </div>
-            </label>
+                </template>
+            </button>
+            <div id={id} popover="auto" className="theme-dropdown">
+                <button type="button" x-on:click="setTheme('system')" alpine:class="themePreference === 'system' ? 'active' : ''">
+                    <img src={helpers.icon("brightness_6:outlined", "material")} inline="true" />
+                    System
+                </button>
+                <button type="button" x-on:click="setTheme('light')" alpine:class="themePreference === 'light' ? 'active' : ''">
+                    <img src={helpers.icon("light_mode:filled", "material")} inline="true" />
+                    Light
+                </button>
+                <button type="button" x-on:click="setTheme('dark')" alpine:class="themePreference === 'dark' ? 'active' : ''">
+                    <img src={helpers.icon("dark_mode:filled", "material")} inline="true" />
+                    Dark
+                </button>
+            </div>
         </>
     );
 }
@@ -47,7 +60,7 @@ export default function Nav({ headingnav, url, helpers }: NavProps) {
                 <button type="button" x-on:click="isModalOpen = true; $focusSearch(true);" className="l-header__search" title="Search">
                     <img src={helpers.icon("search:outlined", "material")} inline="true" />
                 </button>
-                <DarkLightToggle helpers={helpers} />
+                <ThemeDropdown helpers={helpers} />
                 <a className="cc-helper__button" href="https://app.cloudcannon.com/register">Go to App</a>
             </div>
             
@@ -86,20 +99,7 @@ export default function Nav({ headingnav, url, helpers }: NavProps) {
                 </div>
                 <div className="button-container">
                     <a className="cc-helper__button" href="https://app.cloudcannon.com/register">Go to App</a>
-                    <input 
-                        type="checkbox" 
-                        id="light_dark_mobile" 
-                        alpine:click="darkMode = darkMode == 'dark' ? 'light' : 'dark'; localStorage.setItem('cc_darkMode',darkMode)" 
-                        alpine:checked="darkMode == 'dark'" 
-                    />
-                    <label htmlFor="light_dark_mobile" className="l-header__search light-darkmode" title="Light/Dark mode">
-                        <div className="light-darkmode__button dark">
-                            <img src={helpers.icon("dark_mode:filled", "material")} inline="true" />
-                        </div>
-                        <div className="light-darkmode__button light">
-                            <img src={helpers.icon("light_mode:filled", "material")} inline="true" />
-                        </div>
-                    </label>
+                    <ThemeDropdown helpers={helpers} id="theme-dropdown-mobile" />
                 </div>
 
                 <div className="l-header__links--sub-list">

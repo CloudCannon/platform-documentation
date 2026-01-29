@@ -122,26 +122,34 @@ export default function BaseLayout(props: Props, helpers: Helpers) {
             </head>
 
             <body 
-                x-init="mobiledocnav = $refs.mobiledocnav;init()"
-                x-data={`{'isModalOpen': false, 
+                x-init="mobiledocnav = $refs.mobiledocnav; $themeManager.initTheme(); init()"
+                x-data={`{
+                    'isModalOpen': false, 
                     'isMainNavOpen': false, 
                     'isPageNavOpen': false, 
                     'showmobilenav': false,
-                    darkMode: localStorage.getItem('cc_darkMode') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'),
-                    ...$layoutOffsets
+                    themePreference: localStorage.getItem('cc_darkMode') || 'system',
+                    effectiveTheme: (function() {
+                        var pref = localStorage.getItem('cc_darkMode') || 'system';
+                        if (pref === 'system') return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+                        return pref;
+                    })(),
+                    ...$layoutOffsets,
+                    ...$themeManager
                 }`}
                 alpine-keydown-escape="isModalOpen=false; $focusSearch(isModalOpen);"
                 alpine-keydown-window-prevent-ctrl-k="isModalOpen=!isModalOpen; $focusSearch(isModalOpen);"
                 alpine-keydown-window-prevent-cmd-k="isModalOpen=!isModalOpen; $focusSearch(isModalOpen);"
-                alpine:class="darkMode == 'dark' ? 'dark' : ''"
+                alpine:class="effectiveTheme === 'dark' ? 'dark' : ''"
                 alpine-scroll-window="updateOffset()"
             >
                 {/* Apply dark mode immediately to prevent flash - Alpine will take over state management */}
                 <script dangerouslySetInnerHTML={{ __html: `
                     (function() {
-                        var darkMode = localStorage.getItem('cc_darkMode') || 
-                            (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-                        if (darkMode === 'dark') {
+                        var pref = localStorage.getItem('cc_darkMode') || 'system';
+                        var isDark = pref === 'dark' || 
+                            (pref === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+                        if (isDark) {
                             document.body.classList.add('dark');
                         }
                     })();
