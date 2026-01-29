@@ -1,5 +1,6 @@
 import GlossaryNav from '../../_components/Nav/GlossaryNav.tsx';
 import NavSidebar from '../../_components/Layout/NavSidebar.tsx';
+import MobileTOC from '../../_components/Layout/MobileTOC.tsx';
 import Card from '../../_components/Card/Card.tsx';
 import type { Helpers } from '../../_types.d.ts';
 
@@ -33,12 +34,12 @@ export default async function GlossaryListLayout(props: Props, helpers: Helpers)
                         allLetters={all_letters}
                     />
                 </NavSidebar>
-                <div className="u-card-box l-small-content">
+                <div className="u-card-box l-small-content" x-data="visibleNavHighlighter">
                     <h1 className="l-heading u-margin-bottom-0 u-padding-bottom-0">
                         User Glossary
                     </h1>
-
-                    <div className="l-content-split" x-data="visibleNavHighlighter">
+                    <MobileTOC helpers={helpers} />
+                    <div className="l-content-split">
                         <main id="main-content" className="c-card-container--glossary">
                             {entriesByLetter.flatMap(({ letter, entries }) => [
                                 <h2 key={`heading-${letter}`} id={letter.toLowerCase()} className="l-heading u-margin-bottom-0 u-padding-bottom-0 glossary-letter-heading">

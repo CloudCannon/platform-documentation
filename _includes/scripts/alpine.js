@@ -157,6 +157,24 @@ document.addEventListener("click", (e) => {
   }
 });
 
+// Scroll mobile TOC to active item when opened
+document.addEventListener("toggle", (e) => {
+  const details = e.target;
+  if (!details.open || !details.matches('.l-toc-mobile')) return;
+  
+  const tocList = details.querySelector('.l-toc__list');
+  const activeItem = tocList?.querySelector('.active');
+  if (tocList && activeItem) {
+    requestAnimationFrame(() => {
+      // Scroll the container, not the page
+      const itemTop = activeItem.offsetTop;
+      const itemHeight = activeItem.offsetHeight;
+      const containerHeight = tocList.clientHeight;
+      tocList.scrollTop = itemTop - (containerHeight / 2) + (itemHeight / 2);
+    });
+  }
+}, true); // Use capture phase since toggle doesn't bubble
+
 // Auto-scroll nav when details expands near bottom
 document.addEventListener('toggle', (e) => {
     const details = e.target;
