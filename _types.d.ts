@@ -197,6 +197,7 @@ export interface DocEntry {
 export interface ArticlePage {
   url: string;
   title?: string;
+  content?: string;
   details?: Details;
   page?: Page;
   data?: {

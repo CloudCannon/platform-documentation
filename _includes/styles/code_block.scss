@@ -4,6 +4,7 @@
   background-color: var(--code-block-background);
   color: var(--code-block-text);
   border-radius: var(--border-radius);
+  border: var(--border-width) solid var(--code-block-border);
   margin-bottom: var(--gap);
 
   &--annotated {
@@ -16,6 +17,7 @@
     align-items: center;
     gap: 4px;
     padding: 0 0 0 6px;
+    min-height: 40px;
   }
 
   &__icon {
@@ -23,25 +25,126 @@
     fill: var(--code-block-icon);
   }
 
-  &__source {
+  // Tabs container within the heading
+  &__tabs {
+    display: flex;
+    align-items: center;
     flex: 1;
+    gap: 0;
+  }
+
+  // Individual tab button
+  &__tab {
+    appearance: none;
+    border: 0;
+    background: transparent;
+    color: var(--code-block-tab-text);
+    font-family: inherit;
     font-size: 14px;
+    font-weight: 500;
+    padding: 10px 16px;
+    cursor: pointer;
+    position: relative;
+    transition: color 0.15s ease;
+
+    &:hover {
+      color: var(--code-block-tab-hover);
+    }
+
+    &[aria-selected="true"] {
+      color: var(--code-block-tab-active);
+
+      &::after {
+        content: "";
+        position: absolute;
+        bottom: -1px;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background-color: var(--code-block-tab-active);
+      }
+    }
+
+    &:focus {
+      outline: none;
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--code-block-focus);
+      outline-offset: -2px;
+      border-radius: var(--border-radius-small);
+    }
+
+    // Static tab (non-interactive, shows current language)
+    &--static {
+      cursor: default;
+      color: var(--code-block-tab-active);
+
+      &::after {
+        content: "";
+        position: absolute;
+        bottom: -1px;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background-color: var(--code-block-tab-active);
+      }
+
+      &:hover {
+        color: var(--code-block-tab-active);
+      }
+    }
+  }
+
+  // Tab panel container
+  &__panel {
+    &:focus {
+      outline: none;
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--code-block-focus);
+      outline-offset: -2px;
+    }
+  }
+
+  // Footer section for source filename
+  &__footer {
+    border-top: 1px solid var(--code-block-border);
+    padding: 4px 12px;
+  }
+
+  &__source {
+    font-size: 13px;
+    color: var(--code-block-footer-text);
+    font-family: Consolas, Monaco, "Andale Mono", "Ubuntu Mono", monospace;
   }
 
   &__copy {
     position: relative;
+    margin-left: auto;
 
     &__button {
       -webkit-appearance: none;
       border: 0;
-      padding: 7px 7px;
+      padding: 10px 12px;
       background: none;
       fill: var(--code-block-icon);
-      border-radius: 0 2px 0 0;
+      border-radius: 0 var(--border-radius-inner) 0 0;
       cursor: pointer;
+      transition: background-color 0.15s ease;
 
       &:hover {
         background-color: rgba(255, 255, 255, 0.1);
+      }
+
+      &:focus {
+        outline: none;
+      }
+
+      &:focus-visible {
+        outline: 2px solid var(--code-block-focus);
+        outline-offset: -2px;
       }
     }
 
@@ -49,15 +152,16 @@
       position: absolute;
       top: calc(100% + 5px);
       right: 5px;
-      background: rgba(0, 0, 0, 0.7);
-      padding: 5px;
+      background: rgba(0, 0, 0, 0.85);
+      padding: 6px 10px;
       border-radius: 4px;
       color: var(--color-cloud);
-      transition: opacity ease-in 0.3s;
+      transition: opacity ease-in 0.2s;
       opacity: 0;
       line-height: 1;
       pointer-events: none;
-      font-size: 14px;
+      font-size: 13px;
+      white-space: nowrap;
 
       &.active {
         opacity: 1;
