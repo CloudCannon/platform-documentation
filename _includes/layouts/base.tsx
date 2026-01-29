@@ -204,11 +204,16 @@ export default function BaseLayout(props: Props, helpers: Helpers) {
                 <script src="https://status.cloudcannon.com/embed/script.js" />
 
                 <script dangerouslySetInnerHTML={{ __html: `
-                    window.addEventListener('load', function() {
+                    function enableTransitions() {
                         requestAnimationFrame(function() {
                             document.documentElement.classList.remove('no-transitions');
                         });
-                    });
+                    }
+                    if (document.readyState === 'complete') {
+                        enableTransitions();
+                    } else {
+                        window.addEventListener('load', enableTransitions);
+                    }
                 `}} />
             </body>
         </html>
