@@ -15,53 +15,53 @@ import feed from "lume/plugins/feed.ts";
 import jsx from "lume/plugins/jsx.ts";
 import mdx from "lume/plugins/mdx.ts";
 
-import slugify from "npm:@sindresorhus/slugify@2.2.0";
+import slugify from "npm:@sindresorhus/slugify@2.2.1";
 
-import jsYaml from "npm:js-yaml";
+import jsYaml from "npm:js-yaml@4.1.1";
 
 // Data highlights
-import "npm:prismjs@1.29.0/components/prism-yaml.js";
-import "npm:prismjs@1.29.0/components/prism-json.js";
-import "npm:prismjs@1.29.0/components/prism-toml.js";
-import "npm:prismjs@1.29.0/components/prism-diff.js";
-import "npm:prismjs@1.29.0/components/prism-ignore.js";
+import "npm:prismjs@1.30.0/components/prism-yaml.js";
+import "npm:prismjs@1.30.0/components/prism-json.js";
+import "npm:prismjs@1.30.0/components/prism-toml.js";
+import "npm:prismjs@1.30.0/components/prism-diff.js";
+import "npm:prismjs@1.30.0/components/prism-ignore.js";
 
 // Lang highlights
-import "npm:prismjs@1.29.0/components/prism-bash.js";
-import "npm:prismjs@1.29.0/components/prism-ruby.js";
-import "npm:prismjs@1.29.0/components/prism-scss.js";
-import "npm:prismjs@1.29.0/components/prism-typescript.js";
+import "npm:prismjs@1.30.0/components/prism-bash.js";
+import "npm:prismjs@1.30.0/components/prism-ruby.js";
+import "npm:prismjs@1.30.0/components/prism-scss.js";
+import "npm:prismjs@1.30.0/components/prism-typescript.js";
 
 // Required language dependencies for languages like liquid
-import "npm:prismjs@1.29.0/components/prism-markup-templating.js";
+import "npm:prismjs@1.30.0/components/prism-markup-templating.js";
 
 // Template highlights
-import "npm:prismjs@1.29.0/components/prism-markdown.js";
-import "npm:prismjs@1.29.0/components/prism-liquid.js";
-import "npm:prismjs@1.29.0/components/prism-handlebars.js";
-import "npm:prismjs@1.29.0/components/prism-ejs.js";
-import "npm:prismjs@1.29.0/components/prism-jsx.js";
+import "npm:prismjs@1.30.0/components/prism-markdown.js";
+import "npm:prismjs@1.30.0/components/prism-liquid.js";
+import "npm:prismjs@1.30.0/components/prism-handlebars.js";
+import "npm:prismjs@1.30.0/components/prism-ejs.js";
+import "npm:prismjs@1.30.0/components/prism-jsx.js";
 
 // Custom highlights
 import "./_config/prism-tree.js";
 import "./_config/prism-annotated.js";
 
-import { DOMParser } from "https://deno.land/x/deno_dom@v0.1.38/deno-dom-wasm.ts";
-import { join } from "https://deno.land/std/path/mod.ts";
+import { DOMParser } from "jsr:@b-fuze/deno-dom@0.1.56";
+import { join } from "jsr:@std/path@1.0.8";
 
 //import { Page } from "lume/core.ts";
 import { Element } from "lume/deps/dom.ts";
 import { extract } from "lume/deps/front_matter.ts";
 
-import { remark } from "npm:remark";
-import remarkParse from "npm:remark-parse";
-import strip from "npm:strip-markdown";
+import { remark } from "npm:remark@15.0.1";
+import remarkParse from "npm:remark-parse@11.0.0";
+import strip from "npm:strip-markdown@6.0.0";
 
-import { format, formatDistanceToNowStrict, differenceInMonths } from 'npm:date-fns';
+import { format, formatDistanceToNowStrict, differenceInMonths } from 'npm:date-fns@3.6.0';
 import { parseChangelogFilename } from "./parseChangelogFilename.ts";
 import type { DocEntry, ContentNavItem } from './_types.d.ts';
 
-import documentation from 'npm:@cloudcannon/configuration-types@0.0.47/dist/documentation.json' with { type: 'json' };
+import documentation from 'npm:@cloudcannon/configuration-types@0.0.48/dist/documentation.json' with { type: 'json' };
 globalThis.DOCS = documentation as unknown as Record<string, DocEntry>;
 
 // Build timing instrumentation
@@ -186,9 +186,6 @@ site.addEventListener("afterStartServer", () => {
 site.scopedUpdates(
     // CSS/SCSS files are independent
     (path) => /\.(css|scss)$/.test(path),
-    
-    // Changelog MDX files are independent from other content
-    (path) => path.startsWith("/new_changelogs/") && path.endsWith(".mdx"),
 );
 
 site.use(nunjucks());
@@ -290,7 +287,8 @@ site.use(sass());
 site.add("/assets/css/site.scss");
 
 site.add("/assets/img");
-site.add("/uploads");
+// Uploads are copied via site.copy() above - don't also add them here
+// site.add("/uploads");
 
 site.use(date());
 site.use(sitemap({
@@ -532,7 +530,6 @@ site.process([".html"], async (pages) => {
 
     let tocContainer = page.document?.querySelectorAll(`.l-toc`)?.[0];
     const toc = page.document.createElement('ol');
-    toc.setAttribute("x-data","")
     toc.classList.add("l-toc__list");
     // deno-lint-ignore no-explicit-any
     function appendAnchorHeader(el: any, slug: string): void {
@@ -556,7 +553,7 @@ site.process([".html"], async (pages) => {
     if(!tocContainer){
         tocContainer = page.document?.querySelectorAll(`.l-toc-glossary`)?.[0];
         if(tocContainer)
-            selector = `main .glossary-entry > h3`;
+            selector = `main .c-card--glossary .c-card__title`;
     }
 
     page.document?.querySelectorAll(selector).forEach((el) => {

@@ -74,7 +74,7 @@ export default function Footer({ footernav, helpers }: FooterProps) {
                     </div>
                     <div className="status-message" alpine:class="indicator">
                         <img src={helpers.icon("circle:filled", "material")} inline="true" />
-                        <span x-text="`App Status: ${description}`" />
+                        <span x-text="`App Status: ${description}`">App Status: Check status page</span>
                         <img src={helpers.icon("arrow_forward:filled", "material")} inline="true" />
                     </div>
                 </a>

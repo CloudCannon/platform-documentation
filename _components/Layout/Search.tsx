@@ -33,6 +33,15 @@ export default function Search({ helpers }: SearchProps) {
                 </div>
             </div>
             <div className="t-overlay" x-show="isModalOpen" x-cloak="" />
+            <noscript>
+                <div className="t-noscript-search">
+                    <p>
+                        Search requires JavaScript. Browse the{' '}
+                        <a href="/documentation/">documentation home</a>{' '}
+                        or use your browser's find function (Ctrl/Cmd+F).
+                    </p>
+                </div>
+            </noscript>
         </>
     );
 }

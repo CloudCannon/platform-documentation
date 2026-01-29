@@ -1,7 +1,7 @@
 import DocNav from '../../_components/Reference/DocNav.tsx';
 import MobileTOC from '../../_components/Layout/MobileTOC.tsx';
 import NavSidebar from '../../_components/Layout/NavSidebar.tsx';
-import Card from '../../_components/Card/Card.tsx';
+import RelatedArticles from '../../_components/Content/RelatedArticles.tsx';
 import { parseDocUrl } from '../../_components/utils/index.ts';
 import type { Helpers, Details, Page, PageSearch, ContentNavigation, DocEntry } from '../../_types.d.ts';
 
@@ -14,48 +14,6 @@ interface Props {
     full_docs?: DocEntry[];
     url?: string;
     search?: PageSearch;
-}
-
-interface RelatedArticlesProps {
-    details?: Details;
-    search?: PageSearch;
-    helpers: Helpers;
-}
-
-function RelatedArticles({ details, search, helpers }: RelatedArticlesProps) {
-    const articles = details?.related_articles;
-    if (!articles?.length || !search) return null;
-    
-    return (
-        <>
-            <h2>Related Resources</h2>
-            <div>
-                <ul 
-                    className="c-card-container--related" 
-                    data-editable="array" 
-                    data-prop="details.related_articles"
-                >
-                    {articles.map(related => {
-                        const article = search.page(`_uuid=${related.item}`);
-                        if (!article) return null;
-                        
-                        return (
-                            <li key={related.item} data-editable="array-item">
-                                <Card
-                                    href={article.url}
-                                    title={article.details?.title}
-                                    description={article.details?.description}
-                                    category={article.details?.category}
-                                    variant="related"
-                                    helpers={helpers}
-                                />
-                            </li>
-                        );
-                    })}
-                </ul>
-            </div>
-        </>
-    );
 }
 
 export default function ReferenceHomeLayout({ content, details, date, page, navigation, full_docs, url, search }: Props, helpers: Helpers) {
@@ -81,7 +39,7 @@ export default function ReferenceHomeLayout({ content, details, date, page, navi
                     )}
                 </NavSidebar>
                 
-                <div className="u-card-box l-content" x-data="$visibleNavHighlighter">
+                <div className="u-card-box l-content" x-data="visibleNavHighlighter">
                     <div className="l-breadcrumb">
                         <span style={{ textTransform: 'capitalize' }}>{sectionName}</span>
                         <img src={helpers.icon('arrow_forward_ios:outlined', 'material')} inline="true" />
@@ -109,7 +67,7 @@ export default function ReferenceHomeLayout({ content, details, date, page, navi
                         data-pagefind-meta="site:Documentation" 
                         className="l-content-split"
                     >
-                        <main>
+                        <main id="main-content">
                             <div dangerouslySetInnerHTML={{ __html: content }} />
                         </main>
                         

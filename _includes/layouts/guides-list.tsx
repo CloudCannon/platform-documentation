@@ -33,7 +33,7 @@ export default function GuidesListLayout(props: Props, helpers: Helpers) {
     const { title, guide_sections, search } = props;
 
     return (
-        <div className="l-page guide-page">
+        <main id="main-content" className="l-page guide-page">
             <div className="l-column">
                 <div className="l-small-content">
                     <h1 className="l-heading" data-editable="text" data-prop="title">{title}</h1>
@@ -77,7 +77,7 @@ export default function GuidesListLayout(props: Props, helpers: Helpers) {
                     </editable-array>
                 </div>
             </div>
-        </div>
+        </main>
     );
 }
 

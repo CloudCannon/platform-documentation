@@ -70,8 +70,8 @@ export default async function ChangelogCardsLayout(props: Props, helpers: Helper
                         {data?.year}
                     </h1>
                     <MobileTOC helpers={helpers} />
-                    <div className="l-content-split" x-data="$visibleNavHighlighter">
-                        <main>
+                    <div className="l-content-split" x-data="visibleNavHighlighter">
+                        <main id="main-content">
                             {data?.months?.map((monthGroup, mi) => (
                                 <div key={mi}>
                                     <h2 className="changelog-month-heading">{monthGroup.name}</h2>

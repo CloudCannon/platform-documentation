@@ -1,37 +1,35 @@
 interface NavWrapperProps {
     children: unknown;
-    id?: string;
     className?: string;
+    popoverId?: string;
 }
 
 /**
  * NavWrapper - Wrapper component for navigation sections
  * 
- * Provides the standard navigation container with Alpine.js state for 
- * mobile menu toggling. Use this as the outer wrapper for all nav components.
+ * Provides the standard navigation container using the Popover API for 
+ * mobile menu toggling. On desktop, the nav is always visible via CSS.
+ * Use this as the outer wrapper for all nav components.
+ * 
+ * Includes scrollContainer Alpine data for scroll state tracking,
+ * which enables ScrollGradient components to show/hide based on scroll position.
  */
 export default function NavWrapper({ 
     children, 
-    id = "t-docs-nav", 
-    className = ""
+    className = "",
+    popoverId = "docs-nav-popover"
 }: NavWrapperProps) {
     const baseClass = "t-docs-nav";
     
     return (
         <nav 
-            id={id}
+            id={popoverId}
+            popover="auto"
             className={`${baseClass} ${className}`.trim()}
-            alpine:class={`isPageNavOpen ? '${baseClass} ${baseClass}--open' : '${baseClass}'`}
-            x-init="$getNavMemory?.()"
-            x-data="{height:0,scrollHeight:0,scrollTop:0}"
             x-ref="navParent"
-            x-on:scroll="scrollTop = $el.scrollTop;console.log(height,scrollHeight,scrollTop)"
+            x-data="scrollContainer"
         >
-            <div class="c-scroll-area__gradient c-scroll-area__gradient--top" 
-            x-show="scrollHeight > height && scrollTop > 0"></div>
             {children}
-            <div class="c-scroll-area__gradient c-scroll-area__gradient--bottom" 
-            x-show="scrollHeight > height && (height+scrollTop) < scrollHeight"></div>
         </nav>
     );
 }

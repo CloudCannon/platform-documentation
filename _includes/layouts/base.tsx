@@ -59,7 +59,7 @@ export default function BaseLayout(props: Props, helpers: Helpers) {
     const showSearch = url !== "/documentation/";
 
     return (
-        <html lang="en">
+        <html lang="en" className="no-transitions">
             <head>
                 <meta charSet="UTF-8" />
                 <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
@@ -122,39 +122,53 @@ export default function BaseLayout(props: Props, helpers: Helpers) {
             </head>
 
             <body 
-                x-cloak=""
-                x-init="mobiledocnav = $refs.mobiledocnav;init()"
-                x-data={`{'isModalOpen': false, 
+                x-init="$themeManager.initTheme(); init()"
+                x-data={`{
+                    'isModalOpen': false, 
                     'isMainNavOpen': false, 
                     'isPageNavOpen': false, 
                     'showmobilenav': false,
-                    darkMode: localStorage.getItem('cc_darkMode') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'),
-                    ...$layoutOffsets
+                    themePreference: localStorage.getItem('cc_darkMode') || 'system',
+                    effectiveTheme: (function() {
+                        var pref = localStorage.getItem('cc_darkMode') || 'system';
+                        if (pref === 'system') return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+                        return pref;
+                    })(),
+                    ...$layoutOffsets,
+                    ...$themeManager
                 }`}
                 alpine-keydown-escape="isModalOpen=false; $focusSearch(isModalOpen);"
                 alpine-keydown-window-prevent-ctrl-k="isModalOpen=!isModalOpen; $focusSearch(isModalOpen);"
                 alpine-keydown-window-prevent-cmd-k="isModalOpen=!isModalOpen; $focusSearch(isModalOpen);"
-                alpine:class="darkMode == 'dark' ? 'dark' : ''"
+                x-effect="document.body.style.colorScheme = themePreference === 'system' ? '' : effectiveTheme"
                 alpine-scroll-window="updateOffset()"
             >
+                {/* Apply theme immediately to prevent flash - Alpine will take over state management */}
+                <script dangerouslySetInnerHTML={{ __html: `
+                    (function() {
+                        var pref = localStorage.getItem('cc_darkMode') || 'system';
+                        if (pref === 'dark') {
+                            document.body.style.colorScheme = 'dark';
+                        } else if (pref === 'light') {
+                            document.body.style.colorScheme = 'light';
+                        }
+                        // 'system' leaves colorScheme unset, inheriting from :root's "light dark"
+                    })();
+                `}} />
+
+                <a href="#main-content" className="skip-link">
+                    Skip to content
+                </a>
+
                 {headingnav?.banner_html && (
                     <>
-                        <script dangerouslySetInnerHTML={{ __html: `
-                            let announcementBannerOpen = sessionStorage.getItem("announcementBannerOpenDocs") ? JSON.parse(sessionStorage.getItem("announcementBannerOpenDocs")) : true;
-                            var root = document.documentElement;
-                            if(!announcementBannerOpen)
-                                root.style.setProperty('--announcementBanner', 'none');
-                            else
-                                root.style.setProperty('--announcementBanner', 'flex');
-                        `}} />
-                        <div className="l-banner" x-ref="announcement" style={{ display: 'var(--announcementBanner)' }}>
+                        <div className="l-banner" x-ref="announcement" id="announcement-banner">
                             <div className="l-banner__inner">
                                 <div dangerouslySetInnerHTML={{ __html: headingnav.banner_html }} />
                                 <button 
                                     type="button"
                                     aria-label="close announcement banner"
-                                    alpine:click={`sessionStorage.setItem('announcementBannerOpenDocs', false);
-                                        document.querySelector('.l-banner').style.display = 'none';`}
+                                    onclick="sessionStorage.setItem('announcementBannerOpenDocs', 'false'); document.getElementById('announcement-banner').hidden = true;"
                                 >
                                     <div className="flex items-center">
                                         <div className="inner-cross">
@@ -165,6 +179,11 @@ export default function BaseLayout(props: Props, helpers: Helpers) {
                                 </button>
                             </div>
                         </div>
+                        <script dangerouslySetInnerHTML={{ __html: `
+                            if (sessionStorage.getItem("announcementBannerOpenDocs") === "false") {
+                                document.getElementById("announcement-banner").hidden = true;
+                            }
+                        `}} />
                     </>
                 )}
 
@@ -177,6 +196,9 @@ export default function BaseLayout(props: Props, helpers: Helpers) {
                 {typeof content === 'string' 
                     ? <div dangerouslySetInnerHTML={{ __html: content }} />
                     : content}
+
+                {/* Mobile nav teleport target - hidden by default, shown via Alpine */}
+                <div id="mobile-docnav" className="hidden" />
 
                 <div className="l-footer">
                     <Footer footernav={footernav} helpers={helpers} />
@@ -192,6 +214,19 @@ export default function BaseLayout(props: Props, helpers: Helpers) {
                 </div>
 
                 <script src="https://status.cloudcannon.com/embed/script.js" />
+
+                <script dangerouslySetInnerHTML={{ __html: `
+                    function enableTransitions() {
+                        requestAnimationFrame(function() {
+                            document.documentElement.classList.remove('no-transitions');
+                        });
+                    }
+                    if (document.readyState === 'complete') {
+                        enableTransitions();
+                    } else {
+                        window.addEventListener('load', enableTransitions);
+                    }
+                `}} />
             </body>
         </html>
     );

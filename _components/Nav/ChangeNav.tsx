@@ -31,7 +31,7 @@ export default function ChangeNav({ title, url, changelogYears }: ChangeNavProps
                 {years.keys?.map(year => (
                     <li 
                         key={year}
-                        className={`t-docs-nav__main-list__item changelog-nav ${url === `/documentation/changelog/${year}/` ? "selected" : ""}`}
+                        className={`t-docs-nav__main-list__item changelog-nav ${url?.startsWith(`/documentation/changelog/${year}/`) ? "selected" : ""}`}
                     >
                         <a href={`/documentation/changelog/${year}/`}>
                             <span className="t-docs-nav__main-list__item__heading">{year}</span>
