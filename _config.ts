@@ -3,7 +3,7 @@ import icons from "lume/plugins/icons.ts";
 
 import nunjucks from "lume/plugins/nunjucks.ts";
 
-import pagefind from "lume/plugins/pagefind.ts";
+// import pagefind from "lume/plugins/pagefind.ts";
 import date from "lume/plugins/date.ts";
 import sass from "lume/plugins/sass.ts";
 import inline from "lume/plugins/inline.ts";
@@ -50,7 +50,7 @@ import { DOMParser } from "https://deno.land/x/deno_dom@v0.1.38/deno-dom-wasm.ts
 import { join } from "https://deno.land/std/path/mod.ts";
 
 //import { Page } from "lume/core.ts";
-import { Element, Node } from "lume/deps/dom.ts";
+import { Element } from "lume/deps/dom.ts";
 import { extract } from "lume/deps/front_matter.ts";
 
 import { remark } from "npm:remark";
@@ -59,9 +59,10 @@ import strip from "npm:strip-markdown";
 
 import { format, formatDistanceToNowStrict, differenceInMonths } from 'npm:date-fns';
 import { parseChangelogFilename } from "./parseChangelogFilename.ts";
+import type { DocEntry, ContentNavItem } from './_types.d.ts';
 
-import documentation from 'npm:@cloudcannon/configuration-types@0.0.46/dist/documentation.json' with { type: 'json' };
-globalThis.DOCS = documentation;
+import documentation from 'npm:@cloudcannon/configuration-types@0.0.47/dist/documentation.json' with { type: 'json' };
+globalThis.DOCS = documentation as unknown as Record<string, DocEntry>;
 
 // Build timing instrumentation
 const buildTimings: Record<string, number> = {};
@@ -91,9 +92,9 @@ function endPhase(name: string) {
     buildTimings[name] = performance.now() - phaseStarts[name];
 }
 
-function stripHTML(html) {
+function stripHTML(html: string): string {
     const doc = new DOMParser().parseFromString(html, 'text/html');
-    return doc.body.textContent || '';
+    return doc?.body?.textContent || '';
 }
 
 const domainsRegExp = new RegExp('cloudcannon.com|^\/|^\#');
@@ -186,9 +187,6 @@ site.scopedUpdates(
     // CSS/SCSS files are independent
     (path) => /\.(css|scss)$/.test(path),
     
-    // JavaScript/TypeScript files are independent (except .page.js which generate pages)
-    (path) => /\.(js|ts)$/.test(path) && !path.endsWith(".page.js"),
-    
     // Changelog MDX files are independent from other content
     (path) => path.startsWith("/new_changelogs/") && path.endsWith(".mdx"),
 );
@@ -198,7 +196,7 @@ site.use(icons());
 
 const injectedSections: Promise<string>[] = [];
 
-const mdFilter = site.renderer.helpers.get('md')[0];
+const mdFilter = site.renderer.helpers.get('md')?.[0];
 
 site.ignore("README.md", 'articles', 'changelogs', 'unused', 'guides');
 
@@ -254,7 +252,7 @@ site.preprocess(['.md', '.mdx'], (pages) => pages.forEach((page) => {
             return;
         }
 
-        const markdownInline = mdFilter(firstLine, true) || '';
+        const markdownInline = mdFilter?.(firstLine, true) || '';
         const description = stripHTML(markdownInline);
         changelogDescriptionCache.set(cacheKey, description);
         page.data.description = description;
@@ -265,7 +263,8 @@ site.copy("ye_olde_images", "documentation/ye_olde_images");
 site.copy("uploads", "documentation/static");
 
 // Temporary trick to disable indented code blocks if we happen to use markdown-it
-site.formats.get(".md").engines[0].engine.disable("code");
+// deno-lint-ignore no-explicit-any
+(site.formats.get(".md")?.engines?.[0] as any)?.engine?.disable?.("code");
 
 // Disable builtin Pagefind instance while we're pinned to a beta version,
 // which must be pulled from a different repository.
@@ -298,7 +297,8 @@ site.use(sitemap({
     items:{
         filename: '=/documentation/sitemap.xml'
     }
-}));
+// deno-lint-ignore no-explicit-any
+} as any));
 
 // Changelog RSS feed - uses changelogs tag (year pages use changelog-year tag instead)
 site.use(feed({
@@ -318,10 +318,11 @@ site.use(feed({
     },
 }));
 
-site.loadPages([".md"], (page) => {
+// deno-lint-ignore no-explicit-any
+site.loadPages([".md"], ((page: any) => {
   if (page.src.path.startsWith("user/glossary/")) {
     page.data.collection = "glossary";
-}});
+}}) as unknown as undefined);
 
 
 // JSX doesn't like to output some alpine attributes,
@@ -329,20 +330,38 @@ site.loadPages([".md"], (page) => {
 const alpineRemaps = {
     "alpine:class": ":class",
     "alpine:click": "@click",
+    "alpine:href": ":href",
+    "alpine:src": ":src",
+    "alpine:style": ":style",
+    "alpine:key": ":key",
+    "alpine-click-stop": "@click.stop",
+    "alpine-click-away": "@click.away",
+    "alpine-click-outside": "@click.outside",
+    "alpine:checked": ":checked",
+    "alpine:scroll": "x-on:scroll.window.throttle.50ms",
+    "alpine-scroll-window": "@scroll.window",
+    "alpine-resize-window": "@resize.window",
+    "alpine-keydown-down": "@keydown.down",
+    "alpine-keydown-up": "@keydown.up",
+    "alpine-keydown-escape": "@keydown.escape",
+    "alpine-keydown-window-prevent-ctrl-k": "@keydown.window.prevent.ctrl.k",
+    "alpine-keydown-window-prevent-cmd-k": "@keydown.window.prevent.cmd.k",
+    "x-trap-inert": "x-trap.inert",
+    "x-trap-noscroll": "x-trap.noscroll",
 }
 
-function createLink(page, text, href) {
-    const a = page.document.createElement('a');
-    const linkText = page.document.createTextNode(text);
+function createLink(page: Lume.Page, text: string, href: string) {
+    const a = page.document!.createElement('a');
+    const linkText = page.document!.createTextNode(text);
     a.appendChild(linkText);
     a.setAttribute('href', href);
     return a;
 }
 
-function appendTargetBlank(page, el) {
+function appendTargetBlank(_page: Lume.Page, el: Element): void {
     if (el.hasAttribute("href")) {
-        let href = el.getAttribute('href')
-        if (!domainsRegExp.test(href)){
+        const href = el.getAttribute('href')
+        if (href && !domainsRegExp.test(href)){
             el.setAttribute('target', '_blank')
             el.setAttribute('rel', 'noopener')
         }
@@ -351,24 +370,25 @@ function appendTargetBlank(page, el) {
 
 const commentAnnotationRegex = /^\/\*\s*(\d+|\*)\s*\*\/$|^(?:\/\/|#)\s*(\d+|\*)\s*|^<!--\s*(\d+|\*)\s*-->$/;
 const tokenAnnotationRegex = /___(\d+|\*)___/g;
-const annotateCodeBlocks = (page) => {
+const annotateCodeBlocks = (page: Lume.Page): void => {
     // Comment tokens for standard code blocks, annotations
     // are inserted for syntax comments containing only digits
     page.document?.querySelectorAll('.token.comment').forEach((commentEl) => {
-        if (!commentAnnotationRegex.test(commentEl.innerText)) return;
+        const el = commentEl as HTMLElement;
+        if (!commentAnnotationRegex.test(el.innerText)) return;
 
-        const matches = commentEl.innerText.match(commentAnnotationRegex);
-        const annotationId = matches[1] ?? matches[2] ?? matches[3];
+        const matches = el.innerText.match(commentAnnotationRegex);
+        const annotationId = matches?.[1] ?? matches?.[2] ?? matches?.[3];
         if (!annotationId) return;
         
         // Empty the comment token and replace it with a clickable annotation box
-        commentEl.innerText = "";
-        commentEl.classList.add("annotation", "code-annotation");
+        el.innerText = "";
+        el.classList.add("annotation", "code-annotation");
         if (annotationId === "*" || annotationId === "0") {
-            commentEl.setAttribute("data-annotation-number", "★");
+            el.setAttribute("data-annotation-number", "★");
         } else {
-            commentEl.setAttribute("data-annotation-number", annotationId);
-            commentEl.setAttribute("@click", `highlighedAnnotation = ${annotationId}`);
+            el.setAttribute("data-annotation-number", annotationId);
+            el.setAttribute("@click", `highlighedAnnotation = ${annotationId}`);
         }
     });
 
@@ -377,11 +397,12 @@ const annotateCodeBlocks = (page) => {
     // a digit surrounded by three underscores on either side is encountered
     page.document?.querySelectorAll('.highlight > pre > code').forEach((codeEl) => {
         [...codeEl.childNodes].reverse().forEach((tokenEl) => {
-            const is_text = tokenEl.nodeName === "#text";
-            if (!tokenAnnotationRegex.test(is_text ? tokenEl.nodeValue : tokenEl.innerText)) return;
+            const token = tokenEl as HTMLElement & { nodeValue?: string };
+            const is_text = token.nodeName === "#text";
+            if (!tokenAnnotationRegex.test(is_text ? (token.nodeValue || '') : (token.innerText || ''))) return;
 
-            const matches = (is_text ? tokenEl.nodeValue : tokenEl.innerText).match(tokenAnnotationRegex);
-            for (const match of matches) {
+            const matches = (is_text ? token.nodeValue : token.innerText)?.match(tokenAnnotationRegex);
+            for (const match of matches || []) {
                 const annotationId = match.replace(/___/g, "");
                 if (!annotationId) continue;
 
@@ -396,43 +417,45 @@ const annotateCodeBlocks = (page) => {
                 }
 
                 // To insert after the token containing the annotation
-                // const insert_before_el = tokenEl.nextSibling || tokenEl;
+                // const insert_before_el = token.nextSibling || token;
 
                 // To insert at the end of the line containing the annotation
-                let next_newline = null;
-                let next_el = tokenEl;
+                let next_newline: ChildNode | null = null;
+                let next_el: ChildNode | null = token;
                 while (next_el && !next_newline) {
-                    if (/\n/.test(next_el?.nodeValue ?? "") || /\n/.test(next_el?.innerText ?? "")) {
+                    const nodeEl = next_el as HTMLElement & { nodeValue?: string };
+                    if (/\n/.test(nodeEl?.nodeValue ?? "") || /\n/.test(nodeEl?.innerText ?? "")) {
                         next_newline = next_el;
                         break;
                     }
                     next_el = next_el.nextSibling;
                 }
-                let insert_before_el = next_newline || tokenEl;
+                let insert_before_el: ChildNode | null = next_newline || token;
 
                 // Text nodes might span multiple lines, so we split it on newlines
                 // and re-add each as independent text nodes, so that we can add an element before
                 // the newline.
-                if (/\n/.test(insert_before_el?.nodeValue || "")) {
-                    const chunks = insert_before_el?.nodeValue
+                const insertNodeValue = (insert_before_el as Text)?.nodeValue;
+                if (insertNodeValue && /\n/.test(insertNodeValue)) {
+                    const chunks = insertNodeValue
                                     .split("\n")
-                                    .map(chunk => page.document.createTextNode(chunk));
+                                    .map((chunk: string) => page.document!.createTextNode(chunk));
                     for (let i = 0; i < chunks.length; i += 1) {
-                        insert_before_el.parentNode.insertBefore( chunks[i], insert_before_el);
+                        insert_before_el?.parentNode?.insertBefore(chunks[i], insert_before_el);
                         if (i !== chunks.length-1) {
-                            insert_before_el.parentNode.insertBefore(page.document.createTextNode("\n"), insert_before_el);
+                            insert_before_el?.parentNode?.insertBefore(page.document!.createTextNode("\n"), insert_before_el);
                         }
                     }
-                    insert_before_el.remove();
+                    insert_before_el?.remove();
                     insert_before_el = chunks[0].nextSibling;
                 }
-                insert_before_el.parentNode.insertBefore(commentEl, insert_before_el);
+                insert_before_el?.parentNode?.insertBefore(commentEl, insert_before_el);
             }
 
             if (is_text) {
-                tokenEl.nodeValue = tokenEl.nodeValue.replace(tokenAnnotationRegex, "");
+                token.nodeValue = (token.nodeValue || '').replace(tokenAnnotationRegex, "");
             } else {
-                tokenEl.innerText = tokenEl.innerText.replace(tokenAnnotationRegex, "");
+                token.innerText = (token.innerText || '').replace(tokenAnnotationRegex, "");
             }
         });
     });
@@ -469,19 +492,33 @@ const injectReusableContent = async (el: Element) => {
     }
 }
 
-site.process([".html"], (pages) => Promise.all(pages.map(async (page) => {
-    if (page.document) await injectReusableContent(page.document.body);
+site.process([".html"], async (pages) => {
+    await Promise.all(pages.map(async (page) => {
+    if (page.document) await injectReusableContent(page.document.body as unknown as Element);
 
-    for (const [attr, newattr] of Object.entries(alpineRemaps)) {
-        page.document?.querySelectorAll(`[${attr}]`).forEach((el) => {
-            el.setAttribute(newattr, el.getAttribute(attr));
-            el.removeAttribute(attr);
+    // Helper function to remap Alpine attributes
+    // deno-lint-ignore no-explicit-any
+    function remapAlpineAttrs(root: any): void {
+        for (const [attr, newattr] of Object.entries(alpineRemaps)) {
+            root?.querySelectorAll(`[${attr}]`).forEach((el: { setAttribute: (a: string, b: string) => void; getAttribute: (a: string) => string | null; removeAttribute: (a: string) => void }) => {
+                el.setAttribute(newattr, el.getAttribute(attr) || '');
+                el.removeAttribute(attr);
+            });
+        }
+        // Also process elements inside <template> tags
+        // deno-lint-ignore no-explicit-any
+        root?.querySelectorAll('template').forEach((template: any) => {
+            if (template.content) {
+                remapAlpineAttrs(template.content);
+            }
         });
     }
+    
+    remapAlpineAttrs(page.document);
 
-    const collisions = {};
+    const collisions: Record<string, boolean> = {};
 
-    function fixIdCollisions(slugPrefix) {
+    function fixIdCollisions(slugPrefix: string): string {
         let slug = slugPrefix;
         let count = 0;
         while(collisions[slug]) {
@@ -497,7 +534,8 @@ site.process([".html"], (pages) => Promise.all(pages.map(async (page) => {
     const toc = page.document.createElement('ol');
     toc.setAttribute("x-data","")
     toc.classList.add("l-toc__list");
-    function appendAnchorHeader(el, slug) {
+    // deno-lint-ignore no-explicit-any
+    function appendAnchorHeader(el: any, slug: string): void {
         el.setAttribute('id', slug);
         el.classList.add("c-anchor-header");
         const link = createLink(page, "#", `#${slug}`);
@@ -515,10 +553,16 @@ site.process([".html"], (pages) => Promise.all(pages.map(async (page) => {
             selector = `main .changelog-entry > h2`;
     }
 
+    if(!tocContainer){
+        tocContainer = page.document?.querySelectorAll(`.l-toc-glossary`)?.[0];
+        if(tocContainer)
+            selector = `main .glossary-entry > h3`;
+    }
+
     page.document?.querySelectorAll(selector).forEach((el) => {
         if (el.hasAttribute("data-skip-anchor")) return;
 
-        const text = el.innerText;
+        const text = (el as HTMLElement).innerText || el.textContent || '';
         const slugPrefix = el.getAttribute('id') || slugify(text);
         if (!slugPrefix) {
             return;
@@ -528,7 +572,7 @@ site.process([".html"], (pages) => Promise.all(pages.map(async (page) => {
 
         if (tocContainer) {
             hasItems = true;
-            const li = page.document.createElement('li');
+            const li = page.document!.createElement('li');
             li.setAttribute(
             "x-bind:class",
             `visibleHeadingId === '${slug}' ? 'active' : ''`
@@ -540,7 +584,8 @@ site.process([".html"], (pages) => Promise.all(pages.map(async (page) => {
     });
 
     page.document?.querySelectorAll(`.c-data-reference__header`).forEach((el) => {
-        const text = el.querySelector('.c-data-reference__key').innerText;
+        const keyEl = el.querySelector('.c-data-reference__key') as HTMLElement | null;
+        const text = keyEl?.innerText || keyEl?.textContent || '';
         const slug = fixIdCollisions(text);
         appendAnchorHeader(el, slug);
     });
@@ -555,49 +600,56 @@ site.process([".html"], (pages) => Promise.all(pages.map(async (page) => {
     }
 
     page.document?.querySelectorAll('a').forEach((el) => {
-        appendTargetBlank(page, el);
+        appendTargetBlank(page, el as unknown as Element);
     });
 
-    let mobile_toc = page.document.querySelector(".l-toc-mobile > .l-toc__list");
+    const mobile_toc = page.document?.querySelector(".l-toc-mobile > .l-toc__list");
     if(mobile_toc){
-        mobile_toc.innerHTML = toc?.innerHTML;
+        mobile_toc.innerHTML = toc?.innerHTML || '';
         if(!toc || toc.childNodes.length == 0)
-            mobile_toc.closest(".l-toc-mobile").remove();
+            mobile_toc.closest(".l-toc-mobile")?.remove();
     }
-})));
+    }));
+});
 
 // These MUST appear after our custom site.process([".html"] handling,
 // as in that function we inject content that should then be processed by the inline plugin,
 // and processing runs in the order it was instantiated.
+// Note: inline should be used before feed per lume best practices, but we need it after our custom HTML processing
+// deno-lint-ignore lume/plugin-order
 site.use(inline());
 site.use(prism());
 
 // This annotation process relies on the syntax highlighting,
 // so needs to run after prism
-site.process([".html"], (pages) => Promise.all(pages.map(async (page) => {
-    annotateCodeBlocks(page);
-})));
+site.process([".html"], async (pages) => {
+    await Promise.all(pages.map((page) => {
+        annotateCodeBlocks(page);
+    }));
+});
 
-site.filter("get_by_uuid", (resources, uuid) => {
-    let found = resources.filter(x => x._uuid === uuid)
+site.filter("get_by_uuid", (resources: Array<{ _uuid?: string }>, uuid: string) => {
+    const found = resources.filter((x: { _uuid?: string }) => x._uuid === uuid)
     if(found && found.length > 0)
         return found[0]
     return null
 })
 
-site.filter('is_gid_inside', (gid, parentGid) =>
-	parentGid === 'type.Configuration' ? !gid.startsWith('type.') : gid.startsWith(`${parentGid}.`)
-);
+site.filter('is_gid_inside', (gid: string | undefined, parentGid: string) => {
+    if(gid)
+	    return parentGid === 'type.Configuration' ? !gid.startsWith('type.') : gid.startsWith(`${parentGid}.`)
+    else return false
+});
 
-site.filter("get_docs_by_gid", (gid) => {
-    let found = Object.values(DOCS).filter(x => x.gid === gid)
+site.filter("get_docs_by_gid", (gid: string) => {
+    const found = Object.values(DOCS).filter((x) => x.gid === gid)
     if(found && found.length > 0)
         return found[0]
     return null
 })
 
-site.filter("get_docs_by_ref", (docRef) => {
-    let doc = DOCS[docRef.gid] || docRef;
+site.filter("get_docs_by_ref", (docRef: DocEntry) => {
+    const doc = DOCS[docRef.gid || ''] || docRef;
     
     if (docRef.documentation) {
         // Use more specific documentation entry
@@ -605,9 +657,9 @@ site.filter("get_docs_by_ref", (docRef) => {
             ...doc,
             title: docRef.documentation.title || doc.title,
             description: docRef.documentation.description || doc.description,
-            examples: docRef.documentation.examples.length
+            examples: docRef.documentation.examples?.length
                 ? docRef.documentation.examples
-                : doc.examples,
+                : doc.documentation?.examples,
             documentation: docRef.documentation,
         };
     }
@@ -615,17 +667,18 @@ site.filter("get_docs_by_ref", (docRef) => {
     return doc
 })
 
-site.filter('parent_gids_from_doc', (doc) => {
-    const parentGids = [];
+site.filter('parent_gids_from_doc', (doc: DocEntry) => {
+    const parentGids: string[] = [];
     let parentGid = doc.parent;
     while (parentGid) {
         parentGids.unshift(parentGid);
-        parentGid = DOCS[parentGid].parent;
+        parentGid = DOCS[parentGid]?.parent;
     }
     return parentGids;
 });
 
-site.filter("get_by_letter", async (resources, letter) => {
+
+site.filter("get_by_letter", async (_resources, letter) => {
     // Check cache first
     const cacheKey = letter.toLowerCase();
     const cached = glossaryByLetterCache.get(cacheKey);
@@ -639,7 +692,7 @@ site.filter("get_by_letter", async (resources, letter) => {
         "glossary",
         cacheKey,
     );
-    let entries = [];
+    const entries = [];
     try {
         for await(const entry of Deno.readDir(dir)){
             const file_content = Deno.readTextFileSync(`${dir}/${entry.name}`);
@@ -660,10 +713,10 @@ site.filter("get_by_letter", async (resources, letter) => {
 }, true)
 
 // TODO: Redo docnav as JSX and move this logic into the component
-const bubble_up_nav = (obj) => {
+const bubble_up_nav = (obj: ContentNavItem): string[] | undefined => {
     if (obj._bubbled) return;
     if (obj._type === "heading" || obj._type === "group") {
-        let articles = obj.items ? obj.items.flatMap(o => bubble_up_nav(o)) : [];
+        const articles = obj.items ? obj.items.flatMap((o: ContentNavItem) => bubble_up_nav(o) || []) : [];
         obj._bubbled = articles;
         return articles;
     } else {
@@ -689,44 +742,44 @@ site.filter("render_text_only", async (markdown: string) => {
     return text;
 }, true)
 
-site.filter("DATE_TO_NOW", (date) => {
-    let difference_in_months = differenceInMonths(new Date(), date)
-    let date_to_now = formatDistanceToNowStrict(date, {addSuffix: true})
+site.filter("DATE_TO_NOW", (date: Date | string) => {
+    const difference_in_months = differenceInMonths(new Date(), date)
+    const date_to_now = formatDistanceToNowStrict(date, {addSuffix: true})
     return difference_in_months < 5 ? date_to_now : format(date, "d MMMM yyyy")
 })
 
-site.filter("bubble_up_nav", (blocks) => {
+site.filter("bubble_up_nav", (blocks: ContentNavItem[]) => {
     blocks.forEach(bubble_up_nav);
     return blocks
 });
 
-site.filter("nav_contains", (nav, url) => {
+site.filter("nav_contains", (nav: { headings: ContentNavItem[] }, url: string) => {
     nav.headings.forEach(bubble_up_nav);
     for (const block of nav.headings) {
-        if (block._bubbled.includes(url)) {
+        if (block._bubbled?.includes(url)) {
             return true;
         }
     }
     return false;
 });
 
-site.filter("index_of", (block, item) => {
+site.filter("index_of", (block: unknown[], item: unknown) => {
     return block.indexOf(item);
 });
 
-site.filter("unslug", (str) => {
-    return str.replace(/(^|_)(\w)/g, (_, u, c) => `${u.replace('_', ' ')}${c.toUpperCase()}`);
+site.filter("unslug", (str: string) => {
+    return str.replace(/(^|_)(\w)/g, (_: string, u: string, c: string) => `${u.replace('_', ' ')}${c.toUpperCase()}`);
 })
 
 const summaryMarker = '</p>';
-site.filter("changelog_summary", (block, item) => {
+site.filter("changelog_summary", (block: string, _item: unknown) => {
     return block.substring(0, block.indexOf(summaryMarker) + summaryMarker.length);
 });
 
-site.filter("render_common", (file: string, data: object = {}) => {
+site.filter("render_common", (file: string, data: Record<string, unknown> = {}) => {
     // TODO: Remove the `/usr/local/__site/src/` replacement after fixing path selection
     const file_content = Deno.readTextFileSync(file.replace("/usr/local/__site/src/", ""));
-    const {body, attrs} = extract(file_content);
+    const {body} = extract(file_content);
     const content_id = injectedSections.push(site.renderer.render(body, data, file));
 
     return content_id - 1;
@@ -739,10 +792,11 @@ site.filter("get_glossary_term", (file: string) => {
         return cached;
     }
 
-    const mdFilter = site.renderer.helpers.get('md')[0];
+    const mdFilterFn = site.renderer.helpers.get('md')?.[0];
     const file_content = Deno.readTextFileSync(`${file.slice(1)}`);
-    let yml = jsYaml.load(file_content)
-    const description = mdFilter(yml.term_description)
+    // deno-lint-ignore no-explicit-any
+    const yml = jsYaml.load(file_content) as any;
+    const description = mdFilterFn?.(yml?.term_description) || '';
     glossaryTermCache.set(file, description);
     return description;
 })
@@ -753,15 +807,15 @@ site.filter("get_index_page", (page: string) => {
     {
         try
         {
-            let page_parts = page.split("-")
+            const page_parts = page.split("-")
             const file_content = Deno.readTextFileSync(`${page_parts[0]}/${page_parts[1]}/index.mdx`)
-            const {body, attrs} = extract(file_content)
-            let obj = {attrs:"", url:""};
-            obj.attrs = attrs;
-            obj.url = `/documentation/${page_parts[0]}-${page_parts[1]}/`;
-            return obj;
+            const {attrs} = extract(file_content)
+            return {
+                attrs: attrs as Record<string, unknown>,
+                url: `/documentation/${page_parts[0]}-${page_parts[1]}/`
+            };
         }
-        catch(e){
+        catch(_e){
             //console.log(e);
         }
     }
@@ -771,30 +825,30 @@ site.filter("get_index_page", (page: string) => {
     return null;
 })
 
-let changelogsData = {};
+let changelogsData: { keys: string[]; [year: string]: number | string[] } = { keys: [] };
 
 site.addEventListener("beforeBuild", async () => {
     startPhase("total");
     startPhase("load");
     console.log("\n=== BUILD TIMING START ===");
   const dir = "new_changelogs";
-  const years = {"keys":[]};
+  const years: { keys: string[]; [year: string]: number | string[] } = { keys: [] };
 
   for await (const entry of Deno.readDir(dir)) {
     if (entry.isDirectory) {
-        let dirname = entry.name;
+        const dirname = entry.name;
         years.keys.push(dirname);
         years[dirname] = 0;
-        let subdir = `${dir}/${dirname}`
+        const subdir = `${dir}/${dirname}`
         for await (const entry of Deno.readDir(subdir)) {
             if (entry.isFile) {
-                years[dirname]++;
+                (years[dirname] as number)++;
             }
         }
     }
   }
 
-  years.keys.sort((a,b) => b - a)
+  years.keys.sort((a, b) => Number(b) - Number(a))
 
   changelogsData = years;
 });
@@ -804,19 +858,19 @@ site.data("all_letters", () => [...Array(26).keys()].map((n) => String.fromCharC
 
 /* Environment data */
 
-let hubspot_id = Deno.env.get("HUBSPOT_ID");
+const hubspot_id = Deno.env.get("HUBSPOT_ID");
 if (!hubspot_id) {
     console.error("No HUBSPOT_ID environment variable set");
 }
 site.data("hubspot_id", hubspot_id || false);
 
-let ga_id = Deno.env.get("GA_ID");
+const ga_id = Deno.env.get("GA_ID");
 if (!ga_id) {
     console.error("No GA_ID environment variable set");
 }
 site.data("ga_id", ga_id || false);
 
-let ga_verify = Deno.env.get("GA_VERIFICATION");
+const ga_verify = Deno.env.get("GA_VERIFICATION");
 if (!ga_verify) {
     console.error("No GA_VERIFICATION environment variable set");
 }

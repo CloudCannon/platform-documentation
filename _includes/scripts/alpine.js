@@ -1,6 +1,6 @@
 import Alpine from "npm:alpinejs@latest";
 import intersect from "npm:@alpinejs/intersect@latest";
-import focus from "https://esm.sh/@alpinejs/focus@latest";
+import focus from "npm:@alpinejs/focus@latest";
 import ScrollPadlock from "npm:scroll-padlock@2.2.0";
 
 const scrollElement = document.body,
@@ -11,13 +11,13 @@ Alpine.plugin(intersect);
 Alpine.plugin(focus);
 
 
-Alpine.magic('visibleNavHighlighter', (el, { Alpine }) => ({
+Alpine.magic('visibleNavHighlighter', (_el, { Alpine: _Alpine }) => ({
     headings: undefined,
     visibleHeadingId: null,
 
     init() {
       this.$nextTick(() => {
-        this.headings = document.querySelectorAll('main h2')
+        this.headings = document.querySelectorAll('main h2, main dt[id], main dd[id]')
         this.assignHeadingIds()
         this.onScroll()
       })
@@ -32,9 +32,9 @@ Alpine.magic('visibleNavHighlighter', (el, { Alpine }) => ({
     },
 
     onScroll() {
-        let relativeTop = window.innerHeight / 2
+        const relativeTop = globalThis.innerHeight / 2
 
-        let headingsByDistanceFromTop = {}
+        const headingsByDistanceFromTop = {}
 
         this.headings.forEach(heading => {
             //console.log(heading,heading.getBoundingClientRect(),relativeTop)
@@ -43,7 +43,7 @@ Alpine.magic('visibleNavHighlighter', (el, { Alpine }) => ({
 
         //console.log(headingsByDistanceFromTop)
 
-        let closestNegativeTop = Math.max(...Object.keys(headingsByDistanceFromTop).filter(top => top < 0))
+        const closestNegativeTop = Math.max(...Object.keys(headingsByDistanceFromTop).filter(top => top < 0))
 
 
         if (closestNegativeTop >= 0 || [Infinity, NaN, -Infinity].includes(closestNegativeTop)) return this.visibleHeadingId = null
@@ -113,7 +113,7 @@ Alpine.magic("deleteRecentSearch", () => {
 
 Alpine.magic("triggerSearch", () => {
   return (term) => {
-    window.searchInstance.triggerSearch(term);
+    globalThis.searchInstance.triggerSearch(term);
   };
 });
 
@@ -123,9 +123,8 @@ Alpine.magic("clipboard", (el) => {
     toastMessage.classList.remove("active");
     await navigator.clipboard.writeText(decodeURIComponent(atob(code)));
     toastMessage.classList.add("active");
-    let timer = setTimeout(function () {
-      copied = toastMessage.classList.remove("active");
-      timer = null;
+    const _timer = setTimeout(function () {
+      toastMessage.classList.remove("active");
     }, 2000);
   };
 });
@@ -142,9 +141,9 @@ Alpine.magic("focusSearch", () => {
   return (isModalOpen) => {
     if (isModalOpen) {
       scrollElement.classList.add(LOCKED_CLASS);
-      window?.searchInput?.focus?.();
+      globalThis?.searchInput?.focus?.();
       setTimeout(() => {
-        window?.searchInput?.focus?.();
+        globalThis?.searchInput?.focus?.();
       }, 100);
     } else {
       scrollElement.classList.remove(LOCKED_CLASS);
@@ -178,7 +177,7 @@ Alpine.magic('layoutOffsets', () => ({
   },
 
   updateOffset() {
-    const scrolled = window.scrollY
+    const scrolled = globalThis.scrollY
 
     const visibleAnnouncement = Math.max(
       this.announcementHeight - scrolled,
@@ -191,5 +190,5 @@ Alpine.magic('layoutOffsets', () => ({
   }
 }));
 
-window.Alpine = Alpine;
+globalThis.Alpine = Alpine;
 Alpine.start();

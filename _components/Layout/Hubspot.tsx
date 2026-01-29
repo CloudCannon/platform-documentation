@@ -1,0 +1,23 @@
+export default function Hubspot() {
+    return (
+        <script dangerouslySetInnerHTML={{ __html: `
+            (function () {
+                const openHubspot = (e) => {
+                    if (window.HubSpotConversations) {
+                        e.preventDefault();
+                        const status = window.HubSpotConversations.widget.status();
+
+                        if (status.loaded) {
+                            window.HubSpotConversations.widget.open();
+                        } else {
+                            window.HubSpotConversations.widget.load({ widgetOpen: true });
+                        }
+                    }
+                };
+
+                const feedBackBtn = document.getElementById("feedback_request");
+                feedBackBtn?.addEventListener("click", openHubspot);
+            }())
+        `}} />
+    );
+}
