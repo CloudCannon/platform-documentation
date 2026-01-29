@@ -97,7 +97,7 @@ function TableOfContents({ items, withHeading = false }: { items: TocItem[], wit
     return (
         <>
             {withHeading && <h3 className="l-toc__heading">Table of contents</h3>}
-            <ol className="l-toc__list" x-data="">
+            <ol className="l-toc__list">
                 {items.map(item => (
                     <li key={item.id} x-bind:class={`visibleHeadingId === '${item.id}' ? 'active' : ''`}>
                         <a href={`#${item.id}`}>{item.label}</a>
@@ -184,7 +184,7 @@ export default function AutomatedReferenceLayout({ entry, page, navigation, full
                     )}
                 </NavSidebar>
                 
-                <div className="u-card-box l-content" x-data="$visibleNavHighlighter">
+                <div className="u-card-box l-content" x-data="visibleNavHighlighter">
                     <div className="l-breadcrumb">
                         <a href="/documentation/developer-reference/" style="text-transform: capitalize;">Developer Reference</a>
                         <PageBreadcrumb 

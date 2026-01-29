@@ -38,7 +38,7 @@ export default async function GlossaryListLayout(props: Props, helpers: Helpers)
                         User Glossary
                     </h1>
 
-                    <div className="l-content-split" x-data="$visibleNavHighlighter">
+                    <div className="l-content-split" x-data="visibleNavHighlighter">
                         <main id="main-content" className="c-card-container--glossary">
                             {entriesByLetter.flatMap(({ letter, entries }) => [
                                 <h2 key={`heading-${letter}`} id={letter.toLowerCase()} className="l-heading u-margin-bottom-0 u-padding-bottom-0 glossary-letter-heading">

@@ -197,6 +197,9 @@ export default function BaseLayout(props: Props, helpers: Helpers) {
                     ? <div dangerouslySetInnerHTML={{ __html: content }} />
                     : content}
 
+                {/* Mobile nav teleport target - hidden by default, shown via Alpine */}
+                <div id="mobile-docnav" className="hidden" />
+
                 <div className="l-footer">
                     <Footer footernav={footernav} helpers={helpers} />
                 </div>

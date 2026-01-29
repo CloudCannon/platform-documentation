@@ -108,7 +108,7 @@ export default function GuideLayout(props: Props, helpers: Helpers) {
                         <div x-intersect="more = false" x-intersect:leave="more = true" />
                     </nav>
                 </aside>
-                <div className="u-card-box l-content" x-data="$visibleNavHighlighter">
+                <div className="u-card-box l-content" x-data="visibleNavHighlighter">
                     <h1 data-pagefind-body="" className="l-heading u-margin-bottom-0">{details?.title}</h1>
                     <p data-pagefind-body="" className="l-subheading">{details?.description}</p>
                     <MobileTOC helpers={helpers} />

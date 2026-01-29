@@ -32,7 +32,6 @@ function SubNav({ block, url, pageUuid, search, helpers }: SubNavProps) {
                             <details 
                                 {...(isOpen ? { open: true } : {})}
                                 className={`${isOpen ? "nav-open" : ""} ${isOpen ? "is-active" : ""}`}
-                                alpine:click="$setNavMemory?.()"
                             >
                                 <summary className="t-docs-nav__sub-list__heading">
                                     {item.name}
@@ -60,7 +59,6 @@ function SubNav({ block, url, pageUuid, search, helpers }: SubNavProps) {
                                 className="t-docs-nav__sub-list__article"
                                 {...(articlePage.url === url ? { 'aria-current': 'page' } : {})}
                                 href={articlePage.url}
-                                alpine:click="$setNavMemory?.()"
                             >
                                 {articlePage.page?.data?.details?.title || articlePage.data?.details?.title}
                             </a>

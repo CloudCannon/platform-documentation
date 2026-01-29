@@ -53,7 +53,7 @@ export default async function ChangelogListLayout(props: Props, helpers: Helpers
                     </p>
                     
                     <MobileTOC helpers={helpers} />
-                    <div className="l-content-split" x-data="$visibleNavHighlighter">
+                    <div className="l-content-split" x-data="visibleNavHighlighter">
                         <main id="main-content" className="changelog-main">
                             {data?.results?.map((changelog, i) => (
                                 <div key={i} className="changelog-entry">

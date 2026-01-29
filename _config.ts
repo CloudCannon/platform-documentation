@@ -530,7 +530,6 @@ site.process([".html"], async (pages) => {
 
     let tocContainer = page.document?.querySelectorAll(`.l-toc`)?.[0];
     const toc = page.document.createElement('ol');
-    toc.setAttribute("x-data","")
     toc.classList.add("l-toc__list");
     // deno-lint-ignore no-explicit-any
     function appendAnchorHeader(el: any, slug: string): void {
@@ -554,7 +553,7 @@ site.process([".html"], async (pages) => {
     if(!tocContainer){
         tocContainer = page.document?.querySelectorAll(`.l-toc-glossary`)?.[0];
         if(tocContainer)
-            selector = `main .glossary-entry > h3`;
+            selector = `main .c-card--glossary .c-card__title`;
     }
 
     page.document?.querySelectorAll(selector).forEach((el) => {

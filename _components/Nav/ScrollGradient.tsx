@@ -6,28 +6,26 @@ interface ScrollGradientProps {
  * ScrollGradient - Gradient overlay for scrollable navigation areas
  * 
  * Creates a fade effect at the top or bottom of scrollable containers
- * to indicate there's more content above/below.
+ * to indicate there's more content above/below. Uses CSS classes with
+ * theme variables for proper dark mode support.
+ * 
+ * Requires parent container to have x-data="scrollContainer" for visibility state.
  */
 export default function ScrollGradient({ position = "bottom" }: ScrollGradientProps) {
-    const isTop = position === "top";
+    const modifierClass = position === "top" 
+        ? "c-scroll-area__gradient--top" 
+        : "c-scroll-area__gradient--bottom";
     
-    const baseStyle = {
-        position: 'sticky' as const,
-        zIndex: 0,
-        pointerEvents: 'none' as const,
-        width: 'calc(100% + 16px)',
-        opacity: '1',
-        height: '100px',
-    };
+    // scrolledDown: show top gradient when scrolled away from top
+    // more: show bottom gradient when not at bottom (more content below)
+    const showCondition = position === "top" ? "scrolledDown" : "more";
     
     return (
         <div 
-            className="c-scroll-area__gradient c-scroll-area__gradient--bottom"
-            style={isTop 
-                ? { ...baseStyle, top: 0, marginBottom: '-100px', background: 'linear-gradient(to bottom, rgba(255, 255, 255, 1), transparent 70%)' }
-                : { ...baseStyle, bottom: 0, marginTop: '-100px', background: 'linear-gradient(to top, rgba(255, 255, 255, 1), transparent 70%)' }
-            }
-            x-show="$el.scrollHeight > $el.clientHeight"
+            className={`c-scroll-area__gradient ${modifierClass}`}
+            x-show={showCondition}
+            x-transition:enter="transition-opacity duration-200"
+            x-transition:leave="transition-opacity duration-200"
         />
     );
 }

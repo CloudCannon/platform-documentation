@@ -45,7 +45,7 @@ export default function ArticleLayout(props: Props, helpers: Helpers) {
                         />
                     )}
                 </NavSidebar>
-                <div className="u-card-box l-content" x-data="$visibleNavHighlighter">
+                <div className="u-card-box l-content" x-data="visibleNavHighlighter">
                     <div className="l-breadcrumb">
                         <a href={`/documentation/${navKey}/`}>{formatTitle(navKey)}</a>
                     </div>

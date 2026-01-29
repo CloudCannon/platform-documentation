@@ -81,7 +81,7 @@ export default function ReferenceHomeLayout({ content, details, date, page, navi
                     )}
                 </NavSidebar>
                 
-                <div className="u-card-box l-content" x-data="$visibleNavHighlighter">
+                <div className="u-card-box l-content" x-data="visibleNavHighlighter">
                     <div className="l-breadcrumb">
                         <span style={{ textTransform: 'capitalize' }}>{sectionName}</span>
                         <img src={helpers.icon('arrow_forward_ios:outlined', 'material')} inline="true" />

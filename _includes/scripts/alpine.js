@@ -11,13 +11,14 @@ Alpine.plugin(intersect);
 Alpine.plugin(focus);
 
 
-Alpine.magic('visibleNavHighlighter', (_el, { Alpine: _Alpine }) => ({
+Alpine.data('visibleNavHighlighter', () => ({
     headings: undefined,
     visibleHeadingId: null,
 
     init() {
       this.$nextTick(() => {
-        this.headings = document.querySelectorAll('main h2, main dt[id], main dd[id]')
+        // Include card titles for glossary pages, standard headings for other pages
+        this.headings = document.querySelectorAll('main h2, main dt[id], main dd[id], main .c-card--glossary .c-card__title[id]')
         this.assignHeadingIds()
         this.onScroll()
       })
@@ -37,55 +38,146 @@ Alpine.magic('visibleNavHighlighter', (_el, { Alpine: _Alpine }) => ({
         const headingsByDistanceFromTop = {}
 
         this.headings.forEach(heading => {
-            //console.log(heading,heading.getBoundingClientRect(),relativeTop)
             headingsByDistanceFromTop[heading.getBoundingClientRect().top - relativeTop] = heading
         })
 
-        //console.log(headingsByDistanceFromTop)
-
         const closestNegativeTop = Math.max(...Object.keys(headingsByDistanceFromTop).filter(top => top < 0))
 
-
-        if (closestNegativeTop >= 0 || [Infinity, NaN, -Infinity].includes(closestNegativeTop)) return this.visibleHeadingId = null
+        if (closestNegativeTop >= 0 || [Infinity, NaN, -Infinity].includes(closestNegativeTop)) {
+            this.visibleHeadingId = null
+            this.updateIndicatorPosition(null)
+            return
+        }
 
         this.visibleHeadingId = headingsByDistanceFromTop[closestNegativeTop].id
-        console.log(this.visibleHeadingId)
+        this.updateIndicatorPosition(this.visibleHeadingId)
+        
+        // Check if this is a letter heading (single lowercase letter) for glossary pages
+        if (this.visibleHeadingId && /^[a-z]$/.test(this.visibleHeadingId)) {
+            this.updateGlossaryLetter(this.visibleHeadingId)
+        }
+    },
+
+    updateGlossaryLetter(letter) {
+        // Update URL hash without triggering scroll
+        if (globalThis.location.hash !== `#${letter}`) {
+            globalThis.history.replaceState(null, '', `#${letter}`)
+            globalThis.dispatchEvent(new CustomEvent('glossary-letter-changed', { detail: letter }))
+        }
+    },
+
+    updateIndicatorPosition(headingId) {
+        const tocList = this.$el.querySelector('.l-toc__list')
+        if (!tocList) return
+
+        if (!headingId) {
+            tocList.style.setProperty('--indicator-opacity', '0')
+            return
+        }
+
+        const activeLink = tocList.querySelector(`a[href="#${CSS.escape(headingId)}"]`)
+        if (!activeLink) {
+            tocList.style.setProperty('--indicator-opacity', '0')
+            return
+        }
+
+        const listItem = activeLink.closest('li')
+        if (!listItem) return
+
+        const listRect = tocList.getBoundingClientRect()
+        const itemRect = listItem.getBoundingClientRect()
+
+        const top = itemRect.top - listRect.top + tocList.scrollTop
+        const height = itemRect.height
+
+        tocList.style.setProperty('--indicator-top', `${top}px`)
+        tocList.style.setProperty('--indicator-height', `${height}px`)
+        tocList.style.setProperty('--indicator-opacity', '1')
+
+        // Auto-scroll TOC to keep active item visible
+        const tocContainer = tocList.closest('.l-toc, .l-toc-glossary, .l-toc-changelog-list')
+        if (tocContainer) {
+            const containerRect = tocContainer.getBoundingClientRect()
+            const itemRelativeTop = itemRect.top - containerRect.top
+            
+            // If item is outside visible area, scroll to center it
+            if (itemRelativeTop < 0 || itemRelativeTop > containerRect.height - itemRect.height) {
+                listItem.scrollIntoView({ block: 'center', behavior: 'smooth' })
+            }
+        }
     },
 }))
 
-Alpine.magic("setNavMemory", () => {
-  return () => {
-    const navState = {
-      scroll: document.querySelector("#t-docs-nav").scrollTop,
-      opened: [...document.querySelectorAll("#t-docs-nav details")].map((d) =>
-        d.hasAttribute("open") && d.getAttribute("open") == true
-      ),
-      time: Date.now(),
-    };
-    localStorage.setItem("nav_memory", JSON.stringify(navState));
-  };
+// Scroll container state tracking for gradient indicators
+Alpine.data('scrollContainer', () => ({
+    scrolledDown: false,
+    more: true,
+
+    init() {
+        this.$el.addEventListener('scroll', () => this.updateScrollState())
+        // Also update on resize in case content changes
+        new ResizeObserver(() => this.updateScrollState()).observe(this.$el)
+        this.updateScrollState()
+    },
+
+    updateScrollState() {
+        const el = this.$el
+        // Show top gradient when scrolled more than 10px from top
+        this.scrolledDown = el.scrollTop > 10
+        // Show bottom gradient when not at bottom (with 10px threshold)
+        this.more = el.scrollTop < el.scrollHeight - el.clientHeight - 10
+    }
+}))
+
+// Center the active nav item in the sidebar
+function centerActiveNavItem() {
+  const nav = document.querySelector(".t-docs-nav");
+  const activeItem = nav?.querySelector('[aria-current="page"]');
+  if (!nav || !activeItem) return;
+
+  // Calculate position to center the active item in the nav viewport
+  const navRect = nav.getBoundingClientRect();
+  const itemRect = activeItem.getBoundingClientRect();
+  const scrollTarget = nav.scrollTop + (itemRect.top - navRect.top) - (navRect.height / 2) + (itemRect.height / 2);
+
+  nav.scrollTop = Math.max(0, scrollTarget);
+}
+
+// Center active nav item on page load
+document.addEventListener("DOMContentLoaded", centerActiveNavItem);
+
+// Also center on view transitions (pagereveal fires on new page)
+globalThis.addEventListener?.("pagereveal", centerActiveNavItem);
+
+// Close mobile TOC when a link is clicked
+document.addEventListener("click", (e) => {
+  const link = e.target.closest(".l-toc-mobile a");
+  if (link) {
+    link.closest("details")?.removeAttribute("open");
+  }
 });
 
-Alpine.magic("getNavMemory", () => {
-  return () => {
-    let navState = localStorage.getItem("nav_memory");
-    if (!navState) return;
-    navState = JSON.parse(navState);
-    // Only persist nav on immediate page navigations
-    //if (Date.now() - navState.time > 10000) return;
-
-    [...document.querySelectorAll("#t-docs-nav details")].forEach(
-      (d, index) => {
-        if (navState.opened[index]) {
-          d.setAttribute("open", "true");
+// Auto-scroll nav when details expands near bottom
+document.addEventListener('toggle', (e) => {
+    const details = e.target;
+    if (!details.open || !details.matches('.t-docs-nav details')) return;
+    
+    const nav = details.closest('.t-docs-nav');
+    if (!nav) return;
+    
+    // Wait for content to render
+    requestAnimationFrame(() => {
+        const detailsRect = details.getBoundingClientRect();
+        const navRect = nav.getBoundingClientRect();
+        
+        // If the bottom of the details is below the nav viewport, scroll to show it
+        if (detailsRect.bottom > navRect.bottom) {
+            // Scroll so the details is visible with some padding
+            const scrollAmount = detailsRect.bottom - navRect.bottom + 20;
+            nav.scrollBy({ top: scrollAmount, behavior: 'smooth' });
         }
-      }
-    );
-
-    const el = document.querySelector("#t-docs-nav");
-    el.scrollTop = navState.scroll;
-  };
-});
+    });
+}, true);
 
 Alpine.magic("getRecentSearches", () => {
   return () => {
