@@ -68,16 +68,18 @@ export default function RefItem({ docRef, currentUrl, useKey = true, keyOverride
     return (
         <article className="bordered">
             <div>
-                {url ? (
-                    useKey 
-                        ? <strong><a href={url}>{label}</a></strong>
-                        : <em><a href={url}>{label}</a></em>
-                ) : (
-                    useKey 
-                        ? <strong>{label}</strong>
-                        : <em>{label}</em>
-                )}
-                {' – '}
+                <span class="code">
+                    {url ? (
+                        useKey 
+                            ? <strong><a href={url}>{label}</a></strong>
+                            : <em><a href={url}>{label}</a></em>
+                    ) : (
+                        useKey 
+                            ? <strong>{label}</strong>
+                            : <em>{label}</em>
+                    )}
+                </span>
+                {' '}
                 <code>
                     <TypeDisplay entry={doc} currentUrl={currentUrl} />
                 </code>

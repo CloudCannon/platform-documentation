@@ -1,8 +1,11 @@
 {% macro nav(navigation) %}
-    <nav id="t-docs-nav" class="t-docs-nav" :class="isPageNavOpen ? 't-docs-nav t-docs-nav--open' : 't-docs-nav'" x-init="$getNavMemory?.()">
-        <div class="c-scroll-area__gradient c-scroll-area__gradient--bottom" 
-            style="position:sticky;top:0;z-index:0;pointer-events:none;width:calc(100% + 16px);opacity: 1; margin-bottom:-100px;height: 100px; background: linear-gradient(to bottom, rgba(255, 255, 255, 1), transparent 70%);"
-            x-show="$el.scrollHeight > $el.clientHeight"></div>
+    <nav id="t-docs-nav" class="t-docs-nav" :class="isPageNavOpen ? 't-docs-nav t-docs-nav--open' : 't-docs-nav'" 
+        x-data="{height:0,scrollHeight:0,scrollTop:0}"
+        x-init="$getNavMemory?.()"
+        x-ref="navParent"
+        @scroll="scrollTop = $el.scrollTop">
+        <div class="c-scroll-area__gradient c-scroll-area__gradient--top" 
+            x-show="scrollHeight > height && scrollTop > 0"></div>
         <div class="t-docs-nav__heading">
             <h2>{{ navigation.title }}</h2>
 
@@ -14,7 +17,10 @@
             </button>
         </div>
         
-        <ol class="t-docs-nav__main-list">
+        <ol class="t-docs-nav__main-list" x-init="new ResizeObserver((entries) => {
+                height = $refs.navParent.getBoundingClientRect().height;
+                scrollHeight = $refs.navParent.scrollHeight;
+            }).observe($el)">
             <li class="t-docs-nav__main-list__item">
                 {% set index_page = url | get_index_page %}
                 <a class="t-docs-nav__main-list__item__heading-group t-docs-nav__sub-list__article {% if page.data._uuid == index_page.attrs._uuid %}is-active{% endif %}" href="{{ index_page.url }}">
@@ -42,8 +48,7 @@
             {% endfor %}
         </ol>
         <div class="c-scroll-area__gradient c-scroll-area__gradient--bottom" 
-            style="position:sticky;bottom:0;z-index:0;pointer-events:none;width:calc(100% + 16px);opacity: 1; margin-top:-100px;height: 100px; background: linear-gradient(to top, rgba(255, 255, 255, 1), transparent 70%);"
-            x-show="$el.scrollHeight > $el.clientHeight"></div>
+            x-show="scrollHeight > height && (height+scrollTop) < scrollHeight"></div>
     </nav>
 {% endmacro %}
 
