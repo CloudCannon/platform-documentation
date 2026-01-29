@@ -8,9 +8,25 @@
     position: relative;
     padding: 0 16px 0 0;
     box-shadow: var(--side-nav-shadow-light);
+    background: var(--background-light);
+    color: var(--text-dark);
+    width: 100%;
+
+    // Popover reset - on desktop, show normally despite popover attribute
+    &[popover] {
+        border: none;
+        margin: 0;
+        inset: unset;
+        // Override popover's default display:none on desktop
+        display: flex;
+        flex-direction: column;
+    }
 
     @media(max-width:880px){
-        display: none;
+        // Hide by default on mobile, show via popover
+        &[popover]:not(:popover-open) {
+            display: none;
+        }
     }
 
     &__heading {
@@ -55,8 +71,8 @@
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                background-color: #E6EDFB;
-                color: var(--color-carbon);
+                background-color: var(--accent-background-light);
+                color: var(--text-light);
 
                 &:hover{
                     color:var(--color-neptune);
@@ -76,7 +92,7 @@
             justify-content: center;
             align-items: flex-start;
             padding:10px 0;
-            border-bottom: 1px solid #ECECEC;
+            border-bottom: 1px solid var(--button-border-light);
 
             &.guide, &.glossary-nav{
                 border-bottom: none;
@@ -117,6 +133,31 @@
                     &>a{
                         &>.t-docs-nav__main-list__item__heading{color:var(--color-neptune)}
                         &>.changelog-count{background-color: var(--color-neptune);color:white}
+                    }
+                }
+            }
+
+            // Main sections using <details>/<summary>
+            > details {
+                width: 100%;
+                
+                > summary {
+                    list-style: none;
+                    &::-webkit-details-marker {
+                        display: none;
+                    }
+                }
+                
+                &[open] > summary {
+                    & > .t-docs-nav__main-list__item__heading + svg {
+                        transform: rotate(90deg);
+                    }
+                }
+                
+                &.is-active > summary {
+                    &>*{
+                        color:var(--selected-blue-light);
+                        fill:var(--selected-blue-light);
                     }
                 }
             }
@@ -164,8 +205,8 @@
             }
 
             & .changelog-count{
-                color:var(--color-carbon);
-                background:#E6EDFB;
+                color: var(--text-light);
+                background: var(--accent-background-light);
                 padding:8px 16px;
                 border-radius: 20px;
                 font-size: 12px;
@@ -373,7 +414,7 @@
         left: 0;
         bottom: 0;
         width: 100%;
-        background-color: var(--color-cloud);
+        background-color: var(--background-light);
         display: flex;
         justify-content: center;
         align-items: center;
@@ -400,8 +441,8 @@
         appearance: none;
         display: none;
         padding: 8px;
-        border: var(--border-width) solid var(--color-alto);
-        background: #fff;
+        border: var(--border-width) solid var(--button-border-light);
+        background: var(--background-light);
         border-radius: var(--border-radius);
         line-height: 0;
         cursor: pointer;
@@ -409,11 +450,22 @@
         &:hover {
             border-color: var(--color-carbon);
         }
+        
+        // Close button hidden by default, shown when popover is open
+        &--close {
+            display: none;
+        }
     }
 
     @media (max-width: 880px) {
-        &__control {
+        // Show open button by default on mobile
+        &__control--open {
             display: block;
+        }
+        
+        // Hide close button by default (shown when popover is open)
+        &__control--close {
+            display: none;
         }
 
         &__main-list {
@@ -435,22 +487,34 @@
             display: none;
         }
 
-        &--open {
+        // Popover open state on mobile
+        &[popover]:popover-open {
             position: fixed;
             top: 0;
             left: 0;
-            background-color: #fff;
+            background-color: var(--background-light);
             z-index: 50;
             height: 100%;
             width: 100%;
+            display: flex;
+            flex-direction: column;
 
             #{$c}__heading {
                 padding: var(--gap);
-                background-color: #fff;
+                background-color: var(--background-light);
                 position: sticky;
                 top: 0;
                 z-index: 2;
                 border-bottom: 2px solid var(--color-stratus);
+            }
+            
+            // Show close button when popover is open
+            #{$c}__control--open {
+                display: none;
+            }
+            
+            #{$c}__control--close {
+                display: block;
             }
 
             #{$c}__main-list {

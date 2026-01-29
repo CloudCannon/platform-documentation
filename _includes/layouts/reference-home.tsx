@@ -109,7 +109,7 @@ export default function ReferenceHomeLayout({ content, details, date, page, navi
                         data-pagefind-meta="site:Documentation" 
                         className="l-content-split"
                     >
-                        <main>
+                        <main id="main-content">
                             <div dangerouslySetInnerHTML={{ __html: content }} />
                         </main>
                         

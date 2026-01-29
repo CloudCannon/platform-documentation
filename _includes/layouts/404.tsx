@@ -4,7 +4,7 @@ export default function NotFoundLayout() {
             <div className="l-column">
                 <div className="l-small-content" style={{ paddingBottom: '40px' }}>
                     <div className="l-content-split" style={{ justifyContent: 'center' }}>
-                        <main>
+                        <main id="main-content">
                             <div className="l-home-card">
                                 <h1 className="l-heading l-center-heading" data-skip-anchor="">Page not found</h1>
                                 <p style={{ textAlign: 'center' }}>We couldn't find the page you were looking for. It either doesn't exist or has been moved.</p>

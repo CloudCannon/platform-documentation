@@ -206,7 +206,7 @@ export default function AutomatedReferenceLayout({ entry, page, navigation, full
                         data-pagefind-meta="site:Documentation" 
                         className="l-content-split"
                     >
-                        <main>
+                        <main id="main-content">
                             <dl>
                                 <dt id="description" className={!entry.description ? 'show-in-cms' : undefined}>
                                     Description:

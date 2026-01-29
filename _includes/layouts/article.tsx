@@ -57,7 +57,7 @@ export default function ArticleLayout(props: Props, helpers: Helpers) {
                     </p>
                     <MobileTOC helpers={helpers} />
                     <div data-pagefind-body="" data-pagefind-filter="site:Documentation" data-pagefind-meta="site:Documentation" className="l-content-split">
-                        <main dangerouslySetInnerHTML={{ __html: content }} />
+                        <main id="main-content" dangerouslySetInnerHTML={{ __html: content }} />
                         <aside data-pagefind-ignore="" className="l-right">
                             <div className="l-toc" alpine:scroll="onScroll()" />
                         </aside>

@@ -59,7 +59,7 @@ export default function BaseLayout(props: Props, helpers: Helpers) {
     const showSearch = url !== "/documentation/";
 
     return (
-        <html lang="en">
+        <html lang="en" className="no-transitions">
             <head>
                 <meta charSet="UTF-8" />
                 <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
@@ -122,7 +122,6 @@ export default function BaseLayout(props: Props, helpers: Helpers) {
             </head>
 
             <body 
-                x-cloak=""
                 x-init="mobiledocnav = $refs.mobiledocnav;init()"
                 x-data={`{'isModalOpen': false, 
                     'isMainNavOpen': false, 
@@ -137,24 +136,30 @@ export default function BaseLayout(props: Props, helpers: Helpers) {
                 alpine:class="darkMode == 'dark' ? 'dark' : ''"
                 alpine-scroll-window="updateOffset()"
             >
+                {/* Apply dark mode immediately to prevent flash - Alpine will take over state management */}
+                <script dangerouslySetInnerHTML={{ __html: `
+                    (function() {
+                        var darkMode = localStorage.getItem('cc_darkMode') || 
+                            (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+                        if (darkMode === 'dark') {
+                            document.body.classList.add('dark');
+                        }
+                    })();
+                `}} />
+
+                <a href="#main-content" className="skip-link">
+                    Skip to content
+                </a>
+
                 {headingnav?.banner_html && (
                     <>
-                        <script dangerouslySetInnerHTML={{ __html: `
-                            let announcementBannerOpen = sessionStorage.getItem("announcementBannerOpenDocs") ? JSON.parse(sessionStorage.getItem("announcementBannerOpenDocs")) : true;
-                            var root = document.documentElement;
-                            if(!announcementBannerOpen)
-                                root.style.setProperty('--announcementBanner', 'none');
-                            else
-                                root.style.setProperty('--announcementBanner', 'flex');
-                        `}} />
-                        <div className="l-banner" x-ref="announcement" style={{ display: 'var(--announcementBanner)' }}>
+                        <div className="l-banner" x-ref="announcement" id="announcement-banner">
                             <div className="l-banner__inner">
                                 <div dangerouslySetInnerHTML={{ __html: headingnav.banner_html }} />
                                 <button 
                                     type="button"
                                     aria-label="close announcement banner"
-                                    alpine:click={`sessionStorage.setItem('announcementBannerOpenDocs', false);
-                                        document.querySelector('.l-banner').style.display = 'none';`}
+                                    onclick="sessionStorage.setItem('announcementBannerOpenDocs', 'false'); document.getElementById('announcement-banner').hidden = true;"
                                 >
                                     <div className="flex items-center">
                                         <div className="inner-cross">
@@ -165,6 +170,11 @@ export default function BaseLayout(props: Props, helpers: Helpers) {
                                 </button>
                             </div>
                         </div>
+                        <script dangerouslySetInnerHTML={{ __html: `
+                            if (sessionStorage.getItem("announcementBannerOpenDocs") === "false") {
+                                document.getElementById("announcement-banner").hidden = true;
+                            }
+                        `}} />
                     </>
                 )}
 
@@ -192,6 +202,14 @@ export default function BaseLayout(props: Props, helpers: Helpers) {
                 </div>
 
                 <script src="https://status.cloudcannon.com/embed/script.js" />
+
+                <script dangerouslySetInnerHTML={{ __html: `
+                    window.addEventListener('load', function() {
+                        requestAnimationFrame(function() {
+                            document.documentElement.classList.remove('no-transitions');
+                        });
+                    });
+                `}} />
             </body>
         </html>
     );

@@ -1,7 +1,35 @@
 @view-transition {
     navigation: auto;
 }
-  
+
+.skip-link {
+    position: absolute;
+    left: -9999px;
+    top: auto;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    z-index: 9999;
+
+    &:focus {
+        position: fixed;
+        top: 8px;
+        left: 8px;
+        width: auto;
+        height: auto;
+        padding: 12px 24px;
+        background: var(--color-neptune);
+        color: white;
+        font-weight: bold;
+        border-radius: 8px;
+        text-decoration: none;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+}
+
+#main-content {
+    scroll-margin-top: var(--offset-height);
+}
 
 :root{
     --offset-height: 64px;
@@ -226,7 +254,7 @@
     margin-top: 64px;
     padding: 32px;
     background: var(--card-background-light);
-    border: 2px solid #ECECEC;
+    border: 2px solid var(--button-border-light);
     border-radius: 12px;
     text-align: center;
     color: var(--text-light);
@@ -301,8 +329,8 @@
 
 .l-toc-mobile{
     display:none;
-    border-top:1px solid #ECECEC;
-    border-bottom:1px solid #ECECEC;
+    border-top: 1px solid var(--button-border-light);
+    border-bottom: 1px solid var(--button-border-light);
     margin:24px 0;
     font-size:16px;
     padding:8px 16px;
@@ -314,6 +342,15 @@
     margin-left: -16px;
     z-index: 10;
 
+    & summary {
+        list-style: none;
+        cursor: pointer;
+        
+        &::-webkit-details-marker {
+            display: none;
+        }
+    }
+
     & h3{ 
         font-size:16px;
         margin:0; 
@@ -321,7 +358,16 @@
         align-items: center;
         justify-content: space-between;
 
-        &.open{
+        & svg{
+            width:16px;
+            height:16px;
+            fill: var(--text-light);
+            transition: transform 0.2s ease;
+        }
+    }
+
+    &[open] {
+        & h3 {
             color:var(--selected-blue-light);
 
             & svg{
@@ -330,10 +376,8 @@
             }
         }
 
-        & svg{
-            width:16px;
-            height:16px;
-            fill: var(--text-light);
+        & .l-toc__list{
+            display:flex;
         }
     }
 
@@ -345,10 +389,6 @@
         display:none;
         margin-top:8px;
         flex-direction: column;
-
-        &.open{
-            display:flex;
-        }
     }
 }
 
@@ -376,7 +416,7 @@
                 }
             }
             display:flex;
-            border-left: 1px solid #ECECEC;
+            border-left: 1px solid var(--button-border-light);
 
             & a{
                 padding: 8px;

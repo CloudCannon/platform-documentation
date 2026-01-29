@@ -120,33 +120,31 @@ export default function DocNav({ navigation, url, page, search, helpers, getInde
                     return (
                         <li 
                             key={i}
-                            className="t-docs-nav__main-list__item" 
-                            x-data={`{ navOpen: ${isActive}, isActive: ${isActive} }`}
+                            className="t-docs-nav__main-list__item"
                         >
-                            {!block.heading_hidden && (
-                                <div 
-                                    className={`t-docs-nav__main-list__item__heading-group ${isActive ? 'is-active' : ''}`}
-                                    alpine:class="navOpen ? 'nav-open' : ''"
-                                    alpine:click="navOpen = !navOpen"
-                                >
-                                    {block.icon && (
-                                        <img src={helpers.icon(`${block.icon}:outlined`, "material")} inline="true" />
-                                    )}
-                                    <span className="t-docs-nav__main-list__item__heading">{block.heading}</span>
-                                    <img src={helpers.icon("arrow_forward_ios:outlined", "material")} inline="true" />
-                                </div>
-                            )}
-                            <template x-if="navOpen">
-                                <div>
-                                    <SubNav 
-                                        block={block} 
-                                        url={url} 
-                                        pageUuid={pageUuid} 
-                                        search={search} 
-                                        helpers={helpers} 
-                                    />
-                                </div>
-                            </template>
+                            <details 
+                                {...(isActive ? { open: true } : {})}
+                                className={isActive ? 'is-active' : ''}
+                            >
+                                {!block.heading_hidden && (
+                                    <summary 
+                                        className={`t-docs-nav__main-list__item__heading-group ${isActive ? 'is-active' : ''}`}
+                                    >
+                                        {block.icon && (
+                                            <img src={helpers.icon(`${block.icon}:outlined`, "material")} inline="true" />
+                                        )}
+                                        <span className="t-docs-nav__main-list__item__heading">{block.heading}</span>
+                                        <img src={helpers.icon("arrow_forward_ios:outlined", "material")} inline="true" />
+                                    </summary>
+                                )}
+                                <SubNav 
+                                    block={block} 
+                                    url={url} 
+                                    pageUuid={pageUuid} 
+                                    search={search} 
+                                    helpers={helpers} 
+                                />
+                            </details>
                         </li>
                     );
                 })}

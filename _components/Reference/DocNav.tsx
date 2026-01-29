@@ -150,42 +150,39 @@ export default function DocNav({ navigation, currentDoc, currentUrl, items, page
                             <li 
                                 key={block._uuid || idx}
                                 className="t-docs-nav__main-list__item"
-                                x-data={`{ navOpen: ${isActive}, isActive: ${isActive} }`}
                             >
-                                {!block.heading_hidden && (
-                                    <div 
-                                        className={`t-docs-nav__main-list__item__heading-group ${isActive ? 'is-active' : ''}`}
-                                        alpine:class="navOpen ? 'nav-open' : ''"
-                                        alpine:click="navOpen = !navOpen"
-                                    >
-                                        {block.icon && (
-                                            <img src={helpers.icon(`${block.icon}:outlined`, 'material')} inline="true" />
-                                        )}
-                                        <span className="t-docs-nav__main-list__item__heading">
-                                            {block.heading}
-                                        </span>
-                                        <img src={helpers.icon('arrow_forward_ios:outlined', 'material')} inline="true" />
-                                    </div>
-                                )}
-                                
-                                <template x-if="navOpen">
-                                    <div>
-                                        {block.configuration_types_documentation ? (
-                                            <RefNavList 
-                                                currentDoc={currentDoc}
-                                                currentUrl={currentUrl}
-                                                items={items}
-                                            />
-                                        ) : (
-                                            <ArticleGroup 
-                                                block={block}
-                                                page={page}
-                                                search={search}
-                                                helpers={helpers}
-                                            />
-                                        )}
-                                    </div>
-                                </template>
+                                <details
+                                    {...(isActive ? { open: true } : {})}
+                                    className={isActive ? 'is-active' : ''}
+                                >
+                                    {!block.heading_hidden && (
+                                        <summary 
+                                            className={`t-docs-nav__main-list__item__heading-group ${isActive ? 'is-active' : ''}`}
+                                        >
+                                            {block.icon && (
+                                                <img src={helpers.icon(`${block.icon}:outlined`, 'material')} inline="true" />
+                                            )}
+                                            <span className="t-docs-nav__main-list__item__heading">
+                                                {block.heading}
+                                            </span>
+                                            <img src={helpers.icon('arrow_forward_ios:outlined', 'material')} inline="true" />
+                                        </summary>
+                                    )}
+                                    {block.configuration_types_documentation ? (
+                                        <RefNavList 
+                                            currentDoc={currentDoc}
+                                            currentUrl={currentUrl}
+                                            items={items}
+                                        />
+                                    ) : (
+                                        <ArticleGroup 
+                                            block={block}
+                                            page={page}
+                                            search={search}
+                                            helpers={helpers}
+                                        />
+                                    )}
+                                </details>
                             </li>
                         );
                     })}

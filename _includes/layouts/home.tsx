@@ -104,7 +104,7 @@ export default function HomeLayout(props: Props, helpers: Helpers) {
     );
 
     return (
-        <>
+        <div id="main-content">
             {/* Hero Section with Search */}
             <div className="c-hero">
                 <h1 data-editable="text" data-prop="hero_title">{hero_title}</h1>
@@ -212,7 +212,7 @@ export default function HomeLayout(props: Props, helpers: Helpers) {
                     </div>
                 </div>
             )}
-        </>
+        </div>
     );
 }
 

@@ -186,9 +186,6 @@ site.addEventListener("afterStartServer", () => {
 site.scopedUpdates(
     // CSS/SCSS files are independent
     (path) => /\.(css|scss)$/.test(path),
-    
-    // Changelog MDX files are independent from other content
-    (path) => path.startsWith("/new_changelogs/") && path.endsWith(".mdx"),
 );
 
 site.use(nunjucks());

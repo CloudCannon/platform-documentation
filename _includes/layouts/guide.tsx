@@ -113,7 +113,7 @@ export default function GuideLayout(props: Props, helpers: Helpers) {
                     <p data-pagefind-body="" className="l-subheading">{details?.description}</p>
                     <MobileTOC helpers={helpers} />
                     <div data-pagefind-body="" data-pagefind-filter="site:Guides" data-pagefind-meta="site:Guides" className="l-content-split">
-                        <main dangerouslySetInnerHTML={{ __html: content }} />
+                        <main id="main-content" dangerouslySetInnerHTML={{ __html: content }} />
                         <aside data-pagefind-ignore="" className="l-right">
                             <div className="l-toc" alpine:scroll="onScroll()" />
                         </aside>
