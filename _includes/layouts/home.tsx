@@ -164,10 +164,10 @@ export default function HomeLayout(props: Props, helpers: Helpers) {
                     className="c-centred-block"
                     style={{
                         backgroundImage: community.background_image ? `url(${helpers.url(community.background_image)})` : undefined,
-                        ['--centred-block-background-light' as string]: community.light_mode_background_color || '#ffffff',
-                        ['--centred-block-background-dark' as string]: community.dark_mode_background_color || '#ffffff',
-                        ['--centred-block-text-light' as string]: community.light_mode_text_color || '#212121',
-                        ['--centred-block-text-dark' as string]: community.dark_mode_text_color || '#212121'
+                        '--centred-block-background-light': community.light_mode_background_color || '#ffffff',
+                        '--centred-block-background-dark': community.dark_mode_background_color || '#ffffff',
+                        '--centred-block-text-light': community.light_mode_text_color || '#212121',
+                        '--centred-block-text-dark': community.dark_mode_text_color || '#212121'
                     }}
                 >
                     <div className="c-centred-block__inner">
