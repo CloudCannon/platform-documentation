@@ -179,7 +179,7 @@ export default function CodeBlock({ language = 'plaintext', translate_into = [],
   
   const code_block: unknown = Array.isArray(children) ? children[0] : children;
   let annotations: unknown = null;
-  if (Array.isArray(children)) {
+  if (Array.isArray(children) && children.length > 1) {
     annotations = (
       <div className="c-code-block__annotations">
         {children.slice(1)}
