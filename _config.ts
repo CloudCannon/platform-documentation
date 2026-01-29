@@ -61,7 +61,7 @@ import { format, formatDistanceToNowStrict, differenceInMonths } from 'npm:date-
 import { parseChangelogFilename } from "./parseChangelogFilename.ts";
 import type { DocEntry, ContentNavItem } from './_types.d.ts';
 
-import documentation from 'npm:@cloudcannon/configuration-types@0.0.46/dist/documentation.json' with { type: 'json' };
+import documentation from 'npm:@cloudcannon/configuration-types@0.0.47/dist/documentation.json' with { type: 'json' };
 globalThis.DOCS = documentation as unknown as Record<string, DocEntry>;
 
 // Build timing instrumentation
