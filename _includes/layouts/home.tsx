@@ -163,12 +163,14 @@ export default function HomeLayout(props: Props, helpers: Helpers) {
                 <div 
                     className="c-centred-block"
                     style={{
-                        backgroundImage: community.background_image ? `url(${helpers.url(community.background_image)})` : undefined,
-                        '--centred-block-background-light': community.light_mode_background_color || '#ffffff',
-                        '--centred-block-background-dark': community.dark_mode_background_color || '#ffffff',
-                        '--centred-block-text-light': community.light_mode_text_color || '#212121',
-                        '--centred-block-text-dark': community.dark_mode_text_color || '#212121'
-                    }}
+                        'background-image': community.background_image ? `url(${helpers.url(community.background_image)})` : undefined,
+                        '--centred-block-background': community.light_mode_background_color 
+                            ? `light-dark(${community.light_mode_background_color}, ${community.dark_mode_background_color || community.light_mode_background_color})` 
+                            : undefined,
+                        '--centred-block-text': community.light_mode_text_color 
+                            ? `light-dark(${community.light_mode_text_color}, ${community.dark_mode_text_color || community.light_mode_text_color})` 
+                            : undefined,
+                    } as Record<string, string | undefined>}
                 >
                     <div className="c-centred-block__inner">
                         <h2 data-editable="text" data-prop="community.heading">{community.heading}</h2>

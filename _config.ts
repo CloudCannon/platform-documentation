@@ -287,7 +287,8 @@ site.use(sass());
 site.add("/assets/css/site.scss");
 
 site.add("/assets/img");
-site.add("/uploads");
+// Uploads are copied via site.copy() above - don't also add them here
+// site.add("/uploads");
 
 site.use(date());
 site.use(sitemap({
