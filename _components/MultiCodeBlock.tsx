@@ -157,7 +157,7 @@ const codeBlock = (str: string, lang: string, source: string, annotations: unkno
         <div className="c-code-block__code">
           <figure className="highlight">
             <pre><code className={`language-${lang}`}>
-              {str}
+              {str.trim()}
             </code></pre>
           </figure>
         </div>
