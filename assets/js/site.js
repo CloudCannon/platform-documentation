@@ -3,7 +3,7 @@ import {
   Instance,
   Input,
   Summary,
-} from "npm:@pagefind/modular-ui@1.0.3";
+} from "https://esm.sh/@pagefind/modular-ui@1.0.3";
 
 // Progressive enhancement: relative date formatting
 // Converts <time data-relative-date> elements to show "X days ago" for recent dates
