@@ -5,7 +5,7 @@ import {
   ResultList,
   Summary,
   FilterPills,
-} from "npm:@pagefind/modular-ui@1.0.3";
+} from "https://esm.sh/@pagefind/modular-ui@1.0.3";
 
 const search = new Instance({
   bundlePath: "/documentation/_pagefind/",
