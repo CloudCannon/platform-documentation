@@ -15,22 +15,22 @@ import feed from "lume/plugins/feed.ts";
 import jsx from "lume/plugins/jsx.ts";
 import mdx from "lume/plugins/mdx.ts";
 
-import slugify from "npm:@sindresorhus/slugify@2.2.1";
+import { slugify } from "./_components/utils/stringHelpers.ts";
 
-import jsYaml from "npm:js-yaml@4.1.1";
+import { parse as yamlParse } from "jsr:@std/yaml@1.0.11";
 
 // Data highlights
 import "npm:prismjs@1.30.0/components/prism-yaml.js";
 import "npm:prismjs@1.30.0/components/prism-json.js";
 import "npm:prismjs@1.30.0/components/prism-toml.js";
-import "npm:prismjs@1.30.0/components/prism-diff.js";
-import "npm:prismjs@1.30.0/components/prism-ignore.js";
 
 // Lang highlights
 import "npm:prismjs@1.30.0/components/prism-bash.js";
 import "npm:prismjs@1.30.0/components/prism-ruby.js";
 import "npm:prismjs@1.30.0/components/prism-scss.js";
 import "npm:prismjs@1.30.0/components/prism-typescript.js";
+import "npm:prismjs@1.30.0/components/prism-python.js";
+import "npm:prismjs@1.30.0/components/prism-go.js";
 
 // Required language dependencies for languages like liquid
 import "npm:prismjs@1.30.0/components/prism-markup-templating.js";
@@ -38,8 +38,6 @@ import "npm:prismjs@1.30.0/components/prism-markup-templating.js";
 // Template highlights
 import "npm:prismjs@1.30.0/components/prism-markdown.js";
 import "npm:prismjs@1.30.0/components/prism-liquid.js";
-import "npm:prismjs@1.30.0/components/prism-handlebars.js";
-import "npm:prismjs@1.30.0/components/prism-ejs.js";
 import "npm:prismjs@1.30.0/components/prism-jsx.js";
 
 // Custom highlights
@@ -57,7 +55,6 @@ import { remark } from "npm:remark@15.0.1";
 import remarkParse from "npm:remark-parse@11.0.0";
 import strip from "npm:strip-markdown@6.0.0";
 
-import { format, formatDistanceToNowStrict, differenceInMonths } from 'npm:date-fns@3.6.0';
 import { parseChangelogFilename } from "./parseChangelogFilename.ts";
 import type { DocEntry, ContentNavItem } from './_types.d.ts';
 
@@ -693,7 +690,7 @@ site.filter("get_by_letter", async (_resources, letter) => {
     try {
         for await(const entry of Deno.readDir(dir)){
             const file_content = Deno.readTextFileSync(`${dir}/${entry.name}`);
-            const yml = jsYaml.load(file_content);
+            const yml = yamlParse(file_content);
             entries.push(yml)
         }
         entries.sort((a,b) => a.glossary_term_name < b.glossary_term_name ? -1 : 1)
@@ -739,11 +736,6 @@ site.filter("render_text_only", async (markdown: string) => {
     return text;
 }, true)
 
-site.filter("DATE_TO_NOW", (date: Date | string) => {
-    const difference_in_months = differenceInMonths(new Date(), date)
-    const date_to_now = formatDistanceToNowStrict(date, {addSuffix: true})
-    return difference_in_months < 5 ? date_to_now : format(date, "d MMMM yyyy")
-})
 
 site.filter("bubble_up_nav", (blocks: ContentNavItem[]) => {
     blocks.forEach(bubble_up_nav);
@@ -792,7 +784,7 @@ site.filter("get_glossary_term", (file: string) => {
     const mdFilterFn = site.renderer.helpers.get('md')?.[0];
     const file_content = Deno.readTextFileSync(`${file.slice(1)}`);
     // deno-lint-ignore no-explicit-any
-    const yml = jsYaml.load(file_content) as any;
+    const yml = yamlParse(file_content) as any;
     const description = mdFilterFn?.(yml?.term_description) || '';
     glossaryTermCache.set(file, description);
     return description;

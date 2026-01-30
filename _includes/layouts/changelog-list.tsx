@@ -1,6 +1,7 @@
 import ChangeNav from '../../_components/Nav/ChangeNav.tsx';
 import MobileTOC from '../../_components/Layout/MobileTOC.tsx';
 import NavSidebar from '../../_components/Layout/NavSidebar.tsx';
+import RelativeDate from '../../_components/RelativeDate.tsx';
 import type { Helpers, Page, ChangelogYears } from '../../_types.d.ts';
 
 interface Changelog {
@@ -60,7 +61,7 @@ export default async function ChangelogListLayout(props: Props, helpers: Helpers
                                     <h2 className={i === 0 ? "u-margin-top-0 changelog-entry__top-heading" : ""}>
                                         <a href={changelog.url}>{changelog.page?.data?.title}</a>
                                     </h2>
-                                    <p className="changelog-entry__date">{helpers.DATE_TO_NOW(changelog.page?.data?.date || '')}</p>
+                                    <p className="changelog-entry__date"><RelativeDate date={changelog.page?.data?.date || ''} /></p>
                                     <div dangerouslySetInnerHTML={{ __html: renderedContent[i] }} />
                                     {i < (data?.results?.length || 0) - 1 && <div className="c-br" />}
                                 </div>

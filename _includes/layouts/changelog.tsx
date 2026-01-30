@@ -1,6 +1,7 @@
 import ChangeNav from '../../_components/Nav/ChangeNav.tsx';
 import MobileTOC from '../../_components/Layout/MobileTOC.tsx';
 import NavSidebar from '../../_components/Layout/NavSidebar.tsx';
+import RelativeDate from '../../_components/RelativeDate.tsx';
 import type { Helpers, ChangelogYears } from '../../_types.d.ts';
 
 interface Props {
@@ -39,7 +40,7 @@ export default function ChangelogLayout(props: Props, helpers: Helpers) {
                         <a href={`/documentation/changelog/${year}/`}>{year}</a>
                     </div>
                     <h1 data-pagefind-body="" className="l-heading changelog-entry__heading">{title}</h1>
-                    <p className="changelog-entry__date">{helpers.DATE_TO_NOW(date)}</p>
+                    <p className="changelog-entry__date"><RelativeDate date={date} /></p>
                     <MobileTOC helpers={helpers} />
                     <div className="l-content-split" x-data="visibleNavHighlighter">
                         <main id="main-content" data-pagefind-body="" data-pagefind-filter="site:Changelog" data-pagefind-meta="site:Changelog">

@@ -130,17 +130,14 @@ const tabNames: Record<string, string> = {
   html: 'HTML',
   css: 'CSS',
   scss: 'SCSS',
-  sass: 'Sass',
   shell: 'Shell',
   bash: 'Bash',
-  console: 'Console',
   markdown: 'Markdown',
   ruby: 'Ruby',
   python: 'Python',
   go: 'Go',
-  java: 'Java',
   jsx: 'JSX',
-  tsx: 'TSX',
+  liquid: 'Liquid',
   plaintext: 'Text',
 };
 

@@ -81,7 +81,7 @@ export default async function ChangelogCardsLayout(props: Props, helpers: Helper
                                                 key={ci}
                                                 href={changelog.url}
                                                 title={changelog.page?.data?.title}
-                                                date={helpers.DATE_TO_NOW(changelog.page?.data?.date || '')}
+                                                date={changelog.page?.data?.date || ''}
                                                 description={renderedTextByMonth[mi]?.[ci] || ''}
                                                 variant="changelog"
                                                 helpers={helpers}

@@ -1,3 +1,5 @@
+import RelativeDate from "../RelativeDate.tsx";
+
 interface CardProps {
     href?: string;
     title?: string;
@@ -5,7 +7,7 @@ interface CardProps {
     category?: string;
     icon?: string;
     image?: string;
-    date?: string;
+    date?: Date | string;
     label?: string;
     showArrow?: boolean;
     arrowDirection?: 'forward' | 'back';
@@ -88,7 +90,7 @@ export default function Card({
             
             {/* Optional date (for changelog) */}
             {date && (
-                <p className="c-card__date">{date}</p>
+                <p className="c-card__date"><RelativeDate date={date} /></p>
             )}
             
             {/* Description text */}

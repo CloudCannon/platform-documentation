@@ -19,9 +19,6 @@ declare global {
       // Icon helpers (custom)
       icon: (name: string, source: string) => string;
       
-      // Date formatting (custom)
-      DATE_TO_NOW: (date: string | Date) => string;
-      
       // String helpers (custom)
       unslug: (s: string) => string;
       
