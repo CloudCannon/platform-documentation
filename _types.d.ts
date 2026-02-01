@@ -7,7 +7,7 @@
 declare global {
   // Global DOCS from @cloudcannon/configuration-types package
   // Populated in _config.ts via: globalThis.DOCS = documentation
-  var DOCS: Record<string, import('./_types.d.ts').DocEntry>;
+  var DOCS: Record<string, import("./_types.d.ts").DocEntry>;
 
   namespace Lume {
     // Extend Lume.Helpers with our project-specific helper functions
@@ -15,22 +15,25 @@ declare global {
     interface Helpers {
       // Markdown helper (provided by Lume)
       md: (content: string, inline?: boolean) => string;
-      
+
       // Icon helpers (custom)
       icon: (name: string, source: string) => string;
-      
+
       // String helpers (custom)
       unslug: (s: string) => string;
-      
+
       // Rendering helpers (custom)
       render_text_only?: (content: unknown) => Promise<string>;
       render_page_content: (page: unknown) => Promise<string>;
-      render_common: (file: string, data: { comp: string; parameters: unknown }) => string;
-      
+      render_common: (
+        file: string,
+        data: { comp: string; parameters: unknown },
+      ) => string;
+
       // Navigation helpers (custom)
       get_index_page: (url?: string) => IndexPage | null;
       bubble_up_nav: (headings?: ContentNavBlock[]) => ContentNavBlock[];
-      
+
       // Content helpers (custom)
       get_glossary_term: (term: string) => string;
       get_by_letter?: (prefix: string, letter: string) => Promise<unknown[]>;
@@ -64,7 +67,7 @@ interface PageData extends Lume.Data {
 }
 
 // Page interface for Lume pages
-export type Page = Lume.Page<PageData>
+export type Page = Lume.Page<PageData>;
 
 // ============================================================================
 // NAVIGATION TYPES

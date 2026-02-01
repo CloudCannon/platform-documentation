@@ -1,14 +1,20 @@
-import type { Helpers } from '../_types.d.ts';
+import type { Helpers } from "../_types.d.ts";
 
 interface GlossaryTermProps {
-    term: string;
-    children: {
-        __html: string;
-    };
+  term: string;
+  children: {
+    __html: string;
+  };
 }
 
-export default function GlossaryTerm({ term, children }: GlossaryTermProps, helpers: Helpers) {
-  const content = `<span class="eyebrow">Glossary term</span><h3>${children.__html}</h3>${helpers.get_glossary_term(term)}`;
+export default function GlossaryTerm(
+  { term, children }: GlossaryTermProps,
+  helpers: Helpers,
+) {
+  const content =
+    `<span class="eyebrow">Glossary term</span><h3>${children.__html}</h3>${
+      helpers.get_glossary_term(term)
+    }`;
   return (
     <span
       x-data="{

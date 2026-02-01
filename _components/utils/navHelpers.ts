@@ -3,18 +3,18 @@
  */
 
 interface NavBlock {
-    _bubbled?: string[];
+  _bubbled?: string[];
 }
 
 /**
  * Checks if the current page matches a target URL
- * @param currentUrl - The current page URL  
+ * @param currentUrl - The current page URL
  * @param targetUrl - The URL to check against
  * @returns Whether URLs match
  */
 export function isActivePage(currentUrl: string, targetUrl: string): boolean {
-    if (!currentUrl || !targetUrl) return false;
-    return currentUrl === targetUrl;
+  if (!currentUrl || !targetUrl) return false;
+  return currentUrl === targetUrl;
 }
 
 /**
@@ -24,8 +24,8 @@ export function isActivePage(currentUrl: string, targetUrl: string): boolean {
  * @returns Whether the nav item is active
  */
 export function isActiveNavItem(block: NavBlock, pageUuid: string): boolean {
-    if (!block?._bubbled || !pageUuid) return false;
-    return block._bubbled.includes(pageUuid);
+  if (!block?._bubbled || !pageUuid) return false;
+  return block._bubbled.includes(pageUuid);
 }
 
 /**
@@ -34,11 +34,14 @@ export function isActiveNavItem(block: NavBlock, pageUuid: string): boolean {
  * @param targetUrl - The URL to check against
  * @returns Empty object or aria-current attribute
  */
-export function getAriaCurrent(currentUrl: string, targetUrl: string): Record<string, string> | Record<string, never> {
-    if (isActivePage(currentUrl, targetUrl)) {
-        return { 'aria-current': 'page' };
-    }
-    return {};
+export function getAriaCurrent(
+  currentUrl: string,
+  targetUrl: string,
+): Record<string, string> | Record<string, never> {
+  if (isActivePage(currentUrl, targetUrl)) {
+    return { "aria-current": "page" };
+  }
+  return {};
 }
 
 /**
@@ -48,9 +51,13 @@ export function getAriaCurrent(currentUrl: string, targetUrl: string): Record<st
  * @param isOpen - Whether the item is open/expanded
  * @returns Combined class string
  */
-export function getNavItemClassName(baseClass: string, isActive = false, isOpen = false): string {
-    const classes = [baseClass];
-    if (isActive) classes.push('is-active');
-    if (isOpen) classes.push('nav-open');
-    return classes.join(' ');
+export function getNavItemClassName(
+  baseClass: string,
+  isActive = false,
+  isOpen = false,
+): string {
+  const classes = [baseClass];
+  if (isActive) classes.push("is-active");
+  if (isOpen) classes.push("nav-open");
+  return classes.join(" ");
 }

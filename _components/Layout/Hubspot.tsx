@@ -1,6 +1,8 @@
 export default function Hubspot() {
-    return (
-        <script dangerouslySetInnerHTML={{ __html: `
+  return (
+    <script
+      dangerouslySetInnerHTML={{
+        __html: `
             (function () {
                 const openHubspot = (e) => {
                     if (window.HubSpotConversations) {
@@ -18,6 +20,8 @@ export default function Hubspot() {
                 const feedBackBtn = document.getElementById("feedback_request");
                 feedBackBtn?.addEventListener("click", openHubspot);
             }())
-        `}} />
-    );
+        `,
+      }}
+    />
+  );
 }

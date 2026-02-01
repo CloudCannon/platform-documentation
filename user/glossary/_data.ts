@@ -1,3 +1,3 @@
 export default {
-  excludes: ["**/*.yml"]
+  excludes: ["**/*.yml"],
 };

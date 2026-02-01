@@ -3,9 +3,9 @@
  */
 
 interface ParsedDocUrl {
-    navKey: string;
-    urlParts: string[];
-    urlPath: string;
+  navKey: string;
+  urlParts: string[];
+  urlPath: string;
 }
 
 /**
@@ -14,13 +14,13 @@ interface ParsedDocUrl {
  * @returns Parsed URL components
  */
 export function parseDocUrl(url: string): ParsedDocUrl {
-    const urlPath = (url || '').replace("/documentation/", "");
-    const urlParts = urlPath.split("/").filter(Boolean);
-    return { 
-        navKey: urlParts[0] || '', 
-        urlParts, 
-        urlPath 
-    };
+  const urlPath = (url || "").replace("/documentation/", "");
+  const urlParts = urlPath.split("/").filter(Boolean);
+  return {
+    navKey: urlParts[0] || "",
+    urlParts,
+    urlPath,
+  };
 }
 
 /**
@@ -30,8 +30,8 @@ export function parseDocUrl(url: string): ParsedDocUrl {
  * @returns Whether URLs match
  */
 export function urlsMatch(currentUrl: string, targetUrl: string): boolean {
-    if (!currentUrl || !targetUrl) return false;
-    // Normalize URLs by removing trailing slashes for comparison
-    const normalize = (url: string) => url.replace(/\/$/, '');
-    return normalize(currentUrl) === normalize(targetUrl);
+  if (!currentUrl || !targetUrl) return false;
+  // Normalize URLs by removing trailing slashes for comparison
+  const normalize = (url: string) => url.replace(/\/$/, "");
+  return normalize(currentUrl) === normalize(targetUrl);
 }

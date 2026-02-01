@@ -1,2 +1,2 @@
 // Re-export types from centralized types file
-export type { DocEntry, CodeExample } from '../../_types.d.ts';
+export type { CodeExample, DocEntry } from "../../_types.d.ts";

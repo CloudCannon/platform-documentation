@@ -10,124 +10,141 @@ new ScrollPadlock(scrollElement, LOCKED_CLASS);
 Alpine.plugin(intersect);
 Alpine.plugin(focus);
 
+Alpine.data("visibleNavHighlighter", () => ({
+  headings: undefined,
+  visibleHeadingId: null,
 
-Alpine.data('visibleNavHighlighter', () => ({
-    headings: undefined,
-    visibleHeadingId: null,
+  init() {
+    this.$nextTick(() => {
+      // Include card titles for glossary pages, standard headings for other pages
+      this.headings = document.querySelectorAll(
+        "main h2, main dt[id], main dd[id], main .c-card--glossary .c-card__title[id]",
+      );
+      this.assignHeadingIds();
+      this.onScroll();
+    });
+  },
 
-    init() {
-      this.$nextTick(() => {
-        // Include card titles for glossary pages, standard headings for other pages
-        this.headings = document.querySelectorAll('main h2, main dt[id], main dd[id], main .c-card--glossary .c-card__title[id]')
-        this.assignHeadingIds()
-        this.onScroll()
-      })
-    },
+  assignHeadingIds() {
+    this.headings.forEach((heading) => {
+      if (heading.id) return;
 
-    assignHeadingIds() {
-        this.headings.forEach(heading => {
-            if (heading.id) return
+      heading.id = heading.textContent.replace(/\s+/g, "-").toLowerCase();
+    });
+  },
 
-            heading.id = heading.textContent.replace(/\s+/g, '-').toLowerCase()
-        })
-    },
+  onScroll() {
+    const relativeTop = globalThis.innerHeight / 2;
 
-    onScroll() {
-        const relativeTop = globalThis.innerHeight / 2
+    const headingsByDistanceFromTop = {};
 
-        const headingsByDistanceFromTop = {}
+    this.headings.forEach((heading) => {
+      headingsByDistanceFromTop[
+        heading.getBoundingClientRect().top - relativeTop
+      ] = heading;
+    });
 
-        this.headings.forEach(heading => {
-            headingsByDistanceFromTop[heading.getBoundingClientRect().top - relativeTop] = heading
-        })
+    const closestNegativeTop = Math.max(
+      ...Object.keys(headingsByDistanceFromTop).filter((top) => top < 0),
+    );
 
-        const closestNegativeTop = Math.max(...Object.keys(headingsByDistanceFromTop).filter(top => top < 0))
+    if (
+      closestNegativeTop >= 0 ||
+      [Infinity, NaN, -Infinity].includes(closestNegativeTop)
+    ) {
+      this.visibleHeadingId = null;
+      this.updateIndicatorPosition(null);
+      return;
+    }
 
-        if (closestNegativeTop >= 0 || [Infinity, NaN, -Infinity].includes(closestNegativeTop)) {
-            this.visibleHeadingId = null
-            this.updateIndicatorPosition(null)
-            return
-        }
+    this.visibleHeadingId = headingsByDistanceFromTop[closestNegativeTop].id;
+    this.updateIndicatorPosition(this.visibleHeadingId);
 
-        this.visibleHeadingId = headingsByDistanceFromTop[closestNegativeTop].id
-        this.updateIndicatorPosition(this.visibleHeadingId)
-        
-        // Check if this is a letter heading (single lowercase letter) for glossary pages
-        if (this.visibleHeadingId && /^[a-z]$/.test(this.visibleHeadingId)) {
-            this.updateGlossaryLetter(this.visibleHeadingId)
-        }
-    },
+    // Check if this is a letter heading (single lowercase letter) for glossary pages
+    if (this.visibleHeadingId && /^[a-z]$/.test(this.visibleHeadingId)) {
+      this.updateGlossaryLetter(this.visibleHeadingId);
+    }
+  },
 
-    updateGlossaryLetter(letter) {
-        // Update URL hash without triggering scroll
-        if (globalThis.location.hash !== `#${letter}`) {
-            globalThis.history.replaceState(null, '', `#${letter}`)
-            globalThis.dispatchEvent(new CustomEvent('glossary-letter-changed', { detail: letter }))
-        }
-    },
+  updateGlossaryLetter(letter) {
+    // Update URL hash without triggering scroll
+    if (globalThis.location.hash !== `#${letter}`) {
+      globalThis.history.replaceState(null, "", `#${letter}`);
+      globalThis.dispatchEvent(
+        new CustomEvent("glossary-letter-changed", { detail: letter }),
+      );
+    }
+  },
 
-    updateIndicatorPosition(headingId) {
-        const tocList = this.$el.querySelector('.l-toc__list')
-        if (!tocList) return
+  updateIndicatorPosition(headingId) {
+    const tocList = this.$el.querySelector(".l-toc__list");
+    if (!tocList) return;
 
-        if (!headingId) {
-            tocList.style.setProperty('--indicator-opacity', '0')
-            return
-        }
+    if (!headingId) {
+      tocList.style.setProperty("--indicator-opacity", "0");
+      return;
+    }
 
-        const activeLink = tocList.querySelector(`a[href="#${CSS.escape(headingId)}"]`)
-        if (!activeLink) {
-            tocList.style.setProperty('--indicator-opacity', '0')
-            return
-        }
+    const activeLink = tocList.querySelector(
+      `a[href="#${CSS.escape(headingId)}"]`,
+    );
+    if (!activeLink) {
+      tocList.style.setProperty("--indicator-opacity", "0");
+      return;
+    }
 
-        const listItem = activeLink.closest('li')
-        if (!listItem) return
+    const listItem = activeLink.closest("li");
+    if (!listItem) return;
 
-        const listRect = tocList.getBoundingClientRect()
-        const itemRect = listItem.getBoundingClientRect()
+    const listRect = tocList.getBoundingClientRect();
+    const itemRect = listItem.getBoundingClientRect();
 
-        const top = itemRect.top - listRect.top + tocList.scrollTop
-        const height = itemRect.height
+    const top = itemRect.top - listRect.top + tocList.scrollTop;
+    const height = itemRect.height;
 
-        tocList.style.setProperty('--indicator-top', `${top}px`)
-        tocList.style.setProperty('--indicator-height', `${height}px`)
-        tocList.style.setProperty('--indicator-opacity', '1')
+    tocList.style.setProperty("--indicator-top", `${top}px`);
+    tocList.style.setProperty("--indicator-height", `${height}px`);
+    tocList.style.setProperty("--indicator-opacity", "1");
 
-        // Auto-scroll TOC to keep active item visible
-        const tocContainer = tocList.closest('.l-toc, .l-toc-glossary, .l-toc-changelog-list')
-        if (tocContainer) {
-            const containerRect = tocContainer.getBoundingClientRect()
-            const itemRelativeTop = itemRect.top - containerRect.top
-            
-            // If item is outside visible area, scroll to center it
-            if (itemRelativeTop < 0 || itemRelativeTop > containerRect.height - itemRect.height) {
-                listItem.scrollIntoView({ block: 'center', behavior: 'smooth' })
-            }
-        }
-    },
-}))
+    // Auto-scroll TOC to keep active item visible
+    const tocContainer = tocList.closest(
+      ".l-toc, .l-toc-glossary, .l-toc-changelog-list",
+    );
+    if (tocContainer) {
+      const containerRect = tocContainer.getBoundingClientRect();
+      const itemRelativeTop = itemRect.top - containerRect.top;
+
+      // If item is outside visible area, scroll to center it
+      if (
+        itemRelativeTop < 0 ||
+        itemRelativeTop > containerRect.height - itemRect.height
+      ) {
+        listItem.scrollIntoView({ block: "center", behavior: "smooth" });
+      }
+    }
+  },
+}));
 
 // Scroll container state tracking for gradient indicators
-Alpine.data('scrollContainer', () => ({
-    scrolledDown: false,
-    more: true,
+Alpine.data("scrollContainer", () => ({
+  scrolledDown: false,
+  more: true,
 
-    init() {
-        this.$el.addEventListener('scroll', () => this.updateScrollState())
-        // Also update on resize in case content changes
-        new ResizeObserver(() => this.updateScrollState()).observe(this.$el)
-        this.updateScrollState()
-    },
+  init() {
+    this.$el.addEventListener("scroll", () => this.updateScrollState());
+    // Also update on resize in case content changes
+    new ResizeObserver(() => this.updateScrollState()).observe(this.$el);
+    this.updateScrollState();
+  },
 
-    updateScrollState() {
-        const el = this.$el
-        // Show top gradient when scrolled more than 10px from top
-        this.scrolledDown = el.scrollTop > 10
-        // Show bottom gradient when not at bottom (with 10px threshold)
-        this.more = el.scrollTop < el.scrollHeight - el.clientHeight - 10
-    }
-}))
+  updateScrollState() {
+    const el = this.$el;
+    // Show top gradient when scrolled more than 10px from top
+    this.scrolledDown = el.scrollTop > 10;
+    // Show bottom gradient when not at bottom (with 10px threshold)
+    this.more = el.scrollTop < el.scrollHeight - el.clientHeight - 10;
+  },
+}));
 
 // Center the active nav item in the sidebar
 function centerActiveNavItem() {
@@ -138,7 +155,8 @@ function centerActiveNavItem() {
   // Calculate position to center the active item in the nav viewport
   const navRect = nav.getBoundingClientRect();
   const itemRect = activeItem.getBoundingClientRect();
-  const scrollTarget = nav.scrollTop + (itemRect.top - navRect.top) - (navRect.height / 2) + (itemRect.height / 2);
+  const scrollTarget = nav.scrollTop + (itemRect.top - navRect.top) -
+    (navRect.height / 2) + (itemRect.height / 2);
 
   nav.scrollTop = Math.max(0, scrollTarget);
 }
@@ -160,10 +178,10 @@ document.addEventListener("click", (e) => {
 // Scroll mobile TOC to active item when opened
 document.addEventListener("toggle", (e) => {
   const details = e.target;
-  if (!details.open || !details.matches('.l-toc-mobile')) return;
-  
-  const tocList = details.querySelector('.l-toc__list');
-  const activeItem = tocList?.querySelector('.active');
+  if (!details.open || !details.matches(".l-toc-mobile")) return;
+
+  const tocList = details.querySelector(".l-toc__list");
+  const activeItem = tocList?.querySelector(".active");
   if (tocList && activeItem) {
     requestAnimationFrame(() => {
       // Scroll the container, not the page
@@ -176,25 +194,25 @@ document.addEventListener("toggle", (e) => {
 }, true); // Use capture phase since toggle doesn't bubble
 
 // Auto-scroll nav when details expands near bottom
-document.addEventListener('toggle', (e) => {
-    const details = e.target;
-    if (!details.open || !details.matches('.t-docs-nav details')) return;
-    
-    const nav = details.closest('.t-docs-nav');
-    if (!nav) return;
-    
-    // Wait for content to render
-    requestAnimationFrame(() => {
-        const detailsRect = details.getBoundingClientRect();
-        const navRect = nav.getBoundingClientRect();
-        
-        // If the bottom of the details is below the nav viewport, scroll to show it
-        if (detailsRect.bottom > navRect.bottom) {
-            // Scroll so the details is visible with some padding
-            const scrollAmount = detailsRect.bottom - navRect.bottom + 20;
-            nav.scrollBy({ top: scrollAmount, behavior: 'smooth' });
-        }
-    });
+document.addEventListener("toggle", (e) => {
+  const details = e.target;
+  if (!details.open || !details.matches(".t-docs-nav details")) return;
+
+  const nav = details.closest(".t-docs-nav");
+  if (!nav) return;
+
+  // Wait for content to render
+  requestAnimationFrame(() => {
+    const detailsRect = details.getBoundingClientRect();
+    const navRect = nav.getBoundingClientRect();
+
+    // If the bottom of the details is below the nav viewport, scroll to show it
+    if (detailsRect.bottom > navRect.bottom) {
+      // Scroll so the details is visible with some padding
+      const scrollAmount = detailsRect.bottom - navRect.bottom + 20;
+      nav.scrollBy({ top: scrollAmount, behavior: "smooth" });
+    }
+  });
 }, true);
 
 Alpine.magic("getRecentSearches", () => {
@@ -210,8 +228,8 @@ Alpine.magic("getRecentSearches", () => {
 Alpine.magic("deleteRecentSearch", () => {
   return (recent) => {
     try {
-      let recents =
-        JSON.parse(localStorage.getItem("docs-pagefind-recents")) ?? [];
+      let recents = JSON.parse(localStorage.getItem("docs-pagefind-recents")) ??
+        [];
       recents = recents.filter((r) => r !== recent);
       localStorage.setItem("docs-pagefind-recents", JSON.stringify(recents));
       return recents;
@@ -271,62 +289,69 @@ Alpine.magic("focusNav", () => {
   };
 });
 
-Alpine.magic('layoutOffsets', () => ({
+Alpine.magic("layoutOffsets", () => ({
   headerHeight: 64,
   announcementHeight: 0,
 
   init() {
     this.$nextTick(() => {
-      this.measure()
-      this.updateOffset()
-    })
+      this.measure();
+      this.updateOffset();
+    });
   },
 
   measure() {
-    this.announcementHeight = this.$refs.announcement ? this.$refs.announcement.offsetHeight : 0
+    this.announcementHeight = this.$refs.announcement
+      ? this.$refs.announcement.offsetHeight
+      : 0;
   },
 
   updateOffset() {
-    const scrolled = globalThis.scrollY
+    const scrolled = globalThis.scrollY;
 
     const visibleAnnouncement = Math.max(
       this.announcementHeight - scrolled,
-      0
-    )
-    const offset = this.headerHeight + visibleAnnouncement
+      0,
+    );
+    const offset = this.headerHeight + visibleAnnouncement;
 
     document.documentElement.style
-      .setProperty('--offset-height', `${offset}px`)
-  }
+      .setProperty("--offset-height", `${offset}px`);
+  },
 }));
 
 // Theme management
 function getEffectiveTheme(preference) {
-  if (preference === 'system' || !preference) {
-    return globalThis.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  if (preference === "system" || !preference) {
+    return globalThis.matchMedia("(prefers-color-scheme: dark)").matches
+      ? "dark"
+      : "light";
   }
   return preference;
 }
 
-Alpine.magic('themeManager', () => ({
+Alpine.magic("themeManager", () => ({
   initTheme() {
     this.effectiveTheme = getEffectiveTheme(this.themePreference);
-    
+
     // Listen for OS preference changes
-    globalThis.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
-      if (this.themePreference === 'system') {
-        this.effectiveTheme = e.matches ? 'dark' : 'light';
-      }
-    });
+    globalThis.matchMedia("(prefers-color-scheme: dark)").addEventListener(
+      "change",
+      (e) => {
+        if (this.themePreference === "system") {
+          this.effectiveTheme = e.matches ? "dark" : "light";
+        }
+      },
+    );
   },
-  
+
   setTheme(preference) {
     this.themePreference = preference;
     this.effectiveTheme = getEffectiveTheme(preference);
-    localStorage.setItem('cc_darkMode', preference);
+    localStorage.setItem("cc_darkMode", preference);
     // Close the popover
-    document.getElementById('theme-dropdown')?.hidePopover();
-  }
+    document.getElementById("theme-dropdown")?.hidePopover();
+  },
 }));
 
 globalThis.Alpine = Alpine;

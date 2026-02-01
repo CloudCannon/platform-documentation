@@ -1,6 +1,6 @@
 interface SlotContentProps {
-    name: string;
-    children: unknown;
+  name: string;
+  children: unknown;
 }
 
 export default function SlotContent({ name, children }: SlotContentProps) {
