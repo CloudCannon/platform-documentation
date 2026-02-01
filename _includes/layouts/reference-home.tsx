@@ -20,7 +20,6 @@ export default function ReferenceHomeLayout({ content, details, date, page, navi
     const currentUrl = page?.data?.url || url || '';
     const { navKey: sectionKey } = parseDocUrl(currentUrl);
     const navData = navigation?.[sectionKey];
-    const sectionName = sectionKey?.replace(/-/g, ' ') || '';
     
     return (
         <div className="l-page" x-init="showmobilenav = true">
@@ -40,12 +39,6 @@ export default function ReferenceHomeLayout({ content, details, date, page, navi
                 </NavSidebar>
                 
                 <div className="u-card-box l-content" x-data="visibleNavHighlighter">
-                    <div className="l-breadcrumb">
-                        <span style={{ textTransform: 'capitalize' }}>{sectionName}</span>
-                        <img src={helpers.icon('arrow_forward_ios:outlined', 'material')} inline="true" />
-                        <span>{details?.title}</span>
-                    </div>
-                    
                     <h1 
                         data-pagefind-body 
                         className="l-heading u-margin-bottom-0"

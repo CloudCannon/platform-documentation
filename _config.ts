@@ -553,6 +553,10 @@ site.process([".html"], async (pages) => {
             selector = `main .c-card--glossary .c-card__title`;
     }
 
+    if (!tocContainer) {
+        return;
+    }
+
     page.document?.querySelectorAll(selector).forEach((el) => {
         if (el.hasAttribute("data-skip-anchor")) return;
 

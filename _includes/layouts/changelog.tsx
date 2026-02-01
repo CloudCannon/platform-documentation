@@ -1,4 +1,5 @@
 import ChangeNav from '../../_components/Nav/ChangeNav.tsx';
+import Breadcrumb from '../../_components/Layout/Breadcrumb.tsx';
 import MobileTOC from '../../_components/Layout/MobileTOC.tsx';
 import NavSidebar from '../../_components/Layout/NavSidebar.tsx';
 import RelativeDate from '../../_components/RelativeDate.tsx';
@@ -21,7 +22,7 @@ export default function ChangelogLayout(props: Props, helpers: Helpers) {
         changelog_years
     } = props;
 
-    const year = helpers.date(date, 'yyyy');
+    const year = helpers.date(date, 'yyyy') || '';
 
     return (
         <div className="l-page" x-init="showmobilenav = true">
@@ -34,11 +35,13 @@ export default function ChangelogLayout(props: Props, helpers: Helpers) {
                     />
                 </NavSidebar>
                 <div className="u-card-box l-small-content">
-                    <div className="l-breadcrumb">
-                        <a href="/documentation/changelog/">Changelog</a>
-                        <span className="l-breadcrumb__separator">/</span>
-                        <a href={`/documentation/changelog/${year}/`}>{year}</a>
-                    </div>
+                    <Breadcrumb 
+                        items={[
+                            { label: 'Changelog', href: '/documentation/changelog/' },
+                            { label: year, href: `/documentation/changelog/${year}/` }
+                        ]} 
+                        helpers={helpers} 
+                    />
                     <h1 data-pagefind-body="" className="l-heading changelog-entry__heading">{title}</h1>
                     <p className="changelog-entry__date"><RelativeDate date={date} /></p>
                     <MobileTOC helpers={helpers} />

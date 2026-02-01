@@ -4,7 +4,8 @@ import {
     getDocByGid,
     resolveRef 
 } from '../../_components/Reference/helpers.ts';
-import { parseDocUrl, slugify } from '../../_components/utils/index.ts';
+import { parseDocUrl, slugify, formatTitle } from '../../_components/utils/index.ts';
+import Breadcrumb from '../../_components/Layout/Breadcrumb.tsx';
 import MobileTOC from '../../_components/Layout/MobileTOC.tsx';
 import NavSidebar from '../../_components/Layout/NavSidebar.tsx';
 import RefType from '../../_components/Reference/RefType.tsx';
@@ -45,18 +46,6 @@ function DocLink({ doc }: { doc?: DocEntry }) {
     
     return <a href={url ?? undefined}><DocName doc={doc} /></a>
 }
-
-function PageBreadcrumb({ entry }: { entry: DocEntry }) {
-    if (entry.url === '/') {
-        return null;
-    }
-    
-    return (<span>
-        {/* <img src={helpers.icon('arrow_forward_ios:outlined', 'material')} inline="true" /> */}
-        <a href='/documentation/developer-reference/configuration-file/'>Configuration File</a>
-    </span>);
-}
-
 
 function getTocItems(entry: DocEntry): TocItem[] {
     const items: TocItem[] = [];
@@ -167,6 +156,20 @@ export default function AutomatedReferenceLayout({ entry, page, navigation, full
     
     const tocItems = getTocItems(entry);
     
+    // Build breadcrumb items dynamically from current URL
+    // URL structure: /documentation/developer-reference/{section}/{rest}/
+    const { urlParts } = parseDocUrl(currentUrl);
+    const sectionSlug = urlParts[1]; // e.g., "configuration-file" (urlParts[0] is "developer-reference")
+    const breadcrumbItems = [
+        { label: 'Developer Reference', href: '/documentation/developer-reference/' }
+    ];
+    if (sectionSlug) {
+        breadcrumbItems.push({ 
+            label: formatTitle(sectionSlug), 
+            href: `/documentation/developer-reference/${sectionSlug}/` 
+        });
+    }
+    
     return (
         <div className="l-page" x-init="showmobilenav = true">
             <div className="l-column">
@@ -185,12 +188,7 @@ export default function AutomatedReferenceLayout({ entry, page, navigation, full
                 </NavSidebar>
                 
                 <div className="u-card-box l-content" x-data="visibleNavHighlighter">
-                    <div className="l-breadcrumb">
-                        <a href="/documentation/developer-reference/" style="text-transform: capitalize;">Developer Reference</a>
-                        <PageBreadcrumb 
-                            entry={entry} 
-                        />
-                    </div>
+                    <Breadcrumb items={breadcrumbItems} helpers={helpers} />
                     
                     <h1 data-pagefind-body className="l-heading u-margin-bottom-0">
                         <DocName doc={entry} />

@@ -1,5 +1,6 @@
 import DocNav from '../../_components/Nav/DocNav.tsx';
 import RelatedArticles from '../../_components/Content/RelatedArticles.tsx';
+import Breadcrumb from '../../_components/Layout/Breadcrumb.tsx';
 import MobileTOC from '../../_components/Layout/MobileTOC.tsx';
 import NavSidebar from '../../_components/Layout/NavSidebar.tsx';
 import { parseDocUrl, formatTitle } from '../../_components/utils/index.ts';
@@ -26,7 +27,7 @@ export default function ArticleLayout(props: Props, helpers: Helpers) {
         search
     } = props;
 
-    const { navKey } = parseDocUrl(url);
+    const { navKey, urlParts } = parseDocUrl(url);
     const navData = navigation?.[navKey];
 
     return (
@@ -46,9 +47,12 @@ export default function ArticleLayout(props: Props, helpers: Helpers) {
                     )}
                 </NavSidebar>
                 <div className="u-card-box l-content" x-data="visibleNavHighlighter">
-                    <div className="l-breadcrumb">
-                        <a href={`/documentation/${navKey}/`}>{formatTitle(navKey)}</a>
-                    </div>
+                    {urlParts.length > 1 && (
+                        <Breadcrumb 
+                            items={[{ label: formatTitle(navKey), href: `/documentation/${navKey}/` }]} 
+                            helpers={helpers} 
+                        />
+                    )}
                     <h1 data-pagefind-body="" className="l-heading u-margin-bottom-0" data-editable="text" data-prop="details.title">
                         {details?.title}
                     </h1>

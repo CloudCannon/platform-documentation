@@ -1,4 +1,5 @@
 import ChangeNav from '../../_components/Nav/ChangeNav.tsx';
+import Breadcrumb from '../../_components/Layout/Breadcrumb.tsx';
 import MobileTOC from '../../_components/Layout/MobileTOC.tsx';
 import NavSidebar from '../../_components/Layout/NavSidebar.tsx';
 import Card from '../../_components/Card/Card.tsx';
@@ -65,7 +66,10 @@ export default async function ChangelogCardsLayout(props: Props, helpers: Helper
                     />
                 </NavSidebar>
                 <div className="u-card-box l-small-content">
-                    <div className="l-breadcrumb">Changelog</div>
+                    <Breadcrumb 
+                        items={[{ label: 'Changelog', href: '/documentation/changelog/' }]} 
+                        helpers={helpers} 
+                    />
                     <h1 className="l-heading u-margin-bottom-0">
                         {data?.year}
                     </h1>
