@@ -52,12 +52,21 @@ export default function ReferenceHomeLayout(
   const { navKey: sectionKey } = parseDocUrl(currentUrl);
   const navData = navigation?.[sectionKey];
 
-  // Derive rootEntry from full_docs for configuration-file section if not provided
-  const derivedRootEntry = rootEntry || (
-    currentUrl.includes("configuration-file")
-      ? full_docs?.find((doc) => doc.url === "/")
-      : undefined
-  );
+  // Derive rootEntry from the appropriate docs array based on the current section
+  let derivedRootEntry = rootEntry;
+  if (!derivedRootEntry) {
+    if (currentUrl.includes("routing-file")) {
+      derivedRootEntry = routing_docs?.find((doc) =>
+        doc.gid === "type.Routing"
+      );
+    } else if (currentUrl.includes("initial-site-settings-file")) {
+      derivedRootEntry = initial_site_settings_docs?.find((doc) =>
+        doc.gid === "type.InitialSiteSettings"
+      );
+    } else if (currentUrl.includes("configuration-file")) {
+      derivedRootEntry = full_docs?.find((doc) => doc.url === "/");
+    }
+  }
 
   // Generate TOC items from the root entry
   const tocItems = derivedRootEntry ? getTocItems(derivedRootEntry) : [];
@@ -127,7 +136,10 @@ export default function ReferenceHomeLayout(
                     <>
                       <dt id="type">Type:</dt>
                       <dd>
-                        <RefType doc={derivedRootEntry} currentUrl={currentUrl} />
+                        <RefType
+                          doc={derivedRootEntry}
+                          currentUrl={currentUrl}
+                        />
                       </dd>
                     </>
                   )}

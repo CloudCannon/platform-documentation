@@ -129,7 +129,9 @@ export default function DocNav(
                 pageUuid === indexPage.attrs?._uuid ? "is-active" : ""
               }`}
               href={indexPage.url}
-              aria-current={pageUuid === indexPage.attrs?._uuid ? "page" : undefined}
+              aria-current={pageUuid === indexPage.attrs?._uuid
+                ? "page"
+                : undefined}
             >
               <img
                 src={helpers.icon("home:outlined", "material")}

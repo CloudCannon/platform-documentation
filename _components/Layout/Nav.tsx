@@ -226,79 +226,82 @@ export default function Nav({ headingnav, url, helpers }: NavProps) {
           </div>
 
           {/* Main menu panel - hidden when docnav is shown */}
-        <div className="mobile-menu-panel" x-show="!showmobilenav">
-          {/* Link to show docnav - only visible on pages with doc navigation */}
-          <div
-            className="mobile-docnav-trigger"
-            x-show="hasDocNav"
-            x-on:click="showmobilenav = true"
-          >
-            <img
-              src={helpers.icon("menu_book:outlined", "material")}
-              inline="true"
-            />
-            <span>Section navigation</span>
-            <img
-              src={helpers.icon("arrow_forward_ios:filled", "material")}
-              inline="true"
-            />
-          </div>
+          <div className="mobile-menu-panel" x-show="!showmobilenav">
+            {/* Link to show docnav - only visible on pages with doc navigation */}
+            <div
+              className="mobile-docnav-trigger"
+              x-show="hasDocNav"
+              x-on:click="showmobilenav = true"
+            >
+              <img
+                src={helpers.icon("menu_book:outlined", "material")}
+                inline="true"
+              />
+              <span>Section navigation</span>
+              <img
+                src={helpers.icon("arrow_forward_ios:filled", "material")}
+                inline="true"
+              />
+            </div>
 
-          <div className="l-header__links--sub-list">
-          <ul className="l-header__links">
-            {items.map((item, index) => {
-              const isLast = index === items.length - 1;
-              if (item.items?.length) {
-                return item.items.map((subitem, subIndex) => (
-                  <li key={`${index}-${subIndex}`}>
-                    <a className="c-card-grid__card--item" href={subitem.href}>
-                      {subitem.icon
-                        ? (
-                          <img
-                            src={helpers.icon(
-                              `${subitem.icon}:outlined`,
-                              "material",
-                            )}
-                            inline="true"
-                          />
-                        )
-                        : <div>{/* spacer for grid layout */}</div>}
-                      <h3>{subitem.heading}</h3>
-                      <div>{/* spacer for grid layout */}</div>
-                      <p>{subitem.description}</p>
-                    </a>
-                  </li>
-                )).concat(
-                  !isLast
-                    ? [
-                      <li
-                        key={`divider-${index}`}
-                        className="l-header__links--divider"
-                      />,
-                    ]
-                    : [],
-                );
-              }
-              return [
-                <li key={index}>
-                  <a className="c-card-grid__card--item" href={item.href}>
-                    {item.text}
-                  </a>
-                </li>,
-              ].concat(
-                !isLast
-                  ? [
-                    <li
-                      key={`divider-${index}`}
-                      className="l-header__links--divider"
-                    />,
-                  ]
-                  : [],
-              );
-            })}
-          </ul>
+            <div className="l-header__links--sub-list">
+              <ul className="l-header__links">
+                {items.map((item, index) => {
+                  const isLast = index === items.length - 1;
+                  if (item.items?.length) {
+                    return item.items.map((subitem, subIndex) => (
+                      <li key={`${index}-${subIndex}`}>
+                        <a
+                          className="c-card-grid__card--item"
+                          href={subitem.href}
+                        >
+                          {subitem.icon
+                            ? (
+                              <img
+                                src={helpers.icon(
+                                  `${subitem.icon}:outlined`,
+                                  "material",
+                                )}
+                                inline="true"
+                              />
+                            )
+                            : <div>{/* spacer for grid layout */}</div>}
+                          <h3>{subitem.heading}</h3>
+                          <div>{/* spacer for grid layout */}</div>
+                          <p>{subitem.description}</p>
+                        </a>
+                      </li>
+                    )).concat(
+                      !isLast
+                        ? [
+                          <li
+                            key={`divider-${index}`}
+                            className="l-header__links--divider"
+                          />,
+                        ]
+                        : [],
+                    );
+                  }
+                  return [
+                    <li key={index}>
+                      <a className="c-card-grid__card--item" href={item.href}>
+                        {item.text}
+                      </a>
+                    </li>,
+                  ].concat(
+                    !isLast
+                      ? [
+                        <li
+                          key={`divider-${index}`}
+                          className="l-header__links--divider"
+                        />,
+                      ]
+                      : [],
+                  );
+                })}
+              </ul>
+            </div>
           </div>
-        </div>
 
           {/* Docnav panel - shown when showmobilenav is true */}
           <div

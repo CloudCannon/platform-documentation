@@ -2,17 +2,39 @@ import { DocEntry } from "./types.d.ts";
 
 export const BASE_URL = "/documentation/developer-reference/configuration-file";
 
+// Map gid prefixes to section URL paths
+function getSectionUrlFromGid(gid: string | undefined): string {
+  if (!gid) return BASE_URL;
+  // Routing entries have gids starting with "routing." or "type.Routing"
+  if (gid.startsWith("routing.") || gid === "type.Routing") {
+    return "/documentation/developer-reference/routing-file";
+  }
+  // ISS entries have gids starting with "iss." or "type.InitialSiteSettings"
+  if (gid.startsWith("iss.") || gid === "type.InitialSiteSettings") {
+    return "/documentation/developer-reference/initial-site-settings-file";
+  }
+  return BASE_URL;
+}
+
+// Get just the last segment of a dotted key (e.g., "headers.match" -> "match")
+export function getShortKey(key: string | undefined): string {
+  if (!key) return "unknown";
+  const parts = key.split(".");
+  return parts[parts.length - 1];
+}
+
 // "Type reset" entries (parent === 'type.Configuration' && show_in_navigation) display title instead of key
 export function getDisplayName(entry: DocEntry | null | undefined): string {
   if (!entry) return "unknown";
 
   // TODO if it is a key, we want it presented in monospace font
-  return entry.title || entry.key || "unknown";
+  return entry.title || getShortKey(entry.key) || "unknown";
 }
 
 export function getRefUrl(entry: DocEntry | null | undefined): string | null {
   if (!entry?.url) return null;
-  return `${BASE_URL}${entry.url}`;
+  const baseUrl = getSectionUrlFromGid(entry.gid);
+  return `${baseUrl}${entry.url}`;
 }
 
 // Resolves a reference, merging any documentation overrides

@@ -140,7 +140,11 @@ Alpine.data("visibleNavHighlighter", () => ({
         itemRelativeTop < 0 ||
         itemRelativeTop > containerRect.height - itemRect.height
       ) {
-        listItem.scrollIntoView({ block: "center", behavior: "smooth", container: 'nearest' });
+        listItem.scrollIntoView({
+          block: "center",
+          behavior: "smooth",
+          container: "nearest",
+        });
       }
     }
   },
@@ -178,7 +182,11 @@ Alpine.data("glossaryNav", () => ({
       `[href$="#${this.active.slice(1)}"]`,
     );
     if (activeEl) {
-      activeEl.scrollIntoView({ block: "nearest", behavior: "smooth", container: 'nearest' });
+      activeEl.scrollIntoView({
+        block: "nearest",
+        behavior: "smooth",
+        container: "nearest",
+      });
     }
   },
 }));
@@ -277,7 +285,11 @@ document.addEventListener("toggle", (e) => {
         const scrollAmount = Math.min(neededForBottom, Math.max(0, maxScroll));
 
         if (scrollAmount > 0) {
-          nav.scrollBy({ top: scrollAmount, behavior: "smooth", container: 'nearest' });
+          nav.scrollBy({
+            top: scrollAmount,
+            behavior: "smooth",
+            container: "nearest",
+          });
         }
       }
     });

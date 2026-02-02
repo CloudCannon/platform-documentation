@@ -1,9 +1,5 @@
-import { BASE_URL, resolveRef } from "./helpers.ts";
+import { getRefUrl, resolveRef } from "./helpers.ts";
 import { DocEntry } from "./types.d.ts";
-
-function fullUrl(url: string): string {
-  return `${BASE_URL}${url}`;
-}
 
 function DocName({ doc }: { doc: DocEntry }) {
   if (!doc) return null;
@@ -14,14 +10,12 @@ function DocName({ doc }: { doc: DocEntry }) {
 
 function MaybeLink(
   { href, shouldLink, children }: {
-    href?: string;
+    href?: string | null;
     shouldLink: boolean;
     children: unknown;
   },
 ) {
-  return shouldLink && href
-    ? <a href={fullUrl(href)}>{children}</a>
-    : <>{children}</>;
+  return shouldLink && href ? <a href={href}>{children}</a> : <>{children}</>;
 }
 
 function GenericParams({ children }: { children: unknown }) {
@@ -43,11 +37,12 @@ function TypeDisplay(
 ) {
   if (!entry) return "unknown";
 
-  const shouldLink = nested && !!entry.url && currentUrl !== entry.url;
+  const entryUrl = getRefUrl(entry);
+  const shouldLink = nested && !!entryUrl && currentUrl !== entryUrl;
 
-  if (nested && entry.url && (entry.title || entry.key)) {
+  if (nested && entryUrl && (entry.title || entry.key)) {
     return (
-      <a href={fullUrl(entry.url)}>
+      <a href={entryUrl}>
         <DocName doc={entry} />
       </a>
     );
@@ -59,7 +54,7 @@ function TypeDisplay(
     ): item is DocEntry => item !== null);
     return (
       <>
-        <MaybeLink href={entry.url} shouldLink={shouldLink}>Array</MaybeLink>
+        <MaybeLink href={entryUrl} shouldLink={shouldLink}>Array</MaybeLink>
         {items.length > 0 && (
           <GenericParams>
             {items.map((item, i) => (
@@ -81,7 +76,7 @@ function TypeDisplay(
       : null;
     return (
       <>
-        <MaybeLink href={entry.url} shouldLink={shouldLink}>Object</MaybeLink>
+        <MaybeLink href={entryUrl} shouldLink={shouldLink}>Object</MaybeLink>
         {resolvedProp && (
           <GenericParams>
             <TypeDisplay entry={resolvedProp} currentUrl={currentUrl} nested />
@@ -94,7 +89,7 @@ function TypeDisplay(
   if (entry.type === "string") {
     const display = <code>{entry.const ? `"${entry.const}"` : "string"}</code>;
     return (
-      <MaybeLink href={entry.url} shouldLink={shouldLink}>{display}</MaybeLink>
+      <MaybeLink href={entryUrl} shouldLink={shouldLink}>{display}</MaybeLink>
     );
   }
 
@@ -105,7 +100,7 @@ function TypeDisplay(
       </code>
     );
     return (
-      <MaybeLink href={entry.url} shouldLink={shouldLink}>{display}</MaybeLink>
+      <MaybeLink href={entryUrl} shouldLink={shouldLink}>{display}</MaybeLink>
     );
   }
 
@@ -114,7 +109,7 @@ function TypeDisplay(
       <code>{entry.const !== undefined ? String(entry.const) : "boolean"}</code>
     );
     return (
-      <MaybeLink href={entry.url} shouldLink={shouldLink}>{display}</MaybeLink>
+      <MaybeLink href={entryUrl} shouldLink={shouldLink}>{display}</MaybeLink>
     );
   }
 
@@ -136,7 +131,7 @@ function TypeDisplay(
 
   const fallback = entry.type || (entry ? <DocName doc={entry} /> : "unknown");
   return (
-    <MaybeLink href={entry.url} shouldLink={shouldLink}>{fallback}</MaybeLink>
+    <MaybeLink href={entryUrl} shouldLink={shouldLink}>{fallback}</MaybeLink>
   );
 }
 

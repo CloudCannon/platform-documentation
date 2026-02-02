@@ -48,15 +48,20 @@ function isBlockActive(
   // Check if currentDoc belongs to this specific section (for data-driven pages)
   if (currentDoc?.gid && block.configuration_types_documentation) {
     if (block.data_source === "routing") {
-      return currentDoc.gid.startsWith("routing-file.");
+      return currentDoc.gid.startsWith("routing.") ||
+        currentDoc.gid === "type.Routing";
     }
     if (block.data_source === "initial-site-settings") {
-      return currentDoc.gid.startsWith("initial-site-settings-file.");
+      return currentDoc.gid.startsWith("iss.") ||
+        currentDoc.gid === "type.InitialSiteSettings";
     }
     // Configuration File (no data_source) - check it's not from other sections
     if (!block.data_source) {
-      return !currentDoc.gid.startsWith("routing-file.") &&
-        !currentDoc.gid.startsWith("initial-site-settings-file.");
+      const isRouting = currentDoc.gid.startsWith("routing.") ||
+        currentDoc.gid === "type.Routing";
+      const isISS = currentDoc.gid.startsWith("iss.") ||
+        currentDoc.gid === "type.InitialSiteSettings";
+      return !isRouting && !isISS;
     }
   }
   return false;
@@ -203,9 +208,8 @@ export default function DocNav(
   const pageUuid = page?.data?._uuid;
 
   // Use URL comparison for home link instead of UUID (data-driven pages don't have pageUuid)
-  const isHomeActive = currentUrl === indexPage?.url || 
+  const isHomeActive = currentUrl === indexPage?.url ||
     currentUrl === indexPage?.url?.replace(/\/$/, "");
-
 
   return (
     <NavWrapper>
@@ -246,7 +250,12 @@ export default function DocNav(
         )}
 
         {headings.map((block, idx) => {
-          const isActive = isBlockActive(block, currentDoc, pageUuid, currentUrl);
+          const isActive = isBlockActive(
+            block,
+            currentDoc,
+            pageUuid,
+            currentUrl,
+          );
           const blockSectionPath = getSectionPath(block);
 
           // Get section home page from block.items if available
@@ -256,10 +265,9 @@ export default function DocNav(
             : null;
 
           // Use URL comparison for section home instead of UUID
-          const isSectionHomeActive = sectionHomePage && 
-            (currentUrl === sectionHomePage.url || 
-             currentUrl === sectionHomePage.url?.replace(/\/$/, ""));
-
+          const isSectionHomeActive = sectionHomePage &&
+            (currentUrl === sectionHomePage.url ||
+              currentUrl === sectionHomePage.url?.replace(/\/$/, ""));
 
           return (
             <li
@@ -303,7 +311,9 @@ export default function DocNav(
                           <a
                             className="t-docs-nav__sub-list__article"
                             href={sectionHomePage.url}
-                            aria-current={isSectionHomeActive ? "page" : undefined}
+                            aria-current={isSectionHomeActive
+                              ? "page"
+                              : undefined}
                           >
                             {sectionHomePage.attrs?.details?.title ||
                               sectionHomePage.title ||
@@ -316,9 +326,11 @@ export default function DocNav(
                         ? routing_docs
                         : block.data_source === "initial-site-settings"
                         ? initial_site_settings_docs
-                        : items
-                      )
-                        ?.filter((item) => item.documentation?.show_in_navigation && item.url !== "/")
+                        : items)
+                        ?.filter((item) =>
+                          item.documentation?.show_in_navigation &&
+                          item.url !== "/" && !item.parent
+                        )
                         .sort((a, b) =>
                           getDisplayName(a).localeCompare(getDisplayName(b))
                         )

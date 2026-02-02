@@ -2,6 +2,7 @@ import {
   getDisplayName,
   getDocByGid,
   getRefUrl,
+  getShortKey,
   resolveRef,
 } from "./helpers.ts";
 import { slugify } from "../utils/index.ts";
@@ -27,7 +28,7 @@ interface ReferenceContentProps {
 
 function DocName({ doc }: { doc?: DocEntry }) {
   if (!doc) return null;
-  return doc.title ? doc.title : <code>{doc.key}</code>;
+  return doc.title ? doc.title : <code>{getShortKey(doc.key)}</code>;
 }
 
 function DocLink({ doc }: { doc?: DocEntry }) {
@@ -93,14 +94,17 @@ function AppearsIn({ doc }: { doc?: DocEntry }) {
 
 export function getTocItems(entry: DocEntry): TocItem[] {
   const items: TocItem[] = [];
+  const hasProperties = entry.properties &&
+    Object.keys(entry.properties).length > 0;
 
-  if (entry.type === "object") {
+  if (entry.type === "object" || hasProperties) {
     const properties = Object.keys(entry.properties || {})
       .sort((a, b) => a.localeCompare(b));
     const additionalProps = entry.additionalProperties || [];
 
     properties.forEach((key) => {
-      items.push({ id: `prop-${slugify(key)}`, label: key });
+      const shortKey = getShortKey(key);
+      items.push({ id: `prop-${slugify(shortKey)}`, label: shortKey });
     });
 
     additionalProps.forEach((ref, i) => {
@@ -264,4 +268,4 @@ export default function ReferenceContent({
   );
 }
 
-export { DocName, DocLink, AppearsIn };
+export { AppearsIn, DocLink, DocName };

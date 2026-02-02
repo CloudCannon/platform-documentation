@@ -20,12 +20,11 @@ export default function RefNavItem({
   // Build URL using sectionPath instead of hardcoded BASE_URL
   const url = `${sectionPath.replace(/\/$/, "")}${entry.url}`;
   const name = getDisplayName(entry);
-  
+
   // Compare full URLs instead of partial paths to avoid leading slash issues
   const normalizedCurrentUrl = currentUrl?.replace(/\/$/, "") || "";
   const normalizedEntryUrl = url.replace(/\/$/, "");
   const isActive = normalizedCurrentUrl === normalizedEntryUrl;
-
 
   return (
     <li>

@@ -57,55 +57,29 @@ import strip from "npm:strip-markdown@6.0.0";
 
 import { parseChangelogFilename } from "./parseChangelogFilename.ts";
 import type { ContentNavItem, DocEntry } from "./_types.d.ts";
-import {
-  loadReferenceKeys,
-  type ReferenceData,
-} from "./_components/Reference/referenceDataHelpers.ts";
 
 import documentation from "npm:@cloudcannon/configuration-types@0.0.48/dist/documentation.json" with {
   type: "json",
 };
 globalThis.DOCS = documentation as unknown as Record<string, DocEntry>;
 
-// Load reference data files and convert to DocEntry arrays
-async function loadReferenceData(): Promise<{
-  routing: DocEntry[];
-  initialSiteSettings: DocEntry[];
-}> {
-  let routingEntries: DocEntry[] = [];
-  let initialSiteSettingsEntries: DocEntry[] = [];
+// Partition documentation entries by section in a single pass
+const routingDocs: DocEntry[] = [];
+const initialSiteSettingsDocs: DocEntry[] = [];
+const configDocs: DocEntry[] = [];
 
-  try {
-    const routingYaml = await Deno.readTextFile(
-      join(Deno.cwd(), "_data/reference/routing.yml"),
-    );
-    const routingData = yamlParse(routingYaml) as ReferenceData;
-    routingEntries = loadReferenceKeys(routingData, "routing-file");
-  } catch {
-    console.warn("Could not load routing reference data");
+for (const doc of Object.values(documentation)) {
+  const entry = doc as DocEntry;
+  const gid = entry.gid;
+
+  if (gid?.startsWith("routing.") || gid === "type.Routing") {
+    routingDocs.push(entry);
+  } else if (gid?.startsWith("iss.") || gid === "type.InitialSiteSettings") {
+    initialSiteSettingsDocs.push(entry);
+  } else {
+    configDocs.push(entry);
   }
-
-  try {
-    const settingsYaml = await Deno.readTextFile(
-      join(Deno.cwd(), "_data/reference/initial-site-settings.yml"),
-    );
-    const settingsData = yamlParse(settingsYaml) as ReferenceData;
-    initialSiteSettingsEntries = loadReferenceKeys(
-      settingsData,
-      "initial-site-settings-file",
-    );
-  } catch {
-    console.warn("Could not load initial-site-settings reference data");
-  }
-
-  return {
-    routing: routingEntries,
-    initialSiteSettings: initialSiteSettingsEntries,
-  };
 }
-
-// Load reference data synchronously at startup
-const referenceData = await loadReferenceData();
 
 // Build timing instrumentation
 const buildTimings: Record<string, number> = {};
@@ -149,9 +123,9 @@ const site = lume({
   },
 });
 
-site.data("full_docs", Object.values(documentation));
-site.data("routing_docs", referenceData.routing);
-site.data("initial_site_settings_docs", referenceData.initialSiteSettings);
+site.data("full_docs", configDocs);
+site.data("routing_docs", routingDocs);
+site.data("initial_site_settings_docs", initialSiteSettingsDocs);
 
 // Track whether we're in an update cycle (vs initial build)
 let isUpdating = false;

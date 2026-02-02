@@ -1,4 +1,4 @@
-import { getDisplayName, resolveRef } from "./helpers.ts";
+import { getDisplayName, getShortKey, resolveRef } from "./helpers.ts";
 import RefItem from "./RefItem.tsx";
 import type { DocEntry, Helpers } from "../../_types.d.ts";
 
@@ -25,13 +25,15 @@ function ObjectProperties(
           properties.map(([key, ref]) => (
             <dd
               key={key}
-              id={withIds && slugify ? `prop-${slugify(key)}` : undefined}
+              id={withIds && slugify
+                ? `prop-${slugify(getShortKey(key))}`
+                : undefined}
             >
               <RefItem
                 docRef={ref}
                 currentUrl={currentUrl}
                 useKey
-                keyOverride={key}
+                keyOverride={getShortKey(key)}
                 helpers={helpers}
               />
             </dd>
@@ -148,8 +150,12 @@ export default function PropertiesTable(
   if (!entry) return null;
 
   const props = { entry, currentUrl, helpers, withIds, slugify };
+  const hasProperties = entry.properties &&
+    Object.keys(entry.properties).length > 0;
 
-  if (entry.type === "object") {
+  // Show properties for objects OR any entry type that has properties defined
+  // (e.g., "array of objects" types where children define the item schema)
+  if (entry.type === "object" || hasProperties) {
     return <ObjectProperties {...props} />;
   }
 
