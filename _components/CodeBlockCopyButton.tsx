@@ -15,7 +15,7 @@ export default function CodeBlockCopyButton(
     <div className="c-code-block__copy">
       <button
         type="button"
-        x-on:click={`$clipboard('${codeEncoded}')`}
+        x-on-click={`$clipboard('${codeEncoded}')`}
         className="c-code-block__copy__button"
         title="Copy code to clipboard"
       >

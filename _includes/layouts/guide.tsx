@@ -64,7 +64,7 @@ export default function GuideLayout(props: Props, helpers: Helpers) {
               <button
                 type="button"
                 className="t-docs-nav__control"
-                x-on:click="isPageNavOpen = true; $focusNav(true);"
+                x-on-click="isPageNavOpen = true; $focusNav(true);"
                 x-show="!isPageNavOpen"
                 aria-label="Open guide menu"
               >
@@ -73,7 +73,7 @@ export default function GuideLayout(props: Props, helpers: Helpers) {
               <button
                 type="button"
                 className="t-docs-nav__control"
-                x-on:click="isPageNavOpen = false; $focusNav(false);"
+                x-on-click="isPageNavOpen = false; $focusNav(false);"
                 x-show="isPageNavOpen"
                 aria-label="Close guide menu"
               >

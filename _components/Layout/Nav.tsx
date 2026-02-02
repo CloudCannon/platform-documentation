@@ -10,13 +10,20 @@ interface NavProps {
 function ThemeDropdown(
   { helpers, id = "theme-dropdown" }: { helpers: Helpers; id?: string },
 ) {
+  const anchorName = `--${id}-anchor`;
+  const dropdownRef = `${id}_menu`;
+
   return (
-    <>
+    <div x-data="{ themeOpen: false }">
       <button
         type="button"
         className="l-header__search theme-toggle"
         popovertarget={id}
         title="Theme"
+        style={{ "anchor-name": anchorName }}
+        alpine-keydown-down={`themeOpen = true; document.getElementById('${id}').showPopover(); $nextTick(() => $focus.within($refs.${dropdownRef}).first())`}
+        alpine-keydown-up={`themeOpen = true; document.getElementById('${id}').showPopover(); $nextTick(() => $focus.within($refs.${dropdownRef}).last())`}
+        x-on-click="themeOpen = !themeOpen"
       >
         <template x-if="effectiveTheme === 'dark'">
           <img
@@ -31,42 +38,56 @@ function ThemeDropdown(
           />
         </template>
       </button>
-      <div id={id} popover="auto" className="theme-dropdown">
-        <button
-          type="button"
-          x-on:click="setTheme('system')"
-          alpine:class="themePreference === 'system' ? 'active' : ''"
+      <div
+        id={id}
+        popover="auto"
+        className="theme-dropdown"
+        style={{ "position-anchor": anchorName }}
+        x-on-toggle="if (!$event.newState || $event.newState === 'closed') themeOpen = false"
+      >
+        <div
+          x-ref={dropdownRef}
+          alpine-keydown-down-prevent="$focus.wrap().next()"
+          alpine-keydown-up-prevent="$focus.wrap().previous()"
+          alpine-keydown-escape={`themeOpen = false; document.getElementById('${id}').hidePopover()`}
+          x-trap-inert="themeOpen"
         >
-          <img
-            src={helpers.icon("brightness_6:outlined", "material")}
-            inline="true"
-          />
-          System
-        </button>
-        <button
-          type="button"
-          x-on:click="setTheme('light')"
-          alpine:class="themePreference === 'light' ? 'active' : ''"
-        >
-          <img
-            src={helpers.icon("light_mode:filled", "material")}
-            inline="true"
-          />
-          Light
-        </button>
-        <button
-          type="button"
-          x-on:click="setTheme('dark')"
-          alpine:class="themePreference === 'dark' ? 'active' : ''"
-        >
-          <img
-            src={helpers.icon("dark_mode:filled", "material")}
-            inline="true"
-          />
-          Dark
-        </button>
+          <button
+            type="button"
+            x-on-click="setTheme('system')"
+            alpine:class="themePreference === 'system' ? 'active' : ''"
+          >
+            <img
+              src={helpers.icon("brightness_6:outlined", "material")}
+              inline="true"
+            />
+            System
+          </button>
+          <button
+            type="button"
+            x-on-click="setTheme('light')"
+            alpine:class="themePreference === 'light' ? 'active' : ''"
+          >
+            <img
+              src={helpers.icon("light_mode:filled", "material")}
+              inline="true"
+            />
+            Light
+          </button>
+          <button
+            type="button"
+            x-on-click="setTheme('dark')"
+            alpine:class="themePreference === 'dark' ? 'active' : ''"
+          >
+            <img
+              src={helpers.icon("dark_mode:filled", "material")}
+              inline="true"
+            />
+            Dark
+          </button>
+        </div>
       </div>
-    </>
+    </div>
   );
 }
 
@@ -97,7 +118,7 @@ export default function Nav({ headingnav, url, helpers }: NavProps) {
       <div className="l-header__right">
         <button
           type="button"
-          x-on:click="isModalOpen = true; $focusSearch(true);"
+          x-on-click="isModalOpen = true; $focusSearch(true);"
           className="l-header__search"
           title="Search"
         >
@@ -118,7 +139,7 @@ export default function Nav({ headingnav, url, helpers }: NavProps) {
       <div className="l-header__mobile-controls">
         <button
           type="button"
-          x-on:click="isModalOpen = true; $focusSearch(true);"
+          x-on-click="isModalOpen = true; $focusSearch(true);"
           className="l-header__search"
           title="Search"
         >
@@ -157,7 +178,7 @@ export default function Nav({ headingnav, url, helpers }: NavProps) {
               <button
                 type="button"
                 aria-label="close announcement banner"
-                x-on:click="showBanner = false; sessionStorage.setItem('announcementBannerOpenDocs', 'false'); document.getElementById('announcement-banner').hidden = true;"
+                x-on-click="showBanner = false; sessionStorage.setItem('announcementBannerOpenDocs', 'false'); document.getElementById('announcement-banner').hidden = true;"
               >
                 <div className="flex items-center">
                   <div className="inner-cross">
@@ -191,7 +212,7 @@ export default function Nav({ headingnav, url, helpers }: NavProps) {
             <div className="l-header__mobile-controls">
               <button
                 type="button"
-                x-on:click="isModalOpen = true; $focusSearch(true); document.getElementById('mobile-menu').close()"
+                x-on-click="isModalOpen = true; $focusSearch(true); document.getElementById('mobile-menu').close()"
                 className="l-header__search"
                 title="Search"
               >
@@ -231,7 +252,7 @@ export default function Nav({ headingnav, url, helpers }: NavProps) {
             <div
               className="mobile-docnav-trigger"
               x-show="hasDocNav"
-              x-on:click="showmobilenav = true"
+              x-on-click="showmobilenav = true"
             >
               <img
                 src={helpers.icon("menu_book:outlined", "material")}
@@ -252,6 +273,7 @@ export default function Nav({ headingnav, url, helpers }: NavProps) {
                     return item.items.map((subitem, subIndex) => (
                       <li key={`${index}-${subIndex}`}>
                         <a
+                          {...(subitem.href && url?.startsWith(subitem.href) ? { "aria-current": "page" } : {})}
                           className="c-card-grid__card--item"
                           href={subitem.href}
                         >
@@ -284,7 +306,7 @@ export default function Nav({ headingnav, url, helpers }: NavProps) {
                   }
                   return [
                     <li key={index}>
-                      <a className="c-card-grid__card--item" href={item.href}>
+                      <a className="c-card-grid__card--item" href={item.href} {...(item.href && url?.startsWith(item.href) ? { "aria-current": "page" } : {})}>
                         {item.text}
                       </a>
                     </li>,
@@ -311,7 +333,7 @@ export default function Nav({ headingnav, url, helpers }: NavProps) {
           >
             <div
               className="back-button"
-              x-on:click="showmobilenav = false"
+              x-on-click="showmobilenav = false"
             >
               <img
                 src={helpers.icon("arrow_back_ios:filled", "material")}
