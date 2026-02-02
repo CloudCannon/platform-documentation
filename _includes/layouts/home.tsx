@@ -34,6 +34,7 @@ interface CommunitySection {
 }
 
 interface BetaSection {
+  visible: boolean;
   heading: string;
   description: string;
   image?: string;
@@ -239,7 +240,7 @@ export default function HomeLayout(props: Props, helpers: Helpers) {
       )}
 
       {/* Beta Section */}
-      {beta && (
+      {beta?.visible && (
         <div className="c-left-right-block">
           <div className="c-left-right-block__left">
             <div>

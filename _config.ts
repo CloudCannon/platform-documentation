@@ -58,28 +58,14 @@ import strip from "npm:strip-markdown@6.0.0";
 import { parseChangelogFilename } from "./parseChangelogFilename.ts";
 import type { ContentNavItem, DocEntry } from "./_types.d.ts";
 
-import documentation from "npm:@cloudcannon/configuration-types@0.0.48/dist/documentation.json" with {
-  type: "json",
-};
+import documentation from "npm:@cloudcannon/configuration-types@0.0.50/dist/documentation.json" with { type: "json" };
 globalThis.DOCS = documentation as unknown as Record<string, DocEntry>;
 
 // Partition documentation entries by section in a single pass
-const routingDocs: DocEntry[] = [];
-const initialSiteSettingsDocs: DocEntry[] = [];
-const configDocs: DocEntry[] = [];
-
-for (const doc of Object.values(documentation)) {
-  const entry = doc as DocEntry;
-  const gid = entry.gid;
-
-  if (gid?.startsWith("routing.") || gid === "type.Routing") {
-    routingDocs.push(entry);
-  } else if (gid?.startsWith("iss.") || gid === "type.InitialSiteSettings") {
-    initialSiteSettingsDocs.push(entry);
-  } else {
-    configDocs.push(entry);
-  }
-}
+const routingDocs: DocEntry[] = documentation["type.Routing"];
+const initialSiteSettingsDocs: DocEntry[] =
+  documentation["type.InitialSiteSettings"];
+const configDocs: DocEntry[] = documentation["type.Configuration"];
 
 // Build timing instrumentation
 const buildTimings: Record<string, number> = {};
@@ -123,9 +109,9 @@ const site = lume({
   },
 });
 
-site.data("full_docs", configDocs);
-site.data("routing_docs", routingDocs);
-site.data("initial_site_settings_docs", initialSiteSettingsDocs);
+site.data("full_docs", Object.values(configDocs));
+site.data("routing_docs", Object.values(routingDocs));
+site.data("initial_site_settings_docs", Object.values(initialSiteSettingsDocs));
 
 // Track whether we're in an update cycle (vs initial build)
 let isUpdating = false;
