@@ -34,7 +34,6 @@ Alpine.data("visibleNavHighlighter", () => ({
   },
 
   onScroll() {
-    console.log({ headings: this.headings });
     if (!this.headings) {
       return;
     }
