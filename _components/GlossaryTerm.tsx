@@ -49,8 +49,8 @@ export default function GlossaryTerm(
             rect.left + window.scrollX + 'px';
         }
       }"
-      x-on:mouseenter="open"
-      x-on:mouseleave="scheduleClose"
+      x-on-mouseenter="open"
+      x-on-mouseleave="scheduleClose"
       class="glossary-term-highlight"
     >
       {children}
@@ -61,8 +61,8 @@ export default function GlossaryTerm(
           x-transition
           x-ref="tooltip"
           class="term-definition"
-          x-on:mouseenter="cancelClose"
-          x-on:mouseleave="scheduleClose"
+          x-on-mouseenter="cancelClose"
+          x-on-mouseleave="scheduleClose"
         >
           <div dangerouslySetInnerHTML={{ __html: content }} />
         </div>

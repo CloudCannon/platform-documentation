@@ -46,7 +46,7 @@ export default function NotFoundArticleLayout(props: Props, helpers: Helpers) {
 
               <button
                 type="button"
-                x-on:click="isModalOpen = true; $focusSearch(true);"
+                x-on-click="isModalOpen = true; $focusSearch(true);"
                 className="c-faux-search"
                 title="Search"
               >

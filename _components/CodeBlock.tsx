@@ -342,8 +342,8 @@ export default function CodeBlock(
                 aria-controls={`${uniqueId}-panel-${block.lang}`}
                 x-bind:aria-selected={`selectedTab === '${block.lang}' ? 'true' : 'false'`}
                 x-bind:tabindex={`selectedTab === '${block.lang}' ? '0' : '-1'`}
-                x-on:click={`selectedTab = '${block.lang}'`}
-                x-on:keydown={tabButtonKeyboardHandler}
+                x-on-click={`selectedTab = '${block.lang}'`}
+                x-on-keydown={tabButtonKeyboardHandler}
                 key={block.lang}
               >
                 {getLanguageLabel(block.lang)}
