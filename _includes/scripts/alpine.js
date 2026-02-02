@@ -178,7 +178,7 @@ Alpine.data("glossaryNav", () => ({
       `[href$="#${this.active.slice(1)}"]`,
     );
     if (activeEl) {
-      activeEl.scrollIntoView({ block: "nearest", behavior: "smooth" });
+      activeEl.scrollIntoView({ block: "nearest", behavior: "smooth", container: 'nearest' });
     }
   },
 }));

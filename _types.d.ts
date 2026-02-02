@@ -89,6 +89,7 @@ export interface ContentNavBlock {
   icon?: string;
   _bubbled?: string[];
   configuration_types_documentation?: boolean;
+  data_source?: string;
   items?: ContentNavItem[];
 }
 

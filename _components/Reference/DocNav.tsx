@@ -1,8 +1,10 @@
 import RefNavItem from "./RefNavItem.tsx";
+import { getDisplayName } from "./helpers.ts";
 import NavWrapper from "../Nav/NavWrapper.tsx";
 import NavHeading from "../Nav/NavHeading.tsx";
 import ScrollGradient from "../Nav/ScrollGradient.tsx";
 import type {
+  ContentNavBlock,
   ContentNavigation,
   ContentNavItem,
   DocEntry,
@@ -10,16 +12,72 @@ import type {
   PageSearch,
 } from "../../_types.d.ts";
 
+// Get explicit sectionPath for each block based on data_source
+function getSectionPath(block: ContentNavBlock): string {
+  if (block.data_source === "routing") {
+    return "/documentation/developer-reference/routing-file/";
+  }
+  if (block.data_source === "initial-site-settings") {
+    return "/documentation/developer-reference/initial-site-settings-file/";
+  }
+  // Configuration File has no data_source
+  return "/documentation/developer-reference/configuration-file/";
+}
+
+// Check if a block should be active based on currentDoc's gid or URL
+function isBlockActive(
+  block: ContentNavBlock,
+  currentDoc?: { gid?: string },
+  pageUuid?: string,
+  currentUrl?: string,
+): boolean {
+  // Check _bubbled for static articles (like home pages)
+  if (pageUuid && block._bubbled?.includes(pageUuid)) {
+    return true;
+  }
+
+  // For configuration_types_documentation blocks, check URL-based matching
+  if (block.configuration_types_documentation && currentUrl) {
+    const sectionPath = getSectionPath(block);
+    // Check if current URL starts with this section's path
+    if (currentUrl.startsWith(sectionPath)) {
+      return true;
+    }
+  }
+
+  // Check if currentDoc belongs to this specific section (for data-driven pages)
+  if (currentDoc?.gid && block.configuration_types_documentation) {
+    if (block.data_source === "routing") {
+      return currentDoc.gid.startsWith("routing-file.");
+    }
+    if (block.data_source === "initial-site-settings") {
+      return currentDoc.gid.startsWith("initial-site-settings-file.");
+    }
+    // Configuration File (no data_source) - check it's not from other sections
+    if (!block.data_source) {
+      return !currentDoc.gid.startsWith("routing-file.") &&
+        !currentDoc.gid.startsWith("initial-site-settings-file.");
+    }
+  }
+  return false;
+}
+
 interface RefNavListProps {
   currentDoc?: unknown;
   currentUrl?: string;
   items?: DocEntry[];
+  sectionPath?: string;
 }
 
-function RefNavList({ currentDoc, currentUrl, items }: RefNavListProps) {
-  const navItems = (items || []).filter((item) =>
-    item.documentation?.show_in_navigation
-  );
+function RefNavList({
+  currentDoc,
+  currentUrl,
+  items,
+  sectionPath,
+}: RefNavListProps) {
+  const navItems = (items || [])
+    .filter((item) => item.documentation?.show_in_navigation)
+    .sort((a, b) => getDisplayName(a).localeCompare(getDisplayName(b)));
 
   return (
     <ol className="t-docs-nav__sub-list">
@@ -29,6 +87,7 @@ function RefNavList({ currentDoc, currentUrl, items }: RefNavListProps) {
           entry={item}
           currentDoc={currentDoc}
           currentUrl={currentUrl}
+          sectionPath={sectionPath}
         />
       ))}
     </ol>
@@ -109,6 +168,8 @@ interface DocNavProps {
   };
   currentUrl: string;
   items?: DocEntry[];
+  routing_docs?: DocEntry[];
+  initial_site_settings_docs?: DocEntry[];
   page?: {
     data?: {
       _uuid?: string;
@@ -120,17 +181,31 @@ interface DocNavProps {
 }
 
 export default function DocNav(
-  { navigation, currentDoc, currentUrl, items, page, search, helpers }:
-    DocNavProps,
+  {
+    navigation,
+    currentDoc,
+    currentUrl,
+    items,
+    routing_docs,
+    initial_site_settings_docs,
+    page,
+    search,
+    helpers,
+  }: DocNavProps,
 ) {
   if (!navigation) {
     return <nav id="t-docs-nav" className="t-docs-nav">No navigation data</nav>;
   }
 
-  const indexPage = search.page(
-    `url^=${currentUrl.split("/").slice(0, 3).join("/")}/`,
-  );
+  // Always find the developer-reference home page, not a section home
+  const indexPage = search.page("url=/documentation/developer-reference/");
   const headings = navigation.headings || [];
+  const pageUuid = page?.data?._uuid;
+
+  // Use URL comparison for home link instead of UUID (data-driven pages don't have pageUuid)
+  const isHomeActive = currentUrl === indexPage?.url || 
+    currentUrl === indexPage?.url?.replace(/\/$/, "");
+
 
   return (
     <NavWrapper>
@@ -139,18 +214,25 @@ export default function DocNav(
 
       <ol
         className="t-docs-nav__main-list"
-        x-init="new ResizeObserver((entries) => {
-                    height = $refs.navParent.getBoundingClientRect().height;
-                    scrollHeight = $refs.navParent.scrollHeight;
-                }).observe($el)"
+        x-init={`
+          new ResizeObserver((entries) => {
+            height = $refs.navParent.getBoundingClientRect().height;
+            scrollHeight = $refs.navParent.scrollHeight;
+          }).observe($el);
+          $nextTick(() => {
+            const active = $el.querySelector('[aria-current=page]');
+            if (active) active.scrollIntoView({ block: 'center', behavior: 'instant', container: 'nearest' });
+          });
+        `}
       >
         {indexPage && (
           <li className="t-docs-nav__main-list__item">
             <a
               className={`t-docs-nav__main-list__item__heading-group t-docs-nav__sub-list__article ${
-                page?.data?._uuid === indexPage.attrs?._uuid ? "is-active" : ""
+                isHomeActive ? "is-active" : ""
               }`}
               href={indexPage.url}
+              aria-current={isHomeActive ? "page" : undefined}
             >
               <img
                 src={helpers.icon("home:outlined", "material")}
@@ -164,9 +246,20 @@ export default function DocNav(
         )}
 
         {headings.map((block, idx) => {
-          const isActive =
-            (page?.data?._uuid && block._bubbled?.includes(page.data._uuid)) ||
-            (currentDoc?.gid && block.configuration_types_documentation);
+          const isActive = isBlockActive(block, currentDoc, pageUuid, currentUrl);
+          const blockSectionPath = getSectionPath(block);
+
+          // Get section home page from block.items if available
+          const sectionHomeUuid = block.items?.[0]?.articles?.[0];
+          const sectionHomePage = sectionHomeUuid
+            ? search.page(`_uuid=${sectionHomeUuid}`)
+            : null;
+
+          // Use URL comparison for section home instead of UUID
+          const isSectionHomeActive = sectionHomePage && 
+            (currentUrl === sectionHomePage.url || 
+             currentUrl === sectionHomePage.url?.replace(/\/$/, ""));
+
 
           return (
             <li
@@ -203,11 +296,42 @@ export default function DocNav(
                 )}
                 {block.configuration_types_documentation
                   ? (
-                    <RefNavList
-                      currentDoc={currentDoc}
-                      currentUrl={currentUrl}
-                      items={items}
-                    />
+                    <ol className="t-docs-nav__sub-list">
+                      {/* Section home page link */}
+                      {sectionHomePage && (
+                        <li>
+                          <a
+                            className="t-docs-nav__sub-list__article"
+                            href={sectionHomePage.url}
+                            aria-current={isSectionHomeActive ? "page" : undefined}
+                          >
+                            {sectionHomePage.attrs?.details?.title ||
+                              sectionHomePage.title ||
+                              "Overview"}
+                          </a>
+                        </li>
+                      )}
+                      {/* Reference items */}
+                      {(block.data_source === "routing"
+                        ? routing_docs
+                        : block.data_source === "initial-site-settings"
+                        ? initial_site_settings_docs
+                        : items
+                      )
+                        ?.filter((item) => item.documentation?.show_in_navigation && item.url !== "/")
+                        .sort((a, b) =>
+                          getDisplayName(a).localeCompare(getDisplayName(b))
+                        )
+                        .map((item) => (
+                          <RefNavItem
+                            key={item.gid}
+                            entry={item}
+                            currentDoc={currentDoc}
+                            currentUrl={currentUrl}
+                            sectionPath={blockSectionPath}
+                          />
+                        ))}
+                    </ol>
                   )
                   : (
                     <ArticleGroup

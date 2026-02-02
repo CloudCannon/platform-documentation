@@ -13,7 +13,8 @@ interface PropertiesTableProps {
 function ObjectProperties(
   { entry, currentUrl, helpers, withIds, slugify }: PropertiesTableProps,
 ) {
-  const properties = Object.entries(entry.properties || {});
+  const properties = Object.entries(entry.properties || {})
+    .sort(([keyA], [keyB]) => keyA.localeCompare(keyB));
   const additionalProps = entry.additionalProperties || [];
 
   return (

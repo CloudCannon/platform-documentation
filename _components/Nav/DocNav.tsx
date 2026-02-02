@@ -31,9 +31,7 @@ function SubNav({ block, url, pageUuid, search, helpers }: SubNavProps) {
             <li key={i}>
               <details
                 {...(isOpen ? { open: true } : {})}
-                className={`${isOpen ? "nav-open" : ""} ${
-                  isOpen ? "is-active" : ""
-                }`}
+                className={isOpen ? "nav-open is-active" : undefined}
               >
                 <summary className="t-docs-nav__sub-list__heading">
                   {item.name}
@@ -58,15 +56,16 @@ function SubNav({ block, url, pageUuid, search, helpers }: SubNavProps) {
           const articlePage = search.page(`_uuid=${article}`);
           if (!articlePage) return null;
 
+          const isCurrent = articlePage.url === url;
           return (
             <li key={`${i}-${j}`}>
               <a
                 className="t-docs-nav__sub-list__article"
-                {...(articlePage.url === url ? { "aria-current": "page" } : {})}
                 href={articlePage.url}
+                aria-current={isCurrent ? "page" : undefined}
               >
                 {articlePage.page?.data?.details?.title ||
-                  articlePage.data?.details?.title}
+                  articlePage.title}
               </a>
             </li>
           );
@@ -96,6 +95,10 @@ export default function DocNav(
   { navigation, url, page, search, helpers, getIndexPage, bubbleUpNav }:
     DocNavProps,
 ) {
+  if (!navigation) {
+    return <nav id="t-docs-nav" className="t-docs-nav">No navigation data</nav>;
+  }
+
   const indexPage = getIndexPage?.(url);
   const headings = bubbleUpNav?.(navigation.headings) || navigation.headings ||
     [];
@@ -108,27 +111,36 @@ export default function DocNav(
 
       <ol
         className="t-docs-nav__main-list"
-        x-init="new ResizeObserver((entries) => {
-                height = $refs.navParent.getBoundingClientRect().height;
-                scrollHeight = $refs.navParent.scrollHeight;
-            }).observe($el)"
+        x-init={`
+          new ResizeObserver((entries) => {
+            height = $refs.navParent.getBoundingClientRect().height;
+            scrollHeight = $refs.navParent.scrollHeight;
+          }).observe($el);
+          $nextTick(() => {
+            const active = $el.querySelector('[aria-current=page]');
+            if (active) active.scrollIntoView({ block: 'center', behavior: 'instant', container: 'nearest' });
+          });
+        `}
       >
-        <li className="t-docs-nav__main-list__item">
-          <a
-            className={`t-docs-nav__main-list__item__heading-group t-docs-nav__sub-list__article ${
-              pageUuid === indexPage?.attrs?._uuid ? "is-active" : ""
-            }`}
-            href={indexPage?.url}
-          >
-            <img
-              src={helpers.icon("home:outlined", "material")}
-              inline="true"
-            />
-            <span className="t-docs-nav__main-list__item__heading">
-              {indexPage?.attrs?.details?.title}
-            </span>
-          </a>
-        </li>
+        {indexPage && (
+          <li className="t-docs-nav__main-list__item">
+            <a
+              className={`t-docs-nav__main-list__item__heading-group t-docs-nav__sub-list__article ${
+                pageUuid === indexPage.attrs?._uuid ? "is-active" : ""
+              }`}
+              href={indexPage.url}
+              aria-current={pageUuid === indexPage.attrs?._uuid ? "page" : undefined}
+            >
+              <img
+                src={helpers.icon("home:outlined", "material")}
+                inline="true"
+              />
+              <span className="t-docs-nav__main-list__item__heading">
+                {indexPage.attrs?.details?.title || indexPage.title || "Home"}
+              </span>
+            </a>
+          </li>
+        )}
 
         {headings.map((block, i) => {
           const isActive = block._bubbled?.includes(pageUuid || "");
