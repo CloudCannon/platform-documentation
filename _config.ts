@@ -376,11 +376,18 @@ const alpineRemaps = {
   "alpine-resize-window": "@resize.window",
   "alpine-keydown-down": "@keydown.down",
   "alpine-keydown-up": "@keydown.up",
+  "alpine-keydown-down-prevent": "@keydown.down.prevent",
+  "alpine-keydown-up-prevent": "@keydown.up.prevent",
   "alpine-keydown-escape": "@keydown.escape",
   "alpine-keydown-window-prevent-ctrl-k": "@keydown.window.prevent.ctrl.k",
   "alpine-keydown-window-prevent-cmd-k": "@keydown.window.prevent.cmd.k",
   "x-trap-inert": "x-trap.inert",
   "x-trap-noscroll": "x-trap.noscroll",
+  "x-on-toggle": "x-on:toggle",
+  "x-on-click": "x-on:click",
+  "x-on-keydown": "x-on:keydown",
+  "x-on-mouseenter": "x-on:mouseenter",
+  "x-on-mouseleave": "x-on:mouseleave",
 };
 
 function createLink(page: Lume.Page, text: string, href: string) {
