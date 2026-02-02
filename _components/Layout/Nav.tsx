@@ -266,7 +266,6 @@ export default function Nav({ headingnav, url, helpers }: NavProps) {
             </div>
 
             <div className="l-header__links--sub-list">
-              {url}
               <ul className="l-header__links">
                 {items.map((item, index) => {
                   const isLast = index === items.length - 1;
