@@ -87,79 +87,79 @@ module.exports = {
     docs_ssgs: ssg_data.ssgs,
     docshots_status: [
       {
-        name: 'Needs docshots',
-        icon: 'add_a_photo',
-        icon_color: '#cc3232',
+        name: "Needs docshots",
+        icon: "add_a_photo",
+        icon_color: "#cc3232",
       },
       {
-        name: 'Not applicable',
-        icon: 'no_photography',
-        icon_color: '#e7b416',
+        name: "Not applicable",
+        icon: "no_photography",
+        icon_color: "#e7b416",
       },
       {
-        name: 'Added!',
-        icon: 'photo_camera',
-        icon_color: '#2dc937',
+        name: "Added!",
+        icon: "photo_camera",
+        icon_color: "#2dc937",
       },
     ],
     diataxis_category: [
       {
-        name: 'Explanation',
-        icon: 'lightbulb',
-        icon_color: '#06d6a0',
+        name: "Explanation",
+        icon: "lightbulb",
+        icon_color: "#06d6a0",
       },
       {
-        name: 'Guide',
-        icon: 'handshake',
-        icon_color: '#26547c',
+        name: "Guide",
+        icon: "handshake",
+        icon_color: "#26547c",
       },
       {
-        name: 'Instructions',
-        icon: 'info',
-        icon_color: '#ef476f',
+        name: "Instructions",
+        icon: "info",
+        icon_color: "#ef476f",
       },
       {
-        name: 'Reference',
-        icon: 'fact_check',
-        icon_color: '#ffd166',
+        name: "Reference",
+        icon: "fact_check",
+        icon_color: "#ffd166",
       },
     ],
     key_value_type: [
       {
-        name: 'Array',
-        icon: 'data_array',
+        name: "Array",
+        icon: "data_array",
       },
       {
-        name: 'Boolean',
-        icon: 'check_box',
+        name: "Boolean",
+        icon: "check_box",
       },
       {
-        name: 'Date',
-        icon: 'event',
+        name: "Date",
+        icon: "event",
       },
       {
-        name: 'Number',
-        icon: '123',
+        name: "Number",
+        icon: "123",
       },
       {
-        name: 'Object',
-        icon: 'add_box',
+        name: "Object",
+        icon: "add_box",
       },
       {
-        name: 'String',
-        icon: 'abc',
+        name: "String",
+        icon: "abc",
       },
       {
-        name: 'Array of Numbers',
-        icon: '123',
+        name: "Array of Numbers",
+        icon: "123",
       },
       {
-        name: 'Array of Objects',
-        icon: 'add_box',
+        name: "Array of Objects",
+        icon: "add_box",
       },
       {
-        name: 'Array of Strings',
-        icon: 'abc',
+        name: "Array of Strings",
+        icon: "abc",
       },
     ],
   },
@@ -171,8 +171,8 @@ module.exports = {
         "guides.mdx",
         "changelog/*",
         "articles/index.mdx",
-        "404/*"
-      ]
+        "404/*",
+      ],
     },
     articles: {
       path: "articles",
@@ -191,10 +191,10 @@ module.exports = {
       _inputs: {
         "$.title": {
           options: {
-            required: true
-          }
-        }
-      }
+            required: true,
+          },
+        },
+      },
     },
     guides: {
       path: "guides",
@@ -246,10 +246,10 @@ module.exports = {
             required: true,
             required_message: "Tell the people what they get",
             min_length: 5,
-            min_length_message: "Tell people a bit more than that"
-          }
-        }
-      }
+            min_length_message: "Tell people a bit more than that",
+          },
+        },
+      },
     },
     data: {
       path: "_data",
@@ -331,7 +331,8 @@ module.exports = {
                   values: [
                     {
                       label: "Key Documentation Link",
-                      comment: "For more information, please read our documentation on...",
+                      comment:
+                        "For more information, please read our documentation on...",
                       value: {
                         text: null,
                         url: null,
@@ -514,7 +515,7 @@ module.exports = {
                 open: false,
                 title: "Help",
                 icon: "help",
-                content: "Try not to use the term name in the description."
+                content: "Try not to use the term name in the description.",
               },
               options: {
                 show_count: true,
@@ -531,29 +532,29 @@ module.exports = {
       collections: [
         "articles",
         "guides",
-        "glossary"
-      ]
+        "glossary",
+      ],
     },
     {
       heading: "Developers",
       collections: [
         "keys",
-        "reference"
-      ]
+        "reference",
+      ],
     },
     {
       heading: "Other",
       collections: [
         "changelog",
-        "pages"
-      ]
+        "pages",
+      ],
     },
     {
       heading: "Data",
       collections: [
-        "data"
-      ]
-    }
+        "data",
+      ],
+    },
   ],
   _editables: {
     content: {
@@ -607,20 +608,20 @@ module.exports = {
     },
     article_category: {
       type: "multichoice",
-      comment:
-        "Choose a [Diataxis category](https://diataxis.fr/compass/).",
+      comment: "Choose a [Diataxis category](https://diataxis.fr/compass/).",
       context: {
         open: false,
         title: "Help",
         icon: "help",
-        content: "Acquire skill and understand: Explanation \n\n Acquire skill and act: Guide \n\n Apply skill and understand: Reference \n\n Apply skill and act: Instructions",
+        content:
+          "Acquire skill and understand: Explanation \n\n Acquire skill and act: Guide \n\n Apply skill and understand: Reference \n\n Apply skill and act: Instructions",
       },
       options: {
         values: "_select_data.diataxis_category",
         preview: {
           icon_color: [
             {
-              key: 'icon_color',
+              key: "icon_color",
             },
           ],
         },
@@ -640,7 +641,7 @@ module.exports = {
         preview: {
           icon_color: [
             {
-              key: 'icon_color',
+              key: "icon_color",
             },
           ],
         },

@@ -1,4 +1,4 @@
-import type { Page } from '../../_types.d.ts';
+import type { Page } from "../../_types.d.ts";
 
 export const url = (page: Page): string => {
   const u = page.data.url;

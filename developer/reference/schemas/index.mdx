@@ -1,0 +1,132 @@
+---
+_schema: reference_landing_page
+_uuid: 8f2a3b1c-5d4e-4f6a-9b8c-7d6e5f4a3b2c
+layout: layouts/reference-home.tsx
+details:
+  title: JSON Schemas
+---
+CloudCannon provides JSON Schemas for all configuration files, enabling autocomplete, validation, and inline documentation in your IDE.
+
+All schemas are registered with [SchemaStore](https://github.com/SchemaStore/schemastore), so most IDEs will automatically detect and apply them based on filename — no configuration required. Schemas are also available from the [@cloudcannon/configuration-types](https://github.com/CloudCannon/configuration-types) package on GitHub.
+
+## Available Schemas
+
+Most IDEs will automatically apply these schemas. If needed, you can explicitly add a `$schema` property to your JSON configuration files:
+
+**Configuration File** (`cloudcannon.config.json`):
+
+<comp.CodeBlock language="json" source="cloudcannon.config.json">
+```
+{
+  "$schema": "https://raw.githubusercontent.com/CloudCannon/configuration-types/main/cloudcannon-config.schema.json"
+}
+```
+</comp.CodeBlock>
+
+**Routing File** (`.cloudcannon/routing.json`):
+
+<comp.CodeBlock language="json" source=".cloudcannon/routing.json">
+```
+{
+  "$schema": "https://raw.githubusercontent.com/CloudCannon/configuration-types/main/dist/cloudcannon-routing.schema.json",
+  "routes": []
+}
+```
+</comp.CodeBlock>
+
+**Initial Site Settings File** (`.cloudcannon/initial-site-settings.json`):
+
+<comp.CodeBlock language="json" source=".cloudcannon/initial-site-settings.json">
+```
+{
+  "$schema": "https://raw.githubusercontent.com/CloudCannon/configuration-types/main/dist/cloudcannon-initial-site-settings.schema.json",
+  "ssg": "eleventy"
+}
+```
+</comp.CodeBlock>
+
+## Legacy SSG-Specific Schemas
+
+For older Sites using the non-unified configuration format, SSG-specific schemas are available. Unlike the unified schema, these are not registered with SchemaStore and require the `$schema` property to be added manually.
+
+We recommend [migrating to Unified Configuration](/documentation/guides/unified-configuration-migration-guide/) to benefit from automatic schema detection and the latest features.
+
+**Jekyll**:
+
+<comp.CodeBlock language="json" source="cloudcannon.config.json">
+```
+{
+  "$schema": "https://github.com/cloudcannon/configuration-types/releases/latest/download/cloudcannon-config.legacy-jekyll.schema.json"
+}
+```
+</comp.CodeBlock>
+
+**Hugo**:
+
+<comp.CodeBlock language="json" source="cloudcannon.config.json">
+```
+{
+  "$schema": "https://github.com/cloudcannon/configuration-types/releases/latest/download/cloudcannon-config.legacy-hugo.schema.json"
+}
+```
+</comp.CodeBlock>
+
+**Eleventy**:
+
+<comp.CodeBlock language="json" source="cloudcannon.config.json">
+```
+{
+  "$schema": "https://github.com/cloudcannon/configuration-types/releases/latest/download/cloudcannon-config.legacy-eleventy.schema.json"
+}
+```
+</comp.CodeBlock>
+
+**Other SSGs** (using CloudCannon Reader):
+
+<comp.CodeBlock language="json" source="cloudcannon.config.json">
+```
+{
+  "$schema": "https://github.com/cloudcannon/configuration-types/releases/latest/download/cloudcannon-config.legacy-reader.schema.json"
+}
+```
+</comp.CodeBlock>
+
+## IDE Configuration
+
+Most modern IDEs automatically detect CloudCannon configuration files and apply the correct schema via SchemaStore integration.
+
+### VS Code and Cursor
+
+**JSON files** work automatically with no setup required.
+
+**YAML files** require the [Red Hat YAML extension](https://marketplace.visualstudio.com/items?itemName=redhat.vscode-yaml). After installing, add schema associations to your `settings.json`:
+
+<comp.CodeBlock language="json" source=".vscode/settings.json">
+```
+{
+  "yaml.schemas": {
+    "https://raw.githubusercontent.com/CloudCannon/configuration-types/main/cloudcannon-config.schema.json": "cloudcannon.config.yaml"
+  }
+}
+```
+</comp.CodeBlock>
+
+For more information, see the [VS Code JSON Schema documentation](https://code.visualstudio.com/docs/languages/json#_json-schemas-and-settings).
+
+### JetBrains IDEs
+
+WebStorm, IntelliJ IDEA, and other JetBrains IDEs have built-in JSON and YAML schema support that works automatically via SchemaStore integration.
+
+For manual configuration, open **Settings** > **Languages & Frameworks** > **Schemas and DTDs** > **JSON Schema Mappings**. See the [JetBrains JSON Schema documentation](https://www.jetbrains.com/help/idea/json.html#ws_json_schema_add_custom) for details.
+
+### Sublime Text
+
+Install the [LSP](https://packagecontrol.io/packages/LSP) and [LSP-json](https://packagecontrol.io/packages/LSP-json) packages for JSON schema support — schemas are automatically discovered via SchemaStore. For YAML files, also install [LSP-yaml](https://packagecontrol.io/packages/LSP-yaml).
+
+### Neovim
+
+Use [nvim-lspconfig](https://github.com/neovim/nvim-lspconfig) with `jsonls` for JSON files and `yamlls` for YAML files. Both language servers automatically discover schemas through SchemaStore.
+
+### Zed
+
+Zed has built-in JSON schema support that works automatically via SchemaStore. See the [Zed JSON documentation](https://zed.dev/docs/languages/json) for more details.

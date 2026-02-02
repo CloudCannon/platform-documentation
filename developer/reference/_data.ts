@@ -1,4 +1,4 @@
-import type { Page } from '../../_types.d.ts';
+import type { Page } from "../../_types.d.ts";
 
 export const layout = "layouts/reference-home.tsx";
 export const date = "git last modified";

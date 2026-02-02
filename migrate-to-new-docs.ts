@@ -1,8 +1,11 @@
 #!/usr/bin/env -S deno run --allow-read --allow-write
 
 import { ensureDir } from "jsr:@std/fs@1.0.21";
-import { join, basename } from "jsr:@std/path@1.0.8";
-import { parse as parseYaml, stringify as stringifyYaml } from "jsr:@std/yaml@1.0.10";
+import { basename, join } from "jsr:@std/path@1.0.8";
+import {
+  parse as parseYaml,
+  stringify as stringifyYaml,
+} from "jsr:@std/yaml@1.0.10";
 
 interface MigrationRow {
   oldLink: string;
@@ -16,84 +19,84 @@ interface MigrationRow {
 
 async function parseMigrationCSV(): Promise<string[][]> {
   const csvContent = await Deno.readTextFile("migration-destinations.csv");
-  const lines = csvContent.split('\n');
+  const lines = csvContent.split("\n");
   const rows: string[][] = [];
-  
+
   // Skip header row (index 0)
   for (let i = 1; i < lines.length; i++) {
     const line = lines[i].trim();
     if (!line) continue;
-    
+
     // Split by comma, but handle quoted fields
-    const fields = line.split(',').map(f => f.trim());
+    const fields = line.split(",").map((f) => f.trim());
     if (fields.length >= 2) {
       rows.push(fields);
     }
   }
-  
+
   return rows;
 }
 
 function extractFilenameFromPath(path: string): string | null {
-  const cleanLink = path.replace(/\/+$/, ''); // Remove trailing slashes
-  const pathParts = cleanLink.split('/').filter(part => part.length > 0);
+  const cleanLink = path.replace(/\/+$/, ""); // Remove trailing slashes
+  const pathParts = cleanLink.split("/").filter((part) => part.length > 0);
   return pathParts[pathParts.length - 1] || null;
 }
 
 async function createLookupTable(): Promise<Map<string, string>> {
   console.log("📖 Reading migration-destinations.csv...");
-  
+
   const rows = await parseMigrationCSV();
   const lookup = new Map<string, string>();
-  
+
   for (const fields of rows) {
     const oldLink = fields[0];
     const moveTo = fields[1];
     const filename = extractFilenameFromPath(oldLink);
-    
+
     // Skip base path entries (e.g., "/documentation/articles" -> "articles")
     // These are handled by special redirects, not as individual article routes
     if (filename && filename !== "articles") {
       lookup.set(filename, moveTo);
     }
   }
-  
+
   console.log(`✅ Created lookup table with ${lookup.size} entries`);
   return lookup;
 }
 
 async function cleanAndCreateDirectories(): Promise<void> {
   console.log("🧹 Ensuring directories exist (preserving existing files)...");
-  
+
   const regularDirectories = [
     "developer/articles",
-    "developer/guides", 
+    "developer/guides",
     "user/articles",
     "unused",
-    "beta"
+    "beta",
   ];
-  
+
   // Ensure directories exist without removing existing files
   for (const dir of regularDirectories) {
     await ensureDir(dir);
     console.log(`📁 Ensured directory exists: ${dir}`);
   }
-  
+
   // Handle new_changelogs specially to preserve _data.js and year.page.js
   await ensureChangelogsDirectory();
 }
 
 async function ensureChangelogsDirectory(): Promise<void> {
   const changelogsDir = "new_changelogs";
-  
+
   // Ensure directory exists without removing existing files
   await ensureDir(changelogsDir);
   console.log(`📁 Ensured directory exists: ${changelogsDir}`);
-  
+
   // Check if important files exist and report their status
   const dataFile = join(changelogsDir, "_data.js");
   const yearPageFile = join(changelogsDir, "year.page.js");
-  
+
   try {
     await Deno.stat(dataFile);
     console.log(`💾 Preserved existing: ${dataFile}`);
@@ -102,22 +105,24 @@ async function ensureChangelogsDirectory(): Promise<void> {
       console.log(`📄 File not found (will be created if needed): ${dataFile}`);
     }
   }
-  
+
   try {
     await Deno.stat(yearPageFile);
     console.log(`💾 Preserved existing: ${yearPageFile}`);
   } catch (error) {
     if (error instanceof Deno.errors.NotFound) {
-      console.log(`📄 File not found (will be created if needed): ${yearPageFile}`);
+      console.log(
+        `📄 File not found (will be created if needed): ${yearPageFile}`,
+      );
     }
   }
 }
 
 async function getArticleFiles(): Promise<string[]> {
   console.log("📄 Finding article files...");
-  
+
   const articles: string[] = [];
-  
+
   try {
     for await (const entry of Deno.readDir("articles")) {
       if (entry.isFile && entry.name.endsWith(".mdx")) {
@@ -128,7 +133,7 @@ async function getArticleFiles(): Promise<string[]> {
     console.error("❌ Error reading articles directory:", error);
     throw error;
   }
-  
+
   console.log(`✅ Found ${articles.length} article files`);
   return articles;
 }
@@ -136,7 +141,7 @@ async function getArticleFiles(): Promise<string[]> {
 async function readExistingUuid(filePath: string): Promise<string | undefined> {
   try {
     const content = await Deno.readTextFile(filePath);
-    if (filePath.endsWith('.yml')) {
+    if (filePath.endsWith(".yml")) {
       const data = parseYaml(content) as Record<string, unknown>;
       return data._uuid as string;
     } else {
@@ -151,7 +156,7 @@ async function readExistingUuid(filePath: string): Promise<string | undefined> {
 async function readGuideSummary(filePath: string): Promise<string | undefined> {
   try {
     const content = await Deno.readTextFile(filePath);
-    if (filePath.endsWith('.yml')) {
+    if (filePath.endsWith(".yml")) {
       const data = parseYaml(content) as Record<string, unknown>;
       return data.guide_summary as string;
     }
@@ -165,13 +170,16 @@ async function copyFile(source: string, destination: string): Promise<boolean> {
   try {
     // Get source file stats
     const sourceStats = await Deno.stat(source);
-    
+
     try {
       // Check if destination exists and compare modification times
       const destStats = await Deno.stat(destination);
-      
+
       // If source is newer than destination, copy it
-      if (sourceStats.mtime && destStats.mtime && sourceStats.mtime > destStats.mtime) {
+      if (
+        sourceStats.mtime && destStats.mtime &&
+        sourceStats.mtime > destStats.mtime
+      ) {
         await Deno.copyFile(source, destination);
         console.log(`🔄 Updated (source newer): ${destination}`);
         return true; // File was updated
@@ -200,34 +208,37 @@ async function cleanupOrphanedFilesInDirectory(
   lookup: Map<string, string>,
   sourceFilenames: Set<string>,
   expectedDestination: string,
-  protectedFiles: Set<string>
+  protectedFiles: Set<string>,
 ): Promise<number> {
   let removedCount = 0;
-  
+
   try {
     for await (const entry of Deno.readDir(dir)) {
       if (entry.isFile) {
         const filePath = join(dir, entry.name);
-        const relativePath = filePath.replace(/\\/g, '/'); // Normalize path separators
-        
+        const relativePath = filePath.replace(/\\/g, "/"); // Normalize path separators
+
         // Skip protected files
         if (protectedFiles.has(relativePath)) {
           console.log(`🛡️  Protected file skipped: ${filePath}`);
           continue;
         }
-        
+
         if (entry.name.endsWith(".mdx")) {
           // Never remove index.mdx
           if (entry.name === "index.mdx") {
             console.log(`🛡️  Protected file skipped: ${filePath}`);
             continue;
           }
-          
+
           const filename = basename(entry.name, ".mdx");
           const fileDestination = lookup.get(filename) || "Unknown";
-          
+
           // Remove if file doesn't exist in source OR is in wrong destination
-          if (!sourceFilenames.has(filename) || fileDestination !== expectedDestination) {
+          if (
+            !sourceFilenames.has(filename) ||
+            fileDestination !== expectedDestination
+          ) {
             await Deno.remove(filePath);
             console.log(`🗑️  Removed orphaned file: ${filePath}`);
             removedCount++;
@@ -240,48 +251,53 @@ async function cleanupOrphanedFilesInDirectory(
       console.warn(`⚠️  Warning reading ${dir}:`, (error as Error).message);
     }
   }
-  
+
   return removedCount;
 }
 
-async function cleanupOrphanedFiles(lookup: Map<string, string>, sourceArticles: string[]): Promise<void> {
+async function cleanupOrphanedFiles(
+  lookup: Map<string, string>,
+  sourceArticles: string[],
+): Promise<void> {
   console.log("🧹 Cleaning up orphaned files in destination directories...");
-  
-  const sourceFilenames = new Set(sourceArticles.map(file => basename(file, ".mdx")));
+
+  const sourceFilenames = new Set(
+    sourceArticles.map((file) => basename(file, ".mdx")),
+  );
   let removedCount = 0;
-  
+
   // Files that should never be deleted
   const protectedFiles = new Set([
     "developer/guides/_data.js",
     "developer/articles/_data.js",
-    "user/articles/_data.js"
+    "user/articles/_data.js",
   ]);
-  
+
   // Check developer/articles directory
   removedCount += await cleanupOrphanedFilesInDirectory(
     "developer/articles",
     lookup,
     sourceFilenames,
     "Developer Articles",
-    protectedFiles
+    protectedFiles,
   );
-  
+
   // Check user/articles directory
   removedCount += await cleanupOrphanedFilesInDirectory(
     "user/articles",
     lookup,
     sourceFilenames,
     "User Articles",
-    protectedFiles
+    protectedFiles,
   );
-  
+
   // Check developer/guides directory for protected files (no cleanup, just check)
   try {
     for await (const entry of Deno.readDir("developer/guides")) {
       if (entry.isFile) {
         const filePath = join("developer/guides", entry.name);
-        const relativePath = filePath.replace(/\\/g, '/'); // Normalize path separators
-        
+        const relativePath = filePath.replace(/\\/g, "/"); // Normalize path separators
+
         // Skip protected files
         if (protectedFiles.has(relativePath)) {
           console.log(`🛡️  Protected file skipped: ${filePath}`);
@@ -290,10 +306,13 @@ async function cleanupOrphanedFiles(lookup: Map<string, string>, sourceArticles:
     }
   } catch (error) {
     if (!(error instanceof Deno.errors.NotFound)) {
-      console.warn(`⚠️  Warning reading developer/guides:`, (error as Error).message);
+      console.warn(
+        `⚠️  Warning reading developer/guides:`,
+        (error as Error).message,
+      );
     }
   }
-  
+
   if (removedCount > 0) {
     console.log(`✅ Cleaned up ${removedCount} orphaned file(s)`);
   } else {
@@ -301,34 +320,43 @@ async function cleanupOrphanedFiles(lookup: Map<string, string>, sourceArticles:
   }
 }
 
-async function migrateArticles(): Promise<{ developerCount: number, userCount: number, unusedCount: number, totalCount: number }> {
+async function migrateArticles(): Promise<
+  {
+    developerCount: number;
+    userCount: number;
+    unusedCount: number;
+    totalCount: number;
+  }
+> {
   console.log("🚀 Starting article migration...");
-  
+
   const lookup = await createLookupTable();
   await cleanAndCreateDirectories();
   const articles = await getArticleFiles();
-  
+
   let developerCount = 0;
   let userCount = 0;
   let unusedCount = 0;
-  
+
   // Get beta lookup to exclude beta files from article migration
   const betaLookup = await createBetaLookupTable();
-  
+
   for (const articleFile of articles) {
     const filename = basename(articleFile, ".mdx");
-    
+
     // Skip beta files - they're handled by migrateBetaFiles()
     if (betaLookup.has(filename)) {
-      console.log(`⏭️  Skipping beta file (handled separately): ${articleFile}`);
+      console.log(
+        `⏭️  Skipping beta file (handled separately): ${articleFile}`,
+      );
       continue;
     }
-    
+
     const sourcePath = join("articles", articleFile);
-    
+
     let targetPath: string;
     let destination: string;
-    
+
     // Special handling for articles/index.mdx - always goes to developer/articles/
     if (articleFile === "index.mdx") {
       targetPath = join("developer/articles", articleFile);
@@ -336,47 +364,49 @@ async function migrateArticles(): Promise<{ developerCount: number, userCount: n
       developerCount++;
     } else {
       destination = lookup.get(filename) || "Unknown";
-      
+
       switch (destination) {
         case "Developer Articles":
           targetPath = join("developer/articles", articleFile);
           developerCount++;
           break;
-          
+
         case "User Articles":
           targetPath = join("user/articles", articleFile);
           userCount++;
           break;
-          
+
         default:
           targetPath = join("unused", articleFile);
           unusedCount++;
           break;
       }
     }
-    
+
     const wasCopied = await copyFile(sourcePath, targetPath);
     if (wasCopied) {
       console.log(`📋 ${articleFile} -> ${targetPath}`);
-      
+
       // Transform front matter for articles (not unused files)
-      if (destination === "Developer Articles" || destination === "User Articles") {
+      if (
+        destination === "Developer Articles" || destination === "User Articles"
+      ) {
         console.log(`🔄 Transforming: ${articleFile}`);
         await transformArticleFrontMatter(targetPath);
       }
     }
   }
-  
+
   // Clean up orphaned files in destination directories
   await cleanupOrphanedFiles(lookup, articles);
-  
+
   console.log("✅ Article migration completed successfully!");
-  
+
   return {
     developerCount,
     userCount,
     unusedCount,
-    totalCount: developerCount + userCount + unusedCount
+    totalCount: developerCount + userCount + unusedCount,
   };
 }
 
@@ -384,18 +414,395 @@ function generateUUID(): string {
   return crypto.randomUUID();
 }
 
+// Type for slug-to-UUID mapping
+interface SlugMapping {
+  uuid: string;
+  type: string;
+}
+
+// Extract slug from a URL path (e.g., "/documentation/articles/some-slug/" -> "some-slug")
+function extractSlugFromUrl(url: string): string | null {
+  // Remove trailing slashes and leading slashes
+  const cleanUrl = url.replace(/\/+$/, "").replace(/^\/+/, "");
+  const parts = cleanUrl.split("/");
+  // The slug is the last non-empty part
+  const slug = parts[parts.length - 1];
+  return slug && slug.length > 0 ? slug : null;
+}
+
+// Build a map of slug -> {uuid, type} from destination files
+async function buildSlugToUuidMap(
+  lookup: Map<string, string>,
+): Promise<Map<string, SlugMapping>> {
+  console.log("📖 Building slug-to-UUID mapping from destination files...");
+
+  const slugMap = new Map<string, SlugMapping>();
+
+  for (const [filename, destination] of lookup.entries()) {
+    let destDir: string;
+    let type: string;
+
+    if (destination === "Developer Articles") {
+      destDir = "developer/articles";
+      type = "developer_articles";
+    } else if (destination === "User Articles") {
+      destDir = "user/articles";
+      type = "user_articles";
+    } else {
+      // Skip unused files
+      continue;
+    }
+
+    const filePath = join(destDir, `${filename}.mdx`);
+
+    try {
+      const uuid = await readExistingUuid(filePath);
+      if (uuid) {
+        slugMap.set(filename, { uuid, type });
+      }
+    } catch {
+      // File doesn't exist yet, skip
+    }
+  }
+
+  // Also add guides to the map
+  try {
+    for await (const entry of Deno.readDir("developer/guides")) {
+      if (entry.isDirectory) {
+        const guideDir = join("developer/guides", entry.name);
+
+        // Read _data.yml for the guide's UUID
+        const dataFilePath = join(guideDir, "_data.yml");
+        try {
+          const uuid = await readExistingUuid(dataFilePath);
+          if (uuid) {
+            slugMap.set(entry.name, { uuid, type: "developer_guides" });
+          }
+        } catch {
+          // No _data.yml, try to find individual guide pages
+        }
+
+        // Also read individual guide pages
+        for await (const file of Deno.readDir(guideDir)) {
+          if (file.isFile && file.name.endsWith(".mdx")) {
+            const pageFilePath = join(guideDir, file.name);
+            const pageName = basename(file.name, ".mdx");
+            try {
+              const uuid = await readExistingUuid(pageFilePath);
+              if (uuid) {
+                // Use guide-name/page-name as the slug key for guide pages
+                slugMap.set(`${entry.name}/${pageName}`, {
+                  uuid,
+                  type: "developer_guides",
+                });
+              }
+            } catch {
+              // Skip if can't read
+            }
+          }
+        }
+      }
+    }
+  } catch {
+    // developer/guides doesn't exist yet
+  }
+
+  // Add reference section pages to the map
+  console.log("📖 Adding reference section pages...");
+  let referenceCount = 0;
+  try {
+    for await (const entry of Deno.readDir("developer/reference")) {
+      if (entry.isDirectory) {
+        const refDir = join("developer/reference", entry.name);
+        const indexPath = join(refDir, "index.mdx");
+
+        try {
+          const uuid = await readExistingUuid(indexPath);
+          if (uuid) {
+            // Map the directory name as the slug
+            slugMap.set(entry.name, { uuid, type: "developer_reference" });
+            referenceCount++;
+          }
+        } catch {
+          // No index.mdx, skip
+        }
+      }
+    }
+
+    // Also add the main reference index
+    const mainRefUuid = await readExistingUuid("developer/reference/index.mdx");
+    if (mainRefUuid) {
+      slugMap.set("developer-reference", {
+        uuid: mainRefUuid,
+        type: "developer_reference",
+      });
+      referenceCount++;
+    }
+  } catch {
+    // developer/reference doesn't exist yet
+  }
+  console.log(`   Added ${referenceCount} reference section entries`);
+
+  // Add manual mappings for specific old slugs that map to reference pages
+  // These are articles that were moved to the reference section
+  const manualMappings: Array<{ oldSlug: string; refSlug: string }> = [
+    // configure-custom-permission-groups was moved to permissions reference
+    { oldSlug: "configure-custom-permission-groups", refSlug: "permissions" },
+    // structures-reference was moved to configuration file reference
+    {
+      oldSlug: "structures-reference",
+      refSlug: "configuration-file",
+    },
+  ];
+
+  for (const mapping of manualMappings) {
+    const targetMapping = slugMap.get(mapping.refSlug);
+    if (targetMapping && !slugMap.has(mapping.oldSlug)) {
+      slugMap.set(mapping.oldSlug, targetMapping);
+      console.log(
+        `   Manual mapping: ${mapping.oldSlug} → ${mapping.refSlug}`,
+      );
+    }
+  }
+
+  // Now add redirect mappings from routing.json
+  // This maps old slugs to the UUIDs of the articles they redirect to
+  console.log(
+    "📖 Reading routing.json for redirect mappings (old slugs → new articles)...",
+  );
+  let redirectsAdded = 0;
+
+  try {
+    const routingContent = await Deno.readTextFile(
+      ".cloudcannon/new-routing.json",
+    );
+    const routingConfig = JSON.parse(routingContent) as {
+      routes?: Array<{ from: string; to: string; status: number }>;
+    };
+
+    if (routingConfig.routes) {
+      for (const route of routingConfig.routes) {
+        // Skip non-301 redirects and regex patterns
+        if (route.status !== 301) continue;
+        if (route.from.includes("(.*)") || route.from.includes(".*")) continue;
+
+        // Only process article redirects
+        if (!route.from.includes("/articles/")) continue;
+
+        const oldSlug = extractSlugFromUrl(route.from);
+        const newSlug = extractSlugFromUrl(route.to);
+
+        // Skip if we couldn't extract slugs or if old slug already exists in map
+        if (!oldSlug || !newSlug || slugMap.has(oldSlug)) continue;
+
+        // Check if the new slug (target of redirect) exists in our map
+        const targetMapping = slugMap.get(newSlug);
+        if (targetMapping) {
+          // Map the old slug to the same UUID as the new slug
+          slugMap.set(oldSlug, targetMapping);
+          redirectsAdded++;
+        }
+      }
+    }
+  } catch (error) {
+    console.warn(
+      `⚠️  Could not read routing.json for redirects:`,
+      (error as Error).message,
+    );
+  }
+
+  console.log(`✅ Built slug-to-UUID mapping with ${slugMap.size} entries`);
+  console.log(`   (including ${redirectsAdded} redirect mappings)`);
+  return slugMap;
+}
+
+// Convert related_articles from slugs to UUID references
+// Normalize a slug to just the filename (handles various formats from old content)
+function normalizeSlug(slug: string): string {
+  let normalized = slug;
+
+  // Remove leading slashes
+  normalized = normalized.replace(/^\/+/, "");
+
+  // Remove common path prefixes (articles/, documentation/, etc.)
+  normalized = normalized.replace(
+    /^(documentation\/|articles\/|guides\/)+/,
+    "",
+  );
+
+  // Remove file extension if present
+  normalized = normalized.replace(/\.(mdx?|html?)$/, "");
+
+  // Remove trailing slashes
+  normalized = normalized.replace(/\/+$/, "");
+
+  return normalized;
+}
+
+function convertRelatedArticles(
+  relatedArticles: unknown[],
+  slugMap: Map<string, SlugMapping>,
+): Array<{ _type: string; item: string }> | null {
+  if (!relatedArticles || !Array.isArray(relatedArticles)) {
+    return null;
+  }
+
+  const converted: Array<{ _type: string; item: string }> = [];
+
+  for (const entry of relatedArticles) {
+    if (typeof entry === "string") {
+      // This is a slug that needs conversion - normalize it first
+      const normalizedSlug = normalizeSlug(entry);
+      const mapped = slugMap.get(normalizedSlug);
+      if (mapped) {
+        converted.push({ _type: mapped.type, item: mapped.uuid });
+      } else {
+        console.warn(
+          `⚠️  Could not resolve related article slug: ${entry} (normalized: ${normalizedSlug})`,
+        );
+      }
+    } else if (
+      entry && typeof entry === "object" && "item" in entry &&
+      typeof (entry as { item: unknown }).item === "string"
+    ) {
+      // Already in correct format, keep as-is
+      const obj = entry as { _type?: string; item: string };
+      converted.push({
+        _type: obj._type || "developer_articles",
+        item: obj.item,
+      });
+    }
+    // Skip invalid entries
+  }
+
+  return converted.length > 0 ? converted : null;
+}
+
+// Update related_articles in a file using the slug-to-UUID map
+async function updateRelatedArticlesInFile(
+  filePath: string,
+  slugMap: Map<string, SlugMapping>,
+): Promise<boolean> {
+  try {
+    const content = await Deno.readTextFile(filePath);
+    const { frontMatter, body } = extractFrontMatter(content);
+
+    // Check if there are related_articles to convert
+    const details = frontMatter.details as Record<string, unknown> | undefined;
+    const relatedArticles = details?.related_articles as unknown[] | undefined;
+
+    if (!relatedArticles || !Array.isArray(relatedArticles)) {
+      return false;
+    }
+
+    // Check if any entries need conversion (are strings)
+    const needsConversion = relatedArticles.some(
+      (entry) => typeof entry === "string",
+    );
+    if (!needsConversion) {
+      return false;
+    }
+
+    // Convert the related_articles
+    const converted = convertRelatedArticles(relatedArticles, slugMap);
+
+    if (converted) {
+      (frontMatter.details as Record<string, unknown>).related_articles =
+        converted;
+      const newContent = createFrontMatter(frontMatter, body);
+      await Deno.writeTextFile(filePath, newContent);
+      return true;
+    }
+
+    return false;
+  } catch (error) {
+    console.warn(
+      `⚠️  Error updating related articles in ${filePath}:`,
+      (error as Error).message,
+    );
+    return false;
+  }
+}
+
+// Post-process all migrated files to update related_articles
+async function updateAllRelatedArticles(
+  slugMap: Map<string, SlugMapping>,
+): Promise<{ updatedCount: number }> {
+  console.log("\n🔗 Updating related_articles to use UUID references...");
+
+  let updatedCount = 0;
+  const directories = [
+    "developer/articles",
+    "user/articles",
+  ];
+
+  for (const dir of directories) {
+    try {
+      for await (const entry of Deno.readDir(dir)) {
+        if (entry.isFile && entry.name.endsWith(".mdx")) {
+          const filePath = join(dir, entry.name);
+          const wasUpdated = await updateRelatedArticlesInFile(
+            filePath,
+            slugMap,
+          );
+          if (wasUpdated) {
+            console.log(`🔄 Updated related_articles in: ${filePath}`);
+            updatedCount++;
+          }
+        }
+      }
+    } catch (error) {
+      if (!(error instanceof Deno.errors.NotFound)) {
+        console.warn(
+          `⚠️  Warning reading directory ${dir}:`,
+          (error as Error).message,
+        );
+      }
+    }
+  }
+
+  // Also process guide files
+  try {
+    for await (const guideEntry of Deno.readDir("developer/guides")) {
+      if (guideEntry.isDirectory) {
+        const guideDir = join("developer/guides", guideEntry.name);
+        for await (const entry of Deno.readDir(guideDir)) {
+          if (entry.isFile && entry.name.endsWith(".mdx")) {
+            const filePath = join(guideDir, entry.name);
+            const wasUpdated = await updateRelatedArticlesInFile(
+              filePath,
+              slugMap,
+            );
+            if (wasUpdated) {
+              console.log(`🔄 Updated related_articles in: ${filePath}`);
+              updatedCount++;
+            }
+          }
+        }
+      }
+    }
+  } catch {
+    // developer/guides doesn't exist
+  }
+
+  console.log(
+    `✅ Related articles update completed: ${updatedCount} files updated`,
+  );
+  return { updatedCount };
+}
+
 function transformAuthorNotes(authorNotes: unknown): Record<string, unknown> {
-  if (authorNotes && typeof authorNotes === 'object') {
+  if (authorNotes && typeof authorNotes === "object") {
     const notes = authorNotes as Record<string, unknown>;
-    
+
     // Keep other author_notes fields that aren't docshots-related
     const remainingNotes: Record<string, unknown> = {};
     for (const [key, value] of Object.entries(notes)) {
-      if (!['docshots_status', 'doc_shots'].includes(key)) {
+      if (!["docshots_status", "doc_shots"].includes(key)) {
         remainingNotes[key] = value;
       }
     }
-    
+
     // Add docshots to author_notes - use the value directly, not an object
     // Prefer docshots_status over doc_shots if both exist
     if (notes.docshots_status) {
@@ -405,27 +812,29 @@ function transformAuthorNotes(authorNotes: unknown): Record<string, unknown> {
     } else {
       remainingNotes.docshots = null;
     }
-    
+
     return remainingNotes;
   } else {
     // If author_notes doesn't exist, create it with a null docshots field
     return {
-      docshots: null
+      docshots: null,
     };
   }
 }
 
-function extractFrontMatter(content: string): { frontMatter: Record<string, unknown>, body: string } {
+function extractFrontMatter(
+  content: string,
+): { frontMatter: Record<string, unknown>; body: string } {
   const frontMatterRegex = /^---\n([\s\S]*?)\n---\n([\s\S]*)$/;
   const match = content.match(frontMatterRegex);
-  
+
   if (!match) {
     return { frontMatter: {}, body: content };
   }
-  
+
   const frontMatterYaml = match[1];
   const body = match[2];
-  
+
   try {
     const frontMatter = parseYaml(frontMatterYaml) as Record<string, unknown>;
     return { frontMatter, body };
@@ -435,76 +844,102 @@ function extractFrontMatter(content: string): { frontMatter: Record<string, unkn
   }
 }
 
-function createFrontMatter(frontMatter: Record<string, unknown>, body: string): string {
+function createFrontMatter(
+  frontMatter: Record<string, unknown>,
+  body: string,
+): string {
   const yamlString = stringifyYaml(frontMatter, { indent: 2 });
   return `---\n${yamlString}---\n${body}`;
 }
 
-async function transformArticleFrontMatter(filePath: string, existingUuid?: string): Promise<void> {
+async function transformArticleFrontMatter(
+  filePath: string,
+  existingUuid?: string,
+): Promise<void> {
   const content = await Deno.readTextFile(filePath);
   const { frontMatter, body } = extractFrontMatter(content);
-  
+
   // Create new front matter structure
   const newFrontMatter: Record<string, unknown> = {
     _schema: frontMatter._schema || "default",
     _uuid: existingUuid || frontMatter._uuid || generateUUID(),
   };
-  
+
   // Add _created_at if it exists
   if (frontMatter._created_at) {
     newFrontMatter._created_at = frontMatter._created_at;
   }
-  
+
   // Move specified fields to details object
   const details: Record<string, unknown> = {};
-  
+
   if (frontMatter.title) details.title = frontMatter.title;
   if (frontMatter.description) details.description = frontMatter.description;
   if (frontMatter.image) details.image = frontMatter.image;
-  if (frontMatter.article_category) details.category = frontMatter.article_category;
-  if (frontMatter.related_articles) details.related_articles = frontMatter.related_articles;
-  
+  if (frontMatter.article_category) {
+    details.category = frontMatter.article_category;
+  }
+  if (frontMatter.related_articles) {
+    details.related_articles = frontMatter.related_articles;
+  }
+
   if (Object.keys(details).length > 0) {
     newFrontMatter.details = details;
   }
-  
+
   // Handle docshots transformation from author_notes
   newFrontMatter.author_notes = transformAuthorNotes(frontMatter.author_notes);
-  
+
   // Copy any other fields that aren't nav_title, published, or the ones we moved to details
   const excludedFields = [
-    'nav_title', 'published', 'title', 'description', 'image', 'article_category', 
-    'related_articles', 'related_links', 'article_topic', 'tags', 'explicit_canonical', '_schema', '_uuid', '_created_at', 'author_notes'
+    "nav_title",
+    "published",
+    "title",
+    "description",
+    "image",
+    "article_category",
+    "related_articles",
+    "related_links",
+    "article_topic",
+    "tags",
+    "explicit_canonical",
+    "_schema",
+    "_uuid",
+    "_created_at",
+    "author_notes",
   ];
-  
+
   for (const [key, value] of Object.entries(frontMatter)) {
     if (!excludedFields.includes(key)) {
       newFrontMatter[key] = value;
     }
   }
-  
+
   const newContent = createFrontMatter(newFrontMatter, body);
   await Deno.writeTextFile(filePath, newContent);
 }
 
-async function transformGuideFrontMatter(filePath: string, existingUuid?: string): Promise<void> {
+async function transformGuideFrontMatter(
+  filePath: string,
+  existingUuid?: string,
+): Promise<void> {
   const content = await Deno.readTextFile(filePath);
   const { frontMatter, body } = extractFrontMatter(content);
-  
+
   // Create new front matter structure
   const newFrontMatter: Record<string, unknown> = {
     _schema: frontMatter._schema || "default",
     _uuid: existingUuid || frontMatter._uuid || generateUUID(),
   };
-  
+
   // Add _created_at if it exists
   if (frontMatter._created_at) {
     newFrontMatter._created_at = frontMatter._created_at;
   }
-  
+
   // Move specified fields to details object
   const details: Record<string, unknown> = {};
-  
+
   if (frontMatter.title) details.title = frontMatter.title;
   if (frontMatter.order) details.order = frontMatter.order;
   if (frontMatter.image) details.image = frontMatter.image;
@@ -514,150 +949,208 @@ async function transformGuideFrontMatter(filePath: string, existingUuid?: string
   // Preserve related_articles and move to details, or add if it doesn't exist
   details.related_articles = frontMatter.related_articles ?? null;
   // tags and related_links are removed, not moved to details
-  
+
   // Always create details object (even if empty) to ensure start_nav_group and related_articles are present
   newFrontMatter.details = details;
-  
+
   // Handle docshots transformation from author_notes
   newFrontMatter.author_notes = transformAuthorNotes(frontMatter.author_notes);
-  
+
   // Copy any other fields that aren't nav_title, published, or the removed fields
   for (const [key, value] of Object.entries(frontMatter)) {
-    if (!['nav_title', 'published', 'title', 'order', 'image', 'description', 'tags', 'related_links', 'related_articles', 'start_nav_group', 'explicit_canonical', 'guide_listing', '_schema', '_uuid', '_created_at', 'author_notes'].includes(key)) {
+    if (
+      ![
+        "nav_title",
+        "published",
+        "title",
+        "order",
+        "image",
+        "description",
+        "tags",
+        "related_links",
+        "related_articles",
+        "start_nav_group",
+        "explicit_canonical",
+        "guide_listing",
+        "_schema",
+        "_uuid",
+        "_created_at",
+        "author_notes",
+      ].includes(key)
+    ) {
       newFrontMatter[key] = value;
     }
   }
-  
+
   const newContent = createFrontMatter(newFrontMatter, body);
   await Deno.writeTextFile(filePath, newContent);
 }
 
-async function transformGuideDataFile(filePath: string, existingUuid?: string, preservedGuideSummary?: string): Promise<void> {
+async function transformGuideDataFile(
+  filePath: string,
+  existingUuid?: string,
+  preservedGuideSummary?: string,
+): Promise<void> {
   const content = await Deno.readTextFile(filePath);
   const data = parseYaml(content) as Record<string, unknown>;
-  
+
   // Build new data object in the correct order
   const newData: Record<string, unknown> = {};
-  
+
   // 1. _schema
   newData._schema = data._schema || "guide_data";
-  
+
   // 2. _uuid - Always use source UUID if provided, otherwise use UUID from file, or generate if neither exists
   newData._uuid = existingUuid || data._uuid || generateUUID();
-  
+
   // 3. guide_id
   if (data.guide_id) {
     newData.guide_id = data.guide_id;
   }
-  
+
   // 4. guide_title
   if (data.guide_title) {
     newData.guide_title = data.guide_title;
   }
-  
+
   // 5. guide_summary - use from source if it exists, otherwise use preserved from destination
   if (data.guide_summary) {
     newData.guide_summary = data.guide_summary;
   } else if (preservedGuideSummary) {
     newData.guide_summary = preservedGuideSummary;
   }
-  
+
   // 6. guide_icon - Move guide_image to guide_icon if guide_image exists and guide_icon doesn't
   if (data.guide_icon) {
     newData.guide_icon = data.guide_icon;
   } else if (data.guide_image) {
     newData.guide_icon = data.guide_image;
   }
-  
+
   // 7. initial_section_heading - Fix typo: initial_secton_heading -> initial_section_heading
   if (data.initial_section_heading) {
     newData.initial_section_heading = data.initial_section_heading;
   } else if (data.initial_secton_heading) {
     newData.initial_section_heading = data.initial_secton_heading;
   }
-  
+
   // Add any other fields that aren't in the ordered list or removed fields
-  const orderedKeys = ['_schema', '_uuid', 'guide_id', 'guide_title', 'guide_summary', 'guide_icon', 'initial_section_heading'];
-  const removedKeys = ['guide_image', 'show_guide_image_on_page', 'initial_secton_heading', 'color_variant', 'guide_priority', 'guide_series', 'guide_target_ssgs'];
-  
+  const orderedKeys = [
+    "_schema",
+    "_uuid",
+    "guide_id",
+    "guide_title",
+    "guide_summary",
+    "guide_icon",
+    "initial_section_heading",
+  ];
+  const removedKeys = [
+    "guide_image",
+    "show_guide_image_on_page",
+    "initial_secton_heading",
+    "color_variant",
+    "guide_priority",
+    "guide_series",
+    "guide_target_ssgs",
+  ];
+
   for (const [key, value] of Object.entries(data)) {
     if (!orderedKeys.includes(key) && !removedKeys.includes(key)) {
       newData[key] = value;
     }
   }
-  
+
   const newContent = stringifyYaml(newData, { indent: 2 });
   await Deno.writeTextFile(filePath, newContent);
 }
 
 async function migrateGuides(): Promise<{ guideCount: number }> {
   console.log("\n🚀 Starting guide migration...");
-  
+
   const targetDir = "developer/guides";
   let guideCount = 0;
-  
+
   // Copy all guides from guides/ to developer/guides/
   try {
     for await (const entry of Deno.readDir("guides")) {
       if (entry.isDirectory) {
         const sourceDir = join("guides", entry.name);
         const targetGuideDir = join(targetDir, entry.name);
-        
+
         // Ensure target guide directory exists
         await Deno.mkdir(targetGuideDir, { recursive: true });
-        
+
         console.log(`📋 Processing guide: ${entry.name}`);
         let filesCopied = 0;
-        
+
         // Helper function to transform guide files
-        const transformGuideFile = async (filePath: string, fileName: string, sourceUuid?: string, preservedGuideSummary?: string, isExisting = false) => {
-          const prefix = isExisting ? "🔄 Transforming existing: " : "🔄 Transforming: ";
+        const transformGuideFile = async (
+          filePath: string,
+          fileName: string,
+          sourceUuid?: string,
+          preservedGuideSummary?: string,
+          isExisting = false,
+        ) => {
+          const prefix = isExisting
+            ? "🔄 Transforming existing: "
+            : "🔄 Transforming: ";
           if (fileName.endsWith(".mdx")) {
             console.log(`${prefix}${fileName}`);
             await transformGuideFrontMatter(filePath, sourceUuid);
           } else if (fileName === "_data.yml") {
             console.log(`${prefix}_data.yml`);
-            await transformGuideDataFile(filePath, sourceUuid, preservedGuideSummary);
+            await transformGuideDataFile(
+              filePath,
+              sourceUuid,
+              preservedGuideSummary,
+            );
           }
         };
-        
+
         // Copy individual files from source to target, preserving existing UUIDs
         for await (const file of Deno.readDir(sourceDir)) {
           const sourcePath = join(sourceDir, file.name);
           const targetPath = join(targetGuideDir, file.name);
-          
+
           // Read UUID from source file - always use source UUID, never destination
           const sourceUuid = await readExistingUuid(sourcePath);
-          
+
           // Read guide_summary from destination before copying (to preserve it if source doesn't have it)
           let preservedGuideSummary: string | undefined;
           if (file.name === "_data.yml") {
             preservedGuideSummary = await readGuideSummary(targetPath);
           }
-          
+
           const wasCopied = await copyFile(sourcePath, targetPath);
-          
+
           if (wasCopied) {
             filesCopied++;
           }
-          
+
           // Always transform (whether copied or not) to ensure correct format
-          await transformGuideFile(targetPath, file.name, sourceUuid, preservedGuideSummary);
+          await transformGuideFile(
+            targetPath,
+            file.name,
+            sourceUuid,
+            preservedGuideSummary,
+          );
         }
-        
+
         if (filesCopied > 0) {
           guideCount++;
-          console.log(`✅ Copied ${filesCopied} files for guide: ${entry.name}`);
+          console.log(
+            `✅ Copied ${filesCopied} files for guide: ${entry.name}`,
+          );
         } else {
           console.log(`⏭️  No new files copied for guide: ${entry.name}`);
         }
-        
+
         // Transform any remaining files in the target guide directory that weren't just copied
         for await (const file of Deno.readDir(targetGuideDir)) {
           if (file.isFile) {
             const filePath = join(targetGuideDir, file.name);
             const sourcePath = join(sourceDir, file.name);
-            
+
             // Read UUID from source file if it exists, otherwise undefined (will generate if needed)
             let sourceUuid: string | undefined;
             try {
@@ -667,25 +1160,40 @@ async function migrateGuides(): Promise<{ guideCount: number }> {
               // Don't use destination UUID - let it generate if needed
               sourceUuid = undefined;
             }
-            
+
             // Read guide_summary from destination to preserve it
             let preservedGuideSummary: string | undefined;
             if (file.name === "_data.yml") {
               preservedGuideSummary = await readGuideSummary(filePath);
             }
-            
+
             // Only transform if this file wasn't just copied (to avoid double transformation)
             try {
               const sourceStats = await Deno.stat(sourcePath);
               const destStats = await Deno.stat(filePath);
-              
+
               // If destination is newer or same age, it wasn't just copied, so transform it
-              if (!sourceStats.mtime || !destStats.mtime || destStats.mtime >= sourceStats.mtime) {
-                await transformGuideFile(filePath, file.name, sourceUuid, preservedGuideSummary, true);
+              if (
+                !sourceStats.mtime || !destStats.mtime ||
+                destStats.mtime >= sourceStats.mtime
+              ) {
+                await transformGuideFile(
+                  filePath,
+                  file.name,
+                  sourceUuid,
+                  preservedGuideSummary,
+                  true,
+                );
               }
             } catch {
               // If source doesn't exist, this is a destination-only file, transform it
-              await transformGuideFile(filePath, file.name, sourceUuid, preservedGuideSummary, true);
+              await transformGuideFile(
+                filePath,
+                file.name,
+                sourceUuid,
+                preservedGuideSummary,
+                true,
+              );
             }
           }
         }
@@ -695,89 +1203,102 @@ async function migrateGuides(): Promise<{ guideCount: number }> {
     console.error("❌ Error migrating guides:", error);
     throw error;
   }
-  
+
   console.log("✅ Guide migration completed successfully!");
-  
+
   return { guideCount };
 }
 
-function parseChangelogFilename(filename: string): { year: string, month: string, day: string, title: string } | null {
+function parseChangelogFilename(
+  filename: string,
+): { year: string; month: string; day: string; title: string } | null {
   // Match pattern: YYYY-MM-DD_title.mdx
   const match = filename.match(/^(\d{4})-(\d{2})-(\d{2})_(.+)\.mdx$/);
   if (!match) {
     return null;
   }
-  
+
   const [, year, month, day, title] = match;
   return { year, month, day, title };
 }
 
-function createNewChangelogFilename(month: string, day: string, title: string): string {
+function createNewChangelogFilename(
+  month: string,
+  day: string,
+  title: string,
+): string {
   return `${month}-${day}_${title}.mdx`;
 }
 
-async function transformChangelogFrontMatter(filePath: string, existingUuid?: string): Promise<void> {
+async function transformChangelogFrontMatter(
+  filePath: string,
+  existingUuid?: string,
+): Promise<void> {
   const content = await Deno.readTextFile(filePath);
   const { frontMatter, body } = extractFrontMatter(content);
-  
+
   // Create new front matter structure without the type field
   const newFrontMatter: Record<string, unknown> = {};
-  
+
   // Copy all fields except 'type'
   for (const [key, value] of Object.entries(frontMatter)) {
-    if (key !== 'type') {
+    if (key !== "type") {
       newFrontMatter[key] = value;
     }
   }
-  
+
   // Preserve existing UUID if it exists
   if (existingUuid) {
     newFrontMatter._uuid = existingUuid;
   }
-  
+
   const newContent = createFrontMatter(newFrontMatter, body);
   await Deno.writeTextFile(filePath, newContent);
 }
 
-async function migrateChangelogs(): Promise<{ migratedCount: number, skippedCount: number }> {
+async function migrateChangelogs(): Promise<
+  { migratedCount: number; skippedCount: number }
+> {
   console.log("\n🚀 Starting changelog migration...");
-  
+
   const sourceDir = "changelogs";
   const targetDir = "new_changelogs";
-  
+
   let migratedCount = 0;
   let skippedCount = 0;
-  
+
   try {
     for await (const entry of Deno.readDir(sourceDir)) {
       if (entry.isFile && entry.name.endsWith(".mdx")) {
         const parsedFilename = parseChangelogFilename(entry.name);
-        
+
         if (!parsedFilename) {
-          console.warn(`⚠️  Skipping file with unexpected format: ${entry.name}`);
+          console.warn(
+            `⚠️  Skipping file with unexpected format: ${entry.name}`,
+          );
           skippedCount++;
           continue;
         }
-        
+
         const { year, month, day, title } = parsedFilename;
         const yearDir = join(targetDir, year);
-        
+
         // Ensure year directory exists
         await ensureDir(yearDir);
-        
+
         // Create new filename without year prefix
         const newFilename = createNewChangelogFilename(month, day, title);
         const sourcePath = join(sourceDir, entry.name);
         const targetPath = join(yearDir, newFilename);
-        
+
         // Copy the file
         const wasCopied = await copyFile(sourcePath, targetPath);
-        
+
         if (wasCopied) {
           // Transform front matter to remove type field
           console.log(`🔄 Transforming: ${newFilename}`);
           await transformChangelogFrontMatter(targetPath);
-          
+
           console.log(`📋 ${entry.name} -> ${year}/${newFilename}`);
           migratedCount++;
         } else {
@@ -789,82 +1310,91 @@ async function migrateChangelogs(): Promise<{ migratedCount: number, skippedCoun
     console.error("❌ Error migrating changelogs:", error);
     throw error;
   }
-  
+
   console.log("✅ Changelog migration completed successfully!");
-  
+
   return { migratedCount, skippedCount };
 }
 
 async function createBetaLookupTable(): Promise<Map<string, string>> {
-  console.log("📖 Reading beta file mappings from migration-destinations.csv...");
-  
+  console.log(
+    "📖 Reading beta file mappings from migration-destinations.csv...",
+  );
+
   const rows = await parseMigrationCSV();
   const lookup = new Map<string, string>();
-  
+
   for (const fields of rows) {
     if (fields.length >= 3) {
       const oldLink = fields[0];
       const moveTo = fields[1];
       const newLink = fields[2];
-      
+
       // Only process Beta destination files
       if (moveTo === "Beta") {
         const filename = extractFilenameFromPath(oldLink);
         const newPathParts = extractFilenameFromPath(newLink);
-        
+
         // If the new link ends with just "/documentation/beta", it should be index.mdx
         // Otherwise, use the last path part as the filename
-        const cleanNewLink = newLink.replace(/\/+$/, '');
-        const newPathPartsArray = cleanNewLink.split('/').filter(part => part.length > 0);
+        const cleanNewLink = newLink.replace(/\/+$/, "");
+        const newPathPartsArray = cleanNewLink.split("/").filter((part) =>
+          part.length > 0
+        );
         let newFilename: string;
-        if (newPathPartsArray.length > 0 && newPathPartsArray[newPathPartsArray.length - 1] === "beta") {
+        if (
+          newPathPartsArray.length > 0 &&
+          newPathPartsArray[newPathPartsArray.length - 1] === "beta"
+        ) {
           newFilename = "index";
         } else {
           newFilename = newPathParts || "index";
         }
-        
+
         if (filename) {
           lookup.set(filename, newFilename);
         }
       }
     }
   }
-  
+
   console.log(`✅ Created beta lookup table with ${lookup.size} entries`);
   return lookup;
 }
 
 async function migrateBetaFiles(): Promise<{ migratedCount: number }> {
   console.log("\n🚀 Starting beta files migration...");
-  
+
   const sourceDir = "articles";
   const targetDir = "beta";
   const betaLookup = await createBetaLookupTable();
-  
+
   let migratedCount = 0;
-  
+
   try {
     for await (const entry of Deno.readDir(sourceDir)) {
       if (entry.isFile && entry.name.endsWith(".mdx")) {
         const filename = basename(entry.name, ".mdx");
         const newFilename = betaLookup.get(filename);
-        
+
         if (newFilename) {
           const sourcePath = join(sourceDir, entry.name);
           // Handle index.mdx specially - it should be index.mdx in beta/
-          const targetFilename = newFilename === "index" ? "index.mdx" : `${newFilename}.mdx`;
+          const targetFilename = newFilename === "index"
+            ? "index.mdx"
+            : `${newFilename}.mdx`;
           const targetPath = join(targetDir, targetFilename);
-          
+
           // Read UUID from source file - always use source UUID, never destination
           const sourceUuid = await readExistingUuid(sourcePath);
-          
+
           const wasCopied = await copyFile(sourcePath, targetPath);
-          
+
           if (wasCopied) {
             // Transform front matter for beta files (similar to articles)
             console.log(`🔄 Transforming: ${targetFilename}`);
             await transformArticleFrontMatter(targetPath, sourceUuid);
-            
+
             console.log(`📋 ${entry.name} -> ${targetFilename}`);
             migratedCount++;
           }
@@ -875,9 +1405,9 @@ async function migrateBetaFiles(): Promise<{ migratedCount: number }> {
     console.error("❌ Error migrating beta files:", error);
     throw error;
   }
-  
+
   console.log("✅ Beta files migration completed successfully!");
-  
+
   return { migratedCount };
 }
 
@@ -896,34 +1426,35 @@ function optimizeRedirectChains(routes: RouteRule[]): RouteRule[] {
   // Build a map of redirect destinations (only for exact matches, not regex/star patterns)
   const redirectMap = new Map<string, string>();
   const hasPattern = (path: string): boolean => {
-    return path.includes('(') || path.includes('.*') || path.includes('$') || path.includes('*');
+    return path.includes("(") || path.includes(".*") || path.includes("$") ||
+      path.includes("*");
   };
-  
+
   for (const route of routes) {
     // Only track exact path matches for chain optimization
     if (!hasPattern(route.from) && !hasPattern(route.to)) {
       redirectMap.set(route.from, route.to);
     }
   }
-  
+
   // Follow chains to find final destinations
   const optimizedRoutes: RouteRule[] = [];
   const processed = new Set<string>();
-  
+
   for (const route of routes) {
     // Skip patterns - they're harder to optimize and match
     if (hasPattern(route.from) || hasPattern(route.to)) {
       optimizedRoutes.push(route);
       continue;
     }
-    
+
     if (processed.has(route.from)) continue;
-    
+
     let currentTo = route.to;
     const visitedInChain = new Set<string>([route.from]);
     let depth = 0;
     const maxDepth = 10; // Prevent infinite loops
-    
+
     // Follow the chain until we reach a final destination
     while (redirectMap.has(currentTo) && depth < maxDepth) {
       if (visitedInChain.has(currentTo)) {
@@ -934,65 +1465,78 @@ function optimizeRedirectChains(routes: RouteRule[]): RouteRule[] {
       currentTo = redirectMap.get(currentTo)!;
       depth++;
     }
-    
+
     // Create optimized route pointing to final destination
     optimizedRoutes.push({
       from: route.from,
       to: currentTo,
-      status: route.status
+      status: route.status,
     });
-    
+
     processed.add(route.from);
   }
-  
+
   return optimizedRoutes;
 }
 
-async function generateRoutingFile(lookup: Map<string, string>): Promise<{ redirectCount: number }> {
+async function generateRoutingFile(
+  lookup: Map<string, string>,
+): Promise<{ redirectCount: number }> {
   console.log("\n🚀 Starting routing.json generation...");
-  
+
   const originalRoutingPath = ".cloudcannon/routing.json";
   const newRoutingPath = ".cloudcannon/new-routing.json";
-  
+
   // Ensure .cloudcannon directory exists
   await ensureDir(".cloudcannon");
-  
+
   // Read existing routing file if it exists
   let existingRouting: RoutingConfig = {};
   try {
     const existingContent = await Deno.readTextFile(originalRoutingPath);
     existingRouting = JSON.parse(existingContent);
-    console.log(`📖 Read existing routing.json with ${existingRouting.routes?.length || 0} existing routes`);
+    console.log(
+      `📖 Read existing routing.json with ${
+        existingRouting.routes?.length || 0
+      } existing routes`,
+    );
   } catch (error) {
     if (!(error instanceof Deno.errors.NotFound)) {
-      console.warn(`⚠️  Warning reading existing routing.json:`, (error as Error).message);
+      console.warn(
+        `⚠️  Warning reading existing routing.json:`,
+        (error as Error).message,
+      );
     }
   }
-  
+
   // Generate redirect rules for migrated articles
   const newRoutes: RouteRule[] = [];
-  
+
   // Add special redirect for articles/index.mdx
   newRoutes.push({
     from: "/documentation/articles/",
     to: "/documentation/developer-articles/",
-    status: 301
+    status: 301,
   });
-  console.log(`🔗 /documentation/articles/ -> /documentation/developer-articles/`);
-  
+  console.log(
+    `🔗 /documentation/articles/ -> /documentation/developer-articles/`,
+  );
+
   // Add redirects for guides (all guides go to developer-guides)
   newRoutes.push({
     from: "/documentation/changelog/(.*).html",
     to: "/documentation/changelog/$1/",
-    status: 301
+    status: 301,
   });
-  console.log(`🔗 /documentation/changelog/ -> /documentation/changelog/ (without html extension)`);
+  console.log(
+    `🔗 /documentation/changelog/ -> /documentation/changelog/ (without html extension)`,
+  );
 
   // Add redirects for changelogs (all changelogs go to new_changelogs)
   newRoutes.push({
     from: "/documentation/guides/(.*)",
     to: "/documentation/developer-guides/$1",
-    status: 301
+    status: 301,
   });
   console.log(`🔗 /documentation/guides/ -> /documentation/developer-guides/`);
 
@@ -1002,79 +1546,92 @@ async function generateRoutingFile(lookup: Map<string, string>): Promise<{ redir
     const oldPath = `/documentation/articles/${filename}/`;
     const targetFilename = newFilename === "index" ? "" : `${newFilename}/`;
     const newPath = `/documentation/beta/${targetFilename}`;
-    
+
     newRoutes.push({
       from: oldPath,
       to: newPath,
-      status: 301
+      status: 301,
     });
-    
+
     console.log(`🔗 ${oldPath} -> ${newPath}`);
   }
 
   for (const [filename, destination] of lookup.entries()) {
-    if (destination === "Developer Articles" || destination === "User Articles") {
+    if (
+      destination === "Developer Articles" || destination === "User Articles"
+    ) {
       const oldPath = `/documentation/articles/${filename}/`;
       let newPath: string;
-      
+
       if (destination === "Developer Articles") {
         newPath = `/documentation/developer-articles/${filename}/`;
       } else {
         newPath = `/documentation/user-articles/${filename}/`;
       }
-      
+
       newRoutes.push({
         from: oldPath,
         to: newPath,
-        status: 301
+        status: 301,
       });
-      
+
       console.log(`🔗 ${oldPath} -> ${newPath}`);
     }
   }
-  
+
   // Create new routing configuration preserving original structure and order
   const newRouting: RoutingConfig = {};
   // Add other properties in their original order
   if (existingRouting.headers) {
     newRouting.headers = existingRouting.headers;
   }
-  
+
   // Preserve original key order and add existing routes first
   if (existingRouting.routes && existingRouting.routes.length > 0) {
     newRouting.routes = [...existingRouting.routes];
   } else {
     newRouting.routes = [];
   }
-  
+
   // Add new routes at the end
   newRouting.routes.push(...newRoutes);
-  
+
   // Optimize redirect chains (excluding patterns)
   if (newRouting.routes && newRouting.routes.length > 0) {
     newRouting.routes = optimizeRedirectChains(newRouting.routes);
   }
-  
+
   // Write the new routing file (preserve original routing.json unchanged)
   const routingContent = JSON.stringify(newRouting, null, 2);
   await Deno.writeTextFile(newRoutingPath, routingContent);
-  
-  console.log(`📄 Generated new-routing.json with ${newRoutes.length} new redirects appended to ${existingRouting.routes?.length || 0} existing routes`);
+
+  console.log(
+    `📄 Generated new-routing.json with ${newRoutes.length} new redirects appended to ${
+      existingRouting.routes?.length || 0
+    } existing routes`,
+  );
   console.log(`💾 Original routing.json preserved unchanged`);
   console.log(`✅ Routing generation completed successfully!`);
-  
+
   return { redirectCount: newRoutes.length };
 }
 
-async function updateInternalLinks(lookup: Map<string, string>): Promise<{ updatedFiles: number, totalUpdates: number }> {
+async function updateInternalLinks(
+  lookup: Map<string, string>,
+): Promise<{ updatedFiles: number; totalUpdates: number }> {
   console.log("\n🚀 Starting internal link updates...");
-  
+
   let updatedFiles = 0;
   let totalUpdates = 0;
-  
+
   const betaLookup = await createBetaLookupTable();
-  const directories = ["developer/articles", "user/articles", "developer/guides", "beta"];
-  
+  const directories = [
+    "developer/articles",
+    "user/articles",
+    "developer/guides",
+    "beta",
+  ];
+
   for (const dir of directories) {
     try {
       for await (const entry of Deno.readDir(dir)) {
@@ -1093,7 +1650,11 @@ async function updateInternalLinks(lookup: Map<string, string>): Promise<{ updat
             for await (const subEntry of Deno.readDir(subDir)) {
               if (subEntry.isFile && subEntry.name.endsWith(".mdx")) {
                 const filePath = join(subDir, subEntry.name);
-                const updated = await updateLinksInFile(filePath, lookup, betaLookup);
+                const updated = await updateLinksInFile(
+                  filePath,
+                  lookup,
+                  betaLookup,
+                );
                 if (updated > 0) {
                   updatedFiles++;
                   totalUpdates += updated;
@@ -1108,27 +1669,37 @@ async function updateInternalLinks(lookup: Map<string, string>): Promise<{ updat
       }
     } catch (error) {
       if (!(error instanceof Deno.errors.NotFound)) {
-        console.warn(`⚠️  Warning reading directory ${dir}:`, (error as Error).message);
+        console.warn(
+          `⚠️  Warning reading directory ${dir}:`,
+          (error as Error).message,
+        );
       }
     }
   }
-  
-  console.log(`✅ Internal link updates completed: ${totalUpdates} links updated in ${updatedFiles} files`);
+
+  console.log(
+    `✅ Internal link updates completed: ${totalUpdates} links updated in ${updatedFiles} files`,
+  );
   return { updatedFiles, totalUpdates };
 }
 
-async function updateLinksInFile(filePath: string, lookup: Map<string, string>, betaLookup: Map<string, string>): Promise<number> {
+async function updateLinksInFile(
+  filePath: string,
+  lookup: Map<string, string>,
+  betaLookup: Map<string, string>,
+): Promise<number> {
   try {
     let content = await Deno.readTextFile(filePath);
     let updateCount = 0;
-    
+
     // Regex to match internal documentation article links
     // Matches: /documentation/articles/filename/ (with optional hash and query params)
-    const articleLinkRegex = /\/documentation\/articles\/([^\/\s\)]+)\/((?:#[^?\s\)]*)?(?:\?[^\s\)]*)?)/g;
-    
+    const articleLinkRegex =
+      /\/documentation\/articles\/([^\/\s\)]+)\/((?:#[^?\s\)]*)?(?:\?[^\s\)]*)?)/g;
+
     content = content.replace(articleLinkRegex, (match, filename, suffix) => {
       const destination = lookup.get(filename);
-      
+
       if (destination === "Developer Articles") {
         updateCount++;
         return `/documentation/developer-articles/${filename}/${suffix}`;
@@ -1136,54 +1707,61 @@ async function updateLinksInFile(filePath: string, lookup: Map<string, string>, 
         updateCount++;
         return `/documentation/user-articles/${filename}/${suffix}`;
       }
-      
+
       // Check if it's a beta file
       const betaNewFilename = betaLookup.get(filename);
       if (betaNewFilename) {
         updateCount++;
-        const targetFilename = betaNewFilename === "index" ? "" : `${betaNewFilename}/`;
+        const targetFilename = betaNewFilename === "index"
+          ? ""
+          : `${betaNewFilename}/`;
         return `/documentation/beta/${targetFilename}${suffix}`;
       }
-      
+
       // If not in lookup or going to unused, leave unchanged
       return match;
     });
-    
+
     // Special case for articles index page
-    const articleIndexRegex = /\/documentation\/articles\/((?:#[^?\s\)]*)?(?:\?[^\s\)]*)?)/g;
+    const articleIndexRegex =
+      /\/documentation\/articles\/((?:#[^?\s\)]*)?(?:\?[^\s\)]*)?)/g;
     content = content.replace(articleIndexRegex, (_match, suffix) => {
       updateCount++;
       return `/documentation/developer-articles/${suffix}`;
     });
-    
+
     // Regex to match internal documentation guide links
     // Matches: /documentation/guides/guide-name/ (with optional hash and query params)
-    const guideLinkRegex = /\/documentation\/guides\/([^\/\s\)]+)\/((?:#[^?\s\)]*)?(?:\?[^\s\)]*)?)/g;
-    
+    const guideLinkRegex =
+      /\/documentation\/guides\/([^\/\s\)]+)\/((?:#[^?\s\)]*)?(?:\?[^\s\)]*)?)/g;
+
     content = content.replace(guideLinkRegex, (_match, guideName, suffix) => {
       updateCount++;
       return `/documentation/developer-guides/${guideName}/${suffix}`;
     });
-    
+
     // Special case for guides index page
-    const guideIndexRegex = /\/documentation\/guides\/((?:#[^?\s\)]*)?(?:\?[^\s\)]*)?)/g;
+    const guideIndexRegex =
+      /\/documentation\/guides\/((?:#[^?\s\)]*)?(?:\?[^\s\)]*)?)/g;
     content = content.replace(guideIndexRegex, (_match, suffix) => {
       updateCount++;
       return `/documentation/developer-guides/${suffix}`;
     });
-    
+
     // Write back if any updates were made
     if (updateCount > 0) {
       await Deno.writeTextFile(filePath, content);
     }
-    
+
     return updateCount;
   } catch (error) {
-    console.warn(`⚠️  Warning updating links in ${filePath}:`, (error as Error).message);
+    console.warn(
+      `⚠️  Warning updating links in ${filePath}:`,
+      (error as Error).message,
+    );
     return 0;
   }
 }
-
 
 // Run the migration
 if (import.meta.main) {
@@ -1192,14 +1770,18 @@ if (import.meta.main) {
     const guideStats = await migrateGuides();
     const changelogStats = await migrateChangelogs();
     const betaStats = await migrateBetaFiles();
-    
+
     // Generate routing.json with redirects (reuse the lookup table)
     const lookup = await createLookupTable();
     const routingStats = await generateRoutingFile(lookup);
-    
+
     // Update internal links in migrated files
     const linkStats = await updateInternalLinks(lookup);
-    
+
+    // Build slug-to-UUID map and update related_articles references
+    const slugMap = await buildSlugToUuidMap(lookup);
+    const relatedArticlesStats = await updateAllRelatedArticles(slugMap);
+
     // Display consolidated migration summary
     console.log("\n🎉 ===== MIGRATION COMPLETE =====");
     console.log("\n📊 Final Migration Summary:");
@@ -1208,32 +1790,42 @@ if (import.meta.main) {
     console.log(`   User Articles: ${articleStats.userCount} files`);
     console.log(`   Unused: ${articleStats.unusedCount} files`);
     console.log(`   Total Articles: ${articleStats.totalCount} files`);
-    
+
     console.log("\n📚 Guides:");
     console.log(`   Migrated Guides: ${guideStats.guideCount} directories`);
-    
+
     console.log("\n📰 Changelogs:");
     console.log(`   Migrated: ${changelogStats.migratedCount} files`);
     console.log(`   Skipped: ${changelogStats.skippedCount} files`);
-    
+
     console.log("\n🧪 Beta Files:");
     console.log(`   Migrated: ${betaStats.migratedCount} files`);
-    
+
     console.log("\n🔗 Routing:");
     console.log(`   Generated Redirects: ${routingStats.redirectCount} rules`);
-    
+
     console.log("\n🔗 Internal Links:");
     console.log(`   Updated Files: ${linkStats.updatedFiles} files`);
     console.log(`   Total Link Updates: ${linkStats.totalUpdates} links`);
-    
-    const grandTotal = articleStats.totalCount + guideStats.guideCount + changelogStats.migratedCount + betaStats.migratedCount;
+
+    console.log("\n📎 Related Articles:");
+    console.log(
+      `   Files with converted references: ${relatedArticlesStats.updatedCount} files`,
+    );
+
+    const grandTotal = articleStats.totalCount + guideStats.guideCount +
+      changelogStats.migratedCount + betaStats.migratedCount;
     console.log(`\n🏆 Grand Total: ${grandTotal} items migrated successfully!`);
-    console.log(`📄 Routing: ${routingStats.redirectCount} redirect rules generated`);
+    console.log(
+      `📄 Routing: ${routingStats.redirectCount} redirect rules generated`,
+    );
     console.log(`🔗 Links: ${linkStats.totalUpdates} internal links updated`);
+    console.log(
+      `📎 Related Articles: ${relatedArticlesStats.updatedCount} files converted to UUID references`,
+    );
     console.log("\n✅ All migrations completed successfully! 🎊");
   } catch (error) {
     console.error("❌ Migration failed:", error);
     Deno.exit(1);
   }
 }
-

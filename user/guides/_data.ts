@@ -1,4 +1,4 @@
-import type { Page } from '../../_types.d.ts';
+import type { Page } from "../../_types.d.ts";
 
 export default {
   url: (page: Page): string => {
@@ -6,5 +6,5 @@ export default {
     const parts = u.split("/").slice(3);
     return `/user-guides/${parts.join("/")}`;
   },
-  layout: "layouts/guide.tsx"
+  layout: "layouts/guide.tsx",
 };

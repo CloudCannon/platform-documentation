@@ -9,14 +9,14 @@ const pullPerms = async () => {
     const tree = await req.json();
 
     // Check for a known permission to ensure healthy file:
-    const site_details_read_docs =
-      tree?.["*"]?.children?.site?.children?.["site:details"]?.docs?.read;
+    const site_details_read_docs = tree?.["*"]?.children?.site?.children
+      ?.["site:details"]?.docs?.read;
     if (!site_details_read_docs?.length) {
       console.error(
-        `Permissions tree provided by CloudCannon at ${treeUrl} has changed or errored.`
+        `Permissions tree provided by CloudCannon at ${treeUrl} has changed or errored.`,
       );
       console.error(
-        `Expected documentation at *.children.site.children.site:details.docs.read to exist, found nothing.`
+        `Expected documentation at *.children.site.children.site:details.docs.read to exist, found nothing.`,
       );
       process.exit(1);
     }
@@ -24,7 +24,7 @@ const pullPerms = async () => {
     fs.writeFileSync(filepath, JSON.stringify(tree, null, 2));
   } catch (e) {
     console.error(
-      `Failed to pull permissions tree from CloudCannon at ${treeUrl}`
+      `Failed to pull permissions tree from CloudCannon at ${treeUrl}`,
     );
     console.error(e);
     process.exit(1);
