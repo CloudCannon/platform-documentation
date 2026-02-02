@@ -140,31 +140,111 @@ export default function Nav({ headingnav, url, helpers }: NavProps) {
       <dialog
         id="mobile-menu"
         className="l-header__mobile-menu"
+        x-data="{ hasDocNav: false, showBanner: true }"
+        x-init="showBanner = !document.getElementById('announcement-banner')?.hidden"
+        x-effect="if (showmobilenav) hasDocNav = true"
       >
-        <div className="l-header__mobile-menu-header">
-          <button
-            type="button"
-            onclick="document.getElementById('mobile-menu').close()"
-            className="l-header__search menu close"
-            title="Close Menu"
+        {/* Banner - full width, mirrors the main page banner visibility */}
+        {headingnav?.banner_html && (
+          <div
+            className="l-banner"
+            x-show="showBanner"
+          >
+            <div className="l-banner__inner">
+              <div
+                dangerouslySetInnerHTML={{ __html: headingnav.banner_html }}
+              />
+              <button
+                type="button"
+                aria-label="close announcement banner"
+                x-on:click="showBanner = false; sessionStorage.setItem('announcementBannerOpenDocs', 'false'); document.getElementById('announcement-banner').hidden = true;"
+              >
+                <div className="flex items-center">
+                  <div className="inner-cross">
+                    <span></span>
+                    <span></span>
+                  </div>
+                </div>
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Content wrapper - matches main nav padding/centering */}
+        <div className="l-header__mobile-menu-content">
+          {/* Header row - mirrors main nav layout */}
+          <div className="l-header__mobile-menu-header">
+            <div className="l-header__site">
+              <a
+                href="/documentation"
+                className="l-header__emblem"
+                aria-label="Go to CloudCannon Documentation"
+              >
+                <img
+                  src="/assets/img/cc-docs-logo.svg"
+                  className="l-header__logo"
+                  alt="CloudCannon Documentation"
+                  inline="true"
+                />
+              </a>
+            </div>
+            <div className="l-header__mobile-controls">
+              <button
+                type="button"
+                x-on:click="isModalOpen = true; $focusSearch(true); document.getElementById('mobile-menu').close()"
+                className="l-header__search"
+                title="Search"
+              >
+                <img
+                  src={helpers.icon("search:outlined", "material")}
+                  inline="true"
+                />
+              </button>
+              <button
+                type="button"
+                onclick="document.getElementById('mobile-menu').close()"
+                className="l-header__search menu close"
+                title="Close Menu"
+              >
+                <img
+                  src={helpers.icon("close:outlined", "material")}
+                  inline="true"
+                />
+              </button>
+            </div>
+          </div>
+
+          {/* Button container - always visible above both panels */}
+          <div className="button-container">
+            <a
+              className="cc-helper__button"
+              href="https://app.cloudcannon.com/register"
+            >
+              Go to App
+            </a>
+            <ThemeDropdown helpers={helpers} id="theme-dropdown-mobile" />
+          </div>
+
+          {/* Main menu panel - hidden when docnav is shown */}
+        <div className="mobile-menu-panel" x-show="!showmobilenav">
+          {/* Link to show docnav - only visible on pages with doc navigation */}
+          <div
+            className="mobile-docnav-trigger"
+            x-show="hasDocNav"
+            x-on:click="showmobilenav = true"
           >
             <img
-              src={helpers.icon("close:outlined", "material")}
+              src={helpers.icon("menu_book:outlined", "material")}
               inline="true"
             />
-          </button>
-        </div>
-        <div className="button-container">
-          <a
-            className="cc-helper__button"
-            href="https://app.cloudcannon.com/register"
-          >
-            Go to App
-          </a>
-          <ThemeDropdown helpers={helpers} id="theme-dropdown-mobile" />
-        </div>
+            <span>Section navigation</span>
+            <img
+              src={helpers.icon("arrow_forward_ios:filled", "material")}
+              inline="true"
+            />
+          </div>
 
-        <div className="l-header__links--sub-list">
+          <div className="l-header__links--sub-list">
           <ul className="l-header__links">
             {items.map((item, index) => {
               const isLast = index === items.length - 1;
@@ -217,6 +297,27 @@ export default function Nav({ headingnav, url, helpers }: NavProps) {
               );
             })}
           </ul>
+          </div>
+        </div>
+
+          {/* Docnav panel - shown when showmobilenav is true */}
+          <div
+            id="mobile-docnav"
+            className="mobile-menu-panel"
+            x-show="showmobilenav"
+          >
+            <div
+              className="back-button"
+              x-on:click="showmobilenav = false"
+            >
+              <img
+                src={helpers.icon("arrow_back_ios:filled", "material")}
+                inline="true"
+              />
+              <span>Back to main menu</span>
+            </div>
+            {/* Teleported content from NavSidebar appears here */}
+          </div>
         </div>
       </dialog>
     </nav>

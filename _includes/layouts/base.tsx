@@ -212,7 +212,7 @@ export default function BaseLayout(props: Props, helpers: Helpers) {
                 <button
                   type="button"
                   aria-label="close announcement banner"
-                  onclick="sessionStorage.setItem('announcementBannerOpenDocs', 'false'); document.getElementById('announcement-banner').hidden = true;"
+                  onclick="sessionStorage.setItem('announcementBannerOpenDocs123', 'false'); document.getElementById('announcement-banner').hidden = true;"
                 >
                   <div className="flex items-center">
                     <div className="inner-cross">
@@ -226,7 +226,7 @@ export default function BaseLayout(props: Props, helpers: Helpers) {
             <script
               dangerouslySetInnerHTML={{
                 __html: `
-                            if (sessionStorage.getItem("announcementBannerOpenDocs") === "false") {
+                            if (sessionStorage.getItem("announcementBannerOpenDocs123") === "false") {
                                 document.getElementById("announcement-banner").hidden = true;
                             }
                         `,
@@ -244,9 +244,6 @@ export default function BaseLayout(props: Props, helpers: Helpers) {
         {typeof content === "string"
           ? <div dangerouslySetInnerHTML={{ __html: content }} />
           : content}
-
-        {/* Mobile nav teleport target - hidden by default, shown via Alpine */}
-        <div id="mobile-docnav" className="hidden" />
 
         <div className="l-footer">
           <Footer footernav={footernav} helpers={helpers} />
