@@ -114,7 +114,7 @@ export default function HomeLayout(props: Props, helpers: Helpers) {
               {item.url && (
                 <div
                   className="c-card__footer"
-                  style={{ gridColumn: "span 2" }}
+                  style={{ "grid-column": "span 2" }}
                 >
                   <div className="c-card__arrow" aria-hidden="true">
                     <img src={arrowIconUrl} inline="true" />

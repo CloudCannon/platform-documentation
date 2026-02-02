@@ -39,7 +39,7 @@ export default function NotFoundArticleLayout(props: Props, helpers: Helpers) {
               <h1 className="l-heading l-center-heading" data-skip-anchor="">
                 Page not found
               </h1>
-              <p style={{ textAlign: "center" }}>
+              <p style={{ "text-align": "center" }}>
                 We couldn't find the page you were looking for. It either
                 doesn't exist or has been moved.
               </p>
