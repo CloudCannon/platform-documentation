@@ -414,6 +414,383 @@ function generateUUID(): string {
   return crypto.randomUUID();
 }
 
+// Type for slug-to-UUID mapping
+interface SlugMapping {
+  uuid: string;
+  type: string;
+}
+
+// Extract slug from a URL path (e.g., "/documentation/articles/some-slug/" -> "some-slug")
+function extractSlugFromUrl(url: string): string | null {
+  // Remove trailing slashes and leading slashes
+  const cleanUrl = url.replace(/\/+$/, "").replace(/^\/+/, "");
+  const parts = cleanUrl.split("/");
+  // The slug is the last non-empty part
+  const slug = parts[parts.length - 1];
+  return slug && slug.length > 0 ? slug : null;
+}
+
+// Build a map of slug -> {uuid, type} from destination files
+async function buildSlugToUuidMap(
+  lookup: Map<string, string>,
+): Promise<Map<string, SlugMapping>> {
+  console.log("📖 Building slug-to-UUID mapping from destination files...");
+
+  const slugMap = new Map<string, SlugMapping>();
+
+  for (const [filename, destination] of lookup.entries()) {
+    let destDir: string;
+    let type: string;
+
+    if (destination === "Developer Articles") {
+      destDir = "developer/articles";
+      type = "developer_articles";
+    } else if (destination === "User Articles") {
+      destDir = "user/articles";
+      type = "user_articles";
+    } else {
+      // Skip unused files
+      continue;
+    }
+
+    const filePath = join(destDir, `${filename}.mdx`);
+
+    try {
+      const uuid = await readExistingUuid(filePath);
+      if (uuid) {
+        slugMap.set(filename, { uuid, type });
+      }
+    } catch {
+      // File doesn't exist yet, skip
+    }
+  }
+
+  // Also add guides to the map
+  try {
+    for await (const entry of Deno.readDir("developer/guides")) {
+      if (entry.isDirectory) {
+        const guideDir = join("developer/guides", entry.name);
+
+        // Read _data.yml for the guide's UUID
+        const dataFilePath = join(guideDir, "_data.yml");
+        try {
+          const uuid = await readExistingUuid(dataFilePath);
+          if (uuid) {
+            slugMap.set(entry.name, { uuid, type: "developer_guides" });
+          }
+        } catch {
+          // No _data.yml, try to find individual guide pages
+        }
+
+        // Also read individual guide pages
+        for await (const file of Deno.readDir(guideDir)) {
+          if (file.isFile && file.name.endsWith(".mdx")) {
+            const pageFilePath = join(guideDir, file.name);
+            const pageName = basename(file.name, ".mdx");
+            try {
+              const uuid = await readExistingUuid(pageFilePath);
+              if (uuid) {
+                // Use guide-name/page-name as the slug key for guide pages
+                slugMap.set(`${entry.name}/${pageName}`, {
+                  uuid,
+                  type: "developer_guides",
+                });
+              }
+            } catch {
+              // Skip if can't read
+            }
+          }
+        }
+      }
+    }
+  } catch {
+    // developer/guides doesn't exist yet
+  }
+
+  // Add reference section pages to the map
+  console.log("📖 Adding reference section pages...");
+  let referenceCount = 0;
+  try {
+    for await (const entry of Deno.readDir("developer/reference")) {
+      if (entry.isDirectory) {
+        const refDir = join("developer/reference", entry.name);
+        const indexPath = join(refDir, "index.mdx");
+
+        try {
+          const uuid = await readExistingUuid(indexPath);
+          if (uuid) {
+            // Map the directory name as the slug
+            slugMap.set(entry.name, { uuid, type: "developer_reference" });
+            referenceCount++;
+          }
+        } catch {
+          // No index.mdx, skip
+        }
+      }
+    }
+
+    // Also add the main reference index
+    const mainRefUuid = await readExistingUuid("developer/reference/index.mdx");
+    if (mainRefUuid) {
+      slugMap.set("developer-reference", {
+        uuid: mainRefUuid,
+        type: "developer_reference",
+      });
+      referenceCount++;
+    }
+  } catch {
+    // developer/reference doesn't exist yet
+  }
+  console.log(`   Added ${referenceCount} reference section entries`);
+
+  // Add manual mappings for specific old slugs that map to reference pages
+  // These are articles that were moved to the reference section
+  const manualMappings: Array<{ oldSlug: string; refSlug: string }> = [
+    // configure-custom-permission-groups was moved to permissions reference
+    { oldSlug: "configure-custom-permission-groups", refSlug: "permissions" },
+    // structures-reference was moved to configuration file reference
+    {
+      oldSlug: "structures-reference",
+      refSlug: "configuration-file",
+    },
+  ];
+
+  for (const mapping of manualMappings) {
+    const targetMapping = slugMap.get(mapping.refSlug);
+    if (targetMapping && !slugMap.has(mapping.oldSlug)) {
+      slugMap.set(mapping.oldSlug, targetMapping);
+      console.log(
+        `   Manual mapping: ${mapping.oldSlug} → ${mapping.refSlug}`,
+      );
+    }
+  }
+
+  // Now add redirect mappings from routing.json
+  // This maps old slugs to the UUIDs of the articles they redirect to
+  console.log(
+    "📖 Reading routing.json for redirect mappings (old slugs → new articles)...",
+  );
+  let redirectsAdded = 0;
+
+  try {
+    const routingContent = await Deno.readTextFile(
+      ".cloudcannon/new-routing.json",
+    );
+    const routingConfig = JSON.parse(routingContent) as {
+      routes?: Array<{ from: string; to: string; status: number }>;
+    };
+
+    if (routingConfig.routes) {
+      for (const route of routingConfig.routes) {
+        // Skip non-301 redirects and regex patterns
+        if (route.status !== 301) continue;
+        if (route.from.includes("(.*)") || route.from.includes(".*")) continue;
+
+        // Only process article redirects
+        if (!route.from.includes("/articles/")) continue;
+
+        const oldSlug = extractSlugFromUrl(route.from);
+        const newSlug = extractSlugFromUrl(route.to);
+
+        // Skip if we couldn't extract slugs or if old slug already exists in map
+        if (!oldSlug || !newSlug || slugMap.has(oldSlug)) continue;
+
+        // Check if the new slug (target of redirect) exists in our map
+        const targetMapping = slugMap.get(newSlug);
+        if (targetMapping) {
+          // Map the old slug to the same UUID as the new slug
+          slugMap.set(oldSlug, targetMapping);
+          redirectsAdded++;
+        }
+      }
+    }
+  } catch (error) {
+    console.warn(
+      `⚠️  Could not read routing.json for redirects:`,
+      (error as Error).message,
+    );
+  }
+
+  console.log(`✅ Built slug-to-UUID mapping with ${slugMap.size} entries`);
+  console.log(`   (including ${redirectsAdded} redirect mappings)`);
+  return slugMap;
+}
+
+// Convert related_articles from slugs to UUID references
+// Normalize a slug to just the filename (handles various formats from old content)
+function normalizeSlug(slug: string): string {
+  let normalized = slug;
+
+  // Remove leading slashes
+  normalized = normalized.replace(/^\/+/, "");
+
+  // Remove common path prefixes (articles/, documentation/, etc.)
+  normalized = normalized.replace(
+    /^(documentation\/|articles\/|guides\/)+/,
+    "",
+  );
+
+  // Remove file extension if present
+  normalized = normalized.replace(/\.(mdx?|html?)$/, "");
+
+  // Remove trailing slashes
+  normalized = normalized.replace(/\/+$/, "");
+
+  return normalized;
+}
+
+function convertRelatedArticles(
+  relatedArticles: unknown[],
+  slugMap: Map<string, SlugMapping>,
+): Array<{ _type: string; item: string }> | null {
+  if (!relatedArticles || !Array.isArray(relatedArticles)) {
+    return null;
+  }
+
+  const converted: Array<{ _type: string; item: string }> = [];
+
+  for (const entry of relatedArticles) {
+    if (typeof entry === "string") {
+      // This is a slug that needs conversion - normalize it first
+      const normalizedSlug = normalizeSlug(entry);
+      const mapped = slugMap.get(normalizedSlug);
+      if (mapped) {
+        converted.push({ _type: mapped.type, item: mapped.uuid });
+      } else {
+        console.warn(
+          `⚠️  Could not resolve related article slug: ${entry} (normalized: ${normalizedSlug})`,
+        );
+      }
+    } else if (
+      entry && typeof entry === "object" && "item" in entry &&
+      typeof (entry as { item: unknown }).item === "string"
+    ) {
+      // Already in correct format, keep as-is
+      const obj = entry as { _type?: string; item: string };
+      converted.push({
+        _type: obj._type || "developer_articles",
+        item: obj.item,
+      });
+    }
+    // Skip invalid entries
+  }
+
+  return converted.length > 0 ? converted : null;
+}
+
+// Update related_articles in a file using the slug-to-UUID map
+async function updateRelatedArticlesInFile(
+  filePath: string,
+  slugMap: Map<string, SlugMapping>,
+): Promise<boolean> {
+  try {
+    const content = await Deno.readTextFile(filePath);
+    const { frontMatter, body } = extractFrontMatter(content);
+
+    // Check if there are related_articles to convert
+    const details = frontMatter.details as Record<string, unknown> | undefined;
+    const relatedArticles = details?.related_articles as unknown[] | undefined;
+
+    if (!relatedArticles || !Array.isArray(relatedArticles)) {
+      return false;
+    }
+
+    // Check if any entries need conversion (are strings)
+    const needsConversion = relatedArticles.some(
+      (entry) => typeof entry === "string",
+    );
+    if (!needsConversion) {
+      return false;
+    }
+
+    // Convert the related_articles
+    const converted = convertRelatedArticles(relatedArticles, slugMap);
+
+    if (converted) {
+      (frontMatter.details as Record<string, unknown>).related_articles =
+        converted;
+      const newContent = createFrontMatter(frontMatter, body);
+      await Deno.writeTextFile(filePath, newContent);
+      return true;
+    }
+
+    return false;
+  } catch (error) {
+    console.warn(
+      `⚠️  Error updating related articles in ${filePath}:`,
+      (error as Error).message,
+    );
+    return false;
+  }
+}
+
+// Post-process all migrated files to update related_articles
+async function updateAllRelatedArticles(
+  slugMap: Map<string, SlugMapping>,
+): Promise<{ updatedCount: number }> {
+  console.log("\n🔗 Updating related_articles to use UUID references...");
+
+  let updatedCount = 0;
+  const directories = [
+    "developer/articles",
+    "user/articles",
+  ];
+
+  for (const dir of directories) {
+    try {
+      for await (const entry of Deno.readDir(dir)) {
+        if (entry.isFile && entry.name.endsWith(".mdx")) {
+          const filePath = join(dir, entry.name);
+          const wasUpdated = await updateRelatedArticlesInFile(
+            filePath,
+            slugMap,
+          );
+          if (wasUpdated) {
+            console.log(`🔄 Updated related_articles in: ${filePath}`);
+            updatedCount++;
+          }
+        }
+      }
+    } catch (error) {
+      if (!(error instanceof Deno.errors.NotFound)) {
+        console.warn(
+          `⚠️  Warning reading directory ${dir}:`,
+          (error as Error).message,
+        );
+      }
+    }
+  }
+
+  // Also process guide files
+  try {
+    for await (const guideEntry of Deno.readDir("developer/guides")) {
+      if (guideEntry.isDirectory) {
+        const guideDir = join("developer/guides", guideEntry.name);
+        for await (const entry of Deno.readDir(guideDir)) {
+          if (entry.isFile && entry.name.endsWith(".mdx")) {
+            const filePath = join(guideDir, entry.name);
+            const wasUpdated = await updateRelatedArticlesInFile(
+              filePath,
+              slugMap,
+            );
+            if (wasUpdated) {
+              console.log(`🔄 Updated related_articles in: ${filePath}`);
+              updatedCount++;
+            }
+          }
+        }
+      }
+    }
+  } catch {
+    // developer/guides doesn't exist
+  }
+
+  console.log(
+    `✅ Related articles update completed: ${updatedCount} files updated`,
+  );
+  return { updatedCount };
+}
+
 function transformAuthorNotes(authorNotes: unknown): Record<string, unknown> {
   if (authorNotes && typeof authorNotes === "object") {
     const notes = authorNotes as Record<string, unknown>;
@@ -1401,6 +1778,10 @@ if (import.meta.main) {
     // Update internal links in migrated files
     const linkStats = await updateInternalLinks(lookup);
 
+    // Build slug-to-UUID map and update related_articles references
+    const slugMap = await buildSlugToUuidMap(lookup);
+    const relatedArticlesStats = await updateAllRelatedArticles(slugMap);
+
     // Display consolidated migration summary
     console.log("\n🎉 ===== MIGRATION COMPLETE =====");
     console.log("\n📊 Final Migration Summary:");
@@ -1427,6 +1808,11 @@ if (import.meta.main) {
     console.log(`   Updated Files: ${linkStats.updatedFiles} files`);
     console.log(`   Total Link Updates: ${linkStats.totalUpdates} links`);
 
+    console.log("\n📎 Related Articles:");
+    console.log(
+      `   Files with converted references: ${relatedArticlesStats.updatedCount} files`,
+    );
+
     const grandTotal = articleStats.totalCount + guideStats.guideCount +
       changelogStats.migratedCount + betaStats.migratedCount;
     console.log(`\n🏆 Grand Total: ${grandTotal} items migrated successfully!`);
@@ -1434,6 +1820,9 @@ if (import.meta.main) {
       `📄 Routing: ${routingStats.redirectCount} redirect rules generated`,
     );
     console.log(`🔗 Links: ${linkStats.totalUpdates} internal links updated`);
+    console.log(
+      `📎 Related Articles: ${relatedArticlesStats.updatedCount} files converted to UUID references`,
+    );
     console.log("\n✅ All migrations completed successfully! 🎊");
   } catch (error) {
     console.error("❌ Migration failed:", error);

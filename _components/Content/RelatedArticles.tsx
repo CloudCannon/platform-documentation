@@ -18,10 +18,26 @@ export default async function RelatedArticles(
 ) {
   if (!details?.related_articles?.length || !search) return null;
 
+  // Filter out invalid entries (e.g., legacy slug strings that haven't been converted to UUID references)
+  // Valid entries must be objects with a non-empty string `item` property containing a UUID
+  const validRelatedArticles = details.related_articles.filter(
+    (relatedArticle): relatedArticle is { item: string; _type?: string } =>
+      typeof relatedArticle === "object" &&
+      relatedArticle !== null &&
+      "item" in relatedArticle &&
+      typeof relatedArticle.item === "string" &&
+      relatedArticle.item.length > 0,
+  );
+
+  if (validRelatedArticles.length === 0) return null;
+
   // Get all articles and pre-render descriptions for those without details.description
-  const articles = details.related_articles
+  const articles = validRelatedArticles
     .map((relatedArticle) => search.page(`_uuid=${relatedArticle.item}`))
     .filter((article): article is ArticlePage => article !== null);
+
+  // Don't render the section if no articles were found
+  if (articles.length === 0) return null;
 
   // Pre-render descriptions from content for articles without details.description
   const descriptions = await Promise.all(
@@ -48,6 +64,7 @@ export default async function RelatedArticles(
     const url = article.url || "";
     if (url.includes("/changelog/")) return "Changelog";
     if (url.includes("/guides/")) return "Guide";
+    if (url.includes("/reference/")) return "Reference";
     if (url.includes("/articles/")) return "Article";
     return undefined;
   };
