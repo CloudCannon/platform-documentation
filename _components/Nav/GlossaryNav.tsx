@@ -15,22 +15,7 @@ export default function GlossaryNav({ title, allLetters }: GlossaryNavProps) {
 
       <ol
         className="t-docs-nav__main-list glossary"
-        x-data="{ active: window.location.hash || '#a' }"
-        x-init={`
-                    window.addEventListener('hashchange', () => {
-                        active = window.location.hash;
-                    });
-                    window.addEventListener('glossary-letter-changed', (e) => {
-                        active = '#' + e.detail;
-                        // Auto-scroll nav to show active letter
-                        const activeEl = $el.querySelector('[href$="' + active + '"]');
-                        if (activeEl) activeEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-                    });
-                    new ResizeObserver((entries) => {
-                        height = $refs.navParent.getBoundingClientRect().height;
-                        scrollHeight = $refs.navParent.scrollHeight;
-                    }).observe($el);
-                `}
+        x-data="glossaryNav"
       >
         {letters.map((letter) => (
           <li key={letter} className="t-docs-nav__main-list__item glossary-nav">
