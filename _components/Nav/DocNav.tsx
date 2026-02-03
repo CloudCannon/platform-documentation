@@ -1,6 +1,6 @@
 import NavWrapper from "./NavWrapper.tsx";
 import NavHeading from "./NavHeading.tsx";
-import ScrollGradient from "./ScrollGradient.tsx";
+// import ScrollGradient from "./ScrollGradient.tsx";
 import type {
   ContentNavBlock,
   ContentNavigation,
@@ -106,7 +106,7 @@ export default function DocNav(
 
   return (
     <NavWrapper>
-      <ScrollGradient position="top" />
+      {/* <ScrollGradient position="top" /> */}
       <NavHeading title={navigation.title} />
 
       <ol
@@ -191,7 +191,7 @@ export default function DocNav(
           );
         })}
       </ol>
-      <ScrollGradient position="bottom" />
+      {/* <ScrollGradient position="bottom" /> */}
     </NavWrapper>
   );
 }

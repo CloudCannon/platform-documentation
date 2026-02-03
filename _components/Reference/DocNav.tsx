@@ -1,6 +1,6 @@
 import NavWrapper from "../Nav/NavWrapper.tsx";
 import NavHeading from "../Nav/NavHeading.tsx";
-import ScrollGradient from "../Nav/ScrollGradient.tsx";
+// import ScrollGradient from "../Nav/ScrollGradient.tsx";
 import type { SectionId } from "./helpers.ts";
 import type { Helpers, PageSearch } from "../../_types.d.ts";
 
@@ -110,7 +110,7 @@ export default function DocNav(
   }
   return (
     <NavWrapper>
-      <ScrollGradient position="top" />
+      {/* <ScrollGradient position="top" /> */}
       <NavHeading title="Developer Reference" />
 
       <ol
@@ -224,7 +224,7 @@ export default function DocNav(
           );
         })}
       </ol>
-      <ScrollGradient position="bottom" />
+      {/* <ScrollGradient position="bottom" /> */}
     </NavWrapper>
   );
 }
