@@ -174,7 +174,7 @@ export default function BaseLayout(props: Props, helpers: Helpers) {
         alpine-keydown-escape="isModalOpen=false; $focusSearch(isModalOpen);"
         alpine-keydown-window-prevent-ctrl-k="isModalOpen=!isModalOpen; $focusSearch(isModalOpen);"
         alpine-keydown-window-prevent-cmd-k="isModalOpen=!isModalOpen; $focusSearch(isModalOpen);"
-        x-effect="document.body.style.colorScheme = themePreference === 'system' ? '' : effectiveTheme"
+        x-effect="document.documentElement.style.colorScheme = themePreference === 'system' ? '' : effectiveTheme"
         alpine-scroll-window="updateOffset()"
       >
         {/* Apply theme immediately to prevent flash - Alpine will take over state management */}
@@ -184,9 +184,9 @@ export default function BaseLayout(props: Props, helpers: Helpers) {
                     (function() {
                         var pref = localStorage.getItem('cc_darkMode') || 'system';
                         if (pref === 'dark') {
-                            document.body.style.colorScheme = 'dark';
+                            document.documentElement.style.colorScheme = 'dark';
                         } else if (pref === 'light') {
-                            document.body.style.colorScheme = 'light';
+                            document.documentElement.style.colorScheme = 'light';
                         }
                         // 'system' leaves colorScheme unset, inheriting from :root's "light dark"
                     })();
