@@ -70,7 +70,10 @@ export default function GuidesListLayout(props: Props, helpers: Helpers) {
                             icon={guide.guide_icon}
                             image={isLargeGrid ? guide.guide_image : undefined}
                             variant="guide"
-                            className={isSmallGrid ? "c-card--guide-sm" : ""}
+														className={[
+															isSmallGrid ? "c-card--guide-sm" : "",
+															guide.guide_icon_invert_for_dark_mode ? 'u-grayscale-invert-images' : ''
+															].join(' ')}
                             helpers={helpers}
                           />
                         </editable-array-item>

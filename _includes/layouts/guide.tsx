@@ -19,6 +19,7 @@ interface Props {
   details?: Details;
   guide_title: string;
   guide_icon?: string;
+  guide_icon_invert_for_dark_mode?: boolean;
   search: Search;
 }
 
@@ -30,6 +31,7 @@ export default function GuideLayout(props: Props, helpers: Helpers) {
     details,
     guide_title,
     guide_icon,
+    guide_icon_invert_for_dark_mode,
     search,
   } = props;
 
@@ -58,7 +60,7 @@ export default function GuideLayout(props: Props, helpers: Helpers) {
             alpine:class="isPageNavOpen ? 't-docs-nav t-docs-nav--open' : 't-docs-nav'"
           >
             <div className="t-docs-nav__heading">
-              {guide_icon && <img src={guide_icon} width="50" height="50" />}
+							{guide_icon && <img src={guide_icon} width="50" height="50" className={guide_icon_invert_for_dark_mode ? `u-grayscale-invert` : ''} />}
               <h2 data-pagefind-meta="guide_title">{guide_title}</h2>
 
               <button
