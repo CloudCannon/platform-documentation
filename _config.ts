@@ -238,15 +238,15 @@ const isDevMode = Deno.args.includes("-s") || Deno.args.includes("--serve");
 // In dev mode, only load recent changelogs for faster builds
 if (isDevMode) {
   site.ignore(
-    "new_changelogs/2015",
-    "new_changelogs/2016",
-    "new_changelogs/2017",
-    "new_changelogs/2018",
-    "new_changelogs/2019",
-    "new_changelogs/2020",
-    "new_changelogs/2021",
-    "new_changelogs/2022",
-    "new_changelogs/2023",
+    "changelogs/2015",
+    "changelogs/2016",
+    "changelogs/2017",
+    "changelogs/2018",
+    "changelogs/2019",
+    "changelogs/2020",
+    "changelogs/2021",
+    "changelogs/2022",
+    "changelogs/2023",
   );
   console.log("  Dev mode: Loading only recent changelogs (2024-2025)");
 }
@@ -268,7 +268,7 @@ site.preprocess("*", (pages) =>
 site.preprocess([".md", ".mdx"], (pages) =>
   pages.forEach((page) => {
     if (
-      !page.data.description && page.src.path.startsWith("/new_changelogs/")
+      !page.data.description && page.src.path.startsWith("/changelogs/")
     ) {
       const parsedDate = parseChangelogFilename(page.src.path);
       if (parsedDate) {
@@ -1002,7 +1002,7 @@ site.addEventListener("beforeBuild", async () => {
   startPhase("total");
   startPhase("load");
   console.log("\n=== BUILD TIMING START ===");
-  const dir = "new_changelogs";
+  const dir = "changelogs";
   const years: { keys: string[]; [year: string]: number | string[] } = {
     keys: [],
   };

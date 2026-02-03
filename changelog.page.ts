@@ -25,7 +25,7 @@ interface PageData {
 }
 
 export default function* ({ search }: { search: Search }): Generator<PageData> {
-  // Search by URL pattern - pages in new_changelogs folder
+  // Search by URL pattern - pages in changelogs folder
   const entries = search.pages("url^=/documentation/changelog/");
 
   // Sort newest first
