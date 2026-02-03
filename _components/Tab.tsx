@@ -6,7 +6,7 @@ interface TabProps {
 export default function Tab({ name, children }: TabProps) {
   return (
     <div
-      className="c-code-block__panel"
+      className="c-tabs__panel"
       role="tabpanel"
       x-data={`{ tabName: '${name}' }`}
       x-show="selectedTab === tabName"

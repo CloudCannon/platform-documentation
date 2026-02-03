@@ -138,36 +138,36 @@ export default function CodeTabs({ children }: CodeTabsProps) {
         >
           {tabButtons}
         </div>
-        {hasEncodedContent ? (
-          <CodeBlockCopyButton codeEncoded={tabs[0].codeEncoded} />
-        ) : (
-          <div className="c-code-block__copy">
-            <button
-              type="button"
-              x-on-click={copyFromDomHandler}
-              className="c-code-block__copy__button"
-              title="Copy to clipboard"
-            >
-              <svg
-                width="15"
-                height="17"
-                viewBox="0 0 15 17"
-                xmlns="http://www.w3.org/2000/svg"
-                aria-hidden="true"
+        {hasEncodedContent
+          ? <CodeBlockCopyButton codeEncoded={tabs[0].codeEncoded} />
+          : (
+            <div className="c-code-block__copy">
+              <button
+                type="button"
+                x-on-click={copyFromDomHandler}
+                className="c-code-block__copy__button"
+                title="Copy to clipboard"
               >
-                <path d="M12.75 15H4.5V4.5H12.75V15ZM12.75 3H4.5C4.10218 3 3.72064 3.15804 3.43934 3.43934C3.15804 3.72064 3 4.10218 3 4.5V15C3 15.3978 3.15804 15.7794 3.43934 16.0607C3.72064 16.342 4.10218 16.5 4.5 16.5H12.75C13.1478 16.5 13.5294 16.342 13.8107 16.0607C14.092 15.7794 14.25 15.3978 14.25 15V4.5C14.25 4.10218 14.092 3.72064 13.8107 3.43934C13.5294 3.15804 13.1478 3 12.75 3ZM10.5 0H1.5C1.10218 0 0.720644 0.158035 0.43934 0.43934C0.158035 0.720644 0 1.10218 0 1.5V12H1.5V1.5H10.5V0Z" />
-              </svg>
-              <span>Copy</span>
-            </button>
-            <div
-              className="c-code-block__copy__toast"
-              role="status"
-              aria-live="polite"
-            >
-              Copied to clipboard
+                <svg
+                  width="15"
+                  height="17"
+                  viewBox="0 0 15 17"
+                  xmlns="http://www.w3.org/2000/svg"
+                  aria-hidden="true"
+                >
+                  <path d="M12.75 15H4.5V4.5H12.75V15ZM12.75 3H4.5C4.10218 3 3.72064 3.15804 3.43934 3.43934C3.15804 3.72064 3 4.10218 3 4.5V15C3 15.3978 3.15804 15.7794 3.43934 16.0607C3.72064 16.342 4.10218 16.5 4.5 16.5H12.75C13.1478 16.5 13.5294 16.342 13.8107 16.0607C14.092 15.7794 14.25 15.3978 14.25 15V4.5C14.25 4.10218 14.092 3.72064 13.8107 3.43934C13.5294 3.15804 13.1478 3 12.75 3ZM10.5 0H1.5C1.10218 0 0.720644 0.158035 0.43934 0.43934C0.158035 0.720644 0 1.10218 0 1.5V12H1.5V1.5H10.5V0Z" />
+                </svg>
+                <span>Copy</span>
+              </button>
+              <div
+                className="c-code-block__copy__toast"
+                role="status"
+                aria-live="polite"
+              >
+                Copied to clipboard
+              </div>
             </div>
-          </div>
-        )}
+          )}
       </div>
 
       {children}

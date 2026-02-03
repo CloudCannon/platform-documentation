@@ -80,8 +80,12 @@ export function buildRefNav(
       id: "type.InitialSiteSettings",
       heading: "Initial Site Settings File",
       icon: "tune",
-      basePath: "/documentation/developer-reference/initial-site-settings-file/",
-      items: buildRefNavItems(initialSiteSettingsDocs, "type.InitialSiteSettings"),
+      basePath:
+        "/documentation/developer-reference/initial-site-settings-file/",
+      items: buildRefNavItems(
+        initialSiteSettingsDocs,
+        "type.InitialSiteSettings",
+      ),
     },
   ];
 }

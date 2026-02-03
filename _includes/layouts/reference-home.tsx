@@ -81,7 +81,9 @@ export default function ReferenceHomeLayout(
   }
 
   // Generate TOC items from the root entry (only for section home pages)
-  const tocItems = derivedRootEntry ? getTocItems(derivedRootEntry, section) : [];
+  const tocItems = derivedRootEntry
+    ? getTocItems(derivedRootEntry, section)
+    : [];
 
   return (
     <div className="l-page" x-init="showmobilenav = true">

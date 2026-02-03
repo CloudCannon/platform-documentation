@@ -59,7 +59,9 @@ import { parseChangelogFilename } from "./parseChangelogFilename.ts";
 import type { ContentNavItem, DocEntry } from "./_types.d.ts";
 import { buildRefNav } from "./developer/reference/_shared/buildRefNav.ts";
 
-import documentation from "npm:@cloudcannon/configuration-types@0.0.50/dist/documentation.json" with { type: "json" };
+import documentation from "npm:@cloudcannon/configuration-types@0.0.50/dist/documentation.json" with {
+  type: "json",
+};
 
 // Type the documentation as nested sections (section -> gid -> entry)
 const typedDocs = documentation as unknown as Record<
@@ -124,7 +126,11 @@ const site = lume({
 });
 
 // Build precompiled reference navigation
-const refNavSections = buildRefNav(configDocs, routingDocs, initialSiteSettingsDocs);
+const refNavSections = buildRefNav(
+  configDocs,
+  routingDocs,
+  initialSiteSettingsDocs,
+);
 site.data("ref_nav", refNavSections);
 
 // Track whether we're in an update cycle (vs initial build)

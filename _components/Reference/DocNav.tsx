@@ -2,10 +2,7 @@ import NavWrapper from "../Nav/NavWrapper.tsx";
 import NavHeading from "../Nav/NavHeading.tsx";
 import ScrollGradient from "../Nav/ScrollGradient.tsx";
 import type { SectionId } from "./helpers.ts";
-import type {
-  Helpers,
-  PageSearch,
-} from "../../_types.d.ts";
+import type { Helpers, PageSearch } from "../../_types.d.ts";
 
 // Precompiled reference navigation item (matches _config.ts)
 interface RefNavItem {
@@ -51,8 +48,12 @@ export default function DocNav(
   const indexPage = search.page("url=/documentation/developer-reference/");
 
   // Find the schemas and typescript pages
-  const schemasPage = search.page("url=/documentation/developer-reference/schemas/");
-  const typescriptPage = search.page("url=/documentation/developer-reference/typescript/");
+  const schemasPage = search.page(
+    "url=/documentation/developer-reference/schemas/",
+  );
+  const typescriptPage = search.page(
+    "url=/documentation/developer-reference/typescript/",
+  );
 
   // Build unified nav entries: home link + utility links + sections
   const staticEntries: RefNavSection[] = [];
@@ -70,9 +71,11 @@ export default function DocNav(
   if (schemasPage) {
     staticEntries.push({
       id: "schemas" as SectionId,
-      heading: schemasPage.attrs?.details?.title || schemasPage.title || "JSON Schemas",
+      heading: schemasPage.attrs?.details?.title || schemasPage.title ||
+        "JSON Schemas",
       icon: "data_object",
-      basePath: schemasPage.url || "/documentation/developer-reference/schemas/",
+      basePath: schemasPage.url ||
+        "/documentation/developer-reference/schemas/",
       items: [],
     });
   }
@@ -80,9 +83,11 @@ export default function DocNav(
   if (typescriptPage) {
     staticEntries.push({
       id: "typescript" as SectionId,
-      heading: typescriptPage.attrs?.details?.title || typescriptPage.title || "TypeScript Types",
+      heading: typescriptPage.attrs?.details?.title || typescriptPage.title ||
+        "TypeScript Types",
       icon: "code",
-      basePath: typescriptPage.url || "/documentation/developer-reference/typescript/",
+      basePath: typescriptPage.url ||
+        "/documentation/developer-reference/typescript/",
       items: [],
     });
   }
@@ -191,7 +196,9 @@ export default function DocNav(
                       <a
                         className="t-docs-nav__sub-list__article"
                         href={item.url}
-                        aria-current={currentUrl.startsWith(item.url) ? "page" : undefined}
+                        aria-current={currentUrl.startsWith(item.url)
+                          ? "page"
+                          : undefined}
                       >
                         {item.name}
                       </a>

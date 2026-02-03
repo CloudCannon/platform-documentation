@@ -1,5 +1,3 @@
-import TabsCopyButton from "./TabsCopyButton.tsx";
-
 interface TabChild {
   props?: {
     name?: string;
@@ -42,7 +40,7 @@ export default function Tabs({ label, children }: TabsProps) {
     return (
       <button
         type="button"
-        className="c-code-block__tab"
+        className="c-tabs__tab"
         role="tab"
         id={`${uniqueId}-tab-${tab}`}
         aria-controls={`${uniqueId}-panel-${tab}`}
@@ -59,19 +57,16 @@ export default function Tabs({ label, children }: TabsProps) {
 
   return (
     <div
-      className="c-code-block c-code-block--tabbed"
+      className="c-tabs"
       x-data={`{ selectedTab: "${tabs?.[0] ?? "none"}" }`}
     >
-      <div className="c-code-block__heading">
-        <div
-          className="c-code-block__tabs"
-          role="tablist"
-          aria-label={label}
-          data-pagefind-ignore
-        >
-          {tabButtons}
-        </div>
-        <TabsCopyButton />
+      <div
+        className="c-tabs__nav"
+        role="tablist"
+        aria-label={label}
+        data-pagefind-ignore
+      >
+        {tabButtons}
       </div>
       {children}
     </div>

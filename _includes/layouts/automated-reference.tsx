@@ -9,12 +9,7 @@ import ReferenceContent, {
   TableOfContents,
 } from "../../_components/Reference/ReferenceContent.tsx";
 import type { SectionId } from "../../_components/Reference/helpers.ts";
-import type {
-  DocEntry,
-  Helpers,
-  Page,
-  PageSearch,
-} from "../../_types.d.ts";
+import type { DocEntry, Helpers, Page, PageSearch } from "../../_types.d.ts";
 
 // Precompiled reference navigation types (matches _config.ts)
 interface RefNavItem {

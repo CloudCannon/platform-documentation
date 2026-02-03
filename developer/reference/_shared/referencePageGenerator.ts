@@ -23,7 +23,9 @@ export function createReferencePageGenerator(
     const sectionDocs = DOCS[section] ?? {};
     for (const entry of Object.values(sectionDocs)) {
       // Skip root entries (gid === section) - these are handled by index.mdx pages
-      if (entry.gid && entry.gid !== section && entry.url && entry.url !== "/") {
+      if (
+        entry.gid && entry.gid !== section && entry.url && entry.url !== "/"
+      ) {
         yield {
           url: `/developer-reference${entry.url}`, // entry.url already includes section path
           layout: "layouts/automated-reference.tsx",
