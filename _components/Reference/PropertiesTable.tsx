@@ -29,23 +29,26 @@ function ObjectProperties(
       <dt id={withIds ? "properties" : undefined}>Properties:</dt>
       {properties.length > 0
         ? (
-          properties.map(([key, ref]) => (
-            <dd
-              key={key}
-              id={withIds && slugify
-                ? `prop-${slugify(getShortKey(key))}`
-                : undefined}
-            >
-              <RefItem
-                docRef={ref}
-                currentUrl={currentUrl}
-                section={section}
-                useKey
-                keyOverride={getShortKey(key)}
-                helpers={helpers}
-              />
-            </dd>
-          ))
+          <dd class="c-data-reference">
+            {properties.map(([key, ref]) => (
+              <div
+                class="c-data-reference__item"
+                key={key}
+                id={withIds && slugify
+                  ? `prop-${slugify(getShortKey(key))}`
+                  : undefined}
+              >
+                <RefItem
+                  docRef={ref}
+                  currentUrl={currentUrl}
+                  section={section}
+                  useKey
+                  keyOverride={getShortKey(key)}
+                  helpers={helpers}
+                />
+              </div>
+            ))}
+          </dd>
         )
         : (
           <dd>
@@ -58,27 +61,31 @@ function ObjectProperties(
           <dt id={withIds ? "additional-properties" : undefined}>
             Additional properties:
           </dt>
-          {additionalProps.map((ref, i) => {
-            const resolved = resolveRef(ref, section);
-            const label = resolved?.title || resolved?.full_key || `item-${i}`;
-            return (
-              <dd
-                key={resolved?.gid || i}
-                id={withIds && slugify
-                  ? `addprop-${slugify(label)}`
-                  : undefined}
-              >
-                <RefItem
-                  docRef={ref}
-                  currentUrl={currentUrl}
-                  section={section}
-                  useKey={false}
-                  keyOverride={undefined}
-                  helpers={helpers}
-                />
-              </dd>
-            );
-          })}
+          <dd class="c-data-reference">
+            {additionalProps.map((ref, i) => {
+              const resolved = resolveRef(ref, section);
+              const label = resolved?.title || resolved?.full_key ||
+                `item-${i}`;
+              return (
+                <div
+                  class="c-data-reference__item"
+                  key={resolved?.gid || i}
+                  id={withIds && slugify
+                    ? `addprop-${slugify(label)}`
+                    : undefined}
+                >
+                  <RefItem
+                    docRef={ref}
+                    currentUrl={currentUrl}
+                    section={section}
+                    useKey={false}
+                    keyOverride={undefined}
+                    helpers={helpers}
+                  />
+                </div>
+              );
+            })}
+          </dd>
         </>
       )}
     </>
@@ -95,25 +102,29 @@ function ArrayItems(
   return (
     <>
       <dt id={withIds ? "items" : undefined}>Items:</dt>
-      {items.map((ref, i) => {
-        const resolved = resolveRef(ref, section);
-        const label = getDisplayName(resolved) || `item-${i}`;
-        return (
-          <dd
-            key={resolved?.gid || i}
-            id={withIds && slugify ? `item-${slugify(label)}` : undefined}
-          >
-            <RefItem
-              docRef={ref}
-              currentUrl={currentUrl}
-              section={section}
-              useKey={false}
-              keyOverride={undefined}
-              helpers={helpers}
-            />
-          </dd>
-        );
-      })}
+      <dd class="c-data-reference">
+        {items.map((ref, i) => {
+          const resolved = resolveRef(ref, section);
+          const label = getDisplayName(resolved) || `item-${i}`;
+          return (
+            <div
+              class="c-data-reference__item"
+              key={resolved?.gid || i}
+              id={withIds && slugify ? `item-${slugify(label)}` : undefined}
+            >
+              <RefItem
+                docRef={ref}
+                currentUrl={currentUrl}
+                section={section}
+                useKey={false}
+                keyOverride={undefined}
+                helpers={helpers}
+              />
+            </div>
+          );
+        })}
+      </dd>
+
       {entry.uniqueItems && (
         <dd>
           <p>All items must be unique.</p>
@@ -133,25 +144,28 @@ function AnyOfTypes(
   return (
     <>
       <dt id={withIds ? "types" : undefined}>Types:</dt>
-      {anyOf.map((ref, i) => {
-        const resolved = resolveRef(ref, section);
-        const label = getDisplayName(resolved) || `type-${i}`;
-        return (
-          <dd
-            key={resolved?.gid || i}
-            id={withIds && slugify ? `type-${slugify(label)}` : undefined}
-          >
-            <RefItem
-              docRef={ref}
-              currentUrl={currentUrl}
-              section={section}
-              useKey={false}
-              keyOverride={undefined}
-              helpers={helpers}
-            />
-          </dd>
-        );
-      })}
+      <dd class="c-data-reference">
+        {anyOf.map((ref, i) => {
+          const resolved = resolveRef(ref, section);
+          const label = getDisplayName(resolved) || `type-${i}`;
+          return (
+            <div
+              class="c-data-reference__item"
+              key={resolved?.gid || i}
+              id={withIds && slugify ? `type-${slugify(label)}` : undefined}
+            >
+              <RefItem
+                docRef={ref}
+                currentUrl={currentUrl}
+                section={section}
+                useKey={false}
+                keyOverride={undefined}
+                helpers={helpers}
+              />
+            </div>
+          );
+        })}
+      </dd>
     </>
   );
 }

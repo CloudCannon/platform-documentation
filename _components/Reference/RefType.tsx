@@ -164,9 +164,8 @@ export default function RefType(
   return (
     <>
       <TypeDisplay entry={doc} currentUrl={currentUrl} section={section} />
-      {doc.required && (
-        <small className="pill" style={{ color: "red" }}>Required</small>
-      )}
+      {doc.required && " "}
+      {doc.required && <small className="pill pill--red">Required</small>}
     </>
   );
 }

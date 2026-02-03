@@ -18,53 +18,19 @@ interface RefSummaryProps {
 
 function RefSummary({ entry, helpers }: RefSummaryProps) {
   const examples = entry.documentation?.examples || [];
+  const examplesWithCode = examples.filter((example) => example.code);
   const enumValues = entry.enum || [];
   const displayEnumCount = Math.min(enumValues.length, MAX_ENUM_VALUES);
   const enumMore = enumValues.length - displayEnumCount;
 
   return (
-    <>
+    <div class="c-data-reference__description">
       {entry.description && helpers && (
         <div
           dangerouslySetInnerHTML={{ __html: helpers.md(entry.description) }}
         />
       )}
       {entry.description && !helpers && <div>{entry.description}</div>}
-
-      <details className={!examples.length ? "show-in-cms" : undefined}>
-        <summary>
-          <em>Examples</em>
-        </summary>
-        {examples.filter((example) => example.code).map((example, i) => (
-          <div key={i}>
-            {example.description && helpers && (
-              <div
-                dangerouslySetInnerHTML={{
-                  __html: helpers.md(example.description),
-                }}
-              />
-            )}
-            {example.description && !helpers && <div>{example.description}
-            </div>}
-            <MultiCodeBlock
-              language={example.language || "yaml"}
-              source={example.source || "cloudcannon.config.yml"}
-              translate_into={(!example.language || example.language === "yaml")
-                ? ["json"]
-                : []}
-            >
-              <pre><code className={`language-${example.language || 'yaml'}`}>
-                                {example.code}
-                            </code></pre>
-              {example.annotations?.map((annotation, j) => (
-                <Annotation key={j} number={annotation.number || 0}>
-                  {annotation.content}
-                </Annotation>
-              ))}
-            </MultiCodeBlock>
-          </div>
-        ))}
-      </details>
 
       {entry.default !== undefined && (
         <p>
@@ -84,7 +50,47 @@ function RefSummary({ entry, helpers }: RefSummaryProps) {
           {enumMore > 0 && ` and ${enumMore} more.`}
         </p>
       )}
-    </>
+
+      {examplesWithCode.length > 0 && (
+        <details className="c-example">
+          <summary data-pagefind-ignore>
+            <span class="__open">Show examples</span>
+            <span class="__close">Hide examples</span>
+          </summary>
+          {examplesWithCode.map((example, i) => (
+            <div key={i}>
+              {example.description && helpers && (
+                <div
+                  dangerouslySetInnerHTML={{
+                    __html: helpers.md(example.description),
+                  }}
+                />
+              )}
+              {example.description && !helpers && (
+                <div>{example.description}</div>
+              )}
+              <MultiCodeBlock
+                language={example.language || "yaml"}
+                source={example.source || "cloudcannon.config.yml"}
+                translate_into={(!example.language ||
+                    example.language === "yaml")
+                  ? ["json"]
+                  : []}
+              >
+                <pre><code className={`language-${example.language || 'yaml'}`}>
+                                  {example.code}
+                              </code></pre>
+                {example.annotations?.map((annotation, j) => (
+                  <Annotation key={j} number={annotation.number || 0}>
+                    {annotation.content}
+                  </Annotation>
+                ))}
+              </MultiCodeBlock>
+            </div>
+          ))}
+        </details>
+      )}
+    </div>
   );
 }
 
@@ -106,34 +112,22 @@ export default function RefItem(
 
   const url = getRefUrl(doc, section);
   const displayName = getDisplayName(doc);
-  const label = keyOverride || (useKey ? doc.key : displayName);
+  const key = keyOverride || doc.key;
+  const label = useKey ? <code class="code-title">{key}</code> : displayName;
 
   return (
-    <article className="bordered">
-      <div>
-        <span class="code">
-          {url
-            ? (
-              useKey
-                ? (
-                  <strong>
-                    <a href={url}>{label}</a>
-                  </strong>
-                )
-                : (
-                  <em>
-                    <a href={url}>{label}</a>
-                  </em>
-                )
-            )
-            : (
-              useKey ? <strong>{label}</strong> : <em>{label}</em>
-            )}
-        </span>{" "}
+    <>
+      <div class="c-data-reference__header c-anchor-header">
+        <span class="c-data-reference__key">
+          <strong>
+            {url ? <a href={url}>{label}</a> : label}
+          </strong>
+        </span>
+        {" — "}
         <RefType doc={doc} currentUrl={currentUrl} section={section} />
       </div>
       <RefSummary entry={doc} helpers={helpers} />
-    </article>
+    </>
   );
 }
 
