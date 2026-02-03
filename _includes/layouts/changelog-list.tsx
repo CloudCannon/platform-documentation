@@ -49,7 +49,7 @@ export default async function ChangelogListLayout(
         </NavSidebar>
         <div className="u-card-box l-small-content">
           <div className="l-breadcrumb" />
-          <h1 className="l-heading u-margin-bottom-0 u-padding-bottom-0">
+          <h1 className="l-heading u-margin-bottom-0">
             Changelog
           </h1>
           <p className="l-subheading">
