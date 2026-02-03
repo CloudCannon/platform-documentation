@@ -99,7 +99,7 @@ export default async function ChangelogCardsLayout(
               ))}
 
               {data?.isOldestYear && (
-                <div className="changelog-footer">
+                <div className="changelog-footer changelog-footer--origin">
                   <p>Everything before this point is lost to time.</p>
                   <p>
                     We began writing changelogs on the 20th of July 2015 and
