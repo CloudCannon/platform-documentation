@@ -12,11 +12,12 @@ interface Props {
     };
   };
   search?: PageSearch;
+  nav_key?: string;
 }
 
 export default function NotFoundArticleLayout(props: Props, helpers: Helpers) {
-  const { navigation, url, page, search } = props;
-  const navData = navigation?.["developer-articles"];
+  const { navigation, url, page, search, nav_key = "developer-articles" } = props;
+  const navData = navigation?.[nav_key];
 
   return (
     <div className="l-page">
