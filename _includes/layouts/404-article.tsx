@@ -1,5 +1,6 @@
 import DocNav from "../../_components/Nav/DocNav.tsx";
 import NavSidebar from "../../_components/Layout/NavSidebar.tsx";
+import NotFoundContent from "../../_components/Layout/NotFoundContent.tsx";
 import type { ContentNavigation, Helpers, PageSearch } from "../../_types.d.ts";
 
 interface Props {
@@ -35,17 +36,7 @@ export default function NotFoundArticleLayout(props: Props, helpers: Helpers) {
         </NavSidebar>
         <div className="u-card-box l-content">
           <main id="main-content">
-            <div className="l-home-card">
-              <h1 className="l-heading l-center-heading" data-skip-anchor="">
-                Page not found
-              </h1>
-              <p style={{ "text-align": "center" }}>
-                We couldn't find the page you were looking for. It either
-                doesn't exist or has been moved.
-              </p>
-
-              <pagefind-modal-trigger placeholder="Search"></pagefind-modal-trigger>
-            </div>
+            <NotFoundContent />
           </main>
         </div>
       </div>
