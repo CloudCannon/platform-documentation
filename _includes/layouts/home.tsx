@@ -1,3 +1,4 @@
+import Card from "../../_components/Card/Card.tsx";
 import { GridCard } from "../../_components/Card/index.ts";
 import type { Helpers } from "../../_types.d.ts";
 
@@ -173,26 +174,15 @@ export default function HomeLayout(props: Props, helpers: Helpers) {
 
         {/* Changelog Card */}
         {changelog && (
-          <GridCard
-            href={changelog.url}
-            title={changelog.heading}
-            description={changelog.description}
-            spanTwo
-            showArrow={Boolean(changelog.url)}
-            helpers={helpers}
-            dataEditable={{
-              title: {
-                "data-editable": "text",
-                "data-prop": "changelog.heading",
-              },
-              description: changelog.description
-                ? {
-                  "data-editable": "text",
-                  "data-prop": "changelog.description",
-                }
-                : {},
-            }}
-          />
+          <div style={{ "grid-column": "span 2" }}>
+            <Card
+              href={changelog.url}
+              title={changelog.heading}
+              description={changelog.description}
+              showArrow
+              helpers={helpers}
+            />
+          </div>
         )}
       </div>
 

@@ -3,7 +3,6 @@ interface GridCardProps {
   title?: string;
   description?: string;
   image?: string;
-  spanTwo?: boolean;
   showArrow?: boolean;
   headingLevel?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
   className?: string;
@@ -26,7 +25,6 @@ export default function GridCard({
   title,
   description,
   image,
-  spanTwo = false,
   showArrow = false,
   headingLevel = "h2",
   className = "",
@@ -42,7 +40,6 @@ export default function GridCard({
   // Build class names
   const cardClasses = [
     "c-card-grid__card",
-    spanTwo && "span-two",
     className,
   ].filter(Boolean).join(" ");
 
