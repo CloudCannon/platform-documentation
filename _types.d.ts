@@ -7,7 +7,8 @@
 declare global {
   // Global DOCS from @cloudcannon/configuration-types package
   // Populated in _config.ts via: globalThis.DOCS = documentation
-  var DOCS: Record<string, import("./_types.d.ts").DocEntry>;
+  // Nested structure: section (e.g., "type.Configuration") -> gid -> DocEntry
+  var DOCS: Record<string, Record<string, import("./_types.d.ts").DocEntry>>;
 
   namespace Lume {
     // Extend Lume.Helpers with our project-specific helper functions

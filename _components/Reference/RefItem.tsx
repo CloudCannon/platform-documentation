@@ -1,4 +1,9 @@
-import { getDisplayName, getRefUrl, resolveRef } from "./helpers.ts";
+import {
+  getDisplayName,
+  getRefUrl,
+  resolveRef,
+  type SectionId,
+} from "./helpers.ts";
 import RefType from "./RefType.tsx";
 import MultiCodeBlock from "../MultiCodeBlock.tsx";
 import Annotation from "../Annotation.tsx";
@@ -86,18 +91,20 @@ function RefSummary({ entry, helpers }: RefSummaryProps) {
 interface RefItemProps {
   docRef: DocEntry | null | undefined;
   currentUrl?: string;
+  section: SectionId;
   useKey?: boolean;
   keyOverride?: string;
   helpers?: Helpers;
 }
 
 export default function RefItem(
-  { docRef, currentUrl, useKey = true, keyOverride, helpers }: RefItemProps,
+  { docRef, currentUrl, section, useKey = true, keyOverride, helpers }:
+    RefItemProps,
 ) {
-  const doc = resolveRef(docRef);
+  const doc = resolveRef(docRef, section);
   if (!doc) return null;
 
-  const url = getRefUrl(doc);
+  const url = getRefUrl(doc, section);
   const displayName = getDisplayName(doc);
   const label = keyOverride || (useKey ? doc.key : displayName);
 
@@ -123,7 +130,7 @@ export default function RefItem(
               useKey ? <strong>{label}</strong> : <em>{label}</em>
             )}
         </span>{" "}
-        <RefType doc={doc} currentUrl={currentUrl} />
+        <RefType doc={doc} currentUrl={currentUrl} section={section} />
       </div>
       <RefSummary entry={doc} helpers={helpers} />
     </article>

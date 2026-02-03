@@ -4,6 +4,7 @@ import {
   getRefUrl,
   getShortKey,
   resolveRef,
+  type SectionId,
 } from "./helpers.ts";
 import { slugify } from "../utils/index.ts";
 import RefType from "./RefType.tsx";
@@ -20,6 +21,7 @@ interface TocItem {
 interface ReferenceContentProps {
   entry: DocEntry;
   currentUrl: string;
+  section: SectionId;
   helpers: Helpers;
   showDescription?: boolean;
   showAppearsIn?: boolean;
@@ -31,9 +33,9 @@ function DocName({ doc }: { doc?: DocEntry }) {
   return doc.title ? doc.title : <code>{getShortKey(doc.key)}</code>;
 }
 
-function DocLink({ doc }: { doc?: DocEntry }) {
+function DocLink({ doc, section }: { doc?: DocEntry; section: SectionId }) {
   if (!doc) return null;
-  const url = getRefUrl(doc);
+  const url = getRefUrl(doc, section);
 
   return (
     <a href={url ?? undefined}>
@@ -42,28 +44,36 @@ function DocLink({ doc }: { doc?: DocEntry }) {
   );
 }
 
-function RecursiveBreadcrumb({ gid }: { gid?: string }) {
-  if (!gid) return null;
+function RecursiveBreadcrumb(
+  { gid, section }: { gid?: string; section: SectionId },
+) {
+  // Don't show breadcrumb for section root or missing gid
+  if (!gid || gid === section) return null;
 
   const breadcrumbChain: DocEntry[] = [];
   let parent: string | undefined = gid;
-  while (parent) {
-    const parentDoc = getDocByGid(parent);
+
+  // Walk up parent chain, stopping at section root
+  while (parent && parent !== section) {
+    const parentDoc = getDocByGid(parent, section);
     if (!parentDoc) break;
     breadcrumbChain.unshift(parentDoc);
     parent = parentDoc.parent;
   }
+
   if (breadcrumbChain.length === 0) return null;
 
   return breadcrumbChain.map((crumb, i) => (
     <span key={crumb.gid || i}>
       {i > 0 && <span>&rarr;</span>}
-      <DocLink doc={crumb} />
+      <DocLink doc={crumb} section={section} />
     </span>
   ));
 }
 
-function AppearsIn({ doc }: { doc?: DocEntry }) {
+function AppearsIn(
+  { doc, section }: { doc?: DocEntry; section: SectionId },
+) {
   if (!doc) {
     return null;
   }
@@ -77,13 +87,13 @@ function AppearsIn({ doc }: { doc?: DocEntry }) {
       <dt id="appears-in">Appears in:</dt>
       {doc.parent && (
         <dd>
-          <RecursiveBreadcrumb gid={doc.parent} />
+          <RecursiveBreadcrumb gid={doc.parent} section={section} />
         </dd>
       )}
       {appearsIn.map((gid) => {
         return (
           <dd key={gid}>
-            <RecursiveBreadcrumb gid={gid} />
+            <RecursiveBreadcrumb gid={gid} section={section} />
           </dd>
         );
       })}
@@ -92,7 +102,7 @@ function AppearsIn({ doc }: { doc?: DocEntry }) {
   );
 }
 
-export function getTocItems(entry: DocEntry): TocItem[] {
+export function getTocItems(entry: DocEntry, section: SectionId): TocItem[] {
   const items: TocItem[] = [];
   const hasProperties = entry.properties &&
     Object.keys(entry.properties).length > 0;
@@ -108,19 +118,19 @@ export function getTocItems(entry: DocEntry): TocItem[] {
     });
 
     additionalProps.forEach((ref, i) => {
-      const resolved = resolveRef(ref);
+      const resolved = resolveRef(ref, section);
       const label = getDisplayName(resolved) || `item-${i}`;
       items.push({ id: `addprop-${slugify(label)}`, label });
     });
   } else if (entry.type === "array" && entry.items?.length) {
     entry.items.forEach((ref, i) => {
-      const resolved = resolveRef(ref);
+      const resolved = resolveRef(ref, section);
       const label = getDisplayName(resolved) || `item-${i}`;
       items.push({ id: `item-${slugify(label)}`, label });
     });
   } else if (entry.anyOf?.length) {
     entry.anyOf.forEach((ref, i) => {
-      const resolved = resolveRef(ref);
+      const resolved = resolveRef(ref, section);
       const label = getDisplayName(resolved) || `type-${i}`;
       items.push({ id: `type-${slugify(label)}`, label });
     });
@@ -154,6 +164,7 @@ export function TableOfContents(
 export default function ReferenceContent({
   entry,
   currentUrl,
+  section,
   helpers,
   showDescription = true,
   showAppearsIn = true,
@@ -185,13 +196,13 @@ export default function ReferenceContent({
         </>
       )}
 
-      {showAppearsIn && <AppearsIn doc={entry} />}
+      {showAppearsIn && <AppearsIn doc={entry} section={section} />}
 
       {!entry.anyOf?.length && (
         <>
           <dt id="type">Type:</dt>
           <dd>
-            <RefType doc={entry} currentUrl={currentUrl} />
+            <RefType doc={entry} currentUrl={currentUrl} section={section} />
           </dd>
         </>
       )}
@@ -219,6 +230,7 @@ export default function ReferenceContent({
       <PropertiesTable
         entry={entry}
         currentUrl={currentUrl}
+        section={section}
         helpers={helpers}
         withIds
         slugify={slugify}

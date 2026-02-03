@@ -6,11 +6,11 @@ interface TabProps {
 export default function Tab({ name, children }: TabProps) {
   return (
     <div
-      className="c-tab"
-      x-data={`{
-                tabName: '${name}'
-            }`}
+      className="c-code-block__panel"
+      role="tabpanel"
+      x-data={`{ tabName: '${name}' }`}
       x-show="selectedTab === tabName"
+      tabIndex={0}
     >
       {children}
     </div>

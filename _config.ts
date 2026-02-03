@@ -57,15 +57,29 @@ import strip from "npm:strip-markdown@6.0.0";
 
 import { parseChangelogFilename } from "./parseChangelogFilename.ts";
 import type { ContentNavItem, DocEntry } from "./_types.d.ts";
+import { buildRefNav } from "./developer/reference/_shared/buildRefNav.ts";
 
 import documentation from "npm:@cloudcannon/configuration-types@0.0.50/dist/documentation.json" with { type: "json" };
-globalThis.DOCS = documentation as unknown as Record<string, DocEntry>;
 
-// Partition documentation entries by section in a single pass
-const routingDocs: DocEntry[] = documentation["type.Routing"];
-const initialSiteSettingsDocs: DocEntry[] =
-  documentation["type.InitialSiteSettings"];
-const configDocs: DocEntry[] = documentation["type.Configuration"];
+// Type the documentation as nested sections (section -> gid -> entry)
+const typedDocs = documentation as unknown as Record<
+  string,
+  Record<string, DocEntry>
+>;
+
+// Store nested documentation structure for section-aware lookups
+globalThis.DOCS = typedDocs;
+
+// Partition documentation entries by section for layouts
+const routingDocs: DocEntry[] = Object.values(
+  typedDocs["type.Routing"] ?? {},
+);
+const initialSiteSettingsDocs: DocEntry[] = Object.values(
+  typedDocs["type.InitialSiteSettings"] ?? {},
+);
+const configDocs: DocEntry[] = Object.values(
+  typedDocs["type.Configuration"] ?? {},
+);
 
 // Build timing instrumentation
 const buildTimings: Record<string, number> = {};
@@ -109,9 +123,9 @@ const site = lume({
   },
 });
 
-site.data("full_docs", Object.values(configDocs));
-site.data("routing_docs", Object.values(routingDocs));
-site.data("initial_site_settings_docs", Object.values(initialSiteSettingsDocs));
+// Build precompiled reference navigation
+const refNavSections = buildRefNav(configDocs, routingDocs, initialSiteSettingsDocs);
+site.data("ref_nav", refNavSections);
 
 // Track whether we're in an update cycle (vs initial build)
 let isUpdating = false;
@@ -746,16 +760,41 @@ site.filter("is_gid_inside", (gid: string | undefined, parentGid: string) => {
   } else return false;
 });
 
-site.filter("get_docs_by_gid", (gid: string) => {
-  const found = Object.values(DOCS).filter((x) => x.gid === gid);
-  if (found && found.length > 0) {
-    return found[0];
+// Helper to find a doc by gid across all sections
+function findDocByGid(gid: string): DocEntry | null {
+  for (const section of Object.values(typedDocs)) {
+    if (section && section[gid]) {
+      return section[gid];
+    }
   }
   return null;
+}
+
+// Helper to find a doc by gid within a specific section (derived from parent chain)
+function findDocInSection(
+  gid: string,
+  sectionDocs: Record<string, DocEntry>,
+): DocEntry | null {
+  return sectionDocs[gid] || null;
+}
+
+// Derive the section from a doc entry by walking up the parent chain
+function getSectionFromDoc(doc: DocEntry): Record<string, DocEntry> | null {
+  // Check each section for this doc's gid
+  for (const [_sectionKey, sectionDocs] of Object.entries(typedDocs)) {
+    if (sectionDocs && doc.gid && sectionDocs[doc.gid]) {
+      return sectionDocs;
+    }
+  }
+  return null;
+}
+
+site.filter("get_docs_by_gid", (gid: string) => {
+  return findDocByGid(gid);
 });
 
 site.filter("get_docs_by_ref", (docRef: DocEntry) => {
-  const doc = DOCS[docRef.gid || ""] || docRef;
+  const doc = findDocByGid(docRef.gid || "") || docRef;
 
   if (docRef.documentation) {
     // Use more specific documentation entry
@@ -774,11 +813,17 @@ site.filter("get_docs_by_ref", (docRef: DocEntry) => {
 });
 
 site.filter("parent_gids_from_doc", (doc: DocEntry) => {
+  // Get the section this doc belongs to
+  const sectionDocs = getSectionFromDoc(doc);
+
   const parentGids: string[] = [];
   let parentGid = doc.parent;
   while (parentGid) {
     parentGids.unshift(parentGid);
-    parentGid = DOCS[parentGid]?.parent;
+    const parentDoc = sectionDocs
+      ? findDocInSection(parentGid, sectionDocs)
+      : findDocByGid(parentGid);
+    parentGid = parentDoc?.parent;
   }
   return parentGids;
 });

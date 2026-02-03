@@ -8,9 +8,9 @@ import {
   getTocItems,
   TableOfContents,
 } from "../../_components/Reference/ReferenceContent.tsx";
-import { parseDocUrl, slugify } from "../../_components/utils/index.ts";
+import type { SectionId } from "../../_components/Reference/helpers.ts";
+import { slugify } from "../../_components/utils/index.ts";
 import type {
-  ContentNavigation,
   Details,
   DocEntry,
   Helpers,
@@ -18,18 +18,29 @@ import type {
   PageSearch,
 } from "../../_types.d.ts";
 
+// Precompiled reference navigation types (matches _config.ts)
+interface RefNavItem {
+  url: string;
+  name: string;
+  gid: string;
+}
+
+interface RefNavSection {
+  id: SectionId;
+  heading: string;
+  icon: string;
+  basePath: string;
+  items: RefNavItem[];
+}
+
 interface Props {
   content: string;
   details?: Details;
   date: string;
   page?: Page;
-  navigation?: Record<string, ContentNavigation>;
-  full_docs?: DocEntry[];
-  routing_docs?: DocEntry[];
-  initial_site_settings_docs?: DocEntry[];
+  ref_nav?: RefNavSection[];
   url?: string;
   search?: PageSearch;
-  rootEntry?: DocEntry;
 }
 
 export default function ReferenceHomeLayout(
@@ -38,52 +49,49 @@ export default function ReferenceHomeLayout(
     details,
     date,
     page,
-    navigation,
-    full_docs,
-    routing_docs,
-    initial_site_settings_docs,
+    ref_nav,
     url,
     search,
-    rootEntry,
   }: Props,
   helpers: Helpers,
 ) {
   const currentUrl = page?.data?.url || url || "";
-  const { navKey: sectionKey } = parseDocUrl(currentUrl);
-  const navData = navigation?.[sectionKey];
 
-  // Derive rootEntry from the appropriate docs array based on the current section
-  let derivedRootEntry = rootEntry;
-  if (!derivedRootEntry) {
-    if (currentUrl.includes("routing-file")) {
-      derivedRootEntry = routing_docs?.find((doc) =>
-        doc.gid === "type.Routing"
-      );
-    } else if (currentUrl.includes("initial-site-settings-file")) {
-      derivedRootEntry = initial_site_settings_docs?.find((doc) =>
-        doc.gid === "type.InitialSiteSettings"
-      );
-    } else if (currentUrl.includes("configuration-file")) {
-      derivedRootEntry = full_docs?.find((doc) => doc.url === "/");
-    }
+  // Check if we're on a specific section home page (not the main developer-reference home)
+  const isConfigurationHome = currentUrl.includes("configuration-file");
+  const isRoutingHome = currentUrl.includes("routing-file");
+  const isISSHome = currentUrl.includes("initial-site-settings-file");
+  const isSectionHome = isConfigurationHome || isRoutingHome || isISSHome;
+
+  // Derive section from the current URL (only matters for section home pages)
+  let section: SectionId = "type.Configuration";
+  if (isRoutingHome) {
+    section = "type.Routing";
+  } else if (isISSHome) {
+    section = "type.InitialSiteSettings";
   }
 
-  // Generate TOC items from the root entry
-  const tocItems = derivedRootEntry ? getTocItems(derivedRootEntry) : [];
+  // Only get root entry for section home pages, not the main developer-reference home
+  let derivedRootEntry: DocEntry | undefined;
+  if (isSectionHome) {
+    const sectionDocs = globalThis.DOCS?.[section] ?? {};
+    derivedRootEntry = Object.values(sectionDocs).find(
+      (doc: DocEntry) => doc.gid === section || doc.url === "/",
+    );
+  }
+
+  // Generate TOC items from the root entry (only for section home pages)
+  const tocItems = derivedRootEntry ? getTocItems(derivedRootEntry, section) : [];
 
   return (
     <div className="l-page" x-init="showmobilenav = true">
       <div className="l-column">
         <NavSidebar className="developer-reference">
-          {navData && search && (
+          {ref_nav && search && (
             <DocNav
-              navigation={navData}
-              currentDoc={derivedRootEntry}
+              ref_nav={ref_nav}
               currentUrl={currentUrl}
-              items={full_docs}
-              routing_docs={routing_docs}
-              initial_site_settings_docs={initial_site_settings_docs}
-              page={page}
+              section={section}
               search={search}
               helpers={helpers}
             />
@@ -139,6 +147,7 @@ export default function ReferenceHomeLayout(
                         <RefType
                           doc={derivedRootEntry}
                           currentUrl={currentUrl}
+                          section={section}
                         />
                       </dd>
                     </>
@@ -147,6 +156,7 @@ export default function ReferenceHomeLayout(
                   <PropertiesTable
                     entry={derivedRootEntry}
                     currentUrl={currentUrl}
+                    section={section}
                     helpers={helpers}
                     withIds
                     slugify={slugify}

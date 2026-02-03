@@ -8,21 +8,34 @@ import ReferenceContent, {
   getTocItems,
   TableOfContents,
 } from "../../_components/Reference/ReferenceContent.tsx";
+import type { SectionId } from "../../_components/Reference/helpers.ts";
 import type {
-  ContentNavigation,
   DocEntry,
   Helpers,
   Page,
   PageSearch,
 } from "../../_types.d.ts";
 
+// Precompiled reference navigation types (matches _config.ts)
+interface RefNavItem {
+  url: string;
+  name: string;
+  gid: string;
+}
+
+interface RefNavSection {
+  id: SectionId;
+  heading: string;
+  icon: string;
+  basePath: string;
+  items: RefNavItem[];
+}
+
 interface Props {
   entry?: DocEntry;
+  section: SectionId;
   page?: Page;
-  navigation?: Record<string, ContentNavigation>;
-  full_docs?: DocEntry[];
-  routing_docs?: DocEntry[];
-  initial_site_settings_docs?: DocEntry[];
+  ref_nav?: RefNavSection[];
   url?: string;
   search?: PageSearch;
 }
@@ -30,11 +43,9 @@ interface Props {
 export default function AutomatedReferenceLayout(
   {
     entry,
+    section,
     page,
-    navigation,
-    full_docs,
-    routing_docs,
-    initial_site_settings_docs,
+    ref_nav,
     url,
     search,
   }: Props,
@@ -44,12 +55,13 @@ export default function AutomatedReferenceLayout(
     return <div>Error: No entry provided</div>;
   }
 
+  if (!section) {
+    return <div>Error: No section provided</div>;
+  }
+
   const currentUrl = page?.data?.url || url || "";
 
-  const { navKey: sectionKey } = parseDocUrl(currentUrl);
-  const navData = navigation?.[sectionKey];
-
-  const tocItems = getTocItems(entry);
+  const tocItems = getTocItems(entry, section);
 
   // Build breadcrumb items dynamically from current URL
   // URL structure: /documentation/developer-reference/{section}/{rest}/
@@ -72,15 +84,11 @@ export default function AutomatedReferenceLayout(
     <div className="l-page" x-init="showmobilenav = true">
       <div className="l-column">
         <NavSidebar className="developer-reference">
-          {navData && search && (
+          {ref_nav && search && (
             <DocNav
-              navigation={navData}
-              currentDoc={entry}
+              ref_nav={ref_nav}
               currentUrl={currentUrl}
-              items={full_docs}
-              routing_docs={routing_docs}
-              initial_site_settings_docs={initial_site_settings_docs}
-              page={page}
+              section={section}
               search={search}
               helpers={helpers}
             />
@@ -108,6 +116,7 @@ export default function AutomatedReferenceLayout(
               <ReferenceContent
                 entry={entry}
                 currentUrl={currentUrl}
+                section={section}
                 helpers={helpers}
               />
             </main>

@@ -1,4 +1,4 @@
-import { getRefUrl, resolveRef } from "./helpers.ts";
+import { getRefUrl, resolveRef, type SectionId } from "./helpers.ts";
 import { DocEntry } from "./types.d.ts";
 
 function DocName({ doc }: { doc: DocEntry }) {
@@ -29,15 +29,16 @@ function GenericParams({ children }: { children: unknown }) {
 }
 
 function TypeDisplay(
-  { entry, currentUrl, nested = false }: {
+  { entry, currentUrl, section, nested = false }: {
     entry: DocEntry | null;
     currentUrl?: string;
+    section: SectionId;
     nested?: boolean;
   },
 ) {
   if (!entry) return "unknown";
 
-  const entryUrl = getRefUrl(entry);
+  const entryUrl = getRefUrl(entry, section);
   const shouldLink = nested && !!entryUrl && currentUrl !== entryUrl;
 
   if (nested && entryUrl && (entry.title || entry.key)) {
@@ -49,9 +50,10 @@ function TypeDisplay(
   }
 
   if (entry.type === "array") {
-    const items = (entry.items?.map((ref) => resolveRef(ref)) || []).filter((
-      item,
-    ): item is DocEntry => item !== null);
+    const items = (entry.items?.map((ref) => resolveRef(ref, section)) || [])
+      .filter((
+        item,
+      ): item is DocEntry => item !== null);
     return (
       <>
         <MaybeLink href={entryUrl} shouldLink={shouldLink}>Array</MaybeLink>
@@ -60,7 +62,12 @@ function TypeDisplay(
             {items.map((item, i) => (
               <span key={item?.gid || i}>
                 {i > 0 && " | "}
-                <TypeDisplay entry={item} currentUrl={currentUrl} nested />
+                <TypeDisplay
+                  entry={item}
+                  currentUrl={currentUrl}
+                  section={section}
+                  nested
+                />
               </span>
             ))}
           </GenericParams>
@@ -72,14 +79,19 @@ function TypeDisplay(
   if (entry.type === "object") {
     const additionalProps = entry.additionalProperties || [];
     const resolvedProp = additionalProps.length === 1
-      ? resolveRef(additionalProps[0])
+      ? resolveRef(additionalProps[0], section)
       : null;
     return (
       <>
         <MaybeLink href={entryUrl} shouldLink={shouldLink}>Object</MaybeLink>
         {resolvedProp && (
           <GenericParams>
-            <TypeDisplay entry={resolvedProp} currentUrl={currentUrl} nested />
+            <TypeDisplay
+              entry={resolvedProp}
+              currentUrl={currentUrl}
+              section={section}
+              nested
+            />
           </GenericParams>
         )}
       </>
@@ -117,11 +129,16 @@ function TypeDisplay(
     return (
       <>
         {entry.anyOf.map((ref, i) => {
-          const resolved = resolveRef(ref);
+          const resolved = resolveRef(ref, section);
           return (
             <span key={resolved?.gid || i} className="anyof">
               {i > 0 && " | "}
-              <TypeDisplay entry={resolved} currentUrl={currentUrl} nested />
+              <TypeDisplay
+                entry={resolved}
+                currentUrl={currentUrl}
+                section={section}
+                nested
+              />
             </span>
           );
         })}
@@ -136,13 +153,17 @@ function TypeDisplay(
 }
 
 export default function RefType(
-  { doc, currentUrl }: { doc: DocEntry; currentUrl?: string },
+  { doc, currentUrl, section }: {
+    doc: DocEntry;
+    currentUrl?: string;
+    section: SectionId;
+  },
 ) {
   if (!doc) return null;
 
   return (
     <>
-      <TypeDisplay entry={doc} currentUrl={currentUrl} />
+      <TypeDisplay entry={doc} currentUrl={currentUrl} section={section} />
       {doc.required && (
         <small className="pill" style={{ color: "red" }}>Required</small>
       )}

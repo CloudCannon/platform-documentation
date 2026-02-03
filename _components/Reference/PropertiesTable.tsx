@@ -1,17 +1,24 @@
-import { getDisplayName, getShortKey, resolveRef } from "./helpers.ts";
+import {
+  getDisplayName,
+  getShortKey,
+  resolveRef,
+  type SectionId,
+} from "./helpers.ts";
 import RefItem from "./RefItem.tsx";
 import type { DocEntry, Helpers } from "../../_types.d.ts";
 
 interface PropertiesTableProps {
   entry: DocEntry;
   currentUrl?: string;
+  section: SectionId;
   helpers?: Helpers;
   withIds?: boolean;
   slugify?: (str: string) => string;
 }
 
 function ObjectProperties(
-  { entry, currentUrl, helpers, withIds, slugify }: PropertiesTableProps,
+  { entry, currentUrl, section, helpers, withIds, slugify }:
+    PropertiesTableProps,
 ) {
   const properties = Object.entries(entry.properties || {})
     .sort(([keyA], [keyB]) => keyA.localeCompare(keyB));
@@ -32,6 +39,7 @@ function ObjectProperties(
               <RefItem
                 docRef={ref}
                 currentUrl={currentUrl}
+                section={section}
                 useKey
                 keyOverride={getShortKey(key)}
                 helpers={helpers}
@@ -51,7 +59,7 @@ function ObjectProperties(
             Additional properties:
           </dt>
           {additionalProps.map((ref, i) => {
-            const resolved = resolveRef(ref);
+            const resolved = resolveRef(ref, section);
             const label = resolved?.title || resolved?.full_key || `item-${i}`;
             return (
               <dd
@@ -63,6 +71,7 @@ function ObjectProperties(
                 <RefItem
                   docRef={ref}
                   currentUrl={currentUrl}
+                  section={section}
                   useKey={false}
                   keyOverride={undefined}
                   helpers={helpers}
@@ -77,7 +86,8 @@ function ObjectProperties(
 }
 
 function ArrayItems(
-  { entry, currentUrl, helpers, withIds, slugify }: PropertiesTableProps,
+  { entry, currentUrl, section, helpers, withIds, slugify }:
+    PropertiesTableProps,
 ) {
   const items = entry.items || [];
   if (items.length === 0) return null;
@@ -86,7 +96,7 @@ function ArrayItems(
     <>
       <dt id={withIds ? "items" : undefined}>Items:</dt>
       {items.map((ref, i) => {
-        const resolved = resolveRef(ref);
+        const resolved = resolveRef(ref, section);
         const label = getDisplayName(resolved) || `item-${i}`;
         return (
           <dd
@@ -96,6 +106,7 @@ function ArrayItems(
             <RefItem
               docRef={ref}
               currentUrl={currentUrl}
+              section={section}
               useKey={false}
               keyOverride={undefined}
               helpers={helpers}
@@ -113,7 +124,8 @@ function ArrayItems(
 }
 
 function AnyOfTypes(
-  { entry, currentUrl, helpers, withIds, slugify }: PropertiesTableProps,
+  { entry, currentUrl, section, helpers, withIds, slugify }:
+    PropertiesTableProps,
 ) {
   const anyOf = entry.anyOf || [];
   if (anyOf.length === 0) return null;
@@ -122,7 +134,7 @@ function AnyOfTypes(
     <>
       <dt id={withIds ? "types" : undefined}>Types:</dt>
       {anyOf.map((ref, i) => {
-        const resolved = resolveRef(ref);
+        const resolved = resolveRef(ref, section);
         const label = getDisplayName(resolved) || `type-${i}`;
         return (
           <dd
@@ -132,6 +144,7 @@ function AnyOfTypes(
             <RefItem
               docRef={ref}
               currentUrl={currentUrl}
+              section={section}
               useKey={false}
               keyOverride={undefined}
               helpers={helpers}
@@ -144,12 +157,12 @@ function AnyOfTypes(
 }
 
 export default function PropertiesTable(
-  { entry, currentUrl, helpers, withIds = false, slugify }:
+  { entry, currentUrl, section, helpers, withIds = false, slugify }:
     PropertiesTableProps,
 ) {
   if (!entry) return null;
 
-  const props = { entry, currentUrl, helpers, withIds, slugify };
+  const props = { entry, currentUrl, section, helpers, withIds, slugify };
   const hasProperties = entry.properties &&
     Object.keys(entry.properties).length > 0;
 

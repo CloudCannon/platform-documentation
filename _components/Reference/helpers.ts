@@ -1,19 +1,19 @@
 import { DocEntry } from "./types.d.ts";
 
-export const BASE_URL = "/documentation/developer-reference/configuration-file";
+// Section type identifiers
+export type SectionId =
+  | "type.Configuration"
+  | "type.Routing"
+  | "type.InitialSiteSettings";
 
-// Map gid prefixes to section URL paths
-function getSectionUrlFromGid(gid: string | undefined): string {
-  if (!gid) return BASE_URL;
-  // Routing entries have gids starting with "routing." or "type.Routing"
-  if (gid.startsWith("routing.") || gid === "type.Routing") {
-    return "/documentation/developer-reference/routing-file";
-  }
-  // ISS entries have gids starting with "iss." or "type.InitialSiteSettings"
-  if (gid.startsWith("iss.") || gid === "type.InitialSiteSettings") {
-    return "/documentation/developer-reference/initial-site-settings-file";
-  }
-  return BASE_URL;
+// Base URL for all reference pages (entry.url already includes section path)
+const DEVELOPER_REFERENCE_BASE = "/documentation/developer-reference";
+
+export const BASE_URL = DEVELOPER_REFERENCE_BASE;
+
+// Get docs for a specific section
+function getSectionDocs(section: SectionId): Record<string, DocEntry> {
+  return globalThis.DOCS?.[section] ?? {};
 }
 
 // Get just the last segment of a dotted key (e.g., "headers.match" -> "match")
@@ -31,19 +31,24 @@ export function getDisplayName(entry: DocEntry | null | undefined): string {
   return entry.title || getShortKey(entry.key) || "unknown";
 }
 
-export function getRefUrl(entry: DocEntry | null | undefined): string | null {
+export function getRefUrl(
+  entry: DocEntry | null | undefined,
+  _section: SectionId,
+): string | null {
   if (!entry?.url) return null;
-  const baseUrl = getSectionUrlFromGid(entry.gid);
-  return `${baseUrl}${entry.url}`;
+  // entry.url already includes section path (e.g., /configuration-file/types/_editables/)
+  return `${DEVELOPER_REFERENCE_BASE}${entry.url}`;
 }
 
 // Resolves a reference, merging any documentation overrides
 export function resolveRef(
   docRef: DocEntry | null | undefined,
+  section: SectionId,
 ): DocEntry | null {
   if (!docRef) return null;
 
-  const doc = (docRef.gid && globalThis.DOCS?.[docRef.gid]) || docRef;
+  const sectionDocs = getSectionDocs(section);
+  const doc = (docRef.gid && sectionDocs[docRef.gid]) || docRef;
 
   if (docRef.documentation) {
     return {
@@ -60,9 +65,13 @@ export function resolveRef(
   return doc;
 }
 
-export function getDocByGid(gid: string | null | undefined): DocEntry | null {
+export function getDocByGid(
+  gid: string | null | undefined,
+  section: SectionId,
+): DocEntry | null {
   if (!gid) return null;
-  return globalThis.DOCS?.[gid] || null;
+  const sectionDocs = getSectionDocs(section);
+  return sectionDocs[gid] || null;
 }
 
 // Check if gid is a descendant of parentGid (for nav active state)
@@ -78,15 +87,17 @@ export function isGidInside(
 // Build breadcrumb chain from entry up to type-reset ancestor
 export function getBreadcrumbChain(
   startDoc: DocEntry | null | undefined,
+  section: SectionId,
 ): DocEntry[] {
   if (!startDoc) return [];
 
+  const sectionDocs = getSectionDocs(section);
   const chain = [startDoc];
   let current: DocEntry | null | undefined = startDoc;
 
-  while (current && current.parent !== "type.Configuration") {
+  while (current && current.parent !== section) {
     const parentDoc: DocEntry | null | undefined = current.parent
-      ? globalThis.DOCS?.[current.parent]
+      ? sectionDocs[current.parent]
       : null;
     if (parentDoc) {
       chain.unshift(parentDoc);
@@ -99,22 +110,29 @@ export function getBreadcrumbChain(
   return chain;
 }
 
-export function getParentGids(doc: DocEntry | null | undefined): string[] {
+export function getParentGids(
+  doc: DocEntry | null | undefined,
+  section: SectionId,
+): string[] {
   if (!doc) return [];
 
+  const sectionDocs = getSectionDocs(section);
   const parentGids: string[] = [];
   let parentGid = doc.parent;
 
   while (parentGid) {
     parentGids.unshift(parentGid);
-    const parentDoc = globalThis.DOCS?.[parentGid];
+    const parentDoc = sectionDocs[parentGid];
     parentGid = parentDoc?.parent;
   }
 
   return parentGids;
 }
 
-export function isTypeReset(entry: DocEntry | null | undefined): boolean {
-  return entry?.parent === "type.Configuration" &&
+export function isTypeReset(
+  entry: DocEntry | null | undefined,
+  section: SectionId,
+): boolean {
+  return entry?.parent === section &&
     entry?.documentation?.show_in_navigation === true;
 }

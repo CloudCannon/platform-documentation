@@ -1,6 +1,8 @@
 import yaml from "npm:js-yaml@4.1.1";
 import TOML from "npm:@iarna/toml@2.2.5";
 import CodeBlockCopyButton from "./CodeBlockCopyButton.tsx";
+import CodeTabs, { getLanguageLabel } from "./CodeTabs.tsx";
+import CodeTab from "./CodeTab.tsx";
 
 const sentinalBread = "🥖";
 const sentinalSandwich = (key: string) => {
@@ -131,30 +133,7 @@ const transform = (
   };
 };
 
-const tabNames: Record<string, string> = {
-  javascript: "JavaScript",
-  typescript: "TypeScript",
-  json: "JSON",
-  yaml: "YAML",
-  yml: "YAML",
-  toml: "TOML",
-  html: "HTML",
-  css: "CSS",
-  scss: "SCSS",
-  shell: "Shell",
-  bash: "Bash",
-  markdown: "Markdown",
-  ruby: "Ruby",
-  python: "Python",
-  go: "Go",
-  jsx: "JSX",
-  liquid: "Liquid",
-  plaintext: "Text",
-};
-
-function getLanguageLabel(lang: string): string {
-  return tabNames[lang.toLowerCase()] || lang.toUpperCase();
-}
+// Language labels moved to CodeTabs.tsx
 
 // Helper to extract code string from JSX children structure
 function extractCodeString(node: unknown): string | undefined {
@@ -283,106 +262,20 @@ export default function CodeBlock(
     );
   }
 
-  // Multiple code blocks - tabbed interface
-  // Build the sources map for Alpine.js
-  const sourcesMap = codeBlocks.reduce((acc, block) => {
-    acc[block.lang] = block.source;
-    return acc;
-  }, {} as Record<string, string>);
-
-  // Build the encoded code map for Alpine.js (for copy button)
-  const encodedMap = codeBlocks.reduce((acc, block) => {
-    acc[block.lang] = block.codeEncoded;
-    return acc;
-  }, {} as Record<string, string>);
-
-  const tabButtonKeyboardHandler = `
-    if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') {
-      event.preventDefault();
-      const tabs = Array.from($el.parentElement.querySelectorAll('[role=tab]'));
-      const currentIndex = tabs.indexOf($el);
-      let newIndex;
-      if (event.key === 'ArrowRight') {
-        newIndex = currentIndex < tabs.length - 1 ? currentIndex + 1 : 0;
-      } else {
-        newIndex = currentIndex > 0 ? currentIndex - 1 : tabs.length - 1;
-      }
-      tabs[newIndex].focus();
-      tabs[newIndex].click();
-    }
-  `;
-
+  // Multiple code blocks - use CodeTabs component
   return (
-    <div
-      x-data={`{
-        selectedTab: "${language}",
-        sources: ${JSON.stringify(sourcesMap)},
-        encoded: ${JSON.stringify(encodedMap)},
-        highlighedAnnotation: null
-      }`}
-    >
-      <div
-        className={`c-code-block c-code-block--tabbed${
-          annotations ? ` c-code-block--annotated` : ``
-        }`}
-      >
-        <div className="c-code-block__heading">
-          <div
-            className="c-code-block__tabs"
-            role="tablist"
-            aria-label="Code syntax options"
-            data-pagefind-ignore
-          >
-            {codeBlocks.map((block) => (
-              <button
-                type="button"
-                className="c-code-block__tab"
-                role="tab"
-                id={`${uniqueId}-tab-${block.lang}`}
-                aria-controls={`${uniqueId}-panel-${block.lang}`}
-                x-bind:aria-selected={`selectedTab === '${block.lang}' ? 'true' : 'false'`}
-                x-bind:tabindex={`selectedTab === '${block.lang}' ? '0' : '-1'`}
-                x-on-click={`selectedTab = '${block.lang}'`}
-                x-on-keydown={tabButtonKeyboardHandler}
-                key={block.lang}
-              >
-                {getLanguageLabel(block.lang)}
-              </button>
-            ))}
-          </div>
-          <CodeBlockCopyButton codeEncoded={codeBlocks[0].codeEncoded} />
-        </div>
-
+    <div x-data="{ highlighedAnnotation: null }">
+      <CodeTabs>
         {codeBlocks.map((block) => (
-          <div
-            className="c-code-block__panel"
-            role="tabpanel"
-            id={`${uniqueId}-panel-${block.lang}`}
-            aria-labelledby={`${uniqueId}-tab-${block.lang}`}
-            x-show={`selectedTab === '${block.lang}'`}
-            tabIndex={0}
+          <CodeTab
+            language={block.lang}
+            source={block.source}
+            code={block.code}
+            codeEncoded={block.codeEncoded}
             key={block.lang}
-          >
-            <div className="c-code-block__code">
-              <figure className="highlight">
-                <pre><code className={`language-${block.lang}`}>
-                  {block.code}
-                </code></pre>
-              </figure>
-            </div>
-          </div>
+          />
         ))}
-
-        {source && (
-          <div className="c-code-block__footer">
-            <span
-              className="c-code-block__source"
-              x-text="sources[selectedTab]"
-            >
-            </span>
-          </div>
-        )}
-      </div>
+      </CodeTabs>
       {annotations}
     </div>
   );
