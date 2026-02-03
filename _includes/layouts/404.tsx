@@ -17,27 +17,7 @@ export default function NotFoundLayout() {
                   doesn't exist or has been moved.
                 </p>
 
-                <button
-                  type="button"
-                  x-on-click="isModalOpen = true; $focusSearch(true);"
-                  className="c-faux-search"
-                  title="Search"
-                >
-                  <img src="/assets/img/search.svg" inline="true" />
-                  <span className="c-faux-search--text">Search</span>
-                  <span
-                    x-show="$platformMac"
-                    className="c-faux-search--shortcut"
-                  >
-                    ⌘ K
-                  </span>
-                  <span
-                    x-show="!$platformMac"
-                    className="c-faux-search--shortcut"
-                  >
-                    Ctrl K
-                  </span>
-                </button>
+                <pagefind-modal-trigger placeholder="Search"></pagefind-modal-trigger>
               </div>
             </main>
           </div>

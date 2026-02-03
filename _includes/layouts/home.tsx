@@ -63,12 +63,6 @@ export default function HomeLayout(props: Props, helpers: Helpers) {
   } = props;
 
   const arrowIconUrl = helpers.icon("arrow_forward:outlined", "material");
-  const expandMoreIconUrl = helpers.icon("expand_more:outlined", "material");
-  const arrowBackIconUrl = helpers.icon("arrow_back_ios:outlined", "material");
-  const arrowForwardIconUrl = helpers.icon(
-    "arrow_forward_ios:outlined",
-    "material",
-  );
 
   // Helper to render a documentation card with items
   const renderDocCard = (
@@ -136,32 +130,7 @@ export default function HomeLayout(props: Props, helpers: Helpers) {
       {/* Hero Section with Search */}
       <div className="c-hero">
         <h1 data-editable="text" data-prop="hero_title">{hero_title}</h1>
-        <div className="t-searcher">
-          <div className="t-searcher-inner">
-            <h2>Search</h2>
-            <div id="searchbox"></div>
-            <a
-              className="mobile-filters cc-helper__altbutton"
-              data-pfmod-suppressed="true"
-            >
-              Filters <img src={expandMoreIconUrl} inline="true" />
-            </a>
-            <div id="searchcontainer">
-              <div id="searchfilter"></div>
-              <div id="resultscontainer">
-                <div id="searchsummary"></div>
-                <div id="searchresults"></div>
-              </div>
-            </div>
-            <div id="searchpagination"></div>
-            <div id="pagination-prev__template">
-              <img src={arrowBackIconUrl} inline="true" />
-            </div>
-            <div id="pagination-next__template">
-              <img src={arrowForwardIconUrl} inline="true" />
-            </div>
-          </div>
-        </div>
+        <pagefind-searchbox placeholder="Search documentation..." autofocus></pagefind-searchbox>
       </div>
 
       {/* Card Grid Section */}

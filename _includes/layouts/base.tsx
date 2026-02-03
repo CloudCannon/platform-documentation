@@ -75,9 +75,12 @@ export default function BaseLayout(props: Props, helpers: Helpers) {
         />
         <link href="/assets/css/site.css" rel="stylesheet" type="text/css" />
         <link
-          href="/_pagefind/pagefind-modular-ui.css"
+          href="/documentation/_pagefind/pagefind-component-ui.css"
           rel="stylesheet"
-          type="text/css"
+        />
+        <script
+          src="/documentation/_pagefind/pagefind-component-ui.js"
+          type="module"
         />
         <link
           rel="apple-touch-icon"
@@ -158,7 +161,6 @@ export default function BaseLayout(props: Props, helpers: Helpers) {
       <body
         x-init="$themeManager.initTheme(); init()"
         x-data={`{
-                    'isModalOpen': false, 
                     'isMainNavOpen': false, 
                     'isPageNavOpen': false, 
                     'showmobilenav': false,
@@ -171,10 +173,7 @@ export default function BaseLayout(props: Props, helpers: Helpers) {
                     ...$layoutOffsets,
                     ...$themeManager
                 }`}
-        alpine-keydown-escape="isModalOpen=false; $focusSearch(isModalOpen);"
-        alpine-keydown-window-prevent-ctrl-k="isModalOpen=!isModalOpen; $focusSearch(isModalOpen);"
-        alpine-keydown-window-prevent-cmd-k="isModalOpen=!isModalOpen; $focusSearch(isModalOpen);"
-        x-effect="document.documentElement.style.colorScheme = themePreference === 'system' ? '' : effectiveTheme"
+        x-effect="document.documentElement.style.colorScheme = themePreference === 'system' ? '' : effectiveTheme; document.documentElement.dataset.pfTheme = effectiveTheme"
         alpine-scroll-window="updateOffset()"
       >
         {/* Apply theme immediately to prevent flash - Alpine will take over state management */}
@@ -183,6 +182,11 @@ export default function BaseLayout(props: Props, helpers: Helpers) {
             __html: `
                     (function() {
                         var pref = localStorage.getItem('cc_darkMode') || 'system';
+                        var theme = pref;
+                        if (pref === 'system') {
+                            theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+                        }
+                        document.documentElement.dataset.pfTheme = theme;
                         if (pref === 'dark') {
                             document.documentElement.style.colorScheme = 'dark';
                         } else if (pref === 'light') {
@@ -197,6 +201,8 @@ export default function BaseLayout(props: Props, helpers: Helpers) {
         <a href="#main-content" className="skip-link">
           Skip to content
         </a>
+
+        <pagefind-config bundle-path="/documentation/_pagefind/" base-url="/"></pagefind-config>
 
         {headingnav?.banner_html && (
           <>

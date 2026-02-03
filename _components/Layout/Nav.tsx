@@ -116,17 +116,7 @@ export default function Nav({ headingnav, url, helpers }: NavProps) {
       </div>
 
       <div className="l-header__right">
-        <button
-          type="button"
-          x-on-click="isModalOpen = true; $focusSearch(true);"
-          className="l-header__search"
-          title="Search"
-        >
-          <img
-            src={helpers.icon("search:outlined", "material")}
-            inline="true"
-          />
-        </button>
+        <pagefind-modal-trigger placeholder="Search" compact></pagefind-modal-trigger>
         <ThemeDropdown helpers={helpers} />
         <a
           className="cc-helper__button"
@@ -137,17 +127,7 @@ export default function Nav({ headingnav, url, helpers }: NavProps) {
       </div>
 
       <div className="l-header__mobile-controls">
-        <button
-          type="button"
-          x-on-click="isModalOpen = true; $focusSearch(true);"
-          className="l-header__search"
-          title="Search"
-        >
-          <img
-            src={helpers.icon("search:outlined", "material")}
-            inline="true"
-          />
-        </button>
+        <pagefind-modal-trigger compact hide-shortcut></pagefind-modal-trigger>
         <button
           type="button"
           onclick="document.getElementById('mobile-menu').showModal()"
@@ -210,17 +190,7 @@ export default function Nav({ headingnav, url, helpers }: NavProps) {
               </a>
             </div>
             <div className="l-header__mobile-controls">
-              <button
-                type="button"
-                x-on-click="isModalOpen = true; $focusSearch(true); document.getElementById('mobile-menu').close()"
-                className="l-header__search"
-                title="Search"
-              >
-                <img
-                  src={helpers.icon("search:outlined", "material")}
-                  inline="true"
-                />
-              </button>
+              <pagefind-modal-trigger compact hide-shortcut></pagefind-modal-trigger>
               <button
                 type="button"
                 onclick="document.getElementById('mobile-menu').close()"

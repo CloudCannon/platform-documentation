@@ -3,7 +3,7 @@ import icons from "lume/plugins/icons.ts";
 
 import nunjucks from "lume/plugins/nunjucks.ts";
 
-// import pagefind from "lume/plugins/pagefind.ts";
+import pagefind from "./_plugins/pagefind.ts";
 import date from "lume/plugins/date.ts";
 import sass from "lume/plugins/sass.ts";
 import inline from "lume/plugins/inline.ts";
@@ -302,18 +302,13 @@ site.copy("uploads", "documentation/static");
 // deno-lint-ignore no-explicit-any
 (site.formats.get(".md")?.engines?.[0] as any)?.engine?.disable?.("code");
 
-// Disable builtin Pagefind instance while we're pinned to a beta version,
-// which must be pulled from a different repository.
-// Remove from .cloudcannon/postbuild when enabling this.
-
-// site.use(pagefind({
-//     binary: {
-//         version: "v1.0.3",
-//     },
-//     indexing: {
-//         bundleDirectory: "documentation/_pagefind",
-//     },
-// }));
+// Pagefind search indexing - runs automatically after each build
+// Uses local plugin (_plugins/pagefind.ts) with pagefind v1.5.0-beta.1
+site.use(pagefind({
+    outputPath: "/documentation/_pagefind",
+    ui: false,        // Disable old PagefindUI
+    componentUI: true, // Enable new Component UI (v1.5+)
+}));
 
 site.use(jsx());
 site.use(mdx());

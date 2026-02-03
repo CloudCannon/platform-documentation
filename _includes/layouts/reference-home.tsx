@@ -120,8 +120,8 @@ export default function ReferenceHomeLayout(
 
           <div
             data-pagefind-body
-            data-pagefind-filter="site:Documentation"
-            data-pagefind-meta="site:Documentation"
+            data-pagefind-filter="site:Reference"
+            data-pagefind-meta="site:Reference"
             className="l-content-split"
           >
             <main id="main-content">

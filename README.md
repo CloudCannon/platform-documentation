@@ -10,6 +10,20 @@ Getting things prepared:
 Deno doesn't have a specific step for installing dependencies, instead the first
 run will download and cache what is needed.
 
+## Development with Search
+
+The site uses [Pagefind](https://pagefind.app/) for search functionality. Pagefind
+is integrated into Lume via `_config.ts` and runs automatically after each build.
+
+**Available tasks:**
+
+| Task | Command | Description |
+|------|---------|-------------|
+| `serve` | `deno task serve` | Build with Pagefind + start dev server |
+| `build` | `deno task build` | Build the static site with Pagefind |
+
+Just run `deno task serve` and search will work automatically.
+
 ## Migration Script
 
 This repository includes a migration script (`migrate-to-new-docs.ts`) that
