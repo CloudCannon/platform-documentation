@@ -47,19 +47,22 @@ export default function DocNav(
   // Find the developer-reference home page
   const indexPage = search.page("url=/documentation/developer-reference/");
 
-  // Find the schemas and typescript pages
+  // Find static pages for nav entries
   const schemasPage = search.page(
     "url=/documentation/developer-reference/schemas/",
   );
   const typescriptPage = search.page(
     "url=/documentation/developer-reference/typescript/",
   );
+  const permissionsPage = search.page(
+    "url=/documentation/developer-reference/permissions/",
+  );
 
   // Build unified nav entries: home link + utility links + sections
-  const staticEntries: RefNavSection[] = [];
+  const allEntries: RefNavSection[] = [];
 
   if (indexPage) {
-    staticEntries.push({
+    allEntries.push({
       id: "home" as SectionId,
       heading: indexPage.attrs?.details?.title || indexPage.title || "Home",
       icon: "home",
@@ -68,8 +71,22 @@ export default function DocNav(
     });
   }
 
+  allEntries.push(...ref_nav);
+
+  if (permissionsPage) {
+    allEntries.push({
+      id: "permissions" as SectionId,
+      heading: permissionsPage.attrs?.details?.title || permissionsPage.title ||
+        "Permissions",
+      icon: "groups",
+      basePath: permissionsPage.url ||
+        "/documentation/developer-reference/permissions/",
+      items: [],
+    });
+  }
+
   if (schemasPage) {
-    staticEntries.push({
+    allEntries.push({
       id: "schemas" as SectionId,
       heading: schemasPage.attrs?.details?.title || schemasPage.title ||
         "JSON Schemas",
@@ -81,7 +98,7 @@ export default function DocNav(
   }
 
   if (typescriptPage) {
-    staticEntries.push({
+    allEntries.push({
       id: "typescript" as SectionId,
       heading: typescriptPage.attrs?.details?.title || typescriptPage.title ||
         "TypeScript Types",
@@ -91,9 +108,6 @@ export default function DocNav(
       items: [],
     });
   }
-
-  const allEntries = [...staticEntries, ...ref_nav];
-
   return (
     <NavWrapper>
       <ScrollGradient position="top" />
