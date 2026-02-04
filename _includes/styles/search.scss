@@ -1,3 +1,8 @@
+// Shared search variables
+$search-max-width: 944px;
+$search-filter-width: 180px;
+$search-input-height: 58px;
+
 // Pagefind Component UI CSS variable overrides
 // These map Pagefind's variables to the site's theme variables
 :root {
@@ -9,6 +14,91 @@
   --pf-hover: var(--card-background);
   --pf-outline-focus: var(--color-neptune);
   --pf-font: "TT Norms Pro", sans-serif;
+
+  // Modal width to match home page search
+  --pf-modal-max-width: #{$search-max-width};
+}
+
+// Shared styles for search input (modal and inline)
+%search-input-styles {
+  --pf-input-height: #{$search-input-height};
+  --pf-border-radius: calc(var(--pf-input-height) / 2);
+  --pf-border: var(--changelog-date);
+
+  pagefind-input {
+    .pf-input-wrapper::before {
+      width: 20px !important;
+      height: 20px !important;
+      top: 18px !important;
+      left: 20px !important;
+    }
+
+    input {
+      font-size: 20px !important;
+      border-width: 2px !important;
+      padding-left: 50px !important;
+      padding-right: 50px !important;
+
+      &::placeholder {
+        color: var(--changelog-content);
+      }
+    }
+  }
+}
+
+// Shared styles for filter + results layout
+%search-layout-styles {
+  display: flex;
+  gap: 16px;
+  min-height: 0;
+
+  @media (max-width: 800px) {
+    flex-direction: column;
+  }
+
+  // Filter pane styling
+  pagefind-filter-pane {
+    min-width: $search-filter-width;
+    max-width: $search-filter-width;
+    flex-shrink: 0;
+
+    @media (max-width: 800px) {
+      min-width: 0;
+      max-width: none;
+    }
+  }
+
+  // Summary styling
+  pagefind-summary {
+    color: var(--changelog-date);
+    font-size: 16px;
+    margin-bottom: 16px;
+  }
+}
+
+// Modal search styles
+pagefind-modal {
+  @extend %search-input-styles;
+
+  // Layout for filter + results side by side
+  .t-searcher-layout {
+    @extend %search-layout-styles;
+  }
+
+  // Results area
+  .t-searcher-results {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  // Results styling
+  pagefind-results {
+    overflow-y: auto;
+    flex: 1;
+  }
 }
 
 // Styling for pagefind-modal-trigger in the nav
@@ -41,37 +131,46 @@ pagefind-modal-trigger {
   }
 }
 
-// Style the searchbox on the home page and 404 pages
-.c-hero pagefind-searchbox,
-.t-404-search {
-  max-width: 944px;
+// Inline search component (home page and 404 page)
+.t-inline-search {
+  @extend %search-input-styles;
+  max-width: $search-max-width;
   width: 100%;
   margin: 30px auto 0;
 
-  // Pagefind Component UI variables
-  --pf-searchbox-max-width: 100%;
-  --pf-input-height: 58px;
-  --pf-border-radius: calc(var(--pf-input-height) / 2);
-  --pf-border: var(--changelog-date);
+  // Results container - hidden until there's a search
+  .t-inline-search__results {
+    @extend %search-layout-styles;
+    display: none;
+    margin-top: 24px;
+    background: var(--background);
+    border-radius: var(--border-radius);
+    padding: 24px;
+    border: 1px solid var(--border-subtle);
 
-  .pf-searchbox-input-wrapper::before {
-    width: 20px !important;
-    height: 20px !important;
-    top: 18px !important;
-    left: 20px !important;
-  }
-
-  // Additional styling for the input
-  input {
-    font-size: 20px !important;
-    border-width: 2px !important;
-    padding-left: 50px !important;
-    padding-right: 50px !important;
-
-    &::placeholder {
-      color: var(--changelog-content);
+    &:has(pagefind-results:not(:empty)) {
+      display: flex;
     }
   }
+
+  // Main results area
+  .t-inline-search__main {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+  }
+
+  // Results styling
+  pagefind-results {
+    max-height: 400px;
+    overflow-y: auto;
+  }
+}
+
+// 404-specific adjustments
+.t-404-search {
+  margin-top: 20px;
 }
 
 // Noscript fallback message

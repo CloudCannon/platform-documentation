@@ -1,5 +1,6 @@
 import Card from "../../_components/Card/Card.tsx";
 import { GridCard } from "../../_components/Card/index.ts";
+import InlineSearch from "../../_components/Layout/InlineSearch.tsx";
 import type { Helpers } from "../../_types.d.ts";
 
 interface Item {
@@ -130,7 +131,7 @@ export default function HomeLayout(props: Props, helpers: Helpers) {
       {/* Hero Section with Search */}
       <div className="c-hero">
         <h1 data-editable="text" data-prop="hero_title">{hero_title}</h1>
-        <pagefind-searchbox placeholder="Search documentation..." autofocus></pagefind-searchbox>
+        <InlineSearch autofocus />
       </div>
 
       {/* Card Grid Section */}

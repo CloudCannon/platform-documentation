@@ -59,8 +59,6 @@ export default function BaseLayout(props: Props, helpers: Helpers) {
       : `https://cloudcannon.com${explicit_canonical}`;
   }
 
-  const showSearch = url !== "/documentation/";
-
   return (
     <html lang="en" className="no-transitions">
       <head>
@@ -245,7 +243,7 @@ export default function BaseLayout(props: Props, helpers: Helpers) {
           <Nav headingnav={headingnav} url={url} helpers={helpers} />
         </div>
 
-        {showSearch && <Search helpers={helpers} />}
+        <Search />
 
         {typeof content === "string"
           ? <div dangerouslySetInnerHTML={{ __html: content }} />

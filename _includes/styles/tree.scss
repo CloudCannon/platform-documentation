@@ -1,0 +1,195 @@
+// Visually hidden but accessible to screen readers
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+// Interactive tree component
+.c-tree-container {
+  position: relative;
+}
+
+.c-tree-wrapper {
+  margin: 1rem 0;
+}
+
+.c-tree {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  font-family: var(--font-family-monospace);
+  font-size: 0.9em;
+}
+
+.c-tree__children {
+  list-style: none;
+  padding-left: 1.25rem;
+  margin: 0;
+  border-left: 1px solid var(--color-border, #ddd);
+  margin-left: 0.5rem;
+}
+
+.c-tree__item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.2rem 0;
+  line-height: 1.4;
+
+  // Handle both img and inlined svg elements for leaf nodes
+  > img,
+  > svg {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    margin-top: 0.15em;
+
+    [data-pf-theme="dark"] & {
+      filter: invert(1) hue-rotate(180deg);
+    }
+  }
+
+  a {
+    color: var(--color-link);
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+// Collapsible branch styling
+.c-tree details {
+  width: 100%;
+
+  > summary {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
+
+    &::-webkit-details-marker {
+      display: none;
+    }
+
+    // Icon container holds both open and closed folder icons
+    > .c-tree__icon {
+      position: relative;
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+      margin-top: 0.15em;
+
+      // Handle both img and inlined svg elements
+      > img,
+      > svg {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        
+        [data-pf-theme="dark"] & {
+          filter: invert(1) hue-rotate(180deg);
+        }
+      }
+
+      // Show closed folder by default, hide open folder
+      > .c-tree__icon-open {
+        opacity: 0;
+      }
+      > .c-tree__icon-closed {
+        opacity: 0.8;
+      }
+    }
+  }
+
+  // When open, swap the icons
+  &[open] > summary > .c-tree__icon {
+    > .c-tree__icon-open {
+      opacity: 0.8;
+    }
+    > .c-tree__icon-closed {
+      opacity: 0;
+    }
+  }
+}
+
+// Appears-in tree specific styles
+.c-appears-in-tree {
+  margin-top: 0.5rem;
+
+  .c-tree__item {
+    font-family: inherit;
+    font-size: inherit;
+  }
+}
+
+// Tree inside code block styling
+.c-code-block--tree {
+  .c-code-block__code {
+    padding: 12px;
+  }
+
+  .c-tree {
+    font-family: var(--font-family-monospace);
+    font-size: 14px;
+  }
+
+  .c-tree__children {
+    border-left-color: var(--code-block-border, rgba(255, 255, 255, 0.1));
+  }
+
+  // Root level items should have connecting line
+  > .c-tree-container > .c-tree > .c-tree__item {
+    position: relative;
+
+    // Vertical line from root folder down to children
+    &:not(:last-child)::after {
+      content: "";
+      position: absolute;
+      left: 1.35em;
+      top: 1.6em;
+      bottom: -0.2rem;
+      width: 1px;
+      background-color: var(--code-block-border, rgba(255, 255, 255, 0.1));
+    }
+  }
+}
+
+// AppearsIn tree styling (JSON key structure, not folders)
+.c-code-block--appears-in {
+  .c-code-block__code {
+    padding: 12px;
+  }
+
+  .c-tree {
+    font-family: var(--font-family-monospace);
+    font-size: 14px;
+  }
+
+  .c-tree__children {
+    border-left-color: var(--code-block-border, rgba(255, 255, 255, 0.1));
+  }
+
+  .c-tree__item {
+    font-family: var(--font-family-monospace);
+  }
+}
+
+// Annotation markers in tree items
+.c-tree .code-annotation {
+  display: inline-flex;
+  margin-left: 0.5em;
+  vertical-align: middle;
+}

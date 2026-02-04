@@ -11,6 +11,7 @@ import RefType from "./RefType.tsx";
 import PropertiesTable from "./PropertiesTable.tsx";
 import MultiCodeBlock from "../MultiCodeBlock.tsx";
 import Annotation from "../Annotation.tsx";
+import InteractiveTree, { type TreeNode } from "../InteractiveTree.tsx";
 import type { DocEntry, Helpers } from "../../_types.d.ts";
 
 interface TocItem {
@@ -49,36 +50,98 @@ function DocLink({ doc, section }: { doc?: DocEntry; section: SectionId }) {
   );
 }
 
-function RecursiveBreadcrumb(
-  { gid, section }: { gid?: string; section: SectionId },
-) {
-  // Don't show breadcrumb for section root or missing gid
-  if (!gid || gid === section) return null;
+// Walk up from a gid to the root, returning array of gids from root to the gid
+function walkToRoot(gid: string, section: SectionId): string[] {
+  const path: string[] = [];
+  let current: string | undefined = gid;
 
-  const breadcrumbChain: DocEntry[] = [];
-  let parent: string | undefined = gid;
-
-  // Walk up parent chain, stopping at section root
-  while (parent && parent !== section) {
-    const parentDoc = getDocByGid(parent, section);
-    if (!parentDoc) break;
-    breadcrumbChain.unshift(parentDoc);
-    parent = parentDoc.parent;
+  while (current && current !== section) {
+    path.unshift(current);
+    const doc = getDocByGid(current, section);
+    if (!doc) break;
+    current = doc.parent;
   }
 
-  if (breadcrumbChain.length === 0) return null;
-
-  return breadcrumbChain.map((crumb, i) => (
-    <span key={crumb.gid || i}>
-      {i > 0 && <span>&rarr;</span>}
-      <DocLink doc={crumb} section={section} />
-    </span>
-  ));
+  return path;
 }
 
-function AppearsIn(
-  { doc, section }: { doc?: DocEntry; section: SectionId },
-) {
+// Collect all paths that lead to this doc (from parent and appears_in)
+function collectPaths(doc: DocEntry, section: SectionId): string[][] {
+  const paths: string[][] = [];
+
+  // Path from doc.parent chain
+  if (doc.parent && doc.parent !== section) {
+    const path = walkToRoot(doc.parent, section);
+    if (doc.gid) path.push(doc.gid);
+    if (path.length > 0) paths.push(path);
+  }
+
+  // Paths from appears_in
+  for (const gid of doc.appears_in || []) {
+    if (gid === section) continue;
+    const path = walkToRoot(gid, section);
+    if (doc.gid) path.push(doc.gid);
+    if (path.length > 0) paths.push(path);
+  }
+
+  return paths;
+}
+
+// Intermediate structure for building the tree
+interface TreeBuildNode {
+  gid: string;
+  children: Map<string, TreeBuildNode>;
+}
+
+// Merge paths into a tree structure, then convert to TreeNode[]
+function buildAppearsInTree(doc: DocEntry, section: SectionId): TreeNode[] {
+  const paths = collectPaths(doc, section);
+  if (paths.length === 0) return [];
+
+  // Build intermediate tree with Maps for merging
+  const root = new Map<string, TreeBuildNode>();
+
+  for (const path of paths) {
+    let currentLevel = root;
+    for (const gid of path) {
+      if (!currentLevel.has(gid)) {
+        currentLevel.set(gid, { gid, children: new Map() });
+      }
+      currentLevel = currentLevel.get(gid)!.children;
+    }
+  }
+
+  // Convert Map structure to TreeNode[]
+  function convertToTreeNodes(map: Map<string, TreeBuildNode>): TreeNode[] {
+    const nodes: TreeNode[] = [];
+    for (const [_gid, buildNode] of map) {
+      const docEntry = getDocByGid(buildNode.gid, section);
+      const node: TreeNode = {
+        label: getDisplayName(docEntry),
+        href: getRefUrl(docEntry, section) ?? undefined,
+        children: convertToTreeNodes(buildNode.children),
+      };
+      // Only set children if there are any
+      if (node.children && node.children.length === 0) {
+        node.children = undefined;
+      }
+      nodes.push(node);
+    }
+    return nodes;
+  }
+
+  return convertToTreeNodes(root);
+}
+
+function AppearsIn({
+  doc,
+  section,
+  helpers,
+}: {
+  doc?: DocEntry;
+  section: SectionId;
+  helpers: Helpers;
+}) {
   if (!doc) {
     return null;
   }
@@ -87,22 +150,26 @@ function AppearsIn(
     return null;
   }
 
+  const nodes = buildAppearsInTree(doc, section);
+  if (nodes.length === 0) {
+    return null;
+  }
+
   return (
     <>
       <dt id="appears-in">Appears in:</dt>
-      {doc.parent && (
-        <dd>
-          <RecursiveBreadcrumb gid={doc.parent} section={section} />
-        </dd>
-      )}
-      {appearsIn.map((gid) => {
-        return (
-          <dd key={gid}>
-            <RecursiveBreadcrumb gid={gid} section={section} />
-          </dd>
-        );
-      })}
-      <dd></dd>
+      <dd>
+        <div className="c-code-block c-code-block--appears-in">
+          <div className="c-code-block__code">
+            <InteractiveTree
+              nodes={nodes}
+              helpers={helpers}
+              defaultOpen
+              iconMode="key"
+            />
+          </div>
+        </div>
+      </dd>
     </>
   );
 }
@@ -217,7 +284,9 @@ export default function ReferenceContent({
         </>
       )}
 
-      {showAppearsIn && <AppearsIn doc={entry} section={section} />}
+      {showAppearsIn && (
+        <AppearsIn doc={entry} section={section} helpers={helpers} />
+      )}
 
       {!entry.anyOf?.length && (
         <>

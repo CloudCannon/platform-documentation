@@ -1,3 +1,5 @@
+import InlineSearch from "./InlineSearch.tsx";
+
 /**
  * Shared content for 404 pages
  */
@@ -12,10 +14,7 @@ export default function NotFoundContent() {
         or has been moved.
       </p>
 
-      <pagefind-searchbox
-        placeholder="Search documentation..."
-        class="t-404-search"
-      ></pagefind-searchbox>
+      <InlineSearch className="t-404-search" />
     </div>
   );
 }
