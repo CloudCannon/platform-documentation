@@ -27,10 +27,6 @@ interface CommunitySection {
   heading: string;
   description: string;
   background_image?: string;
-  light_mode_background_color?: string;
-  dark_mode_background_color?: string;
-  light_mode_text_color?: string;
-  dark_mode_text_color?: string;
   button_text?: string;
   button_link?: string;
 }
@@ -163,18 +159,6 @@ export default function HomeLayout(props: Props, helpers: Helpers) {
           style={{
             "background-image": community.background_image
               ? `url(${helpers.url(community.background_image)})`
-              : undefined,
-            "--centred-block-background": community.light_mode_background_color
-              ? `light-dark(${community.light_mode_background_color}, ${
-                community.dark_mode_background_color ||
-                community.light_mode_background_color
-              })`
-              : undefined,
-            "--centred-block-text": community.light_mode_text_color
-              ? `light-dark(${community.light_mode_text_color}, ${
-                community.dark_mode_text_color ||
-                community.light_mode_text_color
-              })`
               : undefined,
           } as Record<string, string | undefined>}
         >
