@@ -53,7 +53,7 @@ export default function GuideLayout(props: Props, helpers: Helpers) {
   return (
     <div className="l-page"
       data-pagefind-body
-      data-pagefind-weight="3"
+      data-pagefind-weight="30"
       data-pagefind-filter="site:Guides"
       data-pagefind-meta="site:Guides">
       <div className="l-column">

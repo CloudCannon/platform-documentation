@@ -39,7 +39,7 @@ export default function ArticleLayout(props: Props, helpers: Helpers) {
   return (
     <div className="l-page" x-init="showmobilenav = true"
         data-pagefind-body
-        data-pagefind-weight="5"
+        data-pagefind-weight="50"
         data-pagefind-filter="site:Documentation"
         data-pagefind-meta="site:Documentation"
       >
