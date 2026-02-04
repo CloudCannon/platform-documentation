@@ -18,7 +18,7 @@ export default function NavSidebar({
   const asideClass = `l-left ${className}`.trim();
 
   return (
-    <aside className={asideClass} x-data="{ more: true }">
+    <aside className={asideClass} x-data="{ more: true }" data-pagefind-ignore>
       {children}
       <template x-teleport={teleportTarget}>
         {children}

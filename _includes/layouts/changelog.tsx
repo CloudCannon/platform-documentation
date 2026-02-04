@@ -25,7 +25,12 @@ export default function ChangelogLayout(props: Props, helpers: Helpers) {
   const year = helpers.date(date, "yyyy") || "";
 
   return (
-    <div className="l-page" x-init="showmobilenav = true">
+    <div className="l-page" x-init="showmobilenav = true"
+      data-pagefind-body
+      data-pagefind-weight="0.5"
+      data-pagefind-filter="site:Changelog"
+      data-pagefind-meta="site:Changelog"
+    >
       <div className="l-column">
         <NavSidebar>
           <ChangeNav
@@ -42,12 +47,7 @@ export default function ChangelogLayout(props: Props, helpers: Helpers) {
             ]}
             helpers={helpers}
           />
-          <div
-            data-pagefind-body
-            data-pagefind-weight="0.3"
-            data-pagefind-filter="site:Changelog"
-            data-pagefind-meta="site:Changelog"
-          >
+          <div>
             <h1 className="l-heading changelog-entry__heading">
               {title}
             </h1>
@@ -63,7 +63,7 @@ export default function ChangelogLayout(props: Props, helpers: Helpers) {
                 dangerouslySetInnerHTML={{ __html: content }}
               />
             </main>
-            <aside data-pagefind-ignore="" className="l-right">
+            <aside data-pagefind-ignore className="l-right">
               <div
                 className="l-toc-changelog-list"
                 alpine:scroll="onScroll()"

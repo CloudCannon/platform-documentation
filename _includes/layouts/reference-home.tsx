@@ -86,7 +86,11 @@ export default function ReferenceHomeLayout(
     : [];
 
   return (
-    <div className="l-page" x-init="showmobilenav = true">
+    <div className="l-page" x-init="showmobilenav = true"
+      data-pagefind-body
+      data-pagefind-weight="0.1"
+      data-pagefind-filter="site:Reference"
+      data-pagefind-meta="site:Reference">
       <div className="l-column">
         <NavSidebar className="developer-reference">
           {ref_nav && search && (
@@ -101,22 +105,15 @@ export default function ReferenceHomeLayout(
         </NavSidebar>
 
         <div className="u-card-box l-content" x-data="visibleNavHighlighter">
-          <div
-            data-pagefind-body
-            data-pagefind-weight="0.1"
-            data-pagefind-filter="site:Reference"
-            data-pagefind-meta="site:Reference"
+          <h1
+            className="l-heading u-margin-bottom-0"
+            data-editable="text"
+            data-prop="details.title"
           >
-            <h1
-              className="l-heading u-margin-bottom-0"
-              data-editable="text"
-              data-prop="details.title"
-            >
-              {details?.title}
-            </h1>
-          </div>
+            {details?.title}
+          </h1>
 
-          <p className="l-subheading">
+          <p className="l-subheading" data-pagefind-ignore>
             Last modified: {helpers.date(date, "HUMAN_DATE")}
           </p>
 
@@ -132,7 +129,7 @@ export default function ReferenceHomeLayout(
                 <dl>
                   {derivedRootEntry.description && (
                     <>
-                      <dt id="description">Description:</dt>
+                      <dt id="description" data-pagefind-ignore>Description:</dt>
                       <dd>
                         <span
                           dangerouslySetInnerHTML={{
@@ -145,8 +142,8 @@ export default function ReferenceHomeLayout(
 
                   {derivedRootEntry.type && (
                     <>
-                      <dt id="type">Type:</dt>
-                      <dd>
+                      <dt id="type" data-pagefind-ignore>Type:</dt>
+                      <dd data-pagefind-ignore>
                         <RefType
                           doc={derivedRootEntry}
                           currentUrl={currentUrl}

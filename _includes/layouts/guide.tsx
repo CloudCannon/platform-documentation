@@ -51,7 +51,11 @@ export default function GuideLayout(props: Props, helpers: Helpers) {
   const next = guideArticles[currentIndex + 1];
 
   return (
-    <div className="l-page">
+    <div className="l-page"
+      data-pagefind-body
+      data-pagefind-weight="3"
+      data-pagefind-filter="site:Guides"
+      data-pagefind-meta="site:Guides">
       <div className="l-column">
         <aside className="l-left" x-data="{ more: true }">
           <nav
@@ -64,6 +68,7 @@ export default function GuideLayout(props: Props, helpers: Helpers) {
               <h2 data-pagefind-meta="guide_title">{guide_title}</h2>
 
               <button
+                data-pagefind-ignore
                 type="button"
                 className="t-docs-nav__control"
                 x-on-click="isPageNavOpen = true; $focusNav(true);"
@@ -73,6 +78,7 @@ export default function GuideLayout(props: Props, helpers: Helpers) {
                 <img src="/assets/img/expand.svg" inline="true" />
               </button>
               <button
+                data-pagefind-ignore
                 type="button"
                 className="t-docs-nav__control"
                 x-on-click="isPageNavOpen = false; $focusNav(false);"
@@ -82,7 +88,7 @@ export default function GuideLayout(props: Props, helpers: Helpers) {
                 <img src="/assets/img/close.svg" inline="true" />
               </button>
             </div>
-            <ol className="t-docs-nav__main-list">
+            <ol className="t-docs-nav__main-list" data-pagefind-ignore>
               <li className="t-docs-nav__main-list__item guide">
                 <ol className="t-docs-nav__sub-list">
                   {guideArticles.map((data, i) => {
@@ -146,25 +152,19 @@ export default function GuideLayout(props: Props, helpers: Helpers) {
           </nav>
         </aside>
         <div className="u-card-box l-content" x-data="visibleNavHighlighter">
-          <div
-            data-pagefind-body
-            data-pagefind-filter="site:Guides"
-            data-pagefind-meta="site:Guides"
-          >
-            <h1 className="l-heading u-margin-bottom-0">
-              {details?.title}
-            </h1>
-            <p className="l-subheading">
-              {details?.description}
-            </p>
-          </div>
+          <h1 className="l-heading u-margin-bottom-0">
+            {details?.title}
+          </h1>
+          <p className="l-subheading">
+            {details?.description}
+          </p>
           <MobileTOC helpers={helpers} />
           <div className="l-content-split">
             <main
               id="main-content"
               dangerouslySetInnerHTML={{ __html: content }}
             />
-            <aside data-pagefind-ignore="" className="l-right">
+            <aside data-pagefind-ignore className="l-right">
               <div className="l-toc" alpine:scroll="onScroll()" />
             </aside>
           </div>

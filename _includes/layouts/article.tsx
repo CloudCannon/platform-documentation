@@ -37,7 +37,12 @@ export default function ArticleLayout(props: Props, helpers: Helpers) {
   const navData = navigation?.[navKey];
 
   return (
-    <div className="l-page" x-init="showmobilenav = true">
+    <div className="l-page" x-init="showmobilenav = true"
+        data-pagefind-body
+        data-pagefind-weight="5"
+        data-pagefind-filter="site:Documentation"
+        data-pagefind-meta="site:Documentation"
+      >
       <div className="l-column">
         <NavSidebar>
           {navData && search && (
@@ -62,11 +67,7 @@ export default function ArticleLayout(props: Props, helpers: Helpers) {
               helpers={helpers}
             />
           )}
-          <div
-            data-pagefind-body
-            data-pagefind-filter="site:Documentation"
-            data-pagefind-meta="site:Documentation"
-          >
+          <div>
             <h1
               className="l-heading u-margin-bottom-0"
               data-editable="text"
@@ -75,7 +76,7 @@ export default function ArticleLayout(props: Props, helpers: Helpers) {
               {details?.title}
             </h1>
           </div>
-          <p className="l-subheading">
+          <p className="l-subheading" data-pagefind-ignore>
             Last modified: {helpers.date(date, "HUMAN_DATE")}
           </p>
           <MobileTOC helpers={helpers} />
@@ -84,7 +85,7 @@ export default function ArticleLayout(props: Props, helpers: Helpers) {
               id="main-content"
               dangerouslySetInnerHTML={{ __html: content }}
             />
-            <aside data-pagefind-ignore="" className="l-right">
+            <aside data-pagefind-ignore className="l-right">
               <div className="l-toc" alpine:scroll="onScroll()" />
             </aside>
           </div>

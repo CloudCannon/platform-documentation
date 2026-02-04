@@ -21,7 +21,7 @@ export default function Breadcrumb({ items, helpers }: BreadcrumbProps) {
   if (items.length === 0) return null;
 
   return (
-    <div className="l-breadcrumb">
+    <div className="l-breadcrumb" data-pagefind-ignore>
       {items.map((item, i) => (
         <span key={i}>
           {i > 0 && (

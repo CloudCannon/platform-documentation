@@ -22,7 +22,7 @@ export default function PrevNext(
 ) {
   return (
     <>
-      <div className="c-card-container--prev-next">
+      <div className="c-card-container--prev-next" data-pagefind-ignore>
         {prev?.url
           ? (
             <Card
@@ -52,7 +52,7 @@ export default function PrevNext(
           : <div />}
       </div>
 
-      <div className="c-prev-next-mobile">
+      <div className="c-prev-next-mobile" data-pagefind-ignore>
         {prev?.url
           ? (
             <a href={prev.url}>

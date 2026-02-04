@@ -76,7 +76,13 @@ export default function AutomatedReferenceLayout(
   }
 
   return (
-    <div className="l-page" x-init="showmobilenav = true">
+    <div className="l-page"
+      x-init="showmobilenav = true"
+      data-pagefind-body
+      data-pagefind-weight="0.1"
+      data-pagefind-filter="site:Reference"
+      data-pagefind-meta="site:Reference"
+    >
       <div className="l-column">
         <NavSidebar className="developer-reference">
           {ref_nav && search && (
@@ -93,12 +99,7 @@ export default function AutomatedReferenceLayout(
         <div className="u-card-box l-content" x-data="visibleNavHighlighter">
           <Breadcrumb items={breadcrumbItems} helpers={helpers} />
 
-          <div
-            data-pagefind-body
-            data-pagefind-weight="0.1"
-            data-pagefind-filter="site:Reference"
-            data-pagefind-meta="site:Reference"
-          >
+          <div>
             <h1 className="l-heading u-margin-bottom-0">
               <DocNameFull doc={entry} />
             </h1>

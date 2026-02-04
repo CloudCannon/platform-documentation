@@ -17,7 +17,7 @@ export default function MobileTOC(
   { helpers, children, listClassName = "l-toc__list" }: MobileTOCProps,
 ) {
   return (
-    <details className="l-toc-mobile">
+    <details className="l-toc-mobile" data-pagefind-ignore>
       <summary>
         <h3>
           Table of contents{" "}

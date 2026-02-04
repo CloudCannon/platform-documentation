@@ -72,8 +72,8 @@ export default async function RelatedArticles(
 
   return (
     <>
-      <h2>Related Resources</h2>
-      <div>
+      <h2 data-pagefind-ignore>Related Resources</h2>
+      <div data-pagefind-ignore>
         <ul
           className="c-card-container--related"
           data-editable="array"

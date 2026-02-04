@@ -28,6 +28,7 @@ export default function NavWrapper({
       className={`${baseClass} ${className}`.trim()}
       x-ref="navParent"
       x-data="scrollContainer"
+      data-pagefind-ignore
     >
       {children}
     </nav>

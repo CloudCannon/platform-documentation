@@ -157,8 +157,8 @@ function AppearsIn({
 
   return (
     <>
-      <dt id="appears-in">Appears in:</dt>
-      <dd>
+      <dt id="appears-in" data-pagefind-ignore>Appears in:</dt>
+      <dd data-pagefind-ignore>
         <div className="c-code-block c-code-block--appears-in">
           <div className="c-code-block__code">
             <InteractiveTree
@@ -234,8 +234,8 @@ export function TableOfContents(
 
   return (
     <>
-      {withHeading && <h3 className="l-toc__heading">Table of contents</h3>}
-      <ol className="l-toc__list">
+      {withHeading && <h3 className="l-toc__heading" data-pagefind-ignore>Table of contents</h3>}
+      <ol className="l-toc__list" data-pagefind-ignore>
         {items.map((item) => (
           <li
             key={item.id}
@@ -269,6 +269,7 @@ export default function ReferenceContent({
           <dt
             id="description"
             className={!entry.description ? "show-in-cms" : undefined}
+            data-pagefind-ignore
           >
             Description:
           </dt>
@@ -290,8 +291,8 @@ export default function ReferenceContent({
 
       {!entry.anyOf?.length && (
         <>
-          <dt id="type">Type:</dt>
-          <dd>
+          <dt id="type" data-pagefind-ignore>Type:</dt>
+          <dd data-pagefind-ignore>
             <RefType doc={entry} currentUrl={currentUrl} section={section} />
           </dd>
         </>
@@ -299,8 +300,8 @@ export default function ReferenceContent({
 
       {entry.default !== undefined && (
         <>
-          <dt id="default-value">Default value:</dt>
-          <dd>
+          <dt id="default-value" data-pagefind-ignore>Default value:</dt>
+          <dd data-pagefind-ignore>
             <code>{String(entry.default)}</code>
           </dd>
         </>
@@ -308,9 +309,9 @@ export default function ReferenceContent({
 
       {entry.enum?.length && entry.enum.length > 0 && (
         <>
-          <dt id="allowed-values">Allowed values:</dt>
+          <dt id="allowed-values" data-pagefind-ignore>Allowed values:</dt>
           {entry.enum.map((val, i) => (
-            <dd key={i}>
+            <dd key={i} data-pagefind-ignore>
               <code>{val}</code>
             </dd>
           ))}
