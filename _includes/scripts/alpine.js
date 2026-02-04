@@ -44,7 +44,7 @@ Alpine.data("visibleNavHighlighter", () => ({
       ) || "64",
       10,
     );
-    const relativeTop = offsetHeight - 40;
+    const relativeTop = offsetHeight + 48;
 
     const headingsByDistanceFromTop = {};
 
