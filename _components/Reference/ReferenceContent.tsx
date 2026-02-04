@@ -33,6 +33,11 @@ function DocName({ doc }: { doc?: DocEntry }) {
   return doc.title ? doc.title : <code>{getShortKey(doc.key)}</code>;
 }
 
+function DocNameFull({ doc }: { doc?: DocEntry }) {
+  if (!doc) return null;
+  return doc.title ? doc.title : <code>{doc.key}</code>;
+}
+
 function DocLink({ doc, section }: { doc?: DocEntry; section: SectionId }) {
   if (!doc) return null;
   const url = getRefUrl(doc, section);
@@ -280,4 +285,4 @@ export default function ReferenceContent({
   );
 }
 
-export { AppearsIn, DocLink, DocName };
+export { AppearsIn, DocLink, DocName, DocNameFull };

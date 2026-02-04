@@ -26,9 +26,9 @@ function ObjectProperties(
 
   return (
     <>
-      <dt id={withIds ? "properties" : undefined}>Properties:</dt>
-      {properties.length > 0
-        ? (
+      {properties.length > 0 && (
+        <>
+          <dt id={withIds ? "properties" : undefined}>Properties:</dt>
           <dd class="c-data-reference">
             {properties.map(([key, ref]) => (
               <div
@@ -49,18 +49,12 @@ function ObjectProperties(
               </div>
             ))}
           </dd>
-        )
-        : (
-          <dd>
-            <p>There are no reserved properties.</p>
-          </dd>
-        )}
+        </>
+      )}
 
       {additionalProps.length > 0 && (
         <>
-          <dt id={withIds ? "additional-properties" : undefined}>
-            Additional properties:
-          </dt>
+          <dt id={withIds ? "additional-properties" : undefined}>Values:</dt>
           <dd class="c-data-reference">
             {additionalProps.map((ref, i) => {
               const resolved = resolveRef(ref, section);
@@ -116,7 +110,7 @@ function ArrayItems(
                 docRef={ref}
                 currentUrl={currentUrl}
                 section={section}
-                useKey={false}
+                useKey
                 keyOverride={undefined}
                 helpers={helpers}
               />

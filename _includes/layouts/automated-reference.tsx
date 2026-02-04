@@ -4,7 +4,7 @@ import MobileTOC from "../../_components/Layout/MobileTOC.tsx";
 import NavSidebar from "../../_components/Layout/NavSidebar.tsx";
 import DocNav from "../../_components/Reference/DocNav.tsx";
 import ReferenceContent, {
-  DocName,
+  DocNameFull,
   getTocItems,
   TableOfContents,
 } from "../../_components/Reference/ReferenceContent.tsx";
@@ -94,7 +94,7 @@ export default function AutomatedReferenceLayout(
           <Breadcrumb items={breadcrumbItems} helpers={helpers} />
 
           <h1 data-pagefind-body className="l-heading u-margin-bottom-0">
-            <DocName doc={entry} />
+            <DocNameFull doc={entry} />
           </h1>
 
           <MobileTOC helpers={helpers} listClassName="">
