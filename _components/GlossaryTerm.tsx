@@ -20,14 +20,25 @@ export default function GlossaryTerm(
       x-data="{
         tooltipopen: false,
         closeTimeout: null,
+        openTimeout: null,
 
-        open: function () {
-          this.cancelClose();
-          this.tooltipopen = true;
-          $nextTick(() => this.update())
+        scheduleOpen: function () {
+          this.cancelOpen();
+          this.openTimeout = setTimeout(() => {
+            this.tooltipopen = true;
+          }, 100);
+          $nextTick(() => this.update());
+        },
+
+        cancelOpen: function () {
+          if (this.openTimeout) {
+            clearTimeout(this.openTimeout);
+            this.openTimeout = null;
+          }
         },
 
         scheduleClose: function () {
+          this.cancelOpen();
           this.cancelClose();
           this.closeTimeout = setTimeout(() => {
             this.tooltipopen = false;
@@ -49,7 +60,7 @@ export default function GlossaryTerm(
             rect.left + window.scrollX + 'px';
         }
       }"
-      x-on-mouseenter="open"
+      x-on-mouseenter="scheduleOpen"
       x-on-mouseleave="scheduleClose"
       class="glossary-term-highlight"
     >
