@@ -35,7 +35,8 @@ $search-input-height: 58px;
 
     input {
       font-size: 20px !important;
-      border-width: 2px !important;
+      height: var(--pf-input-height) !important;
+      border: 2px solid var(--pf-border) !important;
       padding-left: 50px !important;
       padding-right: 50px !important;
 
@@ -49,7 +50,7 @@ $search-input-height: 58px;
 // Shared styles for filter + results layout
 %search-layout-styles {
   display: flex;
-  gap: 16px;
+  gap: 20px;
   min-height: 0;
 
   @media (max-width: 800px) {
@@ -70,20 +71,19 @@ $search-input-height: 58px;
 
   // Summary styling
   pagefind-summary {
-    color: var(--changelog-date);
-    font-size: 16px;
-    margin-bottom: 16px;
+    margin: 20px 0 10px 0;
   }
 }
 
 // Modal search styles
 pagefind-modal {
   @extend %search-input-styles;
+}
 
-  // Layout for filter + results side by side
-  .t-searcher-layout {
-    @extend %search-layout-styles;
-  }
+
+// Layout for filter + results side by side
+.t-searcher-layout {
+  @extend %search-layout-styles;
 
   // Results area
   .t-searcher-results {
@@ -131,24 +131,19 @@ pagefind-modal-trigger {
   }
 }
 
+
 // Inline search component (home page and 404 page)
 .t-inline-search {
   @extend %search-input-styles;
   max-width: $search-max-width;
   width: 100%;
   margin: 30px auto 0;
+  padding: 0 16px;
 
-  // Results container - hidden until there's a search
-  .t-inline-search__results {
-    @extend %search-layout-styles;
+  .t-searcher-layout {
     display: none;
-    margin-top: 24px;
-    background: var(--background);
-    border-radius: var(--border-radius);
-    padding: 24px;
-    border: 1px solid var(--border-subtle);
 
-    &:has(pagefind-results:not(:empty)) {
+    &:has(.pf-results:not(:empty)) {
       display: flex;
     }
   }
@@ -159,11 +154,12 @@ pagefind-modal-trigger {
     flex-direction: column;
     flex: 1;
     min-height: 0;
+    min-width: 0;
   }
 
   // Results styling
   pagefind-results {
-    max-height: 400px;
+    max-height: 80vh;
     overflow-y: auto;
   }
 }
@@ -200,4 +196,70 @@ pagefind-modal-trigger {
       color: var(--link-hover);
     }
   }
+}
+
+
+.pf-filter-pane:empty, .pf-summary:empty, .pf-results:empty {
+  display: none !important;
+}
+
+.pf-filter-pane {
+  position: sticky !important;
+  top: 20px !important;
+  border: 0 !important;
+  background: transparent !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+  margin: 20px 0 !important;
+}
+
+.pf-input-clear {
+  border-radius: 27px !important;
+  right: 4px !important;
+  top: 4px !important;
+  height: calc(100% - 8px) !important;
+}
+
+html.page-loading {
+  pagefind-modal {
+    display: none !important;
+  }
+
+  .t-inline-search {
+    height: 58px;
+    border: 2px solid var(--border-subtle);
+    border-radius: 27px;
+
+    > * {
+      display: none !important;
+    }
+  }
+
+  .l-header pagefind-modal-trigger {
+    height: 48px;
+    width: 48px;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    border-radius: var(--border-radius);
+    transition: background-color .3s ease, border-color .3s ease;
+    cursor: pointer;
+    border: 2px solid var(--button-border);
+    appearance: none;
+    background: var(--background);
+
+    > button {
+      display: none !important;
+    }
+  }
+}
+
+
+
+pagefind-modal-footer {
+  border-top: 2px solid var(--border-subtle);
+}
+
+pagefind-modal-header {
+  border-bottom: 0;
 }

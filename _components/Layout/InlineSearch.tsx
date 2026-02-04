@@ -1,3 +1,5 @@
+import { SearchResults, SearchResultTemplate } from "./Search.tsx";
+
 interface InlineSearchProps {
   placeholder?: string;
   autofocus?: boolean;
@@ -19,13 +21,7 @@ export default function InlineSearch({
         placeholder={placeholder}
         {...(autofocus ? { autofocus: true } : {})}
       ></pagefind-input>
-      <div className="t-inline-search__results">
-        <pagefind-filter-pane filter="site"></pagefind-filter-pane>
-        <div className="t-inline-search__main">
-          <pagefind-summary></pagefind-summary>
-          <pagefind-results></pagefind-results>
-        </div>
-      </div>
+      <SearchResults />
     </div>
   );
 }

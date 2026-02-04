@@ -60,7 +60,7 @@ export default function BaseLayout(props: Props, helpers: Helpers) {
   }
 
   return (
-    <html lang="en" className="no-transitions">
+    <html lang="en" className="page-loading">
       <head>
         <meta charSet="UTF-8" />
         <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
@@ -269,7 +269,7 @@ export default function BaseLayout(props: Props, helpers: Helpers) {
             __html: `
                     function enableTransitions() {
                         requestAnimationFrame(function() {
-                            document.documentElement.classList.remove('no-transitions');
+                            document.documentElement.classList.remove('page-loading');
                         });
                     }
                     if (document.readyState === 'complete') {
