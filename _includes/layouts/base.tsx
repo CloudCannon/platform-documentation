@@ -71,7 +71,6 @@ export default function BaseLayout(props: Props, helpers: Helpers) {
           type="text/css"
           async=""
         />
-        <link href="/assets/css/site.css" rel="stylesheet" type="text/css" />
         <link
           href="/documentation/_pagefind/pagefind-component-ui.css"
           rel="stylesheet"
@@ -80,6 +79,7 @@ export default function BaseLayout(props: Props, helpers: Helpers) {
           src="/documentation/_pagefind/pagefind-component-ui.js"
           type="module"
         />
+        <link href="/assets/css/site.css" rel="stylesheet" type="text/css" />
         <link
           rel="apple-touch-icon"
           sizes="180x180"
