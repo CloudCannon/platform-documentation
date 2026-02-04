@@ -71,10 +71,6 @@ export default function BaseLayout(props: Props, helpers: Helpers) {
           type="text/css"
           async=""
         />
-        <link
-          href="/documentation/_pagefind/pagefind-component-ui.css"
-          rel="stylesheet"
-        />
         <script
           src="/documentation/_pagefind/pagefind-component-ui.js"
           type="module"
