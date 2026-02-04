@@ -116,17 +116,33 @@ export function getTocItems(entry: DocEntry, section: SectionId): TocItem[] {
     const properties = Object.keys(entry.properties || {})
       .sort((a, b) => a.localeCompare(b));
     const additionalProps = entry.additionalProperties || [];
+    let additionalValues: DocEntry[] = [];
+
+    if (additionalProps.length === 1) {
+      const resolved = resolveRef(additionalProps[0], section);
+      if (resolved?.anyOf?.length) {
+        additionalValues = resolved.anyOf;
+      }
+    }
 
     properties.forEach((key) => {
       const shortKey = getShortKey(key);
       items.push({ id: `prop-${slugify(shortKey)}`, label: shortKey });
     });
 
-    additionalProps.forEach((ref, i) => {
-      const resolved = resolveRef(ref, section);
-      const label = getDisplayName(resolved) || `item-${i}`;
-      items.push({ id: `addprop-${slugify(label)}`, label });
-    });
+    if (additionalValues.length) {
+      additionalValues.forEach((ref, i) => {
+        const resolved = resolveRef(ref, section);
+        const label = getDisplayName(resolved) || `item-${i}`;
+        items.push({ id: `addvalue-${slugify(label)}`, label });
+      });
+    } else {
+      additionalProps.forEach((ref, i) => {
+        const resolved = resolveRef(ref, section);
+        const label = getDisplayName(resolved) || `item-${i}`;
+        items.push({ id: `addprop-${slugify(label)}`, label });
+      });
+    }
   } else if (entry.type === "array" && entry.items?.length) {
     entry.items.forEach((ref, i) => {
       const resolved = resolveRef(ref, section);

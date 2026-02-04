@@ -23,6 +23,14 @@ function ObjectProperties(
   const properties = Object.entries(entry.properties || {})
     .sort(([keyA], [keyB]) => keyA.localeCompare(keyB));
   const additionalProps = entry.additionalProperties || [];
+  let additionalValues: DocEntry[] = [];
+
+  if (additionalProps.length === 1) {
+    const resolved = resolveRef(additionalProps[0], section);
+    if (resolved?.anyOf?.length) {
+      additionalValues = resolved.anyOf;
+    }
+  }
 
   return (
     <>
@@ -52,7 +60,38 @@ function ObjectProperties(
         </>
       )}
 
-      {additionalProps.length > 0 && (
+      {additionalValues.length > 0 && (
+        <>
+          <dt id={withIds ? "additional-values" : undefined}>Values:</dt>
+          <dd class="c-data-reference">
+            {additionalValues.map((ref, i) => {
+              const resolved = resolveRef(ref, section);
+              const label = resolved?.title || resolved?.full_key ||
+                `item-${i}`;
+              return (
+                <div
+                  class="c-data-reference__item"
+                  key={resolved?.gid || i}
+                  id={withIds && slugify
+                    ? `addvalue-${slugify(label)}`
+                    : undefined}
+                >
+                  <RefItem
+                    docRef={ref}
+                    currentUrl={currentUrl}
+                    section={section}
+                    useKey={false}
+                    keyOverride={undefined}
+                    helpers={helpers}
+                  />
+                </div>
+              );
+            })}
+          </dd>
+        </>
+      )}
+
+      {!additionalValues.length && additionalProps.length > 0 && (
         <>
           <dt id={withIds ? "additional-properties" : undefined}>Values:</dt>
           <dd class="c-data-reference">
