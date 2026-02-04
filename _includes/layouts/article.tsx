@@ -62,24 +62,24 @@ export default function ArticleLayout(props: Props, helpers: Helpers) {
               helpers={helpers}
             />
           )}
-          <h1
-            data-pagefind-body=""
-            className="l-heading u-margin-bottom-0"
-            data-editable="text"
-            data-prop="details.title"
+          <div
+            data-pagefind-body
+            data-pagefind-filter="site:Documentation"
+            data-pagefind-meta="site:Documentation"
           >
-            {details?.title}
-          </h1>
+            <h1
+              className="l-heading u-margin-bottom-0"
+              data-editable="text"
+              data-prop="details.title"
+            >
+              {details?.title}
+            </h1>
+          </div>
           <p className="l-subheading">
             Last modified: {helpers.date(date, "HUMAN_DATE")}
           </p>
           <MobileTOC helpers={helpers} />
-          <div
-            data-pagefind-body=""
-            data-pagefind-filter="site:Documentation"
-            data-pagefind-meta="site:Documentation"
-            className="l-content-split"
-          >
+          <div className="l-content-split">
             <main
               id="main-content"
               dangerouslySetInnerHTML={{ __html: content }}

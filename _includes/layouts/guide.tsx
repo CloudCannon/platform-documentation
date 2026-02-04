@@ -146,19 +146,20 @@ export default function GuideLayout(props: Props, helpers: Helpers) {
           </nav>
         </aside>
         <div className="u-card-box l-content" x-data="visibleNavHighlighter">
-          <h1 data-pagefind-body="" className="l-heading u-margin-bottom-0">
-            {details?.title}
-          </h1>
-          <p data-pagefind-body="" className="l-subheading">
-            {details?.description}
-          </p>
-          <MobileTOC helpers={helpers} />
           <div
-            data-pagefind-body=""
+            data-pagefind-body
             data-pagefind-filter="site:Guides"
             data-pagefind-meta="site:Guides"
-            className="l-content-split"
           >
+            <h1 className="l-heading u-margin-bottom-0">
+              {details?.title}
+            </h1>
+            <p className="l-subheading">
+              {details?.description}
+            </p>
+          </div>
+          <MobileTOC helpers={helpers} />
+          <div className="l-content-split">
             <main
               id="main-content"
               dangerouslySetInnerHTML={{ __html: content }}

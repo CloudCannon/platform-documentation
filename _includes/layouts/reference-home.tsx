@@ -101,14 +101,20 @@ export default function ReferenceHomeLayout(
         </NavSidebar>
 
         <div className="u-card-box l-content" x-data="visibleNavHighlighter">
-          <h1
+          <div
             data-pagefind-body
-            className="l-heading u-margin-bottom-0"
-            data-editable="text"
-            data-prop="details.title"
+            data-pagefind-weight="0.1"
+            data-pagefind-filter="site:Reference"
+            data-pagefind-meta="site:Reference"
           >
-            {details?.title}
-          </h1>
+            <h1
+              className="l-heading u-margin-bottom-0"
+              data-editable="text"
+              data-prop="details.title"
+            >
+              {details?.title}
+            </h1>
+          </div>
 
           <p className="l-subheading">
             Last modified: {helpers.date(date, "HUMAN_DATE")}
@@ -118,12 +124,7 @@ export default function ReferenceHomeLayout(
             <TableOfContents items={tocItems} />
           </MobileTOC>
 
-          <div
-            data-pagefind-body
-            data-pagefind-filter="site:Reference"
-            data-pagefind-meta="site:Reference"
-            className="l-content-split"
-          >
+          <div className="l-content-split">
             <main id="main-content">
               <div dangerouslySetInnerHTML={{ __html: content }} />
 

@@ -93,20 +93,22 @@ export default function AutomatedReferenceLayout(
         <div className="u-card-box l-content" x-data="visibleNavHighlighter">
           <Breadcrumb items={breadcrumbItems} helpers={helpers} />
 
-          <h1 data-pagefind-body className="l-heading u-margin-bottom-0">
-            <DocNameFull doc={entry} />
-          </h1>
+          <div
+            data-pagefind-body
+            data-pagefind-weight="0.1"
+            data-pagefind-filter="site:Reference"
+            data-pagefind-meta="site:Reference"
+          >
+            <h1 className="l-heading u-margin-bottom-0">
+              <DocNameFull doc={entry} />
+            </h1>
+          </div>
 
           <MobileTOC helpers={helpers} listClassName="">
             <TableOfContents items={tocItems} />
           </MobileTOC>
 
-          <div
-            data-pagefind-body
-            data-pagefind-filter="site:Reference"
-            data-pagefind-meta="site:Reference"
-            className="l-content-split"
-          >
+          <div className="l-content-split">
             <main id="main-content">
               <ReferenceContent
                 entry={entry}

@@ -42,23 +42,22 @@ export default function ChangelogLayout(props: Props, helpers: Helpers) {
             ]}
             helpers={helpers}
           />
-          <h1
-            data-pagefind-body=""
-            className="l-heading changelog-entry__heading"
+          <div
+            data-pagefind-body
+            data-pagefind-weight="0.3"
+            data-pagefind-filter="site:Changelog"
+            data-pagefind-meta="site:Changelog"
           >
-            {title}
-          </h1>
+            <h1 className="l-heading changelog-entry__heading">
+              {title}
+            </h1>
+          </div>
           <p className="changelog-entry__date">
             <RelativeDate date={date} />
           </p>
           <MobileTOC helpers={helpers} />
           <div className="l-content-split" x-data="visibleNavHighlighter">
-            <main
-              id="main-content"
-              data-pagefind-body=""
-              data-pagefind-filter="site:Changelog"
-              data-pagefind-meta="site:Changelog"
-            >
+            <main id="main-content">
               <div
                 className="changelog-entry"
                 dangerouslySetInnerHTML={{ __html: content }}
