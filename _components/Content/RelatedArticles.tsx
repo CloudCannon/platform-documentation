@@ -101,12 +101,12 @@ export default async function RelatedArticles(
     
     // Check for Developer content
     if (url.includes("/developer-articles/") || url.includes("/developer-guides/")) {
-      return "Developer";
+      return "Developer Article";
     }
     
     // Check for User content
     if (url.includes("/user-articles/") || url.includes("/user-guides/")) {
-      return "User";
+      return "User Article";
     }
     
     // Return undefined for other content types (changelog, reference, glossary)
