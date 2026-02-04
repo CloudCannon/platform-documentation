@@ -57,9 +57,10 @@ export default async function RelatedArticles(
 
   // Infer content type from URL when details.category is missing
   const getCategory = (article: ArticlePage): string | undefined => {
-    if (article.details?.category) {
+    if (article.details?.category && article.details?.category.length > 0) {
       return article.details.category;
     }
+
     // Infer from URL pattern
     const url = article.url || "";
     if (url.includes("/changelog/")) return "Changelog";

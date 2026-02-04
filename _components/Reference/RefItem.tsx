@@ -113,7 +113,9 @@ export default function RefItem(
   const url = getRefUrl(doc, section);
   const displayName = getDisplayName(doc);
   const key = keyOverride || doc.key;
-  const label = useKey ? <code class="code-title">{key}</code> : displayName;
+  const label = useKey && key
+    ? <code class="code-title">{key}</code>
+    : displayName;
 
   return (
     <>
@@ -123,7 +125,6 @@ export default function RefItem(
             {url ? <a href={url}>{label}</a> : label}
           </strong>
         </span>
-        {" — "}
         <RefType doc={doc} currentUrl={currentUrl} section={section} />
       </div>
       <RefSummary entry={doc} helpers={helpers} />

@@ -4,7 +4,7 @@ import { DocEntry } from "./types.d.ts";
 function DocName({ doc }: { doc: DocEntry }) {
   if (!doc) return null;
   return doc.title
-    ? <span className="pill">{doc.title}</span>
+    ? <span class="code-not-monospace">{doc.title}</span>
     : <code>{doc.key}</code>;
 }
 
@@ -21,9 +21,9 @@ function MaybeLink(
 function GenericParams({ children }: { children: unknown }) {
   return (
     <>
-      <span style={{ opacity: "0.5" }}>&lt;</span>
+      <span className="u-opacity-half u-monospace">&lt;</span>
       {children}
-      <span style={{ opacity: "0.5" }}>&gt;</span>
+      <span className="u-opacity-half u-monospace">&gt;</span>
     </>
   );
 }
@@ -55,24 +55,26 @@ function TypeDisplay(
         item,
       ): item is DocEntry => item !== null);
     return (
-      <>
+      <code>
         <MaybeLink href={entryUrl} shouldLink={shouldLink}>Array</MaybeLink>
         {items.length > 0 && (
           <GenericParams>
             {items.map((item, i) => (
-              <span key={item?.gid || i}>
-                {i > 0 && " | "}
-                <TypeDisplay
-                  entry={item}
-                  currentUrl={currentUrl}
-                  section={section}
-                  nested
-                />
-              </span>
+              <>
+                {i > 0 && <span className="u-opacity-half u-monospace">|</span>}
+                <span key={item?.gid || i}>
+                  <TypeDisplay
+                    entry={item}
+                    currentUrl={currentUrl}
+                    section={section}
+                    nested
+                  />
+                </span>
+              </>
             ))}
           </GenericParams>
         )}
-      </>
+      </code>
     );
   }
 
@@ -82,7 +84,7 @@ function TypeDisplay(
       ? resolveRef(additionalProps[0], section)
       : null;
     return (
-      <>
+      <code>
         <MaybeLink href={entryUrl} shouldLink={shouldLink}>Object</MaybeLink>
         {resolvedProp && (
           <GenericParams>
@@ -94,7 +96,7 @@ function TypeDisplay(
             />
           </GenericParams>
         )}
-      </>
+      </code>
     );
   }
 
@@ -131,15 +133,17 @@ function TypeDisplay(
         {entry.anyOf.map((ref, i) => {
           const resolved = resolveRef(ref, section);
           return (
-            <span key={resolved?.gid || i} className="anyof">
-              {i > 0 && " | "}
-              <TypeDisplay
-                entry={resolved}
-                currentUrl={currentUrl}
-                section={section}
-                nested
-              />
-            </span>
+            <>
+              {i > 0 && <span className="u-opacity-half u-monospace">|</span>}
+              <span key={resolved?.gid || i} className="anyof">
+                <TypeDisplay
+                  entry={resolved}
+                  currentUrl={currentUrl}
+                  section={section}
+                  nested
+                />
+              </span>
+            </>
           );
         })}
       </>
