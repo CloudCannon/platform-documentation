@@ -55,18 +55,21 @@ export default async function RelatedArticles(
     }),
   );
 
-  // Infer content type from URL when details.category is missing
+  // Determine category based on URL path (Developer or User)
   const getCategory = (article: ArticlePage): string | undefined => {
-    if (article.details?.category && article.details?.category.length > 0) {
-      return article.details.category;
-    }
-
-    // Infer from URL pattern
     const url = article.url || "";
-    if (url.includes("/changelog/")) return "Changelog";
-    if (url.includes("/guides/")) return "Guide";
-    if (url.includes("/reference/")) return "Reference";
-    if (url.includes("/articles/")) return "Article";
+    
+    // Check for Developer content
+    if (url.includes("/developer-articles/") || url.includes("/developer-guides/")) {
+      return "Developer";
+    }
+    
+    // Check for User content
+    if (url.includes("/user-articles/") || url.includes("/user-guides/")) {
+      return "User";
+    }
+    
+    // Return undefined for other content types (changelog, reference, glossary)
     return undefined;
   };
 
