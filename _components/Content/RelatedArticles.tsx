@@ -32,16 +32,56 @@ export default async function RelatedArticles(
   if (validRelatedArticles.length === 0) return null;
 
   // Get all articles and pre-render descriptions for those without details.description
-  const articles = validRelatedArticles
-    .map((relatedArticle) => search.page(`_uuid=${relatedArticle.item}`))
-    .filter((article): article is ArticlePage => article !== null);
+  // Try using pages() to search across all collections first (more reliable for cross-collection searches)
+  const uuidSet = new Set(validRelatedArticles.map(ra => ra.item));
+  
+  // Helper function to get UUID from an article
+  const getArticleUuid = (article: ArticlePage): string | undefined => {
+    return article.page?.data?._uuid || article.attrs?._uuid;
+  };
+  
+  let articlesFound: ArticlePage[] = [];
+  
+  // Try using pages() to search across all collections if available
+  if (search.pages) {
+    try {
+      const allArticles = search.pages("") || [];
+      const articles = allArticles
+        .filter((article): article is ArticlePage => {
+          if (!article) return false;
+          const uuid = getArticleUuid(article);
+          return uuid !== undefined && uuidSet.has(uuid);
+        })
+        .sort((a, b) => {
+          // Preserve the order from validRelatedArticles
+          const aUuid = getArticleUuid(a);
+          const bUuid = getArticleUuid(b);
+          const aIndex = aUuid ? validRelatedArticles.findIndex(ra => ra.item === aUuid) : -1;
+          const bIndex = bUuid ? validRelatedArticles.findIndex(ra => ra.item === bUuid) : -1;
+          return aIndex - bIndex;
+        });
+      
+      if (articles.length > 0) {
+        articlesFound = articles;
+      }
+    } catch (e) {
+      // If pages() fails, fall through to individual page() calls
+    }
+  }
+  
+  // Fallback to individual page() calls if pages() didn't work or returned empty
+  if (articlesFound.length === 0) {
+    articlesFound = validRelatedArticles
+      .map((relatedArticle) => search.page(`_uuid=${relatedArticle.item}`))
+      .filter((article): article is ArticlePage => article !== null);
+  }
 
   // Don't render the section if no articles were found
-  if (articles.length === 0) return null;
+  if (articlesFound.length === 0) return null;
 
   // Pre-render descriptions from content for articles without details.description
   const descriptions = await Promise.all(
-    articles.map(async (article) => {
+    articlesFound.map(async (article) => {
       // Use details.description if available
       if (article.details?.description) {
         return article.details.description;
@@ -82,7 +122,7 @@ export default async function RelatedArticles(
           data-editable="array"
           data-prop="details.related_articles"
         >
-          {articles.map((article, i) => {
+          {articlesFound.map((article, i) => {
             // Fall back to top-level title for pages without details (e.g., changelogs)
             const title = article.details?.title || article.title;
 
