@@ -36,7 +36,7 @@ export default function NotFoundArticleLayout(props: Props, helpers: Helpers) {
           )}
         </NavSidebar>
         <div className="u-card-box l-content">
-          <main id="main-content">
+          <main id="main-content" style="margin: 0 auto;">
             <NotFoundContent />
           </main>
         </div>
