@@ -59,6 +59,7 @@ import { buildRefNav } from "./developer/reference/_shared/buildRefNav.ts";
 import documentation from "@cloudcannon/configuration-types/dist/documentation.json" with {
   type: "json",
 };
+import llmsTxt from "./_config/llms-text.ts";
 
 // Type the documentation as nested sections (section -> gid -> entry)
 const typedDocs = documentation as unknown as Record<
@@ -322,6 +323,8 @@ site.use(date());
 site.use(sitemap({
   filename: "/documentation/sitemap.xml",
 }));
+
+site.use(llmsTxt());
 
 // Changelog RSS feed - uses changelogs tag (year pages use changelog-year tag instead)
 site.use(feed({
@@ -721,7 +724,6 @@ site.process([".html"], async (pages) => {
 // as in that function we inject content that should then be processed by the inline plugin,
 // and processing runs in the order it was instantiated.
 // Note: inline should be used before feed per lume best practices, but we need it after our custom HTML processing
-// deno-lint-ignore lume/plugin-order
 site.use(inline());
 site.use(prism());
 
