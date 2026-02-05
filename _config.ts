@@ -39,8 +39,8 @@ import "prismjs/components/prism-liquid.js";
 import "prismjs/components/prism-jsx.js";
 
 // Custom highlights
-import "./_config/prism-tree.js";
-import "./_config/prism-annotated.js";
+import "./_config/prism-tree.ts";
+import "./_config/prism-annotated.ts";
 
 import { DOMParser } from "@b-fuze/deno-dom";
 
@@ -320,11 +320,9 @@ site.add("/assets/img");
 
 site.use(date());
 site.use(sitemap({
-  items: {
-    filename: "=/documentation/sitemap.xml",
-  },
-  // deno-lint-ignore no-explicit-any
-} as any));
+  filename: "/documentation/sitemap.xml",
+}));
+
 
 // Changelog RSS feed - uses changelogs tag (year pages use changelog-year tag instead)
 site.use(feed({
