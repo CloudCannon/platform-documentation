@@ -1,8 +1,6 @@
 import lume from "lume/mod.ts";
 import icons from "lume/plugins/icons.ts";
 
-import nunjucks from "lume/plugins/nunjucks.ts";
-
 import pagefind from "./_plugins/pagefind.ts";
 import date from "lume/plugins/date.ts";
 import sass from "lume/plugins/sass.ts";
@@ -17,49 +15,48 @@ import mdx from "lume/plugins/mdx.ts";
 
 import { slugify } from "./_components/utils/stringHelpers.ts";
 
-import { parse as yamlParse } from "jsr:@std/yaml@1.0.11";
+import { parse as yamlParse } from "@std/yaml";
 
 // Data highlights
-import "npm:prismjs@1.30.0/components/prism-yaml.js";
-import "npm:prismjs@1.30.0/components/prism-json.js";
-import "npm:prismjs@1.30.0/components/prism-toml.js";
+import "prismjs/components/prism-yaml.js";
+import "prismjs/components/prism-json.js";
+import "prismjs/components/prism-toml.js";
 
 // Lang highlights
-import "npm:prismjs@1.30.0/components/prism-bash.js";
-import "npm:prismjs@1.30.0/components/prism-ruby.js";
-import "npm:prismjs@1.30.0/components/prism-scss.js";
-import "npm:prismjs@1.30.0/components/prism-typescript.js";
-import "npm:prismjs@1.30.0/components/prism-python.js";
-import "npm:prismjs@1.30.0/components/prism-go.js";
+import "prismjs/components/prism-bash.js";
+import "prismjs/components/prism-ruby.js";
+import "prismjs/components/prism-scss.js";
+import "prismjs/components/prism-typescript.js";
+import "prismjs/components/prism-python.js";
+import "prismjs/components/prism-go.js";
 
 // Required language dependencies for languages like liquid
-import "npm:prismjs@1.30.0/components/prism-markup-templating.js";
+import "prismjs/components/prism-markup-templating.js";
 
 // Template highlights
-import "npm:prismjs@1.30.0/components/prism-markdown.js";
-import "npm:prismjs@1.30.0/components/prism-liquid.js";
-import "npm:prismjs@1.30.0/components/prism-jsx.js";
+import "prismjs/components/prism-markdown.js";
+import "prismjs/components/prism-liquid.js";
+import "prismjs/components/prism-jsx.js";
 
 // Custom highlights
-import "./_config/prism-tree.js";
-import "./_config/prism-annotated.js";
+import "./_config/prism-tree.ts";
+import "./_config/prism-annotated.ts";
 
-import { DOMParser } from "jsr:@b-fuze/deno-dom@0.1.56";
-import { join } from "jsr:@std/path@1.0.8";
+import { DOMParser } from "@b-fuze/deno-dom";
 
 //import { Page } from "lume/core.ts";
 import { Element } from "lume/deps/dom.ts";
 import { extract } from "lume/deps/front_matter.ts";
 
-import { remark } from "npm:remark@15.0.1";
-import remarkParse from "npm:remark-parse@11.0.0";
-import strip from "npm:strip-markdown@6.0.0";
+import { remark } from "remark";
+import remarkParse from "remark-parse";
+import strip from "strip-markdown";
 
 import { parseChangelogFilename } from "./parseChangelogFilename.ts";
 import type { ContentNavItem, DocEntry } from "./_types.d.ts";
 import { buildRefNav } from "./developer/reference/_shared/buildRefNav.ts";
 
-import documentation from "npm:@cloudcannon/configuration-types@0.0.50/dist/documentation.json" with {
+import documentation from "@cloudcannon/configuration-types/dist/documentation.json" with {
   type: "json",
 };
 
@@ -90,7 +87,6 @@ const phaseStarts: Record<string, number> = {};
 // Caches for expensive operations (persist across incremental builds)
 const renderTextOnlyCache = new Map<string, string>();
 const glossaryTermCache = new Map<string, string>();
-const glossaryByLetterCache = new Map<string, object[]>();
 const changelogDescriptionCache = new Map<string, string>();
 
 // Reusable remark processor (avoid recreating on each call)
@@ -223,7 +219,6 @@ site.scopedUpdates(
   (path) => /\.(css|scss)$/.test(path),
 );
 
-site.use(nunjucks());
 site.use(icons());
 
 const injectedSections: Promise<string>[] = [];
@@ -305,9 +300,9 @@ site.copy("uploads", "documentation/static");
 // Pagefind search indexing - runs automatically after each build
 // Uses local plugin (_plugins/pagefind.ts) with pagefind v1.5.0-beta.1
 site.use(pagefind({
-    outputPath: "/documentation/_pagefind",
-    ui: false,        // Disable old PagefindUI
-    componentUI: true, // Enable new Component UI (v1.5+)
+  outputPath: "/documentation/_pagefind",
+  ui: false, // Disable old PagefindUI
+  componentUI: true, // Enable new Component UI (v1.5+)
 }));
 
 site.use(jsx());
@@ -325,11 +320,8 @@ site.add("/assets/img");
 
 site.use(date());
 site.use(sitemap({
-  items: {
-    filename: "=/documentation/sitemap.xml",
-  },
-  // deno-lint-ignore no-explicit-any
-} as any));
+  filename: "/documentation/sitemap.xml",
+}));
 
 // Changelog RSS feed - uses changelogs tag (year pages use changelog-year tag instead)
 site.use(feed({
@@ -349,10 +341,9 @@ site.use(feed({
   },
 }));
 
-// deno-lint-ignore no-explicit-any
 site.loadPages(
   [".md"],
-  ((page: any) => {
+  ((page: Lume.Page) => {
     if (page.src.path.startsWith("user/glossary/")) {
       page.data.collection = "glossary";
     }
@@ -828,42 +819,6 @@ site.filter("parent_gids_from_doc", (doc: DocEntry) => {
   }
   return parentGids;
 });
-
-site.filter("get_by_letter", async (_resources, letter) => {
-  // Check cache first
-  const cacheKey = letter.toLowerCase();
-  const cached = glossaryByLetterCache.get(cacheKey);
-  if (cached !== undefined) {
-    return cached;
-  }
-
-  const dir = join(
-    Deno.cwd(),
-    "user",
-    "glossary",
-    cacheKey,
-  );
-  const entries = [];
-  try {
-    for await (const entry of Deno.readDir(dir)) {
-      const file_content = Deno.readTextFileSync(`${dir}/${entry.name}`);
-      const yml = yamlParse(file_content);
-      entries.push(yml);
-    }
-    entries.sort((a, b) =>
-      a.glossary_term_name < b.glossary_term_name ? -1 : 1
-    );
-  } catch (error) {
-    // Directory doesn't exist, return empty array
-    if (error instanceof Deno.errors.NotFound) {
-      glossaryByLetterCache.set(cacheKey, []);
-      return [];
-    }
-    throw error; // Re-throw other errors
-  }
-  glossaryByLetterCache.set(cacheKey, entries);
-  return entries;
-}, true);
 
 // TODO: Redo docnav as JSX and move this logic into the component
 const bubble_up_nav = (obj: ContentNavItem): string[] | undefined => {

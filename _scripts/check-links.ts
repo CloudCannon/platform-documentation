@@ -1,4 +1,4 @@
-import { LinkChecker } from "npm:linkinator@6.1.2";
+import { LinkChecker } from "linkinator";
 import routing from "../.cloudcannon/routing.json" with { type: "json" };
 
 const checker = new LinkChecker();

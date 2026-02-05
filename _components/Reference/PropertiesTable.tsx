@@ -21,7 +21,9 @@ function ObjectProperties(
     PropertiesTableProps,
 ) {
   const properties = Object.entries(entry.properties || {})
-    .sort(([keyA], [keyB]) => keyA.localeCompare(keyB));
+    .sort(([keyA], [keyB]) =>
+      keyA.replace(/^_+/, "").localeCompare(keyB.replace(/^_+/, ""))
+    );
   const additionalProps = entry.additionalProperties || [];
   let additionalValues: DocEntry[] = [];
 
@@ -50,7 +52,6 @@ function ObjectProperties(
                   docRef={ref}
                   currentUrl={currentUrl}
                   section={section}
-                  useKey
                   keyOverride={getShortKey(key)}
                   helpers={helpers}
                 />
@@ -80,8 +81,10 @@ function ObjectProperties(
                     docRef={ref}
                     currentUrl={currentUrl}
                     section={section}
-                    useKey={false}
-                    keyOverride={undefined}
+                    useKey={!resolved?.title}
+                    keyOverride={!resolved?.title && resolved?.key
+                      ? getShortKey(resolved.key)
+                      : undefined}
                     helpers={helpers}
                   />
                 </div>
@@ -111,8 +114,10 @@ function ObjectProperties(
                     docRef={ref}
                     currentUrl={currentUrl}
                     section={section}
-                    useKey={false}
-                    keyOverride={undefined}
+                    useKey={!resolved?.title}
+                    keyOverride={!resolved?.title && resolved?.key
+                      ? getShortKey(resolved.key)
+                      : undefined}
                     helpers={helpers}
                   />
                 </div>
@@ -150,7 +155,9 @@ function ArrayItems(
                 currentUrl={currentUrl}
                 section={section}
                 useKey
-                keyOverride={undefined}
+                keyOverride={!resolved?.title && resolved?.key
+                  ? getShortKey(resolved.key)
+                  : undefined}
                 helpers={helpers}
               />
             </div>

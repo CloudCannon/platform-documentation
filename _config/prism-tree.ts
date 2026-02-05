@@ -1,15 +1,19 @@
+declare const Prism: {
+  languages: Record<string, unknown>;
+};
+
 (function (Prism) {
   Prism.languages.cc_tree = {
-    "comment": /\/\*[\s\S]*?\*\/|\/\/.+$|#.+$/m,
-    "function": {
+    comment: /\/\*[\s\S]*?\*\/|\/\/.+$|#.+$/m,
+    function: {
       pattern: /(^|\s)\S+\/\s*$/m,
       lookbehind: true,
     },
-    "keyword": {
+    keyword: {
       pattern: /(^|\s)[^\/\s─├│└]+\s*$/m,
       lookbehind: true,
     },
-    "branches": {
+    branches: {
       pattern: /─|├|│|└/,
       alias: "comment",
     },

@@ -20,7 +20,8 @@ function getSectionDocs(section: SectionId): Record<string, DocEntry> {
 export function getShortKey(key: string | undefined): string {
   if (!key) return "unknown";
   const parts = key.split(".");
-  return parts[parts.length - 1];
+  const lastPart = parts[parts.length - 1];
+  return lastPart.endsWith("[*]") ? "[*]" : lastPart;
 }
 
 // "Type reset" entries (parent === 'type.Configuration' && show_in_navigation) display title instead of key
@@ -29,6 +30,14 @@ export function getDisplayName(entry: DocEntry | null | undefined): string {
 
   // TODO if it is a key, we want it presented in monospace font
   return entry.title || getShortKey(entry.key) || "unknown";
+}
+
+export function getDisplayNamePair(
+  entry: DocEntry | null | undefined,
+): { label: string; useCode: boolean } {
+  if (entry?.title) return { label: entry.title, useCode: false };
+  if (entry?.key) return { label: getShortKey(entry.key), useCode: true };
+  return { label: "unknown", useCode: false };
 }
 
 export function getRefUrl(

@@ -2,6 +2,7 @@ import type { Helpers } from "../_types.d.ts";
 
 export interface TreeNode {
   label: string;
+  useCode?: boolean;
   href?: string;
   isFolder?: boolean;
   children?: TreeNode[];
@@ -83,10 +84,10 @@ function getBranchIcons(iconMode: IconMode): { closed: string; open: string } {
 
 function TreeBranch({ node, helpers, defaultOpen, iconMode }: TreeBranchProps) {
   const hasChildren = node.children && node.children.length > 0;
-
+  const className = node.useCode === false ? "code-not-monospace" : undefined;
   const content = node.href
-    ? <a href={node.href}>{node.label}</a>
-    : <span>{node.label}</span>;
+    ? <a href={node.href} class={className}>{node.label}</a>
+    : <span class={className}>{node.label}</span>;
 
   if (!hasChildren) {
     const leafIcon = getLeafIcon(iconMode);
@@ -125,9 +126,8 @@ function TreeBranch({ node, helpers, defaultOpen, iconMode }: TreeBranchProps) {
           <AnnotationMarker annotation={node.annotation} />
         </summary>
         <ul className="c-tree__children" role="group">
-          {node.children!.map((child, i) => (
+          {node.children!.map((child) => (
             <TreeBranch
-              key={child.href || `${child.label}-${i}`}
               node={child}
               helpers={helpers}
               defaultOpen={defaultOpen}
@@ -161,9 +161,8 @@ export default function InteractiveTree({
         role="tree"
         aria-describedby={treeId}
       >
-        {nodes.map((node, i) => (
+        {nodes.map((node) => (
           <TreeBranch
-            key={node.href || `${node.label}-${i}`}
             node={node}
             helpers={helpers}
             defaultOpen={defaultOpen}

@@ -37,7 +37,6 @@ declare global {
 
       // Content helpers (custom)
       get_glossary_term: (term: string) => string;
-      get_by_letter?: (prefix: string, letter: string) => Promise<unknown[]>;
     }
   }
 }
@@ -232,4 +231,15 @@ export interface IndexPage {
 export interface ChangelogYears {
   keys?: string[];
   [year: string]: string[] | number | unknown;
+}
+
+// ============================================================================
+// GLOSSARY TYPES
+// ============================================================================
+
+export interface GlossaryEntry {
+  _schema?: string;
+  glossary_term_name: string;
+  term_description: string;
+  documentation_link?: string;
 }

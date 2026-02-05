@@ -38,7 +38,7 @@ Just run `deno task serve` and search will work automatically.
     directory are available on the global scope (not a `data` scope). i.e. it is
     `site.navigation` not `site.data.navigation`.
 - `_includes`
-  - An includes directory. Various nunjucks templates live in here for building
+  - An includes directory. Various tsx templates live in here for building
     the site layouts.\
     The `scripts` directory here contains files that are bundled into the site
     javascript using esbuild.\

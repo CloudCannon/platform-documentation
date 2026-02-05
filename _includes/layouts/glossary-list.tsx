@@ -1,16 +1,36 @@
+import { parse as yamlParse } from "@std/yaml";
+import { join } from "@std/path";
 import GlossaryNav from "../../_components/Nav/GlossaryNav.tsx";
 import NavSidebar from "../../_components/Layout/NavSidebar.tsx";
 import MobileTOC from "../../_components/Layout/MobileTOC.tsx";
 import Card from "../../_components/Card/Card.tsx";
-import type { Helpers } from "../../_types.d.ts";
-
-interface GlossaryEntry {
-  glossary_term_name: string;
-  term_description: string;
-}
+import type { GlossaryEntry, Helpers } from "../../_types.d.ts";
 
 interface Props {
   all_letters?: () => string[];
+}
+
+async function getGlossaryEntriesByLetter(
+  letter: string,
+): Promise<GlossaryEntry[]> {
+  const dir = join(Deno.cwd(), "user", "glossary", letter.toLowerCase());
+  const entries: GlossaryEntry[] = [];
+  try {
+    for await (const entry of Deno.readDir(dir)) {
+      const fileContent = Deno.readTextFileSync(`${dir}/${entry.name}`);
+      const yml = yamlParse(fileContent) as GlossaryEntry;
+      entries.push(yml);
+    }
+    entries.sort((a, b) =>
+      a.glossary_term_name < b.glossary_term_name ? -1 : 1
+    );
+  } catch (error) {
+    if (error instanceof Deno.errors.NotFound) {
+      return [];
+    }
+    throw error;
+  }
+  return entries;
 }
 
 export default async function GlossaryListLayout(
@@ -23,8 +43,7 @@ export default async function GlossaryListLayout(
   // Pre-fetch all glossary entries by letter (async)
   const entriesByLetter = await Promise.all(
     letters.map(async (letter) => {
-      const entries =
-        (await helpers.get_by_letter?.("", letter) || []) as GlossaryEntry[];
+      const entries = await getGlossaryEntriesByLetter(letter);
       return { letter, entries };
     }),
   );

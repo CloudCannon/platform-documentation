@@ -1,4 +1,4 @@
-import { SearchResults, SearchResultTemplate } from "./Search.tsx";
+import { SearchResults } from "./Search.tsx";
 
 interface InlineSearchProps {
   placeholder?: string;
