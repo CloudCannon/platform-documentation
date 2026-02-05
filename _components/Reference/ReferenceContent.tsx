@@ -17,7 +17,7 @@ import type { DocEntry, Helpers } from "../../_types.d.ts";
 
 interface TocItem {
   id: string;
-  labelElement: any;
+  labelElement: string;
 }
 
 interface ReferenceContentProps {
@@ -45,11 +45,6 @@ function DocNameUnboxed({ doc }: { doc?: DocEntry }) {
 function DocNameFull({ doc }: { doc?: DocEntry }) {
   if (!doc) return null;
   return doc.title ? doc.title : <code>{doc.key}</code>;
-}
-
-function DocNameFullUnboxed({ doc }: { doc?: DocEntry }) {
-  if (!doc) return null;
-  return doc.title ? doc.title : <code className="code-no-box">{doc.key}</code>;
 }
 
 function DocLink({ doc, section }: { doc?: DocEntry; section: SectionId }) {
