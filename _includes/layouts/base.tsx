@@ -71,11 +71,7 @@ export default function BaseLayout(props: Props, helpers: Helpers) {
           type="text/css"
           async=""
         />
-        <script
-          src="/documentation/_pagefind/pagefind-component-ui.js"
-          type="module"
-        />
-        <link href="/assets/css/site.css" rel="stylesheet" type="text/css" />
+        <link href="/documentation/assets/css/site.css" rel="stylesheet" type="text/css" />
         <link
           rel="apple-touch-icon"
           sizes="180x180"
@@ -149,7 +145,12 @@ export default function BaseLayout(props: Props, helpers: Helpers) {
           }}
         />
 
-        <script src="/assets/js/site.js" type="text/javascript" defer />
+        <script
+          src="/documentation/_pagefind/pagefind-component-ui.js"
+          type="module"
+          defer
+        />
+        <script src="/documentation/assets/js/site.js" type="text/javascript" defer />
       </head>
 
       <body

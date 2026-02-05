@@ -310,13 +310,11 @@ site.use(pagefind({
 site.use(jsx());
 site.use(mdx());
 site.use(esbuild());
-site.add("/assets/js/site.js");
-site.copy("/assets/js/custom-live.js");
-
+site.add("/assets/js/site.js", "/documentation/assets/js/site.js");
 site.use(sass());
-site.add("/assets/css/site.scss");
+site.add("/assets/css/site.scss", "/documentation/assets/css/site.css");
 
-site.add("/assets/img");
+site.add("/assets/img", "/documentation/assets/img");
 // Uploads are copied via site.copy() above - don't also add them here
 // site.add("/uploads");
 
