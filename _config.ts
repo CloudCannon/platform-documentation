@@ -59,6 +59,7 @@ import { buildRefNav } from "./developer/reference/_shared/buildRefNav.ts";
 import documentation from "@cloudcannon/configuration-types/dist/documentation.json" with {
   type: "json",
 };
+import llmsTxt from "./_config/llms-text.ts";
 
 // Type the documentation as nested sections (section -> gid -> entry)
 const typedDocs = documentation as unknown as Record<
@@ -322,6 +323,8 @@ site.use(date());
 site.use(sitemap({
   filename: "/documentation/sitemap.xml",
 }));
+
+site.use(llmsTxt());
 
 // Changelog RSS feed - uses changelogs tag (year pages use changelog-year tag instead)
 site.use(feed({
