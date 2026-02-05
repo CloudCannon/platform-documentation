@@ -18,7 +18,7 @@ Alpine.data("visibleNavHighlighter", () => ({
     this.$nextTick(() => {
       // Include card titles for glossary pages, standard headings for other pages
       this.headings = document.querySelectorAll(
-        "main h2:not(.glossary-letter-heading), main dt[id], main dd[id], main .c-card--glossary .c-card__title[id]",
+        "main h2:not(.glossary-letter-heading), main dt[id], main .c-data-reference__item[id], main .c-card--glossary .c-card__title[id]",
       );
       this.assignHeadingIds();
       this.onScroll();

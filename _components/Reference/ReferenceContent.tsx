@@ -291,13 +291,7 @@ export default function ReferenceContent({
     <dl>
       {showDescription && (
         <>
-          <dt
-            id="description"
-            className={!entry.description ? "show-in-cms" : undefined}
-            data-pagefind-ignore
-          >
-            Description:
-          </dt>
+          <dt id="description" data-pagefind-ignore>Description:</dt>
           <dd>
             {entry.description && (
               <span
@@ -354,12 +348,7 @@ export default function ReferenceContent({
 
       {showExamples && (
         <>
-          <dt
-            id="examples"
-            className={!examples.length ? "show-in-cms" : undefined}
-          >
-            Examples:
-          </dt>
+          <dt id="examples">Examples:</dt>
           {examples.map((example, i) => (
             <dd key={i}>
               {example.description && (
