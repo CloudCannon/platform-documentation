@@ -300,9 +300,9 @@ site.copy("uploads", "documentation/static");
 // Pagefind search indexing - runs automatically after each build
 // Uses local plugin (_plugins/pagefind.ts) with pagefind v1.5.0-beta.1
 site.use(pagefind({
-    outputPath: "/documentation/_pagefind",
-    ui: false,        // Disable old PagefindUI
-    componentUI: true, // Enable new Component UI (v1.5+)
+  outputPath: "/documentation/_pagefind",
+  ui: false, // Disable old PagefindUI
+  componentUI: true, // Enable new Component UI (v1.5+)
 }));
 
 site.use(jsx());
@@ -322,7 +322,6 @@ site.use(date());
 site.use(sitemap({
   filename: "/documentation/sitemap.xml",
 }));
-
 
 // Changelog RSS feed - uses changelogs tag (year pages use changelog-year tag instead)
 site.use(feed({

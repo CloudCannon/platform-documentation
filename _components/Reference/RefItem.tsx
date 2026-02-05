@@ -114,7 +114,7 @@ export default function RefItem(
   const displayName = getDisplayName(doc);
   const key = keyOverride || doc.key;
   const label = useKey && key
-    ? <code class="code-title">{key}</code>
+    ? <code class="code-no-box">{key}</code>
     : displayName;
 
   return (

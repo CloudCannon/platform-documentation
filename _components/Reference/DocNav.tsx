@@ -8,6 +8,7 @@ import type { Helpers, PageSearch } from "../../_types.d.ts";
 interface RefNavItem {
   url: string;
   name: string;
+  useCode: boolean;
   gid: string;
 }
 
@@ -205,8 +206,8 @@ export default function DocNav(
                   )}
 
                   {/* Reference items (pre-filtered, pre-sorted) */}
-                  {sec.items.map((item) => (
-                    <li key={item.gid}>
+                  {sec.items.map((item, index) => (
+                    <li key={item.gid || index}>
                       <a
                         className="t-docs-nav__sub-list__article"
                         href={item.url}
@@ -214,7 +215,9 @@ export default function DocNav(
                           ? "page"
                           : undefined}
                       >
-                        {item.name}
+                        {item.useCode
+                          ? <code className="code-no-box">{item.name}</code>
+                          : item.name}
                       </a>
                     </li>
                   ))}

@@ -1,5 +1,6 @@
 import {
   getDisplayName,
+  getDisplayNamePair,
   getDocByGid,
   getRefUrl,
   getShortKey,
@@ -16,7 +17,7 @@ import type { DocEntry, Helpers } from "../../_types.d.ts";
 
 interface TocItem {
   id: string;
-  label: string;
+  labelElement: any;
 }
 
 interface ReferenceContentProps {
@@ -34,9 +35,21 @@ function DocName({ doc }: { doc?: DocEntry }) {
   return doc.title ? doc.title : <code>{getShortKey(doc.key)}</code>;
 }
 
+function DocNameUnboxed({ doc }: { doc?: DocEntry }) {
+  if (!doc) return null;
+  return doc.title
+    ? doc.title
+    : <code className="code-no-box">{getShortKey(doc.key)}</code>;
+}
+
 function DocNameFull({ doc }: { doc?: DocEntry }) {
   if (!doc) return null;
   return doc.title ? doc.title : <code>{doc.key}</code>;
+}
+
+function DocNameFullUnboxed({ doc }: { doc?: DocEntry }) {
+  if (!doc) return null;
+  return doc.title ? doc.title : <code className="code-no-box">{doc.key}</code>;
 }
 
 function DocLink({ doc, section }: { doc?: DocEntry; section: SectionId }) {
@@ -117,7 +130,7 @@ function buildAppearsInTree(doc: DocEntry, section: SectionId): TreeNode[] {
     for (const [_gid, buildNode] of map) {
       const docEntry = getDocByGid(buildNode.gid, section);
       const node: TreeNode = {
-        label: getDisplayName(docEntry),
+        ...getDisplayNamePair(docEntry),
         href: getRefUrl(docEntry, section) ?? undefined,
         children: convertToTreeNodes(buildNode.children),
       };
@@ -159,15 +172,13 @@ function AppearsIn({
     <>
       <dt id="appears-in" data-pagefind-ignore>Appears in:</dt>
       <dd data-pagefind-ignore>
-        <div className="c-code-block c-code-block--appears-in">
-          <div className="c-code-block__code">
-            <InteractiveTree
-              nodes={nodes}
-              helpers={helpers}
-              defaultOpen
-              iconMode="key"
-            />
-          </div>
+        <div style="font-size: 16px;">
+          <InteractiveTree
+            nodes={nodes}
+            helpers={helpers}
+            defaultOpen
+            iconMode="key"
+          />
         </div>
       </dd>
     </>
@@ -181,7 +192,7 @@ export function getTocItems(entry: DocEntry, section: SectionId): TocItem[] {
 
   if (entry.type === "object" || hasProperties) {
     const properties = Object.keys(entry.properties || {})
-      .sort((a, b) => a.localeCompare(b));
+      .sort((a, b) => a.replace(/^_+/, "").localeCompare(b.replace(/^_+/, "")));
     const additionalProps = entry.additionalProperties || [];
     let additionalValues: DocEntry[] = [];
 
@@ -194,33 +205,48 @@ export function getTocItems(entry: DocEntry, section: SectionId): TocItem[] {
 
     properties.forEach((key) => {
       const shortKey = getShortKey(key);
-      items.push({ id: `prop-${slugify(shortKey)}`, label: shortKey });
+      items.push({
+        id: `prop-${slugify(shortKey)}`,
+        labelElement: <code className="code-no-box">{shortKey}</code>,
+      });
     });
 
     if (additionalValues.length) {
       additionalValues.forEach((ref, i) => {
-        const resolved = resolveRef(ref, section);
+        const resolved = resolveRef(ref, section) || undefined;
         const label = getDisplayName(resolved) || `item-${i}`;
-        items.push({ id: `addvalue-${slugify(label)}`, label });
+        items.push({
+          id: `addvalue-${slugify(label)}`,
+          labelElement: <DocNameUnboxed doc={resolved} />,
+        });
       });
     } else {
       additionalProps.forEach((ref, i) => {
-        const resolved = resolveRef(ref, section);
+        const resolved = resolveRef(ref, section) || undefined;
         const label = getDisplayName(resolved) || `item-${i}`;
-        items.push({ id: `addprop-${slugify(label)}`, label });
+        items.push({
+          id: `addprop-${slugify(label)}`,
+          labelElement: <DocNameUnboxed doc={resolved} />,
+        });
       });
     }
   } else if (entry.type === "array" && entry.items?.length) {
     entry.items.forEach((ref, i) => {
-      const resolved = resolveRef(ref, section);
+      const resolved = resolveRef(ref, section) || undefined;
       const label = getDisplayName(resolved) || `item-${i}`;
-      items.push({ id: `item-${slugify(label)}`, label });
+      items.push({
+        id: `item-${slugify(label)}`,
+        labelElement: <DocNameUnboxed doc={resolved} />,
+      });
     });
   } else if (entry.anyOf?.length) {
     entry.anyOf.forEach((ref, i) => {
-      const resolved = resolveRef(ref, section);
+      const resolved = resolveRef(ref, section) || undefined;
       const label = getDisplayName(resolved) || `type-${i}`;
-      items.push({ id: `type-${slugify(label)}`, label });
+      items.push({
+        id: `type-${slugify(label)}`,
+        labelElement: <DocNameUnboxed doc={resolved} />,
+      });
     });
   }
 
@@ -234,14 +260,18 @@ export function TableOfContents(
 
   return (
     <>
-      {withHeading && <h3 className="l-toc__heading" data-pagefind-ignore>Table of contents</h3>}
+      {withHeading && (
+        <h3 className="l-toc__heading" data-pagefind-ignore>
+          Table of contents
+        </h3>
+      )}
       <ol className="l-toc__list" data-pagefind-ignore>
         {items.map((item) => (
           <li
             key={item.id}
             x-bind:class={`visibleHeadingId === '${item.id}' ? 'active' : ''`}
           >
-            <a href={`#${item.id}`}>{item.label}</a>
+            <a href={`#${item.id}`}>{item.labelElement}</a>
           </li>
         ))}
       </ol>

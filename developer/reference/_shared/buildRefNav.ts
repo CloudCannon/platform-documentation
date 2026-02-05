@@ -10,6 +10,7 @@ export type SectionId =
 export interface RefNavItem {
   url: string;
   name: string;
+  useCode: boolean;
   gid: string;
 }
 
@@ -23,14 +24,16 @@ export interface RefNavSection {
 }
 
 // Helper to get display name for nav items
-function getNavDisplayName(entry: DocEntry): string {
-  if (!entry) return "unknown";
-  if (entry.title) return entry.title;
+function getNavDisplayName(
+  entry: DocEntry,
+): { name: string; useCode: boolean } {
+  if (!entry) return { name: "unknown", useCode: false };
+  if (entry.title) return { name: entry.title, useCode: false };
   if (entry.key) {
     const parts = entry.key.split(".");
-    return parts[parts.length - 1];
+    return { name: parts[parts.length - 1], useCode: true };
   }
-  return "unknown";
+  return { name: "unknown", useCode: false };
 }
 
 // Build precompiled reference navigation items for a section
@@ -38,7 +41,18 @@ function buildRefNavItems(
   docs: DocEntry[],
   sectionId: SectionId,
 ): RefNavItem[] {
-  return docs
+  const properties = docs.find((doc) => doc.gid === sectionId)?.properties ||
+    {};
+
+  const baseDocs = Object.keys(properties || {}).map((key) => {
+    const refDoc = properties[key];
+    const doc = docs.find((d) => d.gid === refDoc.gid) || refDoc;
+    doc.documentation ||= {};
+    doc.documentation.show_in_navigation = true;
+    return doc;
+  });
+
+  return baseDocs
     .filter((d) =>
       d.documentation?.show_in_navigation &&
       d.url &&
@@ -46,11 +60,13 @@ function buildRefNavItems(
       d.gid !== sectionId
     )
     .map((d) => ({
+      ...getNavDisplayName(d),
       url: `/documentation/developer-reference${d.url}`, // d.url already includes section path
-      name: getNavDisplayName(d),
       gid: d.gid || "",
     }))
-    .sort((a, b) => a.name.localeCompare(b.name));
+    .sort((a, b) =>
+      a.name.replace(/^_+/, "").localeCompare(b.name.replace(/^_+/, ""))
+    );
 }
 
 /**
