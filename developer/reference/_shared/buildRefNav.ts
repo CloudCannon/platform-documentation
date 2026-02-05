@@ -10,7 +10,7 @@ export type SectionId =
 export interface RefNavItem {
   url: string;
   name: string;
-  useCode: boolean;
+  useCode?: boolean;
   gid: string;
 }
 
