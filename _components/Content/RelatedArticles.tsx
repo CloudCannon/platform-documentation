@@ -16,7 +16,7 @@ interface RelatedArticlesProps {
 export default async function RelatedArticles(
   { details, search, helpers }: RelatedArticlesProps,
 ) {
-  if (!details?.related_articles?.length || !search) return null;
+  if (!details?.related_articles?.length || !search) return <div class="c-card-container--bottom-spacing"></div>;
 
   // Filter out invalid entries (e.g., legacy slug strings that haven't been converted to UUID references)
   // Valid entries must be objects with a non-empty string `item` property containing a UUID
