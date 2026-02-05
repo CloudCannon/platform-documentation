@@ -1,10 +1,13 @@
 interface AnnotationProps {
   key?: string | number;
   number: number;
-  children: unknown;
+  children?: unknown;
+  contentHtml?: string | undefined;
 }
 
-export default function Annotation({ number, children }: AnnotationProps) {
+export default function Annotation(
+  { number, children, contentHtml }: AnnotationProps,
+) {
   return (
     <div
       className="c-annotation"
@@ -18,9 +21,22 @@ export default function Annotation({ number, children }: AnnotationProps) {
         className="c-annotation__number code-annotation"
       >
       </div>
-      <div className="c-annotation__content">
-        {children}
-      </div>
+
+      {contentHtml
+        ? (
+          <div
+            className="c-annotation__content"
+            dangerouslySetInnerHTML={{
+              __html: contentHtml,
+            }}
+          >
+          </div>
+        )
+        : (
+          <div className="c-annotation__content">
+            {children}
+          </div>
+        )}
     </div>
   );
 }

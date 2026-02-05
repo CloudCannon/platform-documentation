@@ -372,8 +372,11 @@ export default function ReferenceContent({
                   </code>
                 </pre>
                 {example.annotations?.map((annotation, j) => (
-                  <Annotation key={j} number={annotation.number || 0}>
-                    {annotation.content}
+                  <Annotation
+                    key={j}
+                    number={annotation.number || 0}
+                    contentHtml={helpers.md(annotation.content || "")}
+                  >
                   </Annotation>
                 ))}
               </MultiCodeBlock>
