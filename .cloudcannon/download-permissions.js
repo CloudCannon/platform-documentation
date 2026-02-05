@@ -1,5 +1,3 @@
-const process = require("node:process");
-const fs = require("fs");
 const filepath = "_data/permissions.json";
 const treeUrl = "https://app.cloudcannon.com/permissions-tree";
 
@@ -18,16 +16,16 @@ const pullPerms = async () => {
       console.error(
         `Expected documentation at *.children.site.children.site:details.docs.read to exist, found nothing.`,
       );
-      process.exit(1);
+      Deno.exit(1);
     }
 
-    fs.writeFileSync(filepath, JSON.stringify(tree, null, 2));
+    Deno.writeTextFileSync(filepath, JSON.stringify(tree, null, 2));
   } catch (e) {
     console.error(
       `Failed to pull permissions tree from CloudCannon at ${treeUrl}`,
     );
     console.error(e);
-    process.exit(1);
+    Deno.exit(1);
   }
 };
 
