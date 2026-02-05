@@ -125,9 +125,8 @@ function TreeBranch({ node, helpers, defaultOpen, iconMode }: TreeBranchProps) {
           <AnnotationMarker annotation={node.annotation} />
         </summary>
         <ul className="c-tree__children" role="group">
-          {node.children!.map((child, i) => (
+          {node.children!.map((child) => (
             <TreeBranch
-              key={child.href || `${child.label}-${i}`}
               node={child}
               helpers={helpers}
               defaultOpen={defaultOpen}
@@ -161,9 +160,8 @@ export default function InteractiveTree({
         role="tree"
         aria-describedby={treeId}
       >
-        {nodes.map((node, i) => (
+        {nodes.map((node) => (
           <TreeBranch
-            key={node.href || `${node.label}-${i}`}
             node={node}
             helpers={helpers}
             defaultOpen={defaultOpen}

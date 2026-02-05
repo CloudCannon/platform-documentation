@@ -64,7 +64,7 @@ export default async function RelatedArticles(
       if (articles.length > 0) {
         articlesFound = articles;
       }
-    } catch (e) {
+    } catch (_e) {
       // If pages() fails, fall through to individual page() calls
     }
   }

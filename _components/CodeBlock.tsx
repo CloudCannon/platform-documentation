@@ -1,5 +1,5 @@
-import yaml from "npm:js-yaml@4.1.1";
-import TOML from "npm:@iarna/toml@2.2.5";
+import yaml from "js-yaml";
+import TOML from "@iarna/toml";
 import CodeBlockCopyButton from "./CodeBlockCopyButton.tsx";
 import CodeTabs, { getLanguageLabel } from "./CodeTabs.tsx";
 import CodeTab from "./CodeTab.tsx";
@@ -148,12 +148,6 @@ function extractCodeString(node: unknown): string | undefined {
   return undefined;
 }
 
-// Generate a unique ID for this code block instance
-let codeBlockCounter = 0;
-function generateUniqueId(): string {
-  return `cb-${++codeBlockCounter}`;
-}
-
 interface CodeBlockProps {
   language?: string;
   translate_into?: string[];
@@ -165,8 +159,6 @@ export default function CodeBlock(
   { language = "plaintext", translate_into = [], source, children }:
     CodeBlockProps,
 ) {
-  const uniqueId = generateUniqueId();
-
   const code_block: unknown = Array.isArray(children) ? children[0] : children;
   let annotations: unknown = null;
   if (Array.isArray(children) && children.length > 1) {
@@ -272,7 +264,6 @@ export default function CodeBlock(
             source={block.source}
             code={block.code}
             codeEncoded={block.codeEncoded}
-            key={block.lang}
           />
         ))}
       </CodeTabs>

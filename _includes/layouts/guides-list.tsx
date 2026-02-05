@@ -17,6 +17,7 @@ interface Guide {
   guide_summary: string;
   guide_icon?: string;
   guide_image?: string;
+  guide_icon_invert_for_dark_mode?: boolean;
 }
 
 interface Search {
