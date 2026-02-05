@@ -1,9 +1,7 @@
 import lume from "lume/mod.ts";
 import icons from "lume/plugins/icons.ts";
 
-import nunjucks from "lume/plugins/nunjucks.ts";
-
-import pagefind from "lume/plugins/pagefind.ts";
+import pagefind from "./_plugins/pagefind.ts";
 import date from "lume/plugins/date.ts";
 import sass from "lume/plugins/sass.ts";
 import inline from "lume/plugins/inline.ts";
@@ -15,53 +13,73 @@ import feed from "lume/plugins/feed.ts";
 import jsx from "lume/plugins/jsx.ts";
 import mdx from "lume/plugins/mdx.ts";
 
-import slugify from "npm:@sindresorhus/slugify@2.2.0";
+import { slugify } from "./_components/utils/stringHelpers.ts";
 
-import jsYaml from "npm:js-yaml";
+import { parse as yamlParse } from "@std/yaml";
 
 // Data highlights
-import "npm:prismjs@1.29.0/components/prism-yaml.js";
-import "npm:prismjs@1.29.0/components/prism-json.js";
-import "npm:prismjs@1.29.0/components/prism-toml.js";
-import "npm:prismjs@1.29.0/components/prism-diff.js";
-import "npm:prismjs@1.29.0/components/prism-ignore.js";
+import "prismjs/components/prism-yaml.js";
+import "prismjs/components/prism-json.js";
+import "prismjs/components/prism-toml.js";
 
 // Lang highlights
-import "npm:prismjs@1.29.0/components/prism-bash.js";
-import "npm:prismjs@1.29.0/components/prism-ruby.js";
-import "npm:prismjs@1.29.0/components/prism-scss.js";
-import "npm:prismjs@1.29.0/components/prism-typescript.js";
+import "prismjs/components/prism-bash.js";
+import "prismjs/components/prism-ruby.js";
+import "prismjs/components/prism-scss.js";
+import "prismjs/components/prism-typescript.js";
+import "prismjs/components/prism-python.js";
+import "prismjs/components/prism-go.js";
 
 // Required language dependencies for languages like liquid
-import "npm:prismjs@1.29.0/components/prism-markup-templating.js";
+import "prismjs/components/prism-markup-templating.js";
 
 // Template highlights
-import "npm:prismjs@1.29.0/components/prism-markdown.js";
-import "npm:prismjs@1.29.0/components/prism-liquid.js";
-import "npm:prismjs@1.29.0/components/prism-handlebars.js";
-import "npm:prismjs@1.29.0/components/prism-ejs.js";
-import "npm:prismjs@1.29.0/components/prism-jsx.js";
+import "prismjs/components/prism-markdown.js";
+import "prismjs/components/prism-liquid.js";
+import "prismjs/components/prism-jsx.js";
 
 // Custom highlights
-import "./_config/prism-tree.js";
-import "./_config/prism-annotated.js";
+import "./_config/prism-tree.ts";
+import "./_config/prism-annotated.ts";
 
-import { DOMParser } from "https://deno.land/x/deno_dom@v0.1.38/deno-dom-wasm.ts";
-import { join } from "https://deno.land/std/path/mod.ts";
+import { DOMParser } from "@b-fuze/deno-dom";
 
 //import { Page } from "lume/core.ts";
-import { Element, Node } from "lume/deps/dom.ts";
+import { Element } from "lume/deps/dom.ts";
 import { extract } from "lume/deps/front_matter.ts";
 
-import { remark } from "npm:remark";
-import remarkParse from "npm:remark-parse";
-import strip from "npm:strip-markdown";
+import { remark } from "remark";
+import remarkParse from "remark-parse";
+import strip from "strip-markdown";
 
-import { format, formatDistanceToNowStrict, differenceInMonths } from 'npm:date-fns';
 import { parseChangelogFilename } from "./parseChangelogFilename.ts";
+import type { ContentNavItem, DocEntry } from "./_types.d.ts";
+import { buildRefNav } from "./developer/reference/_shared/buildRefNav.ts";
 
-import documentation from 'npm:@cloudcannon/configuration-types@0.0.46/dist/documentation.json' with { type: 'json' };
-globalThis.DOCS = documentation;
+import documentation from "@cloudcannon/configuration-types/dist/documentation.json" with {
+  type: "json",
+};
+import llmsTxt from "./_config/llms-text.ts";
+
+// Type the documentation as nested sections (section -> gid -> entry)
+const typedDocs = documentation as unknown as Record<
+  string,
+  Record<string, DocEntry>
+>;
+
+// Store nested documentation structure for section-aware lookups
+globalThis.DOCS = typedDocs;
+
+// Partition documentation entries by section for layouts
+const routingDocs: DocEntry[] = Object.values(
+  typedDocs["type.Routing"] ?? {},
+);
+const initialSiteSettingsDocs: DocEntry[] = Object.values(
+  typedDocs["type.InitialSiteSettings"] ?? {},
+);
+const configDocs: DocEntry[] = Object.values(
+  typedDocs["type.Configuration"] ?? {},
+);
 
 // Build timing instrumentation
 const buildTimings: Record<string, number> = {};
@@ -70,42 +88,47 @@ const phaseStarts: Record<string, number> = {};
 // Caches for expensive operations (persist across incremental builds)
 const renderTextOnlyCache = new Map<string, string>();
 const glossaryTermCache = new Map<string, string>();
-const glossaryByLetterCache = new Map<string, object[]>();
 const changelogDescriptionCache = new Map<string, string>();
 
 // Reusable remark processor (avoid recreating on each call)
 // deno-lint-ignore no-explicit-any
 let remarkProcessor: any = null;
 function getRemarkProcessor() {
-    if (!remarkProcessor) {
-        remarkProcessor = remark().use(remarkParse).use(strip);
-    }
-    return remarkProcessor;
+  if (!remarkProcessor) {
+    remarkProcessor = remark().use(remarkParse).use(strip);
+  }
+  return remarkProcessor;
 }
 
 function startPhase(name: string) {
-    phaseStarts[name] = performance.now();
+  phaseStarts[name] = performance.now();
 }
 
 function endPhase(name: string) {
-    buildTimings[name] = performance.now() - phaseStarts[name];
+  buildTimings[name] = performance.now() - phaseStarts[name];
 }
 
-function stripHTML(html) {
-    const doc = new DOMParser().parseFromString(html, 'text/html');
-    return doc.body.textContent || '';
+function stripHTML(html: string): string {
+  const doc = new DOMParser().parseFromString(html, "text/html");
+  return doc?.body?.textContent || "";
 }
 
-const domainsRegExp = new RegExp('cloudcannon.com|^\/|^\#');
+const domainsRegExp = new RegExp("cloudcannon.com|^\/|^\#");
 
 const site = lume({
-    location: new URL("https://cloudcannon.com/documentation/"),
-    server: {
-        port: 9010,
-    }
+  location: new URL("https://cloudcannon.com/documentation/"),
+  server: {
+    port: 9010,
+  },
 });
 
-site.data("full_docs", Object.values(documentation));
+// Build precompiled reference navigation
+const refNavSections = buildRefNav(
+  configDocs,
+  routingDocs,
+  initialSiteSettingsDocs,
+);
+site.data("ref_nav", refNavSections);
 
 // Track whether we're in an update cycle (vs initial build)
 let isUpdating = false;
@@ -113,173 +136,175 @@ let updatePageCount = 0;
 
 // Build timing event listeners
 site.addEventListener("afterLoad", () => {
-    endPhase("load");
-    startPhase("render");
-    if (!isUpdating) {
-        console.log(`  Load files:    ${buildTimings.load.toFixed(0)}ms`);
-    }
+  endPhase("load");
+  startPhase("render");
+  if (!isUpdating) {
+    console.log(`  Load files:    ${buildTimings.load.toFixed(0)}ms`);
+  }
 });
 
 site.addEventListener("afterRender", (event) => {
-    endPhase("render");
-    startPhase("process");
-    updatePageCount = event.pages.length;
-    if (!isUpdating) {
-        console.log(`  Render pages:  ${buildTimings.render.toFixed(0)}ms (${event.pages.length} pages)`);
-    }
+  endPhase("render");
+  startPhase("process");
+  updatePageCount = event.pages.length;
+  if (!isUpdating) {
+    console.log(
+      `  Render pages:  ${
+        buildTimings.render.toFixed(0)
+      }ms (${event.pages.length} pages)`,
+    );
+  }
 });
 
 site.addEventListener("beforeSave", () => {
-    endPhase("process");
-    startPhase("save");
-    if (!isUpdating) {
-        console.log(`  Process HTML:  ${buildTimings.process.toFixed(0)}ms`);
-    }
+  endPhase("process");
+  startPhase("save");
+  if (!isUpdating) {
+    console.log(`  Process HTML:  ${buildTimings.process.toFixed(0)}ms`);
+  }
 });
 
 site.addEventListener("afterBuild", (event) => {
-    endPhase("save");
-    endPhase("total");
-    console.log(`  Save files:    ${buildTimings.save.toFixed(0)}ms`);
-    console.log(`  ─────────────────────────`);
-    console.log(`  TOTAL:         ${buildTimings.total.toFixed(0)}ms`);
-    console.log(`  Pages built:   ${event.pages.length}`);
-    console.log(`  Static files:  ${event.staticFiles.length}`);
-    console.log("=== BUILD TIMING END ===\n");
+  endPhase("save");
+  endPhase("total");
+  console.log(`  Save files:    ${buildTimings.save.toFixed(0)}ms`);
+  console.log(`  ─────────────────────────`);
+  console.log(`  TOTAL:         ${buildTimings.total.toFixed(0)}ms`);
+  console.log(`  Pages built:   ${event.pages.length}`);
+  console.log(`  Static files:  ${event.staticFiles.length}`);
+  console.log("=== BUILD TIMING END ===\n");
 });
 
 // Incremental update timing (for watch mode)
 site.addEventListener("beforeUpdate", (event) => {
-    isUpdating = true;
-    startPhase("update");
-    startPhase("load");
-    console.log(`\n=== UPDATE START (${event.files.size} files changed) ===`);
-    for (const file of event.files) {
-        console.log(`  Changed: ${file}`);
-    }
+  isUpdating = true;
+  startPhase("update");
+  startPhase("load");
+  console.log(`\n=== UPDATE START (${event.files.size} files changed) ===`);
+  for (const file of event.files) {
+    console.log(`  Changed: ${file}`);
+  }
 });
 
 site.addEventListener("afterUpdate", (event) => {
-    endPhase("save");
-    endPhase("update");
-    console.log(`  ─────────────────────────`);
-    console.log(`  Load files:    ${buildTimings.load.toFixed(0)}ms`);
-    console.log(`  Render pages:  ${buildTimings.render.toFixed(0)}ms (${updatePageCount} pages)`);
-    console.log(`  Process HTML:  ${buildTimings.process.toFixed(0)}ms`);
-    console.log(`  Save files:    ${buildTimings.save.toFixed(0)}ms`);
-    console.log(`  ─────────────────────────`);
-    console.log(`  TOTAL:         ${buildTimings.update.toFixed(0)}ms`);
-    console.log(`  Pages rebuilt: ${event.pages.length}`);
-    console.log("=== UPDATE END ===\n");
-    isUpdating = false;
+  endPhase("save");
+  endPhase("update");
+  console.log(`  ─────────────────────────`);
+  console.log(`  Load files:    ${buildTimings.load.toFixed(0)}ms`);
+  console.log(
+    `  Render pages:  ${
+      buildTimings.render.toFixed(0)
+    }ms (${updatePageCount} pages)`,
+  );
+  console.log(`  Process HTML:  ${buildTimings.process.toFixed(0)}ms`);
+  console.log(`  Save files:    ${buildTimings.save.toFixed(0)}ms`);
+  console.log(`  ─────────────────────────`);
+  console.log(`  TOTAL:         ${buildTimings.update.toFixed(0)}ms`);
+  console.log(`  Pages rebuilt: ${event.pages.length}`);
+  console.log("=== UPDATE END ===\n");
+  isUpdating = false;
 });
 
 // Log the server URL when it starts (currently suppressed by LUME_LOGS=critical)
 site.addEventListener("afterStartServer", () => {
-    const port = site.options.server.port;
-    console.log(`\n  Server running at: http://localhost:${port}/documentation/\n`);
+  const port = site.options.server.port;
+  console.log(
+    `\n  Server running at: http://localhost:${port}/documentation/\n`,
+  );
 });
 
 // Configure scoped updates for faster incremental rebuilds
 // Files in each scope only rebuild when files in that scope change
 site.scopedUpdates(
-    // CSS/SCSS files are independent
-    (path) => /\.(css|scss)$/.test(path),
-    
-    // JavaScript/TypeScript files are independent (except .page.js which generate pages)
-    (path) => /\.(js|ts)$/.test(path) && !path.endsWith(".page.js"),
-    
-    // Changelog MDX files are independent from other content
-    (path) => path.startsWith("/new_changelogs/") && path.endsWith(".mdx"),
+  // CSS/SCSS files are independent
+  (path) => /\.(css|scss)$/.test(path),
 );
 
-site.use(nunjucks());
 site.use(icons());
 
 const injectedSections: Promise<string>[] = [];
 
-const mdFilter = site.renderer.helpers.get('md')[0];
+const mdFilter = site.renderer.helpers.get("md")?.[0];
 
-site.ignore("README.md", 'articles', 'changelogs', 'unused', 'guides');
+site.ignore("README.md", "unused");
 
 // Detect dev mode (serve command uses -s flag)
 const isDevMode = Deno.args.includes("-s") || Deno.args.includes("--serve");
 
 // In dev mode, only load recent changelogs for faster builds
 if (isDevMode) {
-    site.ignore(
-        "new_changelogs/2015",
-        "new_changelogs/2016",
-        "new_changelogs/2017",
-        "new_changelogs/2018",
-        "new_changelogs/2019",
-        "new_changelogs/2020",
-        "new_changelogs/2021",
-        "new_changelogs/2022",
-        "new_changelogs/2023",
-    );
-    console.log("  Dev mode: Loading only recent changelogs (2024-2025)");
+  site.ignore(
+    "changelogs/2015",
+    "changelogs/2016",
+    "changelogs/2017",
+    "changelogs/2018",
+    "changelogs/2019",
+    "changelogs/2020",
+    "changelogs/2021",
+    "changelogs/2022",
+    "changelogs/2023",
+  );
+  console.log("  Dev mode: Loading only recent changelogs (2024-2025)");
 }
 
 // Sets `/documentation/` through the url filter when running locally
 if (isDevMode) {
-    site.options.location = new URL("http://localhost:9010/documentation/");
+  site.options.location = new URL("http://localhost:9010/documentation/");
 }
 
 // Output all files to `/documentation/*` to match the location
 // (by default `_site/index.html` would represent `https://cloudcannon.com/documentation/`,
 //  but to subpath it on CloudCannon we want this at `_site/documentation/index.html`)
-site.preprocess("*", (pages) => pages.forEach((page) => {
+site.preprocess("*", (pages) =>
+  pages.forEach((page) => {
     page.data.url = `/documentation${page.data.url}`;
-}));
+  }));
 
 // Creates an excerpt for all changelogs saved in description.
-site.preprocess(['.md', '.mdx'], (pages) => pages.forEach((page) => {
-    if (!page.data.description && page.src.path.startsWith('/new_changelogs/')) {
-        const parsedDate = parseChangelogFilename(page.src.path);
-        if (parsedDate) {
-            page.data.date = parsedDate;
-        }
+site.preprocess([".md", ".mdx"], (pages) =>
+  pages.forEach((page) => {
+    if (
+      !page.data.description && page.src.path.startsWith("/changelogs/")
+    ) {
+      const parsedDate = parseChangelogFilename(page.src.path);
+      if (parsedDate) {
+        page.data.date = parsedDate;
+      }
 
-        const firstLine = String(page.data.content).trim().split('\n')[0];
-        if (!firstLine) {
-            return;
-        }
+      const firstLine = String(page.data.content).trim().split("\n")[0];
+      if (!firstLine) {
+        return;
+      }
 
-        // Cache key based on path + first line (description only depends on these)
-        const cacheKey = `${page.src.path}:${firstLine}`;
-        const cached = changelogDescriptionCache.get(cacheKey);
-        if (cached) {
-            page.data.description = cached;
-            return;
-        }
+      // Cache key based on path + first line (description only depends on these)
+      const cacheKey = `${page.src.path}:${firstLine}`;
+      const cached = changelogDescriptionCache.get(cacheKey);
+      if (cached) {
+        page.data.description = cached;
+        return;
+      }
 
-        const markdownInline = mdFilter(firstLine, true) || '';
-        const description = stripHTML(markdownInline);
-        changelogDescriptionCache.set(cacheKey, description);
-        page.data.description = description;
+      const markdownInline = mdFilter?.(firstLine, true) || "";
+      const description = stripHTML(markdownInline);
+      changelogDescriptionCache.set(cacheKey, description);
+      page.data.description = description;
     }
-}));
+  }));
 
 site.copy("ye_olde_images", "documentation/ye_olde_images");
 site.copy("uploads", "documentation/static");
 
 // Temporary trick to disable indented code blocks if we happen to use markdown-it
-site.formats.get(".md").engines[0].engine.disable("code");
+// deno-lint-ignore no-explicit-any
+(site.formats.get(".md")?.engines?.[0] as any)?.engine?.disable?.("code");
 
-// Disable builtin Pagefind instance while we're pinned to a beta version,
-// which must be pulled from a different repository.
-// Remove from .cloudcannon/postbuild when enabling this.
-
-// site.use(pagefind({
-//     binary: {
-//         version: "v1.0.3",
-//     },
-//     indexing: {
-//         bundleDirectory: "documentation/_pagefind",
-//     },    
-// }));
-
+// Pagefind search indexing - runs automatically after each build
+// Uses local plugin (_plugins/pagefind.ts) with pagefind v1.5.0-beta.1
+site.use(pagefind({
+  outputPath: "/documentation/_pagefind",
+  ui: false, // Disable old PagefindUI
+  componentUI: true, // Enable new Component UI (v1.5+)
+}));
 
 site.use(jsx());
 site.use(mdx());
@@ -291,534 +316,697 @@ site.use(sass());
 site.add("/assets/css/site.scss");
 
 site.add("/assets/img");
-site.add("/uploads");
+// Uploads are copied via site.copy() above - don't also add them here
+// site.add("/uploads");
 
 site.use(date());
 site.use(sitemap({
-    items:{
-        filename: '=/documentation/sitemap.xml'
-    }
+  filename: "/documentation/sitemap.xml",
 }));
+
+site.use(llmsTxt());
 
 // Changelog RSS feed - uses changelogs tag (year pages use changelog-year tag instead)
 site.use(feed({
-    output: ["/documentation/changelog/feed.xml"],
-    query: "changelogs",
-    sort: "date=desc",
-    limit: 20,
-    info: {
-        title: "CloudCannon Documentation Changelog",
-        description: "Latest updates and changes to CloudCannon",
-    },
-    items: {
-        title: "=title",
-        description: "=description",
-        published: "=date",
-        content: "=children",
-    },
+  output: ["/documentation/changelog/feed.xml"],
+  query: "changelogs",
+  sort: "date=desc",
+  limit: 20,
+  info: {
+    title: "CloudCannon Documentation Changelog",
+    description: "Latest updates and changes to CloudCannon",
+  },
+  items: {
+    title: "=title",
+    description: "=description",
+    published: "=date",
+    content: "=children",
+  },
 }));
 
-site.loadPages([".md"], (page) => {
-  if (page.src.path.startsWith("user/glossary/")) {
-    page.data.collection = "glossary";
-}});
-
+site.loadPages(
+  [".md"],
+  ((page: Lume.Page) => {
+    if (page.src.path.startsWith("user/glossary/")) {
+      page.data.collection = "glossary";
+    }
+  }) as unknown as undefined,
+);
 
 // JSX doesn't like to output some alpine attributes,
 // so we write them with an `alpine` prefix and re-map them here.
 const alpineRemaps = {
-    "alpine:class": ":class",
-    "alpine:click": "@click",
+  "alpine:class": ":class",
+  "alpine:click": "@click",
+  "alpine:href": ":href",
+  "alpine:src": ":src",
+  "alpine:style": ":style",
+  "alpine:key": ":key",
+  "alpine-click-stop": "@click.stop",
+  "alpine-click-away": "@click.away",
+  "alpine-click-outside": "@click.outside",
+  "alpine:checked": ":checked",
+  "alpine:scroll": "x-on:scroll.window.throttle.50ms",
+  "alpine-scroll-window": "@scroll.window",
+  "alpine-resize-window": "@resize.window",
+  "alpine-keydown-down": "@keydown.down",
+  "alpine-keydown-up": "@keydown.up",
+  "alpine-keydown-down-prevent": "@keydown.down.prevent",
+  "alpine-keydown-up-prevent": "@keydown.up.prevent",
+  "alpine-keydown-escape": "@keydown.escape",
+  "alpine-keydown-window-prevent-ctrl-k": "@keydown.window.prevent.ctrl.k",
+  "alpine-keydown-window-prevent-cmd-k": "@keydown.window.prevent.cmd.k",
+  "x-trap-inert": "x-trap.inert",
+  "x-trap-noscroll": "x-trap.noscroll",
+  "x-on-toggle": "x-on:toggle",
+  "x-on-click": "x-on:click",
+  "x-on-keydown": "x-on:keydown",
+  "x-on-mouseenter": "x-on:mouseenter",
+  "x-on-mouseleave": "x-on:mouseleave",
+};
+
+function createLink(page: Lume.Page, text: string, href: string) {
+  const a = page.document!.createElement("a");
+  const linkText = page.document!.createTextNode(text);
+  a.appendChild(linkText);
+  a.setAttribute("href", href);
+  return a;
 }
 
-function createLink(page, text, href) {
-    const a = page.document.createElement('a');
-    const linkText = page.document.createTextNode(text);
-    a.appendChild(linkText);
-    a.setAttribute('href', href);
-    return a;
-}
-
-function appendTargetBlank(page, el) {
-    if (el.hasAttribute("href")) {
-        let href = el.getAttribute('href')
-        if (!domainsRegExp.test(href)){
-            el.setAttribute('target', '_blank')
-            el.setAttribute('rel', 'noopener')
-        }
+function appendTargetBlank(_page: Lume.Page, el: Element): void {
+  if (el.hasAttribute("href")) {
+    const href = el.getAttribute("href");
+    if (href && !domainsRegExp.test(href)) {
+      el.setAttribute("target", "_blank");
+      el.setAttribute("rel", "noopener");
     }
+  }
 }
 
-const commentAnnotationRegex = /^\/\*\s*(\d+|\*)\s*\*\/$|^(?:\/\/|#)\s*(\d+|\*)\s*|^<!--\s*(\d+|\*)\s*-->$/;
+const commentAnnotationRegex =
+  /^\/\*\s*(\d+|\*)\s*\*\/$|^(?:\/\/|#)\s*(\d+|\*)\s*|^<!--\s*(\d+|\*)\s*-->$/;
 const tokenAnnotationRegex = /___(\d+|\*)___/g;
-const annotateCodeBlocks = (page) => {
-    // Comment tokens for standard code blocks, annotations
-    // are inserted for syntax comments containing only digits
-    page.document?.querySelectorAll('.token.comment').forEach((commentEl) => {
-        if (!commentAnnotationRegex.test(commentEl.innerText)) return;
+const annotateCodeBlocks = (page: Lume.Page): void => {
+  // Comment tokens for standard code blocks, annotations
+  // are inserted for syntax comments containing only digits
+  page.document?.querySelectorAll(".token.comment").forEach((commentEl) => {
+    const el = commentEl as HTMLElement;
+    if (!commentAnnotationRegex.test(el.innerText)) return;
 
-        const matches = commentEl.innerText.match(commentAnnotationRegex);
-        const annotationId = matches[1] ?? matches[2] ?? matches[3];
-        if (!annotationId) return;
-        
-        // Empty the comment token and replace it with a clickable annotation box
-        commentEl.innerText = "";
-        commentEl.classList.add("annotation", "code-annotation");
-        if (annotationId === "*" || annotationId === "0") {
+    const matches = el.innerText.match(commentAnnotationRegex);
+    const annotationId = matches?.[1] ?? matches?.[2] ?? matches?.[3];
+    if (!annotationId) return;
+
+    // Empty the comment token and replace it with a clickable annotation box
+    el.innerText = "";
+    el.classList.add("annotation", "code-annotation");
+    if (annotationId === "*" || annotationId === "0") {
+      el.setAttribute("data-annotation-number", "★");
+    } else {
+      el.setAttribute("data-annotation-number", annotationId);
+      el.setAttribute("@click", `highlighedAnnotation = ${annotationId}`);
+    }
+  });
+
+  // Any text for MultiCodeBlocks, annotations are inserted any time
+  // a digit surrounded by three underscores on either side is encountered
+  page.document?.querySelectorAll(".highlight > pre > code").forEach(
+    (codeEl) => {
+      [...codeEl.childNodes].reverse().forEach((tokenEl) => {
+        const token = tokenEl as HTMLElement & { nodeValue?: string };
+        const is_text = token.nodeName === "#text";
+        if (
+          !tokenAnnotationRegex.test(
+            is_text ? (token.nodeValue || "") : (token.innerText || ""),
+          )
+        ) return;
+
+        const matches = (is_text ? token.nodeValue : token.innerText)?.match(
+          tokenAnnotationRegex,
+        );
+        for (const match of matches || []) {
+          const annotationId = match.replace(/___/g, "");
+          if (!annotationId) continue;
+
+          // Create a new empty comment token as a clickable annotation box
+          const commentEl = page.document?.createElement("span");
+          commentEl.classList.add(
+            "token",
+            "comment",
+            "annotation",
+            "code-annotation",
+          );
+          if (annotationId === "*" || annotationId === "0") {
             commentEl.setAttribute("data-annotation-number", "★");
-        } else {
+          } else {
             commentEl.setAttribute("data-annotation-number", annotationId);
-            commentEl.setAttribute("@click", `highlighedAnnotation = ${annotationId}`);
+            commentEl.setAttribute(
+              "@click",
+              `highlighedAnnotation = ${annotationId}`,
+            );
+          }
+
+          // To insert after the token containing the annotation
+          // const insert_before_el = token.nextSibling || token;
+
+          // To insert at the end of the line containing the annotation
+          let next_newline: ChildNode | null = null;
+          let next_el: ChildNode | null = token;
+          while (next_el && !next_newline) {
+            const nodeEl = next_el as HTMLElement & { nodeValue?: string };
+            if (
+              /\n/.test(nodeEl?.nodeValue ?? "") ||
+              /\n/.test(nodeEl?.innerText ?? "")
+            ) {
+              next_newline = next_el;
+              break;
+            }
+            next_el = next_el.nextSibling;
+          }
+          let insert_before_el: ChildNode | null = next_newline || token;
+
+          // Text nodes might span multiple lines, so we split it on newlines
+          // and re-add each as independent text nodes, so that we can add an element before
+          // the newline.
+          const insertNodeValue = (insert_before_el as Text)?.nodeValue;
+          if (insertNodeValue && /\n/.test(insertNodeValue)) {
+            const chunks = insertNodeValue
+              .split("\n")
+              .map((chunk: string) => page.document!.createTextNode(chunk));
+            for (let i = 0; i < chunks.length; i += 1) {
+              insert_before_el?.parentNode?.insertBefore(
+                chunks[i],
+                insert_before_el,
+              );
+              if (i !== chunks.length - 1) {
+                insert_before_el?.parentNode?.insertBefore(
+                  page.document!.createTextNode("\n"),
+                  insert_before_el,
+                );
+              }
+            }
+            insert_before_el?.remove();
+            insert_before_el = chunks[0].nextSibling;
+          }
+          insert_before_el?.parentNode?.insertBefore(
+            commentEl,
+            insert_before_el,
+          );
         }
-    });
 
-
-    // Any text for MultiCodeBlocks, annotations are inserted any time
-    // a digit surrounded by three underscores on either side is encountered
-    page.document?.querySelectorAll('.highlight > pre > code').forEach((codeEl) => {
-        [...codeEl.childNodes].reverse().forEach((tokenEl) => {
-            const is_text = tokenEl.nodeName === "#text";
-            if (!tokenAnnotationRegex.test(is_text ? tokenEl.nodeValue : tokenEl.innerText)) return;
-
-            const matches = (is_text ? tokenEl.nodeValue : tokenEl.innerText).match(tokenAnnotationRegex);
-            for (const match of matches) {
-                const annotationId = match.replace(/___/g, "");
-                if (!annotationId) continue;
-
-                // Create a new empty comment token as a clickable annotation box
-                const commentEl = page.document?.createElement('span');
-                commentEl.classList.add("token", "comment", "annotation", "code-annotation");
-                if (annotationId === "*" || annotationId === "0") {
-                    commentEl.setAttribute("data-annotation-number", "★");
-                } else {
-                    commentEl.setAttribute("data-annotation-number", annotationId);
-                    commentEl.setAttribute("@click", `highlighedAnnotation = ${annotationId}`);
-                }
-
-                // To insert after the token containing the annotation
-                // const insert_before_el = tokenEl.nextSibling || tokenEl;
-
-                // To insert at the end of the line containing the annotation
-                let next_newline = null;
-                let next_el = tokenEl;
-                while (next_el && !next_newline) {
-                    if (/\n/.test(next_el?.nodeValue ?? "") || /\n/.test(next_el?.innerText ?? "")) {
-                        next_newline = next_el;
-                        break;
-                    }
-                    next_el = next_el.nextSibling;
-                }
-                let insert_before_el = next_newline || tokenEl;
-
-                // Text nodes might span multiple lines, so we split it on newlines
-                // and re-add each as independent text nodes, so that we can add an element before
-                // the newline.
-                if (/\n/.test(insert_before_el?.nodeValue || "")) {
-                    const chunks = insert_before_el?.nodeValue
-                                    .split("\n")
-                                    .map(chunk => page.document.createTextNode(chunk));
-                    for (let i = 0; i < chunks.length; i += 1) {
-                        insert_before_el.parentNode.insertBefore( chunks[i], insert_before_el);
-                        if (i !== chunks.length-1) {
-                            insert_before_el.parentNode.insertBefore(page.document.createTextNode("\n"), insert_before_el);
-                        }
-                    }
-                    insert_before_el.remove();
-                    insert_before_el = chunks[0].nextSibling;
-                }
-                insert_before_el.parentNode.insertBefore(commentEl, insert_before_el);
-            }
-
-            if (is_text) {
-                tokenEl.nodeValue = tokenEl.nodeValue.replace(tokenAnnotationRegex, "");
-            } else {
-                tokenEl.innerText = tokenEl.innerText.replace(tokenAnnotationRegex, "");
-            }
-        });
-    });
-}
+        if (is_text) {
+          token.nodeValue = (token.nodeValue || "").replace(
+            tokenAnnotationRegex,
+            "",
+          );
+        } else {
+          token.innerText = (token.innerText || "").replace(
+            tokenAnnotationRegex,
+            "",
+          );
+        }
+      });
+    },
+  );
+};
 
 const injectReusableContent = async (el: Element) => {
-    const reusableContent = el.querySelectorAll(`:scope [data-common-content-id]`);
+  const reusableContent = el.querySelectorAll(
+    `:scope [data-common-content-id]`,
+  );
 
-    for (const node of reusableContent) {
-        const injectionEl = node as Element;
-        const injectionSlots: Record<string, string> = {};
-        for (const slotContentEl of injectionEl.querySelectorAll(`:scope [data-common-content-slot-content]`)) {
-            const slotName = (slotContentEl as Element).getAttribute("data-common-content-slot-content");
-            if (!slotName) continue;
+  for (const node of reusableContent) {
+    const injectionEl = node as Element;
+    const injectionSlots: Record<string, string> = {};
+    for (
+      const slotContentEl of injectionEl.querySelectorAll(
+        `:scope [data-common-content-slot-content]`,
+      )
+    ) {
+      const slotName = (slotContentEl as Element).getAttribute(
+        "data-common-content-slot-content",
+      );
+      if (!slotName) continue;
 
-            injectionSlots[slotName] = (slotContentEl as Element).innerHTML;
-        }
-
-        const content_id = parseInt(injectionEl.getAttribute("data-common-content-id")!);
-        const content = await injectedSections[content_id];
-        injectionEl.innerHTML = content?.toString() || content;
-
-        for (const slotEl of injectionEl.querySelectorAll(`:scope [data-common-content-slot]`)) {
-            
-            const slotName = (slotEl as Element).getAttribute("data-common-content-slot");
-            if (!slotName) continue;
-
-            if (injectionSlots[slotName]) {
-                (slotEl as Element).innerHTML = injectionSlots[slotName];
-            }
-        }
-
-        injectReusableContent(injectionEl);
+      injectionSlots[slotName] = (slotContentEl as Element).innerHTML;
     }
-}
 
-site.process([".html"], (pages) => Promise.all(pages.map(async (page) => {
-    if (page.document) await injectReusableContent(page.document.body);
+    const content_id = parseInt(
+      injectionEl.getAttribute("data-common-content-id")!,
+    );
+    const content = await injectedSections[content_id];
+    injectionEl.innerHTML = content?.toString() || content;
 
-    for (const [attr, newattr] of Object.entries(alpineRemaps)) {
-        page.document?.querySelectorAll(`[${attr}]`).forEach((el) => {
-            el.setAttribute(newattr, el.getAttribute(attr));
+    for (
+      const slotEl of injectionEl.querySelectorAll(
+        `:scope [data-common-content-slot]`,
+      )
+    ) {
+      const slotName = (slotEl as Element).getAttribute(
+        "data-common-content-slot",
+      );
+      if (!slotName) continue;
+
+      if (injectionSlots[slotName]) {
+        (slotEl as Element).innerHTML = injectionSlots[slotName];
+      }
+    }
+
+    injectReusableContent(injectionEl);
+  }
+};
+
+site.process([".html"], async (pages) => {
+  await Promise.all(pages.map(async (page) => {
+    if (page.document) {
+      await injectReusableContent(page.document.body as unknown as Element);
+    }
+
+    // Helper function to remap Alpine attributes
+    // deno-lint-ignore no-explicit-any
+    function remapAlpineAttrs(root: any): void {
+      for (const [attr, newattr] of Object.entries(alpineRemaps)) {
+        root?.querySelectorAll(`[${attr}]`).forEach(
+          (
+            el: {
+              setAttribute: (a: string, b: string) => void;
+              getAttribute: (a: string) => string | null;
+              removeAttribute: (a: string) => void;
+            },
+          ) => {
+            el.setAttribute(newattr, el.getAttribute(attr) || "");
             el.removeAttribute(attr);
-        });
+          },
+        );
+      }
+      // Also process elements inside <template> tags
+      // deno-lint-ignore no-explicit-any
+      root?.querySelectorAll("template").forEach((template: any) => {
+        if (template.content) {
+          remapAlpineAttrs(template.content);
+        }
+      });
     }
 
-    const collisions = {};
+    remapAlpineAttrs(page.document);
 
-    function fixIdCollisions(slugPrefix) {
-        let slug = slugPrefix;
-        let count = 0;
-        while(collisions[slug]) {
-            count += 1;
-            slug = `${slugPrefix}-${count}`;
-        }
+    const collisions: Record<string, boolean> = {};
 
-        collisions[slug] = true;
-        return slug;
+    function fixIdCollisions(slugPrefix: string): string {
+      let slug = slugPrefix;
+      let count = 0;
+      while (collisions[slug]) {
+        count += 1;
+        slug = `${slugPrefix}-${count}`;
+      }
+
+      collisions[slug] = true;
+      return slug;
     }
 
     let tocContainer = page.document?.querySelectorAll(`.l-toc`)?.[0];
-    const toc = page.document.createElement('ol');
-    toc.setAttribute("x-data","")
+    const toc = page.document.createElement("ol");
     toc.classList.add("l-toc__list");
-    function appendAnchorHeader(el, slug) {
-        el.setAttribute('id', slug);
-        el.classList.add("c-anchor-header");
-        const link = createLink(page, "#", `#${slug}`);
-        link.classList.add("c-anchor-header__link");
-        link.setAttribute("data-pagefind-ignore", "true");
-        el.appendChild(link);
+    // deno-lint-ignore no-explicit-any
+    function appendAnchorHeader(el: any, slug: string): void {
+      el.setAttribute("id", slug);
+      el.classList.add("c-anchor-header");
+      const link = createLink(page, "#", `#${slug}`);
+      link.classList.add("c-anchor-header__link");
+      link.setAttribute("data-pagefind-ignore", "true");
+      el.appendChild(link);
     }
 
     let hasItems = false;
-    let selector = `main h1:not(.exclude-from-toc), main h2:not(.exclude-from-toc)`;
-    
-    if(!tocContainer){
-        tocContainer = page.document?.querySelectorAll(`.l-toc-changelog-list`)?.[0];
-        if(tocContainer)
-            selector = `main .changelog-entry > h2`;
+    let selector =
+      `main h1:not(.exclude-from-toc), main h2:not(.exclude-from-toc)`;
+
+    if (!tocContainer) {
+      tocContainer = page.document?.querySelectorAll(`.l-toc-changelog-list`)
+        ?.[0];
+      if (tocContainer) {
+        selector = `main .changelog-entry > h2`;
+      }
+    }
+
+    if (!tocContainer) {
+      tocContainer = page.document?.querySelectorAll(`.l-toc-glossary`)?.[0];
+      if (tocContainer) {
+        selector = `main .c-card--glossary .c-card__title`;
+      }
+    }
+
+    if (!tocContainer) {
+      return;
     }
 
     page.document?.querySelectorAll(selector).forEach((el) => {
-        if (el.hasAttribute("data-skip-anchor")) return;
+      if (el.hasAttribute("data-skip-anchor")) return;
 
-        const text = el.innerText;
-        const slugPrefix = el.getAttribute('id') || slugify(text);
-        if (!slugPrefix) {
-            return;
-        }
-        const slug = fixIdCollisions(slugPrefix);
-        appendAnchorHeader(el, slug);
+      const text = (el as HTMLElement).innerText || el.textContent || "";
+      const slugPrefix = el.getAttribute("id") || slugify(text);
+      if (!slugPrefix) {
+        return;
+      }
+      const slug = fixIdCollisions(slugPrefix);
+      appendAnchorHeader(el, slug);
 
-        if (tocContainer) {
-            hasItems = true;
-            const li = page.document.createElement('li');
-            li.setAttribute(
-            "x-bind:class",
-            `visibleHeadingId === '${slug}' ? 'active' : ''`
-            );
+      if (tocContainer) {
+        hasItems = true;
+        const li = page.document!.createElement("li");
+        li.setAttribute(
+          "x-bind:class",
+          `visibleHeadingId === '${slug}' ? 'active' : ''`,
+        );
 
-            li.appendChild(createLink(page, text, `#${slug}`));
-            toc.appendChild(li);
-        }
+        li.appendChild(createLink(page, text, `#${slug}`));
+        toc.appendChild(li);
+      }
     });
 
-    page.document?.querySelectorAll(`.c-data-reference__header`).forEach((el) => {
-        const text = el.querySelector('.c-data-reference__key').innerText;
+    page.document?.querySelectorAll(`.c-data-reference__header`).forEach(
+      (el) => {
+        const keyEl = el.querySelector(".c-data-reference__key") as
+          | HTMLElement
+          | null;
+        const text = keyEl?.innerText || keyEl?.textContent || "";
         const slug = fixIdCollisions(text);
         appendAnchorHeader(el, slug);
-    });
+      },
+    );
 
     if (hasItems) {
-        const h3 = page.document.createElement('h3');
-        h3.classList.add("l-toc__heading");
-        const headingText = page.document.createTextNode('Table of contents');
-        h3.appendChild(headingText);
-        tocContainer?.appendChild(h3);
-        tocContainer?.appendChild(toc);
+      const h3 = page.document.createElement("h3");
+      h3.classList.add("l-toc__heading");
+      const headingText = page.document.createTextNode("Table of contents");
+      h3.appendChild(headingText);
+      tocContainer?.appendChild(h3);
+      tocContainer?.appendChild(toc);
     }
 
-    page.document?.querySelectorAll('a').forEach((el) => {
-        appendTargetBlank(page, el);
+    page.document?.querySelectorAll("a").forEach((el) => {
+      appendTargetBlank(page, el as unknown as Element);
     });
 
-    let mobile_toc = page.document.querySelector(".l-toc-mobile > .l-toc__list");
-    if(mobile_toc){
-        mobile_toc.innerHTML = toc?.innerHTML;
-        if(!toc || toc.childNodes.length == 0)
-            mobile_toc.closest(".l-toc-mobile").remove();
+    const mobile_toc = page.document?.querySelector(
+      ".l-toc-mobile > .l-toc__list",
+    );
+    if (mobile_toc) {
+      mobile_toc.innerHTML = toc?.innerHTML || "";
+      if (!toc || toc.childNodes.length == 0) {
+        mobile_toc.closest(".l-toc-mobile")?.remove();
+      }
     }
-})));
+  }));
+});
 
 // These MUST appear after our custom site.process([".html"] handling,
 // as in that function we inject content that should then be processed by the inline plugin,
 // and processing runs in the order it was instantiated.
+// Note: inline should be used before feed per lume best practices, but we need it after our custom HTML processing
+// deno-lint-ignore lume/plugin-order
 site.use(inline());
 site.use(prism());
 
 // This annotation process relies on the syntax highlighting,
 // so needs to run after prism
-site.process([".html"], (pages) => Promise.all(pages.map(async (page) => {
+site.process([".html"], async (pages) => {
+  await Promise.all(pages.map((page) => {
     annotateCodeBlocks(page);
-})));
+  }));
+});
 
-site.filter("get_by_uuid", (resources, uuid) => {
-    let found = resources.filter(x => x._uuid === uuid)
-    if(found && found.length > 0)
-        return found[0]
-    return null
-})
-
-site.filter('is_gid_inside', (gid, parentGid) =>
-	parentGid === 'type.Configuration' ? !gid.startsWith('type.') : gid.startsWith(`${parentGid}.`)
+site.filter(
+  "get_by_uuid",
+  (resources: Array<{ _uuid?: string }>, uuid: string) => {
+    const found = resources.filter((x: { _uuid?: string }) => x._uuid === uuid);
+    if (found && found.length > 0) {
+      return found[0];
+    }
+    return null;
+  },
 );
 
-site.filter("get_docs_by_gid", (gid) => {
-    let found = Object.values(DOCS).filter(x => x.gid === gid)
-    if(found && found.length > 0)
-        return found[0]
-    return null
-})
-
-site.filter("get_docs_by_ref", (docRef) => {
-    let doc = DOCS[docRef.gid] || docRef;
-    
-    if (docRef.documentation) {
-        // Use more specific documentation entry
-        return {
-            ...doc,
-            title: docRef.documentation.title || doc.title,
-            description: docRef.documentation.description || doc.description,
-            examples: docRef.documentation.examples.length
-                ? docRef.documentation.examples
-                : doc.examples,
-            documentation: docRef.documentation,
-        };
-    }
-
-    return doc
-})
-
-site.filter('parent_gids_from_doc', (doc) => {
-    const parentGids = [];
-    let parentGid = doc.parent;
-    while (parentGid) {
-        parentGids.unshift(parentGid);
-        parentGid = DOCS[parentGid].parent;
-    }
-    return parentGids;
+site.filter("is_gid_inside", (gid: string | undefined, parentGid: string) => {
+  if (gid) {
+    return parentGid === "type.Configuration"
+      ? !gid.startsWith("type.")
+      : gid.startsWith(`${parentGid}.`);
+  } else return false;
 });
 
-site.filter("get_by_letter", async (resources, letter) => {
-    // Check cache first
-    const cacheKey = letter.toLowerCase();
-    const cached = glossaryByLetterCache.get(cacheKey);
-    if (cached !== undefined) {
-        return cached;
+// Helper to find a doc by gid across all sections
+function findDocByGid(gid: string): DocEntry | null {
+  for (const section of Object.values(typedDocs)) {
+    if (section && section[gid]) {
+      return section[gid];
     }
-
-    const dir = join(
-        Deno.cwd(),
-        "user",
-        "glossary",
-        cacheKey,
-    );
-    let entries = [];
-    try {
-        for await(const entry of Deno.readDir(dir)){
-            const file_content = Deno.readTextFileSync(`${dir}/${entry.name}`);
-            const yml = jsYaml.load(file_content);
-            entries.push(yml)
-        }
-        entries.sort((a,b) => a.glossary_term_name < b.glossary_term_name ? -1 : 1)
-    } catch (error) {
-        // Directory doesn't exist, return empty array
-        if (error instanceof Deno.errors.NotFound) {
-            glossaryByLetterCache.set(cacheKey, []);
-            return [];
-        }
-        throw error; // Re-throw other errors
-    }
-    glossaryByLetterCache.set(cacheKey, entries);
-    return entries;
-}, true)
-
-// TODO: Redo docnav as JSX and move this logic into the component
-const bubble_up_nav = (obj) => {
-    if (obj._bubbled) return;
-    if (obj._type === "heading" || obj._type === "group") {
-        let articles = obj.items ? obj.items.flatMap(o => bubble_up_nav(o)) : [];
-        obj._bubbled = articles;
-        return articles;
-    } else {
-        // TODO: Temporary URL map, until a UUID refactor.
-        return obj.articles
-    }
+  }
+  return null;
 }
 
+// Helper to find a doc by gid within a specific section (derived from parent chain)
+function findDocInSection(
+  gid: string,
+  sectionDocs: Record<string, DocEntry>,
+): DocEntry | null {
+  return sectionDocs[gid] || null;
+}
+
+// Derive the section from a doc entry by walking up the parent chain
+function getSectionFromDoc(doc: DocEntry): Record<string, DocEntry> | null {
+  // Check each section for this doc's gid
+  for (const [_sectionKey, sectionDocs] of Object.entries(typedDocs)) {
+    if (sectionDocs && doc.gid && sectionDocs[doc.gid]) {
+      return sectionDocs;
+    }
+  }
+  return null;
+}
+
+site.filter("get_docs_by_gid", (gid: string) => {
+  return findDocByGid(gid);
+});
+
+site.filter("get_docs_by_ref", (docRef: DocEntry) => {
+  const doc = findDocByGid(docRef.gid || "") || docRef;
+
+  if (docRef.documentation) {
+    // Use more specific documentation entry
+    return {
+      ...doc,
+      title: docRef.documentation.title || doc.title,
+      description: docRef.documentation.description || doc.description,
+      examples: docRef.documentation.examples?.length
+        ? docRef.documentation.examples
+        : doc.documentation?.examples,
+      documentation: docRef.documentation,
+    };
+  }
+
+  return doc;
+});
+
+site.filter("parent_gids_from_doc", (doc: DocEntry) => {
+  // Get the section this doc belongs to
+  const sectionDocs = getSectionFromDoc(doc);
+
+  const parentGids: string[] = [];
+  let parentGid = doc.parent;
+  while (parentGid) {
+    parentGids.unshift(parentGid);
+    const parentDoc = sectionDocs
+      ? findDocInSection(parentGid, sectionDocs)
+      : findDocByGid(parentGid);
+    parentGid = parentDoc?.parent;
+  }
+  return parentGids;
+});
+
+// TODO: Redo docnav as JSX and move this logic into the component
+const bubble_up_nav = (obj: ContentNavItem): string[] | undefined => {
+  if (obj._bubbled) return;
+  if (obj._type === "heading" || obj._type === "group") {
+    const articles = obj.items
+      ? obj.items.flatMap((o: ContentNavItem) => bubble_up_nav(o) || [])
+      : [];
+    obj._bubbled = articles;
+    return articles;
+  } else {
+    // TODO: Temporary URL map, until a UUID refactor.
+    return obj.articles;
+  }
+};
+
 site.filter("render_page_content", async (page: Lume.Page) => {
-    return await site.renderer.render(page.data.content, page.data, `${page.src.path}.${page.src.ext || "mdx"}`);
-}, true)
+  return await site.renderer.render(
+    page.data.content,
+    page.data,
+    `${page.src.path}.${page.src.ext || "mdx"}`,
+  );
+}, true);
 
 site.filter("render_text_only", async (markdown: string) => {
-    // Check cache first
-    const cached = renderTextOnlyCache.get(markdown);
-    if (cached !== undefined) {
-        return cached;
-    }
+  // Check cache first
+  const cached = renderTextOnlyCache.get(markdown);
+  if (cached !== undefined) {
+    return cached;
+  }
 
-    const result = await getRemarkProcessor().process(markdown);
-    const text = String(result).trim();
-    renderTextOnlyCache.set(markdown, text);
-    return text;
-}, true)
+  const result = await getRemarkProcessor().process(markdown);
+  const text = String(result).trim();
+  renderTextOnlyCache.set(markdown, text);
+  return text;
+}, true);
 
-site.filter("DATE_TO_NOW", (date) => {
-    let difference_in_months = differenceInMonths(new Date(), date)
-    let date_to_now = formatDistanceToNowStrict(date, {addSuffix: true})
-    return difference_in_months < 5 ? date_to_now : format(date, "d MMMM yyyy")
-})
-
-site.filter("bubble_up_nav", (blocks) => {
-    blocks.forEach(bubble_up_nav);
-    return blocks
+site.filter("bubble_up_nav", (blocks: ContentNavItem[]) => {
+  blocks.forEach(bubble_up_nav);
+  return blocks;
 });
 
-site.filter("nav_contains", (nav, url) => {
+site.filter(
+  "nav_contains",
+  (nav: { headings: ContentNavItem[] }, url: string) => {
     nav.headings.forEach(bubble_up_nav);
     for (const block of nav.headings) {
-        if (block._bubbled.includes(url)) {
-            return true;
-        }
+      if (block._bubbled?.includes(url)) {
+        return true;
+      }
     }
     return false;
+  },
+);
+
+site.filter("index_of", (block: unknown[], item: unknown) => {
+  return block.indexOf(item);
 });
 
-site.filter("index_of", (block, item) => {
-    return block.indexOf(item);
+site.filter("unslug", (str: string) => {
+  return str.replace(
+    /(^|_)(\w)/g,
+    (_: string, u: string, c: string) =>
+      `${u.replace("_", " ")}${c.toUpperCase()}`,
+  );
 });
 
-site.filter("unslug", (str) => {
-    return str.replace(/(^|_)(\w)/g, (_, u, c) => `${u.replace('_', ' ')}${c.toUpperCase()}`);
-})
-
-const summaryMarker = '</p>';
-site.filter("changelog_summary", (block, item) => {
-    return block.substring(0, block.indexOf(summaryMarker) + summaryMarker.length);
+const summaryMarker = "</p>";
+site.filter("changelog_summary", (block: string, _item: unknown) => {
+  return block.substring(
+    0,
+    block.indexOf(summaryMarker) + summaryMarker.length,
+  );
 });
 
-site.filter("render_common", (file: string, data: object = {}) => {
+site.filter(
+  "render_common",
+  (file: string, data: Record<string, unknown> = {}) => {
     // TODO: Remove the `/usr/local/__site/src/` replacement after fixing path selection
-    const file_content = Deno.readTextFileSync(file.replace("/usr/local/__site/src/", ""));
-    const {body, attrs} = extract(file_content);
-    const content_id = injectedSections.push(site.renderer.render(body, data, file));
+    const file_content = Deno.readTextFileSync(
+      file.replace("/usr/local/__site/src/", ""),
+    );
+    const { body } = extract(file_content);
+    const content_id = injectedSections.push(
+      site.renderer.render(body, data, file),
+    );
 
     return content_id - 1;
-})
+  },
+);
 
 site.filter("get_glossary_term", (file: string) => {
-    // Check cache first
-    const cached = glossaryTermCache.get(file);
-    if (cached !== undefined) {
-        return cached;
-    }
+  // Check cache first
+  const cached = glossaryTermCache.get(file);
+  if (cached !== undefined) {
+    return cached;
+  }
 
-    const mdFilter = site.renderer.helpers.get('md')[0];
-    const file_content = Deno.readTextFileSync(`${file.slice(1)}`);
-    let yml = jsYaml.load(file_content)
-    const description = mdFilter(yml.term_description)
-    glossaryTermCache.set(file, description);
-    return description;
-})
+  const mdFilterFn = site.renderer.helpers.get("md")?.[0];
+  const file_content = Deno.readTextFileSync(`${file.slice(1)}`);
+  // deno-lint-ignore no-explicit-any
+  const yml = yamlParse(file_content) as any;
+  const description = mdFilterFn?.(yml?.term_description) || "";
+  glossaryTermCache.set(file, description);
+  return description;
+});
 
 site.filter("get_index_page", (page: string) => {
-    page = page.replace("/documentation","").split("/")[1]
-    if(page.indexOf("-") != -1)
-    {
-        try
-        {
-            let page_parts = page.split("-")
-            const file_content = Deno.readTextFileSync(`${page_parts[0]}/${page_parts[1]}/index.mdx`)
-            const {body, attrs} = extract(file_content)
-            let obj = {attrs:"", url:""};
-            obj.attrs = attrs;
-            obj.url = `/documentation/${page_parts[0]}-${page_parts[1]}/`;
-            return obj;
-        }
-        catch(e){
-            //console.log(e);
-        }
+  page = page.replace("/documentation", "").split("/")[1];
+  if (page.indexOf("-") != -1) {
+    try {
+      const page_parts = page.split("-");
+      const file_content = Deno.readTextFileSync(
+        `${page_parts[0]}/${page_parts[1]}/index.mdx`,
+      );
+      const { attrs } = extract(file_content);
+      return {
+        attrs: attrs as Record<string, unknown>,
+        url: `/documentation/${page_parts[0]}-${page_parts[1]}/`,
+      };
+    } catch (_e) {
+      //console.log(e);
     }
-    //else
-        //console.log("no")
+  }
+  //else
+  //console.log("no")
 
-    return null;
-})
+  return null;
+});
 
-let changelogsData = {};
+let changelogsData: { keys: string[]; [year: string]: number | string[] } = {
+  keys: [],
+};
 
 site.addEventListener("beforeBuild", async () => {
-    startPhase("total");
-    startPhase("load");
-    console.log("\n=== BUILD TIMING START ===");
-  const dir = "new_changelogs";
-  const years = {"keys":[]};
+  startPhase("total");
+  startPhase("load");
+  console.log("\n=== BUILD TIMING START ===");
+  const dir = "changelogs";
+  const years: { keys: string[]; [year: string]: number | string[] } = {
+    keys: [],
+  };
 
   for await (const entry of Deno.readDir(dir)) {
     if (entry.isDirectory) {
-        let dirname = entry.name;
-        years.keys.push(dirname);
-        years[dirname] = 0;
-        let subdir = `${dir}/${dirname}`
-        for await (const entry of Deno.readDir(subdir)) {
-            if (entry.isFile) {
-                years[dirname]++;
-            }
+      const dirname = entry.name;
+      years.keys.push(dirname);
+      years[dirname] = 0;
+      const subdir = `${dir}/${dirname}`;
+      for await (const entry of Deno.readDir(subdir)) {
+        if (entry.isFile) {
+          (years[dirname] as number)++;
         }
+      }
     }
   }
 
-  years.keys.sort((a,b) => b - a)
+  years.keys.sort((a, b) => Number(b) - Number(a));
 
   changelogsData = years;
 });
 
 site.data("changelog_years", () => changelogsData);
-site.data("all_letters", () => [...Array(26).keys()].map((n) => String.fromCharCode(65 + n)))
+site.data(
+  "all_letters",
+  () => [...Array(26).keys()].map((n) => String.fromCharCode(65 + n)),
+);
 
 /* Environment data */
 
-let hubspot_id = Deno.env.get("HUBSPOT_ID");
+const hubspot_id = Deno.env.get("HUBSPOT_ID");
 if (!hubspot_id) {
-    console.error("No HUBSPOT_ID environment variable set");
+  console.error("No HUBSPOT_ID environment variable set");
 }
 site.data("hubspot_id", hubspot_id || false);
 
-let ga_id = Deno.env.get("GA_ID");
+const ga_id = Deno.env.get("GA_ID");
 if (!ga_id) {
-    console.error("No GA_ID environment variable set");
+  console.error("No GA_ID environment variable set");
 }
 site.data("ga_id", ga_id || false);
 
-let ga_verify = Deno.env.get("GA_VERIFICATION");
+const ga_verify = Deno.env.get("GA_VERIFICATION");
 if (!ga_verify) {
-    console.error("No GA_VERIFICATION environment variable set");
+  console.error("No GA_VERIFICATION environment variable set");
 }
 site.data("ga_verify", ga_verify || false);
 
