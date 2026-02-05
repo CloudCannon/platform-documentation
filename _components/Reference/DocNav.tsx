@@ -8,7 +8,7 @@ import type { Helpers, PageSearch } from "../../_types.d.ts";
 interface RefNavItem {
   url: string;
   name: string;
-  useCode: boolean;
+  useCode?: boolean;
   gid: string;
 }
 
