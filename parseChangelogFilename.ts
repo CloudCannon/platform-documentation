@@ -4,7 +4,7 @@ export function parseChangelogFilename(
   const [year, filename] = collectionPath.replace("/changelogs/", "").split(
     "/",
   );
-  if (!year) {
+  if (!year || !filename) {
     return;
   }
 
