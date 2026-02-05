@@ -226,7 +226,7 @@ const injectedSections: Promise<string>[] = [];
 
 const mdFilter = site.renderer.helpers.get("md")?.[0];
 
-site.ignore("README.md", "unused");
+site.ignore("README.md", "unused", "STYLE_GUIDE.mdx");
 
 // Detect dev mode (serve command uses -s flag)
 const isDevMode = Deno.args.includes("-s") || Deno.args.includes("--serve");
@@ -293,6 +293,7 @@ site.preprocess([".md", ".mdx"], (pages) =>
 
 site.copy("ye_olde_images", "documentation/ye_olde_images");
 site.copy("uploads", "documentation/static");
+site.copy("robots.txt", "documentation/robots.txt");
 
 // Temporary trick to disable indented code blocks if we happen to use markdown-it
 // deno-lint-ignore no-explicit-any
@@ -322,6 +323,7 @@ site.add("/assets/img");
 site.use(date());
 site.use(sitemap({
   filename: "/documentation/sitemap.xml",
+  query: "!url^=/documentation/404/",
 }));
 
 site.use(llmsTxt());
