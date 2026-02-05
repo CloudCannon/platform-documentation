@@ -1,0 +1,1074 @@
+collection_groups:
+  - heading: "Users"
+    collections:
+      - "user_articles"
+      - "user_guides"
+      - "user_glossary"
+  - heading: "Developers"
+    collections:
+      - "developer_articles"
+      - "developer_guides"
+      - "developer_reference"
+  - heading: "Other"
+    collections:
+      - "changelog"
+      - "pages"
+  - heading: "Data"
+    collections:
+      - "data"
+_inputs:
+  layout:
+    hidden: true
+    cascade: true
+  _uuid:
+    type: "auto"
+    instance_value: "UUID"
+    cascade: true
+  _created_at:
+    type: "auto"
+    instance_value: "NOW"
+    cascade: true
+  guide_summary:
+    type: "textarea"
+    cascade: true
+  block_type:
+    type: "auto"
+    hidden: true
+    cascade: true
+  description:
+    type: "auto"
+    options:
+      show_count: true
+    cascade: true
+  explicit_canonical:
+    type: "url"
+    comment: "Optionally reference a different page or URL that this page should set as its canonical URL"
+    cascade: true
+_select_data:
+  icons:
+    - id: "account_circle"
+    - id: "apps"
+    - id: "build_circle"
+    - id: "cloud_sync"
+    - id: "design_services"
+    - id: "devices"
+    - id: "groups"
+    - id: "merge"
+    - id: "monitor"
+    - id: "perm_media"
+    - id: "preview"
+  docs_ssgs: "ssg_data.ssgs"
+  docshots:
+    - name: Needs docshots
+      icon: add_a_photo
+      icon_color: "#cc3232"
+    - name: Not applicable
+      icon: no_photography
+      icon_color: "#e7b416"
+    - name: Added!
+      icon: photo_camera
+      icon_color: "#2dc937"
+  diataxis_category:
+    - name: Explanation
+      icon: lightbulb
+      icon_color: "#06d6a0"
+    - name: Guide
+      icon: handshake
+      icon_color: "#26547c"
+    - name: Instructions
+      icon: info
+      icon_color: "#ef476f"
+    - name: Reference
+      icon: fact_check
+      icon_color: "#ffd166"
+  key_value_type:
+    - name: Array
+      icon: data_array
+    - name: Boolean
+      icon: check_box
+    - name: Date
+      icon: event
+    - name: Number
+      icon: "123"
+    - name: Object
+      icon: add_box
+    - name: String
+      icon: abc
+    - name: Array of Numbers
+      icon: "123"
+    - name: Array of Objects
+      icon: add_box
+    - name: Array of Strings
+      icon: abc
+_editables:
+  content:
+    allow_custom_markup: false
+    remove_custom_markup: false
+    blockquote: true
+    bold: true
+    bulletedlist: true
+    code: true
+    embed: true
+    format: "p h1 h2 h3 h4 h5 h6"
+    horizontalrule: true
+    image_size_attributes: true
+    italic: true
+    link: true
+    numberedlist: true
+    snippet: true
+    strike: true
+    subscript: true
+    superscript: true
+    table: true
+    underline: true
+commit_templates:
+  - template_string: "{message}"
+    _inputs:
+      message:
+        type: "text"
+        options:
+          required: true
+        cascade: true
+_snippets_imports:
+  mdx: true
+_snippets:
+  glossary_term:
+    snippet: "<comp.GlossaryTerm [[args]]>[[inner]]</comp.GlossaryTerm>"
+    inline: true
+    preview:
+      text: "Glossary Term"
+      subtext:
+        - key: "content"
+      icon: "psychology_alt"
+    _inputs:
+      $:
+        cascade: false
+      content:
+        type: "text"
+        cascade: true
+      term:
+        type: "select"
+        options:
+          allow_empty: true
+          values: "collections.user_glossary"
+        cascade: true
+    params:
+      args:
+        parser: "key_values"
+        options:
+          models:
+            - editor_key: term
+              type: string
+              default: ""
+              optional: true
+          format:
+            ref: "mdx_format"
+      inner:
+        parser: "content"
+        options:
+          editor_key: "content"
+          style:
+            output: "inline"
+            inline:
+              leading: ""
+              trailing: ""
+  code_block:
+    snippet: "<comp.CodeBlock [[args]]>\n[[backticks]][[inner]][[backticks]]\n[[annotations]]</comp.CodeBlock>"
+    inline: false
+    preview:
+      text:
+        - key: "source"
+        - "Code Block"
+      subtext:
+        - key: "content"
+      icon: "code"
+    _inputs:
+      $:
+        cascade: false
+      content:
+        type: "code"
+        cascade: true
+      annotations:
+        type: "array"
+        options:
+          structures:
+            style: "select"
+            values:
+              - _inputs:
+                  annotation_content:
+                    type: "markdown"
+                    cascade: true
+                  number:
+                    type: "text"
+                    comment: "Match to a comment of `/*1*/`, `//1`, `#1`, or `<!--1-->` in the code block"
+                    cascade: true
+                preview:
+                  text:
+                    - key: "number"
+                    - "Unconfigured"
+                  subtext:
+                    - key: "annotation_content"
+                    - "Empty"
+                  icon: "campaign"
+                value:
+                  number: "1"
+                  annotation_content: ""
+        comment: >-
+          Optional annotations to show below the code block. Link them with a
+          comment like `/*1*/`, `//1`, `#1`, or `<!--1-->`
+        cascade: true
+    params:
+      backticks:
+        parser: "repeating_literal"
+        options:
+          literal: "`"
+          minimum: 3
+          default: 10
+          style:
+            output: "block"
+            block:
+              leading: |+
+
+              trailing: |+
+
+              indent: ""
+      args:
+        parser: "key_values"
+        options:
+          models:
+            - editor_key: language
+              type: string
+              default: ""
+              optional: true
+            - editor_key: source
+              type: string
+              default: ""
+              optional: true
+              remove_empty: true
+            - editor_key: "frameless"
+              type: "boolean"
+              optional: true
+              remove_empty: true
+          format:
+            ref: "mdx_format"
+      inner:
+        parser: "content"
+        options:
+          editor_key: "content"
+          allow_nested: false
+          raw: true
+          forbidden_tokens:
+            - "```"
+          style:
+            output: "block"
+            block:
+              leading: |+
+
+              trailing: |+
+
+              indent: ""
+      annotations:
+        parser: "optional"
+        options:
+          snippet: "[[annotation_repeat]]"
+      annotation_repeat:
+        parser: "repeating"
+        options:
+          default_length: 0
+          editor_key: "annotations"
+          snippet: "<comp.Annotation [[annotation_args]]>[[annotation_content]]</comp.Annotation>"
+          style:
+            between: "\n"
+            block:
+              leading: ""
+              trailing: |+
+
+      annotation_args:
+        parser: "key_values"
+        options:
+          models:
+            - editor_key: "number"
+              type: "string"
+          format:
+            ref: "mdx_format"
+      annotation_content:
+        parser: "content"
+        options:
+          editor_key: "annotation_content"
+          allow_nested: false
+          raw: true
+          style:
+            output: "block"
+            block:
+              leading: |+
+
+              trailing: |+
+
+              indent: "  "
+  common_content_param:
+    snippet: "<comp.CommonParam parameters={parameters} [[args]] />"
+    inline: true
+    preview:
+      view: "inline"
+      icon: "switch_access_shortcut_add"
+      text:
+        - key: "parameter"
+        - "Common Content Parameter"
+    _inputs:
+      $:
+        cascade: false
+      parameter:
+        type: "text"
+        comment: "The key of a value to insert in this location. If using a new key, make sure to define it in the Parameters for this page."
+        cascade: true
+      append:
+        type: "text"
+        comment: "Append this text to the end of the parameter when inserted on the page. Will not be appended if the parameter is left blank."
+        cascade: true
+      prepend:
+        type: "text"
+        comment: "Prepend this text to the start of the parameter when inserted on the page. Will not be prepended if the parameter is left blank."
+        cascade: true
+    params:
+      args:
+        parser: "key_values"
+        options:
+          models:
+            - editor_key: "parameter"
+              type: "string"
+            - editor_key: "append"
+              type: "string"
+              optional: true
+              remove_empty: true
+            - editor_key: "prepend"
+              type: "string"
+              optional: true
+              remove_empty: true
+          format:
+            ref: "mdx_format"
+  data_reference:
+    snippet: "<comp.DataReference>[[rows]]</comp.DataReference>"
+    inline: false
+    preview:
+      text: "Data Reference Table"
+    params:
+      rows:
+        parser: "repeating"
+        options:
+          editor_key: "rows"
+          snippet: "<comp.DataReferenceRow [[row_args]]>[[content]]</comp.DataReferenceRow>"
+          style:
+            output: "block"
+            between: "\n"
+            block:
+              leading: |+
+
+              trailing: |+
+
+              indent: "  "
+      row_args:
+        parser: "key_values"
+        options:
+          models:
+            - editor_key: "label"
+              type: "string"
+              optional: true
+              default: ""
+            - editor_key: type_markdown
+              type: string
+              optional: true
+              default: ""
+          format:
+            ref: "mdx_format"
+      content:
+        parser: "content"
+        options:
+          editor_key: "inner_markdown"
+          allow_nested: true
+          style:
+            output: "block"
+            block:
+              leading: |+
+
+              trailing: |+
+
+              indent: "  "
+  docs_image:
+    template: "mdx_component"
+    inline: false
+    preview:
+      text: "Docs Image"
+      view: "gallery"
+      subtext:
+        - key: "alt"
+      icon: "crop_original"
+      image:
+        - key: "path"
+      gallery:
+        image:
+          - key: "path"
+    _inputs:
+      $:
+        cascade: false
+      type:
+        type: "select"
+        options:
+          allow_empty: true
+          values:
+            - "photo"
+            - "screenshot"
+            - "ui-snippet"
+        cascade: true
+      alt:
+        type: "textarea"
+        options:
+          show_count: true
+        cascade: true
+    definitions:
+      component_name: "comp.DocsImage"
+      named_args:
+        - editor_key: "path"
+          type: "string"
+        - editor_key: "alt"
+          type: "string"
+        - editor_key: "title"
+          optional: true
+          type: "string"
+        - editor_key: "type"
+          type: "string"
+          optional: true
+          remove_empty: true
+  docshot:
+    template: "mdx_component"
+    inline: false
+    preview:
+      text: "DocShot"
+      view: "gallery"
+      subtext:
+        - key: "alt"
+      icon: "crop_original"
+      image:
+        - template: ""
+      gallery:
+        image:
+          - template: "https://cc-screenshots.imgix.net/beta_e0997bb163953a0a5d33e5d6104168c674a7430b/{docshot_key}.webp"
+    _inputs:
+      $:
+        cascade: false
+      type:
+        type: "select"
+        options:
+          allow_empty: true
+          values:
+            - "photo"
+            - "screenshot"
+            - "ui-snippet"
+        cascade: true
+      alt:
+        type: "textarea"
+        options:
+          show_count: true
+        cascade: true
+      docshot_key:
+        type: text
+        comment: "[From DocShots](https://docshots.cloudcannon.com/)"
+        cascade: true
+    definitions:
+      component_name: "comp.DocShot"
+      named_args:
+        - editor_key: "docshot_key"
+          type: "string"
+        - editor_key: "alt"
+          type: "string"
+        - editor_key: "title"
+          optional: true
+          type: "string"
+        - editor_key: "type"
+          type: "string"
+          optional: true
+          remove_empty: true
+  docs_video:
+    template: "mdx_component"
+    inline: false
+    preview:
+      text: "Docs Video"
+      subtext:
+        - key: "title"
+      icon: "crop_original"
+    _inputs:
+      $:
+        cascade: false
+      title:
+        type: "auto"
+        comment: "The title of the video, used for accessibility"
+        cascade: true
+      url:
+        type: "url"
+        comment: "The location of the video (Must be MP4)"
+        cascade: true
+      autoplay:
+        type: "switch"
+        comment: "Whether this video should start playing automatically"
+        cascade: true
+      loop:
+        type: "switch"
+        comment: "Whether this video should start again when finished"
+        cascade: true
+    definitions:
+      component_name: "comp.DocsVideo"
+      named_args:
+        - editor_key: "url"
+          type: "string"
+        - editor_key: "title"
+          type: "string"
+        - editor_key: "autoplay"
+          optional: true
+          default: true
+          type: "boolean"
+        - editor_key: "loop"
+          optional: true
+          default: true
+          type: "boolean"
+  example:
+    snippet: "<comp.Example>[[inner]]</comp.Example>"
+    inline: false
+    preview:
+      text: "Example"
+      subtext:
+        - key: "content_markdown"
+      icon: "school"
+    params:
+      inner:
+        parser: "content"
+        options:
+          editor_key: "content_markdown"
+          style:
+            output: "block"
+            block:
+              leading: |+
+
+              trailing: |+
+
+              indent: "  "
+  multi_code_block:
+    snippet: "<comp.MultiCodeBlock [[args]]>\n[[backticks]][[inner]][[backticks]]\n[[annotations]]</comp.MultiCodeBlock>"
+    inline: false
+    preview:
+      text:
+        - key: "source"
+        - "Multi Code Block"
+      subtext:
+        - key: "content"
+      icon: "data_object"
+    _inputs:
+      $:
+        cascade: false
+      content:
+        type: "code"
+        cascade: true
+      annotations:
+        type: "array"
+        options:
+          structures:
+            style: "select"
+            values:
+              - _inputs:
+                  annotation_content:
+                    type: "markdown"
+                    cascade: true
+                  number:
+                    type: "text"
+                    comment: "Match to a key containing `___1___` or `___2___` in the code block"
+                    cascade: true
+                preview:
+                  text:
+                    - key: "number"
+                    - "Unconfigured"
+                  subtext:
+                    - key: "annotation_content"
+                    - "Empty"
+                  icon: "campaign"
+                value:
+                  number: "1"
+                  annotation_content: ""
+        comment: >-
+          Optional annotations to show below the code block. Link them to a key
+          containing `___1___` or `___2___` (which will be removed from the key
+          before display)
+        cascade: true
+    params:
+      backticks:
+        parser: "repeating_literal"
+        options:
+          literal: "`"
+          minimum: 3
+          default: 10
+      args:
+        parser: "key_values"
+        options:
+          models:
+            - editor_key: language
+              type: string
+              default: ""
+              optional: true
+            - editor_key: "translate_into"
+              type: "array"
+              default:
+                - json
+            - editor_key: source
+              type: string
+              default: ""
+              optional: true
+          format:
+            ref: "mdx_format"
+      inner:
+        parser: "content"
+        options:
+          editor_key: "content"
+          allow_nested: false
+          raw: true
+          forbidden_tokens:
+            - "```"
+          style:
+            output: "block"
+            block:
+              leading: |+
+
+              trailing: |+
+
+              indent: ""
+      annotations:
+        parser: "optional"
+        options:
+          snippet: "[[annotation_repeat]]"
+      annotation_repeat:
+        parser: "repeating"
+        options:
+          default_length: 0
+          editor_key: "annotations"
+          snippet: "<comp.Annotation [[annotation_args]]>[[annotation_content]]</comp.Annotation>"
+          style:
+            between: "\n"
+            block:
+              leading: ""
+              trailing: |+
+
+      annotation_args:
+        parser: "key_values"
+        options:
+          models:
+            - editor_key: "number"
+              type: "string"
+          format:
+            ref: "mdx_format"
+      annotation_content:
+        parser: "content"
+        options:
+          editor_key: "annotation_content"
+          allow_nested: false
+          raw: true
+          style:
+            output: "block"
+            block:
+              leading: |+
+
+              trailing: |+
+
+              indent: "  "
+  notice:
+    snippet: "<comp.Notice [[args]]>[[inner]]</comp.Notice>"
+    inline: false
+    preview:
+      text:
+        - key: "info_type"
+        - "Notice"
+      subtext:
+        - key: "content_markdown"
+      icon: "info"
+    _inputs:
+      $:
+        cascade: false
+      info_type:
+        type: "choice"
+        options:
+          allow_empty: true
+          values:
+            - id: "important"
+              icon_path: "/assets/img/important.svg"
+            - id: "info"
+              icon_path: "/assets/img/info.svg"
+            - id: "pricing"
+              icon_path: "/assets/img/pricing.svg"
+            - id: "permissions"
+              icon_path: "/assets/img/permissions.svg"
+          preview:
+            text:
+              - key: "id"
+            image:
+              - key: "icon_path"
+        cascade: true
+    params:
+      args:
+        parser: "key_values"
+        options:
+          models:
+            - editor_key: "info_type"
+              type: "string"
+          format:
+            ref: "mdx_format"
+      inner:
+        parser: "content"
+        options:
+          editor_key: "content_markdown"
+          style:
+            output: "block"
+            block:
+              leading: |+
+
+              trailing: |+
+
+              indent: "  "
+  slot:
+    snippet: "<comp.Slot [[args]]>[[inner]]</comp.Slot>"
+    inline: false
+    preview:
+      text:
+        - "Content Slot"
+      subtext:
+        - key: "name"
+      icon: "select_all"
+    _inputs:
+      $:
+        cascade: false
+      name:
+        type: "text"
+        comment: "The name of this slot — should be referenced when using this piece of common content on a page"
+        cascade: true
+      default_content:
+        type: "markdown"
+        options:
+          allow_resize: true
+          allow_custom_markup: false
+          remove_custom_markup: false
+          initial_height: 320
+          blockquote: true
+          bold: true
+          bulletedlist: true
+          code: true
+          embed: true
+          format: true
+          horizontalrule: true
+          image: true
+          image_size_attributes: true
+          italic: true
+          link: true
+          numberedlist: true
+          snippet: true
+          strike: true
+          subscript: true
+          superscript: true
+          table: true
+          underline: true
+        comment: "If the slot is not defined when using this piece of common content, this content will be used instead"
+        cascade: true
+    params:
+      args:
+        parser: "key_values"
+        options:
+          models:
+            - editor_key: "name"
+              type: "string"
+          format:
+            ref: "mdx_format"
+      inner:
+        parser: "content"
+        options:
+          editor_key: "default_content"
+          allow_nested: true
+          style:
+            output: "block"
+            block:
+              leading": |+
+
+              trailing": |+
+
+              indent": "  "
+  system_version_default:
+    template: "mdx_component"
+    inline: true
+    preview:
+      text: "SystemVersionDefault"
+    definitions:
+      component_name: "comp.SystemVersionDefault"
+      named_args:
+        - editor_key: "language"
+          type: "string"
+        - editor_key: "item"
+          type: "string"
+  system_version_list:
+    template: "mdx_component"
+    inline: false
+    preview:
+      text: "SystemVersionList"
+    definitions:
+      component_name: "comp.SystemVersionList"
+      named_args:
+        - editor_key: "language"
+          type: "string"
+        - editor_key: "item"
+          type: "string"
+        - editor_key: "showdefault"
+          type: "boolean"
+  tabs:
+    snippet: "<comp.Tabs [[args]]>[[tabs]]</comp.Tabs>"
+    inline: false
+    preview:
+      text: "Tabs"
+      subtext:
+        key: "label"
+    _inputs:
+      $:
+        cascade: false
+      inner_markdown:
+        type: "markdown"
+        options:
+          allow_resize: true
+          allow_custom_markup: false
+          remove_custom_markup: false
+          initial_height: 320
+          blockquote: true
+          bold: true
+          bulletedlist: true
+          code: true
+          embed: true
+          horizontalrule: true
+          image: true
+          image_size_attributes: true
+          italic: true
+          link: true
+          numberedlist: true
+          snippet: true
+          strike: true
+          subscript: true
+          superscript: true
+          table: true
+          underline: true
+        cascade: true
+    params:
+      args:
+        parser: "key_values"
+        options:
+          models:
+            - editor_key: "label"
+              type: "string"
+          format:
+            ref: "mdx_format"
+      tabs:
+        parser: "repeating"
+        options:
+          editor_key: "tabs"
+          snippet: "<comp.Tab [[tab_args]]>[[content]]</comp.Tab>"
+          style:
+            output: "block"
+            between: "\n"
+            block:
+              leading: |+
+
+              trailing: |+
+
+              indent: "  "
+      tab_args:
+        parser: "key_values"
+        options:
+          models:
+            - editor_key: "name"
+              type: "string"
+          format:
+            ref: "mdx_format"
+      content:
+        parser: "content"
+        options:
+          editor_key: "inner_markdown"
+          allow_nested: true
+          style:
+            output: "block"
+            block:
+              leading: |+
+
+              trailing: |+
+
+              indent: "  "
+  codetabs:
+    snippet: "<comp.CodeTabs>[[tabs]]</comp.CodeTabs>"
+    inline: false
+    preview:
+      text: "Code Tabs"
+    params:
+      tabs:
+        parser: "repeating"
+        options:
+          editor_key: "tabs"
+          snippet: "<comp.CodeTab [[tab_args]]>[[content]]</comp.CodeTab>"
+          style:
+            output: "block"
+            between: "\n"
+            block:
+              leading: |+
+
+              trailing: |+
+
+              indent: "  "
+      tab_args:
+        parser: "key_values"
+        options:
+          models:
+            - editor_key: "language"
+              type: "string"
+            - editor_key: "source"
+              type: "string"
+              optional: true
+          format:
+            ref: "mdx_format"
+      content:
+        parser: "content"
+        options:
+          editor_key: "code_content"
+          allow_nested: false
+          style:
+            output: "block"
+            block:
+              leading: |+
+
+              trailing: |+
+
+              indent: ""
+  youtube:
+    template: "mdx_component"
+    inline: false
+    preview:
+      text: "YouTube"
+    definitions:
+      component_name: "comp.Youtube"
+      named_args:
+        - editor_key: "id"
+          type: "string"
+  docs_unknown_pair:
+    hidden: true
+    snippet: "<comp.[[name]][[args]]>[[content]]</comp.[[name]]>"
+    preview:
+      text:
+        - "Unknown Docs Component"
+      subtext:
+        - key: "name"
+      icon: "question_mark"
+    _inputs:
+      $:
+        cascade: false
+      name:
+        type: "auto"
+        hidden: true
+        cascade: true
+      arguments:
+        type: "auto"
+        hidden: true
+        cascade: true
+      content:
+        type: "auto"
+        hidden: true
+        cascade: true
+    params:
+      name:
+        parser: "argument"
+        options:
+          model:
+            editor_key: "name"
+          format:
+            string_boundary:
+              - ""
+            forbidden_tokens:
+              - /
+              - />
+              - ">"
+      args:
+        parser: "content"
+        options:
+          editor_key: "arguments"
+          allow_nested: false
+          raw: true
+          forbidden_tokens:
+            - />
+            - ">"
+      content:
+        parser: "content"
+        options:
+          editor_key: "content"
+  docs_unknown_single:
+    hidden: true
+    snippet: "<comp.[[name]][[args]]/>"
+    preview:
+      text:
+        - "Unknown Docs Component"
+      subtext:
+        - key: "name"
+      icon: "question_mark"
+    _inputs:
+      $:
+        cascade: false
+      name:
+        type: "auto"
+        hidden: true
+        cascade: true
+      arguments:
+        type: "auto"
+        hidden: true
+        cascade: true
+    params:
+      name:
+        parser: "argument"
+        options:
+          model:
+            editor_key: "name"
+          format:
+            string_boundary:
+              - ""
+            forbidden_tokens:
+              - /
+              - />
+              - ">"
+      args:
+        parser: "content"
+        options:
+          editor_key: "arguments"
+          allow_nested: false
+          raw: true
+          forbidden_tokens:
+            - />
+            - ">"
+base_url: documentation
+timezone: Pacific/Auckland
+markdown:
+  options:
+    xhtml: false
+    breaks: true
+    linkify: false
+    typographer: false
+    spaced_lists: false
+    sentence_per_line: false
+    gfm: false
+    code_block_fences: "```"
+    escape_snippets_in_code_blocks: false
+    treat_indentation_as_code: false
+    table: false
+    strikethrough: false
+    subscript: false
+    superscript: false
+    heading_ids: false
+    attributes: false
+collections_config_from_glob:
+  - "/.cloudcannon/collections/*.cloudcannon.collections.yml"
+_inputs_from_glob:
+  - "/.cloudcannon/inputs/*.cloudcannon.inputs.yml"
+_structures_from_glob:
+  - "/.cloudcannon/structures/*.cloudcannon.structures.yml"
+values_from_glob:
+  - "/.cloudcannon/values/*.cloudcannon.structure-value.yml"

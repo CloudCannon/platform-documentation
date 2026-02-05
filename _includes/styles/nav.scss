@@ -1,193 +1,643 @@
 .l-header {
-    width: 100%;
-    padding: 0 var(--gap);
-    height: 80px;
+  width: 100%;
+  max-width: 1376px;
+  margin: auto;
+  padding: 0 16px;
+  height: 64px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--gap);
+  box-sizing: border-box;
+
+  &__site {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    gap: var(--gap);
+    gap: var(--gap-half);
+    min-width: 0;
 
-    &__site {
-        display: flex;
-        align-items: center;
-        gap: var(--gap-half);
+    svg {
+      width: 100%;
+      max-width: 225px;
+    }
+  }
+
+  &__name {
+    font-size: 18px;
+    color: var(--color-neptune);
+    text-decoration: none;
+    font-weight: bold;
+  }
+
+  &__emblem {
+    line-height: 0;
+
+    & * {
+      fill: var(--emblem-fill);
     }
 
-    &__name {
-        font-size: 18px;
-        color: var(--color-neptune);
-        text-decoration: none;
-        font-weight: bold;
+    & img {
+      width: 100%;
+      max-width: 216px;
+    }
+  }
+
+  &__bar {
+    height: 48px;
+    width: var(--border-width);
+    background-color: var(--color-neptune);
+  }
+
+  &__logo {
+    /*width: 40px;*/
+  }
+
+  &__middle {
+    flex: 1 1 auto;
+  }
+
+  &__links {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    gap: var(--gap-half);
+
+    > li {
+      position: relative;
     }
 
-    &__emblem {
-        line-height: 0;
+    > li > a:not(.mobile-menu-panel a), .l-header__link-trigger {
+      height: 48px;
     }
 
-    &__bar {
-        height: 48px;
-        width: var(--border-width);
-        background-color: var(--color-neptune);
+    a, .l-header__link-trigger {
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      text-decoration: none;
+      padding: 10px;
+      font-weight: bold;
+      color: var(--text);
+      border-radius: 8px;
+      background: transparent;
+      border: none;
+      font-size: inherit;
+      font-family: inherit;
+      line-height: 1.5;
+      box-sizing: border-box;
+
+      &:hover {
+        background: var(--button-hover) !important;
+        color: var(--nav-hover-text) !important;
+
+        & > svg {
+          fill: var(--nav-hover-text) !important;
+        }
+      }
+
+      & > svg {
+        margin-left: 8px;
+        fill: var(--text);
+      }
+
+      &[aria-current="page"] {
+        background: var(--accent-background);
+        color: var(--selected-blue);
+      }
     }
 
-    &__logo {
-        width: 40px;
-    }
+    &--sub-list {
+      box-shadow: var(--nav-shadow);
+      min-width: 322px;
+      max-width: 322px;
+      padding: 8px;
+      border-radius: 8px;
+      background: var(--background);
 
-    &__middle {
-        flex: 1 1 auto;
-    }
-
-    &__links {
-        display: flex;
-        align-items: center;
+      ul {
         list-style: none;
         margin: 0;
         padding: 0;
-        gap: var(--gap-half);
 
         a {
-            display: block;
-            text-decoration: none;
-            padding: var(--grid-size) var(--gap-half);
-            font-weight: bold;
-            color: var(--color-carbon);
-            border-top: var(--grid-size) solid transparent;
-            border-bottom: var(--grid-size) solid transparent;
+          padding: 8px;
+          column-gap: 16px;
+          display: grid;
+          grid-template-columns: 24px 1fr;
 
+          h3 {
+            font-size: 16px;
+            margin: 0;
+          }
+          p {
+            font-size: 14px;
+            font-weight: 400;
+            color: var(--changelog-content);
+            margin: 0;
+          }
 
-            &[aria-current="page"] {
-                color: var(--color-nimbus);
-                border-bottom-color: var(--color-alto);
-                cursor: default;
+          &:hover {
+            p {
+              color: var(--text);
             }
+          }
         }
-    }
+      }
 
-    &__right {
-        display: flex;
-        gap: 10px
-    }
-
-    &__search {
-        padding: 12px;
-        display: flex;
-        align-items: center;
-        border-radius: var(--border-radius);
-        transition: background-color .3s ease;
-        cursor: pointer;
+      // Popover positioning - uses implicit anchor from popovertarget button
+      &[popover] {
+        // Reset default popover centering
+        margin: unset;
         border: none;
-        background-color: transparent;
-        appearance: none;
 
-        &:hover {
-            background-color: var(--color-luna);
+        // Position below the anchor (trigger button), left-aligned and flowing right
+        position-area: block-end span-inline-end;
+        position-try-fallbacks: flip-block, flip-inline;
+      }
+    }
+  }
+
+  // Style trigger button when its popover is open
+  &__link-trigger:has(+ [popover]:popover-open) {
+    background: var(--button-hover);
+    color: var(--text);
+    svg {
+      transform: rotate(90deg);
+      fill: var(--text);
+    }
+  }
+
+  &__right {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+
+    & .cc-helper__button {
+      white-space: nowrap;
+    }
+  }
+
+  &__search {
+    background: var(--background);
+
+    &.menu {
+      border-color: var(--color-neptune);
+      background: var(--color-neptune);
+
+      & svg {
+        fill: white;
+      }
+
+      &:hover svg {
+        fill: light-dark(var(--color-neptune), white);
+      }
+
+      &.close {
+        border-color: var(--button-border);
+        background: var(--button-border);
+
+        & svg {
+          fill: var(--search-icon-fill);
         }
+      }
     }
 
-    &__backlink {
-        color: var(--color-neptune);
-        font-weight: bold;
-        display: flex;
-        align-items: center;
+    &.hidden {
+      display: none;
+    }
 
-        text-decoration: none;
+    fill: var(--search-icon-fill);
+    height: 48px;
+    width: 48px;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    border-radius: var(--border-radius);
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+    cursor: pointer;
+    border: 2px solid var(--button-border);
+    appearance: none;
 
-        &:hover {
-            text-decoration: underline;
-        }
+    &:hover {
+      background-color: var(--button-hover);
+    }
+
+    &.theme-toggle {
+      svg {
+        width: 24px;
+        height: 24px;
+        fill: var(--search-icon-fill);
+        transition: fill 0.2s ease;
+      }
+    }
+  }
+
+  .theme-dropdown {
+    position-area: block-end span-inline-end;
+    position-try-fallbacks: flip-inline;
+    margin: 0;
+    padding: 8px;
+    border: 2px solid var(--button-border);
+    border-radius: var(--border-radius);
+    background: var(--background);
+    box-shadow: var(--nav-shadow);
+
+    button {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+      padding: 8px 12px;
+      border: none;
+      border-radius: var(--border-radius-small);
+      background: transparent;
+      color: var(--text);
+      font-size: 14px;
+      cursor: pointer;
+      white-space: nowrap;
+
+      &:hover {
+        background: var(--button-hover);
+      }
+
+      &.active {
+        background: var(--accent-background);
+        color: var(--selected-blue);
 
         svg {
-            height: 1em;
-            position: relative;
-            top: 2px;
-            margin-left: 6px;
-
-            path {
-                fill: currentColor;
-            }
+          fill: var(--selected-blue);
         }
+      }
+
+      svg {
+        width: 20px;
+        height: 20px;
+        fill: currentColor;
+      }
+    }
+  }
+
+  &__backlink {
+    color: var(--color-neptune);
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
     }
 
+    svg {
+      height: 1em;
+      position: relative;
+      top: 2px;
+      margin-left: 6px;
 
-    &__mobile-controls,
-    &__mobile-menu {
-        display: none;
+      path {
+        fill: currentColor;
+      }
     }
-    @media (max-width: 880px) {
-        padding: 0 var(--gap-half);
+  }
 
-        &__middle,
-        &__right {
-            display: none;
-        }
+  &__mobile-controls {
+    display: none;
+  }
 
+  // Mobile menu as dialog - uses top layer, prevents background scroll
+  &__mobile-menu {
+    // Reset dialog defaults
+    border: none;
+    padding: 0;
+    max-width: none;
+    max-height: none;
 
-        &__mobile-controls {
-            display: flex;
-            gap: 10px;
-        }
-
-        &__mobile-menu {
-            display: block;
-            position: absolute;
-            top: 80px;
-            background: #fff;
-            z-index: 10;
-            width: 100%;
-            height: calc(100vh - 80px);
-            left: 0;
-            padding: 20px;
-            display: flex;
-            justify-content: space-between;
-            flex-direction: column;
-            gap: var(--gap);
-
-            .cc-helper__button {
-                margin-top: var(--gap);
-                text-align: center;
-                width: 100%;
-            }
-        }
-
-        &__links {
-            flex-direction: column;
-
-            li {
-                width: 100%;
-            }
-            
-            a {
-                padding: var(--gap-half);
-                border-radius: var(--border-radius);
-                border: var(--border-width) solid transparent;
-                text-align: center;
-    
-                &[aria-current="page"] {
-                    border-color: var(--color-alto);
-                }
-            }
-        }
+    // Hide on desktop even if open (in case viewport was resized)
+    &[open] {
+      display: none;
     }
+
+    // Backdrop styling
+    &::backdrop {
+      background: rgba(0, 0, 0, 0.5);
+    }
+  }
+
+  @media (max-width: 880px) {
+    /*padding: 0 var(--gap-half);*/
+
+    &__middle,
+    &__right {
+      display: none;
+    }
+
+    &__mobile-controls {
+      display: flex;
+      gap: 10px;
+    }
+
+    &__mobile-menu[open] {
+      display: flex;
+      overflow-y: hidden;
+      position: fixed;
+      top: 0;
+      left: 0;
+      background: var(--background);
+      width: 100%;
+      height: 100vh;
+      padding: 0; // No padding - banner is full width
+      flex-direction: column;
+
+      // Banner inside mobile menu - full width
+      .l-banner {
+        flex-shrink: 0;
+      }
+
+      // Panel container for toggle between main menu and docnav
+      .mobile-menu-panel {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        overflow-y: auto;
+        gap: var(--gap-half);
+      }
+
+      & .l-header__links--sub-list {
+        display: block;
+        position: relative;
+        box-shadow: none;
+        max-width: none;
+        min-width: 0;
+      }
+    }
+
+    // Content wrapper - matches main nav padding/centering
+    &__mobile-menu-content {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      overflow-y: hidden;
+      width: 100%;
+      max-width: 1376px;
+      margin: 0 auto;
+      padding: 0 16px;
+      box-sizing: border-box;
+    }
+
+    // Header row - mirrors main nav layout exactly
+    &__mobile-menu-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px; // Same as main nav
+      flex-shrink: 0;
+
+      .l-header__site {
+        display: flex;
+        align-items: center;
+      }
+
+      .l-header__mobile-controls {
+        display: flex;
+        gap: 10px;
+      }
+    }
+
+    .button-container {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 0;
+      flex-shrink: 0;
+
+      .cc-helper__button {
+        flex: 1;
+        text-align: center;
+        white-space: nowrap;
+      }
+    }
+
+    &__links {
+      flex-direction: column;
+      gap: 0;
+
+      li {
+        width: 100%;
+        border-bottom: 2px solid var(--button-border);
+        padding: 16px 0;
+      }
+
+      a {
+        padding: var(--gap-half) 0;
+        border-radius: var(--border-radius);
+        border: var(--border-width) solid transparent;
+
+        &[aria-current="page"] {
+          color: var(--selected-blue);
+        }
+
+        &.open, &:hover {
+          background: transparent;
+          color: var(--text);
+
+          & > svg {
+            fill: var(--text);
+          }
+        }
+      }
+
+      &--divider {
+        padding-bottom: 10px !important;
+        border-top: 2px solid var(--button-border) !important;
+        margin-top: 10px !important;
+      }
+
+      &--sub-list {
+        box-shadow: none;
+        max-width: none;
+        min-width: 0;
+        position: relative;
+
+        & ul {
+          & li {
+            border: none;
+            padding: 0;
+
+            & a {
+              padding: var(--gap-half) 0;
+              border: none;
+            }
+          }
+        }
+      }
+    }
+  }
 }
 
 .l-banner {
-    background-color: var(--color-neptune);
-    color: var(--color-cloud);
+  view-transition-name: banner;
+  display: flex;
+  align-items: center;
+  background-color: var(--color-neptune);
+  color: var(--color-cloud);
+  width: 100%;
+  font-size: 16px;
+  text-align: center;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  margin: 0;
+
+  &[hidden] {
+    display: none;
+  }
+
+  &__inner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     width: 100%;
-    font-size: 16px;
-    padding: 0;
+    max-width: 1376px;
+    margin: 0 auto;
+    padding: 0 16px;
+    text-align: center;
+
+    > div {
+      flex: 1 1 auto;
+    }
+  }
+
+  p {
     margin: 0;
+    line-height: 1;
+  }
 
-    &__inner {
+  a {
+    color: var(--color-cloud);
+    font-weight: bold;
+  }
+
+  & button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+
+    & .inner-cross {
+      height: 12px;
+      width: 12px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      margin: 8px;
+
+      & span {
+        background: white;
+        border-radius: 0.5rem;
+        height: 2px;
         width: 100%;
-        max-width: 1920px;
-        margin: 0 auto;
-        padding: 8px 25px;
+        position: absolute;
+        left: 0;
+        &:first-of-type {
+          transform: rotate(45deg);
+        }
+        &:last-of-type {
+          transform: rotate(-45deg);
+        }
+      }
+    }
+  }
+}
+
+// Mobile docnav panel - now a flex panel, not absolute positioned
+#mobile-docnav {
+  background: var(--background);
+
+  // Override popover hiding - docnav should always be visible when inside mobile-docnav
+  .t-docs-nav[popover]:not(:popover-open) {
+    display: flex !important;
+    flex-direction: column;
+    box-shadow: none;
+  }
+
+  & .t-docs-nav {
+    display: revert !important;
+    padding: 0;
+    background: var(--background);
+    flex: 1;
+    overflow-y: auto;
+
+    &__heading {
+      margin: 16px 0;
+      padding: 0;
+      margin: 0;
+
+      & h2 {
+        font-size: 20px;
+      }
+      & .t-docs-nav__control {
+        display: none;
+      }
     }
 
-    a {
-        color: var(--color-cloud);
-        font-weight: bold;
+    &__main-list {
+      display: block !important;
+      width: 100%;
+
+      &.glossary {
+        display: grid !important;
+      }
     }
+  }
+}
+
+// Shared styles for mobile menu navigation buttons
+.mobile-docnav-trigger,
+.back-button {
+  padding: 16px 20px;
+  background: var(--background-offset);
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text);
+  transition: background-color 150ms ease;
+  flex-shrink: 0;
+
+  span {
+    flex: 1;
+    text-align: left;
+  }
+
+  &:hover {
+    background: var(--button-hover);
+  }
+
+  & svg {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    fill: var(--text);
+
+    &:first-child {
+      width: 16px;
+      height: 16px;
+    }
+
+    &:last-child {
+      margin-left: auto;
+      width: 16px;
+      height: 16px;
+    }
+  }
+}
+
+footer .l-header__logo path {
+	fill: light-dark(var(--color-neptune), white);
 }
