@@ -54,10 +54,22 @@ export default function GlossaryTerm(
 
         update: function () {
           const rect = $el.getBoundingClientRect();
-          $refs.tooltip.style.top =
-            rect.bottom + window.scrollY + 6 + 'px';
-          $refs.tooltip.style.left =
-            rect.left + window.scrollX + 'px';
+          const left = rect.left + window.scrollX;
+
+          $refs.tooltip.style.top = 0;
+          $refs.tooltip.style.left = 'unset';
+    
+          if(window.innerWidth >= 400){
+            $refs.tooltip.style.top =
+              rect.bottom + window.scrollY + 6 + 'px';
+          }
+
+          if((400 + left) < window.innerWidth){
+            $refs.tooltip.style.left =
+              left + 'px';
+          } else {
+             $refs.tooltip.style.right = '0px';
+          }
         }
       }"
       x-on-mouseenter="scheduleOpen"
@@ -75,6 +87,10 @@ export default function GlossaryTerm(
           x-on-mouseenter="cancelClose"
           x-on-mouseleave="scheduleClose"
         >
+          <div class="term-definition--close"
+            x-on-click="scheduleClose">
+            <img src={helpers.icon("close:outlined", "material")} inline="true" />
+          </div>
           <div dangerouslySetInnerHTML={{ __html: content }} />
         </div>
       </template>
