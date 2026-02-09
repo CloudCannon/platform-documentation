@@ -1,0 +1,151 @@
+---
+_schema: default
+_uuid: 86d34c98-bc69-4309-a3b2-471238cbe365
+_created_at: 2025-11-03T23:52:07.000Z
+details:
+  title: Visually edit images
+  order: 7
+  image: >-
+    https://cc-dam.imgix.net/documentation/images/guides/getting-started/guide-thumbnails/CloudCannon-Getting-Started-Thumbnail-Universal.png
+  description: >-
+    Learn how to define Source or Text Editable Regions to edit image values
+    stored in HTML or structured data.
+  start_nav_group: null
+  related_articles: null
+author_notes:
+  docshots: null
+---
+Editing image data in the Visual Editor allows you to see how an image will look on your live webpage.
+
+Image content can be stored in a structured data key and referenced by templating in a layout. You can add an Image *Editable Region* to re-render changes to your image data in the Visual Editor. Let's cover how to define one.
+
+<comp.Notice info_type="info">
+  <p><strong>Nested image values</strong></p><p>To avoid <code>data-prop</code> misconfiguration errors, it is best practice to define your <em>Editable Regions</em> from the root of your file first (i.e., from parent elements to child elements). If your image values are nested inside an array or a component, you should define <em>Editable</em> <em>Regions</em> for those parent elements first. We'll cover this more in later steps of this guide.</p>
+</comp.Notice>
+
+## Image values in structured data
+
+Content files, which contain structured data keys that populate templating in a layout file at build time, often store information image data.
+
+Let's take a look at an example.
+
+This file is a blog post, containing structured data keys for `heroImage`, `heroImageTitle`, and `heroImageAlt` in the front matter.
+
+<comp.CodeBlock language="markdown" source="first-post.mdx">
+``````````
+
+---
+title: 'First post'
+author: 'C. Kent'
+heroImage: '../../assets/blog-banner.jpg'
+heroImageTitle: 'Blog gradient'
+heroImageAlt: 'An eye-catching color gradient banner.'
+---
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Vitae ultricies leo integer malesuada nunc vel risus commodo viverra.
+
+``````````
+</comp.CodeBlock>
+
+Here is an excerpt from our blog layout file, containing HTML for the blog webpage and templating to populate elements with the values from each blog file.
+
+<comp.CodeBlock language="Astro" source="BlogPost.astro">
+``````````
+
+<div class="hero-image">
+    {heroImage &&
+      <img
+        src={heroImage} /*1*/
+        title={heroImageTitle} /*2*/
+        alt={heroImageAlt} /*3*/
+      />
+    }
+</div>
+
+``````````
+<comp.Annotation number="1">
+  The value of the `src` attribute in the `<img>` element is `{heroImage}`, which is populated by the value of the `heroImage` key in the front matter of a blog file.
+</comp.Annotation>
+<comp.Annotation number="2">
+  The value of the `title` attribute in the `<img>` element is `{heroImageTitle}`, which is populated by the value of the `heroImageTitle` key in the front matter of a blog file.
+</comp.Annotation>
+<comp.Annotation number="3">
+  The value of the `alt` attribute in the `<img>` element is `{heroImageAlt}`, which is populated by the value of the `heroImageAlt` key in the front matter of a blog file.
+</comp.Annotation>
+</comp.CodeBlock>
+
+<comp.Notice info_type="info">
+  <p>The file type for your layouts will be different depending on your SSG (e.g., Astro uses <code>.astro</code> files, Eleventy uses <code>.liquid</code> files). You can add <em>Editable Regions</em> to any of these files as long as they output to an HTML file after a <em>Site</em> build.</p>
+</comp.Notice>
+
+Together, these files output a webpage that looks like this:
+
+<comp.DocsImage path="https://cc-dam.imgix.net/documentation/images/guides/configure-visual-editing/2025-11/CloudCannon-Documentation-Visual-Editing-Guide-Content-Page.png" alt="A screenshot of a blog page on our Astro website shows a header image, title, author, and content." title="A blog page" type="screenshot"/>
+
+In this example, the front matter keys populate various attributes of the `<img>` tag in the blog layout at build time (i.e., `src` is set to `{heroImage}`, `title` is set to `{heroImageTitle}`, and `alt` is set to `{heroImageAlt}`). We can add an Image *Editable Region* to the blog layout file to enable visual editing for these image values in the entire *Collection*.
+
+To define an Image *Editable Region*, we can add the `data-editable` and `data-prop-*` HTML attributes to the `<img>` DOM element. The `data-editable` HTML attribute defines which type of *Editable Region* you want to use which, in this case, is `image`. Alternatively, we could choose to wrap the `<img>` element in the equivalent web component `<editable-image>`, however that is not as convenient as adding attributes to existing elements.
+
+The `data-prop-*` HTML attribute, like `data-prop` (see the [previous step of this guide](/documentation/developer-guides/set-up-visual-editing/visually-edit-text/)), defines where your data is stored. However, the `data-prop-*` attribute is an extension of the `data-prop` attribute behavior as it also passes a key name to the *Editable Region*.
+
+A limitation of the `data-prop` attribute is that it only passes the value stored at a location to the *Editable Region*. Some *Editable Regions*, like Image, expect data in the `key: string` format. For example, `data-prop="heroImage"` pointing at the front matter object `heroImage: "/example.jpg"` would pass the value "/example.jpg" to the *Editable Region* in the Visual Editor. If we use `data-prop-src="heroImage"` instead, we can pass "src: /example.jpg" to the *Editable Region*.
+
+To edit the image path, title, and alt text in the Visual Editor, let's use `data-prop-src="heroImage"`, `data-prop-title="heroImageTitle"`, and `data-prop-alt="heroImageAlt"` to the `<img>` tag.
+
+<comp.Notice info_type="info">
+  <p>You don't have to include the image title and alt text for the Image <em>Editable Region</em> to function, but we recommend it for website SEO.</p>
+</comp.Notice>
+
+Here's what our blog layout code should look like:
+
+<comp.CodeBlock language="Astro" source="BlogPost.astro">
+``````````
+
+<div class="hero-image">
+    {heroImage &&
+      <img
+        data-editable="image" /*1*/
+        data-prop-src="heroImage" /*2*/
+        data-prop-alt="heroImageAlt" /*3*/
+        data-prop-title="heroImageTitle" /*4*/
+        src={heroImage}
+        title={heroImageTitle}
+        alt={heroImageAlt}
+      />
+    }
+</div>
+
+``````````
+<comp.Annotation number="1">
+  The `data-editable` attribute defines what kind of data this element contains. In this case, the value is `image`.
+</comp.Annotation>
+<comp.Annotation number="2">
+  The `data-prop-src` attribute passes the value of `heroImage` to the Image Editable Region with the `src` key.
+</comp.Annotation>
+<comp.Annotation number="3">
+  The `data-prop-title` attribute passes the value of `heroImageTitle` to the Image Editable Region with the `title` key.
+</comp.Annotation>
+<comp.Annotation number="4">
+  The `data-prop-alt` attribute passes the value of `heroImageAlt` to the Image Editable Region with the `alt` key.
+</comp.Annotation>
+</comp.CodeBlock>
+
+Once we save and rebuild our *Site*, CloudCannon will show a yellow *Editable Region* box around the image in the Visual Editor.
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Visual-Editor-Frontmatter-Image-Editable-Region" alt="A screenshot of the Visual Editor shows a yellow Editable Region box around the image and the Edit Image Data Panel." title="An Image Editable Region in the Visual Editor" type="screenshot"/>
+
+When you click into the Image *Editable Region*, CloudCannon will open the *Edit Image* Data Panel with the option to change the image, and update the image title and alt text.
+
+If you upload a new image through the *Edit Image* Data Panel, CloudCannon will upload it to one of three locations. If your front matter key is configured as an [Image Input](/documentation/user-articles/what-is-a-file-input/#image), CloudCannon will upload your new image to the location defined by `options.paths.uploads`. If this option is not defined, CloudCannon will use the location defined by `paths.uploads` in the root of your CloudCannon Configuration file. Finally, if you do not have any uploads path defined, CloudCannon will upload the new image to the "uploads" folder in the root of your repository, or create one if the folder does not exist.
+
+## Common errors
+
+If you accidentally misconfigure your *Editable Regions*, CloudCannon will display a red warning box in the Visual Editor.
+
+Here are a few common errors you might encounter with Source and Text *Editable Regions*:
+
+* You did not define the `data-prop-*` HTML attribute for your Image *Editable Region*.
+* The *Editable Region* has an invalid data type (e.g., your Text region has a number or object, instead of a string).
+* There is no `<img>` child element in the Image *Editable Region* web component.
+
+In the next step of this guide, we'll cover how to define *Editable Regions* for simple arrays.

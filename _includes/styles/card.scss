@@ -1,0 +1,405 @@
+// =============================================================================
+// UNIFIED CARD COMPONENT
+// =============================================================================
+// A single card component with variants for different use cases.
+// Replaces: card-grid cards, related-articles, prev-next, guide cards,
+// changelog cards, and glossary entries.
+
+.c-card {
+  // Base styles (shared across all bordered card variants)
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 20px;
+  border: 2px solid var(--button-border);
+  border-radius: 10px;
+  background: var(--card-background);
+  text-decoration: none;
+  color: var(--text);
+  word-break: break-word;
+
+  // Interactive states (only for anchor elements)
+  &[href]:hover,
+  &[href]:focus-visible {
+    border-color: var(--selected-blue);
+    outline: none;
+
+    .c-card__arrow,
+    .c-card__arrow svg {
+      fill: var(--selected-blue);
+    }
+  }
+
+  // ==========================================================================
+  // CARD ELEMENTS
+  // ==========================================================================
+
+  &__label {
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: var(--gap-quarter);
+  }
+
+  &__heading {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    h3.c-card__title {
+      margin-top: 0;
+    }
+  }
+
+  &__icon {
+    height: 24px;
+    flex-shrink: 0;
+    display: flex;
+
+    // For dynamically injected SVGs via Alpine.js
+    svg {
+      width: 24px;
+      height: 24px;
+      fill: var(--text);
+    }
+  }
+
+  &__title {
+    margin: 0;
+    padding: 0;
+    font-size: 20px;
+    line-height: 1.2;
+    color: var(--text);
+  }
+
+  &__date {
+    margin: 0;
+    color: var(--changelog-date);
+    font-weight: bold;
+    font-size: 16px;
+  }
+
+  &__description {
+    margin: 0;
+    color: var(--card-paragraph);
+    font-weight: 400;
+    font-size: 16px;
+  }
+
+  &__footer {
+    margin-top: auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  &__category {
+    display: flex;
+    font-weight: 450;
+    align-items: center;
+    font-size: 12px;
+    border-radius: 4px;
+    line-height: 24px;
+    padding: 1px 8px;
+    background: var(--accent-background);
+    color: var(--text);
+  }
+
+  &__arrow {
+    margin-left: auto;
+    fill: var(--arrow-color);
+    width: 24px;
+    height: 24px;
+    display: flex;
+
+    // For dynamically injected SVGs via Alpine.js
+    svg {
+      fill: var(--arrow-color);
+      width: 24px;
+      height: 24px;
+    }
+  }
+
+  &__image-container {
+    position: relative;
+  }
+
+  &__image-spacer {
+    height: 140px;
+  }
+
+  &__image {
+    position: absolute;
+    max-height: 140px;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    object-fit: cover;
+    object-position: top;
+    width: 100%;
+  }
+
+  // ==========================================================================
+  // VARIANTS
+  // ==========================================================================
+
+  // Related articles variant
+  &--related {
+    height: 100%;
+
+    .c-card__title {
+      font-size: 20px;
+    }
+
+    .c-card__description {
+      margin-bottom: auto;
+    }
+
+    .c-card__footer {
+      margin-top: 10px;
+    }
+  }
+
+  // Guide variant
+  &--guide {
+    .c-card__heading {
+      flex-direction: row;
+      align-items: center;
+    }
+
+    // Small grid variant for guides
+    &.c-card--guide-sm {
+      .c-card__heading {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+  }
+
+  // Changelog variant
+  &--changelog {
+    .c-card__title {
+      font-size: 20px;
+      line-height: 100%;
+    }
+  }
+
+  // Prev/Next variant
+  &--prev-next {
+    // Previous direction (arrow positioned on left)
+    &.c-card--prev {
+      .c-card__arrow {
+        margin-left: 0;
+        margin-right: auto;
+      }
+    }
+  }
+
+  // Glossary variant (non-interactive, full-width)
+  &--glossary {
+    // No hover states since these aren't interactive
+
+    .c-card__title {
+      margin-bottom: 0;
+    }
+
+    .c-card__description {
+      font-size: 16px;
+    }
+  }
+
+  // List-item variant (borderless, row layout for CardGrid items)
+  &--list-item {
+    display: grid;
+    grid-template-columns: 24px 1fr;
+    column-gap: 10px;
+    padding: 10px;
+    border: 2px solid transparent;
+    border-radius: 4px;
+    background: transparent;
+    row-gap: 0;
+
+    &[href]:hover {
+      background: var(--background-footer);
+      border-color: transparent;
+    }
+
+    .c-card__icon {
+      align-self: start;
+    }
+
+    .c-card__title {
+      font-size: 16px;
+      margin: 0;
+      padding: 0;
+    }
+
+    .c-card__description {
+      grid-column: 2;
+      margin: 0;
+    }
+
+    .c-card__footer {
+      grid-column: span 2;
+      margin-top: 0;
+    }
+  }
+
+  // Search result variant
+  &--search {
+    .c-card__title {
+      font-size: 18px;
+    }
+
+    .c-card__description {
+      font-size: 14px;
+      line-height: 1.5;
+
+      // Search highlight styling
+      mark {
+        background: var(--search-highlight, rgba(255, 200, 0, 0.3));
+        color: inherit;
+        padding: 0 2px;
+        border-radius: 2px;
+      }
+    }
+
+    .c-card__image {
+      position: static;
+      max-height: 80px;
+      width: auto;
+      max-width: 120px;
+      object-fit: cover;
+      border-radius: 4px;
+      margin-bottom: 8px;
+    }
+
+    .c-card__footer {
+      margin-top: 10px;
+    }
+  }
+
+  // Search sub-results (anchor links within pages)
+  &__sub-results {
+    list-style: none;
+    padding: 0;
+    margin: 8px 0 0 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  &__sub-result {
+    padding: 8px 12px;
+    background: var(--accent-background);
+    border-radius: 6px;
+  }
+
+  &__sub-result-link {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--link);
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  &__sub-result-excerpt {
+    margin: 4px 0 0 0;
+    font-size: 13px;
+    color: var(--card-paragraph);
+    line-height: 1.4;
+
+    // Search highlight styling
+    mark {
+      background: var(--search-highlight, rgba(255, 200, 0, 0.3));
+      color: inherit;
+      padding: 0 2px;
+      border-radius: 2px;
+    }
+  }
+}
+
+// =============================================================================
+// CARD CONTAINERS
+// =============================================================================
+// Note: .c-card-grid styles are in card-grid.scss (for home page wrapper cards)
+
+// Related articles container
+.c-card-container--bottom-spacing {
+  height:90px;
+}
+
+.c-card-container--related {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  list-style: none;
+  padding: 0;
+
+  @media (max-width: 880px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+// Guide cards container
+.c-card-container--guides {
+  display: grid;
+  gap: 16px;
+  margin-bottom: 48px;
+
+  &.sm {
+    grid-template-columns: repeat(3, 1fr);
+    margin-top: 40px;
+  }
+
+  &.lg {
+    grid-template-columns: 1fr 1fr;
+    margin-top: 48px;
+  }
+
+  @media (max-width: 880px) {
+    grid-template-columns: 1fr !important;
+  }
+
+  .c-card {
+    height: 100%;
+  }
+}
+
+// Changelog cards container
+.c-card-container--changelog {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 16px;
+
+  @media (max-width: 880px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+// Glossary cards container
+.c-card-container--glossary {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+// Prev/Next container
+.c-card-container--prev-next {
+  padding-top: 64px;
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--gap);
+
+  @media (max-width: 880px) {
+    display: none;
+  }
+}

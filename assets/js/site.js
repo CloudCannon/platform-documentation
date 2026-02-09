@@ -1,119 +1,41 @@
-import "../../_includes/scripts/alpine.js";
-import {
-  Instance,
-  Input,
-  ResultList,
-  Summary,
-  FilterPills,
-} from "npm:@pagefind/modular-ui@1.0.3";
-
-const search = new Instance({
-  bundlePath: "/documentation/_pagefind/",
-  baseUrl: "/",
-  indexWeight: 2,
-  excerptLength: 15,
-  // mergeIndex: [
-  //   {
-  //     bundlePath: "https://cloudcannon.com/_pagefind/",
-  //   },
-  // ],
-});
-window.searchInstance = search;
-
-window.searchInput = new Input({
-  containerElement: "#searchbox",
-});
-search.add(window.searchInput);
-
-const searchResultTemplate = (result) => {
-  let base_title = result.meta.title;
-  if (result.meta.guide_title) {
-    base_title = `${result.meta.guide_title} • ${base_title}`;
-  }
-
-  let base_result = `<li class="result base"><a class="link" href="${result.url}">
-    <span class="section">${result.meta.site}</span>
-    <span class="title">${base_title}</span>
-  </a></li>`;
-
-  const has_root_result = !result.sub_results[0].anchor;
-  if (has_root_result) {
-    const root_result = result.sub_results.shift();
-    base_result = `<li class="result base"><a class="link" href="${root_result.url}">
-      <span class="section">${result.meta.site}</span>
-      <span class="title">${base_title}</span>
-      <span class="info">${root_result.excerpt}</span>
-    </a></li>`;
-  }
-
-  result.sub_results.sort((a, b) => b.locations.length - a.locations.length);
-
-  const subs = result.sub_results.slice(0, 3).map((sub) => {
-    return `<li class="result sub"><a class="link" href="${sub.url}">
-      <span class="title">${sub.title}
-      <span class="info">${sub.excerpt}</span>
-    </a></li>`;
-  });
-  return base_result + subs.join("\n");
-};
-
-search.add(
-  new ResultList({
-    containerElement: "#searchresults",
-    resultTemplate: searchResultTemplate,
-  })
-);
-search.add(
-  new Summary({
-    containerElement: "#summary",
-    defaultMessage: "Search",
-  })
-);
-search.add(
-  new FilterPills({
-    containerElement: "#searchfilter",
-    filter: "site",
-  })
-);
-
-let recentSearches = null,
-  thisSearch = null;
-search.on("search", (term) => {
-  if (recentSearches === null) {
-    try {
-      recentSearches =
-        JSON.parse(localStorage.getItem("docs-pagefind-recents")) ?? [];
-    } catch {
-      recentSearches = [];
-    }
-  }
-  thisSearch = term;
-  if (thisSearch?.trim?.()?.length) {
-    localStorage.setItem(
-      "docs-pagefind-recents",
-      JSON.stringify([
-        term,
-        ...recentSearches.filter((r) => r !== thisSearch).slice(0, 4),
-      ])
-    );
-  }
-});
-
-const messageElement = document.querySelector("#searchmessage");
-
-if (messageElement) {
-  search.on("loading", () => {
-    if (messageElement.innerText.trim().length)
-      messageElement.innerText = "Loading...";
-  });
-  search.on("results", (results) => {
-    if (!results.results.length) {
-      messageElement.innerText = "No results";
-    } else {
-      messageElement.innerText = "";
-    }
-  });
+// Load popover polyfill for browsers that don't support it natively
+if (!("popover" in HTMLElement.prototype)) {
+  import("https://esm.sh/@oddbird/popover-polyfill@0.6.1");
 }
+
+import "../../_includes/scripts/alpine.js";
+
+// Progressive enhancement: relative date formatting
+// Converts <time data-relative-date> elements to show "X days ago" for recent dates
+document.querySelectorAll("time[data-relative-date]").forEach((el) => {
+  const date = new Date(el.getAttribute("datetime"));
+  const now = new Date();
+  const diffMs = now - date;
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+  const diffMonths = (now.getFullYear() - date.getFullYear()) * 12 +
+    (now.getMonth() - date.getMonth());
+
+  // Only show relative dates for entries less than 5 months old
+  if (diffMonths < 5) {
+    if (diffDays === 0) {
+      el.textContent = "today";
+    } else if (diffDays === 1) {
+      el.textContent = "1 day ago";
+    } else if (diffDays < 7) {
+      el.textContent = `${diffDays} days ago`;
+    } else if (diffDays < 14) {
+      el.textContent = "1 week ago";
+    } else if (diffDays < 30) {
+      const weeks = Math.floor(diffDays / 7);
+      el.textContent = `${weeks} weeks ago`;
+    } else if (diffMonths === 1) {
+      el.textContent = "1 month ago";
+    } else {
+      el.textContent = `${diffMonths} months ago`;
+    }
+  }
+  // Otherwise keep the formatted date fallback
+});
 
 // Prefetch links
 const anchorTagElements = document.getElementsByTagName("a");

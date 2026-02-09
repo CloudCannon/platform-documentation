@@ -1,0 +1,122 @@
+import { parse as yamlParse } from "@std/yaml";
+import { join } from "@std/path";
+import GlossaryNav from "../../_components/Nav/GlossaryNav.tsx";
+import NavSidebar from "../../_components/Layout/NavSidebar.tsx";
+import MobileTOC from "../../_components/Layout/MobileTOC.tsx";
+import Card from "../../_components/Card/Card.tsx";
+import type { GlossaryEntry, Helpers } from "../../_types.d.ts";
+
+interface Props {
+  all_letters?: () => string[];
+}
+
+async function getGlossaryEntriesByLetter(
+  letter: string,
+): Promise<GlossaryEntry[]> {
+  const dir = join(Deno.cwd(), "user", "glossary", letter.toLowerCase());
+  const entries: GlossaryEntry[] = [];
+  try {
+    for await (const entry of Deno.readDir(dir)) {
+      const fileContent = Deno.readTextFileSync(`${dir}/${entry.name}`);
+      const yml = yamlParse(fileContent) as GlossaryEntry;
+      entries.push(yml);
+    }
+    entries.sort((a, b) =>
+      a.glossary_term_name < b.glossary_term_name ? -1 : 1
+    );
+  } catch (error) {
+    if (error instanceof Deno.errors.NotFound) {
+      return [];
+    }
+    throw error;
+  }
+  return entries;
+}
+
+export default async function GlossaryListLayout(
+  props: Props,
+  helpers: Helpers,
+) {
+  const { all_letters } = props;
+  const letters = all_letters?.() || [];
+
+  // Pre-fetch all glossary entries by letter (async)
+  const entriesByLetter = await Promise.all(
+    letters.map(async (letter) => {
+      const entries = await getGlossaryEntriesByLetter(letter);
+      return { letter, entries };
+    }),
+  );
+
+  return (
+    <div className="l-page" x-init="showmobilenav = true">
+      <div className="l-column">
+        <NavSidebar>
+          <GlossaryNav
+            title="User Glossary"
+            allLetters={all_letters}
+          />
+        </NavSidebar>
+        <div
+          className="u-card-box l-small-content"
+          x-data="visibleNavHighlighter"
+        >
+          <h1 className="l-heading u-margin-bottom-0 u-padding-bottom-0">
+            User Glossary
+          </h1>
+          <MobileTOC helpers={helpers} />
+          <div className="l-content-split">
+            <main id="main-content" className="c-card-container--glossary">
+              {entriesByLetter.flatMap(({ letter, entries }) => [
+                <h2
+                  key={`heading-${letter}`}
+                  id={letter.toLowerCase()}
+                  className="l-heading u-margin-bottom-0 u-padding-bottom-0 glossary-letter-heading"
+                >
+                  {letter.toUpperCase()}
+                </h2>,
+                ...(entries && entries.length > 0
+                  ? (
+                    entries.map((entry, i) => (
+                      <Card
+                        key={`${letter}-${i}`}
+                        title={entry.glossary_term_name}
+                        variant="glossary"
+                        helpers={helpers}
+                      >
+                        <div
+                          dangerouslySetInnerHTML={{
+                            __html: helpers.md(entry.term_description),
+                          }}
+                        />
+                      </Card>
+                    ))
+                  )
+                  : [
+                    <Card
+                      key={`${letter}-empty`}
+                      variant="glossary"
+                      helpers={helpers}
+                    >
+                      <p>
+                        No glossary entries found for the letter "{letter
+                          .toUpperCase()}".
+                      </p>
+                    </Card>,
+                  ]),
+              ])}
+            </main>
+
+            <aside data-pagefind-ignore="" className="l-right">
+              <div className="l-toc-glossary" alpine:scroll="onScroll()" />
+            </aside>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export const layout = "layouts/base.tsx";
+export const title = "";
+export const description = "";
