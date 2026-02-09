@@ -1,7 +1,7 @@
 ---
 _schema: default
 _uuid: 9b83e4fa-fbc3-47b8-a4ef-a3a6fe6f29e1
-_created_at: 2025-11-21T00:14:57.000Z
+_created_at: 2025-11-21T00:14:57Z
 details:
   title: Best practice for splitting your Configuration File
   description: Learn about the best practices for splitting your Configuration File.
@@ -26,7 +26,6 @@ In this example, we have two *Collections*: Pages and Posts.
 
 <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
 ``````````
-
 collections_config:
   pages:
     path: content
@@ -43,7 +42,6 @@ collections_config:
         - icon: event
           text:
             - template: Published on {date|date_long}
-
 ``````````
 </comp.MultiCodeBlock>
 
@@ -51,26 +49,21 @@ We can move all the content under each *Collection* key into the dedicated files
 
 <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
 ``````````
-
 collections_config_from_glob:
   - '/.cloudcannon/collections/*.cloudcannon.collections.yml'
-
 ``````````
 </comp.MultiCodeBlock>
 
 <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="pages.cloudcannon.collections.yml">
 ``````````
-
 pages:
   path: content
   icon: wysiwyg
-
 ``````````
 </comp.MultiCodeBlock>
 
 <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="posts.cloudcannon.collections.yml">
 ``````````
-
 posts:
   path: content/posts
   icon: event
@@ -83,7 +76,6 @@ posts:
       - icon: event
         text:
           - template: Published on {date|date_long}
-
 ``````````
 </comp.MultiCodeBlock>
 
@@ -95,16 +87,13 @@ However, you can also use `*_from_glob` key in any other *Configuration File*, a
 
 <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
 ``````````
-
 collections_config_from_glob___1___:
   - '/.cloudcannon/collections/*.cloudcannon.collections.yml'
-
 ``````````
 </comp.MultiCodeBlock>
 
 <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="/.cloudcannon/collections/posts.cloudcannon.collections.yml">
 ``````````
-
 posts:
   path: content/posts
   icon: event
@@ -112,7 +101,6 @@ posts:
     - '/.cloudcannon/schemas/blogPost.cloudcannon.schemas.yml'
     - '/.cloudcannon/schemas/companyAnnouncement.cloudcannon.schemas.yml'
     - '/.cloudcannon/schemas/caseStudy.cloudcannon.schemas.yml'
-
 ``````````
 </comp.MultiCodeBlock>
 
@@ -124,14 +112,12 @@ In this example, we have several *Schema Configuration Files* in the `.cloudcann
 
 <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="/.cloudcannon/collections/posts.cloudcannon.collections.yml">
 ``````````
-
 posts:
   path: content/posts
   icon: event
   schemas_from_glob:
     - '/.cloudcannon/schemas/*.cloudcannon.schemas.yml'
     - '!/.cloudcannon/schemas/pages.cloudcannon.schemas.yml'
-
 ``````````
 </comp.MultiCodeBlock>
 
@@ -143,7 +129,6 @@ Your *Configuration Files* can contain multiple entries for object configuration
 
 <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
 ``````````
-
 collections_config:
   posts:
     path: content/posts
@@ -151,13 +136,11 @@ collections_config:
     inputs_from_glob:
       - '/.cloudcannon/inputs/seo.cloudcannon.inputs.yml'
       - '/.cloudcannon/inputs/blog-details.cloudcannon.inputs.yml'
-
 ``````````
 </comp.MultiCodeBlock>
 
 <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="/.cloudcannon/inputs/seo.cloudcannon.inputs.yml">
 ``````````
-
 seo_title:
   type: text
   options:
@@ -180,7 +163,6 @@ seo_image:
     required: true
     pattern: (?i)\.(jpe?g|png)$
     pattern_message: Please select a JPG or PNG image file
-
 ``````````
 </comp.MultiCodeBlock>
 
@@ -190,7 +172,6 @@ You don't have to split all your configuration into separate files. Instead, you
 
 <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
 ``````````
-
 _inputs_from_glob:
   - '/.cloudcannon/inputs/seo.cloudcannon.inputs.yml'
   - '/.cloudcannon/inputs/blog-details.cloudcannon.inputs.yml'
@@ -199,7 +180,6 @@ _inputs:
     type: multiselect
     options:
       values: collections.authors
-
 ``````````
 </comp.MultiCodeBlock>
 
@@ -211,7 +191,6 @@ Please use one of the following configurations:
 
 <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
 ``````````
-
 _structures:
   staffTypes:
     style: modal
@@ -226,13 +205,11 @@ _inputs:
     type: array
     options:
       structures: _structures.staffTypes
-
 ``````````
 </comp.MultiCodeBlock>
 
 <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
 ``````````
-
 _structures_from_glob:
   - /.cloudcannon/structures/staffTypes.cloudcannon.structure.yml
 _inputs:
@@ -240,13 +217,11 @@ _inputs:
     type: array
     options:
       structures: _structures.staffTypes
-
 ``````````
 </comp.MultiCodeBlock>
 
 <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
 ``````````
-
 _inputs:
   staff:
     type: array
@@ -254,23 +229,22 @@ _inputs:
       structures:
         values_from_glob:
           - /.cloudcannon/structures/staffTypes.cloudcannon.structure-value.yml
-
 ``````````
 </comp.MultiCodeBlock>
 
 <comp.Notice info_type="important">
   The following configuration is incorrect, as the `_structures` key is not the same as the `_inputs.*.options.structures` key:
-    
-    <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
-    ``````````
 
-    _inputs:
-      staff:
-        type: array
-        options:
-          _structures_from_glob:
-            - /.cloudcannon/structures/staffTypes.cloudcannon.structure.yml
+  <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+              ``````````
 
-    ``````````
-    </comp.MultiCodeBlock>
+              _inputs:
+                staff:
+                  type: array
+                  options:
+                    _structures_from_glob:
+                      - /.cloudcannon/structures/staffTypes.cloudcannon.structure.yml
+
+              ``````````
+              </comp.MultiCodeBlock>
 </comp.Notice>

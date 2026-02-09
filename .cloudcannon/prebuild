@@ -1,6 +1,3 @@
-rm -rf .cloudcannon/routing.json
-mv .cloudcannon/new-routing.json .cloudcannon/routing.json
-
 if [ -z "${SAFE_TO_DEINDEX+set}" ]
 then
     if grep -iq "X-Robots-Tag" .cloudcannon/routing.json
@@ -11,6 +8,6 @@ then
 fi
 
 ./.cloudcannon/generate-versions > _data/systemversions.json
-node ./.cloudcannon/tidy-versions.js
-node ./.cloudcannon/download-permissions.js
-node ./.cloudcannon/copy-docshot-source.js
+deno run -R -W ./.cloudcannon/tidy-versions.js
+deno run -R -W --allow-net ./.cloudcannon/download-permissions.js
+deno run -R -W ./.cloudcannon/copy-docshot-source.js

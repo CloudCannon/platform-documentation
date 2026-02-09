@@ -1,17 +1,21 @@
-export function parseChangelogFilename(collectionPath: string): Date | undefined {
-  const [year, filename] = collectionPath.replace('/new_changelogs/', '').split('/');
-  if (!year) {
-      return;
+export function parseChangelogFilename(
+  collectionPath: string,
+): Date | undefined {
+  const [year, filename] = collectionPath.replace("/changelogs/", "").split(
+    "/",
+  );
+  if (!year || !filename) {
+    return;
   }
 
-  const [datePart] = filename.split('_');
+  const [datePart] = filename.split("_");
   if (!datePart) {
-      return;
+    return;
   }
 
-  const [month, day] = datePart.split('-');
+  const [month, day] = datePart.split("-");
   if (!month || !day) {
-      return;
+    return;
   }
   return new Date(`${year}-${month}-${day}`);
 }
