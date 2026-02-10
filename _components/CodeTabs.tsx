@@ -141,7 +141,7 @@ export default function CodeTabs({ children }: CodeTabsProps) {
         {hasEncodedContent
           ? <CodeBlockCopyButton codeEncoded={tabs[0].codeEncoded} />
           : (
-            <div className="c-code-block__copy">
+            <div className="c-code-block__copy" data-pagefind-ignore>
               <button
                 type="button"
                 x-on-click={copyFromDomHandler}

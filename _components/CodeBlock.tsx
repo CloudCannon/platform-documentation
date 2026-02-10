@@ -229,7 +229,7 @@ export default function CodeBlock(
           }`}
         >
           <div className="c-code-block__heading">
-            <div className="c-code-block__tabs">
+            <div className="c-code-block__tabs" data-pagefind-ignore>
               <span className="c-code-block__tab c-code-block__tab--static">
                 {getLanguageLabel(block.lang)}
               </span>
