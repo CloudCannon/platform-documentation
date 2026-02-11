@@ -81,10 +81,6 @@ const configDocs: DocEntry[] = Object.values(
   typedDocs["type.Configuration"] ?? {},
 );
 
-// Build timing instrumentation
-const buildTimings: Record<string, number> = {};
-const phaseStarts: Record<string, number> = {};
-
 // Caches for expensive operations (persist across incremental builds)
 const renderTextOnlyCache = new Map<string, string>();
 const glossaryTermCache = new Map<string, string>();
@@ -98,14 +94,6 @@ function getRemarkProcessor() {
     remarkProcessor = remark().use(remarkParse).use(strip);
   }
   return remarkProcessor;
-}
-
-function startPhase(name: string) {
-  phaseStarts[name] = performance.now();
-}
-
-function endPhase(name: string) {
-  buildTimings[name] = performance.now() - phaseStarts[name];
 }
 
 function stripHTML(html: string): string {
@@ -129,81 +117,6 @@ const refNavSections = buildRefNav(
   initialSiteSettingsDocs,
 );
 site.data("ref_nav", refNavSections);
-
-// Track whether we're in an update cycle (vs initial build)
-let isUpdating = false;
-let updatePageCount = 0;
-
-// Build timing event listeners
-site.addEventListener("afterLoad", () => {
-  endPhase("load");
-  startPhase("render");
-  if (!isUpdating) {
-    console.log(`  Load files:    ${buildTimings.load.toFixed(0)}ms`);
-  }
-});
-
-site.addEventListener("afterRender", (event) => {
-  endPhase("render");
-  startPhase("process");
-  updatePageCount = event.pages.length;
-  if (!isUpdating) {
-    console.log(
-      `  Render pages:  ${
-        buildTimings.render.toFixed(0)
-      }ms (${event.pages.length} pages)`,
-    );
-  }
-});
-
-site.addEventListener("beforeSave", () => {
-  endPhase("process");
-  startPhase("save");
-  if (!isUpdating) {
-    console.log(`  Process HTML:  ${buildTimings.process.toFixed(0)}ms`);
-  }
-});
-
-site.addEventListener("afterBuild", (event) => {
-  endPhase("save");
-  endPhase("total");
-  console.log(`  Save files:    ${buildTimings.save.toFixed(0)}ms`);
-  console.log(`  ─────────────────────────`);
-  console.log(`  TOTAL:         ${buildTimings.total.toFixed(0)}ms`);
-  console.log(`  Pages built:   ${event.pages.length}`);
-  console.log(`  Static files:  ${event.staticFiles.length}`);
-  console.log("=== BUILD TIMING END ===\n");
-});
-
-// Incremental update timing (for watch mode)
-site.addEventListener("beforeUpdate", (event) => {
-  isUpdating = true;
-  startPhase("update");
-  startPhase("load");
-  console.log(`\n=== UPDATE START (${event.files.size} files changed) ===`);
-  for (const file of event.files) {
-    console.log(`  Changed: ${file}`);
-  }
-});
-
-site.addEventListener("afterUpdate", (event) => {
-  endPhase("save");
-  endPhase("update");
-  console.log(`  ─────────────────────────`);
-  console.log(`  Load files:    ${buildTimings.load.toFixed(0)}ms`);
-  console.log(
-    `  Render pages:  ${
-      buildTimings.render.toFixed(0)
-    }ms (${updatePageCount} pages)`,
-  );
-  console.log(`  Process HTML:  ${buildTimings.process.toFixed(0)}ms`);
-  console.log(`  Save files:    ${buildTimings.save.toFixed(0)}ms`);
-  console.log(`  ─────────────────────────`);
-  console.log(`  TOTAL:         ${buildTimings.update.toFixed(0)}ms`);
-  console.log(`  Pages rebuilt: ${event.pages.length}`);
-  console.log("=== UPDATE END ===\n");
-  isUpdating = false;
-});
 
 // Log the server URL when it starts (currently suppressed by LUME_LOGS=critical)
 site.addEventListener("afterStartServer", () => {
@@ -958,9 +871,6 @@ let changelogsData: { keys: string[]; [year: string]: number | string[] } = {
 };
 
 site.addEventListener("beforeBuild", async () => {
-  startPhase("total");
-  startPhase("load");
-  console.log("\n=== BUILD TIMING START ===");
   const dir = "changelogs";
   const years: { keys: string[]; [year: string]: number | string[] } = {
     keys: [],
