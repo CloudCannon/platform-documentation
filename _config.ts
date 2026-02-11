@@ -255,13 +255,14 @@ if (isDevMode) {
 // Output all files to `/documentation/*` to match the location
 // (by default `_site/index.html` would represent `https://cloudcannon.com/documentation/`,
 //  but to subpath it on CloudCannon we want this at `_site/documentation/index.html`)
-site.preprocess("*", (pages) =>
+site.preprocess("*", function processBasePath(pages) {
   pages.forEach((page) => {
     page.data.url = `/documentation${page.data.url}`;
-  }));
+  });
+});
 
 // Creates an excerpt for all changelogs saved in description.
-site.preprocess([".md", ".mdx"], (pages) =>
+site.preprocess([".md", ".mdx"], function processExcerpt(pages) {
   pages.forEach((page) => {
     if (
       !page.data.description && page.src.path.startsWith("/changelogs/")
@@ -289,7 +290,8 @@ site.preprocess([".md", ".mdx"], (pages) =>
       changelogDescriptionCache.set(cacheKey, description);
       page.data.description = description;
     }
-  }));
+  });
+});
 
 site.copy("ye_olde_images", "documentation/ye_olde_images");
 site.copy("uploads", "documentation/static");
@@ -530,25 +532,24 @@ const annotateCodeBlocks = (page: Lume.Page): void => {
   );
 };
 
-const injectReusableContent = async (el: Element) => {
-  const reusableContent = el.querySelectorAll(
+const injectReusableContent = async (el: HTMLElement) => {
+  const reusableContent = el.querySelectorAll<HTMLElement>(
     `:scope [data-common-content-id]`,
   );
 
-  for (const node of reusableContent) {
-    const injectionEl = node as Element;
+  for (const injectionEl of reusableContent) {
     const injectionSlots: Record<string, string> = {};
     for (
-      const slotContentEl of injectionEl.querySelectorAll(
+      const slotContentEl of injectionEl.querySelectorAll<HTMLElement>(
         `:scope [data-common-content-slot-content]`,
       )
     ) {
-      const slotName = (slotContentEl as Element).getAttribute(
+      const slotName = slotContentEl.getAttribute(
         "data-common-content-slot-content",
       );
       if (!slotName) continue;
 
-      injectionSlots[slotName] = (slotContentEl as Element).innerHTML;
+      injectionSlots[slotName] = slotContentEl.innerHTML;
     }
 
     const content_id = parseInt(
@@ -562,57 +563,60 @@ const injectReusableContent = async (el: Element) => {
         `:scope [data-common-content-slot]`,
       )
     ) {
-      const slotName = (slotEl as Element).getAttribute(
+      const slotName = slotEl.getAttribute(
         "data-common-content-slot",
       );
       if (!slotName) continue;
 
       if (injectionSlots[slotName]) {
-        (slotEl as Element).innerHTML = injectionSlots[slotName];
+        slotEl.innerHTML = injectionSlots[slotName];
       }
     }
 
-    injectReusableContent(injectionEl);
+    await injectReusableContent(injectionEl);
   }
 };
 
-site.process([".html"], async (pages) => {
-  await Promise.all(pages.map(async (page) => {
-    if (page.document) {
-      await injectReusableContent(page.document.body as unknown as Element);
+site.process([".html"], async function processInjectReusableContent(pages) {
+  await Promise.all(
+    pages.map((page) => injectReusableContent(page.document.body)),
+  );
+});
+
+site.process([".html"], function processHTMLPages(pages) {
+  // Helper function to remap Alpine attributes
+  function remapAlpineAttrs(root: Document | DocumentFragment): void {
+    for (const [attr, newattr] of Object.entries(alpineRemaps)) {
+      root?.querySelectorAll(`[${attr}]`).forEach(
+        (
+          el: {
+            setAttribute: (a: string, b: string) => void;
+            getAttribute: (a: string) => string | null;
+            removeAttribute: (a: string) => void;
+          },
+        ) => {
+          el.setAttribute(newattr, el.getAttribute(attr) || "");
+          el.removeAttribute(attr);
+        },
+      );
     }
 
-    // Helper function to remap Alpine attributes
-    // deno-lint-ignore no-explicit-any
-    function remapAlpineAttrs(root: any): void {
-      for (const [attr, newattr] of Object.entries(alpineRemaps)) {
-        root?.querySelectorAll(`[${attr}]`).forEach(
-          (
-            el: {
-              setAttribute: (a: string, b: string) => void;
-              getAttribute: (a: string) => string | null;
-              removeAttribute: (a: string) => void;
-            },
-          ) => {
-            el.setAttribute(newattr, el.getAttribute(attr) || "");
-            el.removeAttribute(attr);
-          },
-        );
-      }
-      // Also process elements inside <template> tags
-      // deno-lint-ignore no-explicit-any
-      root?.querySelectorAll("template").forEach((template: any) => {
+    // Also process elements inside <template> tags
+    root.querySelectorAll<HTMLTemplateElement>("template").forEach(
+      (template) => {
         if (template.content) {
           remapAlpineAttrs(template.content);
         }
-      });
-    }
+      },
+    );
+  }
 
+  for (const page of pages) {
     remapAlpineAttrs(page.document);
 
     const collisions: Record<string, boolean> = {};
 
-    function fixIdCollisions(slugPrefix: string): string {
+    const fixIdCollisions = (slugPrefix: string): string => {
       let slug = slugPrefix;
       let count = 0;
       while (collisions[slug]) {
@@ -622,20 +626,20 @@ site.process([".html"], async (pages) => {
 
       collisions[slug] = true;
       return slug;
-    }
+    };
 
-    let tocContainer = page.document?.querySelectorAll(`.l-toc`)?.[0];
-    const toc = page.document.createElement("ol");
-    toc.classList.add("l-toc__list");
-    // deno-lint-ignore no-explicit-any
-    function appendAnchorHeader(el: any, slug: string): void {
+    const appendAnchorHeader = (el: HTMLElement, slug: string): void => {
       el.setAttribute("id", slug);
       el.classList.add("c-anchor-header");
       const link = createLink(page, "#", `#${slug}`);
       link.classList.add("c-anchor-header__link");
       link.setAttribute("data-pagefind-ignore", "true");
       el.appendChild(link);
-    }
+    };
+
+    let tocContainer = page.document?.querySelectorAll(`.l-toc`)?.[0];
+    const toc = page.document.createElement("ol");
+    toc.classList.add("l-toc__list");
 
     let hasItems = false;
     let selector =
@@ -660,10 +664,10 @@ site.process([".html"], async (pages) => {
       return;
     }
 
-    page.document?.querySelectorAll(selector).forEach((el) => {
+    page.document.querySelectorAll<HTMLElement>(selector).forEach((el) => {
       if (el.hasAttribute("data-skip-anchor")) return;
 
-      const text = (el as HTMLElement).innerText || el.textContent || "";
+      const text = el.innerText || el.textContent || "";
       const slugPrefix = el.getAttribute("id") || slugify(text);
       if (!slugPrefix) {
         return;
@@ -684,16 +688,15 @@ site.process([".html"], async (pages) => {
       }
     });
 
-    page.document?.querySelectorAll(`.c-data-reference__header`).forEach(
-      (el) => {
-        const keyEl = el.querySelector(".c-data-reference__key") as
-          | HTMLElement
-          | null;
-        const text = keyEl?.innerText || keyEl?.textContent || "";
-        const slug = fixIdCollisions(text);
-        appendAnchorHeader(el, slug);
-      },
-    );
+    page.document.querySelectorAll<HTMLElement>(`.c-data-reference__header`)
+      .forEach(
+        (el) => {
+          const keyEl = el.querySelector<HTMLElement>(".c-data-reference__key");
+          const text = keyEl?.innerText || keyEl?.textContent || "";
+          const slug = fixIdCollisions(text);
+          appendAnchorHeader(el, slug);
+        },
+      );
 
     if (hasItems) {
       const h3 = page.document.createElement("h3");
@@ -717,7 +720,7 @@ site.process([".html"], async (pages) => {
         mobile_toc.closest(".l-toc-mobile")?.remove();
       }
     }
-  }));
+  }
 });
 
 // These MUST appear after our custom site.process([".html"] handling,
@@ -730,10 +733,8 @@ site.use(prism());
 
 // This annotation process relies on the syntax highlighting,
 // so needs to run after prism
-site.process([".html"], async (pages) => {
-  await Promise.all(pages.map((page) => {
-    annotateCodeBlocks(page);
-  }));
+site.process([".html"], function processAnnotateCodeBlocks(pages) {
+  pages.map(annotateCodeBlocks);
 });
 
 site.filter(
