@@ -20,7 +20,7 @@ interface Props {
   details?: Details;
   date: string;
   search?: PageSearch;
-  custom_search_weight?: number;
+  author_notes?: { custom_search_weight?: number };
 }
 
 export default function ArticleLayout(props: Props, helpers: Helpers) {
@@ -32,8 +32,10 @@ export default function ArticleLayout(props: Props, helpers: Helpers) {
     details,
     date,
     search,
-    author_notes.custom_search_weight,
+    author_notes,
   } = props;
+
+  const custom_search_weight = author_notes?.custom_search_weight;
 
   const { navKey, urlParts } = parseDocUrl(url);
   const navData = navigation?.[navKey];
