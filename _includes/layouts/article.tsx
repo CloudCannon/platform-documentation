@@ -41,8 +41,6 @@ export default function ArticleLayout(props: Props, helpers: Helpers) {
     author_notes,
   } = props;
 
-  const custom_search_weight = author_notes?.custom_search_weight;
-
   const { navKey, urlParts } = parseDocUrl(url);
   const navData = navigation?.[navKey];
 
