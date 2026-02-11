@@ -12,6 +12,12 @@ import type {
   PageSearch,
 } from "../../_types.d.ts";
 
+
+interface AuthorNotes {
+  docshots?: string;
+  custom_search_weight?: number;
+}
+
 interface Props {
   content: string;
   url: string;
@@ -20,7 +26,7 @@ interface Props {
   details?: Details;
   date: string;
   search?: PageSearch;
-  author_notes?: { custom_search_weight?: number };
+  author_notes?: AuthorNotes;
 }
 
 export default function ArticleLayout(props: Props, helpers: Helpers) {
@@ -43,7 +49,7 @@ export default function ArticleLayout(props: Props, helpers: Helpers) {
   return (
     <div className="l-page" x-init="showmobilenav = true"
         data-pagefind-body
-        data-pagefind-weight={custom_search_weight || 50}
+        data-pagefind-weight={author_notes?.custom_search_weight || 50}
         data-pagefind-filter="site:Documentation"
         data-pagefind-meta="site:Documentation"
       >
