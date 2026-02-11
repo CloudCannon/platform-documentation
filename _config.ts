@@ -9,6 +9,7 @@ import esbuild from "lume/plugins/esbuild.ts";
 import prism from "lume/plugins/prism.ts";
 import sitemap from "lume/plugins/sitemap.ts";
 import feed from "lume/plugins/feed.ts";
+import basePath from "lume/plugins/base_path.ts";
 
 import jsx from "lume/plugins/jsx.ts";
 import mdx from "lume/plugins/mdx.ts";
@@ -105,8 +106,10 @@ const domainsRegExp = new RegExp("cloudcannon.com|^\/|^\#");
 
 const site = lume({
   location: new URL("https://cloudcannon.com/documentation/"),
+  dest: "_site/documentation",
   server: {
     port: 9010,
+    root: "../",
   },
 });
 
@@ -160,20 +163,6 @@ if (isDevMode) {
   console.log("  Dev mode: Loading only recent changelogs (2024-2025)");
 }
 
-// Sets `/documentation/` through the url filter when running locally
-if (isDevMode) {
-  site.options.location = new URL("http://localhost:9010/documentation/");
-}
-
-// Output all files to `/documentation/*` to match the location
-// (by default `_site/index.html` would represent `https://cloudcannon.com/documentation/`,
-//  but to subpath it on CloudCannon we want this at `_site/documentation/index.html`)
-site.preprocess("*", function processBasePath(pages) {
-  pages.forEach((page) => {
-    page.data.url = `/documentation${page.data.url}`;
-  });
-});
-
 // Creates an excerpt for all changelogs saved in description.
 site.preprocess([".md", ".mdx"], function processExcerpt(pages) {
   pages.forEach((page) => {
@@ -206,9 +195,9 @@ site.preprocess([".md", ".mdx"], function processExcerpt(pages) {
   });
 });
 
-site.copy("ye_olde_images", "documentation/ye_olde_images");
-site.copy("uploads", "documentation/static");
-site.copy("robots.txt", "documentation/robots.txt");
+site.copy("ye_olde_images");
+site.copy("uploads", "static");
+site.copy("robots.txt");
 
 // Temporary trick to disable indented code blocks if we happen to use markdown-it
 // deno-lint-ignore no-explicit-any
@@ -217,7 +206,6 @@ site.copy("robots.txt", "documentation/robots.txt");
 // Pagefind search indexing - runs automatically after each build
 // Uses local plugin (_plugins/pagefind.ts) with pagefind v1.5.0-beta.1
 site.use(pagefind({
-  outputPath: "/documentation/_pagefind",
   ui: false, // Disable old PagefindUI
   componentUI: true, // Enable new Component UI (v1.5+)
 }));
@@ -225,25 +213,25 @@ site.use(pagefind({
 site.use(jsx());
 site.use(mdx());
 site.use(esbuild());
-site.add("/assets/js/site.js", "/documentation/assets/js/site.js");
 site.use(sass());
-site.add("/assets/css/site.scss", "/documentation/assets/css/site.css");
+site.add("/assets/js/site.js");
+site.add("/assets/css/site.scss");
 
-site.add("/assets/img", "/documentation/assets/img");
+// Append the /documentation/ prefix to all links
+site.use(basePath());
+
+site.add("/assets/img");
 // Uploads are copied via site.copy() above - don't also add them here
 // site.add("/uploads");
 
 site.use(date());
-site.use(sitemap({
-  filename: "/documentation/sitemap.xml",
-  query: "!url^=/documentation/404/",
-}));
+site.use(sitemap());
 
 site.use(llmsTxt());
 
 // Changelog RSS feed - uses changelogs tag (year pages use changelog-year tag instead)
 site.use(feed({
-  output: ["/documentation/changelog/feed.xml"],
+  output: ["/changelog/feed.xml"],
   query: "changelogs",
   sort: "date=desc",
   limit: 20,
@@ -844,7 +832,7 @@ site.filter("get_glossary_term", (file: string) => {
 });
 
 site.filter("get_index_page", (page: string) => {
-  page = page.replace("/documentation", "").split("/")[1];
+  page = page.split("/")[1];
   if (page.indexOf("-") != -1) {
     try {
       const page_parts = page.split("-");
@@ -854,7 +842,7 @@ site.filter("get_index_page", (page: string) => {
       const { attrs } = extract(file_content);
       return {
         attrs: attrs as Record<string, unknown>,
-        url: `/documentation/${page_parts[0]}-${page_parts[1]}/`,
+        url: `/${page_parts[0]}-${page_parts[1]}/`,
       };
     } catch (_e) {
       //console.log(e);

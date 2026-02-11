@@ -189,7 +189,7 @@ export default function llmsTxt() {
         if (!url) continue;
 
         // Collect changelog pages
-        if (url.includes("/documentation/changelog/") && url !== "/documentation/changelog/") {
+        if (url.includes("/changelog/") && url !== "/changelog/") {
           const title = (page.data.title || "") as string;
           if (!title) continue;
           
@@ -206,13 +206,13 @@ export default function llmsTxt() {
         }
 
         let collection = "";
-        if (url.includes("/documentation/user-articles/")) {
+        if (url.includes("/user-articles/")) {
           collection = "user-articles";
-        } else if (url.includes("/documentation/developer-articles/")) {
+        } else if (url.includes("/developer-articles/")) {
           collection = "developer-articles";
-        } else if (url.includes("/documentation/user-guides/")) {
+        } else if (url.includes("/user-guides/")) {
           collection = "user-guides";
-        } else if (url.includes("/documentation/developer-guides/")) {
+        } else if (url.includes("/developer-guides/")) {
           collection = "developer-guides";
         } else {
           continue; // Skip non-documentation pages
@@ -278,10 +278,10 @@ export default function llmsTxt() {
 
       // Write file to output
       const outputPath = site.options.dest;
-      Deno.writeTextFileSync(`${outputPath}/documentation/llms.txt`, llmsTxt);
+      Deno.writeTextFileSync(`${outputPath}/llms.txt`, llmsTxt);
 
       // Add llms.txt to sitemap
-      const sitemapPath = `${outputPath}/documentation/sitemap.xml`;
+      const sitemapPath = `${outputPath}/sitemap.xml`;
       try {
         let sitemapContent = Deno.readTextFileSync(sitemapPath);
         const llmsEntry = `  <url>
