@@ -32,7 +32,7 @@ export default function ArticleLayout(props: Props, helpers: Helpers) {
     details,
     date,
     search,
-    custom_search_weight,
+    author_notes.custom_search_weight,
   } = props;
 
   const { navKey, urlParts } = parseDocUrl(url);
