@@ -20,6 +20,7 @@ interface Props {
   details?: Details;
   date: string;
   search?: PageSearch;
+  custom_search_weight?: number;
 }
 
 export default function ArticleLayout(props: Props, helpers: Helpers) {
@@ -31,6 +32,7 @@ export default function ArticleLayout(props: Props, helpers: Helpers) {
     details,
     date,
     search,
+    custom_search_weight,
   } = props;
 
   const { navKey, urlParts } = parseDocUrl(url);
@@ -39,7 +41,7 @@ export default function ArticleLayout(props: Props, helpers: Helpers) {
   return (
     <div className="l-page" x-init="showmobilenav = true"
         data-pagefind-body
-        data-pagefind-weight="50"
+        data-pagefind-weight={custom_search_weight || 50}
         data-pagefind-filter="site:Documentation"
         data-pagefind-meta="site:Documentation"
       >
