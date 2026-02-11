@@ -73,7 +73,7 @@ export default async function RelatedArticles(
   if (articlesFound.length === 0) {
     articlesFound = validRelatedArticles
       .map((relatedArticle) => search.page(`_uuid=${relatedArticle.item}`))
-      .filter((article) => !article);
+      .filter((article) => !!article);
   }
 
   // Don't render the section if no articles were found
