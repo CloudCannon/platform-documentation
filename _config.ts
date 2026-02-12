@@ -822,11 +822,10 @@ site.filter("get_glossary_term", (file: string) => {
     return cached;
   }
 
-  const mdFilterFn = site.renderer.helpers.get("md")?.[0];
   const file_content = Deno.readTextFileSync(`${file.slice(1)}`);
   // deno-lint-ignore no-explicit-any
   const yml = yamlParse(file_content) as any;
-  const description = mdFilterFn?.(yml?.term_description) || "";
+  const description = mdFilter?.(yml?.term_description) || "";
   glossaryTermCache.set(file, description);
   return description;
 });
