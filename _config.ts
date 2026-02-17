@@ -88,6 +88,7 @@ const phaseStarts: Record<string, number> = {};
 // Caches for expensive operations (persist across incremental builds)
 const renderTextOnlyCache = new Map<string, string>();
 const glossaryTermCache = new Map<string, string>();
+const glossaryTermNameCache = new Map<string, string>();
 const changelogDescriptionCache = new Map<string, string>();
 
 // Reusable remark processor (avoid recreating on each call)
@@ -927,6 +928,20 @@ site.filter("get_glossary_term", (file: string) => {
   const description = mdFilterFn?.(yml?.term_description) || "";
   glossaryTermCache.set(file, description);
   return description;
+});
+
+site.filter("get_glossary_term_name", (file: string) => {
+  const cached = glossaryTermNameCache.get(file);
+  if (cached !== undefined) {
+    return cached;
+  }
+
+  const file_content = Deno.readTextFileSync(`${file.slice(1)}`);
+  // deno-lint-ignore no-explicit-any
+  const yml = yamlParse(file_content) as any;
+  const name = yml?.glossary_term_name || "";
+  glossaryTermNameCache.set(file, name);
+  return name;
 });
 
 site.filter("get_index_page", (page: string) => {
