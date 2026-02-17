@@ -12,7 +12,7 @@ export default function GlossaryTerm(
   helpers: Helpers,
 ) {
   const content =
-    `<span class="eyebrow">Glossary term</span><h3>${children.__html}</h3>${
+    `<span class="eyebrow">Glossary term</span><h3>${helpers.get_glossary_term_name(term)}</h3>${
       helpers.get_glossary_term(term)
     }`;
   return (
