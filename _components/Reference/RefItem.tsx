@@ -80,11 +80,15 @@ function RefSummary({ entry, helpers }: RefSummaryProps) {
                 <pre><code className={`language-${example.language || 'yaml'}`}>
                                   {example.code}
                               </code></pre>
-                {example.annotations?.map((annotation, j) => (
-                  <Annotation key={j} number={annotation.number || 0}>
-                    {annotation.content}
-                  </Annotation>
-                ))}
+                {helpers &&
+                  example.annotations?.map((annotation, j) => (
+                    <Annotation
+                      key={j}
+                      number={annotation.number || 0}
+                      contentHtml={helpers.md(annotation.content || "")}
+                    >
+                    </Annotation>
+                  ))}
               </MultiCodeBlock>
             </div>
           ))}
