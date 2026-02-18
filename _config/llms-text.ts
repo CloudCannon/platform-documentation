@@ -62,12 +62,18 @@ function formatGuide(guide: Guide, fallback = "Guide"): string {
 /** Get the static Developer Reference section */
 function getDeveloperReferenceSection(): string {
   const refBase = `${BASE_URL}/documentation/developer-reference`;
+  const schemaBase = "https://github.com/CloudCannon/configuration-types/releases/latest/download";
   return `## Developer Reference
 
 Configuration types and schemas are available directly from these repositories:
 
 - [configuration-types](https://github.com/CloudCannon/configuration-types): TypeScript types and JSON Schemas for CloudCannon configuration files
 - [javascript-api](https://github.com/CloudCannon/javascript-api): TypeScript declarations for the CloudCannon JavaScript API
+
+JSON Schemas (with full descriptions, for use by LLMs and IDEs):
+- [Configuration JSON Schema](${schemaBase}/cloudcannon-config.documentation.schema.json): Full JSON Schema with descriptions for cloudcannon.config.*
+- [Routing JSON Schema](${schemaBase}/cloudcannon-routing.documentation.schema.json): JSON Schema for .cloudcannon/routing.json
+- [Initial Site Settings JSON Schema](${schemaBase}/cloudcannon-initial-site-settings.documentation.schema.json): JSON Schema for .cloudcannon/initial-site-settings.json
 
 Reference documentation:
 - [Developer Reference Overview](${refBase}/index.md): Index of all reference documentation ([view page](${refBase}/))
