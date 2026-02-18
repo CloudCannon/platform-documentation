@@ -1,5 +1,6 @@
 import PrevNext from "../../_components/Content/PrevNext.tsx";
 import MobileTOC from "../../_components/Layout/MobileTOC.tsx";
+import CopyPageDropdown from "../../_components/CopyPageDropdown.tsx";
 import type { Details, Helpers, Page } from "../../_types.d.ts";
 
 interface GuideArticle {
@@ -165,6 +166,7 @@ export default function GuideLayout(props: Props, helpers: Helpers) {
               dangerouslySetInnerHTML={{ __html: content }}
             />
             <aside data-pagefind-ignore className="l-right">
+              <CopyPageDropdown title={details?.title || ""} url={url} />
               <div className="l-toc" alpine:scroll="onScroll()" />
             </aside>
           </div>

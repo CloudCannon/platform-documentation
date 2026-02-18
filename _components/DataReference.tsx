@@ -9,3 +9,7 @@ export default function DataReference({ children }: DataReferenceProps) {
     </div>
   );
 }
+
+export function toMarkdown(_props: DataReferenceProps, childrenMd: string): string {
+  return childrenMd;
+}

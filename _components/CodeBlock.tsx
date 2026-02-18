@@ -155,6 +155,19 @@ interface CodeBlockProps {
   children: unknown;
 }
 
+export function toMarkdown(
+  { language = "plaintext", source }: CodeBlockProps,
+  childrenMd: string,
+): string {
+  const header = source ? `File: \`${source}\`\n\n` : "";
+  let code = childrenMd.trim();
+  const fenceMatch = code.match(/^```\w*\n([\s\S]*?)\n```$/);
+  if (fenceMatch) {
+    code = fenceMatch[1];
+  }
+  return `${header}\`\`\`${language}\n${code}\n\`\`\`\n\n`;
+}
+
 export default function CodeBlock(
   { language = "plaintext", translate_into = [], source, children }:
     CodeBlockProps,

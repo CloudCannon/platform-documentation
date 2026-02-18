@@ -22,3 +22,12 @@ export default function RelativeDate({ date, className }: RelativeDateProps) {
     </time>
   );
 }
+
+export function toMarkdown({ date }: RelativeDateProps): string {
+  const d = new Date(date);
+  return d.toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+}
