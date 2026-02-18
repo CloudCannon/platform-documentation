@@ -12,7 +12,7 @@ export default function CodeBlockCopyButton(
   { codeEncoded }: CodeBlockCopyButtonProps,
 ) {
   return (
-    <div className="c-code-block__copy">
+    <div className="c-code-block__copy" data-pagefind-ignore>
       <button
         type="button"
         x-on-click={`$clipboard('${codeEncoded}')`}

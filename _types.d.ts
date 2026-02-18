@@ -37,6 +37,7 @@ declare global {
 
       // Content helpers (custom)
       get_glossary_term: (term: string) => string;
+      get_glossary_term_name: (term: string) => string;
     }
   }
 }

@@ -25,7 +25,7 @@ export function url(page: Page): string | undefined {
     const title = page.data.title;
 
     return `/changelog/${dateObj.getFullYear()}/${
-      dateObj.getMonth() + 1
+      (dateObj.getMonth() + 1).toString().padStart(2, '0')
     }/${dateObj.getDate()}/${slugify(title)}/`;
   }
   return page.src.slug;

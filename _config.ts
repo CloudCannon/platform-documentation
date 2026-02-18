@@ -88,6 +88,7 @@ const phaseStarts: Record<string, number> = {};
 // Caches for expensive operations (persist across incremental builds)
 const renderTextOnlyCache = new Map<string, string>();
 const glossaryTermCache = new Map<string, string>();
+const glossaryTermNameCache = new Map<string, string>();
 const changelogDescriptionCache = new Map<string, string>();
 
 // Reusable remark processor (avoid recreating on each call)
@@ -226,7 +227,7 @@ const injectedSections: Promise<string>[] = [];
 
 const mdFilter = site.renderer.helpers.get("md")?.[0];
 
-site.ignore("README.md", "unused");
+site.ignore("README.md", "unused", "STYLE_GUIDE.mdx");
 
 // Detect dev mode (serve command uses -s flag)
 const isDevMode = Deno.args.includes("-s") || Deno.args.includes("--serve");
@@ -293,6 +294,7 @@ site.preprocess([".md", ".mdx"], (pages) =>
 
 site.copy("ye_olde_images", "documentation/ye_olde_images");
 site.copy("uploads", "documentation/static");
+site.copy("robots.txt", "documentation/robots.txt");
 
 // Temporary trick to disable indented code blocks if we happen to use markdown-it
 // deno-lint-ignore no-explicit-any
@@ -309,19 +311,18 @@ site.use(pagefind({
 site.use(jsx());
 site.use(mdx());
 site.use(esbuild());
-site.add("/assets/js/site.js");
-site.copy("/assets/js/custom-live.js");
-
+site.add("/assets/js/site.js", "/documentation/assets/js/site.js");
 site.use(sass());
-site.add("/assets/css/site.scss");
+site.add("/assets/css/site.scss", "/documentation/assets/css/site.css");
 
-site.add("/assets/img");
+site.add("/assets/img", "/documentation/assets/img");
 // Uploads are copied via site.copy() above - don't also add them here
 // site.add("/uploads");
 
 site.use(date());
 site.use(sitemap({
   filename: "/documentation/sitemap.xml",
+  query: "!url^=/documentation/404/",
 }));
 
 site.use(llmsTxt());
@@ -927,6 +928,20 @@ site.filter("get_glossary_term", (file: string) => {
   const description = mdFilterFn?.(yml?.term_description) || "";
   glossaryTermCache.set(file, description);
   return description;
+});
+
+site.filter("get_glossary_term_name", (file: string) => {
+  const cached = glossaryTermNameCache.get(file);
+  if (cached !== undefined) {
+    return cached;
+  }
+
+  const file_content = Deno.readTextFileSync(`${file.slice(1)}`);
+  // deno-lint-ignore no-explicit-any
+  const yml = yamlParse(file_content) as any;
+  const name = yml?.glossary_term_name || "";
+  glossaryTermNameCache.set(file, name);
+  return name;
 });
 
 site.filter("get_index_page", (page: string) => {
