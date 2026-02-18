@@ -209,7 +209,7 @@ export function getTocItems(entry: DocEntry, section: SectionId): TocItem[] {
     if (additionalValues.length) {
       additionalValues.forEach((ref, i) => {
         const resolved = resolveRef(ref, section) || undefined;
-        const label = getDisplayName(resolved) || `item-${i}`;
+        const label = resolved?.title || resolved?.full_key || `item-${i}`;
         items.push({
           id: `addvalue-${slugify(label)}`,
           labelElement: <DocNameUnboxed doc={resolved} />,
@@ -218,7 +218,7 @@ export function getTocItems(entry: DocEntry, section: SectionId): TocItem[] {
     } else {
       additionalProps.forEach((ref, i) => {
         const resolved = resolveRef(ref, section) || undefined;
-        const label = getDisplayName(resolved) || `item-${i}`;
+        const label = resolved?.title || resolved?.full_key || `item-${i}`;
         items.push({
           id: `addprop-${slugify(label)}`,
           labelElement: <DocNameUnboxed doc={resolved} />,
@@ -372,8 +372,11 @@ export default function ReferenceContent({
                   </code>
                 </pre>
                 {example.annotations?.map((annotation, j) => (
-                  <Annotation key={j} number={annotation.number || 0}>
-                    {annotation.content}
+                  <Annotation
+                    key={j}
+                    number={annotation.number || 0}
+                    contentHtml={helpers.md(annotation.content || "")}
+                  >
                   </Annotation>
                 ))}
               </MultiCodeBlock>
