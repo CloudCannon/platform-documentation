@@ -143,7 +143,8 @@ const injectedSections: Promise<string>[] = [];
 
 const mdFilter = site.renderer.helpers.get("md")?.[0];
 
-site.ignore("README.md", "unused", "STYLE_GUIDE.mdx");
+site.ignore("README.md", "unused", "STYLE_GUIDE.mdx", "cloudcannon.config.yml");
+site.ignore((path) => /^\/user\/glossary\/.*\.yml$/.test(path));
 
 // Detect dev mode (serve command uses -s flag)
 const isDevMode = Deno.args.includes("-s") || Deno.args.includes("--serve");

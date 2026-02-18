@@ -26,9 +26,9 @@ export default function ChangeNav(
       >
         <li
           className={`t-docs-nav__main-list__item changelog-nav ${
-            url === "/documentation/changelog/" ? "selected" : ""
+            url === "/changelog/" ? "selected" : ""
           }`}
-          {...(url === "/documentation/changelog/"
+          {...(url === "/changelog/"
             ? { "aria-current": "page" }
             : {})}
         >
@@ -44,7 +44,7 @@ export default function ChangeNav(
           <li
             key={year}
             className={`t-docs-nav__main-list__item changelog-nav ${
-              url?.startsWith(`/documentation/changelog/${year}/`)
+              url?.startsWith(`/changelog/${year}/`)
                 ? "selected"
                 : ""
             }`}

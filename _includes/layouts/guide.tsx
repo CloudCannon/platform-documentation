@@ -36,7 +36,7 @@ export default function GuideLayout(props: Props, helpers: Helpers) {
   } = props;
 
   const guideParts = url.split("/");
-  const guideId = [guideParts[1], guideParts[2], guideParts[3]].join("/");
+  const guideId = [guideParts[1], guideParts[2]].join("/");
   const guideArticles = search.pages(`url^=/${guideId}`, "details.order") || [];
   const totalPages = guideArticles.length;
 
