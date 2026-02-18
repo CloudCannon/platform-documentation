@@ -55,6 +55,9 @@ export default function DocNav(
   const typescriptPage = search.page(
     "url=/documentation/developer-reference/typescript/",
   );
+  const editableRegionsPage = search.page(
+    "url=/documentation/developer-reference/editable-regions/",
+  );
   const permissionsPage = search.page(
     "url=/documentation/developer-reference/permissions/",
   );
@@ -73,7 +76,18 @@ export default function DocNav(
   }
 
   allEntries.push(...ref_nav);
-
+  if (editableRegionsPage) {
+    allEntries.push({
+      id: "editable-regions" as SectionId,
+      heading: editableRegionsPage.attrs?.details?.title ||
+        editableRegionsPage.title || "Editable Regions",
+      icon: "preview",
+      basePath: editableRegionsPage.url ||
+        "/documentation/developer-reference/editable-regions/",
+      items: [],
+    });
+  }
+  
   if (permissionsPage) {
     allEntries.push({
       id: "permissions" as SectionId,
@@ -190,8 +204,10 @@ export default function DocNav(
                 </summary>
 
                 <ol className="t-docs-nav__sub-list">
-                  {/* Section home page link (Overview) */}
-                  {sectionHomePage && (
+                  {/* Section home page link (Overview) - only when distinct from first item */}
+                  {sectionHomePage &&
+                    sectionHomePage.url?.replace(/\/$/, "") !==
+                      sec.items[0]?.url?.replace(/\/$/, "") && (
                     <li>
                       <a
                         className="t-docs-nav__sub-list__article"
@@ -205,7 +221,7 @@ export default function DocNav(
                     </li>
                   )}
 
-                  {/* Reference items (pre-filtered, pre-sorted) */}
+                  {/* Reference items */}
                   {sec.items.map((item, index) => (
                     <li key={item.gid || index}>
                       <a
