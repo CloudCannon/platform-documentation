@@ -3,7 +3,12 @@ import RelatedArticles from "../../_components/Content/RelatedArticles.tsx";
 import Breadcrumb from "../../_components/Layout/Breadcrumb.tsx";
 import MobileTOC from "../../_components/Layout/MobileTOC.tsx";
 import NavSidebar from "../../_components/Layout/NavSidebar.tsx";
-import { formatTitle, parseDocUrl } from "../../_components/utils/index.ts";
+import PagefindCategoryMeta from "../../_components/Layout/PagefindCategoryMeta.tsx";
+import {
+  formatTitle,
+  getPagefindContentType,
+  parseDocUrl,
+} from "../../_components/utils/index.ts";
 import type {
   ContentNavigation,
   Details,
@@ -51,6 +56,7 @@ export default function ArticleLayout(props: Props, helpers: Helpers) {
         data-pagefind-filter="site:Documentation"
         data-pagefind-meta="site:Documentation"
       >
+      <PagefindCategoryMeta category={getPagefindContentType(url)} />
       <div className="l-column">
         <NavSidebar>
           {navData && search && (
