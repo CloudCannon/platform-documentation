@@ -106,3 +106,7 @@ export default function GuideGrid(
     </div>
   );
 }
+
+export function toMarkdown(): string {
+  return "";
+}

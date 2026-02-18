@@ -10,3 +10,10 @@ export default function SystemVersionDefault(
   const lookup = systemversions?.[language]?.[item];
   return <code>{lookup?.default || "Unknown"}</code>;
 }
+
+export function toMarkdown(
+  { language, item, systemversions }: SystemVersionDefaultProps,
+): string {
+  const lookup = systemversions?.[language]?.[item];
+  return `\`${lookup?.default || "Unknown"}\``;
+}

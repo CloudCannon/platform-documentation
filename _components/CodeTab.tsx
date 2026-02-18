@@ -19,6 +19,18 @@ interface CodeTabProps {
   children?: unknown; // For manual use (code fence in MDX)
 }
 
+export function toMarkdown(
+  { language }: CodeTabProps,
+  childrenMd: string,
+): string {
+  let code = childrenMd.trim();
+  const fenceMatch = code.match(/^```\w*\n([\s\S]*?)\n```$/);
+  if (fenceMatch) {
+    code = fenceMatch[1];
+  }
+  return `\`\`\`${language}\n${code}\n\`\`\`\n\n`;
+}
+
 export default function CodeTab(
   { language, code, children }: CodeTabProps,
 ) {

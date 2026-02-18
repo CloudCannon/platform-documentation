@@ -60,6 +60,7 @@ import documentation from "@cloudcannon/configuration-types/dist/documentation.j
   type: "json",
 };
 import llmsTxt from "./_config/llms-text.ts";
+import markdownPages from "./_config/markdown-pages.ts";
 
 // Type the documentation as nested sections (section -> gid -> entry)
 const typedDocs = documentation as unknown as Record<
@@ -325,6 +326,7 @@ site.use(sitemap({
   query: "!url^=/documentation/404/",
 }));
 
+site.use(markdownPages());
 site.use(llmsTxt());
 
 // Changelog RSS feed - uses changelogs tag (year pages use changelog-year tag instead)

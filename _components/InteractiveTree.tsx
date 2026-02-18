@@ -174,4 +174,10 @@ export default function InteractiveTree({
   );
 }
 
+export function toMarkdown(
+  { nodes }: InteractiveTreeProps,
+): string {
+  return `\`\`\`\n${nodesToText(nodes)}\n\`\`\`\n\n`;
+}
+
 export { nodesToText };

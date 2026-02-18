@@ -19,23 +19,25 @@ interface Guide {
 }
 
 const BASE_URL = "https://cloudcannon.com";
-const GITHUB_RAW_URL = "https://raw.githubusercontent.com/CloudCannon/platform-documentation/main";
 const GITHUB_REPO_URL = "https://github.com/CloudCannon/platform-documentation";
 
-/** Format a page with GitHub raw link and page URL */
+/** Build the URL to the built .md file for a page */
+function mdUrl(p: DocPage): string {
+  return `${BASE_URL}${p.url}${p.url.endsWith("/") ? "index.md" : ".md"}`;
+}
+
+/** Format a page with a link to its built .md file and page URL */
 function formatPageLink(p: DocPage, fallback = "Documentation"): string {
-  const githubUrl = `${GITHUB_RAW_URL}${p.srcPath}`;
   const pageUrl = `${BASE_URL}${p.url}`;
   const desc = p.description || fallback;
-  return `- [${p.title}](${githubUrl}): ${desc} ([view page](${pageUrl}))`;
+  return `- [${p.title}](${mdUrl(p)}): ${desc} ([view page](${pageUrl}))`;
 }
 
 /** Format a page as an ordered subitem (indented with number) */
 function formatSubPageLink(p: DocPage, index: number, fallback = "Documentation"): string {
-  const githubUrl = `${GITHUB_RAW_URL}${p.srcPath}`;
   const pageUrl = `${BASE_URL}${p.url}`;
   const desc = p.description || fallback;
-  return `  ${index}. [${p.title}](${githubUrl}): ${desc} ([view page](${pageUrl}))`;
+  return `  ${index}. [${p.title}](${mdUrl(p)}): ${desc} ([view page](${pageUrl}))`;
 }
 
 /** Format a guide with its children as a nested list */
@@ -59,6 +61,7 @@ function formatGuide(guide: Guide, fallback = "Guide"): string {
 
 /** Get the static Developer Reference section */
 function getDeveloperReferenceSection(): string {
+  const refBase = `${BASE_URL}/documentation/developer-reference`;
   return `## Developer Reference
 
 Configuration types and schemas are available directly from these repositories:
@@ -67,13 +70,13 @@ Configuration types and schemas are available directly from these repositories:
 - [javascript-api](https://github.com/CloudCannon/javascript-api): TypeScript declarations for the CloudCannon JavaScript API
 
 Reference documentation:
-- [Developer Reference Overview](${GITHUB_RAW_URL}/developer/reference/index.mdx): Index of all reference documentation ([view page](${BASE_URL}/documentation/developer-reference/))
-- [Configuration File Reference](${GITHUB_RAW_URL}/developer/reference/configuration-file/index.mdx): All keys for cloudcannon.config.* ([view page](${BASE_URL}/documentation/developer-reference/configuration-file/))
-- [Initial Site Settings Reference](${GITHUB_RAW_URL}/developer/reference/initial-site-settings-file/index.mdx): Settings for .cloudcannon/initial-site-settings.json ([view page](${BASE_URL}/documentation/developer-reference/initial-site-settings-file/))
-- [Routing File Reference](${GITHUB_RAW_URL}/developer/reference/routing-file/index.mdx): Redirects and headers for .cloudcannon/routing.json ([view page](${BASE_URL}/documentation/developer-reference/routing-file/))
-- [Permissions Reference](${GITHUB_RAW_URL}/developer/reference/permissions/index.mdx): All available permission settings ([view page](${BASE_URL}/documentation/developer-reference/permissions/))
-- [JSON Schemas](${GITHUB_RAW_URL}/developer/reference/schemas/index.mdx): Schema files for IDE autocomplete and validation ([view page](${BASE_URL}/documentation/developer-reference/schemas/))
-- [TypeScript Types](${GITHUB_RAW_URL}/developer/reference/typescript/index.mdx): @cloudcannon/configuration-types package ([view page](${BASE_URL}/documentation/developer-reference/typescript/))`;
+- [Developer Reference Overview](${refBase}/index.md): Index of all reference documentation ([view page](${refBase}/))
+- [Configuration File Reference](${refBase}/configuration-file/index.md): All keys for cloudcannon.config.* ([view page](${refBase}/configuration-file/))
+- [Initial Site Settings Reference](${refBase}/initial-site-settings-file/index.md): Settings for .cloudcannon/initial-site-settings.json ([view page](${refBase}/initial-site-settings-file/))
+- [Routing File Reference](${refBase}/routing-file/index.md): Redirects and headers for .cloudcannon/routing.json ([view page](${refBase}/routing-file/))
+- [Permissions Reference](${refBase}/permissions/index.md): All available permission settings ([view page](${refBase}/permissions/))
+- [JSON Schemas](${refBase}/schemas/index.md): Schema files for IDE autocomplete and validation ([view page](${refBase}/schemas/))
+- [TypeScript Types](${refBase}/typescript/index.md): @cloudcannon/configuration-types package ([view page](${refBase}/typescript/))`;
 }
 
 interface Collections {
@@ -280,22 +283,55 @@ export default function llmsTxt() {
       const outputPath = site.options.dest;
       Deno.writeTextFileSync(`${outputPath}/documentation/llms.txt`, llmsTxt);
 
-      // Add llms.txt to sitemap
+      // Generate llms-full.txt: concatenate all page markdown content
+      const allDocPages = [
+        ...collections.userArticles,
+        ...collections.developerArticles,
+        ...collections.latestChangelogs,
+      ];
+      for (const guide of [...collections.userGuides, ...collections.developerGuides]) {
+        allDocPages.push(guide.parent);
+        allDocPages.push(...guide.children);
+      }
+
+      const fullParts: string[] = [
+        `# CloudCannon Documentation (Full)\n`,
+        `> Complete documentation content. See llms.txt for a structured index.\n`,
+      ];
+
+      for (const p of allDocPages) {
+        const mdPath = `${outputPath}${p.url}${p.url.endsWith("/") ? "index.md" : ".md"}`;
+        try {
+          const content = Deno.readTextFileSync(mdPath);
+          fullParts.push(`\n---\n\n${content}`);
+        } catch {
+          // .md file not yet generated or page skipped
+        }
+      }
+
+      const llmsFullTxt = fullParts.join("\n");
+      Deno.writeTextFileSync(`${outputPath}/documentation/llms-full.txt`, llmsFullTxt);
+
+      // Add llms.txt and llms-full.txt to sitemap
       const sitemapPath = `${outputPath}/documentation/sitemap.xml`;
       try {
         let sitemapContent = Deno.readTextFileSync(sitemapPath);
-        const llmsEntry = `  <url>
+        const llmsEntries = `  <url>
     <loc>${BASE_URL}/documentation/llms.txt</loc>
   </url>
+  <url>
+    <loc>${BASE_URL}/documentation/llms-full.txt</loc>
+  </url>
 </urlset>`;
-        sitemapContent = sitemapContent.replace("</urlset>", llmsEntry);
+        sitemapContent = sitemapContent.replace("</urlset>", llmsEntries);
         Deno.writeTextFileSync(sitemapPath, sitemapContent);
-        console.log(`Added llms.txt to sitemap.xml`);
+        console.log(`Added llms.txt and llms-full.txt to sitemap.xml`);
       } catch (e) {
         console.warn(`Could not update sitemap.xml: ${e}`);
       }
 
       console.log(`Generated llms.txt (${(llmsTxt.length / 1024).toFixed(1)} KB)`);
+      console.log(`Generated llms-full.txt (${(llmsFullTxt.length / 1024).toFixed(1)} KB)`);
     });
   };
 }

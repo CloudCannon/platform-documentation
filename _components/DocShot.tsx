@@ -26,3 +26,11 @@ export default function DocShot(
     />
   );
 }
+
+export function toMarkdown(
+  { docshot_key, alt, title, docshots }: DocShotProps,
+): string {
+  const url =
+    `https://cc-screenshots.imgix.net/${docshots.source}/${docshot_key}.webp`;
+  return `![${alt || title || "Screenshot"}](${url})\n\n`;
+}

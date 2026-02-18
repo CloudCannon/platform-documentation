@@ -24,3 +24,10 @@ export default function Annotation({ number, children }: AnnotationProps) {
     </div>
   );
 }
+
+export function toMarkdown(
+  { number }: AnnotationProps,
+  childrenMd: string,
+): string {
+  return `**[${number}]** ${childrenMd.trim()}\n\n`;
+}

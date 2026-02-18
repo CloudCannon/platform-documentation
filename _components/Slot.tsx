@@ -10,3 +10,7 @@ export default function Slot({ name, children }: SlotProps) {
     </div>
   );
 }
+
+export function toMarkdown(_props: SlotProps, childrenMd: string): string {
+  return childrenMd;
+}
