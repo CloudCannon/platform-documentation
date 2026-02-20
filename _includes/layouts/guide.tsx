@@ -1,5 +1,7 @@
 import PrevNext from "../../_components/Content/PrevNext.tsx";
 import MobileTOC from "../../_components/Layout/MobileTOC.tsx";
+import PagefindCategoryMeta from "../../_components/Layout/PagefindCategoryMeta.tsx";
+import { getPagefindContentType } from "../../_components/utils/urlHelpers.ts";
 import type { Details, Helpers, Page } from "../../_types.d.ts";
 
 interface GuideArticle {
@@ -56,6 +58,7 @@ export default function GuideLayout(props: Props, helpers: Helpers) {
       data-pagefind-weight="30"
       data-pagefind-filter="site:Guides"
       data-pagefind-meta="site:Guides">
+      <PagefindCategoryMeta category={getPagefindContentType(url)} />
       <div className="l-column">
         <aside className="l-left" x-data="{ more: true }">
           <nav

@@ -1,3 +1,4 @@
+import PagefindCategoryMeta from "../../_components/Layout/PagefindCategoryMeta.tsx";
 import DocNav from "../../_components/Reference/DocNav.tsx";
 import MobileTOC from "../../_components/Layout/MobileTOC.tsx";
 import NavSidebar from "../../_components/Layout/NavSidebar.tsx";
@@ -91,6 +92,7 @@ export default function ReferenceHomeLayout(
       data-pagefind-weight="0.1"
       data-pagefind-filter="site:Reference"
       data-pagefind-meta="site:Reference">
+      <PagefindCategoryMeta category="Developer Reference" />
       <div className="l-column">
         <NavSidebar className="developer-reference">
           {ref_nav && search && (

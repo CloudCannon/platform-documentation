@@ -3,7 +3,13 @@ import RelatedArticles from "../../_components/Content/RelatedArticles.tsx";
 import Breadcrumb from "../../_components/Layout/Breadcrumb.tsx";
 import MobileTOC from "../../_components/Layout/MobileTOC.tsx";
 import NavSidebar from "../../_components/Layout/NavSidebar.tsx";
-import { formatTitle, parseDocUrl } from "../../_components/utils/index.ts";
+import PagefindArticleCategoryMeta from "../../_components/Layout/PagefindArticleCategoryMeta.tsx";
+import PagefindCategoryMeta from "../../_components/Layout/PagefindCategoryMeta.tsx";
+import {
+  formatTitle,
+  getPagefindContentType,
+  parseDocUrl,
+} from "../../_components/utils/index.ts";
 import type {
   ContentNavigation,
   Details,
@@ -48,9 +54,11 @@ export default function ArticleLayout(props: Props, helpers: Helpers) {
     <div className="l-page" x-init="showmobilenav = true"
         data-pagefind-body
         data-pagefind-weight={author_notes?.custom_search_weight || 50}
-        data-pagefind-filter="site:Documentation"
-        data-pagefind-meta="site:Documentation"
+        data-pagefind-filter="site:Articles"
+        data-pagefind-meta="site:Articles"
       >
+      <PagefindCategoryMeta category={getPagefindContentType(url)} />
+      <PagefindArticleCategoryMeta category={details?.category} />
       <div className="l-column">
         <NavSidebar>
           {navData && search && (
