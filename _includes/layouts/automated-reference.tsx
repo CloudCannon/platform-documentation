@@ -1,5 +1,6 @@
 import { formatTitle, parseDocUrl } from "../../_components/utils/index.ts";
 import Breadcrumb from "../../_components/Layout/Breadcrumb.tsx";
+import PagefindCategoryMeta from "../../_components/Layout/PagefindCategoryMeta.tsx";
 import MobileTOC from "../../_components/Layout/MobileTOC.tsx";
 import NavSidebar from "../../_components/Layout/NavSidebar.tsx";
 import DocNav from "../../_components/Reference/DocNav.tsx";
@@ -83,6 +84,7 @@ export default function AutomatedReferenceLayout(
       data-pagefind-filter="site:Reference"
       data-pagefind-meta="site:Reference"
     >
+      <PagefindCategoryMeta category="Developer Reference" />
       <div className="l-column">
         <NavSidebar className="developer-reference">
           {ref_nav && search && (
