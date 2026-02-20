@@ -46,20 +46,20 @@ export default function DocNav(
   const normalizedUrl = currentUrl?.replace(/\/$/, "") || "";
 
   // Find the developer-reference home page
-  const indexPage = search.page("url=/documentation/developer-reference/");
+  const indexPage = search.page("url=/developer-reference/");
 
   // Find static pages for nav entries
   const schemasPage = search.page(
-    "url=/documentation/developer-reference/schemas/",
+    "url=/developer-reference/schemas/",
   );
   const typescriptPage = search.page(
-    "url=/documentation/developer-reference/typescript/",
+    "url=/developer-reference/typescript/",
   );
   const editableRegionsPage = search.page(
-    "url=/documentation/developer-reference/editable-regions/",
+    "url=/developer-reference/editable-regions/",
   );
   const permissionsPage = search.page(
-    "url=/documentation/developer-reference/permissions/",
+    "url=/developer-reference/permissions/",
   );
 
   // Build unified nav entries: home link + utility links + sections

@@ -57,14 +57,14 @@ export default function PrevNext(
           ? (
             <a href={prev.url}>
               <img
-                src={helpers.icon("arrow_back:outline", "material")}
+                src={helpers.icon("arrow_back:outlined", "material")}
                 inline="true"
               />
             </a>
           )
           : (
             <img
-              src={helpers.icon("arrow_back:outline", "material")}
+              src={helpers.icon("arrow_back:outlined", "material")}
               inline="true"
             />
           )}
@@ -82,14 +82,14 @@ export default function PrevNext(
           ? (
             <a href={next.url}>
               <img
-                src={helpers.icon("arrow_forward:outline", "material")}
+                src={helpers.icon("arrow_forward:outlined", "material")}
                 inline="true"
               />
             </a>
           )
           : (
             <img
-              src={helpers.icon("arrow_forward:outline", "material")}
+              src={helpers.icon("arrow_forward:outlined", "material")}
               inline="true"
             />
           )}
