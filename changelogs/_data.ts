@@ -26,7 +26,7 @@ export function url(page: Page): string | undefined {
 
     return `/changelog/${dateObj.getFullYear()}/${
       (dateObj.getMonth() + 1).toString().padStart(2, '0')
-    }/${dateObj.getDate()}/${slugify(title)}/`;
+    }/${dateObj.getDate().toString().padStart(2, '0')}/${slugify(title)}/`;
   }
   return page.src.slug;
 }
