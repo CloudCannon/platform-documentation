@@ -15,8 +15,10 @@ export default function DocShot(
   { type, docshot_key, alt, title, docshots }: DocShotProps,
   helpers: Helpers,
 ) {
-  const finalPath =
-    `https://cc-screenshots.imgix.net/${docshots.source}/${docshot_key}.webp`;
+  const local = Deno.env.get("DOCSHOTS_LOCAL");
+  const finalPath = local
+    ? `/documentation/local-docshots/${docshot_key}.webp`
+    : `https://cc-screenshots.imgix.net/${docshots.source}/${docshot_key}.webp`;
   return (
     <ImageWrapper
       src={helpers.url(finalPath)}
