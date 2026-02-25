@@ -59,33 +59,60 @@ After creating your GitHub App, you will be able to generate a client secret and
 1. Under **General** settings select **Generate a new client secret.** Make sure you copy the generated secret to be used later.
 2. Under **General** settings select **Generate a private key.** This will generate a PEM file and will be automatically downloaded. Keep this in a safe place to be used later.
 
-### **Configuring your GitHub Enterprise Server**
+### Configuring your GitHub Enterprise Server
 
 Before syncing with a repository in your GitHub Enterprise Server, you need to configure your instance on CloudCannon. You only need to do this once per account. To connect to your GitHub Enterprise Server instance:
 
-1. Go to *Settings / GitHub Enterprise Server*
+1. Navigate to *Org Settings* &gt; *Files* &gt; *GitHub Enterprise Server*.
 2. Enter the details for your GitHub Enterprise Server instance:
    * **Endpoint**: The URL where your instance can be accessed.`https://HOSTNAME`
    * **Authorize URL**: `https://HOSTNAME/login/oauth/authorize`
-   * **Token UR**L: `https://HOSTNAME/login/oauth/access_token`
+   * **Token URL**: `https://HOSTNAME/login/oauth/access_token`
    * **GitHub App ID**: Values assigned by GitHub.
    * **GitHub App Name**: `CloudCannon` (The same name used when creating the App in the [Creating a GitHub App](#creating-a-git-hub-app) step)
    * **Client ID**: Values assigned by GitHub.
    * **Client Secret**: [Previously generated](#generate-client-secret-and-private-key)
    * **WebHook Secret**: The random string with high entropy previously generated.
    * **Private Key**: Contents of the PEM file [previously generated](#generate-client-secret-and-private-key).
-3. Click **Configure GitHub Enterprise Server**
+3. Click *Configure GitHub Enterprise Server*.
 
 <comp.DocsImage path="/ye_olde_images/github-enterprise-server-settings.png" alt="Configuring your GitHub Enterprise Server" title="" type="screenshot"/>
 
+### Authenticate
+
+After configuring your server, you will see the *Authentication* tab. Click the *Authenticate* button and follow the prompts on your GitHub Enterprise Server instance to authorize CloudCannon.
+
+### Server configuration
+
+Once configured, the *Server* tab shows your current server details (endpoint, authorize URL, token URL, App ID, and Client ID). Use *Update Configuration* to re-validate the connection with your server.
+
 ### Syncing with a repository
 
-To connect a GitHub Enterprise Server repository and start syncing files, follow these instructions:
+To connect a GitHub Enterprise Server repository and start syncing files:
 
-1. Go to *Site Settings / Syncing*
-2. Select **GitHub Enterprise Server** repository
-3. Click **Authenticate**
-
-<comp.DocsImage path="/ye_olde_images/github-enterprise-server-source-syncing.png" alt="Selecting GitHub Enterprise Server as the your Git provider" title="" type="screenshot"/>
+1. Click the *Sites* button in the *App Sidebar* to open the *Sites Browser*.
+2. Click *Create a Site*.
+3. Select *GitHub Enterprise Server repository* from the *File source* dropdown.
+4. Select a repository and branch.
+5. Enter a name for your *Site* and click *Create Site and start syncing*.
 
 From there you can follow the same instructions as [configuring a GitHub.com repository](/documentation/developer-articles/connecting-a-github-repository-as-your-source/).
+
+### Unauthenticate
+
+If you need to revoke CloudCannon's access to your GitHub Enterprise Server account:
+
+1. Navigate to *Org Settings* &gt; *Files* &gt; *GitHub Enterprise Server* &gt; *Authentication* tab.
+2. Click the *Unauthenticate* button.
+
+Unauthenticating severs the token link but preserves the server configuration. Existing *Sites* retain their files and configuration, but future syncs will fail with a provider error until you re-authenticate.
+
+### Disconnect server
+
+If you need to completely remove the GitHub Enterprise Server configuration from your *Organization*:
+
+1. Navigate to *Org Settings* &gt; *Files* &gt; *GitHub Enterprise Server* &gt; *Danger Zone* tab.
+2. You must unauthenticate first before the disconnect button becomes available.
+3. Click *Disconnect GitHub Enterprise Server*.
+
+Disconnecting destroys the server configuration entirely. You will need to re-enter all server details (endpoint, App ID, keys, etc.) to reconnect. Sites currently syncing through this server will fail on their next sync with a provider error until a new connection is established.

@@ -21,27 +21,22 @@ Connecting GitLab allows you to work on your websites locally and have the chang
   To connect to a *self-hosted GitLab* repository instead, follow the instructions listed for [Self-Hosted GitLab](/documentation/developer-articles/connecting-a-self-hosted-gitlab-repository-as-your-source/).
 </comp.Notice>
 
-To connect a GitLab repository and start syncing files, follow these instructions:
+## Authenticate GitLab
 
-1. Go to *Site Settings* / *Syncing*
-2. Select **GitLab repository**
-3. Click **Authenticate**
+Before connecting a repository, you must authenticate your GitLab account with CloudCannon. Navigate to *Org Settings* &gt; *Files* &gt; *GitLab* &gt; *Authentication* tab. You can connect using one of two methods.
 
-<comp.DocsImage path="ye_olde_images/files-source-syncing-gitlab.png" alt="Selecting GitLab as your source provider" type="screenshot" />
+### Connecting with your user account
 
-This will open a menu where you can connect to GitLab, via one of two methods.
+You can connect to GitLab by authenticating with your user account. This will give your CloudCannon *Organization* access to the same GitLab repositories you have access to.
 
-## Connecting with your user account
+1. Click the *Authenticate with GitLab* button.
+2. Follow the GitLab prompts to authorize CloudCannon.
 
-You can connect to GitLab by authenticating with your user account. This will give your CloudCannon organization access to the same GitLab repositories you have access to.
+You will be redirected back to CloudCannon once authorization is complete.
 
-This option will redirect you to GitLab. Log in and authorize CloudCannon access to your GitLab account, after which you will be redirected back to CloudCannon to pick a repository to connect.
+### Authenticating with a group access token
 
-<comp.DocsImage path="ye_olde_images/files-source-syncing-gitlab-oauth.png" alt="A menu with a button labelled 'Authenticate with GitLab'." type="screenshot" />
-
-## Authenticating with a group access token
-
-Alternatively, you can create a group access token in GitLab and save that token in CloudCannon. This will give your CloudCannon organization access to all the resources scoped to your token.
+Alternatively, you can create a group access token in GitLab and save that token in CloudCannon. This will give your CloudCannon *Organization* access to all the resources scoped to your token.
 
 See GitLab's [Group access tokens](https://docs.gitlab.com/ee/user/group/settings/group_access_tokens.html) documentation for how to create and configure a token.
 
@@ -49,19 +44,38 @@ See GitLab's [Group access tokens](https://docs.gitlab.com/ee/user/group/setting
   For full functionality on CloudCannon, your group access token should have (at least) the Maintainer role, and the `api`, `read_api`, `read_repository`, and `write_repository` scopes.
 </comp.Notice>
 
-Copy the token into the **Group Access Token** field. You will also need to provide the expiry date of the token. CloudCannon will send a warning email to all owners of your organization when the token is about to expire.
+Copy the token into the *Group Access Token* field. You will also need to provide the expiry date of the token. CloudCannon will send a warning email to all owners of your *Organization* when the token is about to expire.
 
+Click *Save and authenticate* to finish.
 
-Click **Save and authenticate** to finish.
+You only need to authenticate once per *Organization*.
 
-<comp.DocsImage path="ye_olde_images/files-source-syncing-gitlab-token.png" alt="A form with fields for token and expiry date, and a submit button." type="screenshot" />
+## Create a Site from a GitLab repository
 
-Once you've authenticated, you can choose a GitLab repository, and a branch to connect to the site. If you don't have an appropriate branch ready, create a new one in GitLab and refresh this page.
+Once you have authenticated:
 
-<comp.DocsImage path="ye_olde_images/files-source-syncing-gitlab-branch-select.png" alt="A form with options for choosing a repository and branch." type="screenshot" />
+1. Click the *Sites* button in the *App Sidebar* to open the *Sites Browser*.
+2. Click *Create a Site*.
+3. Select *GitLab repository* from the *File source* dropdown.
+4. Use the *Repository* dropdown to select a repository. If you don't have one for this website, create a new one in GitLab and refresh this page.
+5. Choose a branch using the *Branch setup* section.
+6. Enter a name for your *Site* and click *Create Site and start syncing*.
 
 <comp.Notice info_type="important">
-  Any existing files on your website will be replaced with the contents of the selected repository. Click **Backup and Sync** to continue, or exit the page to cancel the process.
+  Any existing files on your website will be replaced with the contents of the selected repository. Click *Create Site and start syncing* to continue, or exit the page to cancel the process.
 </comp.Notice>
 
 GitLab is now connected. Changes you push to the Git repository are pulled in by CloudCannon. Any changes made on CloudCannon are automatically committed and pushed.
+
+## View connected Sites
+
+The *Sites* tab shows all *Sites* in your *Organization* that use GitLab as their file source. Navigate to *Org Settings* &gt; *Files* &gt; *GitLab* &gt; *Sites* tab to view them.
+
+## Unauthenticate GitLab
+
+If you need to revoke CloudCannon's access to your GitLab account:
+
+1. Navigate to *Org Settings* &gt; *Files* &gt; *GitLab* &gt; *Authentication* tab.
+2. Click the *Unauthenticate* button.
+
+Unauthenticating removes CloudCannon's access token for GitLab. Existing *Sites* retain their files and configuration, but future syncs will fail with a provider error until you re-authenticate. Your *Site* repository and branch settings are preserved, so re-authenticating restores syncing without needing to reconfigure each *Site*.
