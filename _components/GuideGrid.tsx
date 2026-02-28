@@ -36,7 +36,7 @@ export default function GuideGrid(
   { search, card_type = "interactive", card_eyebrow, title_replace }:
     GuideGridProps,
 ) {
-  const guide_pages = search.pages(`url^=/documentation/guides/`, "date=desc");
+  const guide_pages = search.pages(`url^=/guides/`, "date=desc");
   const guide_indexes = guide_pages.filter((data) =>
     data.page.src.entry.name === "index.mdx"
   );

@@ -187,7 +187,7 @@ export function pagefind(userOptions?: Options) {
       for (const page of pages) {
         const { errors } = await index.addHTMLFile({
           url: page.data.url,
-          content: page.content as string,
+          content: page.text,
         });
 
         if (errors.length > 0) {
