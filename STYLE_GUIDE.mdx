@@ -153,6 +153,11 @@ Frame instructions positively. Tell readers what to do, not what to avoid (excep
 - Use common contractions (you'll, we'll, it's, don't) to maintain a conversational tone.
 - Avoid contractions in error messages or warnings.
 
+**Prepositions**
+- Avoid ending sentences or clauses with a preposition. Restructure using "to which," "for which," "in which," etc.
+- ✅ **Good:** "Select the domain to which you want to add a certificate."
+- ❌ **Avoid:** "Select the domain you want to add a certificate to."
+
 #### 1.2.2 Capitalization
 
 **CloudCannon-Specific Terms**
@@ -265,6 +270,7 @@ Use consistent terminology throughout documentation. Refer to the same thing wit
 | dropdown | drop-down, drop down |
 | checkbox | check box |
 | filename | file name |
+| insecure | unsecure |
 
 **Avoid Jargon**
 - When technical terms are necessary, explain them.
@@ -619,6 +625,12 @@ Use for UI screenshots and snippets.
   type="screenshot"/>
 ```
 
+**Required Attributes:**
+- `docshot_key` — The key matching the screenshot filename
+- `alt` — Descriptive alt text for accessibility
+- `title` — A short, human-readable caption for the screenshot
+- `type` — Either `screenshot` or `ui-snippet`
+
 **Types:**
 - `screenshot` - Full interface screenshots
 - `ui-snippet` - Closeup of specific UI elements
@@ -626,6 +638,10 @@ Use for UI screenshots and snippets.
 **Alt Text:**
 - Always include descriptive alt text.
 - Describe what's visible in the image and its context.
+
+**Title:**
+- Keep titles short and descriptive (e.g., "The Site Dashboard", "The Add SSL Certificate modal").
+- Use sentence case.
 
 #### 1.5.3 MultiCodeBlock Component
 
@@ -660,6 +676,55 @@ Use for illustrations and diagrams. This component is being phased out in favor 
 **When NOT to use DocsImage:**
 - Screenshots of the CloudCannon app (use `<comp.DocShot>` instead)
 - UI snippets showing CloudCannon interface elements (use `<comp.DocShot>` instead)
+
+#### 1.5.5 GlossaryTerm Component
+
+Use to wrap terms that have a corresponding glossary entry. This component renders the term inline and provides readers with a tooltip or popover containing the glossary definition.
+
+```mdx
+<comp.GlossaryTerm term="/user/glossary/o/organization.yml">Organization</comp.GlossaryTerm>
+```
+
+**Attributes:**
+- `term` — Path to the glossary YML file (e.g., `/user/glossary/c/custom-domain.yml`)
+- Inner text — The display text for the term
+
+**When to Use:**
+- On the **first mention** of a term in an article, if that term has a glossary YML file in `user/glossary/`
+- Only for terms that have a corresponding glossary entry — don't use this component without one
+
+**When NOT to Use:**
+- On subsequent mentions of the same term in the same article — use italics (*Organization*) instead
+- For terms that don't have a glossary YML file
+
+**Replaces Markdown Links on First Use:**
+
+When a glossary entry exists for a term, use `<comp.GlossaryTerm>` instead of a markdown link for the first mention. The glossary component already links readers to the definition.
+
+- ✅ **Good:** `your <comp.GlossaryTerm term="/user/glossary/o/organization.yml">Organization</comp.GlossaryTerm>`
+- ❌ **Avoid:** `your [Organization](/documentation/user-articles/what-is-an-organization/)` (when a glossary entry exists)
+- ❌ **Avoid:** `your [<comp.GlossaryTerm term="/user/glossary/o/organization.yml">Organization</comp.GlossaryTerm>](/documentation/user-articles/what-is-an-organization/)` (don't combine both)
+
+**Display Text Can Differ from the Glossary Term Name:**
+
+The inner text doesn't need to match the `glossary_term_name` exactly. You can use plural forms, derived forms, or contextual phrasing.
+
+- ✅ **Good:** `<comp.GlossaryTerm term="/user/glossary/o/organization.yml">Organizations</comp.GlossaryTerm>` (plural)
+- ✅ **Good:** `<comp.GlossaryTerm term="/user/glossary/g/git.yml">Git-backed</comp.GlossaryTerm>` (derived form)
+- ✅ **Good:** `<comp.GlossaryTerm term="/user/glossary/s/ssg.yml">Static Site Generator</comp.GlossaryTerm>` (full form of abbreviation)
+
+**Examples in Context:**
+
+```mdx
+CloudCannon is a <comp.GlossaryTerm term="/user/glossary/g/git.yml">Git-backed</comp.GlossaryTerm>
+<comp.GlossaryTerm term="/user/glossary/c/cms.yml">Content Management Software</comp.GlossaryTerm>,
+allowing you to store your website source files securely on a *Git Provider*.
+```
+
+```mdx
+A <comp.GlossaryTerm term="/user/glossary/c/collection.yml">Collection</comp.GlossaryTerm> is
+a group of files you want to edit in CloudCannon.
+```
 
 ---
 
@@ -1084,11 +1149,16 @@ CloudCannon will upload your file or folder to the location open in your File Br
 **Action Verbs**
 - Start instructions with clear action verbs (imperative mood):
   - Click, Select, Enter, Open, Navigate, Type, Upload, Choose, Enable, Configure
+- Vary your action verbs across consecutive steps to avoid repetition. If multiple steps start with the same verb, consider restructuring or using a synonym.
+- ✅ **Good:** "1. Navigate to... 2. Select... 3. Click... 4. Select..."
+- ❌ **Avoid:** "1. Select... 2. Select... 3. Select... 4. Select..."
 
 **Describe Outcomes**
-- After steps, describe what happens using future tense ("will")
+- After individual steps, describe what happens using future tense ("will")
 - ✅ **Good:** "CloudCannon will open your file in the Data Editor."
 - ✅ **Good:** "CloudCannon will commit your Collection configuration to your Git repository."
+- After the final step, add an outcome sentence describing what CloudCannon does now that the full task is complete. Place this sentence after the numbered list, before any screenshots or additional content.
+- ✅ **Good:** "CloudCannon will apply your custom SSL certificate to the selected subdomain."
 
 **Alternative Methods**
 - Use subheadings to separate different methods
@@ -1097,6 +1167,17 @@ CloudCannon will upload your file or folder to the location open in your File Br
 **Conditionals**
 - Use "if/then" structure for conditional steps
 - ✅ **Good:** "If you have a DAM connected to your site, CloudCannon will prompt you to select a location."
+
+**Navigation Flow Pattern**
+
+Many instruction articles require the user to navigate from the *App Sidebar* to a specific page or modal before performing the main task. Follow this common pattern for the opening steps:
+
+1. Start from the *App Sidebar* (e.g., "Navigate to the *Domains Browser* by clicking *Domains* in the *App Sidebar*.")
+2. Select an item from the browser (e.g., "Select the domain to which you want to add a certificate.")
+3. Navigate to sub-items if applicable (e.g., "Under the *Subdomains* heading, click the card for the subdomain...")
+4. Open the relevant modal or section (e.g., "Click the *Configure* button under the *SSL* heading.")
+
+This provides consistent, predictable navigation instructions across all articles.
 
 ---
 
@@ -1491,6 +1572,7 @@ terminology:
     "dropdown": ["drop-down", "drop down"]
     "checkbox": ["check box"]
     "filename": ["file name"]
+    "insecure": ["unsecure"]
 
 prohibited_phrases:
   - "click here"
@@ -1832,6 +1914,18 @@ components:
     length: "1-2 sentences (concise)"
     syntax: "<comp.Annotation number=\"N\">Explanation</comp.Annotation>"
     note: "Used with both MultiCodeBlock and CodeBlock components"
+  
+  glossaryterm:
+    usage: "Inline glossary tooltip for terms with a glossary entry"
+    required_attributes:
+      - "term"
+    syntax: "<comp.GlossaryTerm term=\"/user/glossary/[letter]/[term].yml\">Display Text</comp.GlossaryTerm>"
+    rules:
+      - "Use on first mention of a term in an article only"
+      - "Term must have a corresponding YML file in user/glossary/"
+      - "Replaces markdown links on first use — do not combine with markdown links"
+      - "Subsequent mentions use italics instead"
+      - "Display text can differ from glossary_term_name (plurals, derived forms)"
 
 validation_rules:
   check_for:
@@ -1847,6 +1941,10 @@ validation_rules:
     - "instructions_without_numbered_steps"
     - "explanation_without_opening_definition"
     - "plain_code_blocks_instead_of_components"
+    - "trailing_prepositions"
+    - "repeated_action_verbs_in_consecutive_steps"
+    - "instructions_missing_final_outcome_sentence"
+    - "docshot_missing_title_attribute"
   
   ignore:
     - "Passive voice in: changelog features, technical descriptions"
