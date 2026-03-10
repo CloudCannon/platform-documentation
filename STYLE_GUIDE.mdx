@@ -1,7 +1,7 @@
 # CloudCannon Documentation Style Guide
 
-**Last Updated:** January 8, 2026  
-**Version:** 1.0
+**Last Updated:** March 6, 2026  
+**Version:** 1.1
 
 This style guide establishes writing standards for all CloudCannon documentation. It combines patterns from our existing documentation with industry best practices from Microsoft Writing Style Guide, Google Developer Documentation Style Guide, and Write the Docs community standards.
 
@@ -192,7 +192,10 @@ Frame instructions positively. Tell readers what to do, not what to avoid (excep
 
 **Headings**
 - Use sentence case for headings (capitalize only the first word and proper nouns).
+- Italicize CloudCannon-specific terms in headings, just as in body text.
+- Do not use `<comp.GlossaryTerm>` in headings — glossary terms should only appear in body text.
 - ✅ **Good:** "Configure your first build"
+- ✅ **Good:** "Branching from the *Main Branch*"
 - ❌ **Avoid:** "Configure Your First Build"
 
 **File Names and Paths**
@@ -513,6 +516,15 @@ Use descriptive link text that tells readers what they'll find when they click. 
 
 - ✅ **Good:** "For more information, read our documentation on [Collections](/documentation/articles/what-is-a-collection/)."
 - ❌ **Avoid:** "For more information, click [here](/documentation/articles/what-is-a-collection/)."
+
+**In-Text Relevant Links**
+
+When referencing a related topic inline, use the pattern "For more information, please read our documentation on [topic link]." This keeps the reader focused on the current task while providing a clear path to more detail.
+
+- ✅ **Good:** "For more information, please read our documentation on [setting the Main Branch](/documentation/developer-articles/set-the-main-branch-for-your-project/)."
+- ✅ **Good:** "For instructions, please read our documentation on [merging and Pull Requests](/documentation/developer-articles/merging-and-pull-requests/)."
+- ❌ **Avoid:** "Click [here](/documentation/developer-articles/set-the-main-branch-for-your-project/) to learn about setting the Main Branch."
+- ❌ **Avoid:** Adding a `## Related articles` section — use the front matter `related_articles` field instead.
 
 **External Links — Use HTML Anchor Tags**
 
@@ -883,6 +895,8 @@ author_notes:
   - `item`: UUID of the related article or guide
 - `author_notes.docshots` can be null, "Added!", "Needs docshots", or "Not applicable"
 
+**Do not duplicate related articles in the body.** The front matter `related_articles` field renders related articles automatically. Never add a manual `## Related articles` section with a bulleted list of links — this duplicates the front matter and creates maintenance burden. The "Related Information" guidance in article structures (below) refers to inline prose links within a closing paragraph (e.g., "For more information, read our documentation on [configuring your Collections]..."), not a standalone section.
+
 #### 2.2.3 Title Patterns
 
 Explanation articles use different title patterns depending on their purpose:
@@ -931,10 +945,10 @@ The structure of an explanation article depends on its purpose:
    - Use subheadings to break up content
    - Use Notice components for tips and important information
 
-4. **Related Information** (final paragraph or section)
-   - Link to configuration documentation
-   - Link to instructional articles
-   - Link to related concepts
+4. **Related Information** (inline prose, not a standalone section)
+   - End with a sentence or short paragraph linking to related content
+   - e.g., "For more information, read our documentation on [configuring your Collections](/documentation/...)."
+   - Do not create a `## Related articles` heading — use the front matter `related_articles` field instead
 
 **Context and Benefits Articles** ("Why...?")
 
@@ -956,9 +970,9 @@ The structure of an explanation article depends on its purpose:
    - Document any constraints or caveats
    - Help users understand when this might not be suitable
 
-5. **Related Information** (final paragraph)
-   - Link to instructional articles
-   - Link to related explanation articles
+5. **Related Information** (inline prose, not a standalone section)
+   - End with a sentence linking to related content (e.g., "For step-by-step instructions, read...")
+   - Do not create a `## Related articles` heading — use the front matter `related_articles` field instead
 
 **Best Practice Articles**
 
@@ -972,9 +986,9 @@ The structure of an explanation article depends on its purpose:
    - Explain the reasoning behind each recommendation
    - Use Notice components to highlight important points
 
-3. **Related Information** (final paragraph)
-   - Link to instructional articles
-   - Link to related explanation articles
+3. **Related Information** (inline prose, not a standalone section)
+   - End with a sentence linking to related content (e.g., "For step-by-step instructions, read...")
+   - Do not create a `## Related articles` heading — use the front matter `related_articles` field instead
 
 #### 2.2.5 Writing Style
 
@@ -1065,6 +1079,7 @@ author_notes:
   - `_type`: The collection type (accepted values: `developer_articles`, `user_articles`, `developer_guides`, `user_guides`)
   - `item`: UUID of the related article or guide
 - `author_notes.docshots` can be null, "Added!", "Needs docshots", or "Not applicable"
+- **Do not duplicate related articles in the body** — see [2.2.2 Front Matter](#222-front-matter) for details.
 
 #### 2.3.3 Title Patterns
 
@@ -1104,9 +1119,9 @@ Use imperative mood (base form of verbs) for instruction article titles. This ma
    - Include screenshots showing each step
    - Use Notice components for important tips or warnings
 
-4. **Next Steps or Additional Information** (optional)
-   - Link to related instructions
-   - Provide troubleshooting tips
+4. **Next Steps or Additional Information** (optional, inline prose)
+   - End with a sentence or short paragraph linking to next steps or related instructions
+   - Do not create a `## Related articles` heading — use the front matter `related_articles` field instead
 
 #### 2.3.5 Writing Style
 
@@ -1131,6 +1146,7 @@ Instruction articles describe actions to take and their immediate outcomes. Use 
 - Use numbered lists for sequential actions
 - Start each step with an action verb (imperative mood)
 - Keep steps concise (one action per step, followed by an outcome sentence if applicable)
+- Never interrupt a numbered list with DocShots, images, or other block-level elements. Place all images either before or after the complete list, not between steps. Splitting a list restarts the numbering and breaks the reader's flow.
 
 **Example:**
 
@@ -1517,8 +1533,8 @@ documentation_link:
 The following section contains structured rules for automated validation by AI agents and linters. These rules are formatted as YAML for easy parsing.
 
 ```yaml
-style_guide_version: "1.0"
-last_updated: "2026-01-08"
+style_guide_version: "1.1"
+last_updated: "2026-03-06"
 
 terminology:
   required_terms:
@@ -1945,6 +1961,7 @@ validation_rules:
     - "repeated_action_verbs_in_consecutive_steps"
     - "instructions_missing_final_outcome_sentence"
     - "docshot_missing_title_attribute"
+    - "images_interrupting_ordered_lists"
   
   ignore:
     - "Passive voice in: changelog features, technical descriptions"
@@ -1965,6 +1982,7 @@ accessibility_requirements:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.1 | 2026-03-06 | Added rule against duplicating front matter related_articles in article body |
 | 1.0 | 2026-01-08 | Initial style guide created |
 
 ---
