@@ -1,0 +1,76 @@
+---
+_schema: default
+_uuid: cd38d919-17a6-41c4-854c-274f32826254
+_created_at: '2026-03-12 02:32:58 +0000'
+details:
+  title: Work with collections using the CloudCannon JavaScript API v1
+  description: Learn how to access collections and iterate files with JavaScript API v1.
+  image: >-
+    https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+  category:
+    - Instructions
+  related_articles: null
+author_notes:
+  docshots: Needs docshots
+---
+This article shows how to access *Collection* data using JavaScript API v1.
+
+## Prerequisites
+
+Before you begin, this article assumes you already initialize v1 as shown in [Get started with the CloudCannon JavaScript API v1](/documentation/developer-articles/get-started-with-the-cloudcannon-javascript-api-v1/).
+
+## List all collections
+
+Use `collections()` to load all available collection objects.
+
+<comp.CodeBlock language="javascript" source="src/collections-list.js">
+```
+const collections = await api.collections();
+
+for (const collection of collections) {
+  console.log(collection.collectionKey);
+}
+```
+</comp.CodeBlock>
+
+## Read files from a collection
+
+Use `collection(key)` and then call `items()`.
+
+<comp.CodeBlock language="javascript" source="src/collection-items.js">
+```
+const posts = api.collection('posts');
+const postFiles = await posts.items();
+
+for (const file of postFiles) {
+  const data = await file.data.get();
+  console.log(file.path, data?.title);
+}
+```
+</comp.CodeBlock>
+
+## Build filtered collection views
+
+You can combine collection reads with your own filters to power custom UI controls.
+
+<comp.CodeBlock language="javascript" source="src/filter-collection.js">
+```
+async function getPublishedPosts(api) {
+  const posts = api.collection('posts');
+  const files = await posts.items();
+  const published = [];
+
+  for (const file of files) {
+    const data = await file.data.get();
+    if (data?.published) published.push(file);
+  }
+
+  return published;
+}
+```
+</comp.CodeBlock>
+
+## Related articles
+
+- [Work with files using the CloudCannon JavaScript API v1](/documentation/developer-articles/work-with-files-using-the-cloudcannon-javascript-api-v1/)
+- [Handle events with the CloudCannon JavaScript API v1](/documentation/developer-articles/handle-events-with-the-cloudcannon-javascript-api-v1/)

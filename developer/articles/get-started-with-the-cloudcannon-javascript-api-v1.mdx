@@ -1,0 +1,86 @@
+---
+_schema: default
+_uuid: 2a0e8ce1-e505-4d2a-94db-8b1259f14476
+_created_at: '2026-03-12 02:32:58 +0000'
+details:
+  title: Get started with the CloudCannon JavaScript API v1
+  description: Learn how to initialize and use the CloudCannon JavaScript API v1.
+  image: >-
+    https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+  category:
+    - Instructions
+  related_articles: null
+author_notes:
+  docshots: Needs docshots
+---
+<comp.Notice info_type="important">
+  **Which API do you need?**
+
+  Use the JavaScript API v1 for frontend code that runs in CloudCannon's *Visual Editor*.
+
+  If you need backend API access, contact support to request private beta access.
+</comp.Notice>
+
+This article shows how to initialize JavaScript API v1 and safely access the active file.
+
+## Prerequisites
+
+Before you begin, this article assumes your code runs on pages that load inside CloudCannon's *Visual Editor*.
+
+## Initialize JavaScript API v1
+
+To initialize JavaScript API v1:
+
+1. Check whether `window.CloudCannonAPI` is already available.
+2. If it is available, call `useVersion('v1')`.
+3. If it is not available, wait for the `cloudcannon:load` event and then call `useVersion('v1')`.
+
+<comp.CodeBlock language="javascript" source="src/cloudcannon-api.js">
+```
+export function onCloudCannonApiReady(callback) {
+  const setup = (apiRouter) => {
+    const api = apiRouter?.useVersion('v1');
+    if (api) callback(api);
+  };
+
+  if (window.CloudCannonAPI) {
+    setup(window.CloudCannonAPI);
+    return;
+  }
+
+  document.addEventListener(
+    'cloudcannon:load',
+    (event) => {
+      setup(event.detail?.CloudCannonAPI);
+    },
+    { once: true }
+  );
+}
+```
+</comp.CodeBlock>
+
+## Access the current file
+
+After initialization, you can access the active file in the *Visual Editor*.
+
+<comp.CodeBlock language="javascript" source="src/init.js">
+```
+import { onCloudCannonApiReady } from './cloudcannon-api';
+
+onCloudCannonApiReady(async (api) => {
+  try {
+    const file = api.currentFile();
+    const data = await file.data.get();
+    console.log('Current file path:', file.path);
+    console.log('Current file data:', data);
+  } catch (error) {
+    console.warn('No active file is available for this page.', error);
+  }
+});
+```
+</comp.CodeBlock>
+
+## Next steps
+
+- Read [Work with files using the CloudCannon JavaScript API v1](/documentation/developer-articles/work-with-files-using-the-cloudcannon-javascript-api-v1/).
+- Read [Handle events with the CloudCannon JavaScript API v1](/documentation/developer-articles/handle-events-with-the-cloudcannon-javascript-api-v1/).

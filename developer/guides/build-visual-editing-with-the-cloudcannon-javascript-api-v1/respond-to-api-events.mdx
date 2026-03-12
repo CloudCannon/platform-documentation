@@ -1,0 +1,44 @@
+---
+_schema: default
+_uuid: 20a18b64-58d5-4d86-a63f-f1ec277e97ab
+_created_at: '2026-03-12 02:32:58 +0000'
+details:
+  title: Respond to API events
+  order: 5
+  image: >-
+    https://cc-dam.imgix.net/documentation/images/guides/getting-started/guide-thumbnails/CloudCannon-Getting-Started-Thumbnail-Universal.png
+  description: Keep custom previews in sync with API change events.
+  start_nav_group: Reactive behavior
+  related_articles: null
+author_notes:
+  docshots: null
+---
+In this step, we'll subscribe to v1 events so your custom UI updates automatically.
+
+1. Register `change` listeners on the API or file objects.
+2. Update your rendering function when events fire.
+3. Remove listeners when cleaning up.
+
+<comp.CodeBlock language="javascript" source="src/event-sync.js">
+```
+import { withCloudCannonApi } from './cloudcannon-api';
+
+withCloudCannonApi((api) => {
+  const refresh = async () => {
+    const file = api.currentFile();
+    const data = await file.data.get();
+    renderPreview(data);
+  };
+
+  api.addEventListener('change', refresh);
+  api.addEventListener('delete', refresh);
+
+  window.addEventListener('beforeunload', () => {
+    api.removeEventListener('change', refresh);
+    api.removeEventListener('delete', refresh);
+  });
+});
+```
+</comp.CodeBlock>
+
+Next, we'll open custom data panels for focused editor workflows.
