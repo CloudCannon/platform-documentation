@@ -182,6 +182,8 @@ export interface DocEntry {
   uniqueItems?: boolean;
   const?: string;
   default?: unknown;
+  deprecated?: boolean;
+  deprecated_description?: string;
   enum?: string[];
   examples?: CodeExample[];
   documentation?: {
