@@ -296,6 +296,10 @@ site.copy("ye_olde_images", "documentation/ye_olde_images");
 site.copy("uploads", "documentation/static");
 site.copy("robots.txt", "documentation/robots.txt");
 
+if (Deno.env.get("DOCSHOTS_LOCAL")) {
+  site.copy("local-docshots", "documentation/local-docshots");
+}
+
 // Temporary trick to disable indented code blocks if we happen to use markdown-it
 // deno-lint-ignore no-explicit-any
 (site.formats.get(".md")?.engines?.[0] as any)?.engine?.disable?.("code");
