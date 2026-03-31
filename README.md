@@ -39,7 +39,7 @@ Deno doesn't have a separate dependency-install step; the first run will downloa
 | `check-links` | `deno task check-links` | Check for broken internal links |
 | `serve:local-docshots` | `deno task serve:local-docshots` | Symlink local docshots + serve with `DOCSHOTS_LOCAL=1` * |
 
-\* The `serve:local-docshots` task creates a symlink to `../app/app/assets/e2e/screenshots`. This only works if you have the [app](https://github.com/CloudCannon/app) repo cloned as a sibling directory.
+\* The `serve:local-docshots` task creates a symlink to `../app/app/assets/e2e/screenshots`. This only works if you have the [app](https://github.com/CloudCannon/app) repo cloned as a sibling directory. The app repo is a private repository only available to CloudCannon employees.
 
 ## 🔍 Development with Search
 
@@ -57,8 +57,6 @@ Just run `deno task serve` and search will work automatically.
 - `changelogs/` — Release notes organized by year.
 - `beta/` — Documentation for features currently in beta.
 - `uploads/` — Directory for CMS-uploaded files.
-- `ye_olde_images/` — Legacy images migrated from the old docs codebase.
-
 ### Site infrastructure
 
 - `_components/` — Lume JSX/TSX components, available under the `comp` namespace in content and layout files.
@@ -234,7 +232,7 @@ Before contributing content, please read the **Style Guide** located at `STYLE_G
 
 ---
 
-## 🔗 Important Resources
+## 🔗 Resources and Contact
 
 | Resource | Link |
 |----------|------|
@@ -243,15 +241,6 @@ Before contributing content, please read the **Style Guide** located at `STYLE_G
 | 📝 Documentation feedback | [Documentation Feedback forum](https://community.cloudcannon.com/c/documentation-feedback/) |
 | 🆘 Support | [cloudcannon.com/support](https://cloudcannon.com/support/) |
 | 🐙 GitHub repository | [CloudCannon/platform-documentation](https://github.com/CloudCannon/platform-documentation) |
+| ✉️ Technical Writer | [ella@cloudcannon.com](mailto:ella@cloudcannon.com) |
 
----
-
-## 📬 Contact
-
-Have questions, suggestions, or just want to say hi?
-
-* ✉️ **Email:** [ella@cloudcannon.com](mailto:ella@cloudcannon.com) (CloudCannon's Technical Writer)
-* 🆘 **Support:** [cloudcannon.com/support](https://cloudcannon.com/support/)
-* 🐙 **GitHub Issues & PRs:** [github.com/CloudCannon/platform-documentation](https://github.com/CloudCannon/platform-documentation)
-
-We'd love to hear from you! 💙☁️
+Have questions, suggestions, or just want to say hi? We'd love to hear from you! 💙☁️
