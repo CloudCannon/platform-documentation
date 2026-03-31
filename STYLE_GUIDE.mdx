@@ -1,7 +1,7 @@
 # CloudCannon Documentation Style Guide
 
-**Last Updated:** January 8, 2026  
-**Version:** 1.0
+**Last Updated:** March 30, 2026  
+**Version:** 1.2
 
 This style guide establishes writing standards for all CloudCannon documentation. It combines patterns from our existing documentation with industry best practices from Microsoft Writing Style Guide, Google Developer Documentation Style Guide, and Write the Docs community standards.
 
@@ -153,6 +153,11 @@ Frame instructions positively. Tell readers what to do, not what to avoid (excep
 - Use common contractions (you'll, we'll, it's, don't) to maintain a conversational tone.
 - Avoid contractions in error messages or warnings.
 
+**Prepositions**
+- Avoid ending sentences or clauses with a preposition. Restructure using "to which," "for which," "in which," etc.
+- ✅ **Good:** "Select the domain to which you want to add a certificate."
+- ❌ **Avoid:** "Select the domain you want to add a certificate to."
+
 #### 1.2.2 Capitalization
 
 **CloudCannon-Specific Terms**
@@ -187,7 +192,10 @@ Frame instructions positively. Tell readers what to do, not what to avoid (excep
 
 **Headings**
 - Use sentence case for headings (capitalize only the first word and proper nouns).
+- Italicize CloudCannon-specific terms in headings, just as in body text.
+- Do not use `<comp.GlossaryTerm>` in headings — glossary terms should only appear in body text.
 - ✅ **Good:** "Configure your first build"
+- ✅ **Good:** "Branching from the *Main Branch*"
 - ❌ **Avoid:** "Configure Your First Build"
 
 **File Names and Paths**
@@ -265,6 +273,7 @@ Use consistent terminology throughout documentation. Refer to the same thing wit
 | dropdown | drop-down, drop down |
 | checkbox | check box |
 | filename | file name |
+| insecure | unsecure |
 
 **Avoid Jargon**
 - When technical terms are necessary, explain them.
@@ -508,6 +517,15 @@ Use descriptive link text that tells readers what they'll find when they click. 
 - ✅ **Good:** "For more information, read our documentation on [Collections](/documentation/articles/what-is-a-collection/)."
 - ❌ **Avoid:** "For more information, click [here](/documentation/articles/what-is-a-collection/)."
 
+**In-Text Relevant Links**
+
+When referencing a related topic inline, use the pattern "For more information, please read our documentation on [topic link]." This keeps the reader focused on the current task while providing a clear path to more detail.
+
+- ✅ **Good:** "For more information, please read our documentation on [setting the Main Branch](/documentation/developer-articles/set-the-main-branch-for-your-project/)."
+- ✅ **Good:** "For instructions, please read our documentation on [merging and Pull Requests](/documentation/developer-articles/merging-and-pull-requests/)."
+- ❌ **Avoid:** "Click [here](/documentation/developer-articles/set-the-main-branch-for-your-project/) to learn about setting the Main Branch."
+- ❌ **Avoid:** Adding a `## Related articles` section — use the front matter `related_articles` field instead.
+
 **External Links — Use HTML Anchor Tags**
 
 For links to external websites (outside CloudCannon documentation), use HTML anchor tags with `target="_blank"` and `rel="noopener"` to open in a new tab.
@@ -619,13 +637,26 @@ Use for UI screenshots and snippets.
   type="screenshot"/>
 ```
 
+**Required Attributes:**
+- `docshot_key` — The key matching the screenshot filename
+- `alt` — Descriptive alt text for accessibility
+- `title` — A short, human-readable caption for the screenshot
+- `type` — Either `screenshot` or `ui-snippet`
+
 **Types:**
-- `screenshot` - Full interface screenshots
-- `ui-snippet` - Closeup of specific UI elements
+- `screenshot` — Full viewport screenshots showing the entire CloudCannon interface
+- `ui-snippet` — Cropped screenshots of specific UI elements like inputs, buttons, dropdowns, or modals
+
+**Naming Conventions:**
+- `docshot_key` values use hyphenated names that describe the page and state shown in the screenshot (e.g., `Site-Settings-Syncing-Connected`, `Content-Editor-Schema-File`).
 
 **Alt Text:**
 - Always include descriptive alt text.
 - Describe what's visible in the image and its context.
+
+**Title:**
+- Keep titles short and descriptive (e.g., "The Site Dashboard", "The Add SSL Certificate modal").
+- Use sentence case.
 
 #### 1.5.3 MultiCodeBlock Component
 
@@ -660,6 +691,49 @@ Use for illustrations and diagrams. This component is being phased out in favor 
 **When NOT to use DocsImage:**
 - Screenshots of the CloudCannon app (use `<comp.DocShot>` instead)
 - UI snippets showing CloudCannon interface elements (use `<comp.DocShot>` instead)
+
+#### 1.5.5 GlossaryTerm Component
+
+Use to wrap terms that have a corresponding glossary entry. This component renders the term inline and provides readers with a tooltip or popover containing the glossary definition.
+
+```mdx
+<comp.GlossaryTerm term="/user/glossary/o/organization.yml">Organization</comp.GlossaryTerm>
+```
+
+**Attributes:**
+- `term` — Path to the glossary YML file (e.g., `/user/glossary/c/custom-domain.yml`)
+- Inner text — The display text for the term
+
+**When to Use:**
+- On the **first mention** of a term in an article, if that term has a glossary YML file in `user/glossary/`
+- Only for terms that have a corresponding glossary entry — don't use this component without one
+
+**When NOT to Use:**
+- On subsequent mentions of the same term in the same article — use italics (*Organization*) instead
+- For terms that don't have a glossary YML file
+- Never replace an existing markdown link with a glossary term — if the text is already a link (e.g., `[Project](/documentation/user-articles/what-is-a-project/)`), leave it as a link. Glossary terms should only be added to plain or italicized text that is not already linked.
+- ❌ **Avoid:** `your [<comp.GlossaryTerm term="/user/glossary/o/organization.yml">Organization</comp.GlossaryTerm>](/documentation/user-articles/what-is-an-organization/)` (don't combine both)
+
+**Display Text Can Differ from the Glossary Term Name:**
+
+The inner text doesn't need to match the `glossary_term_name` exactly. You can use plural forms, derived forms, or contextual phrasing.
+
+- ✅ **Good:** `<comp.GlossaryTerm term="/user/glossary/o/organization.yml">Organizations</comp.GlossaryTerm>` (plural)
+- ✅ **Good:** `<comp.GlossaryTerm term="/user/glossary/g/git.yml">Git-backed</comp.GlossaryTerm>` (derived form)
+- ✅ **Good:** `<comp.GlossaryTerm term="/user/glossary/s/ssg.yml">Static Site Generator</comp.GlossaryTerm>` (full form of abbreviation)
+
+**Examples in Context:**
+
+```mdx
+CloudCannon is a <comp.GlossaryTerm term="/user/glossary/g/git.yml">Git-backed</comp.GlossaryTerm>
+<comp.GlossaryTerm term="/user/glossary/c/cms.yml">Content Management Software</comp.GlossaryTerm>,
+allowing you to store your website source files securely on a *Git Provider*.
+```
+
+```mdx
+A <comp.GlossaryTerm term="/user/glossary/c/collection.yml">Collection</comp.GlossaryTerm> is
+a group of files you want to edit in CloudCannon.
+```
 
 ---
 
@@ -816,7 +890,12 @@ author_notes:
 - `related_articles` is an optional array (maximum of 3 items). Each item has:
   - `_type`: The collection type (accepted values: `developer_articles`, `user_articles`, `developer_guides`, `user_guides`)
   - `item`: UUID of the related article or guide
-- `author_notes.docshots` can be null, "Added!", "Needs docshots", or "Not applicable"
+- `author_notes.docshots` tracks whether an article's CloudCannon app screenshots have been migrated to `<comp.DocShot>`. Values:
+  - `"Added!"` — All CloudCannon app screenshots use `<comp.DocShot>`. No `<comp.DocsImage>` components remain in the article body, with the exception of `<comp.DocsImage path="assets/external_screenshots/...">` (screenshots of external services, which are not CloudCannon UI).
+  - `"Needs docshots"` — This article still contains `<comp.DocsImage>` components (other than external screenshots) that need to be migrated to `<comp.DocShot>`.
+  - `"Not applicable"` — This article does not contain any screenshots of the CloudCannon app (e.g., it only has diagrams, code examples, or no images at all).
+
+**Do not duplicate related articles in the body.** The front matter `related_articles` field renders related articles automatically. Never add a manual `## Related articles` section with a bulleted list of links — this duplicates the front matter and creates maintenance burden. The "Related Information" guidance in article structures (below) refers to inline prose links within a closing paragraph (e.g., "For more information, read our documentation on [configuring your Collections]..."), not a standalone section.
 
 #### 2.2.3 Title Patterns
 
@@ -837,6 +916,14 @@ Explanation articles use different title patterns depending on their purpose:
 - Examples:
   - "Why split your Configuration File?"
   - "Why use Schemas?"
+
+**Section Introduction Articles** ("Introduction to...")
+- Start with "Introduction to"
+- Provide a high-level overview of a documentation section
+- Examples:
+  - "Introduction to CloudCannon UI"
+  - "Introduction to Syncing & Publishing"
+  - "Introduction to Publishing"
 
 **Best Practice Articles**
 - Start with "Best practice for" or "Best practices for"
@@ -866,10 +953,32 @@ The structure of an explanation article depends on its purpose:
    - Use subheadings to break up content
    - Use Notice components for tips and important information
 
-4. **Related Information** (final paragraph or section)
-   - Link to configuration documentation
-   - Link to instructional articles
-   - Link to related concepts
+4. **Related Information** (inline prose, not a standalone section)
+   - End with a sentence or short paragraph linking to related content
+   - e.g., "For more information, read our documentation on [configuring your Collections](/documentation/...)."
+   - Do not create a `## Related articles` heading — use the front matter `related_articles` field instead
+
+**Section Introduction Articles** ("Introduction to...")
+
+Section introduction articles provide a high-level overview of a documentation section, summarize the topics it covers, and link to further reading.
+
+1. **Opening Paragraph** (1-2 paragraphs)
+   - Introduce the section topic and why it matters
+   - Set context for who the articles are aimed at
+
+2. **Topic Summary** (bullet list)
+   - List each topic group covered in the section with a one-line summary
+   - **The order must match the navigation order** in the corresponding `_data/navigation/*.yml` file
+
+3. **Topic Sections** (one `##` heading per topic group)
+   - Brief explanation of the topic (1-2 paragraphs)
+   - A "For a more in-depth explanation..." paragraph followed by a bullet list of article links
+   - **The order of links must match the navigation order** within that group
+   - Only link to articles within the same navigation section — do not cross-reference articles from other sections
+
+<comp.Notice info_type="important">
+  The order of topics and article links in an introduction article must always reflect the order they appear in the sidebar navigation. When articles are added, removed, or reordered in the navigation, update the corresponding introduction article to match.
+</comp.Notice>
 
 **Context and Benefits Articles** ("Why...?")
 
@@ -891,9 +1000,9 @@ The structure of an explanation article depends on its purpose:
    - Document any constraints or caveats
    - Help users understand when this might not be suitable
 
-5. **Related Information** (final paragraph)
-   - Link to instructional articles
-   - Link to related explanation articles
+5. **Related Information** (inline prose, not a standalone section)
+   - End with a sentence linking to related content (e.g., "For step-by-step instructions, read...")
+   - Do not create a `## Related articles` heading — use the front matter `related_articles` field instead
 
 **Best Practice Articles**
 
@@ -907,9 +1016,9 @@ The structure of an explanation article depends on its purpose:
    - Explain the reasoning behind each recommendation
    - Use Notice components to highlight important points
 
-3. **Related Information** (final paragraph)
-   - Link to instructional articles
-   - Link to related explanation articles
+3. **Related Information** (inline prose, not a standalone section)
+   - End with a sentence linking to related content (e.g., "For step-by-step instructions, read...")
+   - Do not create a `## Related articles` heading — use the front matter `related_articles` field instead
 
 #### 2.2.5 Writing Style
 
@@ -999,7 +1108,8 @@ author_notes:
 - `related_articles` is an optional array (maximum of 3 items). Each item has:
   - `_type`: The collection type (accepted values: `developer_articles`, `user_articles`, `developer_guides`, `user_guides`)
   - `item`: UUID of the related article or guide
-- `author_notes.docshots` can be null, "Added!", "Needs docshots", or "Not applicable"
+- `author_notes.docshots` — see [2.2.2 Front Matter](#222-front-matter) for the full definition of each value (`"Added!"`, `"Needs docshots"`, `"Not applicable"`).
+- **Do not duplicate related articles in the body** — see [2.2.2 Front Matter](#222-front-matter) for details.
 
 #### 2.3.3 Title Patterns
 
@@ -1039,9 +1149,9 @@ Use imperative mood (base form of verbs) for instruction article titles. This ma
    - Include screenshots showing each step
    - Use Notice components for important tips or warnings
 
-4. **Next Steps or Additional Information** (optional)
-   - Link to related instructions
-   - Provide troubleshooting tips
+4. **Next Steps or Additional Information** (optional, inline prose)
+   - End with a sentence or short paragraph linking to next steps or related instructions
+   - Do not create a `## Related articles` heading — use the front matter `related_articles` field instead
 
 #### 2.3.5 Writing Style
 
@@ -1066,6 +1176,7 @@ Instruction articles describe actions to take and their immediate outcomes. Use 
 - Use numbered lists for sequential actions
 - Start each step with an action verb (imperative mood)
 - Keep steps concise (one action per step, followed by an outcome sentence if applicable)
+- Never interrupt a numbered list with DocShots, images, or other block-level elements. Place all images either before or after the complete list, not between steps. Splitting a list restarts the numbering and breaks the reader's flow.
 
 **Example:**
 
@@ -1084,11 +1195,16 @@ CloudCannon will upload your file or folder to the location open in your File Br
 **Action Verbs**
 - Start instructions with clear action verbs (imperative mood):
   - Click, Select, Enter, Open, Navigate, Type, Upload, Choose, Enable, Configure
+- Vary your action verbs across consecutive steps to avoid repetition. If multiple steps start with the same verb, consider restructuring or using a synonym.
+- ✅ **Good:** "1. Navigate to... 2. Select... 3. Click... 4. Select..."
+- ❌ **Avoid:** "1. Select... 2. Select... 3. Select... 4. Select..."
 
 **Describe Outcomes**
-- After steps, describe what happens using future tense ("will")
+- After individual steps, describe what happens using future tense ("will")
 - ✅ **Good:** "CloudCannon will open your file in the Data Editor."
 - ✅ **Good:** "CloudCannon will commit your Collection configuration to your Git repository."
+- After the final step, add an outcome sentence describing what CloudCannon does now that the full task is complete. Place this sentence after the numbered list, before any screenshots or additional content.
+- ✅ **Good:** "CloudCannon will apply your custom SSL certificate to the selected subdomain."
 
 **Alternative Methods**
 - Use subheadings to separate different methods
@@ -1097,6 +1213,17 @@ CloudCannon will upload your file or folder to the location open in your File Br
 **Conditionals**
 - Use "if/then" structure for conditional steps
 - ✅ **Good:** "If you have a DAM connected to your site, CloudCannon will prompt you to select a location."
+
+**Navigation Flow Pattern**
+
+Many instruction articles require the user to navigate from the *App Sidebar* to a specific page or modal before performing the main task. Follow this common pattern for the opening steps:
+
+1. Start from the *App Sidebar* (e.g., "Navigate to the *Domains Browser* by clicking *Domains* in the *App Sidebar*.")
+2. Select an item from the browser (e.g., "Select the domain to which you want to add a certificate.")
+3. Navigate to sub-items if applicable (e.g., "Under the *Subdomains* heading, click the card for the subdomain...")
+4. Open the relevant modal or section (e.g., "Click the *Configure* button under the *SSL* heading.")
+
+This provides consistent, predictable navigation instructions across all articles.
 
 ---
 
@@ -1130,7 +1257,7 @@ details:
   start_nav_group: null
   related_articles: null
 author_notes:
-  docshots: null
+  docshots: Needs docshots
 ---
 ```
 
@@ -1155,7 +1282,7 @@ details:
   start_nav_group: null
   related_articles: null
 author_notes:
-  docshots: null
+  docshots: Needs docshots
 ---
 ```
 
@@ -1436,8 +1563,8 @@ documentation_link:
 The following section contains structured rules for automated validation by AI agents and linters. These rules are formatted as YAML for easy parsing.
 
 ```yaml
-style_guide_version: "1.0"
-last_updated: "2026-01-08"
+style_guide_version: "1.2"
+last_updated: "2026-03-30"
 
 terminology:
   required_terms:
@@ -1491,6 +1618,7 @@ terminology:
     "dropdown": ["drop-down", "drop down"]
     "checkbox": ["check box"]
     "filename": ["file name"]
+    "insecure": ["unsecure"]
 
 prohibited_phrases:
   - "click here"
@@ -1580,7 +1708,11 @@ documentation_types:
       - "details.image"
       - "details.category: [Explanation]"
       - "details.related_articles: [optional array, max 3 items]"
-      - "author_notes.docshots: [null or status note]"
+      - "author_notes.docshots"
+    docshots_values:
+      "Added!": "All CloudCannon app screenshots use DocShot; no DocsImage remains except assets/external_screenshots/"
+      "Needs docshots": "Article still has DocsImage components (other than external screenshots) to migrate"
+      "Not applicable": "Article has no CloudCannon app screenshots"
     related_articles_structure:
       max_items: 3
       _type: ["developer_articles", "user_articles", "developer_guides", "user_guides"]
@@ -1619,7 +1751,7 @@ documentation_types:
       - "details.description"
       - "details.start_nav_group: [null or section name string to group pages]"
       - "details.related_articles: [typically null]"
-      - "author_notes.docshots: [null or status note]"
+      - "author_notes.docshots: [Added! | Needs docshots | Not applicable]"
     index_title: "Introduction"
     note: "Guides use nested 'details' structure like articles"
   
@@ -1641,7 +1773,7 @@ documentation_types:
       - "details.image"
       - "details.category: [Instructions]"
       - "details.related_articles: [optional array, max 3 items]"
-      - "author_notes.docshots: [null or status note]"
+      - "author_notes.docshots: [Added! | Needs docshots | Not applicable]"
     related_articles_structure:
       max_items: 3
       _type: ["developer_articles", "user_articles", "developer_guides", "user_guides"]
@@ -1796,8 +1928,9 @@ components:
       - "title"
       - "type"
     types:
-      - "screenshot"
-      - "ui-snippet"
+      screenshot: "Full viewport screenshots showing the entire CloudCannon interface"
+      ui-snippet: "Cropped screenshots of specific UI elements like inputs, buttons, dropdowns, or modals"
+    naming: "Hyphenated names describing the page and state (e.g., Site-Settings-Syncing-Connected)"
   
   multicodeblock:
     usage: "Configuration examples with YAML/JSON translation"
@@ -1832,6 +1965,18 @@ components:
     length: "1-2 sentences (concise)"
     syntax: "<comp.Annotation number=\"N\">Explanation</comp.Annotation>"
     note: "Used with both MultiCodeBlock and CodeBlock components"
+  
+  glossaryterm:
+    usage: "Inline glossary tooltip for terms with a glossary entry"
+    required_attributes:
+      - "term"
+    syntax: "<comp.GlossaryTerm term=\"/user/glossary/[letter]/[term].yml\">Display Text</comp.GlossaryTerm>"
+    rules:
+      - "Use on first mention of a term in an article only"
+      - "Term must have a corresponding YML file in user/glossary/"
+      - "Replaces markdown links on first use — do not combine with markdown links"
+      - "Subsequent mentions use italics instead"
+      - "Display text can differ from glossary_term_name (plurals, derived forms)"
 
 validation_rules:
   check_for:
@@ -1847,6 +1992,11 @@ validation_rules:
     - "instructions_without_numbered_steps"
     - "explanation_without_opening_definition"
     - "plain_code_blocks_instead_of_components"
+    - "trailing_prepositions"
+    - "repeated_action_verbs_in_consecutive_steps"
+    - "instructions_missing_final_outcome_sentence"
+    - "docshot_missing_title_attribute"
+    - "images_interrupting_ordered_lists"
   
   ignore:
     - "Passive voice in: changelog features, technical descriptions"
@@ -1867,6 +2017,8 @@ accessibility_requirements:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.2 | 2026-03-30 | Added `author_notes.docshots` value definitions |
+| 1.1 | 2026-03-06 | Added rule against duplicating front matter related_articles in article body |
 | 1.0 | 2026-01-08 | Initial style guide created |
 
 ---
