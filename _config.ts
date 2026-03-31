@@ -227,7 +227,7 @@ const injectedSections: Promise<string>[] = [];
 
 const mdFilter = site.renderer.helpers.get("md")?.[0];
 
-site.ignore("README.md", "unused", "STYLE_GUIDE.mdx");
+site.ignore("README.md", "unused", "STYLE_GUIDE.mdx", "scripts");
 
 // Detect dev mode (serve command uses -s flag)
 const isDevMode = Deno.args.includes("-s") || Deno.args.includes("--serve");
@@ -293,6 +293,9 @@ site.preprocess([".md", ".mdx"], (pages) =>
   }));
 
 site.copy("ye_olde_images", "documentation/ye_olde_images");
+site.copy("assets/external_screenshots", "documentation/assets/external_screenshots");
+site.copy("assets/diagrams", "documentation/assets/diagrams");
+site.copy("assets/deprecated", "documentation/assets/deprecated");
 site.copy("uploads", "documentation/static");
 site.copy("robots.txt", "documentation/robots.txt");
 
