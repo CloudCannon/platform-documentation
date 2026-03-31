@@ -295,6 +295,7 @@ site.preprocess([".md", ".mdx"], (pages) =>
 site.copy("ye_olde_images", "documentation/ye_olde_images");
 site.copy("assets/external_screenshots", "documentation/assets/external_screenshots");
 site.copy("assets/diagrams", "documentation/assets/diagrams");
+site.copy("assets/deprecated", "documentation/assets/deprecated");
 site.copy("uploads", "documentation/static");
 site.copy("robots.txt", "documentation/robots.txt");
 
