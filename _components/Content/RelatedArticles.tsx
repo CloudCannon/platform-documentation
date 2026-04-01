@@ -73,7 +73,7 @@ export default async function RelatedArticles(
   if (articlesFound.length === 0) {
     articlesFound = validRelatedArticles
       .map((relatedArticle) => search.page(`_uuid=${relatedArticle.item}`))
-      .filter((article): article is ArticlePage => article !== null);
+      .filter((article) => !!article);
   }
 
   // Don't render the section if no articles were found
@@ -82,6 +82,9 @@ export default async function RelatedArticles(
   // Pre-render descriptions from content for articles without details.description
   const descriptions = await Promise.all(
     articlesFound.map(async (article) => {
+      if (!article) {
+            return;
+      }
       // Use details.description if available
       if (article.details?.description) {
         return article.details.description;
@@ -123,6 +126,9 @@ export default async function RelatedArticles(
           data-prop="details.related_articles"
         >
           {articlesFound.map((article, i) => {
+            if (!article) {
+                  return;
+            }
             // Fall back to top-level title for pages without details (e.g., changelogs)
             const title = article.details?.title || article.title;
 

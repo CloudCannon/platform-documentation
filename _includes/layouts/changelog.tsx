@@ -1,5 +1,6 @@
 import ChangeNav from "../../_components/Nav/ChangeNav.tsx";
 import Breadcrumb from "../../_components/Layout/Breadcrumb.tsx";
+import PagefindCategoryMeta from "../../_components/Layout/PagefindCategoryMeta.tsx";
 import MobileTOC from "../../_components/Layout/MobileTOC.tsx";
 import NavSidebar from "../../_components/Layout/NavSidebar.tsx";
 import RelativeDate from "../../_components/RelativeDate.tsx";
@@ -31,6 +32,7 @@ export default function ChangelogLayout(props: Props, helpers: Helpers) {
       data-pagefind-filter="site:Changelog"
       data-pagefind-meta="site:Changelog"
     >
+      <PagefindCategoryMeta category="Changelog" />
       <div className="l-column">
         <NavSidebar>
           <ChangeNav

@@ -30,7 +30,7 @@ module.exports = (source) => {
         type: {
           type: "select",
           options: {
-            values: ["photo", "screenshot", "ui-snippet"],
+            values: ["screenshot", "ui-snippet"],
           },
         },
         alt: {
@@ -57,14 +57,11 @@ module.exports = (source) => {
           },
           {
             editor_key: "title",
-            optional: true,
             type: "string",
           },
           {
             editor_key: "type",
             type: "string",
-            optional: true,
-            remove_empty: true,
           },
         ],
       },
