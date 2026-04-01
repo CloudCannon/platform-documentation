@@ -258,7 +258,7 @@ export function TableOfContents(
     <>
       {withHeading && (
         <h3 className="l-toc__heading" data-pagefind-ignore>
-          Table of contents
+          On this page
         </h3>
       )}
       <ol className="l-toc__list" data-pagefind-ignore>

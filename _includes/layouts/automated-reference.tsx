@@ -1,5 +1,6 @@
 import { formatTitle, parseDocUrl } from "../../_components/utils/index.ts";
 import Breadcrumb from "../../_components/Layout/Breadcrumb.tsx";
+import CopyPageDropdown from "../../_components/CopyPageDropdown.tsx";
 import PagefindCategoryMeta from "../../_components/Layout/PagefindCategoryMeta.tsx";
 import MobileTOC from "../../_components/Layout/MobileTOC.tsx";
 import NavSidebar from "../../_components/Layout/NavSidebar.tsx";
@@ -107,6 +108,9 @@ export default function AutomatedReferenceLayout(
             </h1>
           </div>
 
+          <div className="l-copy-page-mobile" data-pagefind-ignore>
+            <CopyPageDropdown title={entry.title || ""} url={currentUrl} />
+          </div>
           <MobileTOC helpers={helpers} listClassName="">
             <TableOfContents items={tocItems} />
           </MobileTOC>
@@ -122,6 +126,7 @@ export default function AutomatedReferenceLayout(
             </main>
 
             <aside data-pagefind-ignore className="l-right">
+              <CopyPageDropdown title={entry.title || ""} url={currentUrl} />
               <div className="l-toc" alpine:scroll="onScroll()">
                 <TableOfContents items={tocItems} withHeading />
               </div>

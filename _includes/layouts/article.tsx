@@ -94,6 +94,9 @@ export default function ArticleLayout(props: Props, helpers: Helpers) {
           <p className="l-subheading" data-pagefind-ignore>
             Last modified: {helpers.date(date, "HUMAN_DATE")}
           </p>
+          <div className="l-copy-page-mobile" data-pagefind-ignore>
+            <CopyPageDropdown title={details?.title || ""} url={url} />
+          </div>
           <MobileTOC helpers={helpers} />
           <div className="l-content-split">
             <main

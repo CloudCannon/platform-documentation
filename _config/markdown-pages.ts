@@ -613,10 +613,13 @@ function docEntryToMarkdown(
   return lines.join("\n");
 }
 
-function deriveCollection(url: string): string {
+function deriveContentType(url: string): string {
   if (url.includes("/changelog/")) return "changelog";
-  if (url.includes("/user-")) return "user";
-  return "developer";
+  if (url.includes("/developer-reference/")) return "developer reference";
+  if (url.includes("/developer-guides/") || url.includes("/guides/")) return "developer guide";
+  if (url.includes("/user-guides/")) return "user guide";
+  if (url.includes("/user-")) return "user article";
+  return "developer article";
 }
 
 function escapeFrontmatter(value: string): string {
@@ -688,7 +691,7 @@ export default function markdownPages() {
           continue;
         }
 
-        const collection = deriveCollection(url);
+        const contentType = deriveContentType(url);
         const date = page.data.date
           ? new Date(page.data.date as string | Date).toISOString().split("T")[0]
           : undefined;
@@ -706,6 +709,45 @@ export default function markdownPages() {
           body = docEntryToMarkdown(entry, section, url)
             .replace(/\n{3,}/g, "\n\n")
             .trim();
+          writtenRef++;
+        } else if (layout === "layouts/reference-home.tsx") {
+          // Section home pages: MDX intro + root DocEntry properties
+          const srcPath = page.src.path + (page.src.ext || ".mdx");
+          const fullSrcPath = join(site.options.src, srcPath);
+
+          let introBody = "";
+          try {
+            const raw = await Deno.readTextFile(fullSrcPath);
+            const tree = parser.parse(raw);
+            const pageData = (page.data || {}) as Record<string, unknown>;
+            introBody = serializeNode(tree, registry, pageData)
+              .replace(/\n{3,}/g, "\n\n")
+              .trim();
+          } catch { /* intro text is optional */ }
+
+          let section: SectionId = "type.Configuration";
+          if (url.includes("routing-file")) {
+            section = "type.Routing";
+          } else if (url.includes("initial-site-settings-file")) {
+            section = "type.InitialSiteSettings";
+          }
+
+          const sectionDocs = (globalThis as Record<string, unknown>).DOCS as
+            | Record<string, Record<string, DocEntry>>
+            | undefined;
+          const entries = sectionDocs?.[section] ?? {};
+          const rootEntry = Object.values(entries).find(
+            (doc: DocEntry) => doc.gid === section || doc.url === "/",
+          );
+
+          let refBody = "";
+          if (rootEntry) {
+            refBody = docEntryToMarkdown(rootEntry, section, url)
+              .replace(/\n{3,}/g, "\n\n")
+              .trim();
+          }
+
+          body = [introBody, refBody].filter(Boolean).join("\n\n");
           writtenRef++;
         } else {
           // MDX-sourced pages
@@ -739,9 +781,9 @@ export default function markdownPages() {
         const fm: string[] = ["---"];
         fm.push(`title: ${escapeFrontmatter(title)}`);
         if (description) fm.push(`description: ${escapeFrontmatter(description)}`);
-        fm.push(`url: ${url}`);
-        fm.push(`collection: ${collection}`);
-        if (date) fm.push(`date: ${date}`);
+        fm.push(`url: https://cloudcannon.com${url.replace(/\/+/g, "/").replace(/\/?$/, "/")}`);
+        fm.push(`content_type: ${contentType}`);
+        if (date) fm.push(`last_modified: ${date}`);
         fm.push("---");
 
         const mdContent = fm.join("\n") + "\n\n" + body + "\n";

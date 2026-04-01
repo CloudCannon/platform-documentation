@@ -162,6 +162,9 @@ export default function GuideLayout(props: Props, helpers: Helpers) {
           <p className="l-subheading">
             {details?.description}
           </p>
+          <div className="l-copy-page-mobile" data-pagefind-ignore>
+            <CopyPageDropdown title={details?.title || ""} url={url} />
+          </div>
           <MobileTOC helpers={helpers} />
           <div className="l-content-split">
             <main
