@@ -165,7 +165,9 @@ export function toMarkdown(
   if (fenceMatch) {
     code = fenceMatch[1];
   }
-  return `${header}\`\`\`${language}\n${code}\n\`\`\`\n\n`;
+
+  const renderedLanguage = language.toLowerCase() === "plaintext" ? "" : language;
+  return `${header}\`\`\`${renderedLanguage}\n${code}\n\`\`\`\n\n`;
 }
 
 export default function CodeBlock(
