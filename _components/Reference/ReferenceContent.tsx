@@ -168,14 +168,12 @@ function AppearsIn({
     <>
       <dt id="appears-in" data-pagefind-ignore>Appears in:</dt>
       <dd data-pagefind-ignore>
-        <div style="font-size: 16px;">
-          <InteractiveTree
-            nodes={nodes}
-            helpers={helpers}
-            defaultOpen
-            iconMode="key"
-          />
-        </div>
+        <InteractiveTree
+          nodes={nodes}
+          helpers={helpers}
+          defaultOpen
+          iconMode="key"
+        />
       </dd>
     </>
   );
