@@ -3,6 +3,7 @@ import RelatedArticles from "../../_components/Content/RelatedArticles.tsx";
 import Breadcrumb from "../../_components/Layout/Breadcrumb.tsx";
 import MobileTOC from "../../_components/Layout/MobileTOC.tsx";
 import NavSidebar from "../../_components/Layout/NavSidebar.tsx";
+import CopyPageDropdown from "../../_components/CopyPageDropdown.tsx";
 import PagefindArticleCategoryMeta from "../../_components/Layout/PagefindArticleCategoryMeta.tsx";
 import PagefindCategoryMeta from "../../_components/Layout/PagefindCategoryMeta.tsx";
 import {
@@ -83,18 +84,19 @@ export default function ArticleLayout(props: Props, helpers: Helpers) {
               helpers={helpers}
             />
           )}
-          <div>
-            <h1
-              className="l-heading u-margin-bottom-0"
-              data-editable="text"
-              data-prop="details.title"
-            >
-              {details?.title}
-            </h1>
-          </div>
+          <h1
+            className="l-heading u-margin-bottom-0"
+            data-editable="text"
+            data-prop="details.title"
+          >
+            {details?.title}
+          </h1>
           <p className="l-subheading" data-pagefind-ignore>
             Last modified: {helpers.date(date, "HUMAN_DATE")}
           </p>
+          <div className="l-copy-page-mobile" data-pagefind-ignore>
+            <CopyPageDropdown title={details?.title || ""} url={url} />
+          </div>
           <MobileTOC helpers={helpers} />
           <div className="l-content-split">
             <main
@@ -102,6 +104,7 @@ export default function ArticleLayout(props: Props, helpers: Helpers) {
               dangerouslySetInnerHTML={{ __html: content }}
             />
             <aside data-pagefind-ignore className="l-right">
+              <CopyPageDropdown title={details?.title || ""} url={url} />
               <div className="l-toc" alpine:scroll="onScroll()" />
             </aside>
           </div>

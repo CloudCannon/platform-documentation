@@ -16,3 +16,7 @@ export default function DocsImage(
     <ImageWrapper src={helpers.url(path)} alt={alt} title={title} type={type} />
   );
 }
+
+export function toMarkdown({ path, alt, title }: DocsImageProps): string {
+  return `![${alt || title || ""}](${path})\n\n`;
+}

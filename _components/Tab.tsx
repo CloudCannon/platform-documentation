@@ -16,3 +16,7 @@ export default function Tab({ name, children }: TabProps) {
     </div>
   );
 }
+
+export function toMarkdown({ name }: TabProps, childrenMd: string): string {
+  return `**${name}:**\n\n${childrenMd.trim()}\n\n`;
+}

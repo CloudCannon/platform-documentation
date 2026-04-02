@@ -1,4 +1,4 @@
-import InteractiveTree, { type TreeNode } from "./InteractiveTree.tsx";
+import InteractiveTree, { type TreeNode, nodesToText } from "./InteractiveTree.tsx";
 import type { Helpers } from "../_types.d.ts";
 
 interface TreeProps {
@@ -139,6 +139,12 @@ export default function Tree({ children }: TreeProps, helpers: Helpers) {
       </div>
     </div>
   );
+}
+
+export function toMarkdown(_props: TreeProps, childrenMd: string): string {
+  const nodes = parseTreeText(childrenMd.trim());
+  const text = nodesToText(nodes);
+  return `\`\`\`\n${text}\n\`\`\`\n\n`;
 }
 
 export { parseTreeText, type TreeNode };

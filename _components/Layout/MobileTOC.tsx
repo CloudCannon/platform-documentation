@@ -20,7 +20,7 @@ export default function MobileTOC(
     <details className="l-toc-mobile" data-pagefind-ignore>
       <summary>
         <h3>
-          Table of contents{" "}
+          On this page{" "}
           <img
             src={helpers.icon("arrow_forward_ios:outlined", "material")}
             inline="true"

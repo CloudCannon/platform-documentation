@@ -40,3 +40,10 @@ export default function Annotation(
     </div>
   );
 }
+
+export function toMarkdown(
+  { number }: AnnotationProps,
+  childrenMd: string,
+): string {
+  return `**[${number}]** ${childrenMd.trim()}\n\n`;
+}
