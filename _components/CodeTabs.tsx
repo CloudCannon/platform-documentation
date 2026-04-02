@@ -182,5 +182,9 @@ export default function CodeTabs({ children }: CodeTabsProps) {
   );
 }
 
+export function toMarkdown(_props: CodeTabsProps, childrenMd: string): string {
+  return childrenMd;
+}
+
 // Re-export the language label function for use by CodeBlock
 export { getLanguageLabel };

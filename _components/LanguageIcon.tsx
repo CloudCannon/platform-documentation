@@ -178,3 +178,7 @@ export default function LanguageIcon({ lang }: LanguageIconProps) {
     </div>
   );
 }
+
+export function toMarkdown(): string {
+  return "";
+}

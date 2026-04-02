@@ -57,3 +57,18 @@ export default function VideoEmbed({
     </div>
   );
 }
+
+export function toMarkdown({
+  platform = "custom",
+  id,
+  url,
+  title = "Video",
+}: VideoEmbedProps): string {
+  let linkUrl = url || "";
+  if (platform === "youtube" && id) {
+    linkUrl = `https://www.youtube.com/watch?v=${id}`;
+  } else if (platform === "vimeo" && id) {
+    linkUrl = `https://vimeo.com/${id}`;
+  }
+  return linkUrl ? `[Video: ${title}](${linkUrl})\n\n` : "";
+}

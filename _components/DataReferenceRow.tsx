@@ -28,3 +28,11 @@ export default function DataReferenceRow(
     </div>
   );
 }
+
+export function toMarkdown(
+  { label, type_markdown }: DataReferenceRowProps,
+  childrenMd: string,
+): string {
+  const type = type_markdown ? ` ${type_markdown}` : "";
+  return `**\`${label}\`**${type}\n\n${childrenMd.trim()}\n\n`;
+}

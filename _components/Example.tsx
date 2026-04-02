@@ -18,3 +18,7 @@ export default function Example(
     </details>
   );
 }
+
+export function toMarkdown(_props: ExampleProps, childrenMd: string): string {
+  return childrenMd;
+}

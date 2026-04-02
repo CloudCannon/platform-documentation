@@ -33,3 +33,7 @@ export default function ImageWrapper(
     </div>
   );
 }
+
+export function toMarkdown({ src, alt, title }: ImageWrapperProps): string {
+  return `![${alt || title || ""}](${src})\n\n`;
+}

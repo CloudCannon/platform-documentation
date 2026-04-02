@@ -1,3 +1,4 @@
+import CopyPageDropdown from "../../_components/CopyPageDropdown.tsx";
 import PagefindCategoryMeta from "../../_components/Layout/PagefindCategoryMeta.tsx";
 import DocNav from "../../_components/Reference/DocNav.tsx";
 import MobileTOC from "../../_components/Layout/MobileTOC.tsx";
@@ -119,6 +120,9 @@ export default function ReferenceHomeLayout(
             Last modified: {helpers.date(date, "HUMAN_DATE")}
           </p>
 
+          <div className="l-copy-page-mobile" data-pagefind-ignore>
+            <CopyPageDropdown title={details?.title || ""} url={currentUrl} />
+          </div>
           <MobileTOC helpers={helpers} listClassName="">
             <TableOfContents items={tocItems} />
           </MobileTOC>
@@ -168,6 +172,7 @@ export default function ReferenceHomeLayout(
             </main>
 
             <aside data-pagefind-ignore className="l-right">
+              <CopyPageDropdown title={details?.title || ""} url={currentUrl} />
               <div className="l-toc" alpine:scroll="onScroll()">
                 <TableOfContents items={tocItems} withHeading />
               </div>
