@@ -37,6 +37,7 @@ Deno doesn't have a separate dependency-install step; the first run will downloa
 | `serve` | `deno task serve` | Build with Pagefind + start dev server |
 | `build` | `deno task build` | Build the static site with Pagefind |
 | `check-links` | `deno task check-links` | Check for broken internal links |
+| `check-images` | `deno task check-images` | Check for broken images (local, DocShot, and external) |
 | `serve:local-docshots` | `deno task serve:local-docshots` | Symlink local docshots + serve with `DOCSHOTS_LOCAL=1` * |
 
 \* The `serve:local-docshots` task creates a symlink to `../app/app/assets/e2e/screenshots`. This only works if you have the [app](https://github.com/CloudCannon/app) repo cloned as a sibling directory. The app repo is a private repository only available to CloudCannon employees.
@@ -202,13 +203,14 @@ A [GitHub Actions workflow](.github/workflows/linting.yml) runs on every push an
 
 1. **Lint** — `deno lint` and `deno check --all` (TypeScript type-checking).
 2. **Check Links** — builds the full site, then runs `deno task check-links` to catch broken internal links.
+3. **Check Images** — runs `deno task check-images` against the built site to catch broken images (local files, DocShots, and other external URLs).
 
 Run these locally before opening a PR to catch issues early:
 
 ```sh
 deno lint
 deno check --all
-deno task build && deno task check-links
+deno task build && deno task check-links && deno task check-images
 ```
 
 ---
