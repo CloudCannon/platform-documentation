@@ -309,7 +309,7 @@ if (Deno.env.get("DOCSHOTS_LOCAL")) {
 (site.formats.get(".md")?.engines?.[0] as any)?.engine?.disable?.("code");
 
 // Pagefind search indexing - runs automatically after each build
-// Uses local plugin (_plugins/pagefind.ts) with pagefind v1.5.0-beta.1
+// Uses local plugin (_plugins/pagefind.ts) with pagefind v1.5.0
 site.use(pagefind({
   outputPath: "/documentation/_pagefind",
   ui: false, // Disable old PagefindUI
