@@ -1,7 +1,7 @@
 # CloudCannon Documentation Style Guide
 
-**Last Updated:** March 30, 2026  
-**Version:** 1.2
+**Last Updated:** April 9, 2026  
+**Version:** 1.3
 
 This style guide establishes writing standards for all CloudCannon documentation. It combines patterns from our existing documentation with industry best practices from Microsoft Writing Style Guide, Google Developer Documentation Style Guide, and Write the Docs community standards.
 
@@ -49,6 +49,7 @@ This structure helps users find the right information at the right time, whether
   - [1.2 Grammar and Mechanics](#12-grammar-and-mechanics)
   - [1.3 Terminology](#13-terminology)
   - [1.4 Formatting](#14-formatting)
+    - [1.4.5 Renaming or Removing Content](#145-renaming-or-removing-content)
   - [1.5 Components](#15-components)
   - [1.6 Accessibility](#16-accessibility)
 - [2. Documentation Type-Specific Rules](#2-documentation-type-specific-rules)
@@ -548,6 +549,38 @@ Why drop italics for links:
 - Link formatting (underline/color) already provides visual distinction
 - Combining italics and links creates visual clutter
 - Maintains readability
+
+#### 1.4.5 Renaming or Removing Content
+
+When you rename or remove an article or guide, you **must** add a 301 redirect in `.cloudcannon/routing.json` so that existing links and bookmarks continue to work.
+
+**When to add a redirect:**
+- Renaming an article (the filename determines the URL slug, so a title change usually means a URL change)
+- Moving an article between collections (e.g., from `developer-articles` to `user-articles`)
+- Removing an article entirely (redirect to the most relevant replacement or the parent section)
+- Renaming a guide folder
+
+**How to add a redirect:**
+
+Add an entry to the `routes` array in `.cloudcannon/routing.json`:
+
+```json
+{
+  "from": "/documentation/user-articles/old-article-slug/",
+  "to": "/documentation/user-articles/new-article-slug/",
+  "status": 301
+}
+```
+
+**Chain existing redirects:**
+- If the old URL already has a redirect pointing to it (e.g., from a previous `/documentation/articles/` path), update that redirect to point to the new URL as well, so all paths resolve in a single hop.
+
+**Examples:**
+
+Renaming "How to pay for CloudCannon" to "What is a CloudCannon subscription?":
+- Update the existing redirect: `/documentation/articles/how-to-pay-for-cloudcannon/` → `/documentation/user-articles/what-is-a-cloudcannon-subscription/`
+- Add a new redirect: `/documentation/user-articles/how-to-pay-for-cloudcannon/` → `/documentation/user-articles/what-is-a-cloudcannon-subscription/`
+
 ---
 
 ### 1.5 Components
@@ -1563,8 +1596,8 @@ documentation_link:
 The following section contains structured rules for automated validation by AI agents and linters. These rules are formatted as YAML for easy parsing.
 
 ```yaml
-style_guide_version: "1.2"
-last_updated: "2026-03-30"
+style_guide_version: "1.3"
+last_updated: "2026-04-09"
 
 terminology:
   required_terms:
@@ -1997,6 +2030,7 @@ validation_rules:
     - "instructions_missing_final_outcome_sentence"
     - "docshot_missing_title_attribute"
     - "images_interrupting_ordered_lists"
+    - "renamed_or_removed_article_missing_redirect"
   
   ignore:
     - "Passive voice in: changelog features, technical descriptions"
@@ -2017,6 +2051,7 @@ accessibility_requirements:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.3 | 2026-04-09 | Added section 1.4.5: redirect requirement when renaming or removing content |
 | 1.2 | 2026-03-30 | Added `author_notes.docshots` value definitions |
 | 1.1 | 2026-03-06 | Added rule against duplicating front matter related_articles in article body |
 | 1.0 | 2026-01-08 | Initial style guide created |
