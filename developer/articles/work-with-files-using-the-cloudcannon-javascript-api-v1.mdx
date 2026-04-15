@@ -1,0 +1,97 @@
+---
+_schema: default
+_uuid: dc78e02f-e257-4fee-8123-557f26c66834
+_created_at: '2026-03-12 02:32:58 +0000'
+details:
+  title: Work with files using the CloudCannon JavaScript API v1
+  description: Learn how to read and update files, structured data, and body content with JavaScript API v1.
+  image: >-
+    https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+  category:
+    - Instructions
+  related_articles: null
+author_notes:
+  docshots: Needs docshots
+---
+This article shows how to use file objects in JavaScript API v1.
+
+## Prerequisites
+
+Before you begin, this article assumes you already initialize v1 as shown in [Get started with the CloudCannon JavaScript API v1](/documentation/developer-articles/get-started-with-the-cloudcannon-javascript-api-v1/).
+
+## Access files
+
+Use `currentFile()` for the active file in the *Visual Editor*. Use `file(path)` when you need to target a specific file by path.
+
+<comp.CodeBlock language="javascript" source="src/files.js">
+```
+const current = api.currentFile();
+const navigation = api.file('_data/navigation.yml');
+
+console.log(current.path);
+console.log(navigation.path);
+```
+</comp.CodeBlock>
+
+## Read and update structured data
+
+Use `file.data.get()` and `file.data.set()` for front matter and structured data fields.
+
+<comp.CodeBlock language="javascript" source="src/update-fields.js">
+```
+const file = api.currentFile();
+
+const initialData = await file.data.get();
+console.log('Initial data:', initialData);
+
+await file.data.set({
+  slug: 'title',
+  value: 'Updated title from JavaScript API v1'
+});
+```
+</comp.CodeBlock>
+
+## Update array data
+
+Use array helpers on `file.data` for add, remove, and move operations.
+
+<comp.CodeBlock language="javascript" source="src/update-array.js">
+```
+const file = api.currentFile();
+
+await file.data.addArrayItem({
+  slug: 'features',
+  index: null,
+  value: { heading: 'New feature' }
+});
+
+await file.data.moveArrayItem({
+  fromSlug: 'features',
+  fromIndex: 0,
+  toIndex: 1
+});
+
+await file.data.removeArrayItem({
+  slug: 'features',
+  index: 2
+});
+```
+</comp.CodeBlock>
+
+## Read and update body content
+
+Use `file.content` when you need the body content rather than front matter.
+
+<comp.CodeBlock language="javascript" source="src/update-content.js">
+```
+const file = api.currentFile();
+
+const content = await file.content.get();
+await file.content.set(`${content}\n\nUpdated in the Visual Editor.`);
+```
+</comp.CodeBlock>
+
+## Related articles
+
+- [Work with collections using the CloudCannon JavaScript API v1](/documentation/developer-articles/work-with-collections-using-the-cloudcannon-javascript-api-v1/)
+- [Open data panels with the CloudCannon JavaScript API v1](/documentation/developer-articles/open-data-panels-with-the-cloudcannon-javascript-api-v1/)

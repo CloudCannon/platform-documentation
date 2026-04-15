@@ -1,0 +1,41 @@
+---
+_schema: default
+_uuid: d68146ee-f2a7-4c56-a1fa-ec05e69dab66
+_created_at: '2026-03-12 02:49:17 +0000'
+details:
+  title: Work with collections
+  order: 4
+  image: >-
+    https://cc-dam.imgix.net/documentation/images/guides/getting-started/guide-thumbnails/CloudCannon-Getting-Started-Thumbnail-Universal.png
+  description: Load collection files and build simple collection filters.
+  start_nav_group: Building interfaces
+  related_articles: null
+author_notes:
+  docshots: null
+---
+In this step, we'll load a collection and filter results to drive custom UI.
+
+1. Access a collection by key.
+2. Call `items()` to get file objects.
+3. Filter based on front matter values.
+
+<comp.CodeBlock language="javascript" source="src/collection-updates.js">
+```
+import { withCloudCannonApi } from './cloudcannon-api';
+
+withCloudCannonApi(async (api) => {
+  const posts = api.collection('posts');
+  const files = await posts.items();
+  const published = [];
+
+  for (const file of files) {
+    const data = await file.data.get();
+    if (data?.published) published.push(file.path);
+  }
+
+  console.log('Published post files:', published);
+});
+```
+</comp.CodeBlock>
+
+Next, we'll make your UI reactive with event listeners.
