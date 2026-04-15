@@ -1,0 +1,142 @@
+---
+_schema: default
+_uuid: 64747bc3-c130-44d1-a871-53a9caffc25f
+_created_at: '2026-04-16 00:00:00 +0000'
+details:
+  title: Listen for changes with the Visual Editor API
+  description: >-
+    Subscribe to change and delete events on files, Collections, and Datasets
+    using the Visual Editor API to keep your custom integration in sync.
+  image: >-
+    https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+  category:
+    - Instructions
+  related_articles:
+    - _type: developer_articles
+      item: 11b29768-6312-47fc-bc43-9a613d70e5f2
+    - _type: developer_articles
+      item: d0c914cf-d151-4e3e-a02b-7cf017528d19
+    - _type: developer_articles
+      item: 01f9352f-868c-4506-8cef-9ce7177a50a1
+author_notes:
+  docshots: Not applicable
+---
+<comp.Notice info_type="important">
+  The *Visual Editor API* is designed for advanced CloudCannon users. If you need help, please [contact our support team](/support/).
+</comp.Notice>
+
+This article covers how to listen for content changes using the *Visual Editor API*. All examples assume you have already [initialized the API](/documentation/developer-articles/use-the-visual-editor-api/).
+
+## Event types
+
+The *Visual Editor API* supports two event types:
+
+- `change` — fired when data is created or updated.
+- `delete` — fired when a file is deleted.
+
+Both use the standard `addEventListener` and `removeEventListener` interface from `EventTarget`.
+
+## Listen at different scopes
+
+You can attach listeners at multiple levels, depending on how broad or narrow you need your events to be.
+
+### Root level
+
+Listen on the API object itself to receive events for any change across the entire <comp.GlossaryTerm term="/user/glossary/s/site.yml">Site</comp.GlossaryTerm>:
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+api.addEventListener('change', () => {
+  console.log('Something changed');
+});
+```
+</comp.CodeBlock>
+
+### File level
+
+Listen on a specific file object to receive events only for that file:
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+const file = api.currentFile();
+
+file.addEventListener('change', () => {
+  console.log('Current file changed');
+});
+
+file.addEventListener('delete', () => {
+  console.log('Current file was deleted');
+});
+```
+</comp.CodeBlock>
+
+### File data and content
+
+Listen on `file.data` or `file.content` to narrow events further:
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+const file = api.currentFile();
+
+file.data.addEventListener('change', () => {
+  console.log('Front matter changed');
+});
+
+file.content.addEventListener('change', () => {
+  console.log('Body content changed');
+});
+```
+</comp.CodeBlock>
+
+### Collection and Dataset level
+
+Listen on a <comp.GlossaryTerm term="/user/glossary/c/collection.yml">Collection</comp.GlossaryTerm> or *Dataset* to receive events for any file within it:
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+const posts = api.collection('posts');
+
+posts.addEventListener('change', () => {
+  console.log('A post was created or updated');
+});
+
+posts.addEventListener('delete', () => {
+  console.log('A post was deleted');
+});
+```
+</comp.CodeBlock>
+
+## Update your interface on change
+
+A common pattern is to re-render your custom interface whenever data changes:
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+const refresh = async () => {
+  const file = api.currentFile();
+  const data = await file.data.get();
+  renderPreview(data);
+};
+
+api.addEventListener('change', refresh);
+api.addEventListener('delete', refresh);
+```
+</comp.CodeBlock>
+
+## Clean up listeners
+
+Remove event listeners when your custom integration is no longer active to avoid memory leaks and unexpected behavior:
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+const onChange = () => { /* ... */ };
+
+api.addEventListener('change', onChange);
+
+window.addEventListener('beforeunload', () => {
+  api.removeEventListener('change', onChange);
+});
+```
+</comp.CodeBlock>
+
+If you are building with a framework, clean up listeners in the appropriate lifecycle hook (for example, `useEffect` cleanup in React, or `onUnmounted` in Vue).

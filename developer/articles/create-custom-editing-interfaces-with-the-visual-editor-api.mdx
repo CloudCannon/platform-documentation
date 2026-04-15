@@ -1,0 +1,206 @@
+---
+_schema: default
+_uuid: 01f9352f-868c-4506-8cef-9ce7177a50a1
+_created_at: '2026-04-16 00:00:00 +0000'
+details:
+  title: Create custom editing interfaces with the Visual Editor API
+  description: >-
+    Build custom editing interfaces in CloudCannon's Visual Editor using inline
+    editable regions, custom data panels, file uploads, and loading states.
+  image: >-
+    https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+  category:
+    - Instructions
+  related_articles:
+    - _type: developer_articles
+      item: 11b29768-6312-47fc-bc43-9a613d70e5f2
+    - _type: developer_articles
+      item: 64747bc3-c130-44d1-a871-53a9caffc25f
+    - _type: developer_articles
+      item: d0c914cf-d151-4e3e-a02b-7cf017528d19
+author_notes:
+  docshots: Needs docshots
+---
+<comp.Notice info_type="important">
+  The *Visual Editor API* is designed for advanced CloudCannon users. If you need help, please [contact our support team](/support/).
+</comp.Notice>
+
+This article covers how to build custom editing interfaces using the *Visual Editor API*. All examples assume you have already [initialized the API](/documentation/developer-articles/use-the-visual-editor-api/).
+
+## Create an inline editable region
+
+Call `createTextEditableRegion()` to make any HTML element inline-editable. This is the same mechanism that powers CloudCannon's `data-editable` attribute:
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+const element = document.querySelector('#hero-heading');
+
+const region = await api.createTextEditableRegion(
+  element,
+  (content) => {
+    console.log('Content updated:', content);
+  }
+);
+```
+</comp.CodeBlock>
+
+The first argument is the DOM element to make editable. The second is a callback that fires whenever the content changes. The callback receives the updated content as a string.
+
+### Configuration options
+
+Pass an options object as the third argument to customize the editable region:
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+const region = await api.createTextEditableRegion(
+  element,
+  (content) => { /* handle update */ },
+  {
+    elementType: 'block',
+    editableType: 'html',
+    extension: '.html'
+  }
+);
+```
+</comp.CodeBlock>
+
+You can also pass `inputConfig` to control which rich text toolbar options are available.
+
+### Update the region externally
+
+The returned region object has a `setContent()` method for updating the content from your code:
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+region.setContent('<p>New content</p>');
+```
+</comp.CodeBlock>
+
+## Open a custom data panel
+
+Call `createCustomDataPanel()` to open a CloudCannon editing panel with full input support. This gives your custom integration access to the same <comp.GlossaryTerm term="/user/glossary/i/input.yml">Input</comp.GlossaryTerm> types (text, boolean, select, image, etc.) that CloudCannon uses in its own editing interfaces:
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+const panelId = await api.createCustomDataPanel({
+  title: 'Hero settings',
+  data: {
+    heading: 'Welcome',
+    show_cta: true
+  },
+  config: {
+    _inputs: {
+      heading: { type: 'text' },
+      show_cta: { type: 'boolean' }
+    }
+  },
+  onChange: (updatedData) => {
+    renderHeroPreview(updatedData);
+  }
+});
+```
+</comp.CodeBlock>
+
+The `onChange` callback fires whenever the editor changes a value in the panel. The `data` and `config` objects follow the same structure as CloudCannon's input configuration.
+
+### Destroy a panel
+
+Call `destroyCustomDataPanel()` with the panel ID to close it:
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+await api.destroyCustomDataPanel(panelId);
+```
+</comp.CodeBlock>
+
+### Position a panel
+
+Pass a `position` option with a `DOMRect` to anchor the panel to a specific element:
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+const rect = element.getBoundingClientRect();
+
+await api.createCustomDataPanel({
+  title: 'Settings',
+  data: { /* ... */ },
+  config: { /* ... */ },
+  onChange: (data) => { /* ... */ },
+  position: rect
+});
+```
+</comp.CodeBlock>
+
+## Control the loading state
+
+Call `setLoading()` to show or hide the *Visual Editor*'s loading indicator. This is useful when your custom integration needs time to initialize:
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+await api.setLoading('Initializing custom integration...');
+
+// Do async setup work
+
+await api.setLoading(undefined);
+```
+</comp.CodeBlock>
+
+Pass a string to show the loading state with a message. Pass `undefined` to clear it.
+
+## Upload a file
+
+Call `uploadFile()` to upload a file through CloudCannon's file handling system:
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+const input = document.querySelector('input[type="file"]');
+const file = input.files[0];
+
+const path = await api.uploadFile(file, undefined);
+console.log('Uploaded to:', path);
+```
+</comp.CodeBlock>
+
+The second argument accepts an input configuration object to control upload behavior (for example, restricting to image types or specifying a <comp.GlossaryTerm term="/user/glossary/d/dam.yml">DAM</comp.GlossaryTerm>).
+
+## Access prefetched files
+
+Call `prefetchedFiles()` to get files that CloudCannon has already loaded:
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+const files = await api.prefetchedFiles();
+
+for (const [path, blob] of Object.entries(files)) {
+  console.log(path, blob.size);
+}
+```
+</comp.CodeBlock>
+
+## Rewrite preview URLs
+
+Call `getPreviewUrl()` to convert a source URL into a preview-safe URL for display in the *Visual Editor*:
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+const previewUrl = await api.getPreviewUrl('/images/hero.jpg');
+```
+</comp.CodeBlock>
+
+This is useful when your custom integration displays images or links that need to work within the *Visual Editor*'s iframe.
+
+## Utility methods
+
+The API provides several utility methods for working with CloudCannon's configuration:
+
+- `findStructure(structure, value)` — find a matching <comp.GlossaryTerm term="/user/glossary/s/structure.yml">Structure</comp.GlossaryTerm> value for a given data object.
+- `getInputType(key, value, inputConfig)` — determine the input type CloudCannon would use for a field.
+- `getInputConfig(options)` — get the resolved input configuration for a field by slug.
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+const file = api.currentFile();
+const inputConfig = await file.getInputConfig({ slug: 'hero_image' });
+console.log(inputConfig?.type);
+```
+</comp.CodeBlock>

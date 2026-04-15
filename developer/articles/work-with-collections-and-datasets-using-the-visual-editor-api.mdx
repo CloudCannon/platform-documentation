@@ -1,0 +1,153 @@
+---
+_schema: default
+_uuid: d0c914cf-d151-4e3e-a02b-7cf017528d19
+_created_at: '2026-04-16 00:00:00 +0000'
+details:
+  title: Work with Collections and Datasets using the Visual Editor API
+  description: >-
+    Access Collections and Datasets through the Visual Editor API. Enumerate
+    files, read data across a Collection, and listen for changes.
+  image: >-
+    https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+  category:
+    - Instructions
+  related_articles:
+    - _type: developer_articles
+      item: 11b29768-6312-47fc-bc43-9a613d70e5f2
+    - _type: developer_articles
+      item: 64747bc3-c130-44d1-a871-53a9caffc25f
+    - _type: developer_articles
+      item: 01f9352f-868c-4506-8cef-9ce7177a50a1
+author_notes:
+  docshots: Not applicable
+---
+<comp.Notice info_type="important">
+  The *Visual Editor API* is designed for advanced CloudCannon users. If you need help, please [contact our support team](/support/).
+</comp.Notice>
+
+This article covers how to work with <comp.GlossaryTerm term="/user/glossary/c/collection.yml">Collections</comp.GlossaryTerm> and *Datasets* using the *Visual Editor API*. All examples assume you have already [initialized the API](/documentation/developer-articles/use-the-visual-editor-api/).
+
+## Access a Collection
+
+Call `collection(key)` with the *Collection* key from your CloudCannon configuration to get a collection object:
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+const posts = api.collection('posts');
+```
+</comp.CodeBlock>
+
+### List files in a Collection
+
+Call `items()` on a collection object to get an array of file objects:
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+const posts = api.collection('posts');
+const files = await posts.items();
+
+for (const file of files) {
+  const data = await file.data.get();
+  console.log(file.path, data?.title);
+}
+```
+</comp.CodeBlock>
+
+Each file object in the array has the same interface as `currentFile()` — you can call `data.get()`, `data.set()`, `content.get()`, and all other file methods on it.
+
+### Filter Collection files
+
+Since `items()` returns an array of file objects, you can filter them using standard JavaScript:
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+const posts = api.collection('posts');
+const files = await posts.items();
+const published = [];
+
+for (const file of files) {
+  const data = await file.data.get();
+  if (data?.published) published.push(file);
+}
+```
+</comp.CodeBlock>
+
+## Access a Dataset
+
+Call `dataset(key)` with the *Dataset* key to get a dataset object:
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+const locales = api.dataset('locales');
+```
+</comp.CodeBlock>
+
+### List files in a Dataset
+
+Call `items()` on a dataset object. This returns either a single file object or an array, depending on how the *Dataset* is configured:
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+const locales = api.dataset('locales');
+const items = await locales.items();
+```
+</comp.CodeBlock>
+
+## List all files and Collections
+
+The API provides methods to enumerate everything available in the *Site*:
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+const allFiles = await api.files();
+const allCollections = await api.collections();
+
+for (const collection of allCollections) {
+  console.log(collection.collectionKey);
+}
+```
+</comp.CodeBlock>
+
+## Listen for changes
+
+*Collections* and *Datasets* support the same `addEventListener` interface as files. Use this to react when any file in a *Collection* or *Dataset* is created, updated, or deleted:
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+const posts = api.collection('posts');
+
+posts.addEventListener('change', async () => {
+  const files = await posts.items();
+  updatePostList(files);
+});
+
+posts.addEventListener('delete', async () => {
+  const files = await posts.items();
+  updatePostList(files);
+});
+```
+</comp.CodeBlock>
+
+For more about event handling, see [Listen for changes with the Visual Editor API](/documentation/developer-articles/listen-for-changes-with-the-visual-editor-api/).
+
+## Type guards
+
+The API provides type guard functions to check whether an object is a file, *Collection*, or *Dataset*:
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+if (api.isAPIFile(obj)) {
+  const data = await obj.data.get();
+}
+
+if (api.isAPICollection(obj)) {
+  const items = await obj.items();
+}
+
+if (api.isAPIDataset(obj)) {
+  const items = await obj.items();
+}
+```
+</comp.CodeBlock>
+
+These are useful when working with mixed results or when you need to narrow the type of an object before calling methods on it.

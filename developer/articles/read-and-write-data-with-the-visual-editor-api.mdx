@@ -1,0 +1,201 @@
+---
+_schema: default
+_uuid: 11b29768-6312-47fc-bc43-9a613d70e5f2
+_created_at: '2026-04-16 00:00:00 +0000'
+details:
+  title: Read and write data with the Visual Editor API
+  description: >-
+    Access file data, body content, and raw source through the Visual Editor API.
+    Learn how to read, write, and edit structured data in CloudCannon's Visual
+    Editor.
+  image: >-
+    https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+  category:
+    - Instructions
+  related_articles:
+    - _type: developer_articles
+      item: c2407e1f-4ba7-41b0-a5a3-69ac86cf3c41
+    - _type: developer_articles
+      item: 64747bc3-c130-44d1-a871-53a9caffc25f
+    - _type: developer_articles
+      item: 01f9352f-868c-4506-8cef-9ce7177a50a1
+author_notes:
+  docshots: Needs docshots
+---
+<comp.Notice info_type="important">
+  The *Visual Editor API* is designed for advanced CloudCannon users. If you need help, please [contact our support team](/support/).
+</comp.Notice>
+
+This article covers how to read and write file data using the *Visual Editor API*. All examples assume you have already [initialized the API](/documentation/developer-articles/use-the-visual-editor-api/).
+
+## Access a file
+
+The API provides two ways to get a file object:
+
+- `currentFile()` returns the file currently open in the *Visual Editor*.
+- `file(path)` returns a file by its source path.
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+const current = api.currentFile();
+const specific = api.file('content/pages/about.md');
+```
+</comp.CodeBlock>
+
+Both return a file object with the same interface. Use `currentFile()` when your custom integration should operate on whatever page the editor has open. Use `file(path)` when you need to read or write a specific file regardless of what is currently being edited.
+
+## Read structured data
+
+Call `file.data.get()` to read the structured data (<comp.GlossaryTerm term="/user/glossary/f/front-matter.yml">Front Matter</comp.GlossaryTerm>) of a file. This returns a JavaScript object:
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+const file = api.currentFile();
+const data = await file.data.get();
+console.log(data.title);
+```
+</comp.CodeBlock>
+
+You can also read a specific field by passing a `slug` option:
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+const title = await file.data.get({ slug: 'title' });
+```
+</comp.CodeBlock>
+
+## Write structured data
+
+Call `file.data.set()` to update a specific field. Pass the field's `slug` and the new `value`:
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+await file.data.set({
+  slug: 'title',
+  value: 'Updated title'
+});
+```
+</comp.CodeBlock>
+
+This will update the value in the editor's data model and trigger a save. The change will be reflected in any open editing interface.
+
+## Read and write body content
+
+Body content is the part of a file that comes after the front matter (for example, the Markdown body of a blog post).
+
+Call `file.content.get()` to read it as a string, and `file.content.set()` to replace it:
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+const content = await file.content.get();
+await file.content.set(`${content}\n\nAppended paragraph.`);
+```
+</comp.CodeBlock>
+
+## Read and write raw source
+
+Call `file.get()` to read the entire raw source of a file (front matter and body together), and `file.set()` to replace it:
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+const raw = await file.get();
+await file.set(raw.replace('old text', 'new text'));
+```
+</comp.CodeBlock>
+
+Use this when you need access to the complete file rather than structured data or body content separately.
+
+## Read file metadata
+
+Call `file.metadata()` to get metadata about a file, such as its path and collection:
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+const meta = await file.metadata();
+console.log(meta);
+```
+</comp.CodeBlock>
+
+## Open the editor panel for a field
+
+Call `file.data.edit()` to open CloudCannon's editing panel for a specific field. This is useful when you want to let editors interact with a field through CloudCannon's standard interface from your custom integration:
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+file.data.edit({
+  slug: 'hero_image',
+  position: {
+    x: event.clientX,
+    y: event.clientY,
+    left: rect.left,
+    width: rect.width,
+    top: rect.top,
+    height: rect.height
+  }
+});
+```
+</comp.CodeBlock>
+
+The `position` object tells CloudCannon where to anchor the editing panel relative to the element.
+
+## Array operations
+
+The API provides methods to add, remove, and reorder items in array fields.
+
+### Add an item
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+await file.data.addArrayItem({
+  slug: 'items',
+  index: null,
+  value: { title: 'New item', description: '' }
+});
+```
+</comp.CodeBlock>
+
+Pass `index: null` to append to the end, or pass a number to insert at a specific position.
+
+### Remove an item
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+await file.data.removeArrayItem({
+  slug: 'items',
+  index: 2
+});
+```
+</comp.CodeBlock>
+
+### Move an item
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+await file.data.moveArrayItem({
+  fromSlug: 'items',
+  fromIndex: 0,
+  toIndex: 3
+});
+```
+</comp.CodeBlock>
+
+You can also move items between different arrays by specifying a `toSlug`.
+
+## File locking
+
+File locking prevents other editors from making changes to a file while your custom integration is working with it.
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+const lock = await file.claimLock();
+
+if (!lock.readOnly) {
+  // You have the lock — safe to make changes
+  await file.data.set({ slug: 'status', value: 'in-progress' });
+}
+
+await file.releaseLock();
+```
+</comp.CodeBlock>
+
+Call `claimLock()` before making changes, and `releaseLock()` when you are done.
