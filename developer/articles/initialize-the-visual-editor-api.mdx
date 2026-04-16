@@ -102,26 +102,14 @@ The *Visual Editor API* is available through `window.CloudCannonAPI` whenever yo
 
 ### Check if the *Visual Editor API* has loaded
 
-You can use the `window.CloudCannonAPI.useVersion('v1')` function
-
-&nbsp;
-
-There are two code paths to handle, depending on whether the API has already loaded by the time your script runs.
-
-&nbsp;
-
-&nbsp;
-
-&nbsp;
-
-If your script runs after the API has loaded, `window.CloudCannonAPI` will already exist. However, if your script run before the API is ready, you can listen for the `cloudcannon:load` event on `document`. We can combine these two paths into a single function.
+You can use the `window.CloudCannonAPI.useVersion('v1')` function to detect whether the API has already loaded by the time your script runs. If your script runs after the API has loaded, `window.CloudCannonAPI` will already exist. However, if your script run before the API is ready, you can listen for the `cloudcannon:load` event on `document`. We can combine these two paths into a single function.
 
 To check if the *Visual Editor API* has loaded:
 
 1. Open your website files in your local development environment.
-2. Add the following if statement to any scripts you want to run in the *Visual Editor*:
+2. Add the following file to your website's JavaScript files (the exact location depends on your SSG and project structure):
 
-<comp.CodeBlock language="javascript" source="src/cloudcannon-api.js">
+<comp.CodeBlock language="javascript" source="cloudcannon-api.js">
 ```
 export function withCloudCannonApi(callback) {
   const setup = (router) => {
@@ -142,67 +130,16 @@ export function withCloudCannonApi(callback) {
 }
 ```
 <comp.Annotation number="1">
-  All inputs are defined under the `_inputs` key.
+  Annotation
+</comp.Annotation>
+<comp.Annotation number="2">
+  Annotation
 </comp.Annotation>
 </comp.CodeBlock>
 
+This file needs to be included in your website's build output (so the browser can execute it) and importable by other scripts that call `withCloudCannonApi()`.
+
 This is one approach — you can adapt it to suit your project. For example, you could use `async`/`await` with a Promise, wrap it in a framework lifecycle hook, or inline it directly.
-
-&nbsp;
-
-There are two code paths to handle, depending on whether the API has already loaded by the time your script runs.
-
-### Check if the API is already available
-
-If your script runs after the API has loaded, `window.CloudCannonAPI` will already exist:
-
-<comp.CodeBlock language="javascript" source="script.js">
-```
-if (window.CloudCannonAPI) {
-  const api = window.CloudCannonAPI.useVersion('v1');
-  // Use the API
-}
-```
-</comp.CodeBlock>
-
-### Listen for the load event
-
-If your script runs before the API is ready, listen for the `cloudcannon:load` event on `document`:
-
-<comp.CodeBlock language="javascript" source="script.js">
-```
-document.addEventListener('cloudcannon:load', () => {
-  const api = window.CloudCannonAPI.useVersion('v1');
-  // Use the API
-}, { once: true });
-```
-</comp.CodeBlock>
-
-### A reusable helper
-
-Combine both paths into a single helper function that handles either case:
-
-<comp.CodeBlock language="javascript" source="src/cloudcannon-api.js">
-```
-export function withCloudCannonApi(callback) {
-  const setup = (router) => {
-    const api = router?.useVersion('v1');
-    if (api) callback(api);
-  };
-
-  if (window.CloudCannonAPI) {
-    setup(window.CloudCannonAPI);
-    return;
-  }
-
-  document.addEventListener(
-    'cloudcannon:load',
-    () => setup(window.CloudCannonAPI),
-    { once: true }
-  );
-}
-```
-</comp.CodeBlock>
 
 &nbsp;
 
