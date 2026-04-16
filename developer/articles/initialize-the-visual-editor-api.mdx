@@ -1,0 +1,309 @@
+---
+_schema: default
+_uuid: c2407e1f-4ba7-41b0-a5a3-69ac86cf3c41
+_created_at: '2026-04-16 00:00:00 +0000'
+details:
+  title: Initialize the Visual Editor API
+  description: >-
+    Install the Visual Editor API TypeScript types, initialize the API in your
+    site's JavaScript, and detect when your site is loaded in the Visual Editor.
+  image: >-
+    https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+  category:
+    - Instructions
+  related_articles:
+    - _type: developer_articles
+      item: 75b111c3-8905-46d4-aaf1-18ed767f7f43
+    - _type: developer_articles
+      item: 11b29768-6312-47fc-bc43-9a613d70e5f2
+    - _type: developer_articles
+      item: 64747bc3-c130-44d1-a871-53a9caffc25f
+author_notes:
+  docshots: Not applicable
+---
+<comp.Notice info_type="important">
+  The *Visual Editor API* is designed for advanced CloudCannon users. If you need help with custom integrations or your CloudCannon setup in general, please contact our friendly [support team](/support/).
+</comp.Notice>
+
+CloudCannon's *Visual Editor API* allows you to read and write content, listen for changes, and build custom editing interfaces in the <comp.GlossaryTerm term="/user/glossary/v/visual-editor.yml">Visual Editor</comp.GlossaryTerm>. This article covers how to set up and initialize the *Visual Editor API* in your website's JavaScript.
+
+This article assumes you have a CloudCannon *Site* with the *Visual Editor* configured. For more information, please read our documentation on [What is Visual Editing?](/documentation/developer-articles/what-is-visual-editing/).
+
+## Install the package
+
+The `@cloudcannon/javascript-api` package provides TypeScript declarations for the *Visual Editor API*. This package contains type definitions only — it does not include any runtime code. The actual API is provided by CloudCannon when your site loads in the *Visual Editor*.
+
+To install the package as a dev dependency:
+
+1. Open your local terminal and navigate to the root folder of your website project.
+2. Run the following command in your terminal:
+
+<comp.CodeBlock language="bash" source="Terminal">
+```
+npm install --save-dev @cloudcannon/javascript-api
+```
+</comp.CodeBlock>
+
+npm will install the type definitions for the *Visual Editor API*.
+
+## Detect the Visual Editor
+
+When you open a file in the *Visual Editor*, CloudCannon displays a preview of your webpage, along with a sidebar on the left. The preview of your webpage is generated when your SSG builds your source files into [output files](/documentation/developer-articles/what-is-an-output-file/). The *Visual Editor* displays exactly what your website visitors see on the Internet, and updates whenever you rebuild your *Site*.
+
+Your website can detect whether it is loaded in an internet browser or CloudCannon's *Visual Editor*, allowing you to run custom integrations built with the *Visual Editor API* in the *Visual Editor* but not on your live website. There are two ways to detect if a page is loaded in the *Visual Editor*, a CSS class or a JavaScript flag, which can be used in conjunction.
+
+### CSS class
+
+CloudCannon adds the `.cms-editor-active` class to the `<body>` element of your page when the *Visual Editor* sets up editing mode. You can use this class to show or hide elements with CSS alone, without any JavaScript.
+
+To use a CSS class to conditionally load elements in the *Visual Editor*:
+
+1. Open your website files in your local development environment.
+2. Add the following class definition to your CSS file:
+
+<comp.CodeBlock language="css" source="styles.css">
+```
+.example-class {
+  display: none;
+}
+
+.cms-editor-active .example-class {
+  display: block;
+}
+```
+</comp.CodeBlock>
+
+The element will appear in the *Visual Editor* after the iframe loads, and not on your live *Site*.
+
+### JavaScript flag
+
+When you open a file in the *Visual Editor*, CloudCannon injects a script that sets `window.inEditorMode` to `true` in the document before loading it into the iframe. This flag is available before any of your website's scripts execute. You can use this flag to conditionally run anything that requires logic — such as initializing the *Visual Editor API*.
+
+To run code in the *Visual Editor* with a JavaScript flag:
+
+1. Open your website files in your local development environment.
+2. Add the following if statement to any scripts you want to run in the *Visual Editor*:
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+if (window.inEditorMode) {
+  // Your Visual Editor API code here
+}
+```
+</comp.CodeBlock>
+
+## Initialize the API
+
+The *Visual Editor API* is available through `window.CloudCannonAPI` whenever you open a file in the *Visual Editor*. To use the API, you need to:
+
+* Check if the *Visual Editor API* has loaded in the *Visual Editor* (your website's scripts may have run faster),
+* Get the v1 API object,
+* AND, use the returned object to call API methods.
+
+### Check if the *Visual Editor API* has loaded
+
+You can use the `window.CloudCannonAPI.useVersion('v1')` function
+
+&nbsp;
+
+There are two code paths to handle, depending on whether the API has already loaded by the time your script runs.
+
+&nbsp;
+
+&nbsp;
+
+&nbsp;
+
+If your script runs after the API has loaded, `window.CloudCannonAPI` will already exist. However, if your script run before the API is ready, you can listen for the `cloudcannon:load` event on `document`. We can combine these two paths into a single function.
+
+To check if the *Visual Editor API* has loaded:
+
+1. Open your website files in your local development environment.
+2. Add the following if statement to any scripts you want to run in the *Visual Editor*:
+
+<comp.CodeBlock language="javascript" source="src/cloudcannon-api.js">
+```
+export function withCloudCannonApi(callback) {
+  const setup = (router) => {
+    const api = router?.useVersion('v1');
+    if (api) callback(api);
+  };
+
+  if (window.CloudCannonAPI) { ___1___
+    setup(window.CloudCannonAPI);
+    return;
+  }
+
+  document.addEventListener( ___2___
+    'cloudcannon:load',
+    () => setup(window.CloudCannonAPI),
+    { once: true }
+  );
+}
+```
+<comp.Annotation number="1">
+  All inputs are defined under the `_inputs` key.
+</comp.Annotation>
+</comp.CodeBlock>
+
+This is one approach — you can adapt it to suit your project. For example, you could use `async`/`await` with a Promise, wrap it in a framework lifecycle hook, or inline it directly.
+
+&nbsp;
+
+There are two code paths to handle, depending on whether the API has already loaded by the time your script runs.
+
+### Check if the API is already available
+
+If your script runs after the API has loaded, `window.CloudCannonAPI` will already exist:
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+if (window.CloudCannonAPI) {
+  const api = window.CloudCannonAPI.useVersion('v1');
+  // Use the API
+}
+```
+</comp.CodeBlock>
+
+### Listen for the load event
+
+If your script runs before the API is ready, listen for the `cloudcannon:load` event on `document`:
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+document.addEventListener('cloudcannon:load', () => {
+  const api = window.CloudCannonAPI.useVersion('v1');
+  // Use the API
+}, { once: true });
+```
+</comp.CodeBlock>
+
+### A reusable helper
+
+Combine both paths into a single helper function that handles either case:
+
+<comp.CodeBlock language="javascript" source="src/cloudcannon-api.js">
+```
+export function withCloudCannonApi(callback) {
+  const setup = (router) => {
+    const api = router?.useVersion('v1');
+    if (api) callback(api);
+  };
+
+  if (window.CloudCannonAPI) {
+    setup(window.CloudCannonAPI);
+    return;
+  }
+
+  document.addEventListener(
+    'cloudcannon:load',
+    () => setup(window.CloudCannonAPI),
+    { once: true }
+  );
+}
+```
+</comp.CodeBlock>
+
+&nbsp;
+
+### The second argument to useVersion
+
+The `useVersion()` method accepts an optional second argument. When set to `true`, it also assigns the returned API handler to `window.CloudCannon`:
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+const api = window.CloudCannonAPI.useVersion('v1', true);
+// api is now also available at window.CloudCannon
+```
+</comp.CodeBlock>
+
+Whether you need this depends on your setup. If your code only accesses the API through the returned object, you can omit it.
+
+## Handle missing files
+
+Not every page in the *Visual Editor* has an associated file. Wrap `currentFile()` in a `try`/`catch` to handle this gracefully:
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+withCloudCannonApi(async (api) => {
+  try {
+    const file = api.currentFile();
+    const data = await file.data.get();
+    console.log('Current file:', file.path);
+  } catch (error) {
+    console.warn('No active file available for this page.');
+  }
+});
+```
+</comp.CodeBlock>
+
+## Use TypeScript
+
+The `@cloudcannon/javascript-api` package provides type definitions you can use for autocomplete and type safety. Import the types for the window object and the API interface:
+
+<comp.CodeBlock language="typescript" source="src/cloudcannon-api.ts">
+```
+import type {
+  CloudCannonEditorWindow,
+  CloudCannonJavaScriptV1API
+} from '@cloudcannon/javascript-api';
+
+export function getCloudCannonApi(): CloudCannonJavaScriptV1API | null {
+  const win = window as CloudCannonEditorWindow;
+  return win.CloudCannonAPI?.useVersion('v1') ?? null;
+}
+```
+</comp.CodeBlock>
+
+You can use the file type for typed helper functions:
+
+<comp.CodeBlock language="typescript" source="src/helpers.ts">
+```
+import type { CloudCannonJavaScriptV1APIFile } from '@cloudcannon/javascript-api';
+
+export async function updateTitle(
+  file: CloudCannonJavaScriptV1APIFile,
+  title: string
+): Promise<void> {
+  await file.data.set({ slug: 'title', value: title });
+}
+```
+</comp.CodeBlock>
+
+## A complete minimal example
+
+This example initializes the API, reads the current file's title, and logs it:
+
+<comp.CodeBlock language="javascript" source="src/example.js">
+```
+function withCloudCannonApi(callback) {
+  const setup = (router) => {
+    const api = router?.useVersion('v1');
+    if (api) callback(api);
+  };
+
+  if (window.CloudCannonAPI) {
+    setup(window.CloudCannonAPI);
+    return;
+  }
+
+  document.addEventListener(
+    'cloudcannon:load',
+    () => setup(window.CloudCannonAPI),
+    { once: true }
+  );
+}
+
+withCloudCannonApi(async (api) => {
+  try {
+    const file = api.currentFile();
+    const data = await file.data.get();
+    console.log('Current page title:', data?.title);
+  } catch (error) {
+    console.warn('No active file available for this page.');
+  }
+});
+```
+</comp.CodeBlock>
+
+Once you have the API initialized, you can [read and write data](/documentation/developer-articles/read-and-write-data-with-the-visual-editor-api/), [listen for changes](/documentation/developer-articles/listen-for-changes-with-the-visual-editor-api/), [work with Collections and Datasets](/documentation/developer-articles/work-with-collections-and-datasets-using-the-visual-editor-api/), or [create custom editing interfaces](/documentation/developer-articles/create-custom-editing-interfaces-with-the-visual-editor-api/).
