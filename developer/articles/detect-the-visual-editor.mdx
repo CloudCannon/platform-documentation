@@ -1,0 +1,70 @@
+---
+_schema: default
+_uuid: 4f2e9a7b-c831-4d56-ae20-5b3f8c1d9e72
+_created_at: '2026-04-17 00:00:00 +0000'
+details:
+  title: Detect the Visual Editor
+  description: >-
+    Detect when your site is loaded in CloudCannon's Visual Editor using a CSS
+    class or JavaScript flag.
+  image: >-
+    https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+  category:
+    - Instructions
+  related_articles:
+    - _type: developer_articles
+      item: 75b111c3-8905-46d4-aaf1-18ed767f7f43
+    - _type: developer_articles
+      item: c2407e1f-4ba7-41b0-a5a3-69ac86cf3c41
+author_notes:
+  docshots: Not applicable
+---
+<comp.Notice info_type="important">
+  The *Visual Editor API* is designed for advanced CloudCannon users. If you need help, please [contact our support team](/support/).
+</comp.Notice>
+
+Your website can detect whether it is loaded in an internet browser or CloudCannon's *Visual Editor*, allowing you to show or hide content and run custom integrations in the *Visual Editor* but not on your live *Site*. There are two ways to detect if a page is loaded in the *Visual Editor*: a CSS class or a JavaScript flag. You can use either method, or both in conjunction.
+
+This article assumes you have a CloudCannon *Site* with the *Visual Editor* configured. For more information, please read our documentation on [What is Visual Editing?](/documentation/developer-articles/what-is-visual-editing/).
+
+## CSS class
+
+CloudCannon adds the `.cms-editor-active` class to the `<body>` element of your page when the *Visual Editor* sets up editing mode. You can use this class to show or hide elements with CSS alone, without any JavaScript.
+
+To use a CSS class to conditionally show elements in the *Visual Editor*:
+
+1. Open your website files in your local development environment.
+2. Add the following class definition to your CSS file:
+
+<comp.CodeBlock language="css" source="styles.css">
+```
+.example-class {
+  display: none;
+}
+
+.cms-editor-active .example-class {
+  display: block;
+}
+```
+</comp.CodeBlock>
+
+The element will appear in the *Visual Editor* after the iframe loads, and not on your live *Site*.
+
+## JavaScript flag
+
+When you open a file in the *Visual Editor*, CloudCannon injects a script that sets `window.inEditorMode` to `true` in the document before loading it into the iframe. This flag is available before any of your website's scripts execute. You can use this flag to conditionally run anything that requires logic — such as initializing the *Visual Editor API*.
+
+To run code in the *Visual Editor* with a JavaScript flag:
+
+1. Open your website files in your local development environment.
+2. Add the following if statement to any scripts you want to run in the *Visual Editor*:
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+if (window.inEditorMode) {
+  // Your Visual Editor API code here
+}
+```
+</comp.CodeBlock>
+
+Once you can detect the *Visual Editor*, you can [initialize the *Visual Editor API*](/documentation/developer-articles/initialize-the-visual-editor-api/) to read and write content, listen for changes, and build custom editing interfaces.

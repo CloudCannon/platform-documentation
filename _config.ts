@@ -355,14 +355,13 @@ site.use(feed({
   },
 }));
 
-site.loadPages(
-  [".md"],
-  ((page: Lume.Page) => {
-    if (page.src.path.startsWith("user/glossary/")) {
+site.preprocess([".md"], (pages) => {
+  for (const page of pages) {
+    if (page.src?.path?.startsWith("/user/glossary/")) {
       page.data.collection = "glossary";
     }
-  }) as unknown as undefined,
-);
+  }
+});
 
 // JSX doesn't like to output some alpine attributes,
 // so we write them with an `alpine` prefix and re-map them here.
