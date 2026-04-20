@@ -31,7 +31,7 @@ This article assumes you know how to [detect the *Visual Editor*](/documentation
 
 ## Install the package
 
-The `@cloudcannon/javascript-api` package provides TypeScript declarations for the *Visual Editor API*. This package contains type definitions only — it does not include any runtime code. The actual API is provided by CloudCannon when your site loads in the *Visual Editor*.
+The `@cloudcannon/javascript-api` package provides TypeScript declarations for the *Visual Editor API*. This package contains type definitions only — it does not include any runtime code. The actual API is provided by CloudCannon when your website loads in the *Visual Editor*.
 
 To install the package as a dev dependency:
 
@@ -78,6 +78,10 @@ export async function updateTitle(
 }
 ```
 </comp.CodeBlock>
+
+Keep `cloudcannon-api.ts` as the single place in your project that accesses `window.CloudCannonAPI` — other files should import `getCloudCannonApi()` from it rather than reading from `window` directly. Typed helpers like `updateTitle` above should accept typed API objects as parameters rather than calling `getCloudCannonApi()` themselves, so they work regardless of when the API is ready.
+
+For larger projects, consider organizing helpers into separate files by feature area — for example, `src/cloudcannon/content.ts` and `src/cloudcannon/data.ts` — rather than keeping everything in a single `helpers.ts`.
 
 ## Initialize the API
 
