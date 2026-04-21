@@ -1,0 +1,79 @@
+---
+_schema: default
+_uuid: a3f1d2e8-5b6c-4e7f-9a0b-1c2d3e4f5a6b
+_created_at: '2026-04-21 00:00:00 +0000'
+details:
+  title: Access files, Collections, and *Dataset*s with the Visual Editor API
+  description: >-
+    Access files, Collections, and *Dataset*s through the Visual Editor API using
+    currentFile(), file(), collection(), and *Dataset*().
+  image: >-
+    https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+  category:
+    - Instructions
+  related_articles:
+    - _type: developer_articles
+      item: c2407e1f-4ba7-41b0-a5a3-69ac86cf3c41
+    - _type: developer_articles
+      item: 11b29768-6312-47fc-bc43-9a613d70e5f2
+    - _type: developer_articles
+      item: d0c914cf-d151-4e3e-a02b-7cf017528d19
+author_notes:
+  docshots: Not applicable
+---
+<comp.Notice info_type="important">
+  The *Visual Editor API* is designed for advanced CloudCannon users. If you need help with custom integrations or your CloudCannon setup in general, please contact our friendly [support team](/support/).
+</comp.Notice>
+
+CloudCannon's *Visual Editor API* exposes three types of objects you can interact with: files, <comp.GlossaryTerm term="/user/glossary/c/collection.yml">Collections</comp.GlossaryTerm>, and **Dataset*s*. This article covers how to access each one.
+
+This article assumes you know how to [initialize the Visual Editor API](/documentation/developer-articles/initialize-the-visual-editor-api/).
+
+## Access a file
+
+You can access your website files via the *Visual Editor API* in two ways: `currentFile()`, which returns the file currently open in the *Visual Editor*, or `file(path)`, which returns a specific file by its source path regardless of what is currently open in the *Visual Editor*.
+
+Both functions return a file object with the same interface.
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+const current = api.currentFile(); /*1*/
+const specific = api.file('content/pages/about.md'); /*2*/
+```
+<comp.Annotation number="1">
+  Call `currentFile()` to access the file currently open in the *Visual Editor*.
+</comp.Annotation>
+<comp.Annotation number="2">
+  Call `file()` with a source path to access a specific file, regardless of which page is currently open in the *Visual Editor*.
+</comp.Annotation>
+</comp.CodeBlock>
+
+<comp.Notice info_type="info">
+  Not every page in the *Visual Editor* has an associated file. If `currentFile()` is called for a page without an associated file, it will throw an error. Wrap `currentFile()` in a `try`/`catch` block to handle this gracefully.
+</comp.Notice>
+
+## Access a Collection
+
+A [Collection](/documentation/developer-articles/configure-your-collections/) is a folder of files with a similar format, defined under `collections_config` in your *CloudCannon Configuration File*. Calling `api.collection()` allows you to access a *Collection* by passing its key.
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+const posts = api.collection('posts'); /*1*/
+```
+<comp.Annotation number="1">
+  Pass a *Collection* key to `api.collection()` to get a collection object.
+</comp.Annotation>
+</comp.CodeBlock>
+
+## Access a *Dataset*
+
+A [Dataset](/documentation/developer-articles/define-your-data/) is a structured data file or folder defined under `data_config` in your *CloudCannon Configuration File* — for example, navigation links, locale strings, or site settings. Calling `api.dataset()` allows you to access a **Dataset** by passing its key.
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+const locales = api.dataset('locales'); /*1*/
+```
+<comp.Annotation number="1">
+  Pass a **Dataset** key to `api.dataset()` to get a dataset object.
+</comp.Annotation>
+</comp.CodeBlock>

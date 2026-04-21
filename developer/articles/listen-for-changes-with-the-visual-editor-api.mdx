@@ -5,7 +5,7 @@ _created_at: '2026-04-16 00:00:00 +0000'
 details:
   title: Listen for changes with the Visual Editor API
   description: >-
-    Subscribe to change and delete events on files, Collections, and Datasets
+    Subscribe to change and delete events on files, Collections, and *Dataset*s
     using the Visual Editor API to keep your custom integration in sync.
   image: >-
     https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
@@ -22,121 +22,250 @@ author_notes:
   docshots: Not applicable
 ---
 <comp.Notice info_type="important">
-  The *Visual Editor API* is designed for advanced CloudCannon users. If you need help, please [contact our support team](/support/).
+  The *Visual Editor API* is designed for advanced CloudCannon users. If you need help with custom integrations or your CloudCannon setup in general, please contact our friendly [support team](/support/).
 </comp.Notice>
 
-This article covers how to listen for content changes using the *Visual Editor API*. All examples assume you have already [initialized the API](/documentation/developer-articles/initialize-the-visual-editor-api/).
+CloudCannon's *Visual Editor API* allows you to read and write content, listen for changes, and build custom editing interfaces in the <comp.GlossaryTerm term="/user/glossary/v/visual-editor.yml">Visual Editor</comp.GlossaryTerm>. This article covers how to listen for content changes using the *Visual Editor API*.
 
-## Event types
+This article assumes you know how to [initialize the Visual Editor API](/documentation/developer-articles/initialize-the-visual-editor-api/) and [access a file](/documentation/developer-articles/access-files-collections-and-datasets-with-the-visual-editor-api/).
 
-The *Visual Editor API* supports two event types:
+## Event types and scopes
 
-- `change` — fired when data is created or updated.
-- `delete` — fired when a file is deleted.
+You can listen to two types of events using the *Visual Editor API*: `change`, which fires when data is created or updated, or `delete`, which fires when a file is deleted. Both use the standard `addEventListener` and `removeEventListener` interface from `EventTarget`.
 
-Both use the standard `addEventListener` and `removeEventListener` interface from `EventTarget`.
+You can also attach listeners at multiple levels, depending on how broad or narrow you need your events to be, including root, file, data, content, *Collection*, and *Dataset*.
 
-## Listen at different scopes
+### Root level events
 
-You can attach listeners at multiple levels, depending on how broad or narrow you need your events to be.
-
-### Root level
-
-Listen on the API object itself to receive events for any change across the entire <comp.GlossaryTerm term="/user/glossary/s/site.yml">Site</comp.GlossaryTerm>:
+Calling `api.addEventListener()` on the API object allows you to receive events for any change across your entire *Site*.
 
 <comp.CodeBlock language="javascript" source="script.js">
 ```
-api.addEventListener('change', () => {
+api.addEventListener('change', () => { /*1*/
   console.log('Something changed');
 });
 ```
+<comp.Annotation number="1">
+  Call `addEventListener()` with `'change'` to listen for any create or update event across your entire *Site*.
+</comp.Annotation>
 </comp.CodeBlock>
 
-### File level
+### File level events
 
-Listen on a specific file object to receive events only for that file:
+You can listen to a specific file object using `*.addEventListener()` to receive events for that file only.
 
 <comp.CodeBlock language="javascript" source="script.js">
 ```
-const file = api.currentFile();
+const file = api.currentFile(); /*1*/
 
-file.addEventListener('change', () => {
+file.addEventListener('change', () => { /*2*/
   console.log('Current file changed');
 });
 
-file.addEventListener('delete', () => {
+file.addEventListener('delete', () => { /*3*/
   console.log('Current file was deleted');
 });
 ```
+<comp.Annotation number="1">
+  Create a `file` variable to access the file currently open in the *Visual Editor* using `currentFile()`.
+</comp.Annotation>
+<comp.Annotation number="2">
+  Call `addEventListener()` with `'change'` to listen for create or update events on `file`.
+</comp.Annotation>
+<comp.Annotation number="3">
+  Call `addEventListener()` with `'delete'` to listen for delete events on `file`.
+</comp.Annotation>
 </comp.CodeBlock>
 
-### File data and content
+### File data or content events
 
-Listen on `file.data` or `file.content` to narrow events further:
+You can listen for events from specific parts of a file, such as using `*.data.addEventListener()` for structured data in the Front Matter, or `*.content.addEventListener()` for the body content of a file.
 
 <comp.CodeBlock language="javascript" source="script.js">
 ```
-const file = api.currentFile();
+const file = api.currentFile(); /*1*/
 
-file.data.addEventListener('change', () => {
-  console.log('Front matter changed');
+file.data.addEventListener('change', () => { /*2*/
+  console.log('Front Matter changed');
 });
 
-file.content.addEventListener('change', () => {
+file.content.addEventListener('change', () => { /*3*/
   console.log('Body content changed');
 });
 ```
+<comp.Annotation number="1">
+  Create a `file` variable to access the file currently open in the *Visual Editor* using `currentFile()`.
+</comp.Annotation>
+<comp.Annotation number="2">
+  Call `file.data.addEventListener()` to listen for changes to the structured data in `file`.
+</comp.Annotation>
+<comp.Annotation number="3">
+  Call `file.content.addEventListener()` to listen for changes to the body content in `file`.
+</comp.Annotation>
 </comp.CodeBlock>
 
-### Collection and Dataset level
+### Collection and *Dataset* level
 
-Listen on a <comp.GlossaryTerm term="/user/glossary/c/collection.yml">Collection</comp.GlossaryTerm> or *Dataset* to receive events for any file within it:
+Calling `.addEventListener()` on a <comp.GlossaryTerm term="/user/glossary/c/collection.yml">Collection</comp.GlossaryTerm> or *Dataset* allows you to receive events for any file within it.
+
+For more information about how *Collections* and *Datasets* work with the *Visual Editor API*, please read our documentation [Work with Collections and Datasets using the Visual Editor API](/documentation/developer-articles/work-with-collections-and-datasets-using-the-visual-editor-api/).
 
 <comp.CodeBlock language="javascript" source="script.js">
 ```
-const posts = api.collection('posts');
+const posts = api.collection('posts'); /*1*/
 
-posts.addEventListener('change', () => {
+posts.addEventListener('change', () => { /*2*/
   console.log('A post was created or updated');
 });
 
-posts.addEventListener('delete', () => {
+posts.addEventListener('delete', () => { /*3*/
   console.log('A post was deleted');
 });
 ```
+<comp.Annotation number="1">
+  Create a `posts` variable to access the `posts` *Collection*.
+</comp.Annotation>
+<comp.Annotation number="2">
+  Call `addEventListener()` with `'change'` to listen for create or update events on any file in the *Collection*.
+</comp.Annotation>
+<comp.Annotation number="3">
+  Call `addEventListener()` with `'delete'` to listen for delete events on any file in the *Collection*.
+</comp.Annotation>
 </comp.CodeBlock>
-
-## Update your interface on change
-
-A common pattern is to re-render your custom interface whenever data changes:
 
 <comp.CodeBlock language="javascript" source="script.js">
 ```
-const refresh = async () => {
+const locales = api.dataset('locales'); /*1*/
+
+locales.addEventListener('change', () => { /*2*/
+  console.log('A locale was created or updated');
+});
+
+locales.addEventListener('delete', () => { /*3*/
+  console.log('A locale was deleted');
+});
+```
+<comp.Annotation number="1">
+  Create a `locales` variable to access the `locales` *Dataset*.
+</comp.Annotation>
+<comp.Annotation number="2">
+  Call `addEventListener()` with `'change'` to listen for create or update events on any file in the *Dataset*.
+</comp.Annotation>
+<comp.Annotation number="3">
+  Call `addEventListener()` with `'delete'` to listen for delete events on any file in the *Dataset*.
+</comp.Annotation>
+</comp.CodeBlock>
+
+## Update your custom integration after a change
+
+A common pattern is to re-render your custom integration whenever data changes. Listening for both `change` and `delete` events ensures your integration stays in sync regardless of what the user does.
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+const refresh = async () => { /*1*/
   const file = api.currentFile();
   const data = await file.data.get();
   renderPreview(data);
 };
 
-api.addEventListener('change', refresh);
-api.addEventListener('delete', refresh);
+api.addEventListener('change', refresh); /*2*/
+api.addEventListener('delete', refresh); /*3*/
 ```
+<comp.Annotation number="1">
+  Define a `refresh` function that reads the current file's data and re-renders your custom interface. `renderPreview` is a placeholder for whatever rendering your integration does — for example, updating a live preview or refreshing a component tree.
+</comp.Annotation>
+<comp.Annotation number="2">
+  Call `refresh` whenever data is created or updated.
+</comp.Annotation>
+<comp.Annotation number="3">
+  Call `refresh` whenever a file is deleted. This handles cases where the current file is removed while the editor has it open.
+</comp.Annotation>
+</comp.CodeBlock>
+
+If your interface re-renders frequently — for example, on every keystroke — consider debouncing `refresh` to avoid unnecessary work.
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+const debounce = (fn, ms) => { /*1*/
+  let timer;
+  return (...args) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn(...args), ms);
+  };
+};
+
+const refresh = debounce(async () => { /*2*/
+  const file = api.currentFile();
+  const data = await file.data.get();
+  renderPreview(data);
+}, 200);
+
+api.addEventListener('change', refresh);
+```
+<comp.Annotation number="1">
+  A simple debounce utility that delays execution until the function stops being called for a given number of milliseconds.
+</comp.Annotation>
+<comp.Annotation number="2">
+  Wrap `refresh` with `debounce()` so it only fires after 200ms of inactivity, rather than on every individual change event.
+</comp.Annotation>
 </comp.CodeBlock>
 
 ## Clean up listeners
 
-Remove event listeners when your custom integration is no longer active to avoid memory leaks and unexpected behavior:
+Remove event listeners when your custom integration is no longer active to avoid memory leaks and unexpected behavior. Always store your listener in a variable so you can pass the same reference to `removeEventListener`.
 
 <comp.CodeBlock language="javascript" source="script.js">
 ```
-const onChange = () => { /* ... */ };
+const onChange = () => { /* ... */ }; /*1*/
 
-api.addEventListener('change', onChange);
+api.addEventListener('change', onChange); /*2*/
 
-window.addEventListener('beforeunload', () => {
+window.addEventListener('beforeunload', () => { /*3*/
   api.removeEventListener('change', onChange);
 });
 ```
+<comp.Annotation number="1">
+  Store your listener in a variable so you can reference it when removing it. Passing an inline arrow function to `removeEventListener` will not work, as it will not match the original function reference.
+</comp.Annotation>
+<comp.Annotation number="2">
+  Register the listener on the API object.
+</comp.Annotation>
+<comp.Annotation number="3">
+  Remove the listener when the page is about to unload.
+</comp.Annotation>
 </comp.CodeBlock>
 
-If you are building with a framework, clean up listeners in the appropriate lifecycle hook (for example, `useEffect` cleanup in React, or `onUnmounted` in Vue).
+If you are building with a framework, clean up listeners in the appropriate lifecycle hook.
+
+<comp.CodeBlock language="javascript" source="React">
+```
+useEffect(() => {
+  withCloudCannonApi((api) => {
+    const onChange = () => { /* ... */ };
+    api.addEventListener('change', onChange);
+    return () => api.removeEventListener('change', onChange); /*1*/
+  });
+}, []);
+```
+<comp.Annotation number="1">
+  Return a cleanup function from `useEffect` to remove the listener when the component unmounts.
+</comp.Annotation>
+</comp.CodeBlock>
+
+<comp.CodeBlock language="javascript" source="Vue">
+```
+onMounted(() => {
+  withCloudCannonApi((api) => {
+    onChange = () => { /* ... */ };
+    api.addEventListener('change', onChange);
+  });
+});
+
+onUnmounted(() => {
+  api?.removeEventListener('change', onChange); /*1*/
+});
+```
+<comp.Annotation number="1">
+  Call `removeEventListener` in `onUnmounted` to clean up the listener when the component is destroyed.
+</comp.Annotation>
+</comp.CodeBlock>
