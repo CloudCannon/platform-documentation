@@ -48,23 +48,52 @@ npm will install the type definitions for the *Visual Editor API*.
 
 ### Use TypeScript
 
-The `@cloudcannon/javascript-api` package provides type definitions you can use for autocomplete and type safety. Import the types for the window object and the API interface:
+After you install `@cloudcannon/javascript-api`, its declaration files live under `node_modules`. Your <comp.GlossaryTerm term="/user/glossary/i/ide.yml">IDE</comp.GlossaryTerm> uses them whenever the TypeScript language service analyzes a file that imports from that package or references those types.
+
+<comp.Notice info_type="info">
+  *IDE* type checking still needs a normal TypeScript project: install `typescript` as a dev dependency if you have not already.
+</comp.Notice>
+
+The package alone does not teach TypeScript that `window` includes `CloudCannonAPI`. Default `Window` typings omit CloudCannon’s globals, so a raw `window.CloudCannonAPI` reference is often flagged as an error or widened to `any`. You can address this by adding a helper module to import the CloudCannon types, perform one cast, and export `getCloudCannonApi()`. You can then import `getCloudCannonApi()` from the rest of your code so autocomplete and errors follow the *Visual Editor API* while you work.
+
+To create the helper file:
+
+1. Open your website files in your local development environment.
+2. Create a TypeScript file in your project (for example, `src/cloudcannon-api.ts`).
+3. Add the following code:
 
 <comp.CodeBlock language="typescript" source="src/cloudcannon-api.ts">
 ```
-import type {
+import type { /*1*/
   CloudCannonEditorWindow,
   CloudCannonJavaScriptV1API
 } from '@cloudcannon/javascript-api';
 
-export function getCloudCannonApi(): CloudCannonJavaScriptV1API | null {
-  const win = window as CloudCannonEditorWindow;
-  return win.CloudCannonAPI?.useVersion('v1') ?? null;
+export function getCloudCannonApi(): CloudCannonJavaScriptV1API | null { /*2*/
+  const win = window as CloudCannonEditorWindow; /*3*/
+  return win.CloudCannonAPI?.useVersion('v1') ?? null; /*4*/
 }
 ```
+<comp.Annotation number="1">
+  `import type` pulls the TypeScript declarations from `@cloudcannon/javascript-api`.
+</comp.Annotation>
+<comp.Annotation number="2">
+  The function promises either a `CloudCannonJavaScriptV1API` instance (the object returned by `useVersion('v1')`) or `null` when the preview has not injected `window.CloudCannonAPI` yet, including outside the *Visual Editor*.
+</comp.Annotation>
+<comp.Annotation number="3">
+  Standard `Window` typings do not list `CloudCannonAPI`. Casting to `CloudCannonEditorWindow` tells TypeScript that this global may include CloudCannon’s router in the preview document.
+</comp.Annotation>
+<comp.Annotation number="4">
+  `?.` skips the call when `CloudCannonAPI` is missing. `useVersion('v1')` returns the v1 handler or `undefined`; `?? null` normalizes that to `null` so callers always receive an object or `null`, never `undefined`.
+</comp.Annotation>
 </comp.CodeBlock>
 
-You can use the file type for typed helper functions:
+When a helper needs a file handle, import `CloudCannonJavaScriptV1APIFile` and accept that type as a parameter. That way helpers stay testable and do not reach back into `window` for the API or the active file.
+
+To add an example helper:
+
+1. Create `src/helpers.ts` in your project, or open it if it already exists.
+2. Add helpers such as the following. Pass file handles in as parameters instead of calling `getCloudCannonApi()` or `currentFile()` inside every helper.
 
 <comp.CodeBlock language="typescript" source="src/helpers.ts">
 ```
@@ -79,7 +108,7 @@ export async function updateTitle(
 ```
 </comp.CodeBlock>
 
-Keep `cloudcannon-api.ts` as the single place in your project that accesses `window.CloudCannonAPI` — other files should import `getCloudCannonApi()` from it rather than reading from `window` directly. Typed helpers like `updateTitle` above should accept typed API objects as parameters rather than calling `getCloudCannonApi()` themselves, so they work regardless of when the API is ready.
+Typed helpers like `updateTitle` above should accept typed API objects as parameters rather than calling `getCloudCannonApi()` themselves, so they stay easy to test and work regardless of when the API is ready.
 
 For larger projects, consider organizing helpers into separate files by feature area — for example, `src/cloudcannon/content.ts` and `src/cloudcannon/data.ts` — rather than keeping everything in a single `helpers.ts`.
 
@@ -93,7 +122,7 @@ The *Visual Editor API* is available through `window.CloudCannonAPI` whenever yo
 
 You can detect whether the API has already loaded by the time your script runs by checking whether `window.CloudCannonAPI` already exists; if not, it listens for the `cloudcannon:load` event on `document`.
 
-To initialize the *Visual Editor API*:
+To initialize the *Visual Editor API* in your JavaScript:
 
 1. Open your website files in your local development environment.
 2. Add a helper function to your JavaScript that runs a callback once the API is ready. 

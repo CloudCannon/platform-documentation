@@ -3,14 +3,15 @@ _schema: default
 _uuid: d0c914cf-d151-4e3e-a02b-7cf017528d19
 _created_at: '2026-04-16 00:00:00 +0000'
 details:
-  title: Work with Collections and *Dataset*s using the Visual Editor API
+  title: Work with Collections and Datasets using the Visual Editor API
   description: >-
-    Access Collections and *Dataset*s through the Visual Editor API. Enumerate
-    files, read data across a Collection, and listen for changes.
+    Learn about listing files in Collections and Datasets, filtering across
+    members, site-wide file and Collection helpers, and type guards with the
+    Visual Editor API in CloudCannon.
   image: >-
     https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
   category:
-    - Instructions
+    - Explanation
   related_articles:
     - _type: developer_articles
       item: 11b29768-6312-47fc-bc43-9a613d70e5f2
@@ -31,9 +32,11 @@ This article assumes you know how to [initialize the Visual Editor API](/documen
 
 ## List files
 
-You can programatically list all file in a *COllection* or *Dataset
+The *Visual Editor API* allows you to programmatically list all files in a *Collection* or *Dataset* using the `*.items()` function, or list all files and *Collections* across your *Site* using `api.files()` and `api.collections()`.
 
-You can call `*.items()` on a *Collection* to return an array of file objects.
+### Items in a *Collection*
+
+A [Collection](/documentation/developer-articles/configure-your-collections/) is a folder of files with a similar format, defined under `collections_config` in your *CloudCannon Configuration File*. Calling `*.items()` on a *Collection* key will return an array of file objects (*Collections* are always configured with a folder path).
 
 <comp.CodeBlock language="javascript" source="script.js">
 ```
@@ -56,9 +59,9 @@ for (const file of files) { /*3*/
 </comp.Annotation>
 </comp.CodeBlock>
 
-## List files in a *Dataset*
+### Items in a *Dataset*
 
-Calling `items()` on a dataset object returns either a single file object or an array, depending on how the *Dataset* is configured.
+A [Dataset](/documentation/developer-articles/define-your-data/) is a structured data file or folder defined under `data_config` in your *CloudCannon Configuration File*. Calling `items()` on a *Dataset* object returns either a single file object or an array, depending on whether the *Dataset* is a single file path or a folder path in your *CloudCannon Configuration File*.
 
 <comp.CodeBlock language="javascript" source="script.js">
 ```
@@ -73,9 +76,9 @@ const items = await locales.items(); /*2*/
 </comp.Annotation>
 </comp.CodeBlock>
 
-## List all files and Collections
+### All files and Collections in a *Site*
 
-The API provides methods to enumerate all files and *Collections* available in your *Site*.
+Calling `api.files()` or `api.collections()` allows you to list all the files or *Collections* across your *Site* in an array.
 
 <comp.CodeBlock language="javascript" source="script.js">
 ```
@@ -97,10 +100,11 @@ for (const collection of allCollections) { /*3*/
 </comp.Annotation>
 </comp.CodeBlock>
 
+## Filter files
 
-## Filter Collection files
+Because the `items()` function returns an array of file objects for *Collections* or folder-based *Datasets*, you can filter the array using standard JavaScript.
 
-Since `items()` returns an array of file objects, you can filter them using standard JavaScript.
+ This works for *Collections* and for folder-based *Datasets* — if a *Dataset* is configured as a single file, `items()` returns a single file object rather than an array.
 
 <comp.CodeBlock language="javascript" source="script.js">
 ```
@@ -127,10 +131,34 @@ for (const file of files) {
 </comp.Annotation>
 </comp.CodeBlock>
 
+<comp.CodeBlock language="javascript" source="script.js">
+```
+const locales = api.dataset('locales'); /*1*/
+const items = await locales.items(); /*2*/
+const active = []; /*3*/
+
+for (const file of items) {
+  const data = await file.data.get();
+  if (data?.active) active.push(file); /*4*/
+}
+```
+<comp.Annotation number="1">
+  Create a `locales` variable to access the `locales` *Dataset*. This example assumes the *Dataset* is configured as a folder, so `items()` returns an array.
+</comp.Annotation>
+<comp.Annotation number="2">
+  Get all files in the *Dataset* as an array.
+</comp.Annotation>
+<comp.Annotation number="3">
+  Create an empty array to hold the filtered results.
+</comp.Annotation>
+<comp.Annotation number="4">
+  Read the structured data for each file, and add files with an `active` field set to `true` to the results array.
+</comp.Annotation>
+</comp.CodeBlock>
 
 ## Type guards
 
-The API provides type guard functions to check whether an object is a file, *Collection*, or *Dataset*.
+The *Visual Editor API* provides the `api.isAPIFile()`, `api.isAPICollection()`, and `api.isAPIDataset()` type guard functions to check whether an object is a file, *Collection*, or *Dataset*. These are useful when working with mixed results or when you need to narrow the type of an object before calling methods on it.
 
 <comp.CodeBlock language="javascript" source="script.js">
 ```
@@ -156,5 +184,3 @@ if (api.isAPIDataset(obj)) { /*3*/
   `isAPIDataset()` returns `true` if `obj` is a dataset object.
 </comp.Annotation>
 </comp.CodeBlock>
-
-These are useful when working with mixed results or when you need to narrow the type of an object before calling methods on it.
