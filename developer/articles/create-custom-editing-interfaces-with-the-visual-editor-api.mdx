@@ -19,17 +19,160 @@ details:
     - _type: developer_articles
       item: d0c914cf-d151-4e3e-a02b-7cf017528d19
 author_notes:
-  docshots: Needs docshots
+  docshots: Not applicable
 ---
 <comp.Notice info_type="important">
   The *Visual Editor API* is designed for advanced CloudCannon users. If you need help with custom integrations or your CloudCannon setup in general, please contact our friendly [support team](/support/).
 </comp.Notice>
 
-This article covers how to build custom editing interfaces using the *Visual Editor API*. All examples assume you have already [initialized the API](/documentation/developer-articles/initialize-the-visual-editor-api/).
+CloudCannon's *Visual Editor API* allows you to read and write content, listen for changes, and build custom editing interfaces in the <comp.GlossaryTerm term="/user/glossary/v/visual-editor.yml">Visual Editor</comp.GlossaryTerm>. This article covers how to build custom editing interfaces using the *Visual Editor API*.
 
-## Create an inline editable region
+This article assumes you know how to [initialize the Visual Editor API](/documentation/developer-articles/initialize-the-visual-editor-api/) and [access a Collection or Dataset](/documentation/developer-articles/access-files-collections-and-datasets-with-the-visual-editor-api/).
 
-Calling `createTextEditableRegion()` allows you to make any HTML element inline-editable. This is the same mechanism that powers CloudCannon's `data-editable` attribute.
+## Custom *Data Panels*
+
+CloudCannon's *Visual Editor* uses *Data Panels* to edit structured values that are not visible as inline content on your webpage preview — for example, image paths, alt text, or other front matter fields tied to an *Editable Region*. A *Data Panel* opens as a floating layer over the preview so you can move it out of the way while you work.
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Visual-Editor-Bookshop-Sendit-Home-Data-Panel" alt="A screenshot of the Visual Editor displays a webpage preview with a data panel containing inputs open over top." title="The Visual Editor with data panel" type="screenshot"/>
+
+You can open and close your own custom *Data Panels* with the `api.createCustomDataPanel()` and `api.destroyCustomDataPanel()` functions, and control the position of the *Data Panel* using additional options for `api.createCustomDataPanel()`. Custom *Data Panels* support CloudCannon <comp.GlossaryTerm term="/user/glossary/i/input.yml">Inputs</comp.GlossaryTerm>, providing an editing interface for your custom integration.
+
+For more information on *Inputs*, including how to configure them, please read our documentation for each *Input* type:
+
+- [Array Inputs](/documentation/developer-articles/configure-an-array-input/)
+- [Boolean Inputs](/documentation/developer-articles/configure-a-boolean-input/)
+- [Code Inputs](/documentation/developer-articles/configure-a-code-input/)
+- [Color Inputs](/documentation/developer-articles/configure-a-color-input/)
+- [Date or time Inputs](/documentation/developer-articles/configure-a-date-or-time-input/)
+- [File Inputs](/documentation/developer-articles/configure-a-file-input/)
+- [Number Inputs](/documentation/developer-articles/configure-a-number-input/)
+- [Object Inputs](/documentation/developer-articles/configure-an-object-input/)
+- [Rich text Inputs](/documentation/developer-articles/configure-a-rich-text-input/)
+- [Select Inputs](/documentation/developer-articles/configure-a-select-input/)
+- [Text Inputs](/documentation/developer-articles/configure-a-text-input/)
+- [URL Inputs](/documentation/developer-articles/configure-a-url-input/)
+
+### Create a custom *Data Panel*
+
+Calling `createCustomDataPanel()` opens a *Data Panel*. You can control the heading on the panel with the `title` option, and which *Inputs* appear in the panel with the `data` and `config` options. The `data` option defines the name and default value of each *Input*, while the `config` option defines the functionality of each *Input*, following the same formatting rules as *Input* configuration in the *CloudCannon Configuration File*.
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+const panelId = await api.createCustomDataPanel({ /*1*/
+  title: 'Hero settings', /*2*/
+  data: { /*3*/
+    heading: 'Welcome',
+    show_cta: true
+  },
+  config: { /*4*/
+    _inputs: {
+      heading: { type: 'text' },
+      show_cta: { type: 'boolean' }
+    }
+});
+```
+<comp.Annotation number="1">
+  Call `createCustomDataPanel()` to open a CloudCannon editing panel. It returns a panel ID you can use to close the panel later.
+</comp.Annotation>
+<comp.Annotation number="2">
+  Pass a `title` option to set the heading of the panel.
+</comp.Annotation>
+<comp.Annotation number="3">
+  Pass a `data` object with the initial values for the panel's fields.
+</comp.Annotation>
+<comp.Annotation number="4">
+  Pass a `config` object to define the *Input* type for each field, using the same structure as CloudCannon's `_inputs` configuration.
+</comp.Annotation>
+</comp.CodeBlock>
+
+### React to changes in a custom *Data Panel*
+
+Passing an `onChange` callback to `createCustomDataPanel()` runs your function whenever someone changes a value in the panel. CloudCannon passes the entire data object each time (not a diff), which you can use to update your custom integration in real time.
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+const panelId = await api.createCustomDataPanel({ /*1*/
+  title: 'Hero settings',
+  data: { heading: 'Welcome', show_cta: true },
+  config: {
+    _inputs: {
+      heading: { type: 'text' },
+      show_cta: { type: 'boolean' }
+    }
+  },
+  onChange: (updatedData) => { /*2*/
+    document.querySelector('#hero-heading').textContent = updatedData.heading; /*3*/
+  }
+});
+```
+<comp.Annotation number="1">
+  Call `createCustomDataPanel()` and pass an `onChange` callback to react to user input.
+</comp.Annotation>
+<comp.Annotation number="2">
+  The `onChange` callback fires whenever a user changes a value in the panel. It receives the full updated data object.
+</comp.Annotation>
+<comp.Annotation number="3">
+  Use the updated data to update your custom integration — for example, updating a live preview element in the page.
+</comp.Annotation>
+</comp.CodeBlock>
+
+### Destroy a custom *Data Panel*
+
+Calling `destroyCustomDataPanel()` closes a *Data Panel*. Pass the same panel ID string that `createCustomDataPanel()` returned when you opened the panel.
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+await api.destroyCustomDataPanel(panelId); /*1*/
+```
+<comp.Annotation number="1">
+  Pass the panel ID to `destroyCustomDataPanel()` to close the panel.
+</comp.Annotation>
+</comp.CodeBlock>
+
+### Position a custom *Data Panel*
+
+By default, CloudCannon decides where to place the *Data Panel* on screen. Passing a `position` option to `createCustomDataPanel()` allows you to anchor the panel to a specific element — for example, opening it next to a button the user clicked.
+
+The `position` value should be a `DOMRect`, which describes the size and location of an element in the *Visual Editor*. You can get this by calling `getBoundingClientRect()` on the element the user clicked (or any anchor element). CloudCannon uses that rectangle to position the *Data Panel* next to the control that triggered it.
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+button.addEventListener('click', async (event) => { /*1*/
+  const rect = event.target.getBoundingClientRect(); /*2*/
+
+  await api.createCustomDataPanel({
+    title: 'Settings',
+    data: { /* ... */ },
+    config: { /* ... */ },
+    onChange: (data) => { /* ... */ },
+    position: rect /*3*/
+  });
+});
+```
+<comp.Annotation number="1">
+  Listen for a click event on the element that should trigger the *Data Panel* — for example, a button in your custom integration.
+</comp.Annotation>
+<comp.Annotation number="2">
+  Call `getBoundingClientRect()` on the clicked element to get its position and size on screen as a `DOMRect` object.
+</comp.Annotation>
+<comp.Annotation number="3">
+  Pass the `DOMRect` as the `position` option. CloudCannon uses this to anchor the *Data Panel* near the element that triggered it.
+</comp.Annotation>
+</comp.CodeBlock>
+
+## Inline text editable regions
+
+Inline text editable regions allow users to edit content directly in the page preview. Clicking an element opens a rich text toolbar and makes the element's content editable in place, without opening a separate panel. This is useful for building a live preview experience, where you can update content in context with your webpage design.
+
+<comp.Notice info_type="info">
+  Inline text editable regions created with `createTextEditableRegion()` use the same underlying mechanism as CloudCannon's `data-editable` attribute, but give you programmatic control. For example, you can register elements dynamically, pass a custom callback, or configure the toolbar options at runtime.
+  
+  For more information about *Text Editable Regions*, please read our documentation on [Text Editable Regions](/documentation/developer-articles/configure-text-editable-regions/).
+</comp.Notice>
+
+### Create a text editable region
+
+Calling `createTextEditableRegion()` allows you to make a supported HTML element inline-editable. This function takes three arguments: the variable name of your HTML element, a callback which fires whenever the content changes and receives the updated content as a string, and an optional configuration object.
 
 <comp.CodeBlock language="javascript" source="script.js">
 ```
@@ -46,16 +189,34 @@ const region = await api.createTextEditableRegion( /*2*/
   Select the HTML element you want to make inline-editable.
 </comp.Annotation>
 <comp.Annotation number="2">
-  Call `createTextEditableRegion()` to register the element as an editable region.
+  Call `createTextEditableRegion()` to register the element as an editable region. It returns a region object you can use to update the content programmatically.
 </comp.Annotation>
 <comp.Annotation number="3">
   Pass a callback as the second argument. The callback fires whenever the content changes and receives the updated content as a string.
 </comp.Annotation>
 </comp.CodeBlock>
 
-### Configuration options
+### Configure a text editable region
 
-You can pass an options object as the third argument to customize the editable region.
+Passing an options object as the third argument to `createTextEditableRegion()` customizes how CloudCannon treats the region.
+
+`elementType` tells CloudCannon which family of HTML tags you are editing (`text`, `block`, `span`, `image`, or `link`). That choice affects toolbar behavior and validation. If you omit it, CloudCannon guesses from the tag name (for example, `h2` as `text`, `div` as `block`).
+
+`editableType` sets the rich text mode: `'html'`, `'markdown'`, or `'text'`.
+
+`extension` tells CloudCannon which file extension to use when persisting the edited fragment (for example, `'.html'` with `'html'`, or `'.md'` with `'markdown'`). Match it to the format of the underlying file so saves serialize the way your *Site* expects.
+
+You can also pass `inputConfig` to control which rich text toolbar options are available.
+
+The supported `elementType` values include:
+
+* `text` — `p`, `h1`–`h6`, `blockquote`, `li`, `dd`, `dt`
+* `block` — `div`, `section`, `article`, `aside`, `main`, `footer`, `header`, `nav`
+* `span` — `span`, `small`, `strong`, `em`, `i`, `b`, `sub`, `sup`, `td`, `th`, `cite`
+* `image` — `img`
+* `link` — `a`
+
+If omitted, CloudCannon infers `elementType` from the element's tag name — for example, an `h2` is inferred as `text`, a `div` as `block`, and a `span` as `span`.
 
 <comp.CodeBlock language="javascript" source="script.js">
 ```
@@ -63,7 +224,7 @@ const region = await api.createTextEditableRegion( /*1*/
   element,
   (content) => { /* handle update */ },
   { /*2*/
-    elementType: 'block', /*3*/
+    elementType: 'text', /*3*/
     editableType: 'html', /*4*/
     extension: '.html' /*5*/
   }
@@ -73,10 +234,10 @@ const region = await api.createTextEditableRegion( /*1*/
   Pass the same element and callback as before.
 </comp.Annotation>
 <comp.Annotation number="2">
-  Pass an options object as the third argument to customize the editable region.
+  Pass an options object as the third argument to customize the editable region. All options are optional.
 </comp.Annotation>
 <comp.Annotation number="3">
-  `elementType` controls whether the element is treated as a block or inline element.
+  `elementType` sets the element type, which controls the editing behaviour. If omitted, CloudCannon infers it from the element's tag name.
 </comp.Annotation>
 <comp.Annotation number="4">
   `editableType` controls the type of rich text editing (`'html'`, `'markdown'`, or `'text'`).
@@ -86,91 +247,19 @@ const region = await api.createTextEditableRegion( /*1*/
 </comp.Annotation>
 </comp.CodeBlock>
 
-You can also pass `inputConfig` to control which rich text toolbar options are available.
+### Update an inline editable region
 
-### Update the region externally
-
-The returned region object has a `setContent()` method for updating the content from your code.
+Calling `setContent()` on the region object returned by `createTextEditableRegion()` allows you to update the content of the editable region programmatically.
 
 <comp.CodeBlock language="javascript" source="script.js">
 ```
-region.setContent('<p>New content</p>');
-```
-</comp.CodeBlock>
-
-## Open a custom data panel
-
-Calling `createCustomDataPanel()` allows you to open a CloudCannon editing panel with full input support. This gives your custom integration access to the same <comp.GlossaryTerm term="/user/glossary/i/input.yml">Input</comp.GlossaryTerm> types (text, boolean, select, image, etc.) that CloudCannon uses in its own editing interfaces.
-
-<comp.CodeBlock language="javascript" source="script.js">
-```
-const panelId = await api.createCustomDataPanel({ /*1*/
-  title: 'Hero settings', /*2*/
-  data: { /*3*/
-    heading: 'Welcome',
-    show_cta: true
-  },
-  config: { /*4*/
-    _inputs: {
-      heading: { type: 'text' },
-      show_cta: { type: 'boolean' }
-    }
-  },
-  onChange: (updatedData) => { /*5*/
-    renderHeroPreview(updatedData);
-  }
-});
+region.setContent('<p>New content</p>'); /*1*/
 ```
 <comp.Annotation number="1">
-  Call `createCustomDataPanel()` to open a CloudCannon editing panel. It returns a panel ID you can use to close the panel later.
-</comp.Annotation>
-<comp.Annotation number="2">
-  Pass a `title` option to set the heading of the panel.
-</comp.Annotation>
-<comp.Annotation number="3">
-  Pass a `data` object with the initial values for the panel's fields.
-</comp.Annotation>
-<comp.Annotation number="4">
-  Pass a `config` object to define the *Input* type for each field, using the same structure as CloudCannon's `_inputs` configuration.
-</comp.Annotation>
-<comp.Annotation number="5">
-  Pass an `onChange` callback that fires whenever an editor changes a value in the panel. The callback receives the full updated data object.
+  Pass a string to `setContent()` to replace the content of the editable region.
 </comp.Annotation>
 </comp.CodeBlock>
 
-### Destroy a panel
-
-Calling `destroyCustomDataPanel()` with the panel ID closes the panel.
-
-<comp.CodeBlock language="javascript" source="script.js">
-```
-await api.destroyCustomDataPanel(panelId);
-```
-</comp.CodeBlock>
-
-### Position a panel
-
-You can pass a `position` option with a `DOMRect` to anchor the panel to a specific element.
-
-<comp.CodeBlock language="javascript" source="script.js">
-```
-const rect = element.getBoundingClientRect(); /*1*/
-
-await api.createCustomDataPanel({
-  title: 'Settings',
-  data: { /* ... */ },
-  config: { /* ... */ },
-  onChange: (data) => { /* ... */ },
-  position: rect /*2*/
-});
-```
-<comp.Annotation number="1">
-  Get the bounding rectangle of the HTML element you want to anchor the panel to.
-</comp.Annotation>
-<comp.Annotation number="2">
-  Pass the `DOMRect` as the `position` option to anchor the panel to the element.
-</comp.Annotation>
-</comp.CodeBlock>
 
 ## Control the loading state
 

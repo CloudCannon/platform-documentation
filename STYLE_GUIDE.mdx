@@ -1,7 +1,7 @@
 # CloudCannon Documentation Style Guide
 
-**Last Updated:** March 30, 2026  
-**Version:** 1.2
+**Last Updated:** April 22, 2026  
+**Version:** 1.5
 
 This style guide establishes writing standards for all CloudCannon documentation. It combines patterns from our existing documentation with industry best practices from Microsoft Writing Style Guide, Google Developer Documentation Style Guide, and Write the Docs community standards.
 
@@ -48,6 +48,7 @@ This structure helps users find the right information at the right time, whether
   - [1.1 Voice and Tone](#11-voice-and-tone)
   - [1.2 Grammar and Mechanics](#12-grammar-and-mechanics)
   - [1.3 Terminology](#13-terminology)
+    - [1.3.3 Do not use "editor" in isolation](#133-do-not-use-editor-in-isolation)
   - [1.4 Formatting](#14-formatting)
   - [1.5 Components](#15-components)
   - [1.6 Accessibility](#16-accessibility)
@@ -279,6 +280,23 @@ Use consistent terminology throughout documentation. Refer to the same thing wit
 - When technical terms are necessary, explain them.
 - Link to the glossary for CloudCannon-specific terms on first use in an article.
 
+#### 1.3.3 Do not use "editor" in isolation
+
+The word editor means too many different things in CloudCannon documentation: the *Visual Editor*, the *Content Editor*, the *Data Editor*, the *Source Editor*, a third-party **code editor** or **IDE** where developers write site code, a **rich text** or WYSIWYG control, or a **person** making edits. Readers cannot tell which you mean from "editor" in isolation.
+
+**Always use a qualified term:**
+- CloudCannon surfaces: *Visual Editor*, *Content Editor*, *Data Editor*, *Source Editor* (italicized as UI names; see [1.4.1 Italics](#141-italics)).
+- Local development: code editor, IDE, or a named product (for example, Visual Studio Code) when you mean where TypeScript or site code is written.
+- Generic controls: rich text editor, WYSIWYG editor, or name the host (for example, "the rich text field in the *Data Editor*").
+- People: say person editing, team member, or editor only with clear role context (for example, "Editors in this Permission Group"), not as shorthand for a product.
+
+- ❌ **Avoid:** "Your editor can suggest completions" (unclear: IDE vs *Visual Editor*).
+- ✅ **Good:** "TypeScript in your code editor can suggest completions."
+- ❌ **Avoid:** "Open the editor and select the file."
+- ✅ **Good:** "Open the *Visual Editor* and select the file."
+
+Established compounds such as *Visual Editor API*, `inEditorMode`, or **editor-only** (meaning "only in the preview, not on the live *Site*") are acceptable when the surrounding sentence already names the environment.
+
 ---
 
 ### 1.4 Formatting
@@ -496,6 +514,18 @@ import HeroBlock from '../components/HeroBlock.astro';
 - Place `<comp.Annotation>` components immediately after the closing tag of the code block
 - Number annotations sequentially starting from 1
 - Keep annotation explanations concise (1-2 sentences)
+
+**Explain behavior in prose before the code sample**
+
+Readers should not need to read `<comp.Annotation>` components to understand what an example does, why the steps appear in that order, or what CloudCannon (or the browser) returns from a call. Before each `<comp.CodeBlock>` or `<comp.MultiCodeBlock>` that teaches behavior, include enough body text—usually one or more short paragraphs—that covers:
+
+- What the sample demonstrates and when to use that pattern
+- Important inputs, side effects, return values, or errors
+- How the highlighted lines relate to each other when the block shows more than one concept
+
+**Use annotations to support markers, not to carry the teaching**
+
+After that conceptual text exists in the article body, each `<comp.Annotation>` should briefly tie its number to the marked line (often a single short sentence). Do not use annotations as the only place for API semantics, long return-value descriptions, or full step-by-step explanations; those belong in the prose above the block.
 
 #### 1.4.4 Links
 
@@ -1145,9 +1175,10 @@ Use imperative mood (base form of verbs) for instruction article titles. This ma
 
 3. **Main Instructions** (multiple sections)
    - Use clear subheadings for different methods or sections
-   - Provide numbered steps for sequential actions
+   - Provide numbered steps for sequential actions; each step should be an **executable action** (what to do next). Put explanations—why something works, what a value means, how to choose options—in prose before or after the list (or between two complete lists), not inside a numbered step.
    - Include screenshots showing each step
    - Use Notice components for important tips or warnings
+   - For code samples: explain behavior in prose before each `<comp.CodeBlock>` / `<comp.MultiCodeBlock>`; keep `<comp.Annotation>` entries short and tied to markers (see [Annotations in Code](#143-code-formatting))
 
 4. **Next Steps or Additional Information** (optional, inline prose)
    - End with a sentence or short paragraph linking to next steps or related instructions
@@ -1174,9 +1205,16 @@ Instruction articles describe actions to take and their immediate outcomes. Use 
 
 **Numbered Lists for Steps**
 - Use numbered lists for sequential actions
+- **Steps are for doing, not for explaining:** Each numbered item should be a discrete action the reader can perform. Support that action with prose **outside** the list—before the first step, after the last step, or between two complete lists. Do not fold conceptual copy into a step (for example, long asides about what a flag means, when a class is applied, or how a sample maps to the reader's project).
 - Start each step with an action verb (imperative mood)
 - Keep steps concise (one action per step, followed by an outcome sentence if applicable)
-- Never interrupt a numbered list with DocShots, images, or other block-level elements. Place all images either before or after the complete list, not between steps. Splitting a list restarts the numbering and breaks the reader's flow.
+- Never interrupt a numbered list with DocShots, images, `<comp.CodeBlock>` or `<comp.MultiCodeBlock>` components, or other block-level elements. Place those blocks before the first step, after the last step, or between two **complete** numbered lists (each list still uninterrupted). Splitting a single list restarts the numbering and breaks the reader's flow.
+- In **instruction articles**, keep numbered steps for sequential actions. Do not replace numbered steps with continuous prose just to insert a code sample—readers expect imperative, ordered steps there. When a step depends on code, structure the section so the code block sits outside any single numbered list (for example, introduce the list, show the code block, then continue with a new numbered list for the remaining actions).
+
+**Example (step vs prose):**
+
+- ❌ **Avoid:** "2. Add the following guard around editor-only logic. `window.inEditorMode` is `true` only in the *Visual Editor*, so you can branch without waiting for DOM events."
+- ✅ **Good:** Prose above the list explains when `window.inEditorMode` is set and why it is useful. Step 2 stays imperative: "2. Add the following `if` guard around the editor-only code in your scripts."
 
 **Example:**
 
@@ -1563,10 +1601,22 @@ documentation_link:
 The following section contains structured rules for automated validation by AI agents and linters. These rules are formatted as YAML for easy parsing.
 
 ```yaml
-style_guide_version: "1.2"
-last_updated: "2026-03-30"
+style_guide_version: "1.5"
+last_updated: "2026-04-22"
 
 terminology:
+  disambiguation:
+    editor:
+      rule: "Do not use the bare word editor for a tool or product; it is ambiguous"
+      qualify_with:
+        - "Visual Editor, Content Editor, Data Editor, Source Editor (UI names per italics rules)"
+        - "code editor, IDE, or named product (e.g. VS Code) for where developers write code"
+        - "rich text editor, WYSIWYG editor, or name the host UI"
+        - "Explicit person/role phrasing when meaning a human"
+      compounds_allowed_when_context_clear:
+        - "Visual Editor API"
+        - "inEditorMode"
+        - "editor-only (preview vs live Site when sentence names the environment)"
   required_terms:
     product_name: "CloudCannon"
     git_providers:
@@ -1779,6 +1829,12 @@ documentation_types:
       _type: ["developer_articles", "user_articles", "developer_guides", "user_guides"]
       item: "[UUID of related article]"
     step_format: "numbered_list"
+    numbered_steps:
+      content: "imperative_actions_only"
+      explanations: "prose_before_list | prose_after_list | prose_between_two_complete_lists"
+      avoid_in_step_text:
+        - "Conceptual or background explanation that does not advance the task"
+        - "Definitions, rationale, or API behavior unless phrased as the next action"
   
   glossary:
     diataxis_category: "reference"
@@ -1959,10 +2015,11 @@ components:
       - "Any single-format file content"
   
   annotation:
-    usage: "Numbered explanations for code examples"
+    usage: "Numbered tie-ins from prose to specific lines in code examples"
     placement: "Immediately after closing code block tag"
     numbering: "Sequential starting from 1"
-    length: "1-2 sentences (concise)"
+    length: "1-2 sentences (concise); reference the marker, not the whole tutorial"
+    prose_before_code: "Body text before the block explains purpose, parameters, returns, and relationships; readers should not depend on annotations alone"
     syntax: "<comp.Annotation number=\"N\">Explanation</comp.Annotation>"
     note: "Used with both MultiCodeBlock and CodeBlock components"
   
@@ -1997,6 +2054,10 @@ validation_rules:
     - "instructions_missing_final_outcome_sentence"
     - "docshot_missing_title_attribute"
     - "images_interrupting_ordered_lists"
+    - "code_blocks_interrupting_ordered_lists"
+    - "code_example_explanations_only_in_annotations"
+    - "explanatory_prose_inside_numbered_instruction_steps"
+    - "bare_editor_word_ambiguous_context"
   
   ignore:
     - "Passive voice in: changelog features, technical descriptions"
@@ -2017,6 +2078,9 @@ accessibility_requirements:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.5 | 2026-04-22 | Terminology: qualify "editor" — do not use the word in isolation; machine-readable `disambiguation.editor` rules and validation hint |
+| 1.4 | 2026-04-22 | Instruction articles: numbered steps must be executable actions only; move explanations to surrounding prose; machine-readable `numbered_steps` rules and validation hint |
+| 1.3 | 2026-04-22 | Added prose-first guidance for code examples and annotations; extended step-list rule for code blocks (keep numbered steps in instruction articles; place blocks outside a single list); machine-readable annotation rules and validation hints |
 | 1.2 | 2026-03-30 | Added `author_notes.docshots` value definitions |
 | 1.1 | 2026-03-06 | Added rule against duplicating front matter related_articles in article body |
 | 1.0 | 2026-01-08 | Initial style guide created |
