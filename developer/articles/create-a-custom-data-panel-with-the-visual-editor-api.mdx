@@ -1,0 +1,232 @@
+---
+_schema: default
+_uuid: b7e4a1c3-9d2f-4e8b-a451-6c8d3f2e1a09
+_created_at: '2026-04-22 00:00:00 +0000'
+details:
+  title: Create a custom Data Panel with the Visual Editor API
+  description: >-
+    Learn how to open, update, position, and close custom Data Panels using the
+    Visual Editor API in CloudCannon.
+  image: >-
+    https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+  category:
+    - Instructions
+  related_articles:
+    - _type: developer_articles
+      item: c2407e1f-4ba7-41b0-a5a3-69ac86cf3c41
+    - _type: developer_articles
+      item: 01f9352f-868c-4506-8cef-9ce7177a50a1
+    - _type: developer_articles
+      item: 11b29768-6312-47fc-bc43-9a613d70e5f2
+author_notes:
+  docshots: Added!
+---
+<comp.Notice info_type="important">
+  The *Visual Editor API* is designed for advanced CloudCannon users. If you need help with custom integrations or your CloudCannon setup in general, please contact our friendly [support team](/support/).
+</comp.Notice>
+
+The [Visual Editor](/documentation/user-articles/what-is-the-visual-editor/) uses built-in *Data Panels* to provide an editing interface for structured data (i.e., *Front Matter*) and for values that are not visible on the webpage, such as image paths, alt text, and link attributes.
+
+You can create custom *Data Panels* with full [Input](/documentation/user-articles/what-are-inputs/) support for use in the *Visual Editor* using the *Visual Editor API*.
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Visual-Editor-Bookshop-Sendit-Home-Data-Panel" alt="A screenshot of the Visual Editor displays a webpage preview with a data panel containing inputs open over top." title="The Visual Editor with data panel" type="screenshot"/>
+
+This article explains how to open custom *Data Panels* from the *Visual Editor API* using `api.createCustomDataPanel()` and `api.destroyCustomDataPanel()`. Custom panels use the same *Input* editing experience, but your integration supplies the field set and defaults in `data` and `config`, which is useful for values that are not visible inline on the preview (for example, *Front Matter* tied to a region or paths your custom UI manages).
+
+This article assumes you know how to [initialize the Visual Editor API](/documentation/developer-articles/initialize-the-visual-editor-api/) and have an `api` reference from `useVersion('v1')`.
+
+
+
+You open and close custom *Data Panels* with `api.createCustomDataPanel()` and `api.destroyCustomDataPanel()`. Panels use CloudCannon <comp.GlossaryTerm term="/user/glossary/i/input.yml">Inputs</comp.GlossaryTerm>. The `config` option mirrors `_inputs` at the same level in your *CloudCannon Configuration File*, so you can reuse shapes from *Site* configuration or build objects inline.
+
+## Configure *Input* definitions for the panel
+
+For a complete list of configuration keys available for inputs please read our [Inputs](/documentation/developer-reference/configuration-file/types/_inputs/) reference documentation.
+
+These instructions assume that you know which *Input* types each panel field needs and when to set `allowFullDataCascade`. For more information, please read our documentation on [*Inputs*](/documentation/user-articles/what-are-inputs/) in general and the [configuration cascade](/documentation/developer-articles/using-the-configuration-cascade/).
+
+To configure *Input* definitions inside a custom *Data Panel*:
+
+1. Decide the field slug for each value in `data` (for example, `heading` or `show_cta`).
+2. Under `config._inputs`, add one entry per slug with a `type` value and any additional keys those *Inputs* accept — using the same object shape as at that level in the configuration cascade.
+3. For each `type`, open the matching **Configure …** article in the sections below and follow its guidance for general keys (such as `label`, `comment`, and `context`) and any keys under `_inputs.*.options`.
+4. Skip steps in those articles about opening local files or navigating the cascade on disk when you only need the nested object for `createCustomDataPanel()`.
+5. Set `data` so each slug has a default value that matches the *Input* type.
+6. (Optional.) Read more than one **Configure …** article when the panel mixes different *Input* types.
+
+CloudCannon will apply the `_inputs` configuration you supply when the panel opens. When you change `config` in your integration code, reload or rebuild so editors see the update the next time they open the panel.
+
+## Reference — options for `createCustomDataPanel()`
+
+`createCustomDataPanel()` accepts one options object. The `@cloudcannon/javascript-api` typings mark **`title`** and **`onChange`** as required; the rest are optional.
+
+- **`title`** (required) — string used as the panel heading.
+- **`onChange`** (required) — function CloudCannon calls with the full panel data whenever an editor changes a value (not a diff). Provide at least a no-op until you wire custom behavior.
+- **`id`** (optional) — stable string returned as `panelId`. When omitted, CloudCannon generates a short random id (see the note after the first procedure below).
+- **`data`** (optional) — initial values for each field shown in the panel.
+- **`config`** (optional) — `_inputs` and related cascade configuration for those fields, using the same shape as *Input* configuration in your *CloudCannon Configuration File*.
+- **`position`** (optional) — `DOMRect` (for example from `getBoundingClientRect()`) to anchor the panel near a control; see [Anchor the panel to a control](#anchor-the-panel-to-a-control).
+- **`allowFullDataCascade`** (optional, default `false`) — when `true`, CloudCannon includes the open file and *Site* configuration in the input cascade so <comp.GlossaryTerm term="/user/glossary/s/structure.yml">Structure</comp.GlossaryTerm> resolution and broader `_inputs` context match hosted *Data Panels*; when `false`, only the `data` and `config` you pass are used. See [Enable full data cascade](#enable-full-data-cascade).
+
+The call resolves to a string `panelId` you pass to `destroyCustomDataPanel()` when you want to close the panel. When you set `id`, `panelId` is that same string.
+
+## Open a custom *Data Panel* with *Input* fields
+
+Use `createCustomDataPanel()` when you need a hosted editing surface backed by CloudCannon *Inputs*.
+
+1. Open your website files in your local development environment.
+2. Open the JavaScript file where your *Visual Editor API* integration runs (after you have initialized the API and hold an `api` reference).
+3. Add a call to `createCustomDataPanel()` that supplies required `title` and `onChange`, plus optional `id`, `data`, and `config` for the fields you want to show.
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+const panelId = await api.createCustomDataPanel({ /*1*/
+  id: 'hero-settings-panel', /*2*/
+  title: 'Hero settings', /*3*/
+  data: { /*4*/
+    heading: 'Welcome',
+    show_cta: true
+  },
+  config: { /*5*/
+    _inputs: {
+      heading: { type: 'text' },
+      show_cta: { type: 'boolean' }
+    }
+  },
+  onChange: (_updatedData) => {} /*6*/
+});
+```
+<comp.Annotation number="1">
+  `createCustomDataPanel()` opens the panel; the awaited value is the `panelId` string.
+</comp.Annotation>
+<comp.Annotation number="2">
+  Optional `id` — when set, the resolved `panelId` matches it; omit to let CloudCannon assign a random id.
+</comp.Annotation>
+<comp.Annotation number="3">
+  Required `title` — sets the heading of the panel.
+</comp.Annotation>
+<comp.Annotation number="4">
+  Optional `data` — initial values for the panel's fields.
+</comp.Annotation>
+<comp.Annotation number="5">
+  Optional `config` — defines each *Input* using the same structure as CloudCannon's `_inputs` configuration.
+</comp.Annotation>
+<comp.Annotation number="6">
+  Required `onChange` — replace the no-op with your integration logic, or follow the next section for a fuller example.
+</comp.Annotation>
+</comp.CodeBlock>
+
+If you omit `id`, CloudCannon still returns a `panelId`, but it picks one for you: a seven-character alphanumeric string using digits `0`–`9` and lowercase letters `a`–`z` (base 36), such as `k4j92xq`. A new value is generated each time you open a panel without an `id`. Treat it as an opaque token you store and pass back to `destroyCustomDataPanel()`—not as a UUID or a pattern to parse.
+
+## React when panel values change
+
+`onChange` is required on every `createCustomDataPanel()` call (see **Reference — options for `createCustomDataPanel()`** above). The callback receives the entire data object after each edit (not a diff).
+
+1. In the same `createCustomDataPanel` call, implement `onChange` to accept the updated data object.
+2. Update your DOM or application state from inside `onChange` so your preview stays in sync with the panel.
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+const panelId = await api.createCustomDataPanel({ /*1*/
+  id: 'hero-settings-panel', /*2*/
+  title: 'Hero settings',
+  data: { heading: 'Welcome', show_cta: true },
+  config: {
+    _inputs: {
+      heading: { type: 'text' },
+      show_cta: { type: 'boolean' }
+    }
+  },
+  onChange: (updatedData) => { /*3*/
+    document.querySelector('#hero-heading').textContent = updatedData.heading; /*4*/
+  }
+});
+```
+<comp.Annotation number="1">
+  Call `createCustomDataPanel()` and pass an `onChange` callback to react to user input.
+</comp.Annotation>
+<comp.Annotation number="2">
+  Same `id` pattern as the previous example so `panelId` stays predictable when you also use `onChange`.
+</comp.Annotation>
+<comp.Annotation number="3">
+  The `onChange` callback fires whenever a user changes a value in the panel. It receives the full updated data object.
+</comp.Annotation>
+<comp.Annotation number="4">
+  Use the updated data to update your custom integration — for example, updating a live preview element in the page.
+</comp.Annotation>
+</comp.CodeBlock>
+
+## Close the panel
+
+Calling `destroyCustomDataPanel()` closes a *Data Panel*. Pass the same panel ID string that `createCustomDataPanel()` returned when you opened the panel.
+
+1. When editors should dismiss the panel, call `destroyCustomDataPanel(panelId)` with the stored `panelId` string.
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+await api.destroyCustomDataPanel(panelId); /*1*/
+```
+<comp.Annotation number="1">
+  Pass the panel ID to `destroyCustomDataPanel()` to close the panel.
+</comp.Annotation>
+</comp.CodeBlock>
+
+## Anchor the panel to a control
+
+`position` is optional. By default, CloudCannon decides where to place the *Data Panel* on screen. Passing a `position` option anchors the panel to a specific element — for example, next to a button the user clicked.
+
+The `position` value should be a `DOMRect`, which describes the size and location of an element in the *Visual Editor*. You can get this by calling `getBoundingClientRect()` on the element the user clicked (or any anchor element). CloudCannon uses that rectangle to position the *Data Panel* next to the control that triggered it.
+
+1. Listen for the interaction that should open the panel (for example, a `click` on a button in your integration).
+2. Call `getBoundingClientRect()` on the anchor element to obtain a `DOMRect`.
+3. Pass that `DOMRect` as `position` in the `createCustomDataPanel` options object, together with your other required and optional fields.
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+button.addEventListener('click', async (event) => { /*1*/
+  const rect = event.target.getBoundingClientRect(); /*2*/
+
+  await api.createCustomDataPanel({
+    id: 'settings-panel',
+    title: 'Settings',
+    data: { /* ... */ },
+    config: { /* ... */ },
+    onChange: (data) => { /* ... */ },
+    position: rect /*3*/
+  });
+});
+```
+<comp.Annotation number="1">
+  Listen for a click event on the element that should trigger the *Data Panel* — for example, a button in your custom integration.
+</comp.Annotation>
+<comp.Annotation number="2">
+  Call `getBoundingClientRect()` on the clicked element to get its position and size on screen as a `DOMRect` object.
+</comp.Annotation>
+<comp.Annotation number="3">
+  Pass the `DOMRect` as the `position` option. CloudCannon uses this to anchor the *Data Panel* near the element that triggered it.
+</comp.Annotation>
+</comp.CodeBlock>
+
+## Enable full data cascade
+
+`allowFullDataCascade` is optional (default `false`). Set it to `true` when *Inputs* in the custom panel should resolve against the previewed file and the *Site* `configuration` the same way hosted *Data Panels* do—for example, when you rely on *Structure* matching or other cascade rules that need full *Site* context. Leave it `false` when the panel should only use the `data` and `config` you pass in the options object.
+
+1. Add `allowFullDataCascade: true` to the `createCustomDataPanel` options object when you need that wider cascade; omit the property or set it to `false` to keep the panel self-contained.
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+await api.createCustomDataPanel({
+  id: 'cascade-panel',
+  title: 'Structured field',
+  data: { /* ... */ },
+  config: { /* ... */ },
+  onChange: (data) => { /* ... */ },
+  allowFullDataCascade: true /*1*/
+});
+```
+<comp.Annotation number="1">
+  `true` widens the cascade to include the open file and *Site* configuration; omit the property or set `false` to keep the panel self-contained.
+</comp.Annotation>
+</comp.CodeBlock>
+
+For other custom *Visual Editor* surfaces — inline editable regions, loading state, uploads, and utility helpers — read [Create custom editing interfaces with the Visual Editor API](/documentation/developer-articles/create-custom-editing-interfaces-with-the-visual-editor-api/). To open CloudCannon's built-in *Data Panel* for a single field from a file handle, read [Read and write data with the Visual Editor API](/documentation/developer-articles/read-and-write-data-with-the-visual-editor-api/).
