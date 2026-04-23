@@ -43,37 +43,41 @@ To open a custom *Data Panel*:
 2. Open the JavaScript file where your *Visual Editor API* integration runs.
 3. Add a call to `api.createCustomDataPanel({...})` in your script.
 4. Add the `title` property, where the value is the heading for your *Data Panel*.
-5. Add the `onChange` property, where the value is the function CloudCannon should call whenever an someone changes a value in the *Data Panel* (e.g., using the new data to update your custom integration).
-6. Optional. Add the `data` property, where the value is an array of keys
-7. Optional. Add the `config` property, where the value is
+5. Add the `onChange` property, where the value is the function CloudCannon should call whenever an editor changes a value in the *Data Panel* (e.g., using the new data to update your custom integration).
+6. Optional. Add the `data` property, where the value is an object that holds the starting values for each field slug you show in the panel (for example, `image`, `alt_text`, `title_text`, and `lazy_load` for the asset shown in your preview).
+7. Optional. Add the `config` property, where the value is an object with an `_inputs` key that maps each field slug to its *Input* configuration (`type`, labels, `options`, and so on), using the same structure as in your *CloudCannon Configuration File*.
 8. Optional. Add the `id` property, where the value is a unique string that identifies your *Data Panel* (so you can later close the panel).
 
 <comp.CodeBlock language="javascript" source="script.js">
 ```
 const panelId = await api.createCustomDataPanel({ /*1*/
-  id: 'hero-settings-panel', /*2*/
-  title: 'Hero settings', /*3*/
+  title: 'Image SEO', /*2*/
+  onChange: (_updatedData) => {}, /*3*/
   data: { /*4*/
-    heading: 'Welcome',
-    show_cta: true
+    image: '/images/team-photo.jpg',
+    alt_text: 'CloudCannon team collaborating at a whiteboard',
+    title_text: 'CloudCannon team',
+    lazy_load: true,
   },
   config: { /*5*/
     _inputs: {
-      heading: { type: 'text' },
-      show_cta: { type: 'boolean' }
-    }
+      image: { type: 'image', label: 'Image' },
+      alt_text: { type: 'text', label: 'Alt text' },
+      title_text: { type: 'text', label: 'Title text' },
+      lazy_load: { type: 'switch', label: 'Lazy load' },
+    },
   },
-  onChange: (_updatedData) => {} /*6*/
+  id: 'hero-image-seo-panel', /*6*/
 });
 ```
 <comp.Annotation number="1">
   `createCustomDataPanel()` opens the panel; the awaited value is the `panelId` string.
 </comp.Annotation>
 <comp.Annotation number="2">
-  Optional `id` — when set, the resolved `panelId` matches it; omit to let CloudCannon assign a random id.
+  Required `title` — sets the heading of the panel.
 </comp.Annotation>
 <comp.Annotation number="3">
-  Required `title` — sets the heading of the panel.
+  Required `onChange` — replace the no-op with your integration logic, or follow the next section for a fuller example.
 </comp.Annotation>
 <comp.Annotation number="4">
   Optional `data` — initial values for the panel's fields.
@@ -82,7 +86,7 @@ const panelId = await api.createCustomDataPanel({ /*1*/
   Optional `config` — defines each *Input* using the same structure as CloudCannon's `_inputs` configuration.
 </comp.Annotation>
 <comp.Annotation number="6">
-  Required `onChange` — replace the no-op with your integration logic, or follow the next section for a fuller example.
+  Optional `id` — when set, the resolved `panelId` matches it; omit to let CloudCannon assign a random id.
 </comp.Annotation>
 </comp.CodeBlock>
 
@@ -295,7 +299,7 @@ These keys configure the options object passed to `createCustomDataPanel()`.
   <comp.DataReferenceRow label="allowFullDataCascade" type_markdown="Boolean">
                This key toggles whether the input cascade includes the open file and *Site* configuration, so that<comp.GlossaryTerm term="/user/glossary/s/structure.yml">Structure</comp.GlossaryTerm>resolution and broader `_inputs` context match hosted *Data Panels*.
 
-               When set to `true`, CloudCannon widens the cascade to include the open file and *Site* configuration. When set to `false`, only the `data` and `config` you pass are used.
+    When set to `true`, CloudCannon widens the cascade to include the open file and *Site* configuration. When set to `false`, only the `data` and `config` you pass are used.
 
                By default, this key is `false` (i.e., the panel does not use the full file and *Site* cascade).
   </comp.DataReferenceRow>
