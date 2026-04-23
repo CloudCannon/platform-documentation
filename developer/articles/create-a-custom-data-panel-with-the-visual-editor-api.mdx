@@ -33,30 +33,20 @@ You can create custom *Data Panels* with full [Input](/documentation/user-articl
 
 This article explains how to create custom *Data Panels* from the *Visual Editor API* using `api.createCustomDataPanel()` and `api.destroyCustomDataPanel()`, and assumes you know how to [initialize the Visual Editor API](/documentation/developer-articles/initialize-the-visual-editor-api/).
 
-&nbsp;
-
-&nbsp;
-
-&nbsp;
-
-&nbsp;
-
-Custom panels use the same *Input* editing experience, but your integration supplies the field set and defaults in `data` and `config`, which is useful for values that are not visible inline on the preview (for example, *Front Matter* tied to a region or paths your custom UI manages).
-
-This article and have an `api` reference from `useVersion('v1')`.
-
-You open and close custom *Data Panels* with `api.createCustomDataPanel()` and `api.destroyCustomDataPanel()`. Panels use CloudCannon <comp.GlossaryTerm term="/user/glossary/i/input.yml">Inputs</comp.GlossaryTerm>. The `config` option mirrors `_inputs` at the same level in your *CloudCannon Configuration File*, so you can reuse shapes from *Site* configuration or build objects inline.
-
-##
-
 ## Open a custom *Data Panel* with *Input* fields
 
-Use `createCustomDataPanel()` when you need a hosted editing surface backed by CloudCannon *Inputs*.
+The `api.createCustomDataPanel()` function allows you to open a custom *Data Panel* in the *Visual Editor* programmatically, and accepts a single argument with several properties that control <comp.GlossaryTerm term="/user/glossary/i/input.yml">Inputs</comp.GlossaryTerm>, panel position and behavior. While configuring *Input* fields is technically optional, they are the primary purpose of a *Data Panel*.
+
+To open a custom *Data Panel*:
 
 1. Open your website files in your local development environment.
-2. Open the JavaScript file where your *Visual Editor API* integration runs (after you have initialized the API and hold an `api` reference).
-3. Add a call to `createCustomDataPanel()` that supplies the required `title` and `onChange` values.
-4. Optional. Add values for `id`, `data`, and `config`.
+2. Open the JavaScript file where your *Visual Editor API* integration runs.
+3. Add a call to `api.createCustomDataPanel({...})` in your script.
+4. Add the `title` property, where the value is the heading for your *Data Panel*.
+5. Add the `onChange` property, where the value is the function CloudCannon should call whenever an someone changes a value in the *Data Panel* (e.g., using the new data to update your custom integration).
+6. Optional. Add the `data` property, where the value is an array of keys
+7. Optional. Add the `config` property, where the value is
+8. Optional. Add the `id` property, where the value is a unique string that identifies your *Data Panel* (so you can later close the panel).
 
 <comp.CodeBlock language="javascript" source="script.js">
 ```
@@ -228,7 +218,52 @@ await api.createCustomDataPanel({
 
 For other custom *Visual Editor* surfaces — inline editable regions, loading state, uploads, and utility helpers — read [Create custom editing interfaces with the Visual Editor API](/documentation/developer-articles/create-custom-editing-interfaces-with-the-visual-editor-api/). To open CloudCannon's built-in *Data Panel* for a single field from a file handle, read [Read and write data with the Visual Editor API](/documentation/developer-articles/read-and-write-data-with-the-visual-editor-api/).
 
-## Reference — options for `createCustomDataPanel()`
+## Custom *Data Panel* configuration options
+
+The `createCustomDataPanel()` function accepts several properties. You can define the title of the *Data Panel*, which *Input* fields are available and their configuration, the position of the *Data Panel* when it opens,
+
+&nbsp;
+
+&nbsp;
+
+General configuration options are available for all input types. You can define the label, comment, and context box for your Array input, whether it is hidden or disabled, and how CloudCannon should handle configuration at multiple levels of the configuration cascade.
+
+Specific configuration options for Array inputs include defining structures, configuring previews, and how CloudCannon handles empty values. You can also add input validation to require a value, specify the minimum and maximum number of items, or match a regular expression.
+
+Here is an example of an Array input using some of the most commonly used configuration keys.
+
+**YAMLJSON**
+
+**Copy**
+
+Copied to clipboard
+
+```yaml
+_inputs:
+  page_sections:
+    type: array
+    options:
+      structures: _structures.components
+      preview:
+        text:
+          - key: name
+        subtext:
+          - key: description
+        image:
+          - key: my_image
+        icon: article
+      min_items: 3
+      max_items: 5
+      required: true
+```
+
+cloudcannon.config.yaml
+
+For a complete list of configuration keys available for inputs please read our [Inputs](https://cute-cashew.cloudvent.net/documentation/developer-reference/configuration-file/types/_inputs/) reference documentation.
+
+These keys configure the appearance and functionality of Array inputs in CloudCannon.
+
+&nbsp;
 
 `createCustomDataPanel()` accepts one options object. The `@cloudcannon/javascript-api` typings mark **`title`** and **`onChange`** as required; the rest are optional.
 
@@ -245,6 +280,8 @@ These keys configure the options object passed to `createCustomDataPanel()`.
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="id" type_markdown="String">
     This key sets a stable string returned as `panelId`. When omitted, CloudCannon generates a short random id (see the note after the first procedure below).
+
+    If you omit id, CloudCannon still returns a panelId, but it picks one for you: a seven-character alphanumeric string using digits 0–9 and lowercase letters a–z (base 36), such as k4j92xq. A new value is generated each time you open a panel without an id.
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="data" type_markdown="Object">
     This key sets the initial values for each field shown in the panel.
@@ -253,16 +290,14 @@ These keys configure the options object passed to `createCustomDataPanel()`.
     This key configures `_inputs` and related cascade configuration for those fields, using the same shape as *Input* configuration in your *CloudCannon Configuration File*.
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="position" type_markdown="DOMRect">
-    This key accepts a `DOMRect` (for example from `getBoundingClientRect()`) to anchor the panel near a control. For more information, read [Anchor the panel to a control](#anchor-the-panel-to-a-control).
+    This key accepts a `DOMRect` (for example from `getBoundingClientRect()`) to anchor the panel near a control.
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="allowFullDataCascade" type_markdown="Boolean">
-    This key toggles whether the input cascade includes the open file and *Site* configuration, so that <comp.GlossaryTerm term="/user/glossary/s/structure.yml">Structure</comp.GlossaryTerm> resolution and broader `_inputs` context match hosted *Data Panels*.
+               This key toggles whether the input cascade includes the open file and *Site* configuration, so that<comp.GlossaryTerm term="/user/glossary/s/structure.yml">Structure</comp.GlossaryTerm>resolution and broader `_inputs` context match hosted *Data Panels*.
 
-    When set to `true`, CloudCannon widens the cascade to include the open file and *Site* configuration. When set to `false`, only the `data` and `config` you pass are used.
+               When set to `true`, CloudCannon widens the cascade to include the open file and *Site* configuration. When set to `false`, only the `data` and `config` you pass are used.
 
-    By default, this key is `false` (i.e., the panel does not use the full file and *Site* cascade).
-
-    For more information, read [Enable full data cascade](#enable-full-data-cascade).
+               By default, this key is `false` (i.e., the panel does not use the full file and *Site* cascade).
   </comp.DataReferenceRow>
 </comp.DataReference>
 
