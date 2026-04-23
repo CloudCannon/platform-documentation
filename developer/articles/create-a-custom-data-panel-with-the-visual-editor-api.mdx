@@ -232,20 +232,38 @@ For other custom *Visual Editor* surfaces — inline editable regions, loading s
 
 `createCustomDataPanel()` accepts one options object. The `@cloudcannon/javascript-api` typings mark **`title`** and **`onChange`** as required; the rest are optional.
 
+These keys configure the options object passed to `createCustomDataPanel()`.
+
 <comp.DataReference>
-  <comp.DataReferenceRow label="title" type_markdown="">
-    (required) — string used as the panel heading.
+  <comp.DataReferenceRow label="title" type_markdown="String">
+    Required. This key sets the string used as the panel heading. Required by the `@cloudcannon/javascript-api` typings.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="onChange" type_markdown="Function">
+    Required. This key defines the function CloudCannon calls whenever an editor changes a value in the panel. CloudCannon passes the full panel data object, not a diff. Required by the `@cloudcannon/javascript-api` typings.
+
+    Provide at least a no-op until you wire custom behavior.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="id" type_markdown="String">
+    This key sets a stable string returned as `panelId`. When omitted, CloudCannon generates a short random id (see the note after the first procedure below).
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="data" type_markdown="Object">
+    This key sets the initial values for each field shown in the panel.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="config" type_markdown="Object">
+    This key configures `_inputs` and related cascade configuration for those fields, using the same shape as *Input* configuration in your *CloudCannon Configuration File*.
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="position" type_markdown="DOMRect">
+    This key accepts a `DOMRect` (for example from `getBoundingClientRect()`) to anchor the panel near a control. For more information, read [Anchor the panel to a control](#anchor-the-panel-to-a-control).
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="allowFullDataCascade" type_markdown="Boolean">
+    This key toggles whether the input cascade includes the open file and *Site* configuration, so that <comp.GlossaryTerm term="/user/glossary/s/structure.yml">Structure</comp.GlossaryTerm> resolution and broader `_inputs` context match hosted *Data Panels*.
+
+    When set to `true`, CloudCannon widens the cascade to include the open file and *Site* configuration. When set to `false`, only the `data` and `config` you pass are used.
+
+    By default, this key is `false` (i.e., the panel does not use the full file and *Site* cascade).
+
+    For more information, read [Enable full data cascade](#enable-full-data-cascade).
   </comp.DataReferenceRow>
 </comp.DataReference>
-
-&nbsp;
-
-* **`title`** (required) — string used as the panel heading.
-* **`onChange`** (required) — function CloudCannon calls with the full panel data whenever an editor changes a value (not a diff). Provide at least a no-op until you wire custom behavior.
-* **`id`** (optional) — stable string returned as `panelId`. When omitted, CloudCannon generates a short random id (see the note after the first procedure below).
-* **`data`** (optional) — initial values for each field shown in the panel.
-* **`config`** (optional) — `_inputs` and related cascade configuration for those fields, using the same shape as *Input* configuration in your *CloudCannon Configuration File*.
-* **`position`** (optional) — `DOMRect` (for example from `getBoundingClientRect()`) to anchor the panel near a control; see [Anchor the panel to a control](#anchor-the-panel-to-a-control).
-* **`allowFullDataCascade`** (optional, default `false`) — when `true`, CloudCannon includes the open file and *Site* configuration in the input cascade so <comp.GlossaryTerm term="/user/glossary/s/structure.yml">Structure</comp.GlossaryTerm> resolution and broader `_inputs` context match hosted *Data Panels*; when `false`, only the `data` and `config` you pass are used. See [Enable full data cascade](#enable-full-data-cascade).
 
 The call resolves to a string `panelId` you pass to `destroyCustomDataPanel()` when you want to close the panel. When you set `id`, `panelId` is that same string.
