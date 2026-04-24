@@ -1,0 +1,135 @@
+---
+_schema: default
+_uuid: f8a2c4e6-1b3d-4a9f-8c7e-5d4f3a2b1c0e
+_created_at: '2026-04-24 00:00:00 +0000'
+details:
+  title: Create inline text editable regions with the Visual Editor API
+  description: >-
+    Learn how to register inline text editable regions with
+    createTextEditableRegion(), configure options, and update content with the
+    Visual Editor API in CloudCannon.
+  image: >-
+    https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+  category:
+    - Instructions
+  related_articles:
+    - _type: developer_articles
+      item: 9e7d5c3b-2a1f-4e8d-9b6c-8a7f5e4d3c2b
+    - _type: developer_articles
+      item: b7e4a1c3-9d2f-4e8b-a451-6c8d3f2e1a09
+    - _type: developer_articles
+      item: c2407e1f-4ba7-41b0-a5a3-69ac86cf3c41
+author_notes:
+  docshots: Not applicable
+---
+<comp.Notice info_type="important">
+  The *Visual Editor API* is designed for advanced CloudCannon users. If you need help with custom integrations or your CloudCannon setup in general, please contact our friendly [support team](/support/).
+</comp.Notice>
+
+CloudCannon's *Visual Editor API* allows you to read and write content, listen for changes, and build custom editing interfaces in the <comp.GlossaryTerm term="/user/glossary/v/visual-editor.yml">Visual Editor</comp.GlossaryTerm>. This article explains how to register **inline text editable regions** programmatically with `createTextEditableRegion()`.
+
+This article assumes you know how to [initialize the Visual Editor API](/documentation/developer-articles/initialize-the-visual-editor-api/) and [access a Collection or Dataset](/documentation/developer-articles/access-files-collections-and-datasets-with-the-visual-editor-api/).
+
+To create a floating *Data Panel* with your own fields and CloudCannon *Inputs*, follow the step-by-step instructions in [Create a custom data panel with the Visual Editor API](/documentation/developer-articles/create-a-custom-data-panel-with-the-visual-editor-api/).
+
+For loading state, file uploads, preview URLs, and configuration utilities, read [Manage loading, uploads, and previews with the Visual Editor API](/documentation/developer-articles/manage-loading-uploads-and-previews-with-the-visual-editor-api/).
+
+## Inline text editable regions
+
+Inline text editable regions allow users to edit content directly in the page preview. Clicking an element opens a rich text toolbar and makes the element's content editable in place, without opening a separate panel. This is useful for building a live preview experience, where you can update content in context with your webpage design.
+
+<comp.Notice info_type="info">
+  Inline text editable regions created with `createTextEditableRegion()` use the same underlying mechanism as CloudCannon's `data-editable` attribute, but give you programmatic control. For example, you can register elements dynamically, pass a custom callback, or configure the toolbar options at runtime.
+  
+  For more information about *Text Editable Regions*, please read our documentation on [Text Editable Regions](/documentation/developer-articles/configure-text-editable-regions/).
+</comp.Notice>
+
+### Create a text editable region
+
+Calling `createTextEditableRegion()` allows you to make a supported HTML element inline-editable. This function takes three arguments: the variable name of your HTML element, a callback which fires whenever the content changes and receives the updated content as a string, and an optional configuration object.
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+const element = document.querySelector('#hero-heading'); /*1*/
+
+const region = await api.createTextEditableRegion( /*2*/
+  element,
+  (content) => { /*3*/
+    console.log('Content updated:', content);
+  }
+);
+```
+<comp.Annotation number="1">
+  Select the HTML element you want to make inline-editable.
+</comp.Annotation>
+<comp.Annotation number="2">
+  Call `createTextEditableRegion()` to register the element as an editable region. It returns a region object you can use to update the content programmatically.
+</comp.Annotation>
+<comp.Annotation number="3">
+  Pass a callback as the second argument. The callback fires whenever the content changes and receives the updated content as a string.
+</comp.Annotation>
+</comp.CodeBlock>
+
+### Configure a text editable region
+
+Passing an options object as the third argument to `createTextEditableRegion()` customizes how CloudCannon treats the region.
+
+`elementType` tells CloudCannon which family of HTML tags you are editing (`text`, `block`, `span`, `image`, or `link`). That choice affects toolbar behavior and validation. If you omit it, CloudCannon guesses from the tag name (for example, `h2` as `text`, `div` as `block`).
+
+`editableType` sets the rich text mode: `'html'`, `'markdown'`, or `'text'`.
+
+`extension` tells CloudCannon which file extension to use when persisting the edited fragment (for example, `'.html'` with `'html'`, or `'.md'` with `'markdown'`). Match it to the format of the underlying file so saves serialize the way your *Site* expects.
+
+You can also pass `inputConfig` to control which rich text toolbar options are available.
+
+The supported `elementType` values include:
+
+* `text` — `p`, `h1`–`h6`, `blockquote`, `li`, `dd`, `dt`
+* `block` — `div`, `section`, `article`, `aside`, `main`, `footer`, `header`, `nav`
+* `span` — `span`, `small`, `strong`, `em`, `i`, `b`, `sub`, `sup`, `td`, `th`, `cite`
+* `image` — `img`
+* `link` — `a`
+
+If omitted, CloudCannon infers `elementType` from the element's tag name — for example, an `h2` is inferred as `text`, a `div` as `block`, and a `span` as `span`.
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+const region = await api.createTextEditableRegion( /*1*/
+  element,
+  (content) => { /* handle update */ },
+  { /*2*/
+    elementType: 'text', /*3*/
+    editableType: 'html', /*4*/
+    extension: '.html' /*5*/
+  }
+);
+```
+<comp.Annotation number="1">
+  Pass the same element and callback as before.
+</comp.Annotation>
+<comp.Annotation number="2">
+  Pass an options object as the third argument to customize the editable region. All options are optional.
+</comp.Annotation>
+<comp.Annotation number="3">
+  `elementType` sets the element type, which controls the editing behavior. If omitted, CloudCannon infers it from the element's tag name.
+</comp.Annotation>
+<comp.Annotation number="4">
+  `editableType` controls the type of rich text editing (`'html'`, `'markdown'`, or `'text'`).
+</comp.Annotation>
+<comp.Annotation number="5">
+  `extension` sets the file extension used when saving the content.
+</comp.Annotation>
+</comp.CodeBlock>
+
+### Update an inline editable region
+
+Calling `setContent()` on the region object returned by `createTextEditableRegion()` allows you to update the content of the editable region programmatically.
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+region.setContent('<p>New content</p>'); /*1*/
+```
+<comp.Annotation number="1">
+  Pass a string to `setContent()` to replace the content of the editable region.
+</comp.Annotation>
+</comp.CodeBlock>
