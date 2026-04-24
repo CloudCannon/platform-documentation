@@ -1,0 +1,140 @@
+---
+_schema: default
+_uuid: cf1a6a0b-42bb-4ed1-bce3-fbb697dffc12
+_created_at: '2026-04-24 00:00:00 +0000'
+details:
+  title: Configure Pull Request settings
+  description: >-
+    Learn how to configure deploy preview comments and automatic Sites for pull
+    requests on your CloudCannon Project.
+  image: >-
+    https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+  category:
+    - Instructions
+  related_articles:
+    - _type: developer_articles
+      item: 1b92a30d-2449-441c-aa24-7f52412b511b
+    - _type: developer_articles
+      item: b73fc0b8-1c78-48d9-b7e0-2ecd6e7a1dd1
+    - _type: developer_articles
+      item: f76883ee-6fe6-46a3-8ae9-59d632dde14e
+author_notes:
+  docshots: Needs docshots
+---
+<comp.Notice info_type="pricing">
+  **Pull request deploy previews are available on our [Team and Enterprise plans](/pricing/).**
+
+  Want to chat about whether this feature is right for you? Our support team is always <a href="mailto:success@cloudcannon.com?subject=A%20question%20about%20pull%20request%20deploy%20previews" rel="noreferrer">happy to hear from you</a>.
+</comp.Notice>
+
+CloudCannon can comment on pull requests in your *Git Repository* with deploy preview details, create a branch *Site* automatically for every pull request, and delete those *Sites* when the pull requests are closed or merged. You configure all of these behaviors from the *Pull Requests* section of *Project Settings*.
+
+Before we begin, this article assumes you have already [created a Project](/documentation/developer-articles/create-a-project/) and that your *Organization* is on a plan that includes pull request management. For a conceptual overview of what these settings do, please read our documentation on [pull request deploy previews](/documentation/developer-articles/what-are-pull-request-deploy-previews/).
+
+## Open the Pull Requests settings
+
+To reach the *Pull Requests* settings:
+
+1. Click *Projects* in the *App Sidebar*. CloudCannon will open the *Projects Browser*.
+2. Select the *Project* you want to configure. CloudCannon will open the *Project Sites Browser*.
+3. Click the *Project Settings* tab.
+4. Select *Pull Requests* from the list of sections.
+
+CloudCannon will open the *Pull Requests* settings form. At the top of the form is a *Pull request features enabled* toggle, followed by two fieldsets: *Comments* and *Automatic sites*.
+
+<comp.Notice info_type="info">
+  If you do not see the *Pull Requests* section under *Project Settings*, your *Organization* does not have pull request management enabled. Contact our support team to check whether the feature is available on your plan.
+</comp.Notice>
+
+## Enable or disable pull request features
+
+Every *Project* has a *Pull request features enabled* toggle that acts as a master switch for pull request automation:
+
+1. On the *Pull Requests* settings form, switch the *Pull request features enabled* toggle on or off.
+2. Click the *Update Pull Request Settings* button.
+
+When the master toggle is on, CloudCannon evaluates the rest of the settings on this page as normal. When the master toggle is off, CloudCannon hides the *Pull Requests* tab from this *Project* and stops posting comments, creating *Sites*, and deleting *Sites* in response to pull request events — regardless of the individual settings below. The *Branches* tab is not affected.
+
+<comp.Notice info_type="info">
+  The *Pull request features enabled* toggle is part of the *Project's* general details. Only users with write permission on *Project Settings* details can change it. Everyone else will see the toggle in its current state but will not be able to modify it.
+</comp.Notice>
+
+<comp.Notice info_type="important">
+  Disabling the master toggle while *Comment on pull requests with site details* is enabled will rewrite CloudCannon's managed comment on every open pull request with a short "pull request comments have been disabled" notice, the same way clearing the *Comment on pull requests with site details* checkbox would. Auto-created *Sites* are not deleted by the master toggle — they simply stop receiving updates until you turn the toggle back on.
+</comp.Notice>
+
+## Enable deploy preview comments
+
+To post a deploy preview comment on every pull request:
+
+1. In the *Comments* fieldset, select the *Comment on pull requests with site details* checkbox.
+2. Click the *Update Pull Request Settings* button.
+
+CloudCannon will post a comment on each pull request on the next pull request event, showing the build status, preview link, editor link, commit, and build log for every *Site* connected to the pull request's head branch. The comment is updated in place on future events.
+
+### Skip draft pull requests
+
+To avoid commenting on pull requests that are still marked as draft:
+
+1. In the *Comments* fieldset, make sure *Comment on pull requests with site details* is enabled.
+2. Select the *Skip draft pull requests* checkbox beneath it.
+3. Click the *Update Pull Request Settings* button.
+
+CloudCannon will not post or update deploy preview comments on pull requests while they are in draft state. When a draft pull request is marked as ready for review, CloudCannon will post the comment at that time.
+
+### Add a comment footer
+
+You can append custom Markdown to the deploy preview comment — for example, a link to your review checklist or a reminder for reviewers.
+
+1. In the *Comments* fieldset, make sure *Comment on pull requests with site details* is enabled.
+2. Enter your Markdown in the *Comment footer* text area.
+3. Click the *Update Pull Request Settings* button.
+
+CloudCannon will append your footer below the *Deployed by CloudCannon* line on every deploy preview comment, and will refresh existing comments on the next reconciliation.
+
+### Disable comments without removing them
+
+To stop CloudCannon from updating deploy preview comments:
+
+1. In the *Comments* fieldset, clear the *Comment on pull requests with site details* checkbox.
+2. Click the *Update Pull Request Settings* button.
+
+CloudCannon will reconcile every open pull request and rewrite its managed comment with a short notice that pull request comments have been disabled. Existing comments are not deleted — this keeps the comment thread intact and makes it obvious when deploy previews are turned off.
+
+## Automatically create Sites for pull requests
+
+To create a branch *Site* for every new pull request:
+
+1. In the *Automatic sites* fieldset, select the *Automatically create a site for new pull requests* checkbox.
+2. Click the *Update Pull Request Settings* button.
+
+CloudCannon will create a branch *Site* for each new pull request on the next event. The new *Site* copies its configuration from your *Main Branch* *Site* and your *Project's* *Branch Defaults*, and links itself to the pull request by number so that it stays in sync if the pull request's head or base branch changes later.
+
+<comp.Notice info_type="info">
+  Existing *Sites* that were already connected to the pull request's head branch are reused rather than duplicated. CloudCannon will only create a new *Site* when there is no auto-created *Site* linked to that pull request yet.
+</comp.Notice>
+
+### Skip draft pull requests
+
+To avoid creating *Sites* for pull requests that are still marked as draft:
+
+1. In the *Automatic sites* fieldset, make sure *Automatically create a site for new pull requests* is enabled.
+2. Select the *Skip draft pull requests* checkbox beneath it.
+3. Click the *Update Pull Request Settings* button.
+
+CloudCannon will defer *Site* creation until a pull request is marked as ready for review. When that happens, CloudCannon will process the event and create the *Site* using your current *Project* configuration.
+
+### Delete auto-created Sites on close or merge
+
+To clean up auto-created *Sites* when a pull request is closed or merged:
+
+1. In the *Automatic sites* fieldset, select the *Delete auto-created sites when pull requests are closed or merged* checkbox.
+2. Click the *Update Pull Request Settings* button.
+
+CloudCannon will look up the auto-created *Site* linked to the closed or merged pull request and delete it. Manually connected *Sites* are never affected, even if they happen to track the same branch.
+
+<comp.Notice info_type="important">
+  Deleting a *Site* also removes its build history, stable domain, and any custom authentication. If you need to preserve an auto-created *Site* after its pull request closes, leave this option off and delete *Sites* manually from the *Project Sites Browser* when you are ready.
+</comp.Notice>
+
+For a full explanation of how these settings behave across pull request events and edge cases, please read our documentation on [pull request deploy previews](/documentation/developer-articles/what-are-pull-request-deploy-previews/).
