@@ -44,7 +44,7 @@ To open a custom *Data Panel*:
 3. Add a call to `api.createCustomDataPanel({...})` in your script.
 4. Add the `title` property, where the value is the heading for your *Data Panel*.
 5. Add the `onChange` property, where the value is the function CloudCannon should call whenever someone changes a value in the *Data Panel* (e.g., using the new data to update your custom integration).
-6. Optional. Add the `data` property, where the value is an object containing an array of *Input* keys and default values for your *Data Panel*.
+6. Optional. Add the `data` property, where the value is an object whose keys are *Input* field names and whose values are the default values for those fields in your *Data Panel*.
 7. Optional. Add the `config` property, where the value is the `_inputs` object, containing *Input* configuration in the same structure as in your *CloudCannon Configuration File*.
 8. Optional. Add the `id` property, where the value is a unique string that identifies your *Data Panel* (so you can later close the panel).
 
@@ -53,8 +53,12 @@ To open a custom *Data Panel*:
 const panelId = await api.createCustomDataPanel({ /*1*/
   title: 'Image SEO', /*2*/
   onChange: (updatedData) => { /*3*/
-    document.querySelector('#hero-heading').textContent = updatedData.heading;
-  }
+    const img = document.querySelector('#hero-image');
+    img.src = updatedData.image;
+    img.alt = updatedData.alt_text;
+    img.title = updatedData.title_text;
+    img.loading = updatedData.lazy_load ? 'lazy' : 'eager';
+  },
   data: { /*4*/
     image: '/images/team-photo.jpg',
     alt_text: 'CloudCannon team collaborating at a whiteboard',
@@ -79,7 +83,7 @@ const panelId = await api.createCustomDataPanel({ /*1*/
   Set the heading of the *Data Panel* to "Image SEO" using the required property `title`.
 </comp.Annotation>
 <comp.Annotation number="3">
-  Required `onChange` — replace the no-op with your integration logic, or follow the next section for a fuller example. The `onChange` callback fires whenever a user changes a value in the panel. It receives the full updated data object. Use the updated data to update your custom integration — for example, updating a live preview element in the page.
+  Required `onChange` — CloudCannon calls this whenever a user changes a value in the panel. It receives the full updated data object (not a diff). Use the updated data to update your custom integration — for example, syncing a preview `<img>` (`#hero-image`) with `image`, `alt_text`, `title_text`, and `lazy_load` here.
 </comp.Annotation>
 <comp.Annotation number="4">
   Set the *Input* fields and default values using `data`.
@@ -98,90 +102,124 @@ If you omit the `id` property, CloudCannon still returns a `panelId`, but it pic
 
 ## React when panel values change
 
-`onChange` is required on every `createCustomDataPanel()` call (see **Reference — options for `createCustomDataPanel()`** above). The callback receives the entire data object after each edit (not a diff).
+`onChange` is required on every `createCustomDataPanel()` call. The `@cloudcannon/javascript-api` typings mark it as required alongside `title`. CloudCannon invokes your function with the **entire** panel data object after each edit, not a diff or patch.
 
-1. In the same `createCustomDataPanel` call, implement `onChange` to accept the updated data object.
-2. Update your DOM or application state from inside `onChange` so your preview stays in sync with the panel.
+For a full list of keys on the options object, see **Custom *Data Panel* configuration options** later in this article.
+
+To react when *Data Panel* values change:
+
+1. Open your website files in your local development environment.
+2. Open the JavaScript file where your *Visual Editor API* integration runs.
+3. Locate the `createCustomDataPanel` call for the panel you want to keep in sync with your page or application state.
+4. Add the `onChange` property on the options object, where the value is the function CloudCannon should call whenever someone changes a value in the *Data Panel*.
+5. Implement `onChange` with one parameter (for example `updatedData`) that receives the full data object after each edit.
+6. Inside `onChange`, read fields from that object and update your DOM, framework state, or other integration surface so your preview matches the panel.
+7. Optional. Use `await` with `createCustomDataPanel` when you need the returned `panelId` in the same flow.
 
 <comp.CodeBlock language="javascript" source="script.js">
 ```
 const panelId = await api.createCustomDataPanel({ /*1*/
   id: 'hero-settings-panel', /*2*/
   title: 'Hero settings',
-  data: { heading: 'Welcome', show_cta: true },
-  config: {
+  data: { heading: 'Welcome', show_cta: true }, /*3*/
+  config: { /*4*/
     _inputs: {
       heading: { type: 'text' },
       show_cta: { type: 'boolean' }
     }
   },
-  onChange: (updatedData) => { /*3*/
-    document.querySelector('#hero-heading').textContent = updatedData.heading; /*4*/
+  onChange: (updatedData) => { /*5*/
+    document.querySelector('#hero-heading').textContent = updatedData.heading; /*6*/
   }
 });
 ```
 <comp.Annotation number="1">
-  Call `createCustomDataPanel()` and pass an `onChange` callback to react to user input.
+  Call `createCustomDataPanel()`; the awaited value is the `panelId` string when you need it for closing the panel or logging.
 </comp.Annotation>
 <comp.Annotation number="2">
-  Same `id` pattern as the previous example so `panelId` stays predictable when you also use `onChange`.
+  Set a stable `id` so the resolved `panelId` matches it across opens and when you wire `onChange`.
 </comp.Annotation>
 <comp.Annotation number="3">
-  The `onChange` callback fires whenever a user changes a value in the panel. It receives the full updated data object.
+  Set initial values for the fields editors will change using `data`.
 </comp.Annotation>
 <comp.Annotation number="4">
-  Use the updated data to update your custom integration — for example, updating a live preview element in the page.
+  Configure those fields with `config` (for example `_inputs`) in the same shape as your *CloudCannon Configuration File*.
+</comp.Annotation>
+<comp.Annotation number="5">
+  Required `onChange` — CloudCannon calls this after every edit with the full updated object.
+</comp.Annotation>
+<comp.Annotation number="6">
+  Use properties from `updatedData` to update your custom integration — for example, syncing a live preview element with `heading` here.
 </comp.Annotation>
 </comp.CodeBlock>
 
 ## Close the panel
 
-Calling `destroyCustomDataPanel()` closes a *Data Panel*. Pass the same panel ID string that `createCustomDataPanel()` returned when you opened the panel.
+The `api.destroyCustomDataPanel()` function closes a custom *Data Panel* that you opened with `createCustomDataPanel()`. It accepts the same `panelId` string that `createCustomDataPanel()` returned (or the custom `id` you passed in, if you set one).
 
-1. When editors should dismiss the panel, call `destroyCustomDataPanel(panelId)` with the stored `panelId` string.
+To close a *Data Panel*:
+
+1. Open your website files in your local development environment.
+2. Open the JavaScript file where your *Visual Editor API* integration runs.
+3. Ensure you stored the `panelId` string from when you opened the panel (for example in a variable, on a component instance, or in closure scope).
+4. When editors should dismiss the panel, add a call to `api.destroyCustomDataPanel(panelId)` in the appropriate place (for example, after a *Close* control in your integration or when tearing down the integration).
+5. Pass the stored `panelId` as the only argument to `destroyCustomDataPanel`.
+6. Optional. Use `await` with `destroyCustomDataPanel` when your script should wait until the panel is closed before continuing.
 
 <comp.CodeBlock language="javascript" source="script.js">
 ```
-await api.destroyCustomDataPanel(panelId); /*1*/
+const idToClose = panelId; /*1*/
+await api.destroyCustomDataPanel(idToClose); /*2*/
 ```
 <comp.Annotation number="1">
-  Pass the panel ID to `destroyCustomDataPanel()` to close the panel.
+  Use the same `panelId` you captured when you opened the panel (or the string you passed as `id`).
+</comp.Annotation>
+<comp.Annotation number="2">
+  Pass that string to `destroyCustomDataPanel()` to close the panel.
 </comp.Annotation>
 </comp.CodeBlock>
 
 ## Anchor the panel to a control
 
-`position` is optional. By default, CloudCannon decides where to place the *Data Panel* on screen. Passing a `position` option anchors the panel to a specific element — for example, next to a button the user clicked.
+`position` is optional on `createCustomDataPanel()`. By default, CloudCannon decides where to place the *Data Panel* on screen. Passing a `position` option anchors the panel to a specific element — for example, next to a button the user clicked.
 
 The `position` value should be a `DOMRect`, which describes the size and location of an element in the *Visual Editor*. You can get this by calling `getBoundingClientRect()` on the element the user clicked (or any anchor element). CloudCannon uses that rectangle to position the *Data Panel* next to the control that triggered it.
 
-1. Listen for the interaction that should open the panel (for example, a `click` on a button in your integration).
-2. Call `getBoundingClientRect()` on the anchor element to obtain a `DOMRect`.
-3. Pass that `DOMRect` as `position` in the `createCustomDataPanel` options object, together with your other required and optional fields.
+To anchor the *Data Panel* to a control:
+
+1. Open your website files in your local development environment.
+2. Open the JavaScript file where your *Visual Editor API* integration runs.
+3. Identify the DOM element that should open the panel (for example, a button in your custom integration).
+4. Register an event listener for the interaction that should open the panel (for example, a `click` on that element).
+5. Inside the listener, call `getBoundingClientRect()` on the anchor element (for example `event.currentTarget`) to obtain a `DOMRect`.
+6. Call `createCustomDataPanel` with a `position` property set to that `DOMRect`, together with your other required and optional fields.
 
 <comp.CodeBlock language="javascript" source="script.js">
 ```
 button.addEventListener('click', async (event) => { /*1*/
-  const rect = event.target.getBoundingClientRect(); /*2*/
+  const rect = event.currentTarget.getBoundingClientRect(); /*2*/
 
-  await api.createCustomDataPanel({
+  await api.createCustomDataPanel({ /*3*/
     id: 'settings-panel',
     title: 'Settings',
     data: { /* ... */ },
     config: { /* ... */ },
     onChange: (data) => { /* ... */ },
-    position: rect /*3*/
+    position: rect /*4*/
   });
 });
 ```
 <comp.Annotation number="1">
-  Listen for a click event on the element that should trigger the *Data Panel* — for example, a button in your custom integration.
+  Listen for the interaction that should open the *Data Panel* — for example, a `click` on a button in your custom integration.
 </comp.Annotation>
 <comp.Annotation number="2">
-  Call `getBoundingClientRect()` on the clicked element to get its position and size on screen as a `DOMRect` object.
+  Call `getBoundingClientRect()` on the anchor element to get its position and size on screen as a `DOMRect` object.
 </comp.Annotation>
 <comp.Annotation number="3">
-  Pass the `DOMRect` as the `position` option. CloudCannon uses this to anchor the *Data Panel* near the element that triggered it.
+  Call `createCustomDataPanel()` with your usual `title`, `onChange`, `data`, `config`, and optional `id`.
+</comp.Annotation>
+<comp.Annotation number="4">
+  Pass the `DOMRect` as `position`. CloudCannon uses it to place the *Data Panel* near the control that triggered it.
 </comp.Annotation>
 </comp.CodeBlock>
 
@@ -189,21 +227,30 @@ button.addEventListener('click', async (event) => { /*1*/
 
 `allowFullDataCascade` is optional (default `false`). Set it to `true` when *Inputs* in the custom panel should resolve against the previewed file and the *Site* `configuration` the same way hosted *Data Panels* do—for example, when you rely on *Structure* matching or other cascade rules that need full *Site* context. Leave it `false` when the panel should only use the `data` and `config` you pass in the options object.
 
-1. Add `allowFullDataCascade: true` to the `createCustomDataPanel` options object when you need that wider cascade; omit the property or set it to `false` to keep the panel self-contained.
+To enable the full data cascade for a custom *Data Panel*:
+
+1. Open your website files in your local development environment.
+2. Open the JavaScript file where your *Visual Editor API* integration runs.
+3. Locate the `createCustomDataPanel` call where hosted-style cascade behavior would help (for example, when you rely on *Structure* matching or other rules that need the open file and *Site* configuration).
+4. Add the `allowFullDataCascade` property to the options object, where the value is `true`, when the panel should resolve *Inputs* against the previewed file and the *Site* `configuration` like hosted *Data Panels*.
+5. Optional. Omit `allowFullDataCascade` or set it to `false` when the panel should use only the `data` and `config` you pass.
 
 <comp.CodeBlock language="javascript" source="script.js">
 ```
-await api.createCustomDataPanel({
+await api.createCustomDataPanel({ /*1*/
   id: 'cascade-panel',
   title: 'Structured field',
   data: { /* ... */ },
   config: { /* ... */ },
   onChange: (data) => { /* ... */ },
-  allowFullDataCascade: true /*1*/
+  allowFullDataCascade: true /*2*/
 });
 ```
 <comp.Annotation number="1">
-  `true` widens the cascade to include the open file and *Site* configuration; omit the property or set `false` to keep the panel self-contained.
+  Call `createCustomDataPanel()` with the same options you would use for a self-contained panel.
+</comp.Annotation>
+<comp.Annotation number="2">
+  Set `allowFullDataCascade` to `true` to widen the cascade to the open file and *Site* configuration; omit the property or set `false` to keep the panel self-contained.
 </comp.Annotation>
 </comp.CodeBlock>
 
