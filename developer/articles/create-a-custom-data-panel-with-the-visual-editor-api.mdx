@@ -43,16 +43,18 @@ To open a custom *Data Panel*:
 2. Open the JavaScript file where your *Visual Editor API* integration runs.
 3. Add a call to `api.createCustomDataPanel({...})` in your script.
 4. Add the `title` property, where the value is the heading for your *Data Panel*.
-5. Add the `onChange` property, where the value is the function CloudCannon should call whenever an editor changes a value in the *Data Panel* (e.g., using the new data to update your custom integration).
-6. Optional. Add the `data` property, where the value is an object that holds the starting values for each field slug you show in the panel (for example, `image`, `alt_text`, `title_text`, and `lazy_load` for the asset shown in your preview).
-7. Optional. Add the `config` property, where the value is an object with an `_inputs` key that maps each field slug to its *Input* configuration (`type`, labels, `options`, and so on), using the same structure as in your *CloudCannon Configuration File*.
+5. Add the `onChange` property, where the value is the function CloudCannon should call whenever someone changes a value in the *Data Panel* (e.g., using the new data to update your custom integration).
+6. Optional. Add the `data` property, where the value is an object containing an array of *Input* keys and default values for your *Data Panel*.
+7. Optional. Add the `config` property, where the value is the `_inputs` object, containing *Input* configuration in the same structure as in your *CloudCannon Configuration File*.
 8. Optional. Add the `id` property, where the value is a unique string that identifies your *Data Panel* (so you can later close the panel).
 
 <comp.CodeBlock language="javascript" source="script.js">
 ```
 const panelId = await api.createCustomDataPanel({ /*1*/
   title: 'Image SEO', /*2*/
-  onChange: (_updatedData) => {}, /*3*/
+  onChange: (updatedData) => { /*3*/
+    document.querySelector('#hero-heading').textContent = updatedData.heading;
+  }
   data: { /*4*/
     image: '/images/team-photo.jpg',
     alt_text: 'CloudCannon team collaborating at a whiteboard',
@@ -74,40 +76,25 @@ const panelId = await api.createCustomDataPanel({ /*1*/
   `createCustomDataPanel()` opens the panel; the awaited value is the `panelId` string.
 </comp.Annotation>
 <comp.Annotation number="2">
-  Required `title` — sets the heading of the panel.
+  Set the heading of the *Data Panel* to "Image SEO" using the required property `title`.
 </comp.Annotation>
 <comp.Annotation number="3">
-  Required `onChange` — replace the no-op with your integration logic, or follow the next section for a fuller example.
+  Required `onChange` — replace the no-op with your integration logic, or follow the next section for a fuller example. The `onChange` callback fires whenever a user changes a value in the panel. It receives the full updated data object. Use the updated data to update your custom integration — for example, updating a live preview element in the page.
 </comp.Annotation>
 <comp.Annotation number="4">
-  Optional `data` — initial values for the panel's fields.
+  Set the *Input* fields and default values using `data`.
 </comp.Annotation>
 <comp.Annotation number="5">
-  Optional `config` — defines each *Input* using the same structure as CloudCannon's `_inputs` configuration.
+  Configure the *Inputs* from the `data` property using `config`. For more information, please read our documentation on [Inputs](/documentation/user-articles/what-are-inputs/).
 </comp.Annotation>
 <comp.Annotation number="6">
-  Optional `id` — when set, the resolved `panelId` matches it; omit to let CloudCannon assign a random id.
+  Set the unique `id` — when set, the resolved `panelId` matches it; omit to let CloudCannon assign a random id.
 </comp.Annotation>
 </comp.CodeBlock>
 
-If you omit `id`, CloudCannon still returns a `panelId`, but it picks one for you: a seven-character alphanumeric string using digits `0`–`9` and lowercase letters `a`–`z` (base 36), such as `k4j92xq`. A new value is generated each time you open a panel without an `id`. Treat it as an opaque token you store and pass back to `destroyCustomDataPanel()`—not as a UUID or a pattern to parse.
+For more information on configuring *Inputs*, please read the documentation specific to each *Input* type: [Array Inputs](/documentation/developer-articles/configure-an-array-input/), [Boolean Inputs](/documentation/developer-articles/configure-a-boolean-input/), [Code Inputs](/documentation/developer-articles/configure-a-code-input/), [Color Inputs](/documentation/developer-articles/configure-a-color-input/), [Date or Time Inputs](/documentation/developer-articles/configure-a-date-or-time-input/), [File Inputs](/documentation/developer-articles/configure-a-file-input/), [Number Inputs](/documentation/developer-articles/configure-a-number-input/), [Object Inputs](/documentation/developer-articles/configure-an-object-input/), [Rich Text Inputs](/documentation/developer-articles/configure-a-rich-text-input/), [Select Inputs](/documentation/developer-articles/configure-a-select-input/), [Text Inputs](/documentation/developer-articles/configure-a-text-input/), and [URL Inputs](/documentation/developer-articles/configure-a-url-input/).
 
-## Configure *Input* definitions for the panel
-
-For a complete list of configuration keys available for inputs please read our [Inputs](/documentation/developer-reference/configuration-file/types/_inputs/) reference documentation.
-
-These instructions assume that you know which *Input* types each panel field needs and when to set `allowFullDataCascade`. For more information, please read our documentation on [*Inputs*](/documentation/user-articles/what-are-inputs/) in general and the [configuration cascade](/documentation/developer-articles/using-the-configuration-cascade/).
-
-To configure *Input* definitions inside a custom *Data Panel*:
-
-1. Decide the field slug for each value in `data` (for example, `heading` or `show_cta`).
-2. Under `config._inputs`, add one entry per slug with a `type` value and any additional keys those *Inputs* accept — using the same object shape as at that level in the configuration cascade.
-3. For each `type`, open the matching **Configure …** article in the sections below and follow its guidance for general keys (such as `label`, `comment`, and `context`) and any keys under `_inputs.*.options`.
-4. Skip steps in those articles about opening local files or navigating the cascade on disk when you only need the nested object for `createCustomDataPanel()`.
-5. Set `data` so each slug has a default value that matches the *Input* type.
-6. (Optional.) Read more than one **Configure …** article when the panel mixes different *Input* types.
-
-CloudCannon will apply the `_inputs` configuration you supply when the panel opens. When you change `config` in your integration code, reload or rebuild so editors see the update the next time they open the panel.
+If you omit the `id` property, CloudCannon still returns a `panelId`, but it picks one for you: a seven-character alphanumeric string using digits `0`–`9` and lowercase letters `a`–`z` (base 36), such as `k4j92xq`. A new value is generated each time you open a panel without an `id`. Treat it as an opaque token you store and pass back to `destroyCustomDataPanel()`—not as a UUID or a pattern to parse.
 
 ## React when panel values change
 
@@ -297,11 +284,11 @@ These keys configure the options object passed to `createCustomDataPanel()`.
     This key accepts a `DOMRect` (for example from `getBoundingClientRect()`) to anchor the panel near a control.
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="allowFullDataCascade" type_markdown="Boolean">
-               This key toggles whether the input cascade includes the open file and *Site* configuration, so that<comp.GlossaryTerm term="/user/glossary/s/structure.yml">Structure</comp.GlossaryTerm>resolution and broader `_inputs` context match hosted *Data Panels*.
+                               This key toggles whether the input cascade includes the open file and *Site* configuration, so that<comp.GlossaryTerm term="/user/glossary/s/structure.yml">Structure</comp.GlossaryTerm>resolution and broader `_inputs` context match hosted *Data Panels*.
 
-    When set to `true`, CloudCannon widens the cascade to include the open file and *Site* configuration. When set to `false`, only the `data` and `config` you pass are used.
+                    When set to `true`, CloudCannon widens the cascade to include the open file and *Site* configuration. When set to `false`, only the `data` and `config` you pass are used.
 
-               By default, this key is `false` (i.e., the panel does not use the full file and *Site* cascade).
+                               By default, this key is `false` (i.e., the panel does not use the full file and *Site* cascade).
   </comp.DataReferenceRow>
 </comp.DataReference>
 
