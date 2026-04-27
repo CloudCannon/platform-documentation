@@ -1,7 +1,7 @@
 /**
  * Local Pagefind plugin for Lume
  * Based on lume/plugins/pagefind.ts but with:
- * - Updated to pagefind v1.5.0-beta.1
+ * - Updated to pagefind v1.5.0
  * - Added Component UI support
  *
  * This can be contributed back to Lume once stable.
@@ -12,7 +12,7 @@ import { posix } from "lume/deps/path.ts";
 import { Page } from "lume/core/file.ts";
 import { log } from "lume/core/utils/log.ts";
 
-// Import from import_map.json (pagefind v1.5.0-beta.1)
+// Import from import_map.json (pagefind v1.5.0)
 import * as Pagefind from "pagefind";
 import type { CustomRecord } from "pagefind";
 
