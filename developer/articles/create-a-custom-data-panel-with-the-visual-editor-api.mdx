@@ -27,15 +27,11 @@ author_notes:
   The *Visual Editor API* is designed for advanced CloudCannon users. If you need help with custom integrations or your CloudCannon setup in general, please contact our friendly [support team](/support/).
 </comp.Notice>
 
-The [Visual Editor](/documentation/user-articles/what-is-the-visual-editor/) uses built-in *Data Panels* to provide an editing interface for structured data (i.e., *Front Matter*) and for values that are not visible on the webpage, such as image paths, alt text, and link attributes.
-
-You can create custom *Data Panels* with full [Input](/documentation/user-articles/what-are-inputs/) support for use in the *Visual Editor* using the [Visual Editor API](/documentation/developer-articles/what-is-the-visual-editor-api/).
+The [Visual Editor](/documentation/user-articles/what-is-the-visual-editor/) uses built-in *Data Panels* to provide an editing interface for structured data (i.e., *Front Matter*) and for values that are not visible on the webpage, such as image paths, alt text, and link attributes. You can create custom *Data Panels* with full [Input](/documentation/user-articles/what-are-inputs/) support for use in the *Visual Editor* using the [Visual Editor API](/documentation/developer-articles/what-is-the-visual-editor-api/).
 
 <comp.DocShot docshot_key="CloudCannon-Documentation-Visual-Editor-Bookshop-Sendit-Home-Data-Panel" alt="A screenshot of the Visual Editor displays a webpage preview with a data panel containing inputs open over top." title="The Visual Editor with data panel" type="screenshot"/>
 
-This article explains how to create custom *Data Panels* from the *Visual Editor API* using `api.createCustomDataPanel()` and `api.destroyCustomDataPanel()`, and assumes you know how to [initialize the Visual Editor API](/documentation/developer-articles/initialize-the-visual-editor-api/), and listen for events.
-
-For other custom *Visual Editor* surfaces, read [Create inline text editable regions with the Visual Editor API](/documentation/developer-articles/create-inline-text-editable-regions-with-the-visual-editor-api/) and [Manage loading, uploads, and previews with the Visual Editor API](/documentation/developer-articles/manage-loading-uploads-and-previews-with-the-visual-editor-api/). To open CloudCannon's built-in *Data Panel* for a single field from a file handle, read [Read and write data with the Visual Editor API](/documentation/developer-articles/read-and-write-data-with-the-visual-editor-api/).
+This article assumes you know how to [initialize the Visual Editor API](/documentation/developer-articles/initialize-the-visual-editor-api/) and [listen for changes](/documentation/developer-articles/listen-for-changes-with-the-visual-editor-api/).
 
 ## Open a custom *Data Panel* with *Input* fields
 
@@ -52,7 +48,7 @@ To open a custom *Data Panel*:
 5. Add the `onChange` property, where the value is the function CloudCannon should call whenever someone changes a value in the *Data Panel* (e.g., using the new data to update your custom integration).
 6. Optional. Add the `data` property, where the value is an object whose keys are *Input* field names and whose values are the default values for those fields in your *Data Panel*.
 7. Optional. Add the `config` property, where the value is the `_inputs` object, containing *Input* configuration in the same structure as in your *CloudCannon Configuration File*.
-8. Optional. Add the `id` property, where the value is a unique string that identifies your *Data Panel* (so you can later close the panel).
+8. Optional. Add the `id` property, where the value is a unique string that identifies your *Data Panel* (so you can close the panel later).
 
 <comp.CodeBlock language="javascript" source="script.js">
 ```
@@ -109,9 +105,7 @@ document.querySelector('#open-image-seo-panel').addEventListener('click', async 
 
 For more information on configuring *Inputs*, please read the documentation specific to each *Input* type: [Array Inputs](/documentation/developer-articles/configure-an-array-input/), [Boolean Inputs](/documentation/developer-articles/configure-a-boolean-input/), [Code Inputs](/documentation/developer-articles/configure-a-code-input/), [Color Inputs](/documentation/developer-articles/configure-a-color-input/), [Date or Time Inputs](/documentation/developer-articles/configure-a-date-or-time-input/), [File Inputs](/documentation/developer-articles/configure-a-file-input/), [Number Inputs](/documentation/developer-articles/configure-a-number-input/), [Object Inputs](/documentation/developer-articles/configure-an-object-input/), [Rich Text Inputs](/documentation/developer-articles/configure-a-rich-text-input/), [Select Inputs](/documentation/developer-articles/configure-a-select-input/), [Text Inputs](/documentation/developer-articles/configure-a-text-input/), and [URL Inputs](/documentation/developer-articles/configure-a-url-input/).
 
-When using `api.createCustomDataPanel()`, the call resolves to a string `panelId`. This will be either the `id` property you defined, or a random seven-character alphanumeric string using digits `0`–`9` and lowercase letters `a`–`z` (base 36), such as `k4j92xq`.A new value is generated each time you open a panel without an `id`. Treat it as an opaque token you store and pass back to `destroyCustomDataPanel()`—not as a UUID or a pattern to parse.
-
-`onChange` is required on every `createCustomDataPanel()` call. CloudCannon invokes your function with the **entire** panel data object after each edit, not a diff or patch.
+When using `api.createCustomDataPanel()`, the call resolves to a string `panelId`. This will be either the `id` property you defined, or a random seven-character alphanumeric string using digits `0`–`9` and lowercase letters `a`–`z` (base 36), such as `k4j92xq`. A new value is generated each time you open a panel without an `id`. Treat it as an opaque token you store and pass back to `destroyCustomDataPanel()`—not as a UUID or a pattern to parse.
 
 ## Close the panel
 
