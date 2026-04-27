@@ -228,7 +228,7 @@ const injectedSections: Promise<string>[] = [];
 
 const mdFilter = site.renderer.helpers.get("md")?.[0];
 
-site.ignore("README.md", "unused", "STYLE_GUIDE.mdx", "scripts");
+site.ignore("README.md", "AGENTS.md", "unused", "STYLE_GUIDE.mdx", "scripts");
 
 // Detect dev mode (serve command uses -s flag)
 const isDevMode = Deno.args.includes("-s") || Deno.args.includes("--serve");
