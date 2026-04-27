@@ -1,4 +1,6 @@
 # Platform Documentation — Claude Instructions
+Import AGENTS.md directly into Claude's context at the start of every session, with no manual step required.
+@AGENTS.md
 
 ## JSX conventions (*.tsx files)
 
@@ -35,11 +37,3 @@ x-on-toggle="..."
 ```
 
 See `alpineRemaps` in `_config.ts` for the full list of available mappings.
-
-## Style guide
-
-Follow `STYLE_GUIDE.mdx` for all documentation writing — voice/tone, formatting, component usage, and CloudCannon-specific terminology.
-
-## Plans
-
-Store plan files in `.vscode/plans/`.
