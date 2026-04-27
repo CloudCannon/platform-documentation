@@ -1,7 +1,7 @@
 # CloudCannon Documentation Style Guide
 
-**Last Updated:** April 22, 2026  
-**Version:** 1.5
+**Last Updated:** April 28, 2026  
+**Version:** 1.6
 
 This style guide establishes writing standards for all CloudCannon documentation. It combines patterns from our existing documentation with industry best practices from Microsoft Writing Style Guide, Google Developer Documentation Style Guide, and Write the Docs community standards.
 
@@ -1058,6 +1058,8 @@ Section introduction articles provide a high-level overview of a documentation s
 - ✅ **Good:** "You can configure your Collections..."
 - ❌ **Avoid:** "We can configure our Collections..."
 
+**Sole exception:** In [What is the Visual Editor API?](/documentation/developer-articles/what-is-the-visual-editor-api/), the sentence that begins “At CloudCannon, we use this API…” is allowed. It records a **company action**: CloudCannon ships first-party product features (for example, *Editable Regions* and the Rosey connector) on the same public *Visual Editor API* that customers integrate with. That framing supports **API credibility and robustness** (real-world use of the API by its vendor). It is not generic editorial “we.” **Do not** reuse first-person plural elsewhere in articles without extending this guide.
+
 **Use Present Tense**
 
 Explanation articles describe how features work and what they do. Use present tense throughout.
@@ -1209,7 +1211,8 @@ Instruction articles describe actions to take and their immediate outcomes. Use 
 - Start each step with an action verb (imperative mood)
 - Keep steps concise (one action per step, followed by an outcome sentence if applicable)
 - Never interrupt a numbered list with DocShots, images, `<comp.CodeBlock>` or `<comp.MultiCodeBlock>` components, or other block-level elements. Place those blocks before the first step, after the last step, or between two **complete** numbered lists (each list still uninterrupted). Splitting a single list restarts the numbering and breaks the reader's flow.
-- In **instruction articles**, keep numbered steps for sequential actions. Do not replace numbered steps with continuous prose just to insert a code sample—readers expect imperative, ordered steps there. When a step depends on code, structure the section so the code block sits outside any single numbered list (for example, introduce the list, show the code block, then continue with a new numbered list for the remaining actions).
+- A block that comes **immediately after the final step** of a list is **after the last step**, not an interruption, when **no further numbered steps** follow the block. Example: steps `1.` … `n.` where step `n` is “Add the following …”, then `<comp.CodeBlock>`, then prose — compliant. **Violation:** `1.` … `n.` … block … `n+1.` … continuing the same procedure without ending the list first — split into two complete lists or move the block.
+- In **instruction articles**, keep numbered steps for sequential actions. Do not replace numbered steps with continuous prose just to insert a code sample—readers expect imperative, ordered steps there. When more steps must follow a code sample, end the first numbered list before the block, then start a **new** numbered list for the remaining actions (do not place the block between two steps of one list).
 
 **Example (step vs prose):**
 
@@ -1601,8 +1604,8 @@ documentation_link:
 The following section contains structured rules for automated validation by AI agents and linters. These rules are formatted as YAML for easy parsing.
 
 ```yaml
-style_guide_version: "1.5"
-last_updated: "2026-04-22"
+style_guide_version: "1.6"
+last_updated: "2026-04-28"
 
 terminology:
   disambiguation:
@@ -1688,6 +1691,9 @@ voice_and_tense:
     instruction_outcomes: "future"
     changelogs: "past"
   contractions: "allowed"
+  first_person_plural_we_exception:
+    article_path: "/documentation/developer-articles/what-is-the-visual-editor-api/"
+    note: "Sole allowed 'we' in articles; company dogfoods public Visual Editor API (see prose §2.2.5)"
 
 formatting_rules:
   oxford_comma: true
@@ -1835,6 +1841,8 @@ documentation_types:
       avoid_in_step_text:
         - "Conceptual or background explanation that does not advance the task"
         - "Definitions, rationale, or API behavior unless phrased as the next action"
+      code_blocks_after_list:
+        note: "After the final n. step with no n+1 following the block counts as after_last_step, not code_blocks_interrupting_ordered_lists"
   
   glossary:
     diataxis_category: "reference"
@@ -2062,6 +2070,7 @@ validation_rules:
   ignore:
     - "Passive voice in: changelog features, technical descriptions"
     - "Missing periods in: list fragments, single-word items"
+    - "code_blocks_interrupting_ordered_lists when the block follows the final step of a complete ordered list and no numbered item follows the block (after_last_step pattern; see §2.3.4)"
 
 accessibility_requirements:
   alt_text: "required_for_all_images"
@@ -2078,6 +2087,7 @@ accessibility_requirements:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.6 | 2026-04-28 | §2.3.4: clarify ordered list + code block — block after final step without continuation is after_last_step, not an interruption; §2.2.5: sole exception for first-person plural in What is the Visual Editor API? (company uses public API); machine-readable notes for `numbered_steps`, `voice_and_tense`, and `validation_rules.ignore` |
 | 1.5 | 2026-04-22 | Terminology: qualify "editor" — do not use the word in isolation; machine-readable `disambiguation.editor` rules and validation hint |
 | 1.4 | 2026-04-22 | Instruction articles: numbered steps must be executable actions only; move explanations to surrounding prose; machine-readable `numbered_steps` rules and validation hint |
 | 1.3 | 2026-04-22 | Added prose-first guidance for code examples and annotations; extended step-list rule for code blocks (keep numbered steps in instruction articles; place blocks outside a single list); machine-readable annotation rules and validation hints |
