@@ -1,0 +1,75 @@
+---
+_schema: default
+_uuid: de912ab7-84e0-443a-9107-50e00571c1cc
+_created_at: '2023-05-26 00:32:03 +0000'
+details:
+  title: Migrate to Rosey
+  order: 2
+  image: /documentation/static/CloudCannonDocumentationog.jpg
+  description: Convert your translation setup from CloudCannon's built-in i18n to Rosey.
+  start_nav_group: null
+  related_articles: null
+author_notes:
+  docshots: Needs docshots
+---
+
+This page covers the migration-specific steps for moving from CloudCannon's deprecated built-in i18n to <comp.GlossaryTerm term="/user/glossary/r/rosey.yml">Rosey</comp.GlossaryTerm>. If you don't have an existing i18n setup, see [Set up Rosey on CloudCannon](/documentation/developer-guides/add-internationalization-with-rosey/set-up-rosey-on-cloudcannon/) instead.
+
+## Migrate your site
+
+1. Initialize NPM on your site if you haven't already.
+
+<comp.CodeBlock language="sh" source="Terminal">
+```
+npm init
+```
+</comp.CodeBlock>
+
+2. Install Rosey.
+
+<comp.CodeBlock language="sh" source="Terminal">
+```
+npm install rosey
+```
+</comp.CodeBlock>
+
+3. Rename your `_locales` directory to `rosey/locales` and convert each file from the CloudCannon i18n format to JSON.
+
+4. Add a `rosey.yml` configuration file at the root of your project.
+
+The `tag` key should match the attribute currently on your HTML elements. CloudCannon's built-in i18n used `data-i18n`; Rosey uses `data-rosey`. You can migrate gradually — set `tag` to your old attribute while you retag, then switch to `data-rosey` once complete.
+
+<comp.CodeBlock language="yaml" source="rosey.yml">
+```
+source: _site
+tag: data-rosey
+```
+</comp.CodeBlock>
+
+5. Retag your HTML elements, replacing `data-i18n` with `data-rosey` throughout your templates.
+
+The before and after for each element looks like this:
+
+<comp.CodeBlock language="html" source="Before migration">
+```
+<h1 data-i18n="hero.heading">Welcome</h1>
+```
+</comp.CodeBlock>
+
+<comp.CodeBlock language="html" source="After migration">
+```
+<h1 data-rosey="hero.heading">Welcome</h1>
+```
+</comp.CodeBlock>
+
+6. Test your translated site locally.
+
+<comp.CodeBlock language="sh" source="Terminal">
+```
+npx rosey build --serve
+```
+</comp.CodeBlock>
+
+Once your local build is working, set up the CloudCannon postbuild script. Follow the steps in [Set up Rosey on CloudCannon](/documentation/developer-guides/add-internationalization-with-rosey/set-up-rosey-on-cloudcannon/) from the Set up the postbuild script section onward.
+
+If you were previously using CloudCannon's built-in i18n, you can disable it in your site's build settings once Rosey is running correctly.
