@@ -7,7 +7,7 @@ Machine-readable style rules for AI agents and automated linters. These rules ar
 **For agents making updates to this file:** Also update the corresponding section in `STYLE_GUIDE.mdx` with the prose explanation and examples. Update the revision history in both files: `last_updated` and `style_guide_version` in the YAML block below, and the `Last Updated` and `Version` fields and the revision history table (Section 4) in `STYLE_GUIDE.mdx`.
 
 ```yaml
-style_guide_version: "2.2"
+style_guide_version: "2.3"
 last_updated: "2026-04-28"
 
 terminology:
@@ -178,6 +178,7 @@ documentation_types:
       max_items: 3
       _type: ["developer_articles", "user_articles", "developer_guides", "user_guides"]
       item: "[UUID of related article]"
+      guide_link_rule: "When linking to a guide, include only one page from that guide (normally the index). Do not list multiple pages from the same guide as separate items."
     structure_varies_by_type:
       concept_definition:
         - "Opening definition"
@@ -248,6 +249,7 @@ documentation_types:
       max_items: 3
       _type: ["developer_articles", "user_articles", "developer_guides", "user_guides"]
       item: "[UUID of related article]"
+      guide_link_rule: "When linking to a guide, include only one page from that guide (normally the index). Do not list multiple pages from the same guide as separate items."
     step_format: "numbered_list"
     numbered_steps:
       content: "imperative_actions_only"
@@ -499,6 +501,7 @@ validation_rules:
     - "guide_page_closing_cta_to_sibling_page"
     - "guide_page_related_articles_not_null"
     - "ui_elements_in_links_no_italics"
+    - "related_articles_multiple_pages_from_same_guide"
   
   ignore:
     - "Passive voice in: changelog features, technical descriptions"
