@@ -1,0 +1,221 @@
+---
+_schema: default
+_uuid: 1b92a30d-2449-441c-aa24-7f52412b511b
+_created_at: '2026-04-24 00:00:00 +0000'
+details:
+  title: What are pull request deploy previews?
+  description: >-
+    Learn how CloudCannon responds to pull requests on your Project with deploy
+    preview comments and automatically created Sites.
+  image: >-
+    https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+  category:
+    - Explanation
+  related_articles:
+    - _type: user_articles
+      item: 070d3c13-ab9a-46cf-bdf4-4e299928a734
+    - _type: developer_articles
+      item: f76883ee-6fe6-46a3-8ae9-59d632dde14e
+    - _type: developer_articles
+      item: cf1a6a0b-42bb-4ed1-bce3-fbb697dffc12
+author_notes:
+  docshots: Needs docshots
+---
+<comp.Notice info_type="pricing">
+  **Pull request deploy previews are available on our [Team and Enterprise plans](/pricing/).**
+
+  Want to chat about whether this feature is right for you? Our support team is always <a href="mailto:success@cloudcannon.com?subject=A%20question%20about%20pull%20request%20deploy%20previews" rel="noreferrer">happy to hear from you</a>.
+</comp.Notice>
+
+Pull request deploy previews are a set of automations that run on your *Project* whenever a <comp.GlossaryTerm term="/user/glossary/p/pull-request.yml">Pull Request</comp.GlossaryTerm> is opened, updated, or closed in your <comp.GlossaryTerm term="/user/glossary/g/git-repository.yml">Git Repository</comp.GlossaryTerm>. CloudCannon can post a comment on each pull request with links to your connected *Sites*, create a branch *Site* automatically for every pull request, and clean up those *Sites* once the pull request is closed or merged.
+
+You configure these behaviors in the *Pull Requests* section under the *Project Settings* tab, gated by a *Pull request features enabled* master toggle on each *Project*. For the steps to enable each option, please read our documentation on [configuring Pull Request settings](/documentation/developer-articles/configure-pull-request-settings/).
+
+## The Pull request features enabled toggle
+
+Every *Project* has a *Pull request features enabled* toggle at the top of its *Pull Requests* settings form. Think of it as the master switch for pull request automation on that *Project*. Leaving it on is the default, and what most *Projects* will want.
+
+When the master toggle is off:
+
+* The *Pull Requests* tab is hidden from the top-level *Project* navigation. The *Branches* tab is not affected.
+* CloudCannon ignores pull request events for this *Project*. No comments are posted, no *Sites* are created, and no auto-created *Sites* are deleted, regardless of the *Comments* or *Automatic sites* settings below the toggle.
+* The rest of the settings on the *Pull Requests* form are disabled until the master toggle is turned back on, but their values are preserved.
+
+When you turn the master toggle back on, CloudCannon resumes handling pull request events immediately. As with every other *Pull Requests* setting, reactivation is lazy — pull requests that were opened while the master toggle was off are only picked up on the next event they receive (such as a push, rename, or reopen).
+
+<comp.Notice info_type="info">
+  The *Pull Requests* tab is also gated by a dedicated read permission. Even with the master toggle on, a team member who does not have permission to read pull requests on the *Project* will not see the tab. The *Pull Requests* section under *Project Settings* has its own write permission, so admins can let team members view the settings without being able to change them.
+</comp.Notice>
+
+## How CloudCannon listens to pull requests
+
+When you connect a *Project* to GitHub, GitLab, or Bitbucket, CloudCannon subscribes to pull request events on your *Git Repository*. CloudCannon processes the following events:
+
+* **Opened** — A new pull request is created.
+* **Reopened** — A previously closed pull request is reopened.
+* **Ready for review** — A draft pull request is marked as ready (GitHub `ready_for_review`, GitLab `update`, Bitbucket `pullrequest:updated`).
+* **Converted to draft** — A pull request is reverted to a draft.
+* **Edited** — The pull request title, description, or base branch changes (GitHub `edited`, GitLab `update`, Bitbucket `pullrequest:updated`).
+* **Closed or merged** — The pull request is closed without merging, or merged into its base branch.
+
+Each event is routed to your *Project* based on the repository identifier and your connected *Git Provider*. CloudCannon then reconciles your *Project* settings against the current state of the pull request — posting or updating comments, creating or syncing branch *Sites*, and deleting auto-created *Sites* when appropriate. If the *Project's* *Pull request features enabled* master toggle is off, the event is received and logged but no comments, *Sites*, or deletions are processed.
+
+<comp.Notice info_type="info">
+  Pull request events only trigger deploy preview automations when your *Organization* is on a plan that includes pull request management, and when the webhook from your *Git Provider* is correctly connected. If you have recently connected your *Project*, allow a few minutes for the webhook to be registered before expecting events.
+</comp.Notice>
+
+## Deploy preview comments
+
+When *Comment on pull requests with site details* is enabled, CloudCannon posts a single comment on each pull request summarizing the *Sites* connected to the pull request's head branch. The comment includes:
+
+* The *Site* name and the branch it tracks
+* The current build status (Ready, Building, Build Failed, or Not configured)
+* A *Visit Preview* link pointing to the *Site's* testing domain
+* An *Open Editor* link that opens the *Site* in CloudCannon
+* A link to the latest commit on your *Git Provider*
+* A link to the latest build log in CloudCannon
+
+If multiple *Sites* are connected to the same branch, CloudCannon renders the details as a table with one row per *Site*. If no *Sites* are connected yet, the comment links to your *Project* so you can connect one.
+
+CloudCannon identifies its own comment using a hidden HTML marker scoped to your *Organization*, so it will update the same comment rather than posting a new one on every change. This also means the comment is safe to keep in place — editing or reacting to it from your *Git Provider* will not affect CloudCannon's ability to update it.
+
+### When comments are posted and updated
+
+The deploy preview comment is upserted in the following situations:
+
+* A pull request event is received (opened, reopened, ready for review, edited, and so on).
+* A *Site* linked to the pull request changes branch, is renamed, or has its stable domain updated.
+* A *Site* is created for the pull request (including auto-created *Sites*).
+* A build on a connected *Site* completes, so the status and commit information stay current.
+
+### The comment footer
+
+You can add an optional Markdown footer to the deploy preview comment using the *Comment footer* field. The footer is appended below the *Deployed by CloudCannon* line and is useful for linking to internal review checklists, tagging reviewers, or pointing at documentation specific to your team.
+
+### Skipping draft pull requests
+
+When *Skip draft pull requests* is enabled under *Comments*, CloudCannon will not post or update the deploy preview comment while a pull request is marked as draft. If you later mark the pull request as ready for review, CloudCannon will post the comment at that time.
+
+### What happens when you disable comments
+
+Disabling *Comment on pull requests with site details* does not delete existing deploy preview comments from your pull requests. Instead, CloudCannon reconciles every open pull request in the *Project* and rewrites its managed comment with a short notice explaining that pull request comments have been disabled.
+
+The same reconciliation runs when you enable *Skip draft pull requests* for comments, change your *Comment footer*, or turn the *Pull request features enabled* master toggle off while comments were previously enabled: any pull request that was previously eligible and has now become ineligible is updated with the disabled notice, and any pull request that is newly eligible is back-filled with a fresh deploy preview comment.
+
+<comp.Notice info_type="info">
+  Reconciliation only touches comments that CloudCannon posted using the marker for your *Organization*. It never edits or deletes comments written by people or other integrations.
+</comp.Notice>
+
+## Automatic Sites
+
+When *Automatically create a site for new pull requests* is enabled, CloudCannon creates a branch *Site* in your *Project* the first time it sees an eligible pull request event. The new *Site* is a full CloudCannon *Site*, not a throwaway preview — it has its own build pipeline, testing domain, and editing experience.
+
+### How the Site is configured
+
+CloudCannon assembles the configuration for an auto-created *Site* from three sources:
+
+1. **Your main Site** — If the *Project* has a *Main Branch* with a connected *Site*, CloudCannon copies the *Publish Mode*, *Configuration File* path, <comp.GlossaryTerm term="/user/glossary/s/ssg.yml">Static Site Generator</comp.GlossaryTerm>, editing mode, build configuration, authentication, and feature flags from that *Site*.
+2. **Your Project's Branch Defaults** — Default authentication, stable password, and publish mode configured under *Project Settings* are applied on top.
+3. **The Pull Request** — The head branch, title, and (if your *Organization* has the merging feature enabled) the base branch are stamped onto the *Site*.
+
+The *Site's* name is generated from the pull request as `PR #N: <title>`, truncated to 100 characters. The *Site's* `create_source` is set to `pr_auto_create`, which is how CloudCannon distinguishes auto-created *Sites* from *Sites* you added manually.
+
+### The link between a Site and its pull request
+
+Every auto-created *Site* stores the pull request number and the external pull request URL directly on the *Site*. CloudCannon uses this hard link to reconcile the *Site* on subsequent pull request events, rather than relying on the head branch name (which can change during the lifetime of a pull request).
+
+As long as the hard link is present, CloudCannon will keep the following *Site* attributes in sync with the pull request:
+
+* **Head branch** — If the pull request is rebased onto a new head branch, the *Site's* tracked branch is updated to match.
+* **Publish branch** — If the pull request's base branch changes, CloudCannon updates the *Site's* *Publish Branch* to the new base (provided the merging feature is enabled on your *Organization*).
+* **Site name** — If the pull request title changes and the *Site* name still follows the auto-generated `PR #N: …` pattern, the name is refreshed.
+* **External URL** — The stored pull request URL is kept up to date with whatever the *Git Provider* reports.
+
+Reconciliation runs on every non-closing pull request event. Base branch changes are also logged server-side so you can audit them later.
+
+<comp.Notice info_type="important">
+  CloudCannon only reconciles *Sites* whose `create_source` is `pr_auto_create`. *Sites* you added yourself are never modified by pull request events, even if they happen to match a pull request number or branch name.
+</comp.Notice>
+
+### Skipping draft pull requests
+
+When *Skip draft pull requests* is enabled under *Automatic sites*, CloudCannon will not create a *Site* while a pull request is marked as draft. The moment the pull request is marked as ready for review, the event is processed and the *Site* is created using the configuration described above.
+
+This option is independent of the *Skip draft pull requests* option for comments — you can, for example, post comments on drafts but defer *Site* creation until a pull request is ready.
+
+### Publish branch behavior
+
+If your *Organization* has the merging feature enabled, CloudCannon sets the *Publish Branch* on the auto-created *Site* to the pull request's base branch. This enables the full merge-to-publish workflow: team members can use the *Publish* button in the branched *Site* to propose changes back to the pull request's target branch, the same way they would from a manually branched *Site*.
+
+If the merging feature is not enabled, CloudCannon leaves the *Publish Branch* unset. The *Site* is still created, but the *Publish* button is not available.
+
+### Interaction with Delete branched site after publishing
+
+If your *Project's* *Branch Defaults* include *Delete branched site after publishing*, CloudCannon sets `destroy_on_publish` on every auto-created *Site*. This means that once changes from the branched *Site* are published to its *Publish Branch*, the *Site* is deleted along with any record of the pull request link. If the pull request is later reopened or updated, CloudCannon will create a new *Site* on the next event.
+
+### Deleting auto-created Sites
+
+When *Delete auto-created sites when pull requests are closed or merged* is enabled, CloudCannon looks up the *Site* linked to the closed or merged pull request by its pull request number and destroys it. Only *Sites* with `create_source == pr_auto_create` are considered, so manually connected *Sites* that happen to match the head branch or pull request number are never affected.
+
+Disabling this option leaves auto-created *Sites* in place after the pull request is closed or merged. You can still delete them manually from the *Project Sites Browser*.
+
+## Edge cases and behavior you should know about
+
+The following scenarios come up often enough to call out explicitly.
+
+### Enabling settings on an existing Project
+
+Pull request settings are intentionally lazy. Toggling them on does not retroactively process historical pull requests:
+
+* **Enabling the master toggle** — Turning *Pull request features enabled* back on does not replay missed events. Existing pull requests pick up comments and *Sites* on their next event.
+* **Enabling comments** — Existing pull requests will only receive a comment on the next event (such as a new push or a reopen). If you need an immediate comment on an already-open pull request, trigger any small change to the pull request.
+* **Enabling Automatic Sites** — *Sites* are only created on the next pull request event. No backfill is performed for pull requests that were already open when the setting was turned on.
+* **Enabling Delete auto-created sites** — *Sites* are only deleted on future close or merge events. *Sites* that are already orphaned from previously closed pull requests are not cleaned up automatically.
+
+Disabling a setting is similarly lazy, with one exception: disabling comments or changing the comment footer runs a one-shot reconciliation across every open pull request so the existing comment is either updated with the disabled notice or refreshed with the new footer. For more information, please read the [When you disable comments](#what-happens-when-you-disable-comments) section above.
+
+### Renaming or moving the head branch
+
+If the head branch of a pull request is renamed, CloudCannon follows the rename automatically for any *Site* that is hard-linked to the pull request. The tracked branch is updated and the next build runs against the new branch. Other *Sites* that were pointed at the old branch name (for example, a manually connected *Site*) are not touched.
+
+### Changing the base branch
+
+Changes to a pull request's base branch are detected across all three providers:
+
+* **GitHub** sends an `edited` event with a `changes.base.ref.from` field, which CloudCannon records as the previous base branch.
+* **GitLab** sends a merge request `update` event with a `changes.target_branch.previous` field, which CloudCannon records as the previous base branch.
+* **Bitbucket** sends a `pullrequest:updated` event without an explicit previous base branch, so CloudCannon falls back to comparing the stored *Publish Branch* on the hard-linked *Site*.
+
+When a new base branch is detected and the merging feature is enabled, CloudCannon updates the *Publish Branch* on the hard-linked *Site* and logs the change for auditing. If merging is not enabled, the *Publish Branch* is not updated and no change is logged.
+
+### Renaming an auto-created Site
+
+Auto-created *Sites* start with a name like `PR #42: Add footer links`. If you rename the *Site* to something custom (for example, `Footer redesign`), CloudCannon stops refreshing the name from the pull request title — your custom name takes precedence.
+
+CloudCannon detects a custom name by checking whether the current name still starts with `PR #N: ` (where `N` is the pull request number). Changing the title of the pull request back to the auto-generated format by hand will re-enable automatic refresh.
+
+### Multiple Sites on the same branch
+
+It is possible to have more than one *Site* connected to the same head branch — for example, a manually connected *Site* that was set up before Automatic Sites was enabled, plus an auto-created *Site* from a later pull request on the same branch. CloudCannon handles this safely:
+
+* The deploy preview comment lists every *Site* on the branch in a table, including both manual and auto-created *Sites*.
+* Auto-creation only reuses or creates *Sites* with `create_source == pr_auto_create`. Manual *Sites* are ignored.
+* Auto-deletion only destroys *Sites* with `create_source == pr_auto_create`. Manual *Sites* are ignored.
+
+### Multiple pull requests on the same branch
+
+Different pull requests that happen to share a head branch each get their own hard-linked auto-created *Site*, keyed by pull request number. Closing one pull request only deletes the *Site* linked to that specific pull request number.
+
+### Deploy preview comments when no Sites exist yet
+
+If no *Sites* are connected to a pull request's head branch, the deploy preview comment still appears, but links to your *Project* with instructions to connect a *Site*. This is also the state you will see for pull requests opened before Automatic Sites was enabled.
+
+### Unsupported providers and repositories
+
+Pull request deploy previews are supported for *Projects* connected to GitHub, GitLab, or Bitbucket. If your *Project* is connected through GitHub Enterprise Server, behavior matches GitHub Cloud. Self-hosted GitLab instances behave like GitLab Cloud provided the webhook is reachable from CloudCannon.
+
+### Errors and retries
+
+Network failures and *Git Provider* API errors during comment or *Site* operations are reported to CloudCannon's error tracker and do not abort the rest of the pull request event. This means a transient failure updating one *Site* will not prevent other *Sites* on the same pull request from being updated.
+
+For step-by-step instructions on enabling these features, please read our documentation on [configuring Pull Request settings](/documentation/developer-articles/configure-pull-request-settings/).
