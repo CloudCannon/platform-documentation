@@ -1,6 +1,21 @@
 # Platform Documentation — Claude Instructions
-Import AGENTS.md directly into Claude's context at the start of every session, with no manual step required.
+
+## Before writing documentation
+
+Read `STYLE_GUIDE.mdx` in full before writing or editing any documentation. Do not rely on recalled rules — read it fresh. Missing style rules on a first pass and fixing them after the fact is slower than reading the guide upfront.
+
+## Skills
+
+Skills are reference guides for repo-specific workflows. Read the relevant skill before starting work in that area:
+
+- **Move or delete pages** — routing.json workflow for page moves, renames, and deletions: `.claude/skills/move-or-delete-pages.md`
+- **Edit tool safety** — avoiding `replace_all` pitfalls when editing paths and filenames: `.claude/skills/edit-tool-safety.md`
+
+---
+
+Import AGENTS.md and STYLE_GUIDE_AGENTS.md directly into Claude's context at the start of every session, with no manual step required.
 @AGENTS.md
+@STYLE_GUIDE_AGENTS.md
 
 ## JSX conventions (*.tsx files)
 

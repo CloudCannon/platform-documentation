@@ -1,0 +1,483 @@
+# CloudCannon Style Guide — Agent Reference
+
+Machine-readable style rules for AI agents and automated linters. These rules are a companion to the human-readable guide at `STYLE_GUIDE.mdx`, which contains the full prose explanations, examples, and rationale behind every rule. When rules conflict or a case is ambiguous, `STYLE_GUIDE.mdx` is authoritative.
+
+**Before writing or editing any documentation, read `STYLE_GUIDE.mdx` in full.**
+
+```yaml
+style_guide_version: "1.6"
+last_updated: "2026-04-28"
+
+terminology:
+  disambiguation:
+    editor:
+      rule: "Do not use the bare word editor for a tool or product; it is ambiguous"
+      qualify_with:
+        - "Visual Editor, Content Editor, Data Editor, Source Editor (UI names per italics rules)"
+        - "code editor, IDE, or named product (e.g. VS Code) for where developers write code"
+        - "rich text editor, WYSIWYG editor, or name the host UI"
+        - "Explicit person/role phrasing when meaning a human"
+      compounds_allowed_when_context_clear:
+        - "Visual Editor API"
+        - "inEditorMode"
+        - "editor-only (preview vs live Site when sentence names the environment)"
+  required_terms:
+    product_name: "CloudCannon"
+    git_providers:
+      - "GitHub"
+      - "GitLab"
+      - "Bitbucket"
+    static_site_generators:
+      - "Jekyll"
+      - "Hugo"
+      - "Eleventy"
+      - "Astro"
+      - "Next.js"
+      - "Gatsby"
+      - "SvelteKit"
+      - "Nuxt"
+  
+  capitalized_concepts:
+    - "Site"
+    - "Organization"
+    - "Collection"
+    - "Team Member"
+    - "Permission Group"
+    - "Schema"
+    - "Structure"
+    - "Configuration File"
+    - "Visual Editor"
+    - "Content Editor"
+    - "Data Editor"
+    - "Source Editor"
+    - "Collection Browser"
+    - "File Browser"
+    - "Sites Browser"
+    - "Organizations Browser"
+    - "Site Navigation"
+    - "Site Header"
+    - "App Sidebar"
+  
+  preferred_terms:
+    "Git repository": ["repo", "git repo"]
+    "Git provider": ["source provider", "git host"]
+    "Site files": ["source files"]
+    "Configuration File": ["config file"]
+    "front matter": ["frontmatter", "Front Matter"]
+    "webpage": ["web page"]
+    "website": ["web site"]
+    "email": ["e-mail"]
+    "sign in": ["login (as verb)"]
+    "log in": ["login (as verb)"]
+    "dropdown": ["drop-down", "drop down"]
+    "checkbox": ["check box"]
+    "filename": ["file name"]
+    "insecure": ["unsecure"]
+
+prohibited_phrases:
+  - "click here"
+  - "read more"
+  - "simply"
+  - "just"
+  - "easy"
+  - "obviously"
+  - "clearly"
+
+voice_and_tense:
+  voice: "active"
+  person: "second"
+  tense:
+    articles: "present"
+    instruction_steps: "imperative"
+    instruction_outcomes: "future"
+    changelogs: "past"
+  contractions: "allowed"
+  first_person_plural_we_exception:
+    article_path: "/documentation/developer-articles/what-is-the-visual-editor-api/"
+    note: "Sole allowed 'we' in articles; company dogfoods public Visual Editor API (see prose §2.2.5)"
+
+formatting_rules:
+  oxford_comma: true
+  sentence_case_headings: true
+  ui_elements_italicized: true
+  code_inline_backticks: true
+  
+  ui_element_formatting:
+    pattern: "*[Element Name]*"
+    examples:
+      - "*Save* button"
+      - "*Site Navigation*"
+      - "*+ Add* dropdown"
+  
+  concept_capitalization:
+    rule: "Capitalize when referring to CloudCannon-specific concept"
+    examples:
+      correct:
+        - "A Collection is a group of files."
+        - "Each collection in your Site..."
+      incorrect:
+        - "A collection is a group of files."
+        - "Each Collection in your Site..."
+
+documentation_types:
+  # CloudCannon uses a modified Diátaxis framework with the following types:
+  # - Explanation (understanding-oriented)
+  # - Instructions (task-oriented, like "how-to guides")
+  # - Guides (learning-oriented, like "tutorials")
+  # - Glossary (reference)
+  # - Changelogs (informational, not part of traditional Diátaxis)
+  
+  changelog:
+    diataxis_category: "informational"
+    purpose: "Document product changes and updates over time"
+    filename_pattern: "MM-DD_descriptive-title.mdx within changelogs/YYYY/"
+    required_front_matter:
+      - "_schema"
+      - "title"
+    required_sections:
+      - "Features & Improvements"
+      - "Fixes"
+    tense: "past"
+    preferred_verbs:
+      - "Added"
+      - "Changed"
+      - "Improved"
+      - "Removed"
+      - "Fixed"
+  
+  explanation:
+    diataxis_category: "understanding-oriented"
+    purpose: "Help users understand concepts, features, context, and best practices"
+    filename_patterns:
+      concept_definition: "what-is-*.mdx"
+      context_benefits: "why-*.mdx"
+      best_practices: "best-practice-*.mdx | best-practices-*.mdx"
+    title_patterns:
+      concept_definition: "What is|What are"
+      context_benefits: "Why [action/feature]"
+      best_practices: "Best practice for|Best practices for"
+    required_front_matter:
+      - "_schema: default"
+      - "_uuid: [auto-generated UUID]"
+      - "_created_at: [auto-generated timestamp]"
+      - "details.title"
+      - "details.description"
+      - "details.image"
+      - "details.category: [Explanation]"
+      - "details.related_articles: [optional array, max 3 items]"
+      - "author_notes.docshots"
+    docshots_values:
+      "Added!": "All CloudCannon app screenshots use DocShot; no DocsImage remains except assets/external_screenshots/"
+      "Needs docshots": "Article still has DocsImage components (other than external screenshots) to migrate"
+      "Not applicable": "Article has no CloudCannon app screenshots"
+    related_articles_structure:
+      max_items: 3
+      _type: ["developer_articles", "user_articles", "developer_guides", "user_guides"]
+      item: "[UUID of related article]"
+    structure_varies_by_type:
+      concept_definition:
+        - "Opening definition"
+        - "Context and purpose"
+        - "Features and functionality"
+        - "Related information"
+      context_benefits:
+        - "Introduction"
+        - "Benefits and use cases"
+        - "How it works (optional)"
+        - "Limitations (optional)"
+        - "Related information"
+      best_practices:
+        - "Introduction"
+        - "Best practices (multiple sections)"
+        - "Related information"
+  
+  guide:
+    diataxis_category: "learning-oriented"
+    purpose: "Provide hands-on learning experiences through complete workflows"
+    filename_pattern: "[descriptive-name].mdx"
+    required_files:
+      - "index.mdx"
+      - "_data.yml"
+    required_front_matter:
+      - "_schema: default"
+      - "_uuid: [auto-generated UUID]"
+      - "_created_at: [auto-generated timestamp]"
+      - "details.title"
+      - "details.order"
+      - "details.image"
+      - "details.description"
+      - "details.start_nav_group: [null or section name string to group pages]"
+      - "details.related_articles: [typically null]"
+      - "author_notes.docshots: [Added! | Needs docshots | Not applicable]"
+    index_title: "Introduction"
+    note: "Guides use nested 'details' structure like articles"
+  
+  instructions:
+    diataxis_category: "task-oriented"
+    purpose: "Provide step-by-step guidance for specific tasks"
+    filename_pattern: "[action-verb]-*.mdx"
+    title_patterns:
+      - "Add a [thing]"
+      - "Configure [feature]"
+      - "Create a [thing]"
+      - "How to [action]"
+    required_front_matter:
+      - "_schema: default"
+      - "_uuid: [auto-generated UUID]"
+      - "_created_at: [auto-generated timestamp]"
+      - "details.title"
+      - "details.description"
+      - "details.image"
+      - "details.category: [Instructions]"
+      - "details.related_articles: [optional array, max 3 items]"
+      - "author_notes.docshots: [Added! | Needs docshots | Not applicable]"
+    related_articles_structure:
+      max_items: 3
+      _type: ["developer_articles", "user_articles", "developer_guides", "user_guides"]
+      item: "[UUID of related article]"
+    step_format: "numbered_list"
+    numbered_steps:
+      content: "imperative_actions_only"
+      explanations: "prose_before_list | prose_after_list | prose_between_two_complete_lists"
+      avoid_in_step_text:
+        - "Conceptual or background explanation that does not advance the task"
+        - "Definitions, rationale, or API behavior unless phrased as the next action"
+      code_blocks_after_list:
+        note: "After the final n. step with no n+1 following the block counts as after_last_step, not code_blocks_interrupting_ordered_lists"
+  
+  glossary:
+    diataxis_category: "reference"
+    purpose: "Provide quick lookup of terminology and definitions"
+    filename_pattern: "[first-letter]/[term-name].yml"
+    location: "user/glossary/"
+    required_fields:
+      - "_schema: default"
+      - "glossary_term_name"
+      - "term_description"
+      - "documentation_link"
+    description_length:
+      target_sentences: "2-3"
+      target_percentage: "80%"
+      acceptable_short: "1 sentence for patterns (inputs, SSGs, file formats)"
+      acceptable_long: "4+ sentences for complex features"
+      max_words: 100
+    
+    sentence_structure:
+      sentence_1: "Core definition - What is it?"
+      sentence_2: "Context and purpose - How is it used?"
+      sentence_3_optional: "Additional context, cross-references, usage notes"
+    
+    italicization_rules:
+      use_asterisks_for:
+        ui_components:
+          - "Visual Editor"
+          - "Content Editor"
+          - "Data Editor"
+          - "Source Editor"
+          - "App Sidebar"
+          - "Site Header"
+          - "Site Navigation"
+          - "Collection Browser"
+          - "File Browser"
+          - "Sites Browser"
+          - "Organizations Browser"
+        core_concepts:
+          - "Site"
+          - "Organization"
+          - "Project"
+          - "Collection"
+          - "Permission Group"
+          - "Schema"
+          - "Structure"
+          - "Configuration File"
+        features:
+          - "Build"
+          - "Git Repository"
+          - "Publish Branch"
+          - "Custom Domain"
+          - "Testing Domain"
+          - "Client Sharing"
+          - "Site Sharing"
+        all_input_types: true
+      
+      do_not_italicize:
+        - "account, user, team member"
+        - "file, files, assets, uploads"
+        - "permission (standalone)"
+        - "layout, routing, markup, link"
+        - "building, editing, syncing (verbs)"
+        - "DAM, SSG, API, CDN, DNS, HTTP, CORS, XSS, SSO, SAML"
+        - "Git, GitHub, GitLab, Bitbucket"
+        - "HTML, CSS, JavaScript, YAML, JSON"
+        - "AWS, Azure, Make, Zapier, Okta"
+      
+      possessive_forms: "Include apostrophe-s inside italics (*Site's*)"
+    
+    cross_reference_rules:
+      italicize_cloudcannon_terms: true
+      includes: "UI elements, core concepts, and features"
+      do_not_italicize: "generic terms, external services, file formats"
+      examples:
+        correct:
+          - "Once you group your files into *Collections*, they appear in the *Site Navigation* for easy access."
+          - "Team members are invited to your *Organization* to collaborate on *Sites*."
+          - "Each team member has permissions assigned through *Permission Groups*."
+        incorrect:
+          - "Collections appear in the Site Navigation."  # Should italicize CloudCannon terms
+          - "Each team member belongs to at least one Permission Group."  # Should italicize *Permission Group*
+    
+    link_format:
+      pattern: "/documentation/[user|developer]-articles/[slug]/"
+      include_documentation_prefix_for: "articles and guides only"
+      other_internal_pages: "link directly without /documentation/ (e.g., /pricing/)"
+      examples:
+        correct:
+          - "/documentation/user-articles/what-is-a-collection/"
+          - "/documentation/developer-articles/configure-collections/"
+          - "/documentation/developer-guides/okta-sso-saml/"
+          - "/pricing/"  # Other internal pages
+        incorrect:
+          - "/user-articles/what-is-a-collection/"  # Missing /documentation/
+          - "/user/articles/what-is-a-collection/"  # Wrong structure
+          - "/documentation/pricing/"  # Don't add /documentation/ to other pages
+          - "/changelogs/..."  # Don't link to changelogs
+      
+      acceptable_empty_for:
+        - "File formats (HTML, CSS, JavaScript, YAML, JSON, TOML, CSV, etc.)"
+        - "External services (GitHub, GitLab, AWS, Azure)"
+        - "SSGs (Jekyll, Hugo, Eleventy, etc.)"
+        - "DAM providers"
+        - "Generic technical terms (API, HTTP, DNS, MIME, CORS, XSS)"
+        - "Subscription plans"
+        - "Self-explanatory UI elements"
+
+link_formats:
+  internal_articles:
+    pattern: "/documentation/[user|developer]-articles/[slug]/"
+    examples:
+      - "/documentation/user-articles/what-is-a-collection/"
+      - "/documentation/developer-articles/configure-your-collections/"
+  
+  internal_guides:
+    user_pattern: "/documentation/user-guides/[guide-name]/[page-slug]/"
+    developer_pattern: "/documentation/developer-guides/[guide-name]/[page-slug]/"
+    examples:
+      - "/documentation/user-guides/getting-started/create-a-site/"
+      - "/documentation/developer-guides/okta-sso-saml/"
+  
+  glossary_documentation_links:
+    articles_pattern: "/documentation/[user|developer]-articles/[slug]/"
+    guides_pattern: "/documentation/[user|developer]-guides/[guide-name]/"
+    other_pages_pattern: "/[page-name]/"
+    note: "Glossary documentation_link field requires /documentation/ prefix for articles and guides only"
+    examples:
+      - "/documentation/user-articles/what-is-a-collection/"
+      - "/documentation/developer-guides/okta-sso-saml/"
+      - "/pricing/"
+
+components:
+  notice:
+    usage: "Tips, important information, permissions, and pricing notices"
+    types:
+      - "info"
+      - "important"
+      - "permissions"
+      - "pricing"
+    syntax: "<comp.Notice info_type=\"[type]\">...</comp.Notice>"
+  
+  docshot:
+    usage: "UI screenshots and snippets"
+    required_attributes:
+      - "docshot_key"
+      - "alt"
+      - "title"
+      - "type"
+    types:
+      screenshot: "Full viewport screenshots showing the entire CloudCannon interface"
+      ui-snippet: "Cropped screenshots of specific UI elements like inputs, buttons, dropdowns, or modals"
+    naming: "Hyphenated names describing the page and state (e.g., Site-Settings-Syncing-Connected)"
+  
+  multicodeblock:
+    usage: "Configuration examples with YAML/JSON translation"
+    required_attributes:
+      - "language"
+      - "translate_into"
+      - "source"
+    annotation_marker: "___NUMBER___"
+    annotation_example: "_inputs___1___:"
+    use_cases:
+      - "CloudCannon configuration files"
+      - "Input configuration examples"
+      - "Any config users can write in YAML or JSON"
+  
+  codeblock:
+    usage: "File content examples in a single format"
+    required_attributes:
+      - "language"
+      - "source"
+    annotation_marker: "/*NUMBER*/"
+    annotation_example: "<h1 data-editable>Title</h1> /*1*/"
+    use_cases:
+      - "HTML files"
+      - "Markdown files"
+      - "JavaScript files"
+      - "Any single-format file content"
+  
+  annotation:
+    usage: "Numbered tie-ins from prose to specific lines in code examples"
+    placement: "Immediately after closing code block tag"
+    numbering: "Sequential starting from 1"
+    length: "1-2 sentences (concise); reference the marker, not the whole tutorial"
+    prose_before_code: "Body text before the block explains purpose, parameters, returns, and relationships; readers should not depend on annotations alone"
+    syntax: "<comp.Annotation number=\"N\">Explanation</comp.Annotation>"
+    note: "Used with both MultiCodeBlock and CodeBlock components"
+  
+  glossaryterm:
+    usage: "Inline glossary tooltip for terms with a glossary entry"
+    required_attributes:
+      - "term"
+    syntax: "<comp.GlossaryTerm term=\"/user/glossary/[letter]/[term].yml\">Display Text</comp.GlossaryTerm>"
+    rules:
+      - "Use on first mention of a term in an article only"
+      - "Term must have a corresponding YML file in user/glossary/"
+      - "Replaces markdown links on first use — do not combine with markdown links"
+      - "Subsequent mentions use italics instead"
+      - "Display text can differ from glossary_term_name (plurals, derived forms)"
+
+validation_rules:
+  check_for:
+    - "passive_voice"
+    - "missing_alt_text"
+    - "broken_internal_links"
+    - "inconsistent_terminology"
+    - "missing_oxford_commas"
+    - "incorrect_capitalization"
+    - "non_italicized_ui_elements"
+    - "glossary_links_wrong_format"
+    - "changelog_fixes_present_tense"
+    - "instructions_without_numbered_steps"
+    - "explanation_without_opening_definition"
+    - "plain_code_blocks_instead_of_components"
+    - "trailing_prepositions"
+    - "repeated_action_verbs_in_consecutive_steps"
+    - "instructions_missing_final_outcome_sentence"
+    - "docshot_missing_title_attribute"
+    - "images_interrupting_ordered_lists"
+    - "code_blocks_interrupting_ordered_lists"
+    - "code_example_explanations_only_in_annotations"
+    - "explanatory_prose_inside_numbered_instruction_steps"
+    - "bare_editor_word_ambiguous_context"
+  
+  ignore:
+    - "Passive voice in: changelog features, technical descriptions"
+    - "Missing periods in: list fragments, single-word items"
+    - "code_blocks_interrupting_ordered_lists when the block follows the final step of a complete ordered list and no numbered item follows the block (after_last_step pattern; see §2.3.4)"
+
+accessibility_requirements:
+  alt_text: "required_for_all_images"
+  heading_hierarchy: "no_skipped_levels"
+  link_text: "descriptive_not_generic"
+  color_dependence: "never_sole_indicator"
+  language: "simple_and_clear"
+  date_format: "YYYY-MM-DD or spelled out"
+```
