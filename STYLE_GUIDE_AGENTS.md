@@ -4,8 +4,10 @@ Machine-readable style rules for AI agents and automated linters. These rules ar
 
 **Before writing or editing any documentation, read `STYLE_GUIDE.mdx` in full.**
 
+**For agents making updates to this file:** Also update the corresponding section in `STYLE_GUIDE.mdx` with the prose explanation and examples. Update the revision history in both files: `last_updated` and `style_guide_version` in the YAML block below, and the `Last Updated` and `Version` fields and the revision history table (Section 4) in `STYLE_GUIDE.mdx`.
+
 ```yaml
-style_guide_version: "1.6"
+style_guide_version: "2.1"
 last_updated: "2026-04-28"
 
 terminology:
@@ -211,6 +213,11 @@ documentation_types:
       - "author_notes.docshots: [Added! | Needs docshots | Not applicable]"
     index_title: "Introduction"
     note: "Guides use nested 'details' structure like articles"
+    related_articles: "Always null; guide pages are linked via the guide's own navigation, not the related articles widget"
+    intra_guide_navigation:
+      closing_cta_rule: "Do not end guide pages with standalone closing-CTA paragraphs (e.g. 'For more information, please read...') that link to another page in the same guide"
+      preferred_pattern: "Inline forward references only: embed the link naturally in surrounding prose (e.g. 'We'll discuss this further [later in this guide](/documentation/...)')"
+      also_avoid: "Standalone 'For more information, see...' sentences at the end of a page when the target is within the same guide"
   
   instructions:
     diataxis_category: "task-oriented"
@@ -467,6 +474,8 @@ validation_rules:
     - "code_example_explanations_only_in_annotations"
     - "explanatory_prose_inside_numbered_instruction_steps"
     - "bare_editor_word_ambiguous_context"
+    - "guide_page_closing_cta_to_sibling_page"
+    - "guide_page_related_articles_not_null"
   
   ignore:
     - "Passive voice in: changelog features, technical descriptions"

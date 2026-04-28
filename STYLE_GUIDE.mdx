@@ -1,13 +1,13 @@
 # CloudCannon Documentation Style Guide
 
 **Last Updated:** April 28, 2026  
-**Version:** 1.6
+**Version:** 2.1
 
 This style guide establishes writing standards for all CloudCannon documentation. It combines patterns from our existing documentation with industry best practices from Microsoft Writing Style Guide, Google Developer Documentation Style Guide, and Write the Docs community standards.
 
 This guide is designed to be readable by both humans and AI agents. The machine-readable rules have been extracted to `STYLE_GUIDE_AGENTS.md` for direct loading into agent contexts.
 
-> **For agents and contributors:** If you update a rule in this guide, check whether the corresponding rule in `STYLE_GUIDE_AGENTS.md` also needs updating. The two files must stay in sync — `STYLE_GUIDE.mdx` is the authoritative source, `STYLE_GUIDE_AGENTS.md` is derived from it.
+> **For agents and contributors:** If you update a rule in this guide, also update the corresponding rule in `STYLE_GUIDE_AGENTS.md`. The two files must stay in sync — `STYLE_GUIDE.mdx` is the authoritative source, `STYLE_GUIDE_AGENTS.md` is derived from it. **Always update the revision history in both files:** the `Last Updated` and `Version` fields and the revision history table (Section 4) in this file, and the `last_updated` and `style_guide_version` fields in the YAML block of `STYLE_GUIDE_AGENTS.md`.
 
 ## Documentation Architecture
 
@@ -1358,7 +1358,7 @@ author_notes:
 - `start_nav_group` creates a second heading in the navigation to group related pages:
   - Use `start_nav_group: null` for pages that don't start a new section
   - Use `start_nav_group: "Section Name"` (e.g., `"Advanced Bookshop"`) on the first page of a new conceptual section within the guide
-- `related_articles` is typically `null`
+- `related_articles` is always `null` — guide pages are linked via the guide's own sidebar navigation, not the related articles widget
 
 **Key differences from standalone articles:**
 
@@ -1370,7 +1370,7 @@ Guide pages differ from standalone articles in the following ways — mixing up 
 | `details.order` | ✅ Required | ❌ Not present |
 | `details.start_nav_group` | ✅ Required (null or string) | ❌ Not present |
 | `details.image` | ✅ Present (guide thumbnail) | ✅ Present (article thumbnail) |
-| `related_articles` | Typically `null` | Optional array, max 3 items |
+| `related_articles` | Always `null` | Optional array, max 3 items |
 
 #### 2.4.4 Order Property
 - Use the `order` property to sequence pages
@@ -1405,9 +1405,11 @@ Guide pages differ from standalone articles in the following ways — mixing up 
    - Include screenshots for each major step
    - Use Notice components for tips
 
-3. **Next Steps** (final paragraph)
-   - Preview what's coming in the next page
-   - Encourage readers to continue
+3. **Forward references** (inline, where relevant)
+   - If the page naturally leads into another page in the guide, reference it inline within the body prose rather than in a standalone closing paragraph
+   - Use the pattern: "We'll cover this [later in this guide](/documentation/...)"
+   - ❌ **Avoid:** Standalone closing-CTA paragraphs at the end of a page (e.g., "For more information, please read our documentation on [next page]...")
+   - ✅ **Good:** "If you need inline translation editing in the *Visual Editor*, the optional [Rosey CloudCannon Connector](/documentation/...) adds this capability. We'll cover this [later in this guide](/documentation/...)."
 
 #### 2.4.7 Writing Style
 
@@ -1648,6 +1650,7 @@ This guide (`STYLE_GUIDE.mdx`) is the authoritative source. `STYLE_GUIDE_AGENTS.
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.1 | 2026-04-28 | Guide pages: `related_articles` always `null`; intra-guide navigation rules — no standalone closing-CTA paragraphs, use inline forward references (§2.4.6); cross-sync instructions requiring agents to update both files and revision history when editing either style guide file |
 | 2.0 | 2026-04-28 | Extracted machine-readable rules to STYLE_GUIDE_AGENTS.md|
 | 1.7 | 2026-04-28 | Added guide vs article frontmatter comparison table and _data.yml reference (§2.4) |
 | 1.6 | 2026-04-28 | §2.3.4: clarify ordered list + code block — block after final step without continuation is after_last_step, not an interruption; §2.2.5: sole exception for first-person plural in What is the Visual Editor API? (company uses public API); machine-readable notes for `numbered_steps`, `voice_and_tense`, and `validation_rules.ignore` |
