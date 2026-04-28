@@ -7,7 +7,7 @@ Machine-readable style rules for AI agents and automated linters. These rules ar
 **For agents making updates to this file:** Also update the corresponding section in `STYLE_GUIDE.mdx` with the prose explanation and examples. Update the revision history in both files: `last_updated` and `style_guide_version` in the YAML block below, and the `Last Updated` and `Version` fields and the revision history table (Section 4) in `STYLE_GUIDE.mdx`.
 
 ```yaml
-style_guide_version: "2.1"
+style_guide_version: "2.2"
 last_updated: "2026-04-28"
 
 terminology:
@@ -154,10 +154,12 @@ documentation_types:
       concept_definition: "what-is-*.mdx"
       context_benefits: "why-*.mdx"
       best_practices: "best-practice-*.mdx | best-practices-*.mdx"
+      section_introduction: "introduction-to-*.mdx"
     title_patterns:
       concept_definition: "What is|What are"
       context_benefits: "Why [action/feature]"
       best_practices: "Best practice for|Best practices for"
+      section_introduction: "Introduction to"
     required_front_matter:
       - "_schema: default"
       - "_uuid: [auto-generated UUID]"
@@ -192,6 +194,10 @@ documentation_types:
         - "Introduction"
         - "Best practices (multiple sections)"
         - "Related information"
+      section_introduction:
+        - "Opening paragraph (who the articles are for, why it matters)"
+        - "Topic summary (bullet list; order must match navigation order)"
+        - "Topic sections (## heading per group; link order must match navigation order; do not cross-reference articles from other sections)"
   
   guide:
     diataxis_category: "learning-oriented"
@@ -361,6 +367,7 @@ documentation_types:
 link_formats:
   internal_articles:
     pattern: "/documentation/[user|developer]-articles/[slug]/"
+    syntax: "[Link text](/documentation/...)"
     examples:
       - "/documentation/user-articles/what-is-a-collection/"
       - "/documentation/developer-articles/configure-your-collections/"
@@ -368,10 +375,24 @@ link_formats:
   internal_guides:
     user_pattern: "/documentation/user-guides/[guide-name]/[page-slug]/"
     developer_pattern: "/documentation/developer-guides/[guide-name]/[page-slug]/"
+    syntax: "[Link text](/documentation/...)"
     examples:
       - "/documentation/user-guides/getting-started/create-a-site/"
       - "/documentation/developer-guides/okta-sso-saml/"
   
+  external_links:
+    syntax: '<a href="[url]" target="_blank" rel="noopener">[Link text]</a>'
+    rule: "Always use HTML anchor tags for external links, never markdown syntax"
+    reason: "Opens in a new tab so users don't lose their place; rel=noopener provides security benefits"
+    correct: '<a href="https://gohugo.io/content-management/multilingual/" target="_blank" rel="noopener">built-in multilingual support</a>'
+    incorrect: "[built-in multilingual support](https://gohugo.io/content-management/multilingual/)"
+
+  ui_elements_in_links:
+    rule: "Drop italics when a UI element term is used as link text"
+    reason: "Link formatting (underline/color) already provides visual distinction; combining italics and links creates visual clutter"
+    correct: "[Data Editor](/documentation/articles/what-is-the-data-editor/)"
+    incorrect: "[*Data Editor*](/documentation/articles/what-is-the-data-editor/)"
+
   glossary_documentation_links:
     articles_pattern: "/documentation/[user|developer]-articles/[slug]/"
     guides_pattern: "/documentation/[user|developer]-guides/[guide-name]/"
@@ -456,6 +477,7 @@ validation_rules:
     - "passive_voice"
     - "missing_alt_text"
     - "broken_internal_links"
+    - "markdown_syntax_used_for_external_links"
     - "inconsistent_terminology"
     - "missing_oxford_commas"
     - "incorrect_capitalization"
@@ -476,6 +498,7 @@ validation_rules:
     - "bare_editor_word_ambiguous_context"
     - "guide_page_closing_cta_to_sibling_page"
     - "guide_page_related_articles_not_null"
+    - "ui_elements_in_links_no_italics"
   
   ignore:
     - "Passive voice in: changelog features, technical descriptions"
