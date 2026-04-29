@@ -1,0 +1,60 @@
+---
+_schema: default
+_uuid: d43c181b-e0b4-4fb4-a3cf-9bd667541ac8
+_created_at: '2026-04-28 00:00:00 +0000'
+details:
+  title: What is Rosey?
+  order: 2
+  image: >-
+    https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+  description: >-
+    Learn how Rosey
+    manages translations and generates localized content for multilingual
+    websites on CloudCannon.
+  start_nav_group: null
+  related_articles: null
+author_notes:
+  docshots: Not applicable
+---
+
+<comp.GlossaryTerm term="/user/glossary/r/rosey.yml">Rosey</comp.GlossaryTerm> is an open-source <comp.GlossaryTerm term="/user/glossary/i/internationalization.yml">internationalization</comp.GlossaryTerm> (i18n) tool for static sites, developed and maintained by CloudCannon. Rosey works with any <comp.GlossaryTerm term="/user/glossary/s/ssg.yml">static site generator (SSG)</comp.GlossaryTerm> — you tag translatable HTML elements with `data-rosey` attributes, and Rosey generates complete locale-specific versions of your site from JSON translation files during the build process.
+
+For comprehensive Rosey documentation, including advanced configuration options, see <a href="https://rosey.app" target="_blank" rel="noopener">rosey.app</a>.
+
+## How Rosey works
+
+Rosey reads your built site and looks for elements tagged with `data-rosey` attributes. For each tagged element, Rosey looks up the corresponding translation in your locale JSON files and replaces the content. It then outputs a separate directory for each locale, producing complete localized versions of your site.
+
+The basic workflow is:
+
+1. You tag translatable elements in your site templates with `data-rosey` attributes.
+2. You run `npx rosey generate` to produce a base locale JSON file listing all tagged strings.
+3. Translators create locale files (`fr.json`, `de.json`, etc.) with translated values.
+4. Rosey runs as a postbuild step on CloudCannon, generating a localized version of your site for each locale.
+
+## What Rosey can translate
+
+Rosey supports translation of:
+
+- **Text content** — the inner text of any tagged HTML element
+- **Images** — swap out images per locale using `data-rosey` on `<img>` elements
+- **HTML attributes** — translate `alt` text, `meta` descriptions, and other attributes
+- **CJK languages** — use the `--wrap` flag for correct word-wrapping in Chinese, Japanese, and Korean
+
+## Stale translation detection
+
+Rosey tracks when source content changes. If a tagged string changes after a locale file has been created, Rosey marks that translation as stale so translators know it needs updating. This keeps your translations in sync with your source content without manual tracking.
+
+## Testing locally
+
+You can test your translated site locally before pushing to CloudCannon using `npx rosey build --serve`. Rosey builds your site and starts a local server, letting you preview each locale without deploying.
+
+## How Rosey fits into CloudCannon
+
+Rosey runs as a postbuild step. Because Rosey restructures your output files, it can interfere with the <comp.GlossaryTerm term="/user/glossary/v/visual-editor.yml">Visual Editor</comp.GlossaryTerm> — CloudCannon needs your output files in a predictable location to load them for editing. The recommended approach is to use a staging workflow: run Rosey only on your production branch, not on your staging (editing) branch.
+
+<comp.Notice info_type="info">
+  Rosey requires a staging workflow to work correctly with the *Visual Editor*. See the [staging workflow guide](/documentation/developer-guides/staging-workflow-guide/) for guidance on setting this up.
+</comp.Notice>
+
+If you need inline translation editing in the *Visual Editor*, the optional [Rosey CloudCannon Connector](/documentation/developer-guides/add-internationalization-with-rosey/what-is-the-rosey-cloudcannon-connector/) adds this capability without requiring <comp.GlossaryTerm term="/user/glossary/e/editable-region.yml">Editable Regions</comp.GlossaryTerm> or <comp.GlossaryTerm term="/user/glossary/b/bookshop.yml">Bookshop</comp.GlossaryTerm>. We'll cover this [later in this guide](/documentation/developer-guides/add-internationalization-with-rosey/what-is-the-rosey-cloudcannon-connector/).

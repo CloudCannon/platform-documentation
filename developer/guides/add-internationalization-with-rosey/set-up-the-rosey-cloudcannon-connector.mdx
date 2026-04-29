@@ -1,0 +1,121 @@
+---
+_schema: default
+_uuid: 7719a26c-7173-4cd3-a98d-db7cea86a5d0
+_created_at: '2026-04-28 00:00:00 +0000'
+details:
+  title: Set up the Rosey CloudCannon Connector
+  order: 5
+  image: >-
+    https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+  description: >-
+    Add Visual Editor translation editing to your multilingual Rosey site on
+    CloudCannon. Install the Rosey CloudCannon Connector and configure inline
+    locale editing.
+  start_nav_group: null
+  related_articles: null
+author_notes:
+  docshots: Needs docshots
+---
+
+This page walks you through installing and configuring the <comp.GlossaryTerm term="/user/glossary/r/rosey.yml">Rosey</comp.GlossaryTerm> CloudCannon Connector. Before starting, complete [Set up Rosey on CloudCannon](/documentation/developer-guides/add-internationalization-with-rosey/set-up-rosey-on-cloudcannon/) — the Connector requires a working Rosey setup.
+
+The Connector's source and full documentation are available at <a href="https://github.com/CloudCannon/rosey-cloudcannon-connector" target="_blank" rel="noopener">github.com/CloudCannon/rosey-cloudcannon-connector</a>.
+
+## Install the Connector
+
+<comp.CodeBlock language="sh" source="Terminal">
+```
+npm install rosey-cloudcannon-connector
+```
+</comp.CodeBlock>
+
+## Initialize the Connector
+
+Run the init command to generate a default configuration:
+
+<comp.CodeBlock language="sh" source="Terminal">
+```
+npx rosey-cloudcannon-connector init
+```
+</comp.CodeBlock>
+
+This creates a configuration file with sensible defaults. You can also configure the Connector manually — see the Connector's repository documentation for the full configuration reference.
+
+## Extend your CloudCannon Dataset configuration
+
+The Connector needs access to your per-locale files as CloudCannon Datasets so editors can save inline translation changes. Extend the `data_config` you added in [Set up Rosey on CloudCannon](/documentation/developer-guides/add-internationalization-with-rosey/set-up-rosey-on-cloudcannon/) with entries for each locale.
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+```
+data_config:
+  rosey_base:
+    path: rosey/base.json
+  rosey_fr:
+    path: rosey/locales/fr.json
+  rosey_de:
+    path: rosey/locales/de.json
+```
+</comp.MultiCodeBlock>
+
+Add an entry for each locale file you want editors to be able to update through the <comp.GlossaryTerm term="/user/glossary/v/visual-editor.yml">Visual Editor</comp.GlossaryTerm>.
+
+## Import the Connector script
+
+Load the Connector script in your site layout, wrapped in a check for `window.inEditorMode`. This ensures the Connector only runs inside the *Visual Editor* and never on your live site.
+
+<comp.CodeBlock language="html" source="layout.html">
+```
+<script>
+  if (window.inEditorMode) {
+    import('/path/to/rosey-cloudcannon-connector.js');
+  }
+</script>
+```
+</comp.CodeBlock>
+
+Replace `/path/to/rosey-cloudcannon-connector.js` with the actual path to the Connector script in your project after installation.
+
+## Update the postbuild script
+
+Add the `write-locales` step to your `.cloudcannon/postbuild` script so the Connector can write locale changes back to your JSON files. You can also use the `--exclusions` flag to prevent specific keys from being overwritten during the build.
+
+<comp.CodeBlock language="sh" source=".cloudcannon/postbuild">
+```
+if [[ $TRANSLATE == "true" ]];
+then
+  echo "Installing dependencies"
+  npm install
+
+  echo "Writing locales"
+  npx rosey-cloudcannon-connector write-locales
+
+  echo "Translating site with Rosey"
+  mv ./_site ./_untranslated_site
+  npx rosey build --source _untranslated_site --dest _site
+fi
+```
+</comp.CodeBlock>
+
+## Data attributes reference
+
+The Connector and Rosey use the following `data-*` attributes on your HTML elements:
+
+| Attribute | Description |
+|---|---|
+| `data-rosey` | Marks an element as translatable. The value is the translation key. Required for Rosey. |
+| `data-rosey-ns` | Sets a namespace prefix for all `data-rosey` keys within a component or section. |
+| `data-rosey-root` | Marks the root element of a translation scope. |
+| `data-rcc` | Connector-specific override for a translation key. |
+| `data-rcc-ignore` | Tells the Connector to skip inline editing for this element. |
+| `data-rcc-exclude` | Excludes this element from the Connector's locale file output. |
+| `data-rcc-verbose` | Enables verbose logging for this element in the Connector. |
+
+## Use the locale switcher in the Visual Editor
+
+When your site loads in the *Visual Editor* with the Connector installed, a locale switcher button appears in the corner of the preview. Click it to switch between available locales. The *Visual Editor* reloads the preview in the selected locale, and inline editors reflect that locale's translation data.
+
+## Resolve stale translations
+
+When source content changes after a translation has been written, the Connector highlights the affected elements with amber borders in the *Visual Editor*. A badge on the locale switcher shows how many stale translations exist.
+
+To resolve a stale translation, click the highlighted element to open its inline editor, update the translation, and save. The amber highlight clears once the translation matches the current source text.

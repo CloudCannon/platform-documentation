@@ -1,0 +1,160 @@
+---
+_schema: default
+_uuid: c8804420-2015-42fe-b793-dab814a2c0a5
+_created_at: '2026-04-28 00:00:00 +0000'
+details:
+  title: Set up Rosey on CloudCannon
+  order: 3
+  image: >-
+    https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+  description: >-
+    Set up Rosey to add internationalization (i18n) and multilingual support
+    to your static site on CloudCannon. Tag translatable content, create locale
+    files, and configure your postbuild script.
+  start_nav_group: null
+  related_articles: null
+author_notes:
+  docshots: Needs docshots
+---
+
+This page walks you through setting up <comp.GlossaryTerm term="/user/glossary/r/rosey.yml">Rosey</comp.GlossaryTerm> on CloudCannon from scratch. By the end, you'll have a multilingual static site that generates locale-specific output as part of your CloudCannon build.
+
+This is a fresh setup guide. If you're migrating from CloudCannon's deprecated built-in i18n, see the [Rosey migration guide](/documentation/developer-guides/migrate-from-legacy-internationalization-to-rosey/) instead.
+
+## Install Rosey
+
+Install Rosey as a project dependency so your CloudCannon builds use a pinned version.
+
+<comp.CodeBlock language="sh" source="Terminal">
+```
+npm install rosey
+```
+</comp.CodeBlock>
+
+## Tag translatable content
+
+Add `data-rosey` attributes to the HTML elements in your site templates that you want Rosey to translate. The attribute value is a key that Rosey uses to look up the translation in your locale files.
+
+<comp.CodeBlock language="html" source="layout.html">
+```
+<h1 data-rosey="hero.heading">Welcome to our site</h1>
+<p data-rosey="hero.subheading">We build great things.</p>
+```
+</comp.CodeBlock>
+
+Choose key names that are descriptive and unique within your site. Rosey uses these keys to match content to translations across locales.
+
+## Configure Rosey
+
+Create a `rosey.yml` file at the root of your project to tell Rosey where your built site lives and which attribute to look for.
+
+<comp.CodeBlock language="yaml" source="rosey.yml">
+```
+source: _site
+tag: data-rosey
+```
+</comp.CodeBlock>
+
+Set `source` to the output directory your SSG generates. Common values are `_site`, `dist`, or `out`.
+
+## Test locally
+
+Before adding locale files, you can verify that Rosey can read your tagged content by running a local build.
+
+<comp.CodeBlock language="sh" source="Terminal">
+```
+npx rosey build --serve
+```
+</comp.CodeBlock>
+
+Rosey will build your site and start a local server. At this stage your site will have no translations yet, but this confirms that Rosey is reading your output directory correctly.
+
+## Generate your base locale file
+
+Run `rosey generate` to produce a base locale JSON file. Rosey scans your built site for all `data-rosey`-tagged elements and outputs a JSON file listing every translatable string.
+
+<comp.CodeBlock language="sh" source="Terminal">
+```
+npx rosey generate
+```
+</comp.CodeBlock>
+
+This produces `rosey/base.json` (or the path configured in `rosey.yml`). The file lists each key with its source text:
+
+<comp.CodeBlock language="json" source="rosey/base.json">
+```
+{
+  "hero.heading": { "original": "Welcome to our site" },
+  "hero.subheading": { "original": "We build great things." }
+}
+```
+</comp.CodeBlock>
+
+## Create locale files
+
+Create a file in `rosey/locales/` for each language you want to support. The filename should be a locale code (`fr.json`, `de.json`, `es.json`, etc.). Copy the structure from `base.json` and add translated values.
+
+<comp.CodeBlock language="json" source="rosey/locales/fr.json">
+```
+{
+  "hero.heading": {
+    "original": "Welcome to our site",
+    "value": "Bienvenue sur notre site"
+  },
+  "hero.subheading": {
+    "original": "We build great things.",
+    "value": "Nous construisons de grandes choses."
+  }
+}
+```
+</comp.CodeBlock>
+
+Rosey uses the `original` field to detect stale translations — if the source text changes, Rosey flags any locale entries where `original` no longer matches.
+
+## Add locale files as a CloudCannon Dataset
+
+To make your locale files editable in CloudCannon, add them as a Dataset in your `cloudcannon.config.yml`. This gives editors access to translation strings directly in the CloudCannon interface.
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+```
+data_config:
+  rosey_base:
+    path: rosey/base.json
+```
+</comp.MultiCodeBlock>
+
+This covers the basic locale data setup. If you later add the Rosey CloudCannon Connector, you'll extend this configuration with per-locale dataset entries.
+
+## Set up the postbuild script
+
+Rosey runs as a postbuild step on CloudCannon. Create a `.cloudcannon/postbuild` script to run Rosey after every build.
+
+Because Rosey moves your output files, running it on your editing (staging) branch will interfere with the <comp.GlossaryTerm term="/user/glossary/v/visual-editor.yml">Visual Editor</comp.GlossaryTerm>. Use an environment variable to control when Rosey runs, so it only executes on your production branch.
+
+<comp.CodeBlock language="sh" source=".cloudcannon/postbuild">
+```
+if [[ $TRANSLATE == "true" ]];
+then
+  echo "Installing Rosey"
+  npm install
+
+  echo "Translating site with Rosey"
+  mv ./_site ./_untranslated_site
+  npx rosey build --source _untranslated_site --dest _site
+fi
+```
+</comp.CodeBlock>
+
+Replace `_site` with your SSG's output directory if it differs.
+
+## Configure the environment variable
+
+On your production site in CloudCannon, add an environment variable `TRANSLATE` with the value `true`. You can do this in your site's *Settings* under *Build* → *Environment variables*.
+
+Leave this variable unset (or set to any other value) on your staging site. Rosey will not run on builds where `TRANSLATE` is not `true`, which keeps your *Visual Editor* working correctly on the staging branch.
+
+<comp.Notice info_type="info">
+  This setup requires a staging workflow with separate staging and production branches. See the [staging workflow guide](/documentation/developer-guides/staging-workflow-guide/) for guidance on configuring this in CloudCannon.
+</comp.Notice>
+
+Once your production site builds with `TRANSLATE=true`, Rosey will generate localized versions of your site as part of every build.
