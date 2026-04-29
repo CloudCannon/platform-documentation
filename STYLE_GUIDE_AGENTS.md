@@ -7,8 +7,8 @@ Machine-readable style rules for AI agents and automated linters. These rules ar
 **For agents making updates to this file:** Also update the corresponding section in `STYLE_GUIDE.mdx` with the prose explanation and examples. Update the revision history in both files: `last_updated` and `style_guide_version` in the YAML block below, and the `Last Updated` and `Version` fields and the revision history table (Section 4) in `STYLE_GUIDE.mdx`.
 
 ```yaml
-style_guide_version: "2.3"
-last_updated: "2026-04-28"
+style_guide_version: "2.5"
+last_updated: "2026-04-29"
 
 terminology:
   disambiguation:
@@ -104,6 +104,14 @@ formatting_rules:
   ui_elements_italicized: true
   code_inline_backticks: true
   
+  emoji_policy:
+    general: "Do not use emojis in documentation"
+    exceptions:
+      - "Guide introduction pages (index.mdx): minimal emoji permitted in the welcome opening"
+      - "Guide more-resources pages (more-resources.mdx): minimal emoji permitted in the congratulatory opening sentence"
+    limits: "Maximum one emoji per page, only in the permitted locations above"
+    never_in: ["body content", "instruction steps", "reference material", "changelogs", "glossary entries", "explanation articles"]
+
   ui_element_formatting:
     pattern: "*[Element Name]*"
     examples:
@@ -221,10 +229,28 @@ documentation_types:
     index_title: "Introduction"
     note: "Guides use nested 'details' structure like articles"
     related_articles: "Always null; guide pages are linked via the guide's own navigation, not the related articles widget"
+    prose_over_numbered_steps:
+      rule: "Guide pages use prose paragraphs for sequential content, not numbered lists"
+      rationale: "Guides are learning-oriented; prose feels collaborative and readable. Numbered steps belong in instruction articles only."
+      code_blocks: "Place code blocks between prose paragraphs at natural break points, not nested inside list items"
+      correct: "Navigate to the relevant *Collection* and enable *Configuration Mode*... Click *Edit Advanced*... enter your template string..."
+      incorrect: "1. Navigate to the *Collection*. 2. Enable *Configuration Mode*. 3. Click *Edit Advanced*."
     intra_guide_navigation:
       closing_cta_rule: "Do not end guide pages with standalone closing-CTA paragraphs (e.g. 'For more information, please read...') that link to another page in the same guide"
       preferred_pattern: "Inline forward references only: embed the link naturally in surrounding prose (e.g. 'We'll discuss this further [later in this guide](/documentation/...)')"
       also_avoid: "Standalone 'For more information, see...' sentences at the end of a page when the target is within the same guide"
+    more_resources_page:
+      purpose: "Closing page of every guide; congratulates the reader and points to next steps"
+      emoji: "A single emoji is permitted in the congratulatory opening sentence (e.g. 🎉)"
+      required_elements:
+        - "Congratulatory opening sentence acknowledging guide completion"
+        - "Support callout linking to /support/ and CloudCannon Community (external link with target=_blank rel=noopener)"
+        - "Contextual section headings (## level) that describe what the reader can do next, not bare topic labels"
+        - "One-sentence prose intro before each bullet list explaining why these resources are useful"
+        - "Bullet list entries formatted as: [Link text](/path/) — One sentence description"
+      heading_examples:
+        correct: ["Go further with Rosey", "CloudCannon configuration"]
+        incorrect: ["Rosey", "CloudCannon"]
   
   instructions:
     diataxis_category: "task-oriented"
