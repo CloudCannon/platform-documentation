@@ -1,0 +1,106 @@
+---
+_schema: default
+_uuid: de912ab7-84e0-443a-9107-50e00571c1cc
+_created_at: '2023-05-26 00:32:03 +0000'
+details:
+  title: Migrate and configure Rosey
+  order: 2
+  image: /documentation/static/CloudCannonDocumentationog.jpg
+  description: Migrate your locale files and HTML elements to Rosey, and set up the CloudCannon postbuild script.
+  start_nav_group: null
+  related_articles: null
+author_notes:
+  docshots: Needs docshots
+---
+
+Migrating to <comp.GlossaryTerm term="/user/glossary/r/rosey.yml">Rosey</comp.GlossaryTerm> requires you to:
+
+* install *Rosey* via `npm`,
+* rename your `_locales` directory,
+* convert your files to `.json`,
+* add a *Rosey* configuration file,
+* retag all your translatable elements with `data-rosey`.
+
+Once your <comp.GlossaryTerm term="/user/glossary/s/site.yml">Site</comp.GlossaryTerm> builds correctly locally, you can use CloudCannon's CI/CD workflow to build your *Site*.
+
+In your *Terminal*, navigate to your website project and initialize `npm` using the following command.
+
+<comp.CodeBlock language="sh" source="Terminal">
+```
+npm init
+```
+</comp.CodeBlock>
+
+Still in your *Terminal*, install *Rosey* using the following command.
+
+<comp.CodeBlock language="sh" source="Terminal">
+```
+npm install rosey
+```
+</comp.CodeBlock>
+
+Open your project in your *Local Development Environment*.
+
+CloudCannon's deprecated i18n feature stores your locale files in the `_locales` directory. Rename this directory to `rosey/locales` and convert each file from the CloudCannon i18n format to <comp.GlossaryTerm term="/user/glossary/j/json.yml">JSON</comp.GlossaryTerm>.
+
+Next, you need to add the <comp.GlossaryTerm term="/user/glossary/y/yaml.yml">YAML</comp.GlossaryTerm> configuration file `rosey.yml` at the root of your project. This file contains the `source` and `tag` keys.
+
+<comp.CodeBlock language="yaml" source="rosey.yml">
+```
+source: _site
+tag: data-rosey
+```
+</comp.CodeBlock>
+
+The value of the `source` key tells Rosey where to find your SSG's built output. If you are using an *SSG* like Eleventy or Jekyll, the output will be `_site` (like the example above), however you should set this to the appropriate value for your project.
+
+The value of the `tag` key should match the HTML attribute on elements in your files. CloudCannon's built-in i18n used `data-i18n`, and Rosey uses `data-rosey`.
+
+<comp.Notice info_type="info">
+  You can migrate gradually if you set `tag` to your old attribute while you retag, then switch to `data-rosey` once complete.
+</comp.Notice>
+
+Go through your files and retag your <comp.GlossaryTerm term="/user/glossary/h/html.yml">HTML</comp.GlossaryTerm> elements, replacing `data-i18n` with `data-rosey` throughout your templates.
+
+<comp.CodeBlock language="html" source="Before migration">
+```
+<h1 data-i18n="hero.heading">Welcome</h1>
+```
+</comp.CodeBlock>
+
+<comp.CodeBlock language="html" source="After migration">
+```
+<h1 data-rosey="hero.heading">Welcome</h1>
+```
+</comp.CodeBlock>
+
+Once all your elements are retagged, you can test your translated website locally using the following command.
+
+<comp.CodeBlock language="sh" source="Terminal">
+```
+npx rosey build --serve
+```
+</comp.CodeBlock>
+
+Push your changes to your *Git Repository*. CloudCannon will automatically sync these changes to your connected *Site*.
+
+## Set up the postbuild script
+
+Rosey runs as a postbuild step on CloudCannon. Create a `.cloudcannon/postbuild` script at the root of your project to run Rosey after every build.
+
+<comp.CodeBlock language="sh" source=".cloudcannon/postbuild">
+```
+echo "Installing Rosey"
+npm install
+
+echo "Translating site with Rosey"
+mv ./_site ./_untranslated_site
+npx rosey build --source _untranslated_site --dest _site
+```
+</comp.CodeBlock>
+
+Replace `_site` with your SSG's output directory if it differs — this should match the `source` value in your `rosey.yml`.
+
+## Disable CloudCannon's built-in i18n
+
+Once Rosey is running correctly, disable CloudCannon's built-in i18n in your *Site's* <comp.GlossaryTerm term="/user/glossary/b/build-configuration.yml">Build Configuration</comp.GlossaryTerm>. Your *Site* is now configured to use Rosey for translations.
