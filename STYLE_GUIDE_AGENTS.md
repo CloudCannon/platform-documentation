@@ -7,8 +7,8 @@ Machine-readable style rules for AI agents and automated linters. These rules ar
 **For agents making updates to this file:** Also update the corresponding section in `STYLE_GUIDE.mdx` with the prose explanation and examples. Update the revision history in both files: `last_updated` and `style_guide_version` in the YAML block below, and the `Last Updated` and `Version` fields and the revision history table (Section 4) in `STYLE_GUIDE.mdx`.
 
 ```yaml
-style_guide_version: "2.5"
-last_updated: "2026-04-29"
+style_guide_version: "2.8"
+last_updated: "2026-05-01"
 
 terminology:
   disambiguation:
@@ -228,6 +228,10 @@ documentation_types:
       - "author_notes.docshots: [Added! | Needs docshots | Not applicable]"
     index_title: "Introduction"
     note: "Guides use nested 'details' structure like articles"
+    description_length:
+      target_characters: 125
+      note: "Aim for ~125 characters; fits on a single line in guide listing cards without truncation"
+      no_colons: "Do not use colons (:) in description field values — they cause the Lume build to fail."
     related_articles: "Always null; guide pages are linked via the guide's own navigation, not the related articles widget"
     prose_over_numbered_steps:
       rule: "Guide pages use prose paragraphs for sequential content, not numbered lists"
@@ -421,16 +425,6 @@ link_formats:
     correct: "[Data Editor](/documentation/articles/what-is-the-data-editor/)"
     incorrect: "[*Data Editor*](/documentation/articles/what-is-the-data-editor/)"
 
-  glossary_documentation_links:
-    articles_pattern: "/documentation/[user|developer]-articles/[slug]/"
-    guides_pattern: "/documentation/[user|developer]-guides/[guide-name]/"
-    other_pages_pattern: "/[page-name]/"
-    note: "Glossary documentation_link field requires /documentation/ prefix for articles and guides only"
-    examples:
-      - "/documentation/user-articles/what-is-a-collection/"
-      - "/documentation/developer-guides/okta-sso-saml/"
-      - "/pricing/"
-
 components:
   notice:
     usage: "Tips, important information, permissions, and pricing notices"
@@ -440,6 +434,14 @@ components:
       - "permissions"
       - "pricing"
     syntax: "<comp.Notice info_type=\"[type]\">...</comp.Notice>"
+    placement:
+      info: "Inline, close to relevant content. Must not be the first element in an article."
+      important: "Can be first if the information affects the entire article; otherwise inline."
+      permissions: "Must always be first in the article, immediately after front matter. Always start with bold 'Permissions required' heading."
+      pricing: "Can be first if the entire feature is plan-specific; otherwise inline."
+    general_rules:
+      - "Only one notice at the start of an article (permissions, pricing, or important — never info)"
+      - "Keep notice text concise"
   
   docshot:
     usage: "UI screenshots and snippets"
@@ -452,6 +454,21 @@ components:
       screenshot: "Full viewport screenshots showing the entire CloudCannon interface"
       ui-snippet: "Cropped screenshots of specific UI elements like inputs, buttons, dropdowns, or modals"
     naming: "Hyphenated names describing the page and state (e.g., Site-Settings-Syncing-Connected)"
+
+  docsimage:
+    usage: "Illustrations, diagrams, and conceptual graphics only — being phased out for CloudCannon app images"
+    required_attributes:
+      - "path"
+      - "alt"
+      - "title"
+      - "type"
+    use_for:
+      - "Illustrations and diagrams"
+      - "Images that are not screenshots of the CloudCannon interface"
+      - "External screenshots (assets/external_screenshots/)"
+    never_use_for:
+      - "Screenshots of the CloudCannon app (use comp.DocShot instead)"
+      - "UI snippets showing CloudCannon interface elements (use comp.DocShot instead)"
   
   multicodeblock:
     usage: "Configuration examples with YAML/JSON translation"
@@ -488,6 +505,18 @@ components:
     syntax: "<comp.Annotation number=\"N\">Explanation</comp.Annotation>"
     note: "Used with both MultiCodeBlock and CodeBlock components"
   
+  datareference:
+    usage: "List API options, configuration keys, or properties with their types and descriptions"
+    required_attributes:
+      - "label (on each DataReferenceRow)"
+      - "type_markdown (on each DataReferenceRow)"
+    syntax: "<comp.DataReference>\n  <comp.DataReferenceRow label=\"option_name\" type_markdown=\"String\">\n    Description.\n  </comp.DataReferenceRow>\n</comp.DataReference>"
+    rules:
+      - "Use instead of markdown pipe tables for all reference content"
+      - "type_markdown accepts String, Boolean, Object, Array, or other type names"
+      - "Inner content of each row supports markdown"
+    never_use_markdown_tables: true
+
   glossaryterm:
     usage: "Inline glossary tooltip for terms with a glossary entry"
     required_attributes:
@@ -499,9 +528,11 @@ components:
       - "Replaces markdown links on first use — do not combine with markdown links"
       - "Subsequent mentions use italics instead"
       - "Display text can differ from glossary_term_name (plurals, derived forms)"
+      - "Never replace an existing markdown link with a glossary term — if text is already a link, leave it as a link"
 
 validation_rules:
   check_for:
+    - "markdown_tables_used_instead_of_datareference"
     - "passive_voice"
     - "missing_alt_text"
     - "broken_internal_links"
