@@ -28,13 +28,13 @@ author_notes:
   The *Visual Editor API* is designed for advanced CloudCannon users. If you need help with custom integrations or your CloudCannon setup in general, please contact our friendly [support team](/support/).
 </comp.Notice>
 
-CloudCannon's *Visual Editor API* exposes `change` and `delete` events on the API root, on individual files and their `data` or `content` layers, and on <comp.GlossaryTerm term="/user/glossary/c/collection.yml">Collections</comp.GlossaryTerm> and <comp.GlossaryTerm term="/user/glossary/d/dataset.yml">Datasets</comp.GlossaryTerm>. You can subscribe and unsubscribe with `addEventListener` and `removeEventListener`, respond when matching files or fields are created, updated, or removed, and drop listeners when your custom UI or preview is torn down.
+CloudCannon's *Visual Editor API* exposes `change` and `delete` events on the API root, on individual files, and on <comp.GlossaryTerm term="/user/glossary/c/collection.yml">Collections</comp.GlossaryTerm> and <comp.GlossaryTerm term="/user/glossary/d/dataset.yml">Datasets</comp.GlossaryTerm>. Add listeners with `addEventListener` and remove them with `removeEventListener` when your custom UI or preview is torn down.
 
 This article assumes you know how to [initialize the Visual Editor API](/documentation/developer-articles/initialize-the-visual-editor-api/) and [access a file, Collection, and Dataset](/documentation/developer-articles/access-files-collections-and-datasets-with-the-visual-editor-api/).
 
 ## Event types and scopes
 
-You can listen to two types of events using the *Visual Editor API*: `change`, which fires when data is created or updated, or `delete`, which fires when a file is deleted. Both use the standard `addEventListener` and `removeEventListener` interface from `EventTarget`.
+You can listen to two types of events using the *Visual Editor API*: `change`, which fires when a file in your *Site* is created or updated, or `delete`, which fires when a file is deleted. Both use the standard `addEventListener` and `removeEventListener` interface from `EventTarget`.
 
 You can also attach listeners at multiple levels, depending on how broad or narrow you need your events to be, including root, file, data, content, *Collection*, and *Dataset*.
 
@@ -77,33 +77,6 @@ file.addEventListener('delete', () => { /*3*/
 </comp.Annotation>
 <comp.Annotation number="3">
   Call `addEventListener()` with `'delete'` to listen for delete events on `file`.
-</comp.Annotation>
-</comp.CodeBlock>
-
-### File data or content events
-
-You can listen for events from specific parts of a file, such as using `*.data.addEventListener()` for structured data in the Front Matter, or `*.content.addEventListener()` for the body content of a file.
-
-<comp.CodeBlock language="javascript" source="script.js">
-```
-const file = api.currentFile(); /*1*/
-
-file.data.addEventListener('change', () => { /*2*/
-  console.log('Front Matter changed');
-});
-
-file.content.addEventListener('change', () => { /*3*/
-  console.log('Body content changed');
-});
-```
-<comp.Annotation number="1">
-  Create a `file` variable to access the file currently open in the *Visual Editor* using `currentFile()`.
-</comp.Annotation>
-<comp.Annotation number="2">
-  Call `file.data.addEventListener()` to listen for changes to the structured data in `file`.
-</comp.Annotation>
-<comp.Annotation number="3">
-  Call `file.content.addEventListener()` to listen for changes to the body content in `file`.
 </comp.Annotation>
 </comp.CodeBlock>
 
@@ -238,7 +211,7 @@ window.addEventListener('beforeunload', () => { /*3*/
 </comp.Annotation>
 </comp.CodeBlock>
 
-If you are building with a framework, clean up listeners in the appropriate lifecycle hook.
+If you are building with a framework, clean up listeners in the appropriate lifecycle hook. The following examples use React and Vue — the same principle applies to any framework with lifecycle hooks.
 
 <comp.CodeBlock language="javascript" source="React">
 ```

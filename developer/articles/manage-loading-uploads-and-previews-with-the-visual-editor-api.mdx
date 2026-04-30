@@ -5,7 +5,7 @@ _created_at: '2026-04-24 00:00:00 +0000'
 details:
   title: Manage loading, uploads, and previews with the Visual Editor API
   description: >-
-    Learn how to use setLoading, uploadFile, prefetchedFiles, getPreviewUrl,
+    Learn how to use setLoading, uploadFile, getPreviewUrl,
     and configuration utility methods with the Visual Editor API in CloudCannon.
   image: >-
     https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
@@ -25,11 +25,9 @@ author_notes:
   The *Visual Editor API* is designed for advanced CloudCannon users. If you need help with custom integrations or your CloudCannon setup in general, please contact our friendly [support team](/support/).
 </comp.Notice>
 
-CloudCannon's *Visual Editor API* allows you to read and write content, listen for changes, and build custom editing interfaces in the <comp.GlossaryTerm term="/user/glossary/v/visual-editor.yml">Visual Editor</comp.GlossaryTerm>. This article covers loading state, file uploads, prefetched files, preview URL helpers, and related configuration utilities.
+CloudCannon's *Visual Editor API* exposes methods for managing your integration's loading state, uploading files, generating preview URLs, and accessing CloudCannon's configuration utilities. This article covers how to use each of these in your custom integration.
 
-This article assumes you know how to [initialize the Visual Editor API](/documentation/developer-articles/initialize-the-visual-editor-api/) and [access a Collection or Dataset](/documentation/developer-articles/access-files-collections-and-datasets-with-the-visual-editor-api/).
-
-To build **custom inline editing** programmatically, read [Create custom inline editing with the Visual Editor API](/documentation/developer-articles/create-custom-inline-editing-with-the-visual-editor-api/). To create a floating *Data Panel* with your own fields and CloudCannon *Inputs*, read [Create a custom data panel with the Visual Editor API](/documentation/developer-articles/create-a-custom-data-panel-with-the-visual-editor-api/).
+This article assumes you know how to [initialize the Visual Editor API](/documentation/developer-articles/initialize-the-visual-editor-api/) and [access a Collection or Dataset](/documentation/developer-articles/access-files-collections-and-datasets-with-the-visual-editor-api/). For custom inline editing, read [Create custom inline editing with the Visual Editor API](/documentation/developer-articles/create-custom-inline-editing-with-the-visual-editor-api/).
 
 ## Control the loading state
 
@@ -74,36 +72,16 @@ console.log('Uploaded to:', path);
 </comp.Annotation>
 </comp.CodeBlock>
 
-## Access prefetched files
-
-Calling `prefetchedFiles()` allows you to access files that CloudCannon has already loaded.
-
-<comp.CodeBlock language="javascript" source="script.js">
-```
-const files = await api.prefetchedFiles(); /*1*/
-
-for (const [path, blob] of Object.entries(files)) { /*2*/
-  console.log(path, blob.size);
-}
-```
-<comp.Annotation number="1">
-  Call `prefetchedFiles()` to get files that CloudCannon has preloaded. Returns a key-value object mapping source paths to `Blob` objects.
-</comp.Annotation>
-<comp.Annotation number="2">
-  Iterate over the entries to access each file's path and content.
-</comp.Annotation>
-</comp.CodeBlock>
-
 ## Rewrite preview URLs
 
-Calling `getPreviewUrl()` allows you to convert a source URL into a preview-safe URL for display in the *Visual Editor*.
+Calling `getPreviewUrl()` allows you to get a working URL for a file that may not yet be committed to your *Site* — for example, an image uploaded in the current editing session. Use this instead of the source path directly when displaying images in the *Visual Editor*.
 
 <comp.CodeBlock language="javascript" source="script.js">
 ```
 const previewUrl = await api.getPreviewUrl('/images/hero.jpg'); /*1*/
 ```
 <comp.Annotation number="1">
-  Pass a source path to `getPreviewUrl()` to get a URL that works within the *Visual Editor*'s iframe.
+  Pass a source path to `getPreviewUrl()` to get a URL that works within the *Visual Editor*, including for files that haven't yet been committed to the *Site*.
 </comp.Annotation>
 </comp.CodeBlock>
 
@@ -113,18 +91,3 @@ The API provides several utility methods for working with CloudCannon's configur
 
 - `findStructure(structure, value)` — find a matching *Structure* value for a given data object.
 - `getInputType(key, value, inputConfig)` — determine the input type CloudCannon would use for a field.
-- `getInputConfig(options)` — get the resolved input configuration for a field by slug.
-
-<comp.CodeBlock language="javascript" source="script.js">
-```
-const file = api.currentFile(); /*1*/
-const inputConfig = await file.getInputConfig({ slug: 'hero_image' }); /*2*/
-console.log(inputConfig?.type);
-```
-<comp.Annotation number="1">
-  Create a `file` variable to access the file currently open in the *Visual Editor* using `currentFile()`.
-</comp.Annotation>
-<comp.Annotation number="2">
-  Call `getInputConfig()` with a `slug` option to get the resolved input configuration for that field.
-</comp.Annotation>
-</comp.CodeBlock>

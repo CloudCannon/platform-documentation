@@ -68,7 +68,7 @@ function getDeveloperReferenceSection(): string {
 Configuration types and schemas are available directly from these repositories:
 
 - [configuration-types](https://github.com/CloudCannon/configuration-types): TypeScript types and JSON Schemas for CloudCannon configuration files
-- [javascript-api](https://github.com/CloudCannon/javascript-api): TypeScript declarations for the CloudCannon JavaScript API
+- [visual-editor-api](https://github.com/CloudCannon/visual-editor-api): TypeScript declarations for the CloudCannon Visual Editor API
 
 JSON Schemas (with full descriptions, for use by LLMs and IDEs):
 - [Configuration JSON Schema](${schemaBase}/cloudcannon-config.documentation.schema.json): Full JSON Schema with descriptions for cloudcannon.config.*

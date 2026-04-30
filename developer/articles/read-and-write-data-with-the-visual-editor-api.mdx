@@ -164,11 +164,11 @@ console.log(raw); /*3*/
 </comp.Annotation>
 </comp.CodeBlock>
 
-Calling `*.set()` allows you to replace the entire raw source of an accessed file by passing a string. This is particularly useful for programmatically updating a specific file, such as a shared data file, regardless of which page is currently open in the *Visual Editor*. This updates the *Visual Editor* data model and marks the file as having unsaved changes — the change will be visible in any open *Editing Interfaces*.
+Calling `*.set()` allows you to replace the entire raw source of an accessed file by passing a string. Use this for files that are not structured data, or that are not normally editable through CloudCannon. This updates the *Visual Editor* data model and marks the file as having unsaved changes — the change will be visible in any open *Editing Interfaces*.
 
 <comp.CodeBlock language="javascript" source="script.js">
 ```
-const file = api.file('_data/navigation.yml'); /*1*/
+const file = api.file('/public/robots.txt'); /*1*/
 const raw = await file.get(); /*2*/
 await file.set(raw.replace('old text', 'new text')); /*3*/
 ```
@@ -359,5 +359,23 @@ await file.releaseLock(); /*4*/
 </comp.Annotation>
 <comp.Annotation number="4">
   Call `releaseLock()` to release the lock when you are done making changes.
+</comp.Annotation>
+</comp.CodeBlock>
+
+## Read input configuration
+
+Calling `*.getInputConfig()` allows you to read the resolved input configuration for a field in an accessed file. Pass a `slug` option to specify the field.
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+const file = api.currentFile(); /*1*/
+const inputConfig = await file.getInputConfig({ slug: 'hero_image' }); /*2*/
+console.log(inputConfig?.type);
+```
+<comp.Annotation number="1">
+  Create a `file` variable to access the file currently open in the *Visual Editor* using `currentFile()`.
+</comp.Annotation>
+<comp.Annotation number="2">
+  Call `getInputConfig()` with a `slug` option to get the resolved input configuration for that field.
 </comp.Annotation>
 </comp.CodeBlock>

@@ -5,8 +5,8 @@ _created_at: '2026-04-16 00:00:00 +0000'
 details:
   title: Initialize the Visual Editor API
   description: >-
-    Install the Visual Editor API TypeScript types and initialize the API in
-    your site's JavaScript.
+    Install the Visual Editor API package and initialize the API in your
+    site's JavaScript.
   image: >-
     https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
   category:
@@ -31,7 +31,7 @@ This article assumes you know how to [detect the Visual Editor](/documentation/d
 
 ## Install the package
 
-The `@cloudcannon/javascript-api` package provides TypeScript declarations for the *Visual Editor API*. This package contains type definitions only — it does not include any runtime code. The actual API is provided by CloudCannon when your website loads in the *Visual Editor*.
+The `@cloudcannon/visual-editor-api` package provides TypeScript declarations for the *Visual Editor API*. This package contains type definitions only — it does not include any runtime code. The actual API is provided by CloudCannon when your website loads in the *Visual Editor*.
 
 To install the package as a dev dependency:
 
@@ -40,77 +40,13 @@ To install the package as a dev dependency:
 
 <comp.CodeBlock language="bash" source="Terminal">
 ```
-npm install --save-dev @cloudcannon/javascript-api
+npm install --save-dev @cloudcannon/visual-editor-api
 ```
 </comp.CodeBlock>
 
 npm will install the type definitions for the *Visual Editor API*.
 
-### Use TypeScript
-
-After you install `@cloudcannon/javascript-api`, its declaration files live under `node_modules`. Your <comp.GlossaryTerm term="/user/glossary/i/ide.yml">IDE</comp.GlossaryTerm> uses them whenever the TypeScript language service analyzes a file that imports from that package or references those types.
-
-<comp.Notice info_type="info">
-  *IDE* type checking still needs a normal TypeScript project: install `typescript` as a dev dependency if you have not already.
-</comp.Notice>
-
-The package alone does not teach TypeScript that `window` includes `CloudCannonAPI`. Default `Window` typings omit CloudCannon’s globals, so a raw `window.CloudCannonAPI` reference is often flagged as an error or widened to `any`. You can address this by adding a helper module to import the CloudCannon types, perform one cast, and export `getCloudCannonApi()`. You can then import `getCloudCannonApi()` from the rest of your code so autocomplete and errors follow the *Visual Editor API* while you work.
-
-To create the helper file:
-
-1. Open your website files in your local development environment.
-2. Create a TypeScript file in your project (for example, `src/cloudcannon-api.ts`).
-3. Add the following code:
-
-<comp.CodeBlock language="typescript" source="src/cloudcannon-api.ts">
-```
-import type { /*1*/
-  CloudCannonEditorWindow,
-  CloudCannonJavaScriptV1API
-} from '@cloudcannon/javascript-api';
-
-export function getCloudCannonApi(): CloudCannonJavaScriptV1API | null { /*2*/
-  const win = window as CloudCannonEditorWindow; /*3*/
-  return win.CloudCannonAPI?.useVersion('v1') ?? null; /*4*/
-}
-```
-<comp.Annotation number="1">
-  `import type` pulls the TypeScript declarations from `@cloudcannon/javascript-api`.
-</comp.Annotation>
-<comp.Annotation number="2">
-  The function promises either a `CloudCannonJavaScriptV1API` instance (the object returned by `useVersion('v1')`) or `null` when the preview has not injected `window.CloudCannonAPI` yet, including outside the *Visual Editor*.
-</comp.Annotation>
-<comp.Annotation number="3">
-  Standard `Window` typings do not list `CloudCannonAPI`. Casting to `CloudCannonEditorWindow` tells TypeScript that this global may include CloudCannon’s router in the preview document.
-</comp.Annotation>
-<comp.Annotation number="4">
-  `?.` skips the call when `CloudCannonAPI` is missing. `useVersion('v1')` returns the v1 handler or `undefined`; `?? null` normalizes that to `null` so callers always receive an object or `null`, never `undefined`.
-</comp.Annotation>
-</comp.CodeBlock>
-
-When a helper needs a file handle, import `CloudCannonJavaScriptV1APIFile` and accept that type as a parameter. That way helpers stay testable and do not reach back into `window` for the API or the active file.
-
-To add an example helper:
-
-1. Create `src/helpers.ts` in your project, or open it if it already exists.
-2. Add helpers such as the following. Pass file handles in as parameters instead of calling `getCloudCannonApi()` or `currentFile()` inside every helper.
-
-<comp.CodeBlock language="typescript" source="src/helpers.ts">
-```
-import type { CloudCannonJavaScriptV1APIFile } from '@cloudcannon/javascript-api';
-
-export async function updateTitle(
-  file: CloudCannonJavaScriptV1APIFile,
-  title: string
-): Promise<void> {
-  await file.data.set({ slug: 'title', value: title });
-}
-```
-</comp.CodeBlock>
-
-Typed helpers like `updateTitle` above should accept typed API objects as parameters rather than calling `getCloudCannonApi()` themselves, so they are straightforward to test and work regardless of when the API is ready.
-
-For larger projects, consider organizing helpers into separate files by feature area — for example, `src/cloudcannon/content.ts` and `src/cloudcannon/data.ts` — rather than keeping everything in a single `helpers.ts`.
+If your project uses TypeScript, read [Use TypeScript with the Visual Editor API](/documentation/developer-articles/use-typescript-with-the-visual-editor-api/) for instructions on setting up type declarations and IDE autocomplete.
 
 ## Initialize the API
 
@@ -125,14 +61,47 @@ You can detect whether the API has already loaded by the time your script runs b
 To initialize the *Visual Editor API* in your JavaScript:
 
 1. Open your website files in your local development environment.
-2. Add a helper function to your JavaScript that runs a callback once the API is ready. 
-3. Call the helper with a callback containing your integration code.
+2. Create a Promise that resolves with the v1 API object once the API is ready.
+3. Await the Promise in an async function and add your integration code.
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+const apiPromise = new Promise((resolve) => { /*1*/
+  if (window.CloudCannonAPI) {
+    const api = window.CloudCannonAPI.useVersion('v1', true);
+    resolve(api);
+  } else {
+    document.addEventListener(
+      'cloudcannon:load',
+      () => {
+        const api = window.CloudCannonAPI.useVersion('v1', true);
+        resolve(api);
+      },
+      { once: true }
+    );
+  }
+});
+
+(async () => { /*2*/
+  const api = await apiPromise;
+  // Custom integration code here
+})();
+```
+<comp.Annotation number="1">
+  Create a Promise that resolves with the v1 API object. If `window.CloudCannonAPI` is already present when your script runs, it resolves immediately. If not, it waits for the `cloudcannon:load` event. Passing `true` as the second argument to `useVersion()` prevents the handler from being assigned to `window.CloudCannon`.
+</comp.Annotation>
+<comp.Annotation number="2">
+  Await `apiPromise` inside an async IIFE. The `api` variable holds the v1 API object for use in your integration code.
+</comp.Annotation>
+</comp.CodeBlock>
+
+This is one approach — you can adapt it to suit your project, for example by wrapping the await in a framework lifecycle hook. Alternatively, you can use a callback-based helper:
 
 <comp.CodeBlock language="javascript" source="script.js">
 ```
 function withCloudCannonApi(callback) { /*1*/
   const setup = (router) => {
-    const api = router?.useVersion('v1');
+    const api = router?.useVersion('v1', true);
     if (api) callback(api);
   };
 
@@ -149,36 +118,28 @@ function withCloudCannonApi(callback) { /*1*/
 }
 
 withCloudCannonApi(async (api) => { /*2*/
-  try {
-    // Custom integration code here
-  } catch (error) {
-    console.warn('No active file available for this page.');
-  }
+  // Custom integration code here
 });
 ```
 <comp.Annotation number="1">
   The helper handles both cases: if `window.CloudCannonAPI` is already present when your script runs, it calls the callback immediately. If not, it listens for the `cloudcannon:load` event and calls the callback when the API is ready.
 </comp.Annotation>
 <comp.Annotation number="2">
-  Call `withCloudCannonApi()` with your callback. The callback receives the v1 API object. Wrapping your integration code in a `try`/`catch` handles pages that have no associated file.
+  Call `withCloudCannonApi()` with your callback. The callback receives the v1 API object.
 </comp.Annotation>
 </comp.CodeBlock>
-
-This is one approach — you can adapt it to suit your project. For example, you could use `async`/`await` with a Promise, wrap it in a framework lifecycle hook, or inline the helper directly.
 
 <comp.Notice info_type="info">
   **The second argument for `useVersion()`**
 
-  The `useVersion()` method accepts an optional second argument. When set to `true`, it also assigns the returned API handler to `window.CloudCannon`:
+  The `useVersion()` method accepts an optional second argument, `preventGlobalInstall`. When set to `true`, the returned API handler is not assigned to `window.CloudCannon`. We recommend always passing `true` and accessing the API only through the returned object, to avoid version conflicts between multiple integrations (for example, Bookshop uses an earlier version of the API):
 
   <comp.CodeBlock language="javascript" source="script.js">
     ```
     const api = window.CloudCannonAPI.useVersion('v1', true);
-    // api is now also available at window.CloudCannon
+    // api is only accessible through the returned object, not through window.CloudCannon
     ```
     </comp.CodeBlock>
-
-  Whether you need this depends on your setup. If your code only accesses the API through the returned object, you can omit it.
 </comp.Notice>
 
 Once you have the API initialized, you can [read and write data](/documentation/developer-articles/read-and-write-data-with-the-visual-editor-api/), [listen for changes](/documentation/developer-articles/listen-for-changes-with-the-visual-editor-api/), [work with Collections and Datasets](/documentation/developer-articles/work-with-collections-and-datasets-using-the-visual-editor-api/), [create a custom data panel](/documentation/developer-articles/create-a-custom-data-panel-with-the-visual-editor-api/), [create custom inline editing](/documentation/developer-articles/create-custom-inline-editing-with-the-visual-editor-api/), and [manage loading, uploads, and previews](/documentation/developer-articles/manage-loading-uploads-and-previews-with-the-visual-editor-api/).

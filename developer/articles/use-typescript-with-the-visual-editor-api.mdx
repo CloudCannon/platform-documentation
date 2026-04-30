@@ -1,0 +1,70 @@
+---
+_schema: default
+_uuid: 3d7f9a2e-1c4b-4e8f-b6d0-5a2c8e1f3b7d
+_created_at: '2026-05-01 00:00:00 +0000'
+details:
+  title: Use TypeScript with the Visual Editor API
+  description: >-
+    Add TypeScript type declarations for the Visual Editor API to your project
+    for autocomplete and type checking in your IDE.
+  image: >-
+    https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+  category:
+    - Instructions
+  related_articles:
+    - _type: developer_articles
+      item: c2407e1f-4ba7-41b0-a5a3-69ac86cf3c41
+    - _type: developer_articles
+      item: 75b111c3-8905-46d4-aaf1-18ed767f7f43
+author_notes:
+  docshots: Not applicable
+---
+<comp.Notice info_type="important">
+  The *Visual Editor API* is designed for advanced CloudCannon users. If you need help with custom integrations or your CloudCannon setup in general, please contact our friendly [support team](/support/).
+</comp.Notice>
+
+The `@cloudcannon/visual-editor-api` package includes TypeScript declarations that give your <comp.GlossaryTerm term="/user/glossary/i/ide.yml">IDE</comp.GlossaryTerm> full autocomplete and type checking for the *Visual Editor API*. This article covers how to set up TypeScript support in your project.
+
+This article assumes you know how to [initialize the Visual Editor API](/documentation/developer-articles/initialize-the-visual-editor-api/) and have already installed the `@cloudcannon/visual-editor-api` package.
+
+<comp.Notice info_type="info">
+  This approach requires your project to have a TypeScript compilation pipeline. Some SSGs (such as Astro, Next.js, SvelteKit, and Nuxt) include one out of the box. For others (such as Eleventy, Jekyll, and Hugo), you will need to add a build step — for example, using <a href="https://esbuild.github.io/" target="_blank" rel="noopener">esbuild</a> or <a href="https://rollupjs.org/" target="_blank" rel="noopener">Rollup</a> — to compile the helper module to JavaScript before it runs in the browser. Install `typescript` as a dev dependency if you have not already.
+</comp.Notice>
+
+## Add a type helper module
+
+The package alone does not teach TypeScript that `window` includes `CloudCannonAPI`. Default `Window` typings omit CloudCannon's globals, so a raw `window.CloudCannonAPI` reference is often flagged as an error or widened to `any`. You can address this by adding a helper module to import the CloudCannon types, perform one cast, and export `getCloudCannonApi()`. You can then import `getCloudCannonApi()` from the rest of your code so autocomplete and errors follow the *Visual Editor API* while you work.
+
+To create the helper module:
+
+1. Open your website files in your local development environment.
+2. Create a TypeScript file in your project (for example, `src/cloudcannon-api.ts`).
+3. Add the following code:
+
+<comp.CodeBlock language="typescript" source="src/cloudcannon-api.ts">
+```
+import type { /*1*/
+  CloudCannonVisualEditorWindow,
+  CloudCannonVisualEditorAPIV1
+} from '@cloudcannon/visual-editor-api';
+
+export function getCloudCannonApi(): CloudCannonVisualEditorAPIV1 | undefined { /*2*/
+  const win = window as CloudCannonVisualEditorWindow; /*3*/
+  return win.CloudCannonAPI?.useVersion('v1'); /*4*/
+}
+```
+<comp.Annotation number="1">
+  `import type` pulls the TypeScript declarations from `@cloudcannon/visual-editor-api`.
+</comp.Annotation>
+<comp.Annotation number="2">
+  The function returns either a `CloudCannonVisualEditorAPIV1` instance (the object returned by `useVersion('v1')`) or `undefined` when `window.CloudCannonAPI` is not present, including outside the *Visual Editor*.
+</comp.Annotation>
+<comp.Annotation number="3">
+  Standard `Window` typings do not list `CloudCannonAPI`. Casting to `CloudCannonVisualEditorWindow` tells TypeScript that this global may include CloudCannon's router in the preview document.
+</comp.Annotation>
+<comp.Annotation number="4">
+  `?.` skips the call when `CloudCannonAPI` is missing, returning `undefined`.
+</comp.Annotation>
+</comp.CodeBlock>
+
+Once the helper module is in place, import `getCloudCannonApi()` anywhere in your project to get a fully typed reference to the *Visual Editor API*.
