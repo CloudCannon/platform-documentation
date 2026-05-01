@@ -778,6 +778,8 @@ a group of files you want to edit in CloudCannon.
 
 #### 1.5.6 DataReference Component
 
+> **Being phased out.** For configuration keys pulled from the CloudCannon schema, use `comp.ReferenceDataTable` (§1.5.7) instead.
+
 Use to list API options, configuration keys, or properties with their types and descriptions. Always use `comp.DataReference` instead of a plain markdown table for reference content.
 
 ```mdx
@@ -802,6 +804,35 @@ Use to list API options, configuration keys, or properties with their types and 
 - Any reference content that would otherwise be a table
 
 **Avoid markdown tables:** Do not use markdown pipe tables (`| col | col |`) in CloudCannon documentation. Use `comp.DataReference` for reference content and prose or lists for everything else.
+
+#### 1.5.7 ReferenceDataTable Component
+
+Use to display a curated list of CloudCannon configuration keys pulled directly from the schema. Definitions, types, badges, and examples are sourced automatically from the external repo data — do not duplicate them in the article.
+
+```mdx
+<comp.ReferenceDataTable>
+  <comp.ReferenceDataRow section="type.Configuration" ref_key="type._inputs.*.options.required" />
+  <comp.ReferenceDataRow section="type.Configuration" ref_key="type._inputs.*.options.values" />
+  <comp.ReferenceDataRow section="type.Configuration" ref_key="type.preview" />
+</comp.ReferenceDataTable>
+```
+
+**Attributes (`comp.ReferenceDataRow`):**
+- `section` — The schema section to look up the key in. Valid values:
+  - `type.Configuration` — CloudCannon Configuration File keys
+  - `type.Routing` — Routing keys
+  - `type.InitialSiteSettings` — Initial Site Settings keys
+- `ref_key` — The gid of the definition. Format is `type.{full_key}`, e.g. `type._inputs.*.options.required`. For type-specific variant keys, include the variant suffix: `type._inputs.*.options.empty_type(text)`.
+
+**Finding a gid:**
+The gid format is `type.` followed by the full key path, with wildcards written as `*`. Navigate to the key in the reference section (`/documentation/developer-reference/`) and use the gid shown in the entry.
+
+**Editorial rules:**
+- Order rows alphabetically by `ref_key`.
+- The reference section is the exhaustive source. Article tables are intentionally curated — it is acceptable to omit keys.
+- Do not include deprecated keys. They are documented in the reference section, which shows the deprecation notice and the recommended alternative.
+- When a parent key links to a reference page that fully documents its children (e.g. `type.preview`), prefer listing only the parent rather than repeating all children in the flat table.
+- Do not mix `comp.DataReference` and `comp.ReferenceDataTable` in the same table.
 
 ---
 
@@ -1722,6 +1753,7 @@ This guide (`STYLE_GUIDE.mdx`) is the authoritative source. `STYLE_GUIDE_AGENTS.
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.9 | 2026-05-01 | Added ReferenceDataTable component (§1.5.7); marked DataReference as being phased out for schema-sourced keys (§1.5.6) |
 | 2.8 | 2026-05-01 | Added DataReference component (§1.5.6); avoid markdown tables — use comp.DataReference for reference content |
 | 2.7 | 2026-04-30 | Guide page descriptions must not contain colons — they cause the Lume build to fail (§2.4.3) |
 | 2.6 | 2026-04-30 | Guide page descriptions should aim for 125 characters (§2.4.3) |

@@ -7,7 +7,7 @@ Machine-readable style rules for AI agents and automated linters. These rules ar
 **For agents making updates to this file:** Also update the corresponding section in `STYLE_GUIDE.mdx` with the prose explanation and examples. Update the revision history in both files: `last_updated` and `style_guide_version` in the YAML block below, and the `Last Updated` and `Version` fields and the revision history table (Section 4) in `STYLE_GUIDE.mdx`.
 
 ```yaml
-style_guide_version: "2.8"
+style_guide_version: "2.9"
 last_updated: "2026-05-01"
 
 terminology:
@@ -506,7 +506,7 @@ components:
     note: "Used with both MultiCodeBlock and CodeBlock components"
   
   datareference:
-    usage: "List API options, configuration keys, or properties with their types and descriptions"
+    usage: "List API options, configuration keys, or properties with their types and descriptions. Being phased out for schema-sourced keys — use referencedatatable instead."
     required_attributes:
       - "label (on each DataReferenceRow)"
       - "type_markdown (on each DataReferenceRow)"
@@ -515,7 +515,26 @@ components:
       - "Use instead of markdown pipe tables for all reference content"
       - "type_markdown accepts String, Boolean, Object, Array, or other type names"
       - "Inner content of each row supports markdown"
+      - "Do not use for CloudCannon configuration keys covered by the schema — use referencedatatable instead"
     never_use_markdown_tables: true
+
+  referencedatatable:
+    usage: "Display a curated list of CloudCannon configuration keys pulled from the schema. Definitions, types, badges, and examples are sourced automatically — do not duplicate them in the article."
+    required_attributes:
+      - "section (on each ReferenceDataRow)"
+      - "ref_key (on each ReferenceDataRow)"
+    syntax: "<comp.ReferenceDataTable>\n  <comp.ReferenceDataRow section=\"type.Configuration\" ref_key=\"type._inputs.*.options.required\" />\n  <comp.ReferenceDataRow section=\"type.Configuration\" ref_key=\"type._inputs.*.options.values\" />\n</comp.ReferenceDataTable>"
+    valid_sections:
+      - "type.Configuration — CloudCannon Configuration File keys"
+      - "type.Routing — Routing keys"
+      - "type.InitialSiteSettings — Initial Site Settings keys"
+    ref_key_format: "type.{full_key} — e.g. type._inputs.*.options.required; variant suffixes use parentheses: type._inputs.*.options.empty_type(text)"
+    rules:
+      - "Order rows alphabetically by ref_key"
+      - "Article tables are intentionally curated — it is acceptable to omit keys; the reference section is the exhaustive source"
+      - "Do not include deprecated keys — they are documented in the reference section with the deprecation notice and recommended alternative"
+      - "When a parent key links to a reference page that fully documents its children, prefer listing only the parent"
+      - "Do not mix comp.DataReference and comp.ReferenceDataTable in the same table"
 
   glossaryterm:
     usage: "Inline glossary tooltip for terms with a glossary entry"
