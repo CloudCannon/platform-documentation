@@ -7,7 +7,6 @@ import type { Details, Helpers, Page } from "../../_types.d.ts";
 
 interface GuideArticle {
   url: string;
-  start_nav_group?: string;
   details?: Details;
 }
 
@@ -23,6 +22,7 @@ interface Props {
   guide_title: string;
   guide_icon?: string;
   guide_icon_invert_for_dark_mode?: boolean;
+  initial_section_heading?: string;
   search: Search;
 }
 
@@ -35,6 +35,7 @@ export default function GuideLayout(props: Props, helpers: Helpers) {
     guide_title,
     guide_icon,
     guide_icon_invert_for_dark_mode,
+    initial_section_heading,
     search,
   } = props;
 
@@ -95,6 +96,13 @@ export default function GuideLayout(props: Props, helpers: Helpers) {
             <ol className="t-docs-nav__main-list" data-pagefind-ignore>
               <li className="t-docs-nav__main-list__item guide">
                 <ol className="t-docs-nav__sub-list">
+                  {initial_section_heading && (
+                    <li>
+                      <span className="t-docs-nav__main-list__item__heading">
+                        {initial_section_heading}
+                      </span>
+                    </li>
+                  )}
                   {guideArticles.map((data, i) => {
                     const isCurrent = data.url === url;
                     const isCompleted = !isCurrent &&
@@ -109,9 +117,9 @@ export default function GuideLayout(props: Props, helpers: Helpers) {
 
                     return (
                       <li key={i}>
-                        {data.start_nav_group && (
+                        {data.details?.start_nav_group && (
                           <span className="t-docs-nav__main-list__item__heading">
-                            {data.start_nav_group}
+                            {data.details.start_nav_group}
                           </span>
                         )}
                         <a
@@ -136,7 +144,9 @@ export default function GuideLayout(props: Props, helpers: Helpers) {
                                 : data.details?.order}
                             </span>
                             {(data.details?.order || 0) <
-                                guideArticles.length && (
+                                guideArticles.length &&
+                              !guideArticles[i + 1]?.details
+                                ?.start_nav_group && (
                               <span
                                 className={`t-docs-nav__sub-list__connector ${completeClass}`}
                               />
