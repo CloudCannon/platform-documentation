@@ -1,0 +1,110 @@
+---
+_schema: default
+_uuid: a8c3f2b1-9e4d-4a7f-b6c5-2d8e1f3a0b9c
+_created_at: '2026-04-30 00:00:00 +0000'
+details:
+  title: Configure URLs for Rosey
+  order: 4
+  image: >-
+    https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+  description: Configure your CloudCannon Collection URLs and Rosey URL options to control how your multilingual Site is served.
+  start_nav_group: null
+  related_articles: null
+author_notes:
+  docshots: Needs docshots
+---
+
+When <comp.GlossaryTerm term="/user/glossary/r/rosey.yml">Rosey</comp.GlossaryTerm> runs as a postbuild step, it moves your output files to language-prefixed paths — for example, `/en/about/` instead of `/about/`. This affects where the *Visual Editor* looks for your pages, and how your visitors reach your default language. You can address these issues by updating your *Collection* URLs so the *Visual Editor* can find your pages, and by configuring *Rosey*'s URL options to control how your default language is served.
+
+<comp.Notice info_type="info">
+  These configurations are independent — you can do one, both, or neither depending on your setup. Update your *Collection* URLs if you need the *Visual Editor* to work after a *Rosey* build. Configure *Rosey*'s URL options only if the defaults don't suit your use case.
+</comp.Notice>
+
+## Fix the Visual Editor
+
+*Rosey* moves your output files to language-prefixed paths, but CloudCannon's default *Collection* URL configuration doesn't account for this prefix. CloudCannon uses the output URL to match each source file to its output file — if the output URL is wrong, the webpage preview in the <comp.GlossaryTerm term="/user/glossary/v/visual-editor.yml">Visual Editor</comp.GlossaryTerm> and the webpage screenshot on each *File Card* in the *Collection Browser* will both be incorrect. You can fix this by updating your *Collection* URLs to match *Rosey*'s output paths.
+
+You can update your *Collection* URLs either through CloudCannon or by editing your *Configuration File* directly.
+
+### Update Collection URLs in CloudCannon
+
+Navigate to the relevant *Collection* in the *Collection Browser* and enable *Configuration Mode* using the switch on the right of the *Site Header* — purple *Edit Configuration* buttons will appear. Click *Edit Advanced* in the top right to open the *Edit Advanced* data panel. Enter your language-prefixed URL template in the *URL* field — for example, `/en/[slug]/` — then save your *Site*. Repeat this process for each *Collection* in your *Site*.
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Collection-Browser-Configuration-Mode-Edit-Advanced-URL" alt="A screenshot of the Collection Browser shows the Edit Advanced data panel open with a text field for URL configuration." title="The Collection Browser with Edit Advanced panel open" type="screenshot"/>
+
+### Update Collection URLs in your Configuration File
+
+To update your *Collection* URLs without using CloudCannon, edit the `url` key for each *Collection* in your `cloudcannon.config.yml`.
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+```
+collections_config:
+  pages:
+    url: /en/[slug]/
+```
+</comp.MultiCodeBlock>
+
+Add a `url` entry for each *Collection* in your *Site*, replacing `en` with your default locale code. Once you've updated the `url` for each *Collection*, the *Visual Editor* will load your pages correctly after every build.
+
+## Use a staging workflow instead
+
+If you prefer to keep your *Collection* URLs un-prefixed, you can use a staging workflow as an alternative — running *Rosey* only on your production branch and using a separate branch for content editing. See the [staging workflow guide](/documentation/developer-guides/staging-workflow-guide/) for guidance on configuring this in CloudCannon.
+
+<comp.Notice info_type="important">
+  The staging workflow is incompatible with the <comp.GlossaryTerm term="/user/glossary/r/rosey-cloudcannon-connector.yml">Rosey CloudCannon Connector</comp.GlossaryTerm>. The Connector requires *Rosey* to have run on your editing branch so it can surface translations in the *Visual Editor*. If you intend to use the Connector, update your *Collection* URLs instead.
+</comp.Notice>
+
+To restrict *Rosey* to your production branch, replace the postbuild script from the previous step with this version, which wraps the build in an environment variable check:
+
+<comp.CodeBlock language="sh" source=".cloudcannon/postbuild">
+```
+if [[ $TRANSLATE == "true" ]];
+then
+  echo "Translating site with Rosey"
+  mv ./_site ./_untranslated_site
+  npx rosey build --source _untranslated_site --dest _site
+fi
+```
+</comp.CodeBlock>
+
+Then add a `TRANSLATE` environment variable with the value `true` on your production *Site* in CloudCannon. You can do this under *Settings* → *Build* → *Environment variables*. Leave the variable unset on your staging *Site* — *Rosey* won't run on any build where `TRANSLATE` is not `true`, which keeps the *Visual Editor* working correctly on your editing branch.
+
+## Keep your default language at the root path
+
+*Rosey* also gives you control over how the default language's URLs are structured. *Rosey* uses `en` as the default language unless you set a different value using the `default_language` key in your `rosey.yml`.
+
+<comp.CodeBlock language="yaml" source="rosey.yml">
+```
+source: _site
+tag: data-rosey
+default_language: fr
+```
+</comp.CodeBlock>
+
+By default, *Rosey* places your default language under a language code prefix (for example, `/en/index.html`) and generates a redirect page at `/index.html` that sends visitors to the correct locale. If you'd prefer your default language to live at the root path — for example, `/index.html` instead of `/en/index.html` — you can set the `default_language_at_root` option in your `rosey.yml`.
+
+<comp.CodeBlock language="yaml" source="rosey.yml">
+```
+source: _site
+tag: data-rosey
+default_language: en
+default_language_at_root: true
+```
+</comp.CodeBlock>
+
+If your default language isn't `en`, set both keys together:
+
+<comp.CodeBlock language="yaml" source="rosey.yml">
+```
+source: _site
+tag: data-rosey
+default_language: fr
+default_language_at_root: true
+```
+</comp.CodeBlock>
+
+<comp.Notice info_type="important">
+  Setting `default_language_at_root` disables *Rosey*'s redirect page. Without the redirect page at `/index.html`, visitors arriving at the root of your *Site* won't be automatically sent to their locale — your default language content will be served there instead. Make sure this trade-off suits your use case before enabling this option.
+</comp.Notice>
+
+In the next step of this guide, we'll introduce the Rosey CloudCannon Connector — an optional add-on that lets you edit translations inline in the *Visual Editor*.
