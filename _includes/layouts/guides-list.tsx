@@ -1,4 +1,5 @@
 import Card from "../../_components/Card/Card.tsx";
+import FeaturedGuideCard from "../../_components/Card/FeaturedGuideCard.tsx";
 import type { Helpers } from "../../_types.d.ts";
 
 interface GuideItem {
@@ -17,6 +18,8 @@ interface Guide {
   guide_summary: string;
   guide_icon?: string;
   guide_image?: string;
+  guide_eyebrow?: string;
+  guide_cta_text?: string;
   guide_icon_invert_for_dark_mode?: boolean;
 }
 
@@ -64,19 +67,29 @@ export default function GuidesListLayout(props: Props, helpers: Helpers) {
 
                       return (
                         <editable-array-item key={ii}>
-                          <Card
-                            href={guide.url}
-                            title={guide.guide_title}
-                            description={guide.guide_summary}
-                            icon={guide.guide_icon}
-                            image={isLargeGrid ? guide.guide_image : undefined}
-                            variant="guide"
-														className={[
-															isSmallGrid ? "c-card--guide-sm" : "",
-															guide.guide_icon_invert_for_dark_mode ? 'u-grayscale-invert-images' : ''
-															].join(' ')}
-                            helpers={helpers}
-                          />
+                          {isLargeGrid ? (
+                            <FeaturedGuideCard
+                              href={guide.url}
+                              eyebrow={guide.guide_eyebrow}
+                              title={guide.guide_title}
+                              description={guide.guide_summary}
+                              ctaText={guide.guide_cta_text}
+                              image={guide.guide_image}
+                            />
+                          ) : (
+                            <Card
+                              href={guide.url}
+                              title={guide.guide_title}
+                              description={guide.guide_summary}
+                              icon={guide.guide_icon}
+                              variant="guide"
+                              className={[
+                                isSmallGrid ? "c-card--guide-sm" : "",
+                                guide.guide_icon_invert_for_dark_mode ? 'u-grayscale-invert-images' : ''
+                              ].join(' ')}
+                              helpers={helpers}
+                            />
+                          )}
                         </editable-array-item>
                       );
                     })}
