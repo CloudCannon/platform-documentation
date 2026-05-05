@@ -7,8 +7,8 @@ Machine-readable style rules for AI agents and automated linters. These rules ar
 **For agents making updates to this file:** Also update the corresponding section in `STYLE_GUIDE.mdx` with the prose explanation and examples. Update the revision history in both files: `last_updated` and `style_guide_version` in the YAML block below, and the `Last Updated` and `Version` fields and the revision history table (Section 4) in `STYLE_GUIDE.mdx`.
 
 ```yaml
-style_guide_version: "2.9"
-last_updated: "2026-05-01"
+style_guide_version: "2.12"
+last_updated: "2026-05-05"
 
 terminology:
   disambiguation:
@@ -94,9 +94,30 @@ voice_and_tense:
     instruction_outcomes: "future"
     changelogs: "past"
   contractions: "allowed"
+  user_focused_language:
+    rule: "Frame actions and solutions from the user's perspective, not the system's"
+    correct:
+      - "You can fix this by updating your Collection URLs."
+      - "You can address this by configuring the postbuild script."
+    incorrect:
+      - "Updating your Collection URLs fixes this."
+      - "This step covers both."
+    also_avoid: "Vague shorthand references like 'both', 'this', or 'these' without spelling out what they refer to. Always write out the full referent."
+  experiential_feature_description:
+    scope: "Explanation articles and 'What is...' pages within guides only"
+    rule: "Describe features from the user's perspective — what they see and can do — rather than the system's internal mechanics"
+    correct:
+      - "Elements whose source text has changed are highlighted with amber borders."
+      - "A floating locale-switching tool appears in the bottom right of the *Visual Editor*."
+      - "You can change which version of a page you are seeing."
+    incorrect:
+      - "The Connector detects all data-rosey-tagged elements and injects the locale switcher interface."
+      - "It then connects each tagged element to its corresponding entry in the locale JSON."
+    note: "Reserve internal process descriptions ('the system detects… injects… connects…') for 'How it works' subsections or reference documentation."
   first_person_plural_we_exception:
     article_path: "/documentation/developer-articles/what-is-the-visual-editor-api/"
     note: "Sole allowed 'we' in articles; company dogfoods public Visual Editor API (see prose §2.2.5)"
+    guide_transition_sentences: "'we'll' is permitted in the closing transition sentence of guide pages (e.g. 'In the next step of this guide, we'll...')"
 
 formatting_rules:
   oxford_comma: true
@@ -243,6 +264,13 @@ documentation_types:
       closing_cta_rule: "Do not end guide pages with standalone closing-CTA paragraphs (e.g. 'For more information, please read...') that link to another page in the same guide"
       preferred_pattern: "Inline forward references only: embed the link naturally in surrounding prose (e.g. 'We'll discuss this further [later in this guide](/documentation/...)')"
       also_avoid: "Standalone 'For more information, see...' sentences at the end of a page when the target is within the same guide"
+      transition_sentence:
+        rule: "End every guide page (except the index and more-resources pages) with a brief unlinked transition sentence previewing the next step"
+        pattern: "In the next step of this guide, we'll [describe what the next page covers]."
+        note: "This is distinct from a closing CTA — it does not link to the next page, it simply signals what's coming. 'we'll' is permitted in this sentence as part of the collaborative guide voice."
+        examples:
+          - "In the next step of this guide, we'll install Rosey and set it up on your Site from scratch."
+          - "In the next step of this guide, we'll configure your Collection URLs so the Visual Editor can find your pages."
     more_resources_page:
       purpose: "Closing page of every guide; congratulates the reader and points to next steps"
       emoji: "A single emoji is permitted in the congratulatory opening sentence (e.g. 🎉)"
@@ -578,6 +606,9 @@ validation_rules:
     - "guide_page_related_articles_not_null"
     - "ui_elements_in_links_no_italics"
     - "related_articles_multiple_pages_from_same_guide"
+    - "impersonal_action_sentences (e.g. 'X fixes this' instead of 'You can fix this by X')"
+    - "system_focused_feature_description_in_explanation (in explanation articles and 'What is...' guide pages, prefer experiential language — what the user sees and can do — over internal mechanics descriptions)"
+    - "vague_shorthand_references (e.g. 'This step covers both' without spelling out the referents)"
   
   ignore:
     - "Passive voice in: changelog features, technical descriptions"
