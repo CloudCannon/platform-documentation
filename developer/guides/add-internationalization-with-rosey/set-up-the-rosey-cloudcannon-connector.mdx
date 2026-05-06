@@ -26,7 +26,7 @@ npm install rosey-cloudcannon-connector
 ```
 </comp.CodeBlock>
 
-Run the `init` command in your *Terminal* to install dependencies, generate the configuration required in your *CloudCannon Configuration File* for each locale, and create a `.cloudcannon/postbuild` script. Your *Terminal* will present some interactive prompts for this. If you want to skip these interactive prompts, you can use the `--yes` and `--locales` flags, passing the locale codes your *Site* needs.
+Run the `init` command in your *Terminal* to install dependencies, generate the configuration required in your *CloudCannon Configuration File* for each locale, and create a `.cloudcannon/postbuild` script.
 
 <comp.CodeBlock language="sh" source="Terminal">
 ```
@@ -34,78 +34,154 @@ npx rosey-cloudcannon-connector init
 ```
 </comp.CodeBlock>
 
+ Your *Terminal* will present some interactive prompts to help you initialize the Connector. You can skip these prompts by passing flags to accept default configuration options. Here are some common flags that might speed up the process:
+ 
+ * `--locales`, followed by the locale codes in a comma-separated list, generates the *Dataset* configuration the Connector requires in your *CloudCannon Configuration File*.
+ * `--collection` generates the optional `collections_config` entry in your *CloudCannon Configuration File* for editing locale files in the *Data Editor* or *Content Editor Sidebar*.
+
 <comp.CodeBlock language="sh" source="Terminal">
 ```
-npx rosey-cloudcannon-connector init --yes --locales fr,de
+npx rosey-cloudcannon-connector init --locales fr,de --collection
 ```
 </comp.CodeBlock>
 
-Your *CloudCannon Configuration File* needs a *Dataset* for each locale, which are defined under `data_config`. If you configured a *Collection* for your `rosey/locales` folder in the previous section of the guide, the configuration will look like this:
+### Locale files as *Datasets*
+
+The *Rosey CloudCannon Connector* needs a `data_config` entry in your *CloudCannon Configuration File* for each locale. CloudCannon's data API uses these entries to read and write locale JSON files, and the Connector uses them to discover available locale data at runtime.
+
+The `init` command generates these entries automatically based on the locale codes you provide with `--locales`, or the ones you enter at the interactive prompt. For a complete list of locale codes, please read the <a href="https://en.wikipedia.org/wiki/List_of_ISO_639_language_codes" target="_blank" rel="noopener">ISO 639 language code list on Wikipedia</a>.
 
 <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
 ```
 data_config:
-  locales_fr:
-    path: rosey/locales/fr.json
+  locales_fr___1___:
+    path___2___: rosey/locales/fr.json
   locales_de:
     path: rosey/locales/de.json
-collections_config:
-  translations:
-    path: rosey/locales
-    name: Locales
-    icon: translate
-    disable_add: true
-    disable_add_folder: true
-    disable_file_config: true
-    _inputs:
-      value:
-        type: html
-        label: Translation
-        cascade: true
-      original:
-        hidden: true
-        cascade: true
-      _base_original:
-        disabled: true
-        cascade: true
 ```
+<comp.Annotation number="1">
+
+The key must follow the format `locales_{code}`. The Connector calls `api.dataset("locales_fr")` at runtime to load locale data, so the `locales_` prefix and locale code are not configurable.
+
+</comp.Annotation>
+<comp.Annotation number="2">
+
+The path to the locale JSON file for this locale, relative to your project root.
+
+</comp.Annotation>
 </comp.MultiCodeBlock>
 
-Ensure there is an entry for each locale file you want to be able to update through the <comp.GlossaryTerm term="/user/glossary/v/visual-editor.yml">Visual Editor</comp.GlossaryTerm>.
+You need one entry for each locale file you want the Connector to surface in the *Visual Editor*. If you add a new locale later, add its `data_config` entry before adding the locale file to `rosey/locales/`.
 
-## Expose locale files in the sidebar
+### Locale files as a *Collection*
 
-By adding a `collections_config` entry for your locales directory, your team can open and edit locale files directly in the *Data Editor* as an alternative to inline editing. The `init` command adds this automatically. To configure it manually, add the following to your `cloudcannon.config.yml`:
+Adding a *Collection* for your translations is optional. You might have made one earlier in this guide to edit locale files in the *Data Editor*, however there is some extra configuration when the *Rosey CloudCannon Connector* is installed.
+
+The `init` command allows you to generate the optional `collections_config` entry in your *CloudCannon Configuration File* for editing locale files in the *Data Editor* or *Visual Editor Sidebar*. This is independent of the Connector — it doesn't affect how the Connector functions, but it's useful when a translation doesn't appear visually on the page (for example, `alt` text, `meta` descriptions, or other HTML attribute values that can't be clicked in the *Visual Editor*).
 
 <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
 ```
 collections_config:
   translations:
-    path: rosey/locales
-    name: Locales
-    icon: translate
-    disable_add: true
+    path___1___: rosey/locales
+    name___2___: Locales
+    icon___3___: translate
+    disable_add___4___: true
     disable_add_folder: true
     disable_file_config: true
-    _inputs:
+    _inputs___5___:
       value:
-        type: html
+        type___6___: html
         label: Translation
         cascade: true
       original:
-        hidden: true
+        hidden___7___: true
         cascade: true
       _base_original:
-        disabled: true
+        disabled___8___: true
         cascade: true
 ```
+<comp.Annotation number="1">
+
+The path to your locale files directory. Each file in this directory appears as a separate item in the *Collection*.
+
+</comp.Annotation>
+<comp.Annotation number="2">
+
+The display name for the *Collection* in the *App Sidebar*.
+
+</comp.Annotation>
+<comp.Annotation number="3">
+
+Sets the *Collection* icon in the *App Sidebar*.
+
+</comp.Annotation>
+<comp.Annotation number="4">
+
+Prevents team members from creating, rearranging, or individually configuring locale files. Locale files are managed by *Rosey* and the Connector, not created manually.
+
+</comp.Annotation>
+<comp.Annotation number="5">
+
+Configures how locale file fields appear in the *Data Editor* or *Visual Editor Sidebar*
+
+</comp.Annotation>
+<comp.Annotation number="6">
+
+Rosey translations are always HTML — the SSG renders Markdown to HTML at build time before Rosey runs. Setting `type: html` ensures the rich-text editor is used rather than a plain text field.
+
+</comp.Annotation>
+<comp.Annotation number="7">
+
+Fully hidden from the *Data Editor* interface. Team members don't need to see or modify this field — it's updated automatically when a translation is saved in the *Visual Editor*.
+
+</comp.Annotation>
+<comp.Annotation number="8">
+
+Visible but read-only, so translators can see the current source text for reference while translating. This field is written by `write-locales` on every build and should not be edited manually.
+
+</comp.Annotation>
 </comp.MultiCodeBlock>
 
-Each locale file (`fr.json`, `de.json`, etc.) appears as a separate item in the *Collection*. The `value` field is the editable translation. The `original` and `_base_original` fields are hidden or read-only — they store the source text used for stale translation detection and are managed by the Connector.
+Ensure there is an entry for each locale file you want to be able to update through the <comp.GlossaryTerm term="/user/glossary/v/visual-editor.yml">Visual Editor</comp.GlossaryTerm>.
+
+## Stale translation detection
+
+Each locale entry stores three fields that the *Rosey CloudCannon Connector* and the build process use to track whether a translation is current: `value` (the translated text), `original` (the source text when the translation was last confirmed), and `_base_original` (the current source text from `base.json`, updated by `write-locales` on every build).
+
+A translation is stale when `original` and `_base_original` differ. When source content changes, the next build updates `_base_original` to the new text while leaving `original` and `value` untouched. For example, a translator confirms a French translation when the heading reads "Welcome to Sendit":
+
+<comp.CodeBlock language="json" source="rosey/locales/fr.json">
+```
+{
+  "hero:title": {
+    "original": "Welcome to Sendit",
+    "_base_original": "Welcome to Sendit",
+    "value": "Bienvenue chez Sendit"
+  }
+}
+```
+</comp.CodeBlock>
+
+After a team member updates the heading to "Welcome to Sendit — Email Made Easy", the next build updates `_base_original` but leaves `original` and `value` unchanged:
+
+<comp.CodeBlock language="json" source="rosey/locales/fr.json">
+```
+{
+  "hero:title": {
+    "original": "Welcome to Sendit",
+    "_base_original": "Welcome to Sendit — Email Made Easy",
+    "value": "Bienvenue chez Sendit"
+  }
+}
+```
+</comp.CodeBlock>
+
+Because `original` and `_base_original` no longer match, the Connector highlights the element with an amber dashed border and increments the count badge on the locale switcher. You can resolve the stale indicator by editing the translation in the *Visual Editor* — the Connector automatically updates `original` to match `_base_original` on save. If the source change doesn't affect the meaning, you can mark the translation as reviewed instead, which clears the indicator without changing the translated text.
 
 ## Import the Connector script
 
-By importing the *Rosey CloudCannon Connector* script in your layout file, CloudCannon can detect if any page is open in the *Visual Editor*. To achieve this, use the import statement wrapped in `window?.inEditorMode`.
+Import the *Rosey CloudCannon Connector* script in your layout file so it loads when you open a page in the *Visual Editor*. Wrap the import in `window?.inEditorMode` so the script only loads in the *Visual Editor*:
 
 <comp.CodeBlock language="html" source="layout.html">
 ```
@@ -133,7 +209,7 @@ By importing the *Rosey CloudCannon Connector* script in your layout file, Cloud
 
 ## Update the postbuild script
 
-By adding the `write-locales` step to your `.cloudcannon/postbuild` script, any translation changes saved in the *Visual Editor* are written back to your locale JSON files before Rosey runs. Your postbuild script should include these steps in order:
+Add the `write-locales` step to your `.cloudcannon/postbuild` script so translation changes you save in the *Visual Editor* are written back to your locale JSON files before Rosey runs. Your postbuild script should include these steps in order:
 
 <comp.CodeBlock language="sh" source=".cloudcannon/postbuild">
 ```
@@ -152,7 +228,7 @@ npx rosey build --source _untranslated_site --dest _site --default-language en -
 ```
 </comp.CodeBlock>
 
-## Connector data attributes reference
+## Attributes reference
 
 The Connector uses the following `data-rcc-*` attributes to control behaviour in the *Visual Editor*:
 
