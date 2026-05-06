@@ -7,18 +7,18 @@ Machine-readable style rules for AI agents and automated linters. These rules ar
 **For agents making updates to this file:** Also update the corresponding section in `STYLE_GUIDE.mdx` with the prose explanation and examples. Update the revision history in both files: `last_updated` and `style_guide_version` in the YAML block below, and the `Last Updated` and `Version` fields and the revision history table (Section 4) in `STYLE_GUIDE.mdx`.
 
 ```yaml
-style_guide_version: "2.12"
-last_updated: "2026-05-05"
+style_guide_version: "2.13"
+last_updated: "2026-05-06"
 
 terminology:
   disambiguation:
     editor:
-      rule: "Do not use the bare word editor for a tool or product; it is ambiguous"
-      qualify_with:
+      rule: "Use 'editor' only for an editing interface, and only when immediately preceded by the name of that interface. Never use 'editor' to mean a person."
+      for_interfaces:
         - "Visual Editor, Content Editor, Data Editor, Source Editor (UI names per italics rules)"
         - "code editor, IDE, or named product (e.g. VS Code) for where developers write code"
         - "rich text editor, WYSIWYG editor, or name the host UI"
-        - "Explicit person/role phrasing when meaning a human"
+      for_people: "Use a specific role term: team member, translator, content author. Never 'editor' or 'editors'."
       compounds_allowed_when_context_clear:
         - "Visual Editor API"
         - "inEditorMode"
