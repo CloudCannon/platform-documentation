@@ -210,4 +210,147 @@ npx rosey check
 
 Review this file after updating your content to see which translations need attention.
 
+## Attributes reference
+
+Rosey uses the following `data-*` attributes on your HTML elements:
+
+<comp.DataReference>
+  <comp.DataReferenceRow label="`data-rosey`" type_markdown="String">
+    Marks an element as translatable. The attribute value becomes the translation key in `base.json`, with the element's inner text captured as the source string.
+
+    <comp.Example>
+    <comp.CodeBlock language="html" source="layout.html">
+    ```
+    <h1 data-rosey="hero.title">Welcome to our site</h1> <!--1-->
+    <p data-rosey="hero.subtitle">We build great things.</p> <!--2-->
+    ```
+    <comp.Annotation number="1">
+
+Adds the key `hero.title` to `base.json` with `"Welcome to our site"` as the source string.
+
+</comp.Annotation>
+    <comp.Annotation number="2">
+
+Adds a separate key `hero.subtitle` with `"We build great things."` as the source string.
+
+</comp.Annotation>
+    </comp.CodeBlock>
+    </comp.Example>
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="`data-rosey-ns`" type_markdown="String">
+    Prepends a namespace segment to all child `data-rosey` keys, separated by colons. Namespaces stack — `data-rosey-ns="hero"` on a parent and `data-rosey="title"` on a child produces the key `hero:title`.
+
+    <comp.Example>
+    <comp.CodeBlock language="html" source="layout.html">
+    ```
+    <body data-rosey-ns="home"> <!--1-->
+      <h1 data-rosey="title">Home page title</h1> <!--2-->
+      <div data-rosey-ns="contact-info"> <!--3-->
+        <h2 data-rosey="title">Contact us</h2> <!--4-->
+      </div>
+    </body>
+    ```
+    <comp.Annotation number="1">
+
+Sets the top-level namespace. All child `data-rosey` keys are prefixed with `home:`.
+
+</comp.Annotation>
+    <comp.Annotation number="2">
+
+Produces the key `home:title` in `base.json`.
+
+</comp.Annotation>
+    <comp.Annotation number="3">
+
+Adds a second namespace segment, stacking onto `home`. Child keys are now prefixed with `home:contact-info:`.
+
+</comp.Annotation>
+    <comp.Annotation number="4">
+
+Produces the key `home:contact-info:title` — the same attribute value as annotation 2, but a distinct key due to the nested namespace.
+
+</comp.Annotation>
+    </comp.CodeBlock>
+    </comp.Example>
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="`data-rosey-root`" type_markdown="String">
+    Resets the namespace at this element, replacing any inherited parent namespaces. Set to an empty string (`""`) to clear the namespace entirely for that subtree.
+
+    <comp.Example>
+    <comp.CodeBlock language="html" source="layout.html">
+    ```
+    <body data-rosey-ns="home"> <!--1-->
+      <h1 data-rosey="title">Home page title</h1> <!--2-->
+      <section data-rosey-root="features"> <!--3-->
+        <h2 data-rosey="title">Our features</h2> <!--4-->
+      </section>
+      <section data-rosey-root=""> <!--5-->
+        <p data-rosey="tagline">Built for you.</p> <!--6-->
+      </section>
+    </body>
+    ```
+    <comp.Annotation number="1">
+
+Sets the top-level namespace to `home`.
+
+</comp.Annotation>
+    <comp.Annotation number="2">
+
+Produces the key `home:title`.
+
+</comp.Annotation>
+    <comp.Annotation number="3">
+
+Resets the namespace to `features`, discarding the inherited `home` namespace.
+
+</comp.Annotation>
+    <comp.Annotation number="4">
+
+Produces the key `features:title`, not `home:features:title`.
+
+</comp.Annotation>
+    <comp.Annotation number="5">
+
+Resets the namespace to an empty string, clearing it entirely for this subtree.
+
+</comp.Annotation>
+    <comp.Annotation number="6">
+
+Produces the bare key `tagline` with no namespace prefix.
+
+</comp.Annotation>
+    </comp.CodeBlock>
+    </comp.Example>
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="`data-rosey-attr`" type_markdown="String">
+    The name of the HTML attribute to translate. Use alongside `data-rosey-attr-value` on the same element — for example, `data-rosey-attr="alt"` with `data-rosey-attr-value="hero.image-alt"` translates the `alt` attribute using the key `hero.image-alt`.
+
+    <comp.Example>
+    <comp.CodeBlock language="html" source="layout.html">
+    ```
+    <img src="/images/hero.jpg" alt="A team working together"
+      data-rosey-attr="alt"
+      data-rosey-attr-value="hero.image-alt" /> <!--1-->
+    <meta name="description" content="We build great things."
+      data-rosey-attr="content"
+      data-rosey-attr-value="meta.description" /> <!--2-->
+    ```
+    <comp.Annotation number="1">
+
+Translates the `alt` attribute using the key `hero.image-alt`. The attribute's current value is captured as the source string in `base.json`.
+
+</comp.Annotation>
+    <comp.Annotation number="2">
+
+Translates the `content` attribute using the key `meta.description`.
+
+</comp.Annotation>
+    </comp.CodeBlock>
+    </comp.Example>
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="`data-rosey-attr-value`" type_markdown="String">
+    The translation key for the attribute named in `data-rosey-attr`. The attribute's current value is captured as the source string in `base.json`.
+  </comp.DataReferenceRow>
+</comp.DataReference>
+
 In the next step of this guide, we'll look at the URL configuration options available to you — including how to update your *Collection* URLs so the *Visual Editor* can find your pages, and how to control where your default language is served.

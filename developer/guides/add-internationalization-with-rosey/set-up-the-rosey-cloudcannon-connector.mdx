@@ -14,7 +14,7 @@ author_notes:
   docshots: Needs docshots
 ---
 
-In this part of the guide, you will install the *Rosey CloudCannon Connector*, modify your *CloudCannon Configuration File* to define a *Dataset* for each locale, and update your postbuild script. For more information, please read the full documentation are available at [github.com/CloudCannon/rosey-cloudcannon-connector](github.com/CloudCannon/rosey-cloudcannon-connector) or contact our friendly [support team](/support/).
+In this part of the guide, you will install the *Rosey CloudCannon Connector*, modify your *CloudCannon Configuration File* to define a *Dataset* for each locale, and update your postbuild script. For more information, see the <a href="https://github.com/CloudCannon/rosey-cloudcannon-connector" target="_blank" rel="noopener">full documentation on GitHub</a> or contact our friendly [support team](/support/).
 
 ## Install and initialize the Connector
 
@@ -40,7 +40,7 @@ npx rosey-cloudcannon-connector init --yes --locales fr,de
 ```
 </comp.CodeBlock>
 
-Your *CloudCannon Configuration File* needs a *Dataset* for each locale, which are defined under `data_config`. If you configured your a *Collection* for your `rosey/locales` folder in the previous section of the guide, the configuration will look like this:
+Your *CloudCannon Configuration File* needs a *Dataset* for each locale, which are defined under `data_config`. If you configured a *Collection* for your `rosey/locales` folder in the previous section of the guide, the configuration will look like this:
 
 <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
 ```
@@ -50,7 +50,7 @@ data_config:
   locales_de:
     path: rosey/locales/de.json
 collections_config:
-  locales:
+  translations:
     path: rosey/locales
     name: Locales
     icon: translate
@@ -80,7 +80,7 @@ By adding a `collections_config` entry for your locales directory, your team can
 <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
 ```
 collections_config:
-  locales:
+  translations:
     path: rosey/locales
     name: Locales
     icon: translate
@@ -152,28 +152,56 @@ npx rosey build --source _untranslated_site --dest _site --default-language en -
 ```
 </comp.CodeBlock>
 
-## Data attributes reference
+## Connector data attributes reference
 
-The Connector and Rosey use the following `data-*` attributes on your HTML elements:
+The Connector uses the following `data-rcc-*` attributes to control behaviour in the *Visual Editor*:
 
 <comp.DataReference>
-  <comp.DataReferenceRow label="`data-rosey`" type_markdown="String">
-    Marks an element as translatable. The attribute value is the translation key. Required for Rosey.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="`data-rosey-ns`" type_markdown="String">
-    Sets a namespace prefix for all `data-rosey` keys within a component or section.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="`data-rosey-root`" type_markdown="String">
-    Marks the root element of a translation scope.
-  </comp.DataReferenceRow>
   <comp.DataReferenceRow label="`data-rcc`" type_markdown="Boolean">
     Marks the snapshot boundary for locale switching. The Connector clones this element and swaps its content when changing locale. Defaults to `<main>` if omitted.
+
+    <comp.Example>
+    <comp.CodeBlock language="html" source="layout.html">
+    ```
+    <div data-rcc> <!--1-->
+      <nav>...</nav>
+      <main>...</main>
+      <footer>...</footer>
+    </div>
+    ```
+    <comp.Annotation number="1">
+
+Marks this wrapper as the snapshot boundary, so the Connector clones the entire region — including navigation and footer — when switching locales. Without this attribute, only `<main>` would be swapped.
+
+</comp.Annotation>
+    </comp.CodeBlock>
+    </comp.Example>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="`data-rcc-ignore`" type_markdown="Boolean">
     Excludes this element from locale switching in the *Visual Editor*. The element is still translated at build time by Rosey.
+
+    <comp.Example>
+    <comp.CodeBlock language="html" source="layout.html">
+    ```
+    <p data-rosey="promo.code" data-rcc-ignore>SUMMER2026</p> <!--1-->
+    ```
+    <comp.Annotation number="1">Rosey translates this element at build time, but the Connector does not make it editable inline in the *Visual Editor*. Useful for content such as codes or IDs that should be translated via locale files rather than edited directly.</comp.Annotation>
+    </comp.CodeBlock>
+    </comp.Example>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="`data-rcc-exclude`" type_markdown="String">
     Hides specific locales from the switcher on this page. Accepts a comma-separated list of locale codes (e.g. `de,es`).
+
+    <comp.Example>
+    <comp.CodeBlock language="html" source="layout.html">
+    ```
+    <main data-rcc-exclude="de,es"> <!--1-->
+      ...
+    </main>
+    ```
+    <comp.Annotation number="1">Hides German and Spanish from the locale switcher on this page. Use this for pages that haven't been translated into those locales yet.</comp.Annotation>
+    </comp.CodeBlock>
+    </comp.Example>
   </comp.DataReferenceRow>
   <comp.DataReferenceRow label="`data-rcc-verbose`" type_markdown="Boolean">
     Enables detailed console logging prefixed with `RCC:` for debugging. Logs initialization, element tracking, and locale operations.
