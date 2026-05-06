@@ -516,8 +516,15 @@ components:
     required_attributes:
       - "language"
       - "source"
-    annotation_marker: "/*NUMBER*/"
-    annotation_example: "<h1 data-editable>Title</h1> /*1*/"
+    annotation_markers:
+      html: "<!--NUMBER-->"
+      javascript_typescript_astro_css: "/*NUMBER*/"
+      shell_python_ruby: "#NUMBER"
+    annotation_marker_rule: "Marker must match the language's comment syntax so Prism produces a .token.comment span, which the annotation processor converts to a colored square. Never place markers inside a tag's attribute list."
+    annotation_examples:
+      html: "<div class=\"hero\"> <!--1-->"
+      javascript: "import './styles.css'; /*1*/"
+      shell: "npm install rosey #1"
     use_cases:
       - "HTML files"
       - "Markdown files"
@@ -526,11 +533,13 @@ components:
   
   annotation:
     usage: "Numbered tie-ins from prose to specific lines in code examples"
-    placement: "Immediately after closing code block tag"
+    placement: "Inside the </comp.CodeBlock> closing tag, after the closing code fence — not after the closing tag"
     numbering: "Sequential starting from 1"
     length: "1-2 sentences (concise); reference the marker, not the whole tutorial"
     prose_before_code: "Body text before the block explains purpose, parameters, returns, and relationships; readers should not depend on annotations alone"
     syntax: "<comp.Annotation number=\"N\">Explanation</comp.Annotation>"
+    inline_code: "Surround annotation text with blank lines so MDX processes it as markdown, enabling backtick inline code. Without blank lines, backticks appear as literal characters."
+    inline_code_example: "<comp.Annotation number=\"1\">\n\nTranslates the `alt` attribute using the key `hero.image-alt`.\n\n</comp.Annotation>"
     note: "Used with both MultiCodeBlock and CodeBlock components"
   
   datareference:

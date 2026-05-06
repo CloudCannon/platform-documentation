@@ -541,7 +541,18 @@ _inputs___1___:
 </comp.Annotation>
 ```
 
-**For `<comp.CodeBlock>` — Use `/*1*/` markers:**
+**For `<comp.CodeBlock>` — Use language-appropriate comment markers:**
+
+The marker must produce a Prism `.token.comment` for the annotation processor to convert it into a colored square. Use the comment syntax that matches the code block's language:
+
+| Language | Marker | Example |
+|----------|--------|---------|
+| HTML | `<!--N-->` | `<div class="hero"> <!--1-->` |
+| JavaScript, TypeScript, Astro, CSS | `/*N*/` | `import './styles.css'; /*1*/` |
+| Shell, Python, Ruby | `#N` | `npm install rosey #1` |
+| YAML, JSON (in `<comp.MultiCodeBlock>`) | `___N___` | `_inputs___1___:` |
+
+Place markers at the end of a complete line — never inside a tag's attribute list (HTML comments are not valid between attributes).
 
 ````markdown
 <comp.CodeBlock language="JavaScript" source="src/scripts/register-components.js">
@@ -550,20 +561,39 @@ import { registerAstroComponent } from '@cloudcannon/editable-regions/astro';
 import '@cloudcannon/editable-regions/astro-react-renderer'; /*1*/
 import HeroBlock from '../components/HeroBlock.astro';
 ```
-</comp.CodeBlock>
 <comp.Annotation number="1">
   This import is only necessary if you use React components nested inside your Astro components.
 </comp.Annotation>
+</comp.CodeBlock>
 ````
 
 **Why the different syntax:**
-- `___1___` markers work for any language in MultiCodeBlock (YAML, JSON, etc.)
-- `/*1*/` markers use comment syntax that's visually appropriate for code files (HTML, JavaScript, Astro, etc.)
+- `___N___` markers work for any language in `<comp.MultiCodeBlock>` (YAML, JSON, etc.) because they are replaced directly in the raw text, not via Prism
+- Comment markers (`<!--N-->`, `/*N*/`, `#N`) rely on Prism syntax highlighting to produce a `.token.comment` span, which the annotation processor then converts to a colored square — so the marker must match the language's comment syntax
 
 **Always:**
-- Place `<comp.Annotation>` components immediately after the closing tag of the code block
+- Place `<comp.Annotation>` components inside the `</comp.CodeBlock>` closing tag, after the closing code fence
 - Number annotations sequentially starting from 1
 - Keep annotation explanations concise (1-2 sentences)
+- Surround annotation text with blank lines if it contains inline code (backticks), bold, or other markdown formatting
+
+**Inline formatting in annotations**
+
+MDX treats the children of a JSX element as a literal string unless they are surrounded by blank lines, in which case they are parsed as markdown. Without blank lines, backticks appear as literal characters rather than styled code pills.
+
+```mdx
+// ❌ Backticks render as literal characters
+<comp.Annotation number="1">Translates the `alt` attribute.</comp.Annotation>
+
+// ✅ Blank lines enable markdown — backticks render as inline code
+<comp.Annotation number="1">
+
+Translates the `alt` attribute.
+
+</comp.Annotation>
+```
+
+This applies to any inline markdown formatting inside an annotation: backticks, `**bold**`, `*italic*`, etc.
 
 **Explain behavior in prose before the code sample**
 
