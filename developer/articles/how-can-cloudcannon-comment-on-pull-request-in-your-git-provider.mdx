@@ -1,0 +1,60 @@
+---
+_schema: default
+_uuid: 1b92a30d-2449-441c-aa24-7f52412b511b
+_created_at: '2026-04-24 00:00:00 +0000'
+details:
+  title: How Can CloudCannon Comment on Pull Request in Your Git Provider?
+  description: x
+  image: >-
+    https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+  category:
+    - Explanation
+  related_articles: []
+author_notes:
+  docshots: Needs docshots
+---
+<comp.Notice info_type="pricing">
+  **Pull request deploy previews are available on our [Team and Enterprise plans](/pricing/).**
+
+  Want to chat about whether this feature is right for you? Our support team is always <a href="mailto:success@cloudcannon.com?subject=A%20question%20about%20pull%20request%20deploy%20previews" rel="noreferrer">happy to hear from you</a>.
+</comp.Notice>
+
+When *Comment on pull requests with site details* is enabled, CloudCannon posts a single comment on each pull request summarizing the *Sites* connected to the pull request's head branch. The comment includes:
+
+* The *Site* name and the branch it tracks
+* The current build status (Ready, Building, Build Failed, or Not configured)
+* A *Visit Preview* link pointing to the *Site's* testing domain
+* An *Open Editor* link that opens the *Site* in CloudCannon
+* A link to the latest commit on your *Git Provider*
+* A link to the latest build log in CloudCannon
+
+If multiple *Sites* are connected to the same branch, CloudCannon renders the details as a table with one row per *Site*. If no *Sites* are connected yet, the comment links to your *Project* so you can connect one.
+
+CloudCannon identifies its own comment using a hidden HTML marker scoped to your *Organization*, so it will update the same comment rather than posting a new one on every change. This also means the comment is safe to keep in place — editing or reacting to it from your *Git Provider* will not affect CloudCannon's ability to update it.
+
+### When comments are posted and updated
+
+The deploy preview comment is upserted in the following situations:
+
+* A pull request event is received (opened, reopened, ready for review, edited, and so on).
+* A *Site* linked to the pull request changes branch, is renamed, or has its stable domain updated.
+* A *Site* is created for the pull request (including auto-created *Sites*).
+* A build on a connected *Site* completes, so the status and commit information stay current.
+
+### The comment footer
+
+You can add an optional Markdown footer to the deploy preview comment using the *Comment footer* field. The footer is appended below the *Deployed by CloudCannon* line and is useful for linking to internal review checklists, tagging reviewers, or pointing at documentation specific to your team.
+
+### Skipping draft pull requests
+
+When *Skip draft pull requests* is enabled under *Comments*, CloudCannon will not post or update the deploy preview comment while a pull request is marked as draft. If you later mark the pull request as ready for review, CloudCannon will post the comment at that time.
+
+### What happens when you disable comments
+
+Disabling *Comment on pull requests with site details* does not delete existing deploy preview comments from your pull requests. Instead, CloudCannon reconciles every open pull request in the *Project* and rewrites its managed comment with a short notice explaining that pull request comments have been disabled.
+
+The same reconciliation runs when you enable *Skip draft pull requests* for comments, change your *Comment footer*, or turn the *Pull request features enabled* master toggle off while comments were previously enabled: any pull request that was previously eligible and has now become ineligible is updated with the disabled notice, and any pull request that is newly eligible is back-filled with a fresh deploy preview comment.
+
+<comp.Notice info_type="info">
+  Reconciliation only touches comments that CloudCannon posted using the marker for your *Organization*. It never edits or deletes comments written by people or other integrations.
+</comp.Notice>
