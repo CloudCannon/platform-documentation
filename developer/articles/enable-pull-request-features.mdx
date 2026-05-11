@@ -159,4 +159,15 @@ When you turn the master toggle back on, CloudCannon resumes handling pull reque
   The *Pull Requests* tab is also gated by a dedicated read permission. Even with the master toggle on, a team member who does not have permission to read pull requests on the *Project* will not see the tab. The *Pull Requests* section under *Project Settings* has its own write permission, so admins can let team members view the settings without being able to change them.
 </comp.Notice>
 
-##
+&nbsp;
+
+### Enabling settings on an existing Project
+
+Pull request settings are intentionally lazy. Toggling them on does not retroactively process historical pull requests:
+
+* **Enabling the master toggle** — Turning *Pull request features enabled* back on does not replay missed events. Existing pull requests pick up comments and *Sites* on their next event.
+* **Enabling comments** — Existing pull requests will only receive a comment on the next event (such as a new push or a reopen). If you need an immediate comment on an already-open pull request, trigger any small change to the pull request.
+* **Enabling Automatic Sites** — *Sites* are only created on the next pull request event. No backfill is performed for pull requests that were already open when the setting was turned on.
+* **Enabling Delete auto-created sites** — *Sites* are only deleted on future close or merge events. *Sites* that are already orphaned from previously closed pull requests are not cleaned up automatically.
+
+Disabling a setting is similarly lazy, with one exception: disabling comments or changing the comment footer runs a one-shot reconciliation across every open pull request so the existing comment is either updated with the disabled notice or refreshed with the new footer. For more information, please read the [When you disable comments](#what-happens-when-you-disable-comments) section above.
