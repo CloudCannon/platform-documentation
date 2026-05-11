@@ -3,7 +3,7 @@ _schema: default
 _uuid: 1b92a30d-2449-441c-aa24-7f52412b511b
 _created_at: '2026-04-24 00:00:00 +0000'
 details:
-  title: What are Deploy Previews for Pull Requests?
+  title: What are Deploy Previews?
   description: >-
     Learn how CloudCannon responds to pull requests on your Project with deploy
     preview comments and automatically created Sites.
@@ -27,27 +27,20 @@ author_notes:
   Want to chat about whether this feature is right for you? Our support team is always <a href="mailto:success@cloudcannon.com?subject=A%20question%20about%20pull%20request%20deploy%20previews" rel="noreferrer">happy to hear from you</a>.
 </comp.Notice>
 
-Pull request deploy previews are a set of automations that run on your *Project* whenever a <comp.GlossaryTerm term="/user/glossary/p/pull-request.yml">Pull Request</comp.GlossaryTerm> is opened, updated, or closed in your <comp.GlossaryTerm term="/user/glossary/g/git-repository.yml">Git Repository</comp.GlossaryTerm>. CloudCannon can post a comment on each pull request with links to your connected *Sites*, create a branch *Site* automatically for every pull request, and clean up those *Sites* once the pull request is closed or merged.
+*Deploy Previews* are a set of automations that CloudCannon can run whenever a <comp.GlossaryTerm term="/user/glossary/p/pull-request.yml">Pull Request</comp.GlossaryTerm> is opened, closed, or updated in your <comp.GlossaryTerm term="/user/glossary/g/git-repository.yml">Git Repository</comp.GlossaryTerm>. When you [enable Pull Request features](/documentation/developer-articles/enable-pull-request-features/) for a <comp.GlossaryTerm term="/user/glossary/p/project.yml">Project</comp.GlossaryTerm>, CloudCannon can *Pull Requests* in that *Project*:
 
-You configure these behaviors in the *Pull Requests* section under the *Project Settings* tab, gated by a *Pull request features enabled* master toggle on each *Project*. For the steps to enable each option, please read our documentation on [configuring Pull Request settings](/documentation/developer-articles/configure-pull-request-settings/).
+* Create a <comp.GlossaryTerm term="/user/glossary/s/site.yml">Site</comp.GlossaryTerm> if the *Branch* does not already have one, and delete that *Site* when the *Pull Request* is merged or closed.
+* Post a comment to the *Pull Request* in your *Git Provider*, with the *Pull Request's* Status (e.g., Ready), the most recent Commit to your *Git Repository,* and links to the CloudCannon <comp.GlossaryTerm term="/user/glossary/t/testing-domain.yml">Testing Domain</comp.GlossaryTerm>, *Site*, and *Build Log*.
 
-## The Pull request features enabled toggle
+<comp.DocsImage path="" alt="" title=""/>
 
-Every *Project* has a *Pull request features enabled* toggle at the top of its *Pull Requests* settings form. Think of it as the master switch for pull request automation on that *Project*. Leaving it on is the default, and what most *Projects* will want.
-
-When the master toggle is off:
-
-* The *Pull Requests* tab is hidden from the top-level *Project* navigation. The *Branches* tab is not affected.
-* CloudCannon ignores pull request events for this *Project*. No comments are posted, no *Sites* are created, and no auto-created *Sites* are deleted, regardless of the *Comments* or *Automatic sites* settings below the toggle.
-* The rest of the settings on the *Pull Requests* form are disabled until the master toggle is turned back on, but their values are preserved.
-
-When you turn the master toggle back on, CloudCannon resumes handling pull request events immediately. As with every other *Pull Requests* setting, reactivation is lazy — pull requests that were opened while the master toggle was off are only picked up on the next event they receive (such as a push, rename, or reopen).
+Why...
 
 <comp.Notice info_type="info">
-  The *Pull Requests* tab is also gated by a dedicated read permission. Even with the master toggle on, a team member who does not have permission to read pull requests on the *Project* will not see the tab. The *Pull Requests* section under *Project Settings* has its own write permission, so admins can let team members view the settings without being able to change them.
+  *Deploy Previews* may take a few minutes to appear for recently created *Projects*, as CloudCannon needs to correctly connect the webhook from your *Git Provider*.
 </comp.Notice>
 
-## How CloudCannon listens to pull requests
+## Listening to *Pull Requests*
 
 When you connect a *Project* to GitHub, GitLab, or Bitbucket, CloudCannon subscribes to pull request events on your *Git Repository*. CloudCannon processes the following events:
 
@@ -58,11 +51,11 @@ When you connect a *Project* to GitHub, GitLab, or Bitbucket, CloudCannon subscr
 * **Edited** — The pull request title, description, or base branch changes (GitHub `edited`, GitLab `update`, Bitbucket `pullrequest:updated`).
 * **Closed or merged** — The pull request is closed without merging, or merged into its base branch.
 
-Each event is routed to your *Project* based on the repository identifier and your connected *Git Provider*. CloudCannon then reconciles your *Project* settings against the current state of the pull request — posting or updating comments, creating or syncing branch *Sites*, and deleting auto-created *Sites* when appropriate. If the *Project's* *Pull request features enabled* master toggle is off, the event is received and logged but no comments, *Sites*, or deletions are processed.
+Each event is routed to your *Project* based on the *Git Repository* identifier and your connected *Git Provider*. CloudCannon then reconciles your *Project* settings against the current state of the *Pull Request* and performs the appropriate automations.
 
-<comp.Notice info_type="info">
-  Pull request events only trigger deploy preview automations when your *Organization* is on a plan that includes pull request management, and when the webhook from your *Git Provider* is correctly connected. If you have recently connected your *Project*, allow a few minutes for the webhook to be registered before expecting events.
-</comp.Notice>
+If *Pull Request Features* are disabled for your *Project*, CloudCannon still logs these events, but takes no action.
+
+&nbsp;
 
 ## Edge cases and behavior you should know about
 
