@@ -4,7 +4,7 @@ _uuid: 3a358dae-b9bd-4961-b680-6685cd867722
 _created_at: 2026-05-08T11:53:48+12:00
 details:
   title: Use Pull Requests to trigger Site creation and deletion
-  description: x
+  description: Learn how CloudCannon uses Pull Requests to automatically create and delete Sites, and how to configure this behavior for your Project.
   image: >-
     https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
   category:
@@ -14,41 +14,41 @@ author_notes:
   docshots: Needs docshots
 ---
 <comp.Notice info_type="pricing">
-  **Deploy Previews are available on our** [**Team and Enterprise plans**](/pricing/)**.**
+  ***Deploy Previews* are available on our [Team and Enterprise plans](/pricing/).**
 
   Want to chat about whether this feature is right for you? Our support team is always <a href="mailto:success@cloudcannon.com?subject=A%20question%20about%20pull%20request%20deploy%20previews" rel="noreferrer">happy to hear from you</a>.
 </comp.Notice>
 
-CloudCannon can use *Deploy Previews* to automatically create a <comp.GlossaryTerm term="/user/glossary/s/site.yml">Site</comp.GlossaryTerm> when you open a <comp.GlossaryTerm term="/user/glossary/p/pull-request.yml">Pull Request</comp.GlossaryTerm>, and delete automatically created *Sites* when a *Pull Request* is merged or closed. Each *Site* created this way has its own build pipeline, <comp.GlossaryTerm term="/user/glossary/t/testing-domain.yml">Testing Domain</comp.GlossaryTerm>, and editing experience.
+CloudCannon can use <comp.GlossaryTerm term="/user/glossary/d/deploy-preview.yml">Deploy Previews</comp.GlossaryTerm> to automatically create a <comp.GlossaryTerm term="/user/glossary/s/site.yml">Site</comp.GlossaryTerm> when you open a <comp.GlossaryTerm term="/user/glossary/p/pull-request.yml">Pull Request</comp.GlossaryTerm>, and delete automatically created *Sites* when a *Pull Request* is merged or closed. Each *Site* created this way has its own build pipeline, <comp.GlossaryTerm term="/user/glossary/t/testing-domain.yml">Testing Domain</comp.GlossaryTerm>, and editing experience.
 
-Why... team members can use the *Publish* button in the branched *Site* to propose changes back to the pull request's target branch, the same way they would from a manually branched *Site*.
+Automatically created *Sites* can be useful for teams where some members create branches and open *Pull Requests* outside of CloudCannon (e.g., from a local *Git Repository*, an IDE, their *Git provider's* interface, or through automated tooling), and other members need to review or edit content changes from inside CloudCannon. *Deploy Previews* bridge this gap by automatically creating a *Site* for every *Pull Request*.
 
-You can turn this behavior on for any <comp.GlossaryTerm term="/user/glossary/p/project.yml">Project</comp.GlossaryTerm> in CloudCannon, including whether CloudCannon does this for draft *Pull Requests*, by [enabling Pull Request features](/documentation/developer-articles/enable-pull-request-features/).
+You can turn on automatic *Site* creation and deletion via *Deploy Previews* for any <comp.GlossaryTerm term="/user/glossary/p/project.yml">Project</comp.GlossaryTerm> in CloudCannon by [enabling Pull Request features](/documentation/developer-articles/enable-pull-request-features/), including whether CloudCannon does this for draft *Pull Requests*.
 
 ## Configuration for automatically created *Sites*
 
 When CloudCannon automatically creates a *Site*, it reuses the configuration from your *Main Branch* and *Branch Defaults* from your *Project*, and information from the *Pull Request* in your <comp.GlossaryTerm term="/user/glossary/g/git-repository.yml">Git Repository</comp.GlossaryTerm>.
 
-If you have [set a Main Branch for your Project](/documentation/developer-articles/set-the-main-branch-for-your-project/), CloudCannon will copy the configuration for the *Publish Mode*, *Configuration File* path, <comp.GlossaryTerm term="/user/glossary/s/ssg.yml">Static Site Generator</comp.GlossaryTerm>, *Editing Locked*, [build configuration](/documentation/developer-articles/configure-your-first-build/), [authentication](/documentation/developer-articles/what-is-authentication/), and [flags](/documentation/developer-articles/what-are-flags/).
+If you have [set a Main Branch for your Project](/documentation/developer-articles/set-the-main-branch-for-your-project/), CloudCannon copies the configuration for the *Publish Mode*, *Configuration File* path, <comp.GlossaryTerm term="/user/glossary/s/ssg.yml">Static Site Generator</comp.GlossaryTerm>, *Editing Locked*, [build configuration](/documentation/developer-articles/configure-your-first-build/), [authentication](/documentation/developer-articles/what-is-authentication/), and [flags](/documentation/developer-articles/what-are-flags/).
 
-**Your Project's Branch Defaults** — Default authentication, stable password, and publish mode configured under *Project Settings* are applied on top.
+*Branch Defaults* in your *Project Settings* can override your *Main Branch*. If you have *Branch Defaults* for authentication, stable password, and publish mode, the automatically created *Site* uses these instead.
 
-CloudCannon uses the title and number of your *Pull Request* to generate the name of your *Site* (e.g., `PR #42: Add footer links`), truncated to 100 characters. It will also use the head branch and base branch of the *Pull Request* as the *Site Branch* and *Publish Branch*.
+CloudCannon uses the title and number of your *Pull Request* to generate the name of your *Site* (e.g., `PR #42: Add footer links`), truncated to 100 characters. It also uses the head branch and base branch of the *Pull Request* as the *Site Branch* and *Publish Branch*.
 
 Automatically created *Sites* are also tagged with `create_source == pr_auto_create`, allowing CloudCannon to differentiate them from *Sites* you connected manually.
 
 ## Syncing between a *Site* and a *Pull Request*
 
-When CloudCannon creates an automatic *Site*, it stores the *Pull Request* number and the external pull request URL on the *Site*. This "hard-link" allows CloudCannon to reconcile the *Site* with *Pull Request* event, rather than relying on the head branch name (which can change during the lifetime of a pull request).
+When CloudCannon creates an automatic *Site*, it stores the *Pull Request* number and the external pull request URL on the *Site*. This "hard-link" allows CloudCannon to reconcile the *Site* with a *Pull Request* event, rather than relying on the head branch name (which can change during the lifetime of a *Pull Request*).
 
-As long as the hard-link is present, CloudCannon will sync the following attributes from your *Pull Request* to your *Site:*
+As long as the hard-link is present, CloudCannon syncs the following attributes from your *Pull Request* to your *Site*:
 
 * **Head branch** — If the *Pull Request* is rebased onto a new head branch, CloudCannon updates the *Site Branch* to match.
-* **Base branch** — If the *Pull Request's* base branch changes, CloudCannon updates the *Publish Branch* to match. Base branch changes are also logged server-side so you can audit them later.
+* **Base branch** — If the *Pull Request's* base branch changes, CloudCannon updates the *Publish Branch* to match. Base branch changes are also logged server-side so you can audit them later. This is only available if you have a *Publishing Workflow*.
 * **Title** — If the *Pull Request's* title changes and the *Site Name* still follows the auto-generated `PR #N: …` format (where `N` is the pull request number), CloudCannon updates the *Site Name* to match.
-* **External URL** — The stored pull request URL is kept up to date with whatever the *Git Provider* reports.
+* **External URL** — The stored pull request URL is kept up to date with whatever the *Git provider* reports.
 
-CloudCannon will sync these details after every non-closing *Pull Request* event.
+CloudCannon syncs these details after every non-closing *Pull Request* event.
 
 <comp.Notice info_type="important">
   CloudCannon only reconciles *Sites* whose `create_source` is `pr_auto_create`. *Sites* you added yourself are never modified by pull request events, even if they happen to match a pull request number or branch name.
@@ -56,21 +56,13 @@ CloudCannon will sync these details after every non-closing *Pull Request* event
 
 ### Renaming an automatically created *Site*
 
-If your rename an automatically created *Site* in CloudCannon away from the `PR #N: …` format, your custom *Site Name* will take precedence over the auto-generated name, and CloudCannon will not update the name from the *Pull Request* title.
+If you rename an automatically created *Site* in CloudCannon away from the `PR #N: …` format, your custom *Site Name* takes precedence over the auto-generated name, and CloudCannon does not update the name from the *Pull Request* title.
 
-You can re-enable automatic naming conventions by renaming the *Site* back to the the `PR #N: …` format.
-
-### Publishing Settings
-
-Under *Branch Defaults*, each *Project* can have the *Delete branched site after publishing* enabled. If this feature is enabled, CloudCannon sets `destroy_on_publish` on every auto-created *Site*.
-
-&nbsp;
-
-This means that once changes from the branched *Site* are published to its *Publish Branch*, the *Site* is deleted along with any record of the pull request link. If the pull request is later reopened or updated, CloudCannon will create a new *Site* on the next event.
+You can re-enable automatic naming conventions by renaming the *Site* back to the `PR #N: …` format.
 
 ## Skip draft *Pull Requests*
 
-You can skipping automatic *Site* creation for draft *Pull Requests*. This does not delete an automatically created *Site* if you mark a *Pull Request* as a draft after a *Site* is created. Once a *Pull Request* is marked as ready for review, CloudCannon will create a *Site*.
+You can skip automatic *Site* creation for draft *Pull Requests*. This does not delete an automatically created *Site* if you mark a *Pull Request* as a draft after a *Site* is created. Once a *Pull Request* is marked as ready for review, CloudCannon creates a *Site*.
 
 <comp.Notice info_type="info">
   This option is independent of the *Skip draft pull requests* option for comments — you can, for example, post comments on drafts but defer *Site* creation until a pull request is ready.
@@ -78,12 +70,20 @@ You can skipping automatic *Site* creation for draft *Pull Requests*. This does 
 
 ## Deleting automatically created *Sites*
 
-The *Delete auto-created sites when pull requests are closed or merged* feature is enable by default when you enable *Pull Request* features. When a *Pull Request* is merged or closed, CloudCannon uses the hard-link to look up the connected *Sites*. If the *Site* has `create_source == pr_auto_create`, CloudCannon will delete the *Site*.
+The *Delete auto-created sites when pull requests are closed or merged* feature is enabled by default when you enable *Pull Request* features. When a *Pull Request* is merged or closed, CloudCannon uses the hard-link to look up the connected *Sites*. If the *Site* has `create_source == pr_auto_create`, CloudCannon deletes the *Site*.
 
-Disabling this option leaves automatically created *Sites* in your CloudCannon *Project*, although they are no longer connected to a *Branch* in your *Git Repository,* and you can manually delete them from the *Project Sites Browser*.
+Disabling this option leaves automatically created *Sites* in your CloudCannon *Project*, although they are no longer connected to a *Branch* in your *Git Repository*, and you can manually delete them from the *Project Sites Browser*.
 
-### Publish branch behavior
+### Delete branched site after publishing
 
-If your *Organization* has the merging feature enabled, CloudCannon sets the *Publish Branch* on the auto-created *Site* to the pull request's base branch. This enables the full merge-to-publish workflow:
+If your *Organization* has the merging feature enabled, you can merge a *Pull Request* directly from the branched *Site* using the *Publish pull request* button on the *Pull Requests* page.
 
-If the merging feature is not enabled, CloudCannon leaves the *Publish Branch* unset. The *Site* is still created, but the *Publish* button is not available.
+By default, each *Project* has *Delete branched site after publishing* enabled in the *Branch Defaults*. CloudCannon applies this to every automatically created *Site*, so once you publish changes from the branched *Site* to its *Publish Branch*, CloudCannon deletes the *Site* and its Git branch, along with any record of the *Pull Request* link.
+
+If the *Pull Request* is later reopened or updated, CloudCannon creates a new *Site* on the next event.
+
+This setting is independent of *Delete auto-created sites when pull requests are closed or merged* — they are separate deletion triggers, and whichever fires first deletes the *Site*. If publishing fires first, CloudCannon also deletes the Git branch. If the *Pull Request* is closed or merged first, only the *Site* is deleted and the Git branch remains.
+
+If *Delete branched site after publishing* is enabled but *Delete auto-created sites when pull requests are closed or merged* is disabled, the *Site* is only deleted when you publish. If the *Pull Request* is closed or merged in the *Git provider* without a publish, the *Site* remains in your *Project* — orphaned, and no longer connected to a live branch.
+
+If *Delete branched site after publishing* is disabled but *Delete auto-created sites when pull requests are closed or merged* is enabled, the *Site* is deleted when the *Pull Request* is closed or merged, but the Git branch is not. If you publish before the *Pull Request* is closed, the *Site* persists — there is no automatic cleanup on publish.
