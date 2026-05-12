@@ -4,7 +4,9 @@ _uuid: 8b76cacb-21e2-4238-b28e-aebb3b60be80
 _created_at: '2026-04-24 00:00:00 +0000'
 details:
   title: Use Deploy Previews to comment on a Pull Request
-  description: Learn how CloudCannon posts and updates deploy preview comments on Pull Requests, and how to configure comment behavior for your Project.
+  description: >-
+    Learn how CloudCannon posts and updates deploy preview comments on Pull
+    Requests, and how to configure comment behavior for your Project.
   image: >-
     https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
   category:
@@ -19,41 +21,61 @@ author_notes:
   Want to chat about whether this feature is right for you? Our support team is always <a href="mailto:success@cloudcannon.com?subject=A%20question%20about%20pull%20request%20deploy%20previews" rel="noreferrer">happy to hear from you</a>.
 </comp.Notice>
 
-When *Comment on pull requests with site details* is enabled, CloudCannon posts a single comment on each <comp.GlossaryTerm term="/user/glossary/p/pull-request.yml">Pull Request</comp.GlossaryTerm> summarizing the <comp.GlossaryTerm term="/user/glossary/s/site.yml">Sites</comp.GlossaryTerm> connected to the *Pull Request's* head branch. The comment includes:
+CloudCannon can use <comp.GlossaryTerm term="/user/glossary/d/deploy-preview.yml">Deploy Previews</comp.GlossaryTerm> to automatically post a comment to the *Pull Request* in your *Git Provider*. Each comment includes the following details:
 
-* The *Site* name and the branch it tracks
-* The current build status (Ready, Building, Build Failed, or Not configured)
-* A *Visit Preview* link pointing to the *Site's* testing domain
-* An *Open Editor* link that opens the *Site* in CloudCannon
-* A link to the latest commit on your *Git Provider*
-* A link to the latest build log in CloudCannon
+* The *Site Name* and the branch it tracks
+* The *Site's* current *CloudCannon Build Status* (e.g., Ready, Building, Build Failed, or Not configured)
+* A *View Testing Domain* link that opens the *Site's* <comp.GlossaryTerm term="/user/glossary/t/testing-domain.yml">Testing Domain</comp.GlossaryTerm>
+* An *Open Site* link that opens the *Site Dashboard* in CloudCannon
+* A *View Build Logs* link that opens the *Builds* tab on your *Site Dashboard*
+* A *Latest Commit* link that opens the latest commit on your *Git Provider*
 
-If multiple *Sites* are connected to the same branch, CloudCannon renders the details as a table with one row per *Site*. If no *Sites* are connected yet, the comment links to your <comp.GlossaryTerm term="/user/glossary/p/project.yml">Project</comp.GlossaryTerm> so you can connect one.
+<comp.DocsImage path="" alt="" title=""/>
 
-CloudCannon identifies its own comment using a hidden HTML marker scoped to your *Organization*, so it will update the same comment rather than posting a new one on every change. This also means the comment is safe to keep in place — editing or reacting to it from your *Git Provider* will not affect CloudCannon's ability to update it.
+If multiple *Sites* are connected to the same branch, CloudCannon renders the details as a table with one row per *Site*.
 
-## When comments are posted and updated
+<comp.DocsImage path="" alt="" title=""/>
 
-The deploy preview comment is posted or updated in the following situations:
+If no *Sites* are connected yet, the automatic comment links to your<comp.GlossaryTerm term="/user/glossary/p/project.yml">Project</comp.GlossaryTerm>so you can connect one.
+
+<comp.DocsImage path="" alt="" title=""/>
+
+Why...
+
+You can turn on *Pull Request* comments via *Deploy Previews* for any <comp.GlossaryTerm term="/user/glossary/p/project.yml">Project</comp.GlossaryTerm> in CloudCannon by [enabling Pull Request features](/documentation/developer-articles/enable-pull-request-features/), including custom footer content and whether CloudCannon does this for draft *Pull Requests*.
+
+## Posting and updating *Pull Request* comments
+
+By default, CloudCannon posts the *Pull Request* comment via *Deploy Preview* when a *Team Member* opens a *Pull Request* for a *Branch* in your *Project*. CloudCannon updates that comment after any of the following triggers:
 
 * A *Pull Request* event is received (opened, reopened, ready for review, edited, and so on).
 * A *Site* linked to the *Pull Request* changes branch, is renamed, or has its stable domain updated.
 * A *Site* is created for the *Pull Request* (including auto-created *Sites*).
 * A build on a connected *Site* completes, so the status and commit information stay current.
 
+Rather than create a new comment after any of these triggers, CloudCannon always updates the existing comment and moves the comment to the most recent event on your *Pull Request* timeline (e.g., your Conversation in GitHub, Discussion in GitLab, and X in Bitbucket). CloudCannon identifies its own comment using a hidden HTML marker scoped to your *Organization*. This also means the comment is safe to keep in place — editing or reacting to it from your *Git Provider* will not affect CloudCannon's ability to update it.
+
 ## The comment footer
 
-You can add an optional Markdown footer to the deploy preview comment using the *Comment footer* field. The footer is appended below the *Deployed by CloudCannon* line and is useful for linking to internal review checklists, tagging reviewers, or pointing at documentation specific to your team.
+By default, each comment will have a footer with the text "Deployed by CloudCannon." You can append extra content to this footer, for example, including useful links to internal review checklists, tagging reviewers, or pointing at documentation specific to your team.
 
-## Skipping draft Pull Requests
+<comp.DocsImage path="" alt="" title=""/>
 
-When *Skip draft pull requests* is enabled under *Comments*, CloudCannon will not post or update the deploy preview comment while a *Pull Request* is marked as draft. If you later mark the *Pull Request* as ready for review, CloudCannon will post the comment at that time.
+## Skip draft *Pull Requests*
 
-## What happens when you disable comments
+You can skip automatic comment posting for draft *Pull Requests*. Once a *Pull Request* is marked as ready for review, CloudCannon will post a comment.
 
-Disabling *Comment on pull requests with site details* does not delete existing deploy preview comments from your *Pull Requests*. Instead, CloudCannon reconciles every open *Pull Request* in the *Project* and rewrites its managed comment with a short notice explaining that pull request comments have been disabled.
+<comp.Notice info_type="info">
+  This option is independent of the *Skip draft pull requests* option for *Site* creation and destruction — you can, for example, create a *Site* for drafts but defer posting a comment until a *Pull Request* is ready.
+</comp.Notice>
 
-The same reconciliation runs when you enable *Skip draft pull requests* for comments, change your *Comment footer*, or turn the *Pull request features enabled* master toggle off while comments were previously enabled: any *Pull Request* that was previously eligible and has now become ineligible is updated with the disabled notice, and any *Pull Request* that is newly eligible is back-filled with a fresh deploy preview comment.
+## Disabling automatic comments
+
+If you disable automatic comments on your *Project*, CloudCannon does not delete any existing comments in your *Git Repository*. Instead, CloudCannon reconciles every open *Pull Request* in the *Project* and rewrites its managed comment with a short notice explaining that pull request comments have been disabled.
+
+<comp.DocsImage path="" alt="" title=""/>
+
+The same reconciliation runs if you mark a *Pull Request* as a draft, when you change the content of the comment footer, or when you turn off *Pull Request* features after CloudCannon has posted automatic comments. *Pull Requests* that were previously eligible are updated with the disabled notice, and *Pull Requests* that are newly eligible are back-filled with a fresh *Deploy Preview* comment.
 
 <comp.Notice info_type="info">
   Reconciliation only touches comments that CloudCannon posted using the marker for your *Organization*. It never edits or deletes comments written by people or other integrations.
