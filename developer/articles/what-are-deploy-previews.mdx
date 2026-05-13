@@ -12,33 +12,29 @@ details:
   category:
     - Explanation
   related_articles:
-    - _type: user_articles
-      item: 070d3c13-ab9a-46cf-bdf4-4e299928a734
-    - _type: developer_articles
-      item: f76883ee-6fe6-46a3-8ae9-59d632dde14e
     - _type: developer_articles
       item: cf1a6a0b-42bb-4ed1-bce3-fbb697dffc12
+    - _type: developer_articles
+      item: 8b76cacb-21e2-4238-b28e-aebb3b60be80
+    - _type: developer_articles
+      item: 3a358dae-b9bd-4961-b680-6685cd867722
 author_notes:
   docshots: Needs docshots
 ---
 <comp.Notice info_type="pricing">
-  **Pull request deploy previews are available on our [Team and Enterprise plans](/pricing/).**
+  ***Deploy Previews* are available on our [Team and Enterprise plans](/pricing/).**
 
   Want to chat about whether this feature is right for you? Our support team is always <a href="mailto:success@cloudcannon.com?subject=A%20question%20about%20pull%20request%20deploy%20previews" rel="noreferrer">happy to hear from you</a>.
 </comp.Notice>
 
-*Deploy Previews* are a set of automations that CloudCannon can run whenever a <comp.GlossaryTerm term="/user/glossary/p/pull-request.yml">Pull Request</comp.GlossaryTerm> is opened, closed, or updated in your <comp.GlossaryTerm term="/user/glossary/g/git-repository.yml">Git Repository</comp.GlossaryTerm>. When you [enable Pull Request features](/documentation/developer-articles/enable-pull-request-features/) for a <comp.GlossaryTerm term="/user/glossary/p/project.yml">Project</comp.GlossaryTerm>, CloudCannon can *Pull Requests* in that *Project*:
+*Deploy Previews* are a set of automations that CloudCannon can run whenever a <comp.GlossaryTerm term="/user/glossary/p/pull-request.yml">Pull Request</comp.GlossaryTerm> is opened, closed, or updated in your <comp.GlossaryTerm term="/user/glossary/g/git-repository.yml">Git Repository</comp.GlossaryTerm>. When you [enable Pull Request features](/documentation/developer-articles/enable-pull-request-features/) for a <comp.GlossaryTerm term="/user/glossary/p/project.yml">Project</comp.GlossaryTerm>, CloudCannon can respond to *Pull Requests* in that *Project* by:
 
-* Create a <comp.GlossaryTerm term="/user/glossary/s/site.yml">Site</comp.GlossaryTerm> if the *Branch* does not already have one, and delete that *Site* when the *Pull Request* is merged or closed.
-* Post a comment to the *Pull Request* in your *Git Provider*, with the *Pull Request's* Status (e.g., Ready), the most recent Commit to your *Git Repository,* and links to the CloudCannon <comp.GlossaryTerm term="/user/glossary/t/testing-domain.yml">Testing Domain</comp.GlossaryTerm>, *Site*, and *Build Log*.
+* Creating a <comp.GlossaryTerm term="/user/glossary/s/site.yml">Site</comp.GlossaryTerm> for the *Pull Request*, and deleting that *Site* when the *Pull Request* is merged or closed.
+* Posting a comment to the *Pull Request* in your *Git Provider*, with the *Pull Request's* Status (e.g., Ready), the most recent Commit to your *Git Repository,* and links to the CloudCannon <comp.GlossaryTerm term="/user/glossary/t/testing-domain.yml">Testing Domain</comp.GlossaryTerm>, *Site*, and *Build Log*.
 
 <comp.DocsImage path="" alt="" title=""/>
 
-&nbsp;
-
-Why...
-
-You can independently enable the *Comments* and *Automatic Sites* automations. For more information, please read our documentation on [Use Deploy Previews to trigger Site creation and deletion](/documentation/developer-articles/use-deploy-previews-to-trigger-site-creation-and-deletion/) and [Use Deploy Previews to comment on a Pull Request](/documentation/developer-articles/use-deploy-previews-to-comment-on-a-pull-request/).
+You can independently enable the *Comments* and *Automatic Sites* automations. For more information, please read our documentation on [using Deploy Previews to trigger Site creation and deletion](/documentation/developer-articles/use-deploy-previews-to-trigger-site-creation-and-deletion/) and [using Deploy Previews to comment on a Pull Request](/documentation/developer-articles/use-deploy-previews-to-comment-on-a-pull-request/).
 
 <comp.Notice info_type="info">
   *Deploy Previews* may take a few minutes to appear for recently created *Projects*, as CloudCannon needs to correctly connect the webhook from your *Git Provider*.
@@ -46,7 +42,7 @@ You can independently enable the *Comments* and *Automatic Sites* automations. F
 
 ## Listening to *Pull Requests*
 
-When you connect a *Project* to GitHub, GitLab, or Bitbucket, CloudCannon subscribes to pull request events on your *Git Repository*. CloudCannon processes the following events:
+When you connect a *Project* to GitHub, GitLab, or Bitbucket, CloudCannon subscribes to *Pull Request* events on your *Git Repository*. CloudCannon processes the following events:
 
 * **Opened** — A new pull request is created.
 * **Reopened** — A previously closed pull request is reopened.
@@ -59,78 +55,39 @@ Each event is routed to your *Project* based on the *Git Repository* identifier 
 
 If *Pull Request Features* are disabled for your *Project*, CloudCannon still logs these events, but takes no action.
 
-## Best practice for *Deploy Previews*
+## The *Pull request features enabled* toggle
 
-### Renaming or moving the head branch
+Every *Project* has a *Pull request features enabled* toggle at the top of its *Pull Requests* settings form. This is the master switch for pull request automation on that *Project*. Leaving it on is the default, and what most *Projects* will want.
 
-If you rename the head *Branch* of a *Pull Request*, CloudCannon
+When the master toggle is off:
 
-Other *Sites* that used the older *Branch* name, such as manually connected *Sites*, will not update.
+* The *Pull Requests* tab is hidden from the top-level *Project* navigation. The *Branches* tab is not affected.
+* CloudCannon ignores pull request events for this *Project*. No comments are posted, no *Sites* are created, and no auto-created *Sites* are deleted, regardless of the *Comments* or *Automatic sites* settings below the toggle.
+* The rest of the settings on the *Pull Requests* form are disabled until the master toggle is turned back on, but their values are preserved.
 
-If the head branch of a pull request is renamed, CloudCannon follows the rename automatically for any *Site* that is hard-linked to the pull request. The tracked branch is updated and the next build runs against the new branch. Other *Sites* that were pointed at the old branch name (for example, a manually connected *Site*) are not touched.
+Auto-created *Sites* are not deleted when the master toggle is turned off — they simply stop receiving updates until you turn the toggle back on. Managed comments on open *Pull Requests* are rewritten with a short notice explaining that pull request comments have been disabled.
 
-###
+<comp.Notice info_type="info">
+  The *Pull Requests* tab is also gated by a dedicated read permission. Even with the master toggle on, a *Team Member* who does not have permission to read pull requests on the *Project* will not see the tab. The *Pull Requests* section under *Project Settings* has its own write permission, so admins can let *Team Members* view the settings without being able to change them.
+</comp.Notice>
 
-### Multiple Sites on the same branch
+## How CloudCannon applies *Pull Request* settings
 
-If you have more than one CloudCannon *Site* connected to the same *Branch* (e.g., a manually connected *Site* and an automatically created *Site* from a later *Pull Request* on the same *Branch*), CloudCannon will list every connected *Site* in the *Deploy Preview* comment.
+*Pull Request* settings are intentionally lazy. Toggling them on does not retroactively process historical *Pull Requests*:
 
-This allows CloudCannon to ignore manually
+* **Enabling the master toggle** — Turning *Pull request features enabled* back on does not replay missed events. Existing *Pull Requests* pick up comments and *Sites* on their next event.
+* **Enabling comments** — Existing *Pull Requests* will only receive a comment on the next event (such as a new push or a reopen). If you need an immediate comment on an already-open *Pull Request*, trigger any small change to the *Pull Request*.
+* **Enabling Automatic Sites** — *Sites* are only created on the next *Pull Request* event. No backfill is performed for *Pull Requests* that were already open when the setting was turned on.
+* **Enabling Delete auto-created sites** — *Sites* are only deleted on future close or merge events. *Sites* that are already orphaned from previously closed *Pull Requests* are not cleaned up automatically.
 
-&nbsp;
+Disabling a setting is similarly lazy, with one exception: disabling comments or changing the comment footer runs a one-shot reconciliation across every open *Pull Request* so the existing comment is either updated with the disabled notice or refreshed with the new footer. For more information, please read our documentation on [Use Deploy Previews to comment on a Pull Request](/documentation/developer-articles/use-deploy-previews-to-comment-on-a-pull-request/).
 
-It is possible to have more than one *Site* connected to the same head branch — for example, a manually connected *Site* that was set up before Automatic Sites was enabled, plus an auto-created *Site* from a later pull request on the same branch. CloudCannon handles this safely:
+## Unsupported providers and repositories
 
-* The deploy preview comment lists every *Site* on the branch in a table, including both manual and auto-created *Sites*.
-* Auto-creation only reuses or creates *Sites* with `create_source == pr_auto_create`. Manual *Sites* are ignored.
-* Auto-deletion only destroys *Sites* with `create_source == pr_auto_create`. Manual *Sites* are ignored.
+*Pull Request Deploy Previews* are supported for *Projects* connected to GitHub, GitLab, or Bitbucket. If your *Project* is connected through GitHub Enterprise Server, behaviour matches GitHub Cloud. Self-hosted GitLab instances behave like GitLab Cloud provided the webhook is reachable from CloudCannon.
 
-&nbsp;
+## Errors and retries
 
-&nbsp;
+Network failures and *Git Provider* API errors during comment or *Site* operations are reported to CloudCannon's error tracker and do not abort the rest of the *Pull Request* event. This means a transient failure updating one *Site* will not prevent other *Sites* on the same *Pull Request* from being updated.
 
-&nbsp;
-
-&nbsp;
-
-## Edge cases and behavior you should know about
-
-The following scenarios come up often enough to call out explicitly.
-
-###
-
-###
-
-&nbsp;
-
-### Changing the base branch
-
-Changes to a pull request's base branch are detected across all three providers:
-
-* **GitHub** sends an `edited` event with a `changes.base.ref.from` field, which CloudCannon records as the previous base branch.
-* **GitLab** sends a merge request `update` event with a `changes.target_branch.previous` field, which CloudCannon records as the previous base branch.
-* **Bitbucket** sends a `pullrequest:updated` event without an explicit previous base branch, so CloudCannon falls back to comparing the stored *Publish Branch* on the hard-linked *Site*.
-
-When a new base branch is detected and the merging feature is enabled, CloudCannon updates the *Publish Branch* on the hard-linked *Site* and logs the change for auditing. If merging is not enabled, the *Publish Branch* is not updated and no change is logged.
-
-###
-
-###
-
-### Multiple pull requests on the same branch
-
-Different pull requests that happen to share a head branch each get their own hard-linked auto-created *Site*, keyed by pull request number. Closing one pull request only deletes the *Site* linked to that specific pull request number.
-
-### Deploy preview comments when no Sites exist yet
-
-If no *Sites* are connected to a pull request's head branch, the deploy preview comment still appears, but links to your *Project* with instructions to connect a *Site*. This is also the state you will see for pull requests opened before Automatic Sites was enabled.
-
-### Unsupported providers and repositories
-
-Pull request deploy previews are supported for *Projects* connected to GitHub, GitLab, or Bitbucket. If your *Project* is connected through GitHub Enterprise Server, behavior matches GitHub Cloud. Self-hosted GitLab instances behave like GitLab Cloud provided the webhook is reachable from CloudCannon.
-
-### Errors and retries
-
-Network failures and *Git Provider* API errors during comment or *Site* operations are reported to CloudCannon's error tracker and do not abort the rest of the pull request event. This means a transient failure updating one *Site* will not prevent other *Sites* on the same pull request from being updated.
-
-For step-by-step instructions on enabling these features, please read our documentation on [configuring Pull Request settings](/documentation/developer-articles/configure-pull-request-settings/).
+For step-by-step instructions on enabling these features, please read our documentation on [Enable Pull Request features](/documentation/developer-articles/enable-pull-request-features/).
