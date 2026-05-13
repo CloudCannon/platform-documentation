@@ -110,7 +110,7 @@ Omit a section entirely if it has no entries. Skip the second intro paragraph if
 ## Step 5: Create the branch and write the file
 
 ```bash
-cd /Users/ellawilliams/Documents/GitHub/platform-documentation
+cd ~/Documents/GitHub/platform-documentation
 git checkout -b changelog/$(date +%Y-%m-%d)
 ```
 
