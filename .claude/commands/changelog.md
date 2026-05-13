@@ -38,7 +38,7 @@ Tell the user the cutoff date and the title of the previous changelog so they ca
 Run from the `app` repo. Exclude merge commits (noise) and surface dependabot bumps separately so you can collapse them.
 
 ```bash
-cd /Users/ellawilliams/Documents/GitHub/app
+cd ~/Documents/GitHub/app
 
 # Direct commits, excluding merges
 git log --since="$SINCE" --no-merges --pretty=format:"%h %ad %s" --date=short
