@@ -7,8 +7,8 @@ description: Generate a changelog from recent app commits and update related doc
 Generate a new changelog entry in `platform-documentation/changelogs/<YYYY>/` from recent app commits, and update any docs affected by new or changed functionality.
 
 This skill assumes both repos are open in the workspace at:
-- `/Users/ellawilliams/Documents/GitHub/app`
-- `/Users/ellawilliams/Documents/GitHub/platform-documentation`
+- `~/Documents/GitHub/app`
+- `~/Documents/GitHub/platform-documentation`
 
 Read `platform-documentation/STYLE_GUIDE.mdx` (sections 1.1.4 and 2.1) before drafting prose if you have not this session.
 
