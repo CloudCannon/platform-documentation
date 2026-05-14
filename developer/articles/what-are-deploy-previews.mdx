@@ -27,67 +27,50 @@ author_notes:
   Want to chat about whether this feature is right for you? Our support team is always <a href="mailto:success@cloudcannon.com?subject=A%20question%20about%20pull%20request%20deploy%20previews" rel="noreferrer">happy to hear from you</a>.
 </comp.Notice>
 
-*Deploy Previews* are a set of automations that CloudCannon can run whenever a <comp.GlossaryTerm term="/user/glossary/p/pull-request.yml">Pull Request</comp.GlossaryTerm> is opened, closed, or updated in your <comp.GlossaryTerm term="/user/glossary/g/git-repository.yml">Git Repository</comp.GlossaryTerm>. When you [enable Pull Request features](/documentation/developer-articles/enable-pull-request-features/) for a <comp.GlossaryTerm term="/user/glossary/p/project.yml">Project</comp.GlossaryTerm>, CloudCannon can respond to *Pull Requests* in that *Project* by:
+<comp.GlossaryTerm term="/user/glossary/d/deploy-preview.yml">Deploy Previews</comp.GlossaryTerm> are a set of automations that CloudCannon can run whenever a <comp.GlossaryTerm term="/user/glossary/p/pull-request.yml">Pull Request</comp.GlossaryTerm> is opened, closed, merged, or updated in your <comp.GlossaryTerm term="/user/glossary/g/git-repository.yml">Git Repository</comp.GlossaryTerm>. When you [configure Deploy Previews](/documentation/developer-articles/configure-deploy-previews/) for a <comp.GlossaryTerm term="/user/glossary/p/project.yml">Project</comp.GlossaryTerm>, CloudCannon can respond to *Pull Requests* in that *Project* by:
 
-* Creating a <comp.GlossaryTerm term="/user/glossary/s/site.yml">Site</comp.GlossaryTerm> for the *Pull Request*, and deleting that *Site* when the *Pull Request* is merged or closed.
-* Posting a comment to the *Pull Request* in your *Git Provider*, with the *Pull Request's* Status (e.g., Ready), the most recent Commit to your *Git Repository,* and links to the CloudCannon <comp.GlossaryTerm term="/user/glossary/t/testing-domain.yml">Testing Domain</comp.GlossaryTerm>, *Site*, and *Build Log*.
+* Creating a <comp.GlossaryTerm term="/user/glossary/s/site.yml">Site</comp.GlossaryTerm> in CloudCannon for the *Pull Request* branch, and deleting that *Site* when the *Pull Request* is merged or closed.
+* Posting a comment to the *Pull Request* in your *Git provider* with the *Site Name*, *CloudCannon Build Status* (e.g., Ready), <comp.GlossaryTerm term="/user/glossary/t/testing-domain.yml">Testing Domain</comp.GlossaryTerm>, *Site*, *Build Logs*, and the latest commit to your *Git Repository*.
 
-<comp.DocsImage path="" alt="" title=""/>
+<comp.DocShot docshot_key="CloudCannon-Documentation-Project-Settings-Deploy-Previews" alt="A screenshot of the Deploy Previews section in Project Settings, with the Automatic Sites and Automatic Comments fieldsets in their default state." title="The Deploy Previews settings" type="screenshot" />
 
-You can independently enable the *Comments* and *Automatic Sites* automations. For more information, please read our documentation on [using Deploy Previews to trigger Site creation and deletion](/documentation/developer-articles/use-deploy-previews-to-trigger-site-creation-and-deletion/) and [using Deploy Previews to comment on a Pull Request](/documentation/developer-articles/use-deploy-previews-to-comment-on-a-pull-request/).
+You can independently enable the *Automatic Comments* and *Automatic Sites* automations. For more information, please read our documentation on [using Deploy Previews to trigger Site creation and deletion](/documentation/developer-articles/use-deploy-previews-to-trigger-site-creation-and-deletion/) and [using Deploy Previews to comment on a Pull Request](/documentation/developer-articles/use-deploy-previews-to-comment-on-a-pull-request/).
 
 <comp.Notice info_type="info">
-  *Deploy Previews* may take a few minutes to appear for recently created *Projects*, as CloudCannon needs to correctly connect the webhook from your *Git Provider*.
+  *Deploy Previews* may take a few minutes to appear for recently created *Projects*, as CloudCannon needs to correctly connect the webhook from your *Git provider*.
 </comp.Notice>
 
 ## Listening to *Pull Requests*
 
 When you connect a *Project* to GitHub, GitLab, or Bitbucket, CloudCannon subscribes to *Pull Request* events on your *Git Repository*. CloudCannon processes the following events:
 
-* **Opened** — A new pull request is created.
-* **Reopened** — A previously closed pull request is reopened.
-* **Ready for review** — A draft pull request is marked as ready (GitHub `ready_for_review`, GitLab `update`, Bitbucket `pullrequest:updated`).
-* **Converted to draft** — A pull request is reverted to a draft.
-* **Edited** — The pull request title, description, or base branch changes (GitHub `edited`, GitLab `update`, Bitbucket `pullrequest:updated`).
-* **Closed or merged** — The pull request is closed without merging, or merged into its base branch.
+* **Opened** — A new *Pull Request* is created.
+* **Reopened** — A previously closed *Pull Request* is reopened.
+* **Ready for review** — A draft *Pull Request* is marked as ready (GitHub `ready_for_review`, GitLab `update`, Bitbucket `pullrequest:updated`).
+* **Converted to draft** — A *Pull Request* is reverted to a draft.
+* **Edited** — The *Pull Request* title, description, or base branch changes (GitHub `edited`, GitLab `update`, Bitbucket `pullrequest:updated`).
+* **Closed or merged** — The *Pull Request* is closed without merging, or merged into its base branch.
 
-Each event is routed to your *Project* based on the *Git Repository* identifier and your connected *Git Provider*. CloudCannon then reconciles your *Project* settings against the current state of the *Pull Request* and performs the appropriate automations.
+Each event is routed to your *Project* based on the *Git Repository* identifier and your connected *Git provider*. CloudCannon then reconciles your *Project* settings against the current state of the *Pull Request* and performs the enabled automations.
 
-If *Pull Request Features* are disabled for your *Project*, CloudCannon still logs these events, but takes no action.
+If both *Automatic Comments* and *Automatic Sites* are disabled for your *Project*, CloudCannon still logs these events, but takes no action.
 
-## The *Pull request features enabled* toggle
+## Enabling and disabling *Deploy Preview* automations
 
-Every *Project* has a *Pull request features enabled* toggle at the top of its *Pull Requests* settings form. This is the master switch for pull request automation on that *Project*. Leaving it on is the default, and what most *Projects* will want.
+*Deploy Previews* are intentionally lazy. Turning these automations on does not retroactively process historical *Pull Requests*:
 
-When the master toggle is off:
+* Existing *Pull Requests* only receive an *Automatic Comment* on the next event (such as a new push or a reopen). If you need an immediate comment on an already-open *Pull Request*, trigger any small change to the *Pull Request*.
+* CloudCannon does not backfill for existing *Pull Requests* when *Automatic Site* creation is turned on for a *Project*. *Sites* are only created on the next *Pull Request* event.
+* CloudCannon does not delete existing *Automatic Sites* orphaned from previously closed *Pull Requests* when *Automatic Site* deletion is turned on for a *Project*. *Sites* are only deleted on future close or merge events.
 
-* The *Pull Requests* tab is hidden from the top-level *Project* navigation. The *Branches* tab is not affected.
-* CloudCannon ignores pull request events for this *Project*. No comments are posted, no *Sites* are created, and no auto-created *Sites* are deleted, regardless of the *Comments* or *Automatic sites* settings below the toggle.
-* The rest of the settings on the *Pull Requests* form are disabled until the master toggle is turned back on, but their values are preserved.
+Disabling an automation setting is similarly lazy, with one exception: disabling *Automatic Comments* or changing the comment footer runs a single reconciliation across every open *Pull Request*. Existing *Automatic Comments* are updated to show a disabled notice or refreshed with the new footer content (or lack thereof). For more information, please read our documentation on [using Deploy Previews to comment on a Pull Request](/documentation/developer-articles/use-deploy-previews-to-comment-on-a-pull-request/).
 
-Auto-created *Sites* are not deleted when the master toggle is turned off — they simply stop receiving updates until you turn the toggle back on. Managed comments on open *Pull Requests* are rewritten with a short notice explaining that pull request comments have been disabled.
+## Supported providers and repositories
 
-<comp.Notice info_type="info">
-  The *Pull Requests* tab is also gated by a dedicated read permission. Even with the master toggle on, a *Team Member* who does not have permission to read pull requests on the *Project* will not see the tab. The *Pull Requests* section under *Project Settings* has its own write permission, so admins can let *Team Members* view the settings without being able to change them.
-</comp.Notice>
+*Deploy Previews* are supported for *Projects* connected to GitHub, GitLab, or Bitbucket. If your *Project* is connected through GitHub Enterprise Server, behavior matches GitHub Cloud. Self-hosted GitLab instances behave like GitLab Cloud provided the webhook is reachable from CloudCannon.
 
-## How CloudCannon applies *Pull Request* settings
+## Automation errors
 
-*Pull Request* settings are intentionally lazy. Toggling them on does not retroactively process historical *Pull Requests*:
+Network failures and *Git provider* API errors during *Automatic Comment* or *Automatic Site* operations are reported to CloudCannon's error tracker and do not abort the rest of the *Pull Request* event. This means a transient failure updating one *Site* will not prevent other *Sites* on the same *Pull Request* from being updated.
 
-* **Enabling the master toggle** — Turning *Pull request features enabled* back on does not replay missed events. Existing *Pull Requests* pick up comments and *Sites* on their next event.
-* **Enabling comments** — Existing *Pull Requests* will only receive a comment on the next event (such as a new push or a reopen). If you need an immediate comment on an already-open *Pull Request*, trigger any small change to the *Pull Request*.
-* **Enabling Automatic Sites** — *Sites* are only created on the next *Pull Request* event. No backfill is performed for *Pull Requests* that were already open when the setting was turned on.
-* **Enabling Delete auto-created sites** — *Sites* are only deleted on future close or merge events. *Sites* that are already orphaned from previously closed *Pull Requests* are not cleaned up automatically.
-
-Disabling a setting is similarly lazy, with one exception: disabling comments or changing the comment footer runs a one-shot reconciliation across every open *Pull Request* so the existing comment is either updated with the disabled notice or refreshed with the new footer. For more information, please read our documentation on [Use Deploy Previews to comment on a Pull Request](/documentation/developer-articles/use-deploy-previews-to-comment-on-a-pull-request/).
-
-## Unsupported providers and repositories
-
-*Pull Request Deploy Previews* are supported for *Projects* connected to GitHub, GitLab, or Bitbucket. If your *Project* is connected through GitHub Enterprise Server, behaviour matches GitHub Cloud. Self-hosted GitLab instances behave like GitLab Cloud provided the webhook is reachable from CloudCannon.
-
-## Errors and retries
-
-Network failures and *Git Provider* API errors during comment or *Site* operations are reported to CloudCannon's error tracker and do not abort the rest of the *Pull Request* event. This means a transient failure updating one *Site* will not prevent other *Sites* on the same *Pull Request* from being updated.
-
-For step-by-step instructions on enabling these features, please read our documentation on [Enable Pull Request features](/documentation/developer-articles/enable-pull-request-features/).
+For step-by-step instructions on enabling these features, please read our documentation on [configuring Deploy Previews](/documentation/developer-articles/configure-deploy-previews/).
