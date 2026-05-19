@@ -80,6 +80,23 @@ You can skip automatic *Site* creation for draft *Pull Requests*. This does not 
   This option is independent of the *Skip for draft Pull Requests* option for comments—you can, for example, post comments on drafts but defer *Site* creation until a *Pull Request* is ready.
 </comp.Notice>
 
+## *Pull Requests* from outside contributors
+
+CloudCannon does not automatically create *Sites* for *Pull Requests* opened by contributors outside your *Git provider* organization. Automatically built *Sites* run the *Pull Request's* prebuild script, which, on an unverified contribution, would let an outside contributer run code on CloudCannon's build infrastructure.
+
+CloudCannon identifies a *Pull Request* as being from an outside contributor when either of the following is true:
+
+* The *Pull Request* originates from a fork (the head branch is in a different repository than the base branch).
+* The *Pull Request* author's relationship to the repository indicates they are outside the organization. CloudCannon uses GitHub's `author_association` field for this: values of `NONE`, `FIRST_TIME_CONTRIBUTOR`, and `CONTRIBUTOR` are treated as outside. GitLab and Bitbucket do not provide an equivalent field, so CloudCannon relies on fork detection alone for those providers.
+
+When CloudCannon skips auto-creation for an outside contributor's *Pull Request*, the automatic comment (if enabled) is still posted on the *Pull Request*, with text explaining that no *Site* was created and pointing the team back to the *Project* in CloudCannon. The team can then review the *Pull Request* and decide whether to connect a *Site* to the branch in CloudCannon themselves.
+
+The *Pull Requests* tab in CloudCannon includes a *Pull Requests from outside contributors* section that lists these *Pull Requests* together, so Team Members can triage them in one place rather than mixed in with internal *Pull Requests*.
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Project-Pull-Requests-Outside-Contributors" alt="A screenshot of the Pull Requests tab showing the Pull Requests from outside contributors section with the info notice and a fork Pull Request." title="The Pull Requests from outside contributors section" type="screenshot" />
+
+This behavior is the default for all *Projects* and is not configurable. *Sites* you have already automatically created for outside-contributor *Pull Requests* before this default applied are not affected — they remain in your *Project* unless you delete them manually or via the *Delete automatically created Sites when Pull Requests are closed or merged* setting.
+
 ## Deleting automatically created *Sites*
 
 When you enable the *Delete automatically created Sites when Pull Requests are closed or merged* checkbox, CloudCannon uses the hard-link to look up the connected *Sites* whenever a *Pull Request* is merged or closed. If the *Site* has `create_source == pr_auto_create`, CloudCannon deletes the *Site*.
