@@ -21,39 +21,54 @@ details:
 author_notes:
   docshots: Added!
 ---
-*Branch Defaults* are the settings CloudCannon applies to new branched <comp.GlossaryTerm term="/user/glossary/s/site.yml">Sites</comp.GlossaryTerm> in a <comp.GlossaryTerm term="/user/glossary/p/project.yml">Project</comp.GlossaryTerm>. When a team member creates a new branch *Site* — by branching from the <comp.GlossaryTerm term="/user/glossary/m/main-branch.yml">Main Branch</comp.GlossaryTerm>, branching from another *Site*, or through *Deploy Previews* — CloudCannon reads your *Branch Defaults* to decide how the new *Site* should publish, authenticate, and grant permissions.
+*Branch Defaults* are the settings CloudCannon applies to new branched <comp.GlossaryTerm term="/user/glossary/s/site.yml">Sites</comp.GlossaryTerm> in a <comp.GlossaryTerm term="/user/glossary/p/project.yml">Project</comp.GlossaryTerm>. When you or a *Team Member* creates a new branch *Site*, either by branching from the <comp.GlossaryTerm term="/user/glossary/m/main-branch.yml">Main Branch</comp.GlossaryTerm>, branching from another *Site*, or through <comp.GlossaryTerm term="/user/glossary/d/deploy-preview.yml">Deploy Previews</comp.GlossaryTerm>, CloudCannon reads your *Branch Defaults* to decide how the new *Site* should publish, authenticate, and grant permissions.
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Project-Settings-Branch-Defaults" alt="A screenshot of the Branch Defaults section in Project Settings, showing the Publish settings, Authentication settings, and Permission settings fieldsets." title="The Branch Defaults section in Project Settings" type="screenshot" />
+
+*Branch Defaults* are independent from the configuration of your *Main Branch*. When you create a new branched *Site*, CloudCannon copies the source *Site's* configuration, then applies any default configuration set in your *Branch Defaults*. This separation lets you keep production settings on your *Main Branch* (for example, a public *Site* with no authentication) while applying stricter defaults to branched *Sites* (for example, password protection on every *Testing Domain*).
 
 You can [configure Branch Defaults](/documentation/developer-articles/configure-branch-defaults-for-your-project/) at any time from *Project Settings*. *Branch Defaults* apply to *Sites* created after the change; existing *Sites* keep their current settings.
 
+<comp.Notice info_type="info">
+  If you have *Deploy Previews* enabled, CloudCannon will automatically create a *Site* for a *Pull Request* using your *Branch Defaults* in the same way as a manually branched *Site*. For more information, please read our documentation on [using Deploy Previews to trigger Site creation and deletion](/documentation/developer-articles/use-deploy-previews-to-trigger-site-creation-and-deletion/).
+</comp.Notice>
+
 ## Publish settings
 
-The *Publish settings* control how a branched *Site* publishes back to its parent.
+*Publish settings* control the behavior of a branched *Site* when it publishes back to its *Publish Branch*. These are the same as the settings you can control per-*Site* from the *Publishing* page under *Site Settings*, except that they apply by default to all branched *Sites* in a *Project*.
 
-* ***Default Publish mode*** — How CloudCannon merges changes when a team member publishes from a branched *Site*:
-  * *Inherit from branched site* — The new *Site* uses the same publish mode as the *Site* it was branched from.
-  * *Merge changes immediately* — Publishing merges the branch directly into its parent. (Some <comp.GlossaryTerm term="/user/glossary/g/git-repository.yml">Git Repository</comp.GlossaryTerm> providers require a <comp.GlossaryTerm term="/user/glossary/p/pull-request.yml">Pull Request</comp.GlossaryTerm>; for those, this option approves the *Pull Request* immediately.)
-  * *Create a Pull Request for approval* — Publishing opens a *Pull Request* in your *Git Repository* and waits for it to be merged.
-* ***Delete branched site after publishing*** — When on, CloudCannon removes the *Site* from your *Project* after a successful publish, while leaving the branch in your *Git Repository*. This keeps the *Project Sites Browser* tidy when branched *Sites* are short-lived.
+*Default Publish mode* determines how CloudCannon merges changes from the branched *Site*. By default, this is set to *Inherit from branched site*, so a branched *Site* uses the same publish mode as the *Site* it was branched from. Alternatively, you can set it to *Merge changes immediately* or *Create a Pull Request for approval*, so the same publishing mode is used by all branched *Sites* in a *Project*. For more information, please read our documentation on [merging and Pull Requests](/documentation/developer-articles/merging-and-pull-requests/).
+
+The *Delete branched site after publishing* checkbox controls whether CloudCannon will clean up your *Project* by removing *Sites* after they have published to their *Publish Branch*. By default, this setting is unchecked. This behavior does not affect the branch in your *Git Repository*.
 
 ## Authentication settings
 
-The *Authentication settings* control whether team members and reviewers need to authenticate to view a branched *Site*'s build output.
+*Authentication settings* control who can see *Testing Domains* for *Sites* in your *Project* and how they can gain access to them. These are the same settings you can control per-*Site* from the *Authentication* page under *Site Settings*, except that they apply by default to all branched *Sites* in a *Project*.
 
-* ***Default authentication method*** — *None*, *Password*, or *CloudCannon* (a CloudCannon login).
-* ***Default site password*** — When *Default authentication method* is *Password*, the shared password CloudCannon applies to new branched *Sites*.
+*Default authentication method* determines whether a visitor needs to authenticate their identity to view a *Testing Domain*. By default, this is set to *Inherit from branched site*, so a branched *Site* uses the same authentication method (if any) as the *Site* it was branched from. Alternatively, you can set it to *CloudCannon* (requires an account in your *Organization*), *Password*, or *None*. For more information, please read our documentation on [Authentication](/documentation/developer-articles/what-is-authentication/).
+
+The *Default site password* creates a shared password that applies to all branched *Sites* in the *Project* that use *Password* authentication.
 
 ## Permission settings
 
-The *Permission settings* fieldset is only visible when your *Organization* has [Custom Permission Groups](/documentation/developer-articles/what-are-custom-permission-groups/) enabled.
+*Permission settings* are available for *Organizations* that use [Custom Permission Groups](/documentation/developer-articles/what-are-custom-permission-groups/).
 
-By default, when a team member in a *Custom Permission Group* branches a *Site*, CloudCannon grants their group permissions on the new branched *Site* — so they can always edit and merge the *Sites* they create. Turn on ***Do not grant new permissions on Site branch*** to disable this behaviour and rely only on the permissions you have already defined.
+By default, *Team Members* in *Custom Permission Groups* can always view, edit, or merge the branched *Sites* they create. CloudCannon does this by granting new permissions to their *Custom Permission Group* when they branch a *Site* inside a *Project*. CloudCannon adds these permissions to any of their *Custom Permission Groups* that allow them to create branched *Sites* (i.e., any group with `*:create` or `site-branch:create`) anywhere in the *Organization* — even if a particular group's branching rights are scoped to a different *Project* or *Site*. *Custom Permission Groups* without any branching-creation permission are unaffected.
 
-## Branch Defaults and the Main Branch
+CloudCannon adds the following permissions to each qualifying *Custom Permission Group*, scoped to the new branched *Site*:
 
-*Branch Defaults* are independent from the configuration of your *Main Branch* *Site*. When CloudCannon creates a new branched *Site*, it copies the source *Site*'s build configuration and content, then overlays the *Branch Defaults* values for the fields listed above.
+* `site:file:write` — Edit content files.
+* `site:dam:write` — Edit assets in the *DAM*.
+* `site:inbox:write` — Manage form submissions.
+* `site:publish:write` — Publish changes back to the parent *Site*.
+* `site:details:read` — View *Site* details.
+* `site:activity:read` — View *Site* activity.
+* `site:build:details:read` — View build details.
+* `site:sync:details:read` — View sync details.
+* `site:build-deploys:details:read` — View build deploy details.
 
-This separation lets you keep production settings on your *Main Branch* *Site* (for example, a public *Site* with no authentication) while applying stricter defaults to branched *Sites* (for example, password protection on every preview branch).
+You can see this list in CloudCannon by clicking the *Show permissions* button in the *Permission settings* section.
 
-## Branch Defaults and Deploy Previews
+<comp.DocShot docshot_key="CloudCannon-Documentation-Project-Settings-Branch-Defaults-Permissions-Modal" alt="A screenshot of the Permissions granted on Site branch modal, showing the permission tree with Read, Write, and Create columns ticked for the Site permissions CloudCannon grants when a Team Member branches a Site." title="The Permissions granted on Site branch modal" type="screenshot" />
 
-When [Deploy Previews](/documentation/developer-articles/what-are-deploy-previews/) automatically create a *Site* for a *Pull Request*, that *Site* is governed by your *Branch Defaults* in the same way as a manually branched *Site*. The *Delete branched site after publishing* setting is independent from the *Delete automatically created Sites when Pull Requests are closed or merged* setting in *Deploy Previews* — together they determine the full lifecycle of an auto-created *Site*. For more information, please read our documentation on [using Deploy Previews to trigger Site creation and deletion](/documentation/developer-articles/use-deploy-previews-to-trigger-site-creation-and-deletion/).
+You can disable this behavior with the *Do not grant new permissions on Site branch* setting, which restricts *Team Members* to *Sites* permissions defined specifically in their *Custom Permission Groups*.
