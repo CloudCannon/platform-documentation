@@ -849,34 +849,32 @@ A <comp.GlossaryTerm term="/user/glossary/c/collection.yml">Collection</comp.Glo
 a group of files you want to edit in CloudCannon.
 ```
 
-#### 1.5.6 DataReference Component
+#### 1.5.6 OptionsTable Component
 
-> **Being phased out.** For configuration keys pulled from the CloudCannon schema, use `comp.ReferenceDataTable` (§1.5.7) instead.
-
-Use to list API options, configuration keys, or properties with their types and descriptions. Always use `comp.DataReference` instead of a plain markdown table for reference content.
+Use to list hand-authored API options, method parameters, or configuration keys that are not sourced from the CloudCannon schema. Always use `comp.OptionsTable` instead of a plain markdown table for reference content. For schema-sourced keys, use `comp.ReferenceDataTable` (§1.5.7) instead.
 
 ```mdx
-<comp.DataReference>
-  <comp.DataReferenceRow label="option_name" type_markdown="String">
+<comp.OptionsTable>
+  <comp.OptionsRow label="option_name" type_markdown="String">
     Description of what this option does.
-  </comp.DataReferenceRow>
-  <comp.DataReferenceRow label="another_option" type_markdown="Boolean">
+  </comp.OptionsRow>
+  <comp.OptionsRow label="another_option" type_markdown="Boolean">
     Description of what this option does.
-  </comp.DataReferenceRow>
-</comp.DataReference>
+  </comp.OptionsRow>
+</comp.OptionsTable>
 ```
 
-**Attributes (`comp.DataReferenceRow`):**
+**Attributes (`comp.OptionsRow`):**
 - `label` — The option or key name
 - `type_markdown` — The value type, rendered as inline code (e.g. `String`, `Boolean`, `Object`, `Array`)
 - Inner content — Description of the option; supports markdown
 
 **When to Use:**
-- Listing options for a function or method
-- Documenting configuration keys and their accepted values
+- Listing options for a third-party API or format (e.g. snippet arguments, shortcode parameters, markdown engine options)
+- Documenting configuration keys that have no GID in the CloudCannon schema
 - Any reference content that would otherwise be a table
 
-**Avoid markdown tables:** Do not use markdown pipe tables (`| col | col |`) in CloudCannon documentation. Use `comp.DataReference` for reference content and prose or lists for everything else.
+**Avoid markdown tables:** Do not use markdown pipe tables (`| col | col |`) in CloudCannon documentation. Use `comp.OptionsTable` for reference content and prose or lists for everything else.
 
 #### 1.5.7 ReferenceDataTable Component
 
@@ -896,16 +894,25 @@ Use to display a curated list of CloudCannon configuration keys pulled directly 
   - `type.Routing` — Routing keys
   - `type.InitialSiteSettings` — Initial Site Settings keys
 - `ref_key` — The gid of the definition. Format is `type.{full_key}`, e.g. `type._inputs.*.options.required`. For type-specific variant keys, include the variant suffix: `type._inputs.*.options.empty_type(text)`.
+- `display_label` — Overrides the label shown in the rendered table. Use this when the auto-generated label does not reflect the correct contextual path (see below).
 
 **Finding a gid:**
 The gid format is `type.` followed by the full key path, with wildcards written as `*`. Navigate to the key in the reference section (`/documentation/developer-reference/`) and use the gid shown in the entry.
 
+**How the label is auto-generated:**
+The rendered label is the last two path segments of the `ref_key`, with `*` and type-hint segments (e.g. `(text-input)`) stripped. For example:
+- `type._inputs.*.options.required` → `options.required`
+- `type._inputs.*.(text-input).options.placeholder` → `options.placeholder`
+- `type.collections_config.*.add_options.[*].label` → `add_options.label`
+
+Use `display_label` whenever that result does not reflect the key's position in context — for example, when a shared schema GID is used inside an object (`type.timezone` renders as `timezone` but should read `options.timezone`), or when a sub-key is deep enough that the two-segment label drops meaningful parent context (`type._inputs.*.options.pattern_flags.dot_all` renders as `pattern_flags.dot_all` rather than `options.pattern_flags.dot_all`).
+
 **Editorial rules:**
-- Order rows alphabetically by `ref_key`.
+- Order rows alphabetically by rendered label — the value of `display_label` if set, otherwise the auto-generated label derived from the `ref_key` as described above.
 - The reference section is the exhaustive source. Article tables are intentionally curated — it is acceptable to omit keys.
 - Do not include deprecated keys. They are documented in the reference section, which shows the deprecation notice and the recommended alternative.
 - When a parent key links to a reference page that fully documents its children (e.g. `type.preview`), prefer listing only the parent rather than repeating all children in the flat table.
-- Do not mix `comp.DataReference` and `comp.ReferenceDataTable` in the same table.
+- Do not mix `comp.OptionsTable` and `comp.ReferenceDataTable` in the same table.
 
 ---
 
