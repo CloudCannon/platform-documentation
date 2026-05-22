@@ -55,6 +55,7 @@ export interface Details {
   description?: string;
   category?: string;
   order?: number;
+  start_nav_group?: string;
   related_articles?: Array<{
     item: string;
   }>;
