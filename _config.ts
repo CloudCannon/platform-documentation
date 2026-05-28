@@ -228,7 +228,7 @@ const injectedSections: Promise<string>[] = [];
 
 const mdFilter = site.renderer.helpers.get("md")?.[0];
 
-site.ignore("README.md", "AGENTS.md", "unused", "STYLE_GUIDE.mdx", "scripts");
+site.ignore("README.md", "AGENTS.md", "unused", "STYLE_GUIDE.mdx", "STYLE_GUIDE_AGENTS.md", "scripts", ".claude");
 
 // Detect dev mode (serve command uses -s flag)
 const isDevMode = Deno.args.includes("-s") || Deno.args.includes("--serve");
@@ -355,14 +355,13 @@ site.use(feed({
   },
 }));
 
-site.loadPages([".md"]);
-
-site.preprocess([".md"], (pages) =>
-  pages.forEach((page) => {
-    if (page.src.path.startsWith("user/glossary/")) {
+site.preprocess([".md"], (pages) => {
+  for (const page of pages) {
+    if (page.src?.path?.startsWith("/user/glossary/")) {
       page.data.collection = "glossary";
     }
-  }));
+  }
+});
 
 // JSX doesn't like to output some alpine attributes,
 // so we write them with an `alpine` prefix and re-map them here.
