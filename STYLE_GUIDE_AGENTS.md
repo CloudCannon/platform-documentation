@@ -115,9 +115,11 @@ voice_and_tense:
       - "The Connector detects all data-rosey-tagged elements and injects the locale switcher interface."
       - "It then connects each tagged element to its corresponding entry in the locale JSON."
     note: "Reserve internal process descriptions ('the system detects… injects… connects…') for 'How it works' subsections or reference documentation."
-  first_person_plural_we_exception:
-    article_path: "/documentation/developer-articles/what-is-the-visual-editor-api/"
-    note: "Sole allowed 'we' in articles; company dogfoods public Visual Editor API (see prose §2.2.5)"
+  first_person_plural_we_exceptions:
+    - article_path: "/documentation/developer-articles/what-is-the-visual-editor-api/"
+      note: "Company dogfoods public Visual Editor API (see prose §2.2.5 Exception 1)"
+    - filename_pattern: "introduction-to-*.mdx"
+      note: "Section-introduction articles may use editorial scaffolding such as 'we cover:' or 'Let's briefly introduce these topics.' Keep to one or two sentences per intro; body must still use 'you' for reader actions (see prose §2.2.5 Exception 2)"
     guide_transition_sentences: "'we'll' is permitted in the closing transition sentence of guide pages (e.g. 'In the next step of this guide, we'll...')"
 
 formatting_rules:
@@ -364,6 +366,8 @@ documentation_types:
           - "Schema"
           - "Structure"
           - "Configuration File"
+          - "Pull Request"
+          - "Git Provider"
         features:
           - "Build"
           - "Git Repository"
@@ -372,6 +376,8 @@ documentation_types:
           - "Testing Domain"
           - "Client Sharing"
           - "Site Sharing"
+          - "Publishing Method"
+          - "Publishing Workflow"
         all_input_types: true
       
       do_not_italicize:
@@ -386,7 +392,29 @@ documentation_types:
         - "AWS, Azure, Make, Zapier, Okta"
       
       possessive_forms: "Include apostrophe-s inside italics (*Site's*)"
-    
+
+      compound_nouns_with_concepts:
+        rule: "When a CloudCannon concept is followed by a generic descriptor (page, tab, section, view, link, button), italicise only the concept, not the descriptor"
+        examples:
+          correct:
+            - "at the top of your *Project* page"
+            - "click the *Publishing* link in the *Site Navigation*"
+            - "the *Pull Requests* tab groups *Pull Requests*"
+          incorrect:
+            - "at the top of your *Project page*"
+            - "click the *Publishing link* in the *Site Navigation*"
+        exception: "Italicise the whole literal UI element name when the descriptor is part of the label (e.g. *Project Settings* is the actual tab label)"
+
+      group_names_in_permissions_notices:
+        rule: "Inside permissions notices, italicise individual Permission Group names (Owners, Developers, Editors, Technical Editors, Billing) as well as the broader *Default Permission Groups* / *Custom Permission Groups* link text"
+        examples:
+          correct:
+            - "Members of the *Owners* and *Developers* [Default Permission Groups]"
+            - "Members of the *Editors* and *Technical Editors* [Default Permission Groups]"
+          incorrect:
+            - "Members of the Owners and Developers [Default Permission Groups]"
+        note: "Applies inside permissions notices. Body prose discussing groups as a category can stay plain."
+
     cross_reference_rules:
       italicize_cloudcannon_terms: true
       includes: "UI elements, core concepts, and features"
@@ -468,6 +496,18 @@ components:
       important: "Can be first if the information affects the entire article; otherwise inline."
       permissions: "Must always be first in the article, immediately after front matter. Always start with bold 'Permissions required' heading."
       pricing: "Can be first if the entire feature is plan-specific; otherwise inline."
+    pricing_notice_content:
+      single_feature_form: "**This feature is available on our [Team or Enterprise plan](/pricing/).** OR ***Feature Name* is available on our [Team or Enterprise plan](/pricing/).**"
+      overview_article_form: "Name the gated sub-features the article actually discusses; do not list the full set of gated features under the parent"
+      examples:
+        correct:
+          - "**This feature is available on our [Team or Enterprise plan](/pricing/).**"
+          - "***Deploy Previews* are available on our [Team or Enterprise plan](/pricing/).**"
+          - "***Projects* are available on all plans. *Site* branching and *Publishing Workflows* are available on our [Team or Enterprise plan](/pricing/).**"
+          - "**The *Pull Requests* tab and *Deploy Previews* settings are available on our [Team or Enterprise plan](/pricing/). Other parts of the *Project Browser* are available on all plans.**"
+        incorrect:
+          - "**Some features are only available on our [Team or Enterprise plan](/pricing/).**"  # vague — doesn't say which features
+          - "**This feature is available on our** [**Team or Enterprise plan**](/pricing/)**.**"  # over-wrapped bold/link splits
     general_rules:
       - "Only one notice at the start of an article (permissions, pricing, or important — never info)"
       - "Keep notice text concise"
