@@ -7,7 +7,7 @@ Machine-readable style rules for AI agents and automated linters. These rules ar
 **For agents making updates to this file:** Also update the corresponding section in `STYLE_GUIDE.mdx` with the prose explanation and examples. Update the revision history in both files: `last_updated` and `style_guide_version` in the YAML block below, and the `Last Updated` and `Version` fields and the revision history table (Section 4) in `STYLE_GUIDE.mdx`.
 
 ```yaml
-style_guide_version: "2.15"
+style_guide_version: "2.16"
 last_updated: "2026-06-04"
 
 terminology:
@@ -503,11 +503,15 @@ components:
   mermaid:
     usage: "Structural diagrams whose source can be expressed in Mermaid syntax — flowcharts, sequence diagrams, decision trees, simple architecture sketches. Rendered to SVG at build time; light and dark theme SVGs are emitted per diagram and swapped via CSS."
     required_attributes:
+      - "name (kebab-case identifier — used as the cached SVG filename so reviewers can identify the diagram in PRs)"
       - "chart (Mermaid source as a template literal)"
       - "alt (full sentence describing the diagram for screen readers, no-JS readers, and Pagefind)"
     optional_attributes:
       - "caption (visible caption rendered below the diagram)"
-    syntax: "<comp.Mermaid alt=\"...\" chart={`graph LR\\n  A --> B\\n`} />"
+    syntax: "<comp.Mermaid name=\"publishing-workflow\" alt=\"...\" chart={`graph LR\\n  A --> B\\n`} />"
+    name_rules:
+      - "Lowercase letters, digits, and hyphens only; must start with a letter or digit"
+      - "Two <comp.Mermaid> blocks with the same name must have the same chart source — they share one SVG pair"
     use_for:
       - "Flowcharts, branching diagrams, publish workflows"
       - "Sequence diagrams (API calls, event flows)"
@@ -517,14 +521,14 @@ components:
       - "Photographs, illustrations, or graphics that are not structural (use comp.DocsImage instead)"
       - "Diagrams large enough that the source becomes harder to read than a hand-drawn image"
     workflow:
-      cache_location: "_cache/mermaid/"
-      cache_keying: "sha1(theme + init directive + chart) — auto-invalidates when the chart source changes"
+      cache_location: "_cache/mermaid/{name}-{theme}.svg"
+      stale_detection: "Each rendered SVG has a <!-- mermaid-hash: {sha1} --> comment at the top. renderMermaid compares the stored hash to sha1(theme + init directive + chart) and throws if they differ."
       build_environment: "CloudCannon's build container does not have mmdc installed. Rendered SVGs are committed to the repository; the build reads from the cache only."
       contributor_steps:
         - "After adding or editing a <comp.Mermaid> block, build the site locally (mmdc is available via the project Dockerfile)."
-        - "The build renders any missing SVGs into _cache/mermaid/."
+        - "The build renders any missing or stale SVGs into _cache/mermaid/."
         - "Commit the new SVG files alongside the .mdx change."
-      missing_svg_behavior: "If a chart's SVG is not in the cache and mmdc is not available, renderMermaid throws an error naming the expected path and the chart source. The CloudCannon build fails until the SVGs are committed."
+      missing_or_stale_svg_behavior: "If a chart's SVG is missing, or if the stored hash differs from the current chart, and mmdc is not available, renderMermaid throws an error naming the expected path. The CloudCannon build fails until the SVGs are committed."
 
   multicodeblock:
     usage: "Configuration examples with YAML/JSON translation"

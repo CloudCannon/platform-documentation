@@ -8,6 +8,9 @@ const lightConfigPath = join(repoRoot, "_config", "mermaid-light.json");
 
 type Theme = "light" | "dark";
 
+const HASH_MARKER = "mermaid-hash:";
+const hashCommentPattern = /^\s*<!--\s*mermaid-hash:\s*([0-9a-f]+)\s*-->\s*/i;
+
 const initDirectiveFor = (theme: Theme): string => {
   if (theme === "light") {
     const config = Deno.readTextFileSync(lightConfigPath);
@@ -34,19 +37,42 @@ const stripXmlPreamble = (svg: string): string =>
   svg.replace(/^\s*<\?xml[^?]*\?>\s*/i, "")
     .replace(/^\s*<!DOCTYPE[^>]*>\s*/i, "");
 
-const renderOne = (chart: string, theme: Theme): string => {
-  ensureCacheDir();
-  const hash = hashChart(chart, theme);
-  const svgPath = join(cacheDir, `${hash}.svg`);
+const extractHashComment = (svg: string): { hash: string | null; body: string } => {
+  const match = svg.match(hashCommentPattern);
+  if (!match) return { hash: null, body: svg };
+  return { hash: match[1], body: svg.slice(match[0].length) };
+};
 
+const renderOne = (name: string, chart: string, theme: Theme): string => {
+  ensureCacheDir();
+  const expectedHash = hashChart(chart, theme);
+  const svgPath = join(cacheDir, `${name}-${theme}.svg`);
+
+  let existing: string | null = null;
   try {
-    return stripXmlPreamble(Deno.readTextFileSync(svgPath));
+    existing = Deno.readTextFileSync(svgPath);
   } catch (err) {
     if (!(err instanceof Deno.errors.NotFound)) throw err;
   }
 
+  if (existing !== null) {
+    const { hash, body } = extractHashComment(existing);
+    if (hash === expectedHash) {
+      return stripXmlPreamble(body);
+    }
+    if (hash === null) {
+      throw new Error(
+        `Mermaid SVG ${svgPath} is missing its ${HASH_MARKER} comment.\n` +
+        `Delete the file and rebuild locally to regenerate it with the current chart.\n` +
+        `--- chart (theme=${theme}) ---\n${chart}`,
+      );
+    }
+    // Hash present but stale → try to regenerate below. If mmdc isn't
+    // available we fall through to the "missing/unrenderable" error.
+  }
+
   const source = initDirectiveFor(theme) + chart;
-  const mmdPath = join(cacheDir, `${hash}.mmd`);
+  const mmdPath = join(cacheDir, `${name}-${theme}.mmd`);
   Deno.writeTextFileSync(mmdPath, source);
 
   let result;
@@ -57,7 +83,7 @@ const renderOne = (chart: string, theme: Theme): string => {
         "-o", svgPath,
         "-b", "transparent",
         "-p", puppeteerConfig,
-        "-I", `mermaid-${hash.slice(0, 10)}`,
+        "-I", `mermaid-${name}-${theme}`,
         "--quiet",
       ],
       stdout: "piped",
@@ -68,11 +94,11 @@ const renderOne = (chart: string, theme: Theme): string => {
       Deno.removeSync(mmdPath);
     } catch { /* best effort */ }
     if (err instanceof Deno.errors.NotFound) {
+      const stale = existing !== null;
       throw new Error(
-        `Missing rendered Mermaid SVG and mmdc is not installed in this environment.\n` +
-        `Expected: ${svgPath}\n` +
-        `Run the site build locally (which renders and commits SVGs to _cache/mermaid/) before pushing.\n` +
-        `--- chart (theme=${theme}) ---\n${chart}`,
+        stale
+          ? `Mermaid SVG ${svgPath} is stale (chart edited since last render) and mmdc is not installed in this environment.\n`
+          : `Mermaid SVG ${svgPath} is missing and mmdc is not installed in this environment.\n`,
       );
     }
     throw err;
@@ -84,17 +110,26 @@ const renderOne = (chart: string, theme: Theme): string => {
 
   if (!result.success) {
     const stderr = new TextDecoder().decode(result.stderr);
-    throw new Error(`mmdc failed (theme=${theme}):\n${stderr}\n--- chart ---\n${chart}`);
+    throw new Error(`mmdc failed (name=${name}, theme=${theme}):\n${stderr}\n--- chart ---\n${chart}`);
   }
 
-  return stripXmlPreamble(Deno.readTextFileSync(svgPath));
+  // Prepend the hash comment to the freshly rendered SVG so later builds
+  // can detect a stale file when the chart source changes.
+  const rendered = Deno.readTextFileSync(svgPath);
+  const withHash = `<!-- ${HASH_MARKER} ${expectedHash} -->\n${rendered}`;
+  Deno.writeTextFileSync(svgPath, withHash);
+
+  return stripXmlPreamble(rendered);
 };
 
-export const renderMermaid = (chart: string): { light: string; dark: string } => {
+export const renderMermaid = (
+  name: string,
+  chart: string,
+): { light: string; dark: string } => {
   const trimmed = chart.trim();
-  if (!trimmed) throw new Error("renderMermaid: empty chart source");
+  if (!trimmed) throw new Error(`renderMermaid: empty chart source (name=${name})`);
   return {
-    light: renderOne(trimmed, "light"),
-    dark: renderOne(trimmed, "dark"),
+    light: renderOne(name, trimmed, "light"),
+    dark: renderOne(name, trimmed, "dark"),
   };
 };
