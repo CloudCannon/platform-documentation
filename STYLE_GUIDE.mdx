@@ -805,8 +805,40 @@ Use for illustrations and diagrams. This component is being phased out in favor 
 **When NOT to use DocsImage:**
 - Screenshots of the CloudCannon app (use `<comp.DocShot>` instead)
 - UI snippets showing CloudCannon interface elements (use `<comp.DocShot>` instead)
+- Flowcharts, sequence diagrams, and other graphs that can be expressed in [Mermaid syntax](https://mermaid.js.org/intro/syntax-reference.html) — use `<comp.Mermaid>` instead, so the diagram source lives next to the prose and renders cleanly in both light and dark modes
 
-#### 1.5.5 GlossaryTerm Component
+#### 1.5.5 Mermaid Component
+
+Use for diagrams whose meaning is structural — flowcharts, sequence diagrams, decision trees, simple architecture sketches. The diagram source is written inline in [Mermaid syntax](https://mermaid.js.org/intro/syntax-reference.html) and rendered to SVG at build time. Two SVGs are emitted per diagram (light and dark theme); the page swaps between them via CSS.
+
+```mdx
+<comp.Mermaid
+  alt="Three task branches publish to Staging, which publishes to Production."
+  chart={`graph LR
+    A["Write a new blog"] --> S[Staging]
+    B["Remove a product page"] --> S
+    C["Update Site navigation"] --> S
+    S --> P[Production]
+  `}
+/>
+```
+
+**Attributes:**
+- `chart` — Mermaid source, passed as a template literal. Multi-line is fine; leading whitespace is trimmed.
+- `alt` — **Required.** A full sentence describing what the diagram shows, for screen readers, no-JS readers, and the search index. Don't skip it — the build fails if it's missing.
+- `caption` *(optional)* — Visible caption rendered below the diagram.
+
+**When to use Mermaid:**
+- Flowcharts, branching diagrams, publish workflows
+- Sequence diagrams (API calls, event flows)
+- Small state machines, decision trees, or relationship graphs
+
+**When NOT to use Mermaid:**
+- Screenshots of the CloudCannon app (use `<comp.DocShot>`)
+- Photographs, illustrations, or graphics that aren't structural (use `<comp.DocsImage>`)
+- Diagrams large enough that the source becomes harder to read than a hand-drawn image
+
+#### 1.5.6 GlossaryTerm Component
 
 Use to wrap terms that have a corresponding glossary entry. This component renders the term inline and provides readers with a tooltip or popover containing the glossary definition.
 
