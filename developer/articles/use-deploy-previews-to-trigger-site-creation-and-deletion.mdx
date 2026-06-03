@@ -98,17 +98,18 @@ This behavior is the default for all *Projects* and is not configurable. *Sites*
 
 ## Deleting automatically created *Sites*
 
-When you enable the *Delete automatically created Sites when Pull Requests are closed or merged* checkbox, CloudCannon uses the hard-link to look up the connected *Sites* whenever a *Pull Request* is merged or closed. If the *Site* has `create_source == pr_auto_create`, CloudCannon deletes the *Site*.
+The *Delete this site after publishing* setting on the *Publishing* page under *Site Settings* controls whether any individual *Site* is deleted after publishing. When the *Delete automatically created Sites when Pull Requests are closed or merged* checkbox is enabled, CloudCannon turns the *Delete this site after publishing* option on for each new automatically created *Site*, determining the default behavior for all *Sites* created this way.
 
-Disabling this option leaves automatically created *Sites* in your CloudCannon *Project*, although they are no longer connected to a branch in your *Git Repository*, and you can manually delete them from the *Project Sites Browser*.
+Whenever a *Pull Request* is closed or merged, CloudCannon deletes an automatically created *Site* with *Delete this site after publishing* enabled. You can change the *Delete this site after publishing* setting on any individual *Site* after *Site* creation. To keep an automatically created *Site* in your *Project* past its *Pull Request* merge, [turn off Delete this site after publishing](/documentation/developer-articles/turn-on-delete-after-publishing/) for that *Site*.
 
-### Interaction with *Delete branched site after publishing*
+The head branch in your *Git Repository* is treated differently depending on how the deletion is triggered: clicking the *Publish pull request* button in CloudCannon deletes both the *Site* and the head branch, while merging or closing the *Pull Request* directly in your *Git provider* deletes the *Site* and leaves the head branch to be managed by your *Git provider*.
 
-The *Delete automatically created Sites when Pull Requests are closed or merged* setting for *Deploy Previews* has a similar name and functionality to the *Delete branched site after publishing* setting in the *Branch Defaults* section of *Project Settings* (or in the *Publishing* section of *Site Settings* for an individual *Site*).
+The [Delete branched site after publishing](/documentation/developer-articles/what-are-branch-defaults/) setting in *Branch Defaults* is the equivalent for manually branched *Sites* — both settings determine the default value of *Delete this site after publishing* on new branched *Sites* in your *Project*.
 
-By default, each *Project* has *Delete branched site after publishing* enabled in the *Branch Defaults*. CloudCannon applies this to every automatically created *Site*, so once you publish changes from the branched *Site* to its *Publish Branch*, CloudCannon deletes the *Site* and its Git branch, along with any record of the *Pull Request* link. This keeps your *Project* and *Git Repository* tidy.
+### Disable for all existing automatic *Sites*
 
-If both *Delete automatically created Sites when Pull Requests are closed or merged* and *Delete branched site after publishing* settings are enabled, the behavior depends on where you merge the *Pull Request*:
+Toggling the *Delete automatically created Sites when Pull Requests are closed or merged* checkbox off does not retroactively change settings for *Sites* that already exist. Automatically created *Sites* keep their *Delete this site after publishing* setting unless you change it in *Site Settings* or use the bulk-disable shortcut below.
 
-* If you merge with the *Publish pull request* button in CloudCannon, the *Delete branched site after publishing* setting removes both the *Site* and its branch in your *Git Repository*.
-* If you merge or close the *Pull Request* in your *Git provider*, the *Delete automatically created Sites when Pull Requests are closed or merged* setting removes the *Site* but leaves the branch in your *Git Repository*.
+When the checkbox is off but automatically created *Sites* in your *Project* still have *Delete this site after publishing* enabled, CloudCannon shows a warning banner under the checkbox with a *Disable for all automatic Sites* button. Clicking the button disables *Delete this site after publishing* on every affected automatically created *Site* in one action. The banner disappears when no automatically created *Sites* in your *Project* have *Delete this site after publishing* enabled, or when you re-enable the checkbox.
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Project-Settings-Deploy-Previews-Disable-Delete-Banner" alt="A screenshot of the Deploy Previews section showing the Disable for all automatic Sites banner under the unchecked auto-delete checkbox." title="The Disable for all automatic Sites banner" type="screenshot" />
