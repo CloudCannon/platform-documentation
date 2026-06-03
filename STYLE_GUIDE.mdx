@@ -1,11 +1,13 @@
 # CloudCannon Documentation Style Guide
 
-**Last Updated:** March 30, 2026  
-**Version:** 1.2
+**Last Updated:** May 13, 2026  
+**Version:** 2.14
 
 This style guide establishes writing standards for all CloudCannon documentation. It combines patterns from our existing documentation with industry best practices from Microsoft Writing Style Guide, Google Developer Documentation Style Guide, and Write the Docs community standards.
 
-This guide is designed to be readable by both humans and AI agents. A machine-readable section is included at the end for automated validation.
+This guide is designed to be readable by both humans and AI agents. The machine-readable rules have been extracted to `STYLE_GUIDE_AGENTS.md` for direct loading into agent contexts.
+
+> **For agents and contributors:** If you update a rule in this guide, also update the corresponding rule in `STYLE_GUIDE_AGENTS.md`. The two files must stay in sync — `STYLE_GUIDE.mdx` is the authoritative source, `STYLE_GUIDE_AGENTS.md` is derived from it. **Always update the revision history in both files:** the `Last Updated` and `Version` fields and the revision history table (Section 4) in this file, and the `last_updated` and `style_guide_version` fields in the YAML block of `STYLE_GUIDE_AGENTS.md`.
 
 ## Documentation Architecture
 
@@ -48,6 +50,7 @@ This structure helps users find the right information at the right time, whether
   - [1.1 Voice and Tone](#11-voice-and-tone)
   - [1.2 Grammar and Mechanics](#12-grammar-and-mechanics)
   - [1.3 Terminology](#13-terminology)
+    - [1.3.3 Do not use "editor" in isolation](#133-do-not-use-editor-in-isolation)
   - [1.4 Formatting](#14-formatting)
   - [1.5 Components](#15-components)
   - [1.6 Accessibility](#16-accessibility)
@@ -128,6 +131,45 @@ Frame instructions positively. Tell readers what to do, not what to avoid (excep
 
 - ✅ **Good:** "Enter your Site name in the text field."
 - ❌ **Avoid:** "Don't leave the Site name field blank."
+
+#### 1.1.6 Guide page transition sentences
+
+End every guide page (except the index and more-resources pages) with a brief unlinked sentence that previews the next step. This signals to readers that the guide continues and tells them what to expect.
+
+Use the pattern: **"In the next step of this guide, we'll [describe what the next page covers]."**
+
+- ✅ **Good:** "In the next step of this guide, we'll install *Rosey* and set it up on your *Site* from scratch."
+- ✅ **Good:** "In the next step of this guide, we'll configure your *Collection* URLs so the *Visual Editor* can find your pages."
+- ❌ **Avoid:** "For more information, read [Configure URLs for Rosey](/documentation/...)." (this is a linked closing CTA — see §2.4.6)
+
+This sentence is distinct from the closing-CTA rule (§2.4.6): it does not link to the next page, it simply previews it. The use of "we'll" is permitted here as part of the collaborative guide voice, even though "we" is otherwise avoided in documentation.
+
+#### 1.1.7 User-focused language
+
+Frame actions and solutions from the user's perspective, not the system's. When describing how a user can resolve a problem or accomplish something, write it as something the user does — not as something the feature or step performs on their behalf.
+
+- ✅ **Good:** "You can fix this by updating your *Collection* URLs."
+- ✅ **Good:** "You can address this by configuring the postbuild script."
+- ❌ **Avoid:** "Updating your *Collection* URLs fixes this."
+- ❌ **Avoid:** "This step covers both."
+
+Also avoid vague shorthand references. When using words like "both", "this", or "these" to refer to previously mentioned items, write out the full referent rather than leaving the reader to infer it.
+
+- ✅ **Good:** "You can fix this by updating your *Collection* URLs so the *Visual Editor* can find your pages."
+- ❌ **Avoid:** "This step covers both." (unclear what "both" refers to)
+
+#### 1.1.8 Experiential feature description (explanation articles and "What is…" guide pages)
+
+When describing how a feature behaves in explanation articles or "What is…" pages within guides, describe what the user sees and can do — not what the system does internally. Readers of these pages are trying to understand a feature, not follow a technical spec.
+
+- ✅ **Good:** "Elements whose source text has changed are highlighted with amber borders."
+- ✅ **Good:** "A floating locale-switching tool appears in the bottom right of the *Visual Editor*, letting you change which version of a page you're seeing."
+- ❌ **Avoid:** "The Connector detects all `data-rosey`-tagged elements and injects the locale switcher interface."
+- ❌ **Avoid:** "It then connects each tagged element to its corresponding entry in the locale JSON."
+
+Reserve internal process descriptions ("the system detects… injects… connects…") for "How it works" subsections or reference documentation, where the audience is specifically seeking technical detail.
+
+This rule applies only to explanation articles (`details.category: Explanation`) and "What is…" pages within guides (filename pattern `what-is-*.mdx`). It does not apply to instruction articles, reference docs, or "How it works" sections within any article type.
 
 ---
 
@@ -272,12 +314,33 @@ Use consistent terminology throughout documentation. Refer to the same thing wit
 | sign in / log in | login (as a verb) |
 | dropdown | drop-down, drop down |
 | checkbox | check box |
+| modal | dialog, popup, popover |
 | filename | file name |
 | insecure | unsecure |
 
 **Avoid Jargon**
 - When technical terms are necessary, explain them.
 - Link to the glossary for CloudCannon-specific terms on first use in an article.
+
+#### 1.3.3 Do not use "editor" in isolation
+
+Use "editor" only when referring to an editing interface, and only when it is immediately preceded by the name of that interface. Never use "editor" to mean a person.
+
+**For editing interfaces** — always include the interface name immediately before "editor":
+- CloudCannon surfaces: *Visual Editor*, *Content Editor*, *Data Editor*, *Source Editor* (italicized as UI names; see [1.4.1 Italics](#141-italics)).
+- Local development: code editor, IDE, or a named product (for example, Visual Studio Code).
+- Generic controls: rich text editor, WYSIWYG editor, or name the host (for example, "the rich text field in the *Data Editor*").
+
+**For people** — use a specific role term instead: team member, translator, content author. Never use "editor" or "editors" to mean a person, even with role context.
+
+- ❌ **Avoid:** "Open the editor and select the file."
+- ✅ **Good:** "Open the *Visual Editor* and select the file."
+- ❌ **Avoid:** "Editors can resolve stale translations in the *Visual Editor*."
+- ✅ **Good:** "Translators can resolve stale translations in the *Visual Editor*."
+- ❌ **Avoid:** "After an editor updates the heading…"
+- ✅ **Good:** "After a team member updates the heading…"
+
+Established compounds such as *Visual Editor API*, `inEditorMode`, or **editor-only** (meaning "only in the preview, not on the live *Site*") are acceptable when the surrounding sentence already names the environment.
 
 ---
 
@@ -370,6 +433,15 @@ Use bold for headings, labels, or important callouts within Notice components.
 - Inline term definitions
 - Emphasis (use Notice components instead)
 - Button names or menu options
+
+#### 1.4.2a Emojis
+
+Emojis are generally not used in CloudCannon documentation. The exceptions are guide introduction pages (`index.mdx`) and guide more-resources pages (`more-resources.mdx`), where minimal emoji use is permitted to support the celebratory or welcoming tone of those pages.
+
+- ✅ **Allowed:** A single emoji in the congratulatory opening sentence of a more-resources page
+- ✅ **Allowed:** A single emoji in the welcome opening of a guide introduction
+- ❌ **Avoid:** Emojis in body content, instruction steps, reference material, changelogs, glossary entries, or explanation articles
+- ❌ **Avoid:** Multiple emojis on a single page, even in permitted locations
 
 #### 1.4.3 Code Formatting
 
@@ -473,7 +545,18 @@ _inputs___1___:
 </comp.Annotation>
 ```
 
-**For `<comp.CodeBlock>` — Use `/*1*/` markers:**
+**For `<comp.CodeBlock>` — Use language-appropriate comment markers:**
+
+The marker must produce a Prism `.token.comment` for the annotation processor to convert it into a colored square. Use the comment syntax that matches the code block's language:
+
+| Language | Marker | Example |
+|----------|--------|---------|
+| HTML | `<!--N-->` | `<div class="hero"> <!--1-->` |
+| JavaScript, TypeScript, Astro, CSS | `/*N*/` | `import './styles.css'; /*1*/` |
+| Shell, Python, Ruby | `#N` | `npm install rosey #1` |
+| YAML, JSON (in `<comp.MultiCodeBlock>`) | `___N___` | `_inputs___1___:` |
+
+Place markers at the end of a complete line — never inside a tag's attribute list (HTML comments are not valid between attributes).
 
 ````markdown
 <comp.CodeBlock language="JavaScript" source="src/scripts/register-components.js">
@@ -482,20 +565,51 @@ import { registerAstroComponent } from '@cloudcannon/editable-regions/astro';
 import '@cloudcannon/editable-regions/astro-react-renderer'; /*1*/
 import HeroBlock from '../components/HeroBlock.astro';
 ```
-</comp.CodeBlock>
 <comp.Annotation number="1">
   This import is only necessary if you use React components nested inside your Astro components.
 </comp.Annotation>
+</comp.CodeBlock>
 ````
 
 **Why the different syntax:**
-- `___1___` markers work for any language in MultiCodeBlock (YAML, JSON, etc.)
-- `/*1*/` markers use comment syntax that's visually appropriate for code files (HTML, JavaScript, Astro, etc.)
+- `___N___` markers work for any language in `<comp.MultiCodeBlock>` (YAML, JSON, etc.) because they are replaced directly in the raw text, not via Prism
+- Comment markers (`<!--N-->`, `/*N*/`, `#N`) rely on Prism syntax highlighting to produce a `.token.comment` span, which the annotation processor then converts to a colored square — so the marker must match the language's comment syntax
 
 **Always:**
-- Place `<comp.Annotation>` components immediately after the closing tag of the code block
+- Place `<comp.Annotation>` components inside the `</comp.CodeBlock>` closing tag, after the closing code fence
 - Number annotations sequentially starting from 1
 - Keep annotation explanations concise (1-2 sentences)
+- Surround annotation text with blank lines if it contains inline code (backticks), bold, or other markdown formatting
+
+**Inline formatting in annotations**
+
+MDX treats the children of a JSX element as a literal string unless they are surrounded by blank lines, in which case they are parsed as markdown. Without blank lines, backticks appear as literal characters rather than styled code pills.
+
+```mdx
+// ❌ Backticks render as literal characters
+<comp.Annotation number="1">Translates the `alt` attribute.</comp.Annotation>
+
+// ✅ Blank lines enable markdown — backticks render as inline code
+<comp.Annotation number="1">
+
+Translates the `alt` attribute.
+
+</comp.Annotation>
+```
+
+This applies to any inline markdown formatting inside an annotation: backticks, `**bold**`, `*italic*`, etc.
+
+**Explain behavior in prose before the code sample**
+
+Readers should not need to read `<comp.Annotation>` components to understand what an example does, why the steps appear in that order, or what CloudCannon (or the browser) returns from a call. Before each `<comp.CodeBlock>` or `<comp.MultiCodeBlock>` that teaches behavior, include enough body text—usually one or more short paragraphs—that covers:
+
+- What the sample demonstrates and when to use that pattern
+- Important inputs, side effects, return values, or errors
+- How the highlighted lines relate to each other when the block shows more than one concept
+
+**Use annotations to support markers, not to carry the teaching**
+
+After that conceptual text exists in the article body, each `<comp.Annotation>` should briefly tie its number to the marked line (often a single short sentence). Do not use annotations as the only place for API semantics, long return-value descriptions, or full step-by-step explanations; those belong in the prose above the block.
 
 #### 1.4.4 Links
 
@@ -735,6 +849,71 @@ A <comp.GlossaryTerm term="/user/glossary/c/collection.yml">Collection</comp.Glo
 a group of files you want to edit in CloudCannon.
 ```
 
+#### 1.5.6 OptionsTable Component
+
+Use to list hand-authored API options, method parameters, or configuration keys that are not sourced from the CloudCannon schema. Always use `comp.OptionsTable` instead of a plain markdown table for reference content. For schema-sourced keys, use `comp.ReferenceDataTable` (§1.5.7) instead.
+
+```mdx
+<comp.OptionsTable>
+  <comp.OptionsRow label="option_name" type_markdown="String">
+    Description of what this option does.
+  </comp.OptionsRow>
+  <comp.OptionsRow label="another_option" type_markdown="Boolean">
+    Description of what this option does.
+  </comp.OptionsRow>
+</comp.OptionsTable>
+```
+
+**Attributes (`comp.OptionsRow`):**
+- `label` — The option or key name
+- `type_markdown` — The value type, rendered as inline code (e.g. `String`, `Boolean`, `Object`, `Array`)
+- Inner content — Description of the option; supports markdown
+
+**When to Use:**
+- Listing options for a third-party API or format (e.g. snippet arguments, shortcode parameters, markdown engine options)
+- Documenting configuration keys that have no GID in the CloudCannon schema
+- Any reference content that would otherwise be a table
+
+**Avoid markdown tables:** Do not use markdown pipe tables (`| col | col |`) in CloudCannon documentation. Use `comp.OptionsTable` for reference content and prose or lists for everything else.
+
+#### 1.5.7 ReferenceDataTable Component
+
+Use to display a curated list of CloudCannon configuration keys pulled directly from the schema. Definitions, types, badges, and examples are sourced automatically from the external repo data — do not duplicate them in the article.
+
+```mdx
+<comp.ReferenceDataTable>
+  <comp.ReferenceDataRow section="type.Configuration" ref_key="type._inputs.*.options.required" />
+  <comp.ReferenceDataRow section="type.Configuration" ref_key="type._inputs.*.options.values" />
+  <comp.ReferenceDataRow section="type.Configuration" ref_key="type.preview" />
+</comp.ReferenceDataTable>
+```
+
+**Attributes (`comp.ReferenceDataRow`):**
+- `section` — The schema section to look up the key in. Valid values:
+  - `type.Configuration` — CloudCannon Configuration File keys
+  - `type.Routing` — Routing keys
+  - `type.InitialSiteSettings` — Initial Site Settings keys
+- `ref_key` — The gid of the definition. Format is `type.{full_key}`, e.g. `type._inputs.*.options.required`. For type-specific variant keys, include the variant suffix: `type._inputs.*.options.empty_type(text)`.
+- `display_label` — Overrides the label shown in the rendered table. Use this when the auto-generated label does not reflect the correct contextual path (see below).
+
+**Finding a gid:**
+The gid format is `type.` followed by the full key path, with wildcards written as `*`. Navigate to the key in the reference section (`/documentation/developer-reference/`) and use the gid shown in the entry.
+
+**How the label is auto-generated:**
+The rendered label is the last two path segments of the `ref_key`, with `*` and type-hint segments (e.g. `(text-input)`) stripped. For example:
+- `type._inputs.*.options.required` → `options.required`
+- `type._inputs.*.(text-input).options.placeholder` → `options.placeholder`
+- `type.collections_config.*.add_options.[*].label` → `add_options.label`
+
+Use `display_label` whenever that result does not reflect the key's position in context — for example, when a shared schema GID is used inside an object (`type.timezone` renders as `timezone` but should read `options.timezone`), or when a sub-key is deep enough that the two-segment label drops meaningful parent context (`type._inputs.*.options.pattern_flags.dot_all` renders as `pattern_flags.dot_all` rather than `options.pattern_flags.dot_all`).
+
+**Editorial rules:**
+- Order rows alphabetically by rendered label — the value of `display_label` if set, otherwise the auto-generated label derived from the `ref_key` as described above.
+- The reference section is the exhaustive source. Article tables are intentionally curated — it is acceptable to omit keys.
+- Do not include deprecated keys. They are documented in the reference section, which shows the deprecation notice and the recommended alternative.
+- When a parent key links to a reference page that fully documents its children (e.g. `type.preview`), prefer listing only the parent rather than repeating all children in the flat table.
+- Do not mix `comp.OptionsTable` and `comp.ReferenceDataTable` in the same table.
+
 ---
 
 ### 1.6 Accessibility
@@ -890,6 +1069,7 @@ author_notes:
 - `related_articles` is an optional array (maximum of 3 items). Each item has:
   - `_type`: The collection type (accepted values: `developer_articles`, `user_articles`, `developer_guides`, `user_guides`)
   - `item`: UUID of the related article or guide
+- When linking to a guide, include only one page from that guide (normally the index). Do not list multiple pages from the same guide as separate related articles.
 - `author_notes.docshots` tracks whether an article's CloudCannon app screenshots have been migrated to `<comp.DocShot>`. Values:
   - `"Added!"` — All CloudCannon app screenshots use `<comp.DocShot>`. No `<comp.DocsImage>` components remain in the article body, with the exception of `<comp.DocsImage path="assets/external_screenshots/...">` (screenshots of external services, which are not CloudCannon UI).
   - `"Needs docshots"` — This article still contains `<comp.DocsImage>` components (other than external screenshots) that need to be migrated to `<comp.DocShot>`.
@@ -1028,6 +1208,8 @@ Section introduction articles provide a high-level overview of a documentation s
 - ✅ **Good:** "You can configure your Collections..."
 - ❌ **Avoid:** "We can configure our Collections..."
 
+**Sole exception:** In [What is the Visual Editor API?](/documentation/developer-articles/what-is-the-visual-editor-api/), the sentence that begins “At CloudCannon, we use this API…” is allowed. It records a **company action**: CloudCannon ships first-party product features (for example, *Editable Regions* and the Rosey connector) on the same public *Visual Editor API* that customers integrate with. That framing supports **API credibility and robustness** (real-world use of the API by its vendor). It is not generic editorial “we.” **Do not** reuse first-person plural elsewhere in articles without extending this guide.
+
 **Use Present Tense**
 
 Explanation articles describe how features work and what they do. Use present tense throughout.
@@ -1108,6 +1290,7 @@ author_notes:
 - `related_articles` is an optional array (maximum of 3 items). Each item has:
   - `_type`: The collection type (accepted values: `developer_articles`, `user_articles`, `developer_guides`, `user_guides`)
   - `item`: UUID of the related article or guide
+- When linking to a guide, include only one page from that guide (normally the index). Do not list multiple pages from the same guide as separate related articles.
 - `author_notes.docshots` — see [2.2.2 Front Matter](#222-front-matter) for the full definition of each value (`"Added!"`, `"Needs docshots"`, `"Not applicable"`).
 - **Do not duplicate related articles in the body** — see [2.2.2 Front Matter](#222-front-matter) for details.
 
@@ -1145,9 +1328,10 @@ Use imperative mood (base form of verbs) for instruction article titles. This ma
 
 3. **Main Instructions** (multiple sections)
    - Use clear subheadings for different methods or sections
-   - Provide numbered steps for sequential actions
+   - Provide numbered steps for sequential actions; each step should be an **executable action** (what to do next). Put explanations—why something works, what a value means, how to choose options—in prose before or after the list (or between two complete lists), not inside a numbered step.
    - Include screenshots showing each step
    - Use Notice components for important tips or warnings
+   - For code samples: explain behavior in prose before each `<comp.CodeBlock>` / `<comp.MultiCodeBlock>`; keep `<comp.Annotation>` entries short and tied to markers (see [Annotations in Code](#143-code-formatting))
 
 4. **Next Steps or Additional Information** (optional, inline prose)
    - End with a sentence or short paragraph linking to next steps or related instructions
@@ -1174,9 +1358,17 @@ Instruction articles describe actions to take and their immediate outcomes. Use 
 
 **Numbered Lists for Steps**
 - Use numbered lists for sequential actions
+- **Steps are for doing, not for explaining:** Each numbered item should be a discrete action the reader can perform. Support that action with prose **outside** the list—before the first step, after the last step, or between two complete lists. Do not fold conceptual copy into a step (for example, long asides about what a flag means, when a class is applied, or how a sample maps to the reader's project).
 - Start each step with an action verb (imperative mood)
 - Keep steps concise (one action per step, followed by an outcome sentence if applicable)
-- Never interrupt a numbered list with DocShots, images, or other block-level elements. Place all images either before or after the complete list, not between steps. Splitting a list restarts the numbering and breaks the reader's flow.
+- Never interrupt a numbered list with DocShots, images, `<comp.CodeBlock>` or `<comp.MultiCodeBlock>` components, or other block-level elements. Place those blocks before the first step, after the last step, or between two **complete** numbered lists (each list still uninterrupted). Splitting a single list restarts the numbering and breaks the reader's flow.
+- A block that comes **immediately after the final step** of a list is **after the last step**, not an interruption, when **no further numbered steps** follow the block. Example: steps `1.` … `n.` where step `n` is “Add the following …”, then `<comp.CodeBlock>`, then prose — compliant. **Violation:** `1.` … `n.` … block … `n+1.` … continuing the same procedure without ending the list first — split into two complete lists or move the block.
+- In **instruction articles**, keep numbered steps for sequential actions. Do not replace numbered steps with continuous prose just to insert a code sample—readers expect imperative, ordered steps there. When more steps must follow a code sample, end the first numbered list before the block, then start a **new** numbered list for the remaining actions (do not place the block between two steps of one list).
+
+**Example (step vs prose):**
+
+- ❌ **Avoid:** "2. Add the following guard around editor-only logic. `window.inEditorMode` is `true` only in the *Visual Editor*, so you can branch without waiting for DOM events."
+- ✅ **Good:** Prose above the list explains when `window.inEditorMode` is set and why it is useful. Step 2 stays imperative: "2. Add the following `if` guard around the editor-only code in your scripts."
 
 **Example:**
 
@@ -1240,6 +1432,29 @@ Guides are multi-page tutorials that walk users through a complete task or workf
   - Title: "Create a Site" → Filename: `create-a-site.mdx`
   - Title: "Group files into Collections" → Filename: `group-files-into-collections.mdx`
 
+#### 2.4.1a _data.yml Structure
+
+Every guide requires a `_data.yml` file at the root of its folder. Note that `_schema` is `guide_data`, not `default`.
+
+```yaml
+_schema: guide_data
+guide_title: [Displayed guide title]
+guide_summary: [One-line description shown in guide listing cards]
+guide_icon: "[URL to guide icon image]"
+guide_icon_invert_for_dark_mode: true
+initial_section_heading: In this guide
+```
+
+**Notes:**
+- `_schema: guide_data` — not `default`. Using `default` here will break the guide.
+- `guide_title` — the name displayed in the sidebar and guide listing. This is independent of the folder name (the folder name sets the URL slug).
+- `guide_icon_invert_for_dark_mode` — set to `true` for icons that need colour inversion on dark backgrounds.
+- `initial_section_heading` — heading shown above the guide's page list in the sidebar. Use `In this guide` as the default.
+
+**Registering a guide in navigation:**
+- Developer guides register via `developer/guides/index.mdx` (which uses `_schema: guide_landing_page`). Add the guide's `index.mdx` UUID to the appropriate section.
+- `_data/combined_guides.yml` covers **user guides only** — do not add developer guides there.
+
 #### 2.4.2 Front Matter for index.mdx
 ```yaml
 ---
@@ -1292,7 +1507,21 @@ author_notes:
 - `start_nav_group` creates a second heading in the navigation to group related pages:
   - Use `start_nav_group: null` for pages that don't start a new section
   - Use `start_nav_group: "Section Name"` (e.g., `"Advanced Bookshop"`) on the first page of a new conceptual section within the guide
-- `related_articles` is typically `null`
+- `description` should aim for 125 characters — this ensures it fits cleanly on guide listing cards without truncation
+- `description` must not contain colons (`:`) — they cause the Lume build to fail
+- `related_articles` is always `null` — guide pages are linked via the guide's own sidebar navigation, not the related articles widget
+
+**Key differences from standalone articles:**
+
+Guide pages differ from standalone articles in the following ways — mixing up these fields is a common source of errors:
+
+| Field | Guide pages | Standalone articles |
+|---|---|---|
+| `details.category` | ❌ Not present | ✅ Required (`Explanation`, `Instructions`, etc.) |
+| `details.order` | ✅ Required | ❌ Not present |
+| `details.start_nav_group` | ✅ Required (null or string) | ❌ Not present |
+| `details.image` | ✅ Present (guide thumbnail) | ✅ Present (article thumbnail) |
+| `related_articles` | Always `null` | Optional array, max 3 items |
 
 #### 2.4.4 Order Property
 - Use the `order` property to sequence pages
@@ -1322,14 +1551,18 @@ author_notes:
    - Connect to previous pages if relevant
 
 2. **Step-by-Step Instructions** (with subheadings)
-   - Break content into logical sections
-   - Use subheadings liberally
-   - Include screenshots for each major step
-   - Use Notice components for tips
+   - Break content into logical sections using `##` and `###` headings
+   - **Write instructions in prose, not numbered lists.** Guides are learning-oriented; prose paragraphs feel collaborative and less mechanical than numbered steps. Use numbered lists only inside instruction articles, not in guide pages.
+   - Each action becomes an imperative sentence or short paragraph, followed by code blocks or DocShots at the natural break point between paragraphs (not nested inside a list)
+   - Use Notice components for tips, alternatives, and important caveats
+   - ✅ **Good (guide prose):** "Navigate to the relevant *Collection* in the *Collection Browser* and enable *Configuration Mode* using the switch on the right of the *Site Header*. Click *Edit Advanced* to open the *Edit Advanced* data panel, enter your template string in the *URL* field, and save your *Site*."
+   - ❌ **Avoid (numbered steps in a guide):** "1. Navigate to the *Collection*. 2. Enable *Configuration Mode*. 3. Click *Edit Advanced*."
 
-3. **Next Steps** (final paragraph)
-   - Preview what's coming in the next page
-   - Encourage readers to continue
+3. **Forward references** (inline, where relevant)
+   - If the page naturally leads into another page in the guide, reference it inline within the body prose rather than in a standalone closing paragraph
+   - Use the pattern: "We'll cover this [later in this guide](/documentation/...)"
+   - ❌ **Avoid:** Standalone closing-CTA paragraphs at the end of a page (e.g., "For more information, please read our documentation on [next page]...")
+   - ✅ **Good:** "If you need inline translation editing in the *Visual Editor*, the optional [Rosey CloudCannon Connector](/documentation/...) adds this capability. We'll cover this [later in this guide](/documentation/...)."
 
 #### 2.4.7 Writing Style
 
@@ -1358,6 +1591,36 @@ Examples:
 **Celebrate Progress**
 - Acknowledge completion: "Great! You've created your first Site."
 - Build confidence: "Now that you understand Collections..."
+
+#### 2.4.8 More Resources Page Structure
+
+Every guide should end with a "More resources" page (`more-resources.mdx`, `order` set to the last page number). This page has a distinct structure from other guide pages.
+
+**Required elements:**
+
+1. **Congratulatory opening** (1 sentence)
+   - Acknowledge that the reader has completed the guide
+   - ✅ **Good:** "Congratulations on completing the migration! Your *Site* is now running on Rosey for translations."
+
+2. **Support callout** (1 sentence, immediately after the opening)
+   - Point readers to the support team and CloudCannon Community
+   - Use a standard form: "If you have any questions, please reach out to our friendly [support team](/support/) or check out the [CloudCannon Community](https://community.cloudcannon.com/)."
+   - CloudCannon Community is an external link — use `<a href="..." target="_blank" rel="noopener">` syntax
+
+3. **Contextual section headings** (`##`)
+   - Name sections by what the reader can do next, not by topic category
+   - ✅ **Good:** "Go further with Rosey", "CloudCannon configuration"
+   - ❌ **Avoid:** "Rosey", "CloudCannon" (bare topic labels with no context)
+
+4. **Prose intro before each bullet list** (1 sentence minimum)
+   - Explain why the reader would want these resources and what they'll get from them
+   - ✅ **Good:** "Rosey has more features beyond the basics covered in this guide. These resources will help you manage translations, add inline editing, and explore advanced configuration."
+   - ❌ **Avoid:** jumping straight from a heading to a bullet list
+
+5. **Bullet list of links**
+   - Each entry: `[Link text](/path/) — One sentence description.`
+   - External links use `<a href="..." target="_blank" rel="noopener">` syntax
+   - Descriptions explain what the reader will do or learn, not just what the resource is
 
 ---
 
@@ -1560,456 +1823,9 @@ documentation_link:
 
 ## 3. Machine-Readable Style Rules
 
-The following section contains structured rules for automated validation by AI agents and linters. These rules are formatted as YAML for easy parsing.
+The machine-readable rules for AI agents and automated linters have been extracted to `STYLE_GUIDE_AGENTS.md`. That file contains the full YAML rule set and is designed to be loaded directly into an agent's context.
 
-```yaml
-style_guide_version: "1.2"
-last_updated: "2026-03-30"
-
-terminology:
-  required_terms:
-    product_name: "CloudCannon"
-    git_providers:
-      - "GitHub"
-      - "GitLab"
-      - "Bitbucket"
-    static_site_generators:
-      - "Jekyll"
-      - "Hugo"
-      - "Eleventy"
-      - "Astro"
-      - "Next.js"
-      - "Gatsby"
-      - "SvelteKit"
-      - "Nuxt"
-  
-  capitalized_concepts:
-    - "Site"
-    - "Organization"
-    - "Collection"
-    - "Team Member"
-    - "Permission Group"
-    - "Schema"
-    - "Structure"
-    - "Configuration File"
-    - "Visual Editor"
-    - "Content Editor"
-    - "Data Editor"
-    - "Source Editor"
-    - "Collection Browser"
-    - "File Browser"
-    - "Sites Browser"
-    - "Organizations Browser"
-    - "Site Navigation"
-    - "Site Header"
-    - "App Sidebar"
-  
-  preferred_terms:
-    "Git repository": ["repo", "git repo"]
-    "Git provider": ["source provider", "git host"]
-    "Site files": ["source files"]
-    "Configuration File": ["config file"]
-    "front matter": ["frontmatter", "Front Matter"]
-    "webpage": ["web page"]
-    "website": ["web site"]
-    "email": ["e-mail"]
-    "sign in": ["login (as verb)"]
-    "log in": ["login (as verb)"]
-    "dropdown": ["drop-down", "drop down"]
-    "checkbox": ["check box"]
-    "filename": ["file name"]
-    "insecure": ["unsecure"]
-
-prohibited_phrases:
-  - "click here"
-  - "read more"
-  - "simply"
-  - "just"
-  - "easy"
-  - "obviously"
-  - "clearly"
-
-voice_and_tense:
-  voice: "active"
-  person: "second"
-  tense:
-    articles: "present"
-    instruction_steps: "imperative"
-    instruction_outcomes: "future"
-    changelogs: "past"
-  contractions: "allowed"
-
-formatting_rules:
-  oxford_comma: true
-  sentence_case_headings: true
-  ui_elements_italicized: true
-  code_inline_backticks: true
-  
-  ui_element_formatting:
-    pattern: "*[Element Name]*"
-    examples:
-      - "*Save* button"
-      - "*Site Navigation*"
-      - "*+ Add* dropdown"
-  
-  concept_capitalization:
-    rule: "Capitalize when referring to CloudCannon-specific concept"
-    examples:
-      correct:
-        - "A Collection is a group of files."
-        - "Each collection in your Site..."
-      incorrect:
-        - "A collection is a group of files."
-        - "Each Collection in your Site..."
-
-documentation_types:
-  # CloudCannon uses a modified Diátaxis framework with the following types:
-  # - Explanation (understanding-oriented)
-  # - Instructions (task-oriented, like "how-to guides")
-  # - Guides (learning-oriented, like "tutorials")
-  # - Glossary (reference)
-  # - Changelogs (informational, not part of traditional Diátaxis)
-  
-  changelog:
-    diataxis_category: "informational"
-    purpose: "Document product changes and updates over time"
-    filename_pattern: "MM-DD_descriptive-title.mdx within changelogs/YYYY/"
-    required_front_matter:
-      - "_schema"
-      - "title"
-    required_sections:
-      - "Features & Improvements"
-      - "Fixes"
-    tense: "past"
-    preferred_verbs:
-      - "Added"
-      - "Changed"
-      - "Improved"
-      - "Removed"
-      - "Fixed"
-  
-  explanation:
-    diataxis_category: "understanding-oriented"
-    purpose: "Help users understand concepts, features, context, and best practices"
-    filename_patterns:
-      concept_definition: "what-is-*.mdx"
-      context_benefits: "why-*.mdx"
-      best_practices: "best-practice-*.mdx | best-practices-*.mdx"
-    title_patterns:
-      concept_definition: "What is|What are"
-      context_benefits: "Why [action/feature]"
-      best_practices: "Best practice for|Best practices for"
-    required_front_matter:
-      - "_schema: default"
-      - "_uuid: [auto-generated UUID]"
-      - "_created_at: [auto-generated timestamp]"
-      - "details.title"
-      - "details.description"
-      - "details.image"
-      - "details.category: [Explanation]"
-      - "details.related_articles: [optional array, max 3 items]"
-      - "author_notes.docshots"
-    docshots_values:
-      "Added!": "All CloudCannon app screenshots use DocShot; no DocsImage remains except assets/external_screenshots/"
-      "Needs docshots": "Article still has DocsImage components (other than external screenshots) to migrate"
-      "Not applicable": "Article has no CloudCannon app screenshots"
-    related_articles_structure:
-      max_items: 3
-      _type: ["developer_articles", "user_articles", "developer_guides", "user_guides"]
-      item: "[UUID of related article]"
-    structure_varies_by_type:
-      concept_definition:
-        - "Opening definition"
-        - "Context and purpose"
-        - "Features and functionality"
-        - "Related information"
-      context_benefits:
-        - "Introduction"
-        - "Benefits and use cases"
-        - "How it works (optional)"
-        - "Limitations (optional)"
-        - "Related information"
-      best_practices:
-        - "Introduction"
-        - "Best practices (multiple sections)"
-        - "Related information"
-  
-  guide:
-    diataxis_category: "learning-oriented"
-    purpose: "Provide hands-on learning experiences through complete workflows"
-    filename_pattern: "[descriptive-name].mdx"
-    required_files:
-      - "index.mdx"
-      - "_data.yml"
-    required_front_matter:
-      - "_schema: default"
-      - "_uuid: [auto-generated UUID]"
-      - "_created_at: [auto-generated timestamp]"
-      - "details.title"
-      - "details.order"
-      - "details.image"
-      - "details.description"
-      - "details.start_nav_group: [null or section name string to group pages]"
-      - "details.related_articles: [typically null]"
-      - "author_notes.docshots: [Added! | Needs docshots | Not applicable]"
-    index_title: "Introduction"
-    note: "Guides use nested 'details' structure like articles"
-  
-  instructions:
-    diataxis_category: "task-oriented"
-    purpose: "Provide step-by-step guidance for specific tasks"
-    filename_pattern: "[action-verb]-*.mdx"
-    title_patterns:
-      - "Add a [thing]"
-      - "Configure [feature]"
-      - "Create a [thing]"
-      - "How to [action]"
-    required_front_matter:
-      - "_schema: default"
-      - "_uuid: [auto-generated UUID]"
-      - "_created_at: [auto-generated timestamp]"
-      - "details.title"
-      - "details.description"
-      - "details.image"
-      - "details.category: [Instructions]"
-      - "details.related_articles: [optional array, max 3 items]"
-      - "author_notes.docshots: [Added! | Needs docshots | Not applicable]"
-    related_articles_structure:
-      max_items: 3
-      _type: ["developer_articles", "user_articles", "developer_guides", "user_guides"]
-      item: "[UUID of related article]"
-    step_format: "numbered_list"
-  
-  glossary:
-    diataxis_category: "reference"
-    purpose: "Provide quick lookup of terminology and definitions"
-    filename_pattern: "[first-letter]/[term-name].yml"
-    location: "user/glossary/"
-    required_fields:
-      - "_schema: default"
-      - "glossary_term_name"
-      - "term_description"
-      - "documentation_link"
-    description_length:
-      target_sentences: "2-3"
-      target_percentage: "80%"
-      acceptable_short: "1 sentence for patterns (inputs, SSGs, file formats)"
-      acceptable_long: "4+ sentences for complex features"
-      max_words: 100
-    
-    sentence_structure:
-      sentence_1: "Core definition - What is it?"
-      sentence_2: "Context and purpose - How is it used?"
-      sentence_3_optional: "Additional context, cross-references, usage notes"
-    
-    italicization_rules:
-      use_asterisks_for:
-        ui_components:
-          - "Visual Editor"
-          - "Content Editor"
-          - "Data Editor"
-          - "Source Editor"
-          - "App Sidebar"
-          - "Site Header"
-          - "Site Navigation"
-          - "Collection Browser"
-          - "File Browser"
-          - "Sites Browser"
-          - "Organizations Browser"
-        core_concepts:
-          - "Site"
-          - "Organization"
-          - "Project"
-          - "Collection"
-          - "Permission Group"
-          - "Schema"
-          - "Structure"
-          - "Configuration File"
-        features:
-          - "Build"
-          - "Git Repository"
-          - "Publish Branch"
-          - "Custom Domain"
-          - "Testing Domain"
-          - "Client Sharing"
-          - "Site Sharing"
-        all_input_types: true
-      
-      do_not_italicize:
-        - "account, user, team member"
-        - "file, files, assets, uploads"
-        - "permission (standalone)"
-        - "layout, routing, markup, link"
-        - "building, editing, syncing (verbs)"
-        - "DAM, SSG, API, CDN, DNS, HTTP, CORS, XSS, SSO, SAML"
-        - "Git, GitHub, GitLab, Bitbucket"
-        - "HTML, CSS, JavaScript, YAML, JSON"
-        - "AWS, Azure, Make, Zapier, Okta"
-      
-      possessive_forms: "Include apostrophe-s inside italics (*Site's*)"
-    
-    cross_reference_rules:
-      italicize_cloudcannon_terms: true
-      includes: "UI elements, core concepts, and features"
-      do_not_italicize: "generic terms, external services, file formats"
-      examples:
-        correct:
-          - "Once you group your files into *Collections*, they appear in the *Site Navigation* for easy access."
-          - "Team members are invited to your *Organization* to collaborate on *Sites*."
-          - "Each team member has permissions assigned through *Permission Groups*."
-        incorrect:
-          - "Collections appear in the Site Navigation."  # Should italicize CloudCannon terms
-          - "Each team member belongs to at least one Permission Group."  # Should italicize *Permission Group*
-    
-    link_format:
-      pattern: "/documentation/[user|developer]-articles/[slug]/"
-      include_documentation_prefix_for: "articles and guides only"
-      other_internal_pages: "link directly without /documentation/ (e.g., /pricing/)"
-      examples:
-        correct:
-          - "/documentation/user-articles/what-is-a-collection/"
-          - "/documentation/developer-articles/configure-collections/"
-          - "/documentation/developer-guides/okta-sso-saml/"
-          - "/pricing/"  # Other internal pages
-        incorrect:
-          - "/user-articles/what-is-a-collection/"  # Missing /documentation/
-          - "/user/articles/what-is-a-collection/"  # Wrong structure
-          - "/documentation/pricing/"  # Don't add /documentation/ to other pages
-          - "/changelogs/..."  # Don't link to changelogs
-      
-      acceptable_empty_for:
-        - "File formats (HTML, CSS, JavaScript, YAML, JSON, TOML, CSV, etc.)"
-        - "External services (GitHub, GitLab, AWS, Azure)"
-        - "SSGs (Jekyll, Hugo, Eleventy, etc.)"
-        - "DAM providers"
-        - "Generic technical terms (API, HTTP, DNS, MIME, CORS, XSS)"
-        - "Subscription plans"
-        - "Self-explanatory UI elements"
-
-link_formats:
-  internal_articles:
-    pattern: "/documentation/[user|developer]-articles/[slug]/"
-    examples:
-      - "/documentation/user-articles/what-is-a-collection/"
-      - "/documentation/developer-articles/configure-your-collections/"
-  
-  internal_guides:
-    user_pattern: "/documentation/user-guides/[guide-name]/[page-slug]/"
-    developer_pattern: "/documentation/developer-guides/[guide-name]/[page-slug]/"
-    examples:
-      - "/documentation/user-guides/getting-started/create-a-site/"
-      - "/documentation/developer-guides/okta-sso-saml/"
-  
-  glossary_documentation_links:
-    articles_pattern: "/documentation/[user|developer]-articles/[slug]/"
-    guides_pattern: "/documentation/[user|developer]-guides/[guide-name]/"
-    other_pages_pattern: "/[page-name]/"
-    note: "Glossary documentation_link field requires /documentation/ prefix for articles and guides only"
-    examples:
-      - "/documentation/user-articles/what-is-a-collection/"
-      - "/documentation/developer-guides/okta-sso-saml/"
-      - "/pricing/"
-
-components:
-  notice:
-    usage: "Tips, important information, permissions, and pricing notices"
-    types:
-      - "info"
-      - "important"
-      - "permissions"
-      - "pricing"
-    syntax: "<comp.Notice info_type=\"[type]\">...</comp.Notice>"
-  
-  docshot:
-    usage: "UI screenshots and snippets"
-    required_attributes:
-      - "docshot_key"
-      - "alt"
-      - "title"
-      - "type"
-    types:
-      screenshot: "Full viewport screenshots showing the entire CloudCannon interface"
-      ui-snippet: "Cropped screenshots of specific UI elements like inputs, buttons, dropdowns, or modals"
-    naming: "Hyphenated names describing the page and state (e.g., Site-Settings-Syncing-Connected)"
-  
-  multicodeblock:
-    usage: "Configuration examples with YAML/JSON translation"
-    required_attributes:
-      - "language"
-      - "translate_into"
-      - "source"
-    annotation_marker: "___NUMBER___"
-    annotation_example: "_inputs___1___:"
-    use_cases:
-      - "CloudCannon configuration files"
-      - "Input configuration examples"
-      - "Any config users can write in YAML or JSON"
-  
-  codeblock:
-    usage: "File content examples in a single format"
-    required_attributes:
-      - "language"
-      - "source"
-    annotation_marker: "/*NUMBER*/"
-    annotation_example: "<h1 data-editable>Title</h1> /*1*/"
-    use_cases:
-      - "HTML files"
-      - "Markdown files"
-      - "JavaScript files"
-      - "Any single-format file content"
-  
-  annotation:
-    usage: "Numbered explanations for code examples"
-    placement: "Immediately after closing code block tag"
-    numbering: "Sequential starting from 1"
-    length: "1-2 sentences (concise)"
-    syntax: "<comp.Annotation number=\"N\">Explanation</comp.Annotation>"
-    note: "Used with both MultiCodeBlock and CodeBlock components"
-  
-  glossaryterm:
-    usage: "Inline glossary tooltip for terms with a glossary entry"
-    required_attributes:
-      - "term"
-    syntax: "<comp.GlossaryTerm term=\"/user/glossary/[letter]/[term].yml\">Display Text</comp.GlossaryTerm>"
-    rules:
-      - "Use on first mention of a term in an article only"
-      - "Term must have a corresponding YML file in user/glossary/"
-      - "Replaces markdown links on first use — do not combine with markdown links"
-      - "Subsequent mentions use italics instead"
-      - "Display text can differ from glossary_term_name (plurals, derived forms)"
-
-validation_rules:
-  check_for:
-    - "passive_voice"
-    - "missing_alt_text"
-    - "broken_internal_links"
-    - "inconsistent_terminology"
-    - "missing_oxford_commas"
-    - "incorrect_capitalization"
-    - "non_italicized_ui_elements"
-    - "glossary_links_wrong_format"
-    - "changelog_fixes_present_tense"
-    - "instructions_without_numbered_steps"
-    - "explanation_without_opening_definition"
-    - "plain_code_blocks_instead_of_components"
-    - "trailing_prepositions"
-    - "repeated_action_verbs_in_consecutive_steps"
-    - "instructions_missing_final_outcome_sentence"
-    - "docshot_missing_title_attribute"
-    - "images_interrupting_ordered_lists"
-  
-  ignore:
-    - "Passive voice in: changelog features, technical descriptions"
-    - "Missing periods in: list fragments, single-word items"
-
-accessibility_requirements:
-  alt_text: "required_for_all_images"
-  heading_hierarchy: "no_skipped_levels"
-  link_text: "descriptive_not_generic"
-  color_dependence: "never_sole_indicator"
-  language: "simple_and_clear"
-  date_format: "YYYY-MM-DD or spelled out"
-```
+This guide (`STYLE_GUIDE.mdx`) is the authoritative source. `STYLE_GUIDE_AGENTS.md` is derived from it — if the two conflict, this guide takes precedence.
 
 ---
 
@@ -2017,6 +1833,26 @@ accessibility_requirements:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.9 | 2026-05-01 | Added ReferenceDataTable component (§1.5.7); marked DataReference as being phased out for schema-sourced keys (§1.5.6) |
+| 2.8 | 2026-05-01 | Added DataReference component (§1.5.6); avoid markdown tables — use comp.DataReference for reference content |
+| 2.7 | 2026-04-30 | Guide page descriptions must not contain colons — they cause the Lume build to fail (§2.4.3) |
+| 2.6 | 2026-04-30 | Guide page descriptions should aim for 125 characters (§2.4.3) |
+| 2.5 | 2026-04-29 | Added emoji rule: no emojis except minimal use on guide index and more-resources pages (§1.4.2a) |
+| 2.4 | 2026-04-29 | Guide pages use prose not numbered steps (§2.4.6); added more resources page structure (§2.4.8) |
+| 2.14 | 2026-05-13 | Added "modal" to preferred terms (§1.3.2): use "modal" rather than "dialog", "popup", or "popover" |
+| 2.13 | 2026-05-06 | Tightened §1.3.3 "editor" rule: "editor" is only for editing interfaces and must be immediately preceded by the interface name; never use "editor" to mean a person — use a role term (team member, translator, content author) instead |
+| 2.12 | 2026-05-05 | Added §1.1.8 Experiential feature description: in explanation articles and "What is..." guide pages, describe what the user sees and can do rather than internal system mechanics; reserve process descriptions for "How it works" sections and reference docs |
+| 2.11 | 2026-05-05 | Added §1.1.6 Guide page transition sentences: end every guide page (except index and more-resources) with an unlinked "In the next step of this guide, we'll..." sentence; "we'll" permitted in this context |
+| 2.10 | 2026-05-05 | Added §1.1.7 User-focused language: frame solutions from the user's perspective ("You can fix this by..."); avoid impersonal constructions ("X fixes this") and vague shorthand references ("both", "this") without writing out the full referent |
+| 2.3 | 2026-04-28 | related_articles: when linking to a guide, include only one page from that guide (normally the index); added related_articles_multiple_pages_from_same_guide to validation_rules.check_for |
+| 2.2 | 2026-04-28 | Sync STYLE_GUIDE_AGENTS.md with STYLE_GUIDE.mdx: added section introduction article type to explanation filename_patterns, title_patterns, and structure_varies_by_type; added ui_elements_in_links rule to link_formats; added ui_elements_in_links_no_italics to validation_rules.check_for |
+| 2.1 | 2026-04-28 | Guide pages: `related_articles` always `null`; intra-guide navigation rules — no standalone closing-CTA paragraphs, use inline forward references (§2.4.6); cross-sync instructions requiring agents to update both files and revision history when editing either style guide file |
+| 2.0 | 2026-04-28 | Extracted machine-readable rules to STYLE_GUIDE_AGENTS.md|
+| 1.7 | 2026-04-28 | Added guide vs article frontmatter comparison table and _data.yml reference (§2.4) |
+| 1.6 | 2026-04-28 | §2.3.4: clarify ordered list + code block — block after final step without continuation is after_last_step, not an interruption; §2.2.5: sole exception for first-person plural in What is the Visual Editor API? (company uses public API); machine-readable notes for `numbered_steps`, `voice_and_tense`, and `validation_rules.ignore` |
+| 1.5 | 2026-04-22 | Terminology: qualify "editor" — do not use the word in isolation; machine-readable `disambiguation.editor` rules and validation hint |
+| 1.4 | 2026-04-22 | Instruction articles: numbered steps must be executable actions only; move explanations to surrounding prose; machine-readable `numbered_steps` rules and validation hint |
+| 1.3 | 2026-04-22 | Added prose-first guidance for code examples and annotations; extended step-list rule for code blocks (keep numbered steps in instruction articles; place blocks outside a single list); machine-readable annotation rules and validation hints |
 | 1.2 | 2026-03-30 | Added `author_notes.docshots` value definitions |
 | 1.1 | 2026-03-06 | Added rule against duplicating front matter related_articles in article body |
 | 1.0 | 2026-01-08 | Initial style guide created |

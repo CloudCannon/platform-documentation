@@ -1,5 +1,6 @@
 import Card from "../Card/Card.tsx";
 import { truncate } from "../utils/index.ts";
+import { getPagefindContentType } from "../utils/urlHelpers.ts";
 import type {
   ArticlePage,
   Details,
@@ -98,23 +99,8 @@ export default async function RelatedArticles(
     }),
   );
 
-  // Determine category based on URL path (Developer or User)
-  const getCategory = (article: ArticlePage): string | undefined => {
-    const url = article.url || "";
-    
-    // Check for Developer content
-    if (url.includes("/developer-articles/") || url.includes("/developer-guides/")) {
-      return "Developer Article";
-    }
-    
-    // Check for User content
-    if (url.includes("/user-articles/") || url.includes("/user-guides/")) {
-      return "User Article";
-    }
-    
-    // Return undefined for other content types (changelog, reference, glossary)
-    return undefined;
-  };
+  const getCategory = (article: ArticlePage): string | undefined =>
+    getPagefindContentType(article.url || "") || undefined;
 
   return (
     <>
