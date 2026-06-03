@@ -7,8 +7,8 @@ Machine-readable style rules for AI agents and automated linters. These rules ar
 **For agents making updates to this file:** Also update the corresponding section in `STYLE_GUIDE.mdx` with the prose explanation and examples. Update the revision history in both files: `last_updated` and `style_guide_version` in the YAML block below, and the `Last Updated` and `Version` fields and the revision history table (Section 4) in `STYLE_GUIDE.mdx`.
 
 ```yaml
-style_guide_version: "2.14"
-last_updated: "2026-05-13"
+style_guide_version: "2.15"
+last_updated: "2026-06-04"
 
 terminology:
   disambiguation:
@@ -498,7 +498,34 @@ components:
     never_use_for:
       - "Screenshots of the CloudCannon app (use comp.DocShot instead)"
       - "UI snippets showing CloudCannon interface elements (use comp.DocShot instead)"
-  
+      - "Structural diagrams expressible in Mermaid syntax — flowcharts, sequence diagrams, decision trees (use comp.Mermaid instead)"
+
+  mermaid:
+    usage: "Structural diagrams whose source can be expressed in Mermaid syntax — flowcharts, sequence diagrams, decision trees, simple architecture sketches. Rendered to SVG at build time; light and dark theme SVGs are emitted per diagram and swapped via CSS."
+    required_attributes:
+      - "chart (Mermaid source as a template literal)"
+      - "alt (full sentence describing the diagram for screen readers, no-JS readers, and Pagefind)"
+    optional_attributes:
+      - "caption (visible caption rendered below the diagram)"
+    syntax: "<comp.Mermaid alt=\"...\" chart={`graph LR\\n  A --> B\\n`} />"
+    use_for:
+      - "Flowcharts, branching diagrams, publish workflows"
+      - "Sequence diagrams (API calls, event flows)"
+      - "Small state machines, decision trees, or relationship graphs"
+    never_use_for:
+      - "Screenshots of the CloudCannon app (use comp.DocShot instead)"
+      - "Photographs, illustrations, or graphics that are not structural (use comp.DocsImage instead)"
+      - "Diagrams large enough that the source becomes harder to read than a hand-drawn image"
+    workflow:
+      cache_location: "_cache/mermaid/"
+      cache_keying: "sha1(theme + init directive + chart) — auto-invalidates when the chart source changes"
+      build_environment: "CloudCannon's build container does not have mmdc installed. Rendered SVGs are committed to the repository; the build reads from the cache only."
+      contributor_steps:
+        - "After adding or editing a <comp.Mermaid> block, build the site locally (mmdc is available via the project Dockerfile)."
+        - "The build renders any missing SVGs into _cache/mermaid/."
+        - "Commit the new SVG files alongside the .mdx change."
+      missing_svg_behavior: "If a chart's SVG is not in the cache and mmdc is not available, renderMermaid throws an error naming the expected path and the chart source. The CloudCannon build fails until the SVGs are committed."
+
   multicodeblock:
     usage: "Configuration examples with YAML/JSON translation"
     required_attributes:
