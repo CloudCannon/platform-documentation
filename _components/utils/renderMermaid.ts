@@ -49,18 +49,34 @@ const renderOne = (chart: string, theme: Theme): string => {
   const mmdPath = join(cacheDir, `${hash}.mmd`);
   Deno.writeTextFileSync(mmdPath, source);
 
-  const result = new Deno.Command("mmdc", {
-    args: [
-      "-i", mmdPath,
-      "-o", svgPath,
-      "-b", "transparent",
-      "-p", puppeteerConfig,
-      "-I", `mermaid-${hash.slice(0, 10)}`,
-      "--quiet",
-    ],
-    stdout: "piped",
-    stderr: "piped",
-  }).outputSync();
+  let result;
+  try {
+    result = new Deno.Command("mmdc", {
+      args: [
+        "-i", mmdPath,
+        "-o", svgPath,
+        "-b", "transparent",
+        "-p", puppeteerConfig,
+        "-I", `mermaid-${hash.slice(0, 10)}`,
+        "--quiet",
+      ],
+      stdout: "piped",
+      stderr: "piped",
+    }).outputSync();
+  } catch (err) {
+    try {
+      Deno.removeSync(mmdPath);
+    } catch { /* best effort */ }
+    if (err instanceof Deno.errors.NotFound) {
+      throw new Error(
+        `Missing rendered Mermaid SVG and mmdc is not installed in this environment.\n` +
+        `Expected: ${svgPath}\n` +
+        `Run the site build locally (which renders and commits SVGs to _cache/mermaid/) before pushing.\n` +
+        `--- chart (theme=${theme}) ---\n${chart}`,
+      );
+    }
+    throw err;
+  }
 
   try {
     Deno.removeSync(mmdPath);
