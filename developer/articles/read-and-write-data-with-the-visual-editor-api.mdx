@@ -26,7 +26,7 @@ author_notes:
   The *Visual Editor API* is designed for advanced CloudCannon users. If you need help with custom integrations or your CloudCannon setup in general, please contact our friendly [support team](/support/).
 </comp.Notice>
 
-CloudCannon's *Visual Editor API* exposes each website file as an object you open from your <comp.GlossaryTerm term="/user/glossary/s/site.yml">Site</comp.GlossaryTerm> code. After you have that file reference, you can read and write structured data in <comp.GlossaryTerm term="/user/glossary/f/front-matter.yml">Front Matter</comp.GlossaryTerm> and in the file body, read or replace raw source, read file metadata, add or remove array items or change their order, open the hosted *Data Panel* for a single field, and claim a file lock while you coordinate updates with other people editing in the *Visual Editor*.
+CloudCannon's *Visual Editor API* exposes each website file as an object you open from your <comp.GlossaryTerm term="/user/glossary/s/site.yml">Site</comp.GlossaryTerm> code. After you have that file reference, you can read and write structured data in <comp.GlossaryTerm term="/user/glossary/f/front-matter.yml">Front Matter</comp.GlossaryTerm> or data files, work with body content, read or replace raw source, read file metadata, add or remove array items or change their order, open the hosted *Data Panel* for a single field, and claim a file lock while you coordinate updates with other people editing in the *Visual Editor*.
 
 This article assumes you know how to [initialize the Visual Editor API](/documentation/developer-articles/initialize-the-visual-editor-api/) and [access a file, Collection, and Dataset](/documentation/developer-articles/access-files-collections-and-datasets-with-the-visual-editor-api/).
 
@@ -34,14 +34,14 @@ This article assumes you know how to [initialize the Visual Editor API](/documen
 
 You can read and write to your website files with the *Visual Editor API* using the following functions:
 
-- Use `*.data.get()` and `*.data.set()` for structured data in the <comp.GlossaryTerm term="/user/glossary/f/front-matter.yml">Front Matter</comp.GlossaryTerm>.
+- Use `*.data.get()` and `*.data.set()` for structured data — the <comp.GlossaryTerm term="/user/glossary/f/front-matter.yml">Front Matter</comp.GlossaryTerm> of a content file, or the full contents of a data file (such as JSON or YAML).
 - Use `*.content.get()` and `*.content.set()` for file body content.
 - Use `*.get()` and `*.set()` for raw source.
 - Use `*.metadata()` for file metadata (you cannot write to file metadata).
 
-### Structured data in Front Matter
+### Structured data
 
-Calling `*.data.get()` allows you to read the accessed file, and the *Visual Editor API* returns a JavaScript object containing every field in the *Front Matter*. 
+Calling `*.data.get()` returns the structured data in the accessed file: every field in the *Front Matter* of a content file, or the full contents of a data file (such as JSON or YAML). The *Visual Editor API* returns a JavaScript object — or a JavaScript array, if the file's top-level value is a list.
 
 <comp.CodeBlock language="javascript" source="script.js">
 ```
@@ -57,7 +57,7 @@ console.log(frontmatter.title); /*4*/
   Create a `frontmatter` variable to read the structured data in `file`.
 </comp.Annotation>
 <comp.Annotation number="3">
-  Log the full object returned by `file.data.get()` so you can inspect every field from the *Front Matter*.
+  Log the full object returned by `file.data.get()` so you can inspect the structured data.
 </comp.Annotation>
 <comp.Annotation number="4">
   Log the `title` value from the `file.data.get()` object.
@@ -206,7 +206,7 @@ console.log(meta); /*3*/
 
 ## Open the *Visual Editor* *Data Panel*
 
-You can use *Data Panels* in CloudCannon's *Visual Editor* to edit the value of structured data fields in the *Front Matter*.
+You can use *Data Panels* in CloudCannon's *Visual Editor* to edit the value of structured data fields in your files.
 
 <comp.DocShot docshot_key="CloudCannon-Documentation-Visual-Editor-Bookshop-Sendit-Home-Data-Panel" alt="A screenshot of the Visual Editor displays a webpage preview with a data panel containing inputs open over top." title="The Visual Editor with data panel" type="screenshot"/>
 
@@ -245,7 +245,7 @@ file.data.edit({ /*2*/
 
 ## Edit Array Inputs
 
-You can use the *Visual Editor API* to add, remove, and reorder items in an [Array Input](/documentation/user-articles/what-is-an-array-input/) within your *Front Matter*.
+You can use the *Visual Editor API* to add, remove, and reorder items in an [Array Input](/documentation/user-articles/what-is-an-array-input/) — in the *Front Matter* of a content file, or in a data file.
 
 ### Add an item
 
