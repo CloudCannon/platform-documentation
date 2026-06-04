@@ -174,8 +174,8 @@ export default function BaseLayout(props: Props, helpers: Helpers) {
                   ['pan-down',  'Pan down'],
                   ['zoom-out',  'Zoom out'],
                 ];
-                const buildControls = (figure, panZoomInst) => {
-                  figure.querySelector('.c-mermaid__controls')?.remove();
+                const buildControls = (mountTarget, panZoomInst) => {
+                  mountTarget.querySelector('.c-mermaid__controls')?.remove();
                   const panel = document.createElement('div');
                   panel.className = 'c-mermaid__controls';
                   panel.innerHTML = ACTIONS.map(([action, label]) =>
@@ -193,15 +193,16 @@ export default function BaseLayout(props: Props, helpers: Helpers) {
                     else if (action === 'zoom-out')  panZoomInst.zoomOut();
                     else if (action === 'reset')     { panZoomInst.resetZoom(); panZoomInst.center(); panZoomInst.fit(); }
                   });
-                  figure.appendChild(panel);
+                  mountTarget.appendChild(panel);
                 };
                 let panZoomInstances = [];
                 const attachPanZoom = () => {
                   panZoomInstances.forEach(inst => { try { inst.destroy(); } catch (_) {} });
                   panZoomInstances = [];
                   document.querySelectorAll('.c-mermaid').forEach(figure => {
-                    const svg = figure.querySelector('pre.mermaid svg');
-                    if (!svg) return;
+                    const pre = figure.querySelector('pre.mermaid');
+                    const svg = pre?.querySelector('svg');
+                    if (!pre || !svg) return;
                     if (!svg.getAttribute('width')) svg.setAttribute('width', '100%');
                     if (!svg.getAttribute('height')) svg.setAttribute('height', '100%');
                     try {
@@ -214,7 +215,7 @@ export default function BaseLayout(props: Props, helpers: Helpers) {
                         maxZoom: 10,
                       });
                       panZoomInstances.push(inst);
-                      buildControls(figure, inst);
+                      buildControls(pre, inst);
                     } catch (e) {
                       console.warn('svg-pan-zoom init failed:', e);
                     }
