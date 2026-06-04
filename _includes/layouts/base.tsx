@@ -155,22 +155,66 @@ export default function BaseLayout(props: Props, helpers: Helpers) {
                   import('https://cdn.jsdelivr.net/npm/svg-pan-zoom@3.6.2/+esm'),
                 ]);
                 const getTheme = () => document.documentElement.dataset.pfTheme === 'dark' ? 'dark' : 'default';
+                const PAN_STEP = 40;
+                const ICONS = {
+                  'pan-up':    '<svg viewBox="0 0 16 16" aria-hidden="true"><polyline points="3,10 8,5 13,10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+                  'pan-down':  '<svg viewBox="0 0 16 16" aria-hidden="true"><polyline points="3,6 8,11 13,6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+                  'pan-left':  '<svg viewBox="0 0 16 16" aria-hidden="true"><polyline points="10,3 5,8 10,13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+                  'pan-right': '<svg viewBox="0 0 16 16" aria-hidden="true"><polyline points="6,3 11,8 6,13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+                  'zoom-in':   '<svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="4" fill="none" stroke="currentColor" stroke-width="2"/><line x1="10" y1="10" x2="14" y2="14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="5" y1="7" x2="9" y2="7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="7" y1="5" x2="7" y2="9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+                  'zoom-out':  '<svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="4" fill="none" stroke="currentColor" stroke-width="2"/><line x1="10" y1="10" x2="14" y2="14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="5" y1="7" x2="9" y2="7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+                  'reset':     '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M 13 8 A 5 5 0 1 1 8 3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><polyline points="13,3 13,7 9,7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+                };
+                const ACTIONS = [
+                  ['pan-up',    'Pan up'],
+                  ['zoom-in',   'Zoom in'],
+                  ['pan-left',  'Pan left'],
+                  ['reset',     'Reset view'],
+                  ['pan-right', 'Pan right'],
+                  ['pan-down',  'Pan down'],
+                  ['zoom-out',  'Zoom out'],
+                ];
+                const buildControls = (figure, panZoomInst) => {
+                  figure.querySelector('.c-mermaid__controls')?.remove();
+                  const panel = document.createElement('div');
+                  panel.className = 'c-mermaid__controls';
+                  panel.innerHTML = ACTIONS.map(([action, label]) =>
+                    \`<button type="button" data-action="\${action}" aria-label="\${label}">\${ICONS[action]}</button>\`
+                  ).join('');
+                  panel.addEventListener('click', e => {
+                    const btn = e.target.closest('button');
+                    if (!btn) return;
+                    const action = btn.dataset.action;
+                    if (action === 'pan-up')         panZoomInst.panBy({ x: 0,         y: PAN_STEP });
+                    else if (action === 'pan-down')  panZoomInst.panBy({ x: 0,         y: -PAN_STEP });
+                    else if (action === 'pan-left')  panZoomInst.panBy({ x: PAN_STEP,  y: 0 });
+                    else if (action === 'pan-right') panZoomInst.panBy({ x: -PAN_STEP, y: 0 });
+                    else if (action === 'zoom-in')   panZoomInst.zoomIn();
+                    else if (action === 'zoom-out')  panZoomInst.zoomOut();
+                    else if (action === 'reset')     { panZoomInst.resetZoom(); panZoomInst.center(); panZoomInst.fit(); }
+                  });
+                  figure.appendChild(panel);
+                };
                 let panZoomInstances = [];
                 const attachPanZoom = () => {
                   panZoomInstances.forEach(inst => { try { inst.destroy(); } catch (_) {} });
                   panZoomInstances = [];
-                  document.querySelectorAll('.c-mermaid pre.mermaid svg').forEach(svg => {
+                  document.querySelectorAll('.c-mermaid').forEach(figure => {
+                    const svg = figure.querySelector('pre.mermaid svg');
+                    if (!svg) return;
                     if (!svg.getAttribute('width')) svg.setAttribute('width', '100%');
                     if (!svg.getAttribute('height')) svg.setAttribute('height', '100%');
                     try {
-                      panZoomInstances.push(svgPanZoom(svg, {
-                        controlIconsEnabled: true,
+                      const inst = svgPanZoom(svg, {
+                        controlIconsEnabled: false,
                         fit: true,
                         center: true,
                         mouseWheelZoomEnabled: false,
                         minZoom: 0.5,
                         maxZoom: 10,
-                      }));
+                      });
+                      panZoomInstances.push(inst);
+                      buildControls(figure, inst);
                     } catch (e) {
                       console.warn('svg-pan-zoom init failed:', e);
                     }
