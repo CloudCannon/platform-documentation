@@ -154,17 +154,70 @@ export default function BaseLayout(props: Props, helpers: Helpers) {
                   import('https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs'),
                   import('https://cdn.jsdelivr.net/npm/svg-pan-zoom@3.6.2/+esm'),
                 ]);
-                const getTheme = () => document.documentElement.dataset.pfTheme === 'dark' ? 'dark' : 'default';
-                const PAN_STEP = 40;
-                const ICONS = {
-                  'pan-up':    '<svg viewBox="0 0 16 16" aria-hidden="true"><polyline points="3,10 8,5 13,10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-                  'pan-down':  '<svg viewBox="0 0 16 16" aria-hidden="true"><polyline points="3,6 8,11 13,6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-                  'pan-left':  '<svg viewBox="0 0 16 16" aria-hidden="true"><polyline points="10,3 5,8 10,13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-                  'pan-right': '<svg viewBox="0 0 16 16" aria-hidden="true"><polyline points="6,3 11,8 6,13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-                  'zoom-in':   '<svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="4" fill="none" stroke="currentColor" stroke-width="2"/><line x1="10" y1="10" x2="14" y2="14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="5" y1="7" x2="9" y2="7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="7" y1="5" x2="7" y2="9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
-                  'zoom-out':  '<svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="4" fill="none" stroke="currentColor" stroke-width="2"/><line x1="10" y1="10" x2="14" y2="14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="5" y1="7" x2="9" y2="7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
-                  'reset':     '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M 13 8 A 5 5 0 1 1 8 3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><polyline points="13,3 13,7 9,7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+                const SHARED_THEME_CSS = \`
+                  g.node rect, g.node circle, g.node ellipse, g.node polygon, g.node path {
+                    stroke-width: 2px;
+                  }
+                  .edgePath .path, .flowchart-link {
+                    stroke-width: 2px;
+                  }
+                \`;
+                const SHARED_CONFIG = {
+                  startOnLoad: false,
+                  themeCSS: SHARED_THEME_CSS,
+                  securityLevel: 'strict',
+                  // Layout engine reads fontSize when measuring text, so this
+                  // resizes nodes too — not just the rendered glyphs.
+                  flowchart: { padding: 20, nodeSpacing: 60, rankSpacing: 60 },
                 };
+                const SHARED_FONT_SIZE = '18px';
+                const initMermaid = () => {
+                  const isDark = document.documentElement.dataset.pfTheme === 'dark';
+                  if (isDark) {
+                    mermaid.initialize({
+                      ...SHARED_CONFIG,
+                      theme: 'dark',
+                      themeVariables: { fontSize: SHARED_FONT_SIZE },
+                    });
+                  } else {
+                    mermaid.initialize({
+                      ...SHARED_CONFIG,
+                      theme: 'default',
+                      themeVariables: {
+                        fontSize: SHARED_FONT_SIZE,
+                        // node fills (covers all the variants the default theme uses)
+                        primaryColor: '#E6EDFB',
+                        secondaryColor: '#E6EDFB',
+                        tertiaryColor: '#E6EDFB',
+                        nodeBkg: '#E6EDFB',
+                        mainBkg: '#E6EDFB',
+                        clusterBkg: '#E6EDFB',
+                        // borders + lines (all brand blue)
+                        primaryBorderColor: '#034ad8',
+                        secondaryBorderColor: '#034ad8',
+                        tertiaryBorderColor: '#034ad8',
+                        nodeBorder: '#034ad8',
+                        clusterBorder: '#034ad8',
+                        lineColor: '#034ad8',
+                        defaultLinkColor: '#034ad8',
+                        // keep all text plain black
+                        primaryTextColor: '#000000',
+                        secondaryTextColor: '#000000',
+                        tertiaryTextColor: '#000000',
+                      },
+                    });
+                  }
+                };
+                const PAN_STEP = 40;
+                const ICON_URLS = ${JSON.stringify({
+                  "pan-up": helpers.icon("keyboard_arrow_up:outlined", "material"),
+                  "pan-down": helpers.icon("keyboard_arrow_down:outlined", "material"),
+                  "pan-left": helpers.icon("keyboard_arrow_left:outlined", "material"),
+                  "pan-right": helpers.icon("keyboard_arrow_right:outlined", "material"),
+                  "zoom-in": helpers.icon("zoom_in:outlined", "material"),
+                  "zoom-out": helpers.icon("zoom_out:outlined", "material"),
+                  "reset": helpers.icon("crop_free:outlined", "material"),
+                })};
                 const ACTIONS = [
                   ['pan-up',    'Pan up'],
                   ['zoom-in',   'Zoom in'],
@@ -179,7 +232,7 @@ export default function BaseLayout(props: Props, helpers: Helpers) {
                   const panel = document.createElement('div');
                   panel.className = 'c-mermaid__controls';
                   panel.innerHTML = ACTIONS.map(([action, label]) =>
-                    \`<button type="button" data-action="\${action}" aria-label="\${label}">\${ICONS[action]}</button>\`
+                    \`<button type="button" data-action="\${action}" aria-label="\${label}" style="--c-mermaid-icon: url('\${ICON_URLS[action]}')"></button>\`
                   ).join('');
                   panel.addEventListener('click', e => {
                     const btn = e.target.closest('button');
@@ -203,7 +256,11 @@ export default function BaseLayout(props: Props, helpers: Helpers) {
                     const pre = figure.querySelector('pre.mermaid');
                     const svg = pre?.querySelector('svg');
                     if (!pre || !svg) return;
-                    if (!svg.getAttribute('width')) svg.setAttribute('width', '100%');
+                    const vb = svg.viewBox?.baseVal;
+                    const w = (vb && vb.width)  || parseFloat(svg.getAttribute('width'))  || 800;
+                    const h = (vb && vb.height) || parseFloat(svg.getAttribute('height')) || 600;
+                    pre.style.aspectRatio = w + ' / ' + h;
+                    if (!svg.getAttribute('width'))  svg.setAttribute('width',  '100%');
                     if (!svg.getAttribute('height')) svg.setAttribute('height', '100%');
                     try {
                       const inst = svgPanZoom(svg, {
@@ -222,7 +279,7 @@ export default function BaseLayout(props: Props, helpers: Helpers) {
                   });
                 };
                 document.querySelectorAll('pre.mermaid').forEach(el => { el.dataset.mermaidSource = el.textContent; });
-                mermaid.initialize({ startOnLoad: false, theme: getTheme(), securityLevel: 'strict' });
+                initMermaid();
                 try {
                   await mermaid.run();
                   attachPanZoom();
@@ -230,15 +287,23 @@ export default function BaseLayout(props: Props, helpers: Helpers) {
                   document.querySelectorAll('.c-mermaid__loader-text').forEach(el => { el.textContent = 'Diagram failed to render.'; });
                   console.error('Mermaid render failed:', e);
                 }
+                // Theme toggle: render the new SVG off-DOM via mermaid.render,
+                // then swap it in atomically. The old (wrong-theme) SVG stays
+                // visible until the swap, so there's no blank frame.
                 new MutationObserver(async () => {
-                  document.querySelectorAll('pre.mermaid').forEach(el => {
-                    if (el.dataset.mermaidSource) {
-                      el.removeAttribute('data-processed');
-                      el.textContent = el.dataset.mermaidSource;
+                  initMermaid();
+                  for (const pre of document.querySelectorAll('pre.mermaid')) {
+                    const source = pre.dataset.mermaidSource;
+                    if (!source) continue;
+                    try {
+                      const id = 'm-' + Math.random().toString(36).slice(2);
+                      const { svg } = await mermaid.render(id, source);
+                      pre.innerHTML = svg;
+                      pre.setAttribute('data-processed', 'true');
+                    } catch (e) {
+                      console.error('Mermaid re-render failed:', e);
                     }
-                  });
-                  mermaid.initialize({ startOnLoad: false, theme: getTheme(), securityLevel: 'strict' });
-                  await mermaid.run();
+                  }
                   attachPanZoom();
                 }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-pf-theme'] });
               }

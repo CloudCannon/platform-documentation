@@ -1,21 +1,26 @@
 .c-mermaid {
   position: relative;
   margin: 1.5rem auto;
-  min-height: 400px;
+  min-height: 200px;
   text-align: center;
 
   > pre.mermaid {
     position: relative;
     visibility: hidden;
     width: 100%;
-    height: 400px;
+    min-height: 200px;
+    max-height: 800px;
     margin: 0;
     background: none;
-    padding: 0;
+    padding: 1rem;
     text-align: center;
     border: 1px solid rgba(0, 0, 0, 0.1);
     border-radius: 0.5rem;
     overflow: hidden;
+    // aspect-ratio is set per-diagram from the SVG viewBox in the
+    // mermaid loader script (base.tsx); falls back to a sensible default
+    // if the script hasn't run yet.
+    aspect-ratio: 4 / 3;
 
     svg {
       width: 100%;
@@ -87,7 +92,7 @@
 
   &__controls {
     position: absolute;
-    bottom: 0.5rem;
+    top: 0.5rem;
     right: 0.5rem;
     display: grid;
     grid-template-columns: repeat(3, 2rem);
@@ -101,6 +106,7 @@
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 
     button {
+      position: relative;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -118,7 +124,21 @@
       &:active { background: rgba(0, 0, 0, 0.08); }
       &:focus-visible { outline: 2px solid var(--selected-blue, #0066ff); outline-offset: -1px; }
 
-      svg { width: 1rem; height: 1rem; }
+      &::before {
+        content: "";
+        display: block;
+        width: 1.125rem;
+        height: 1.125rem;
+        background-color: currentColor;
+        -webkit-mask-image: var(--c-mermaid-icon);
+        mask-image: var(--c-mermaid-icon);
+        -webkit-mask-size: contain;
+        mask-size: contain;
+        -webkit-mask-position: center;
+        mask-position: center;
+        -webkit-mask-repeat: no-repeat;
+        mask-repeat: no-repeat;
+      }
     }
 
     button[data-action="pan-up"]    { grid-area: 1 / 2; }
