@@ -518,7 +518,8 @@ components:
       - "Diagrams large enough that the source becomes harder to read than a hand-drawn image"
     runtime:
       render_location: "Client-side in the reader's browser."
-      script_loading: "An inline detector script in the base layout (_includes/layouts/base.tsx) lazy-imports mermaid.esm.min.mjs from a pinned jsDelivr URL only when document.querySelector('pre.mermaid') matches. Non-diagram pages do not fetch mermaid."
+      script_loading: "An inline detector script in the base layout (_includes/layouts/base.tsx) lazy-imports mermaid.esm.min.mjs and svg-pan-zoom from pinned jsDelivr URLs only when document.querySelector('pre.mermaid') matches. Non-diagram pages do not fetch either library."
+      pan_zoom: "After mermaid.run() resolves, svg-pan-zoom attaches to each rendered SVG with controlIconsEnabled (visible +/- and reset buttons), drag-to-pan, fit/center on init, and mouseWheelZoomEnabled disabled (so page-scroll past a diagram doesn't trigger zoom). Re-attached after every theme-triggered re-render."
       theme: "Theme follows document.documentElement.dataset.pfTheme; the script subscribes to MutationObserver on data-pf-theme and re-runs mermaid.initialize + mermaid.run when the reader toggles theme."
       loader: "A spinner + 'Rendering diagram…' label is visible during render; CSS swaps to the rendered SVG once mermaid sets data-processed=true on the pre element."
       noscript_fallback: "When JavaScript is disabled, the raw chart source and the loader are hidden via an inlined <style> in the <noscript> block, and the alt text is shown in italics."

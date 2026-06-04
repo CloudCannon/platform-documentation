@@ -150,17 +150,42 @@ export default function BaseLayout(props: Props, helpers: Helpers) {
           dangerouslySetInnerHTML={{
             __html: `
               if (document.querySelector('pre.mermaid')) {
-                const { default: mermaid } = await import('https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs');
+                const [{ default: mermaid }, { default: svgPanZoom }] = await Promise.all([
+                  import('https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs'),
+                  import('https://cdn.jsdelivr.net/npm/svg-pan-zoom@3.6.2/+esm'),
+                ]);
                 const getTheme = () => document.documentElement.dataset.pfTheme === 'dark' ? 'dark' : 'default';
+                let panZoomInstances = [];
+                const attachPanZoom = () => {
+                  panZoomInstances.forEach(inst => { try { inst.destroy(); } catch (_) {} });
+                  panZoomInstances = [];
+                  document.querySelectorAll('.c-mermaid pre.mermaid svg').forEach(svg => {
+                    if (!svg.getAttribute('width')) svg.setAttribute('width', '100%');
+                    if (!svg.getAttribute('height')) svg.setAttribute('height', '100%');
+                    try {
+                      panZoomInstances.push(svgPanZoom(svg, {
+                        controlIconsEnabled: true,
+                        fit: true,
+                        center: true,
+                        mouseWheelZoomEnabled: false,
+                        minZoom: 0.5,
+                        maxZoom: 10,
+                      }));
+                    } catch (e) {
+                      console.warn('svg-pan-zoom init failed:', e);
+                    }
+                  });
+                };
                 document.querySelectorAll('pre.mermaid').forEach(el => { el.dataset.mermaidSource = el.textContent; });
                 mermaid.initialize({ startOnLoad: false, theme: getTheme(), securityLevel: 'strict' });
                 try {
                   await mermaid.run();
+                  attachPanZoom();
                 } catch (e) {
                   document.querySelectorAll('.c-mermaid__loader-text').forEach(el => { el.textContent = 'Diagram failed to render.'; });
                   console.error('Mermaid render failed:', e);
                 }
-                new MutationObserver(() => {
+                new MutationObserver(async () => {
                   document.querySelectorAll('pre.mermaid').forEach(el => {
                     if (el.dataset.mermaidSource) {
                       el.removeAttribute('data-processed');
@@ -168,7 +193,8 @@ export default function BaseLayout(props: Props, helpers: Helpers) {
                     }
                   });
                   mermaid.initialize({ startOnLoad: false, theme: getTheme(), securityLevel: 'strict' });
-                  mermaid.run();
+                  await mermaid.run();
+                  attachPanZoom();
                 }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-pf-theme'] });
               }
             `,
