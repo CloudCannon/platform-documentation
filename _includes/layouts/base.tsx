@@ -145,6 +145,35 @@ export default function BaseLayout(props: Props, helpers: Helpers) {
           defer
         />
         <script src="/documentation/assets/js/site.js" type="text/javascript" defer />
+        <script
+          type="module"
+          dangerouslySetInnerHTML={{
+            __html: `
+              if (document.querySelector('pre.mermaid')) {
+                const { default: mermaid } = await import('https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs');
+                const getTheme = () => document.documentElement.dataset.pfTheme === 'dark' ? 'dark' : 'default';
+                document.querySelectorAll('pre.mermaid').forEach(el => { el.dataset.mermaidSource = el.textContent; });
+                mermaid.initialize({ startOnLoad: false, theme: getTheme(), securityLevel: 'strict' });
+                try {
+                  await mermaid.run();
+                } catch (e) {
+                  document.querySelectorAll('.c-mermaid__loader-text').forEach(el => { el.textContent = 'Diagram failed to render.'; });
+                  console.error('Mermaid render failed:', e);
+                }
+                new MutationObserver(() => {
+                  document.querySelectorAll('pre.mermaid').forEach(el => {
+                    if (el.dataset.mermaidSource) {
+                      el.removeAttribute('data-processed');
+                      el.textContent = el.dataset.mermaidSource;
+                    }
+                  });
+                  mermaid.initialize({ startOnLoad: false, theme: getTheme(), securityLevel: 'strict' });
+                  mermaid.run();
+                }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-pf-theme'] });
+              }
+            `,
+          }}
+        />
       </head>
 
       <body

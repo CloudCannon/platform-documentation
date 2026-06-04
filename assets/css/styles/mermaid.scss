@@ -1,8 +1,20 @@
 .c-mermaid {
+  position: relative;
   margin: 1.5rem auto;
+  min-height: 180px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
   text-align: center;
 
-  &__svg {
+  > pre.mermaid {
+    visibility: hidden;
+    max-width: 100%;
+    margin: 0;
+    background: none;
+    padding: 0;
+
     svg {
       max-width: 100%;
       height: auto;
@@ -11,8 +23,50 @@
     }
   }
 
-  &__svg--dark {
+  &:has(pre.mermaid[data-processed="true"]) {
+    min-height: 0;
+
+    > pre.mermaid {
+      visibility: visible;
+    }
+
+    .c-mermaid__loader {
+      display: none;
+    }
+  }
+
+  &__loader {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    color: var(--text-muted, #666);
+  }
+
+  &__spinner {
+    width: 1.5rem;
+    height: 1.5rem;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+
+    @media (prefers-reduced-motion: no-preference) {
+      animation: c-mermaid-spin 0.8s linear infinite;
+    }
+  }
+
+  &__loader-text {
+    font-size: 0.875rem;
+  }
+
+  &__noscript {
     display: none;
+    padding: 1rem;
+    font-style: italic;
+    color: var(--text-muted, #666);
   }
 
   &__caption {
@@ -22,12 +76,6 @@
   }
 }
 
-html[data-pf-theme="dark"] .c-mermaid {
-  &__svg--light {
-    display: none;
-  }
-
-  &__svg--dark {
-    display: block;
-  }
+@keyframes c-mermaid-spin {
+  to { transform: rotate(360deg); }
 }

@@ -1,7 +1,7 @@
 # CloudCannon Documentation Style Guide
 
 **Last Updated:** June 4, 2026  
-**Version:** 2.16
+**Version:** 2.17
 
 This style guide establishes writing standards for all CloudCannon documentation. It combines patterns from our existing documentation with industry best practices from Microsoft Writing Style Guide, Google Developer Documentation Style Guide, and Write the Docs community standards.
 
@@ -809,11 +809,10 @@ Use for illustrations and diagrams. This component is being phased out in favor 
 
 #### 1.5.5 Mermaid Component
 
-Use for diagrams whose meaning is structural — flowcharts, sequence diagrams, decision trees, simple architecture sketches. The diagram source is written inline in [Mermaid syntax](https://mermaid.js.org/intro/syntax-reference.html) and rendered to SVG at build time. Two SVGs are emitted per diagram (light and dark theme); the page swaps between them via CSS.
+Use for diagrams whose meaning is structural — flowcharts, sequence diagrams, decision trees, simple architecture sketches. The diagram source is written inline in [Mermaid syntax](https://mermaid.js.org/intro/syntax-reference.html). Mermaid renders the diagram in the reader's browser at page load and follows the site's light/dark theme.
 
 ```mdx
 <comp.Mermaid
-  name="publishing-workflow"
   alt="Three task branches publish to Staging, which publishes to Production."
   chart={`graph LR
     A["Write a new blog"] --> S[Staging]
@@ -825,8 +824,7 @@ Use for diagrams whose meaning is structural — flowcharts, sequence diagrams, 
 ```
 
 **Attributes:**
-- `name` — **Required.** Stable kebab-case identifier (e.g. `publishing-workflow`). Used as the cached SVG filename so reviewers can identify the diagram in PR file lists. Two diagrams with the same `name` must share the same `chart`.
-- `chart` — Mermaid source, passed as a template literal. Multi-line is fine; leading whitespace is trimmed.
+- `chart` — **Required.** Mermaid source, passed as a template literal. Multi-line is fine; leading whitespace is trimmed.
 - `alt` — **Required.** A full sentence describing what the diagram shows, for screen readers, no-JS readers, and the search index. Don't skip it — the build fails if it's missing.
 - `caption` *(optional)* — Visible caption rendered below the diagram.
 
@@ -840,9 +838,9 @@ Use for diagrams whose meaning is structural — flowcharts, sequence diagrams, 
 - Photographs, illustrations, or graphics that aren't structural (use `<comp.DocsImage>`)
 - Diagrams large enough that the source becomes harder to read than a hand-drawn image
 
-**Workflow when adding or editing a chart:**
+**How it renders:**
 
-The CloudCannon build environment does not have `mmdc` installed, so rendered SVGs are committed to the repository under `_cache/mermaid/`. After adding or editing a `<comp.Mermaid>` block, build the site locally — the build renders any missing or stale SVGs into `_cache/mermaid/{name}-{theme}.svg` and embeds a `<!-- mermaid-hash: ... -->` comment so the next build can detect when a chart source has drifted from its rendered SVG. Commit the new SVG files alongside your `.mdx` change. If you forget, CloudCannon's build fails with a message naming the missing or stale file.
+The page ships the chart source inside a `<pre class="mermaid">` block. A small inline script in the base layout detects diagram pages and lazy-loads `mermaid.js` from a pinned jsDelivr CDN URL; on pages without diagrams the script does nothing and the library is never fetched. A loader is visible while the diagram renders, then the SVG replaces it. Readers without JavaScript see the `alt` text. The `alt` is also what Pagefind indexes for search.
 
 #### 1.5.6 GlossaryTerm Component
 
@@ -1871,6 +1869,7 @@ This guide (`STYLE_GUIDE.mdx`) is the authoritative source. `STYLE_GUIDE_AGENTS.
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.17 | 2026-06-04 | Mermaid component (§1.5.5) now renders client-side via `mermaid.js` (lazy-loaded on diagram pages from a pinned jsDelivr URL). Removed the build-time renderer, the local-render-and-commit workflow, and the `name` prop. Loader visible during render; no-JS readers see the `alt` |
 | 2.16 | 2026-06-04 | Mermaid component (§1.5.5): added required `name` prop (kebab-case identifier). SVGs are now stored as `_cache/mermaid/{name}-{theme}.svg` instead of SHA1 hashes; each SVG embeds a `<!-- mermaid-hash: ... -->` comment so stale files are detected at build time |
 | 2.15 | 2026-06-04 | Added Mermaid component (§1.5.5): use for structural diagrams (flowcharts, sequence diagrams, decision trees, simple architecture sketches); rendered to SVG at build time with light/dark theme pairs; SVGs are committed to `_cache/mermaid/` and contributors must build locally to regenerate after editing a chart |
 | 2.9 | 2026-05-01 | Added ReferenceDataTable component (§1.5.7); marked DataReference as being phased out for schema-sourced keys (§1.5.6) |
