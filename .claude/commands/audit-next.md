@@ -42,6 +42,15 @@ deno task audit-queue -- --section=developer/guides --json | jq '.pages | map(se
 - Pages with `author_notes.priority` set are treated as priority-confirmed; the frontmatter value wins over the rubric.
 - Pages with the `priority:` key present but empty (typically new docs scaffolded from the schema) are surfaced separately as "Needs triage" and sort first within their priority tier — these are new arrivals that haven't had their Phase 1 skim yet.
 
+## What each audit lens tracks
+
+When auditing (Phase 2 onwards), each lens has a specific scope. Don't conflate them:
+
+- **`factual`** — Does the page accurately describe current product behaviour, plan gates, and flow steps? Verified against `app/` code.
+- **`persona`** — Five-question framework. Does it serve the right primary persona, with permission-led language, and without hanging references?
+- **`style`** — STYLE_GUIDE.mdx compliance: terminology, capitalisation, italics for UI, component usage.
+- **`ui`** — **Stale UI prose only.** A page says "click the *Site Settings* button" but the button has moved/renamed/disappeared in the current app. Not for docshot completeness — that's the existing `docshots` field (`Added!` / `Needs docshots` / `Not applicable`).
+
 ## How "last substantive edit" is computed
 
 The script reports `last sub-edit YYYY-MM-DD` (or `no substantive edits`) per page, based on git history:
