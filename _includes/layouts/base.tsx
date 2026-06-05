@@ -191,7 +191,7 @@ export default function BaseLayout(props: Props, helpers: Helpers) {
           Skip to content
         </a>
 
-        <pagefind-config bundle-path="/documentation/_pagefind/" base-url="/"></pagefind-config>
+        <pagefind-config bundle-path="/documentation/_pagefind/" base-url="/documentation/"></pagefind-config>
 
         {headingnav?.banner_html && (
           <>

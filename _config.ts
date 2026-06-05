@@ -225,6 +225,7 @@ if (Deno.env.get("DOCSHOTS_LOCAL")) {
 // Pagefind search indexing - runs automatically after each build
 // Uses local plugin (_plugins/pagefind.ts) with pagefind v1.5.0
 site.use(pagefind({
+  outputPath: "/_pagefind", // Match templates, routing.json and postbuild
   ui: false, // Disable old PagefindUI
   componentUI: true, // Enable new Component UI (v1.5+)
 }));

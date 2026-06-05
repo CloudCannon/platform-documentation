@@ -167,7 +167,6 @@ export const defaults: Options = {
   },
 };
 
-
 /**
  * A plugin to generate a static full text search engine
  * @see https://lume.land/plugins/pagefind/
@@ -218,55 +217,30 @@ export function pagefind(userOptions?: Options) {
       const textDecoder = new TextDecoder();
       const textExtensions = [".js", ".css", ".json"];
 
+      const componentUIFiles = [
+        "pagefind-component-ui.js",
+        "pagefind-component-ui.css",
+      ];
+
       for (const file of files) {
         const { path } = file;
+
+        // Pagefind v1.5+ always emits the Component UI assets via getFiles();
+        // skip them when the option is disabled.
+        if (!options.componentUI && componentUIFiles.includes(path)) {
+          continue;
+        }
+
         const content = textExtensions.includes(posix.extname(path))
           ? textDecoder.decode(file.content)
           : file.content;
 
         allPages.push(
           Page.create({
-            url: posix.join("/", options.outputPath!, path),
+            url: posix.join("/", options.outputPath, path),
             content,
           }),
         );
-      }
-
-      // Add Component UI files if enabled
-      if (options.componentUI) {
-        try {
-          // Resolve the npm package paths using import map specifiers
-          const cssPath = import.meta.resolve(
-            "@pagefind/component-ui/css/pagefind-component-ui.css"
-          );
-          const jsPath = import.meta.resolve(
-            "@pagefind/component-ui/npm_dist/mjs/component-ui.mjs"
-          );
-
-          // Read the files (convert file:// URL to path)
-          const cssContent = await Deno.readTextFile(new URL(cssPath));
-          const jsContent = await Deno.readTextFile(new URL(jsPath));
-
-          // Add CSS file
-          allPages.push(
-            Page.create({
-              url: posix.join("/", options.outputPath!, "pagefind-component-ui.css"),
-              content: cssContent,
-            }),
-          );
-
-          // Add JS file
-          allPages.push(
-            Page.create({
-              url: posix.join("/", options.outputPath!, "pagefind-component-ui.js"),
-              content: jsContent,
-            }),
-          );
-
-          log.info("[pagefind plugin] Component UI files added");
-        } catch (error) {
-          log.error(`[pagefind plugin] Failed to add Component UI files: ${error}`);
-        }
       }
 
       // Cleanup
@@ -289,7 +263,7 @@ export function pagefind(userOptions?: Options) {
             styles.setAttribute(
               "href",
               site.url(
-                `${posix.join(options.outputPath!, "pagefind-ui.css")}`,
+                `${posix.join(options.outputPath, "pagefind-ui.css")}`,
               ),
             );
 
@@ -308,7 +282,7 @@ export function pagefind(userOptions?: Options) {
             script.setAttribute(
               "src",
               site.url(
-                `${posix.join(options.outputPath!, "pagefind-ui.js")}`,
+                `${posix.join(options.outputPath, "pagefind-ui.js")}`,
               ),
             );
             document.head.append(script);
@@ -316,7 +290,7 @@ export function pagefind(userOptions?: Options) {
             const uiSettings = {
               element: `#${containerId}`,
               ...ui,
-              bundlePath: site.url(posix.join(options.outputPath!, "/")),
+              bundlePath: site.url(posix.join(options.outputPath, "/")),
               baseUrl: site.url("/"),
               processTerm: ui.processTerm
                 ? ui.processTerm.toString()
@@ -341,7 +315,7 @@ export function pagefind(userOptions?: Options) {
               highlightScript.innerHTML = `
                 import "${
                   site.url(
-                    `${posix.join(options.outputPath!, "pagefind-highlight.js")}`,
+                    `${posix.join(options.outputPath, "pagefind-highlight.js")}`,
                   )
                 }";
                 new PagefindHighlight({ highlightParam: ${
