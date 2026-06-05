@@ -1,5 +1,7 @@
 import ChangeNav from "../../_components/Nav/ChangeNav.tsx";
 import Breadcrumb from "../../_components/Layout/Breadcrumb.tsx";
+import CopyPageDropdown from "../../_components/CopyPageDropdown.tsx";
+import PagefindCategoryMeta from "../../_components/Layout/PagefindCategoryMeta.tsx";
 import MobileTOC from "../../_components/Layout/MobileTOC.tsx";
 import NavSidebar from "../../_components/Layout/NavSidebar.tsx";
 import RelativeDate from "../../_components/RelativeDate.tsx";
@@ -31,6 +33,7 @@ export default function ChangelogLayout(props: Props, helpers: Helpers) {
       data-pagefind-filter="site:Changelog"
       data-pagefind-meta="site:Changelog"
     >
+      <PagefindCategoryMeta category="Changelog" />
       <div className="l-column">
         <NavSidebar>
           <ChangeNav
@@ -55,6 +58,9 @@ export default function ChangelogLayout(props: Props, helpers: Helpers) {
           <p className="changelog-entry__date">
             <RelativeDate date={date} />
           </p>
+          <div className="l-copy-page-mobile" data-pagefind-ignore>
+            <CopyPageDropdown title={title || ""} url={url} />
+          </div>
           <MobileTOC helpers={helpers} />
           <div className="l-content-split" x-data="visibleNavHighlighter">
             <main id="main-content">
@@ -64,6 +70,7 @@ export default function ChangelogLayout(props: Props, helpers: Helpers) {
               />
             </main>
             <aside data-pagefind-ignore className="l-right">
+              <CopyPageDropdown title={title || ""} url={url} />
               <div
                 className="l-toc-changelog-list"
                 alpine:scroll="onScroll()"

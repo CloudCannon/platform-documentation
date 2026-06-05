@@ -2,9 +2,7 @@ import type { Helpers } from "../_types.d.ts";
 
 interface GlossaryTermProps {
   term: string;
-  children: {
-    __html: string;
-  };
+  children: unknown;
 }
 
 export default function GlossaryTerm(
@@ -80,4 +78,11 @@ export default function GlossaryTerm(
       </template>
     </span>
   );
+}
+
+export function toMarkdown(
+  _props: GlossaryTermProps,
+  childrenMd: string,
+): string {
+  return `**${childrenMd.trim()}**`;
 }

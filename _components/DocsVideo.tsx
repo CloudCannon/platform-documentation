@@ -32,3 +32,7 @@ export default function DocsVideo(
     </video>
   );
 }
+
+export function toMarkdown({ url, title }: DocsVideoProps): string {
+  return `[Video: ${title || "Video"}](${url})\n\n`;
+}

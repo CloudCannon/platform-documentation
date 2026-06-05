@@ -25,3 +25,15 @@ export default function SystemVersionList(
     </ul>
   );
 }
+
+export function toMarkdown(
+  { language, item, showdefault, systemversions }: SystemVersionListProps,
+): string {
+  const lookup = systemversions?.[language]?.[item];
+  if (!lookup?.list?.length) return "";
+  const items = lookup.list.map((v) => {
+    const suffix = showdefault && v === lookup.default ? " (default)" : "";
+    return `- \`${v}\`${suffix}`;
+  });
+  return items.join("\n") + "\n\n";
+}

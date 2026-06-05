@@ -61,6 +61,7 @@ import documentation from "@cloudcannon/configuration-types/dist/documentation.j
   type: "json",
 };
 import llmsTxt from "./_config/llms-text.ts";
+import markdownPages from "./_config/markdown-pages.ts";
 
 // Type the documentation as nested sections (section -> gid -> entry)
 const typedDocs = documentation as unknown as Record<
@@ -143,8 +144,16 @@ const injectedSections: Promise<string>[] = [];
 
 const mdFilter = site.renderer.helpers.get("md")?.[0];
 
-site.ignore("README.md", "unused", "STYLE_GUIDE.mdx", "cloudcannon.config.yml");
-site.ignore((path) => /^\/user\/glossary\/.*\.yml$/.test(path));
+site.ignore(
+  "README.md",
+  "AGENTS.md",
+  "unused",
+  "STYLE_GUIDE.mdx",
+  "STYLE_GUIDE_AGENTS.md",
+  "scripts",
+  ".claude",
+  "cloudcannon.config.yml",
+);
 
 // Detect dev mode (serve command uses -s flag)
 const isDevMode = Deno.args.includes("-s") || Deno.args.includes("--serve");
@@ -198,15 +207,23 @@ site.preprocess([".md", ".mdx"], function processExcerpt(pages) {
 });
 
 site.copy("ye_olde_images");
+site.copy("assets/external_screenshots");
+site.copy("assets/onboarding_screenshots");
+site.copy("assets/diagrams");
+site.copy("assets/deprecated");
 site.copy("uploads", "static");
 site.copy("robots.txt");
+
+if (Deno.env.get("DOCSHOTS_LOCAL")) {
+  site.copy("local-docshots");
+}
 
 // Temporary trick to disable indented code blocks if we happen to use markdown-it
 // deno-lint-ignore no-explicit-any
 (site.formats.get(".md")?.engines?.[0] as any)?.engine?.disable?.("code");
 
 // Pagefind search indexing - runs automatically after each build
-// Uses local plugin (_plugins/pagefind.ts) with pagefind v1.5.0-beta.1
+// Uses local plugin (_plugins/pagefind.ts) with pagefind v1.5.0
 site.use(pagefind({
   ui: false, // Disable old PagefindUI
   componentUI: true, // Enable new Component UI (v1.5+)
@@ -229,6 +246,7 @@ site.add("/assets/img");
 site.use(date());
 site.use(sitemap());
 
+site.use(markdownPages());
 site.use(llmsTxt());
 
 // Changelog RSS feed - uses changelogs tag (year pages use changelog-year tag instead)
@@ -249,14 +267,13 @@ site.use(feed({
   },
 }));
 
-site.loadPages(
-  [".md"],
-  ((page: Lume.Page) => {
-    if (page.src.path.startsWith("user/glossary/")) {
+site.preprocess([".md"], (pages) => {
+  for (const page of pages) {
+    if (page.src?.path?.startsWith("/user/glossary/")) {
       page.data.collection = "glossary";
     }
-  }) as unknown as undefined,
-);
+  }
+});
 
 // JSX doesn't like to output some alpine attributes,
 // so we write them with an `alpine` prefix and re-map them here.
@@ -604,7 +621,7 @@ site.process([".html"], function processHTMLPages(pages) {
     if (hasItems) {
       const h3 = page.document.createElement("h3");
       h3.classList.add("l-toc__heading");
-      const headingText = page.document.createTextNode("Table of contents");
+      const headingText = page.document.createTextNode("On this page");
       h3.appendChild(headingText);
       tocContainer?.appendChild(h3);
       tocContainer?.appendChild(toc);

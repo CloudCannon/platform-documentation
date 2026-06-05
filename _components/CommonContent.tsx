@@ -25,3 +25,10 @@ export default function CommonContent(
     </div>
   );
 }
+
+export function toMarkdown(
+  _props: CommonContentProps,
+  childrenMd: string,
+): string {
+  return childrenMd;
+}

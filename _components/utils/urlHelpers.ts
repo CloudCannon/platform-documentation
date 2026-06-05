@@ -24,6 +24,21 @@ export function parseDocUrl(url: string): ParsedDocUrl {
 }
 
 /**
+ * Returns the Pagefind content-type tag for a documentation URL.
+ * Used to populate meta.category for search result display.
+ */
+export function getPagefindContentType(url: string): string {
+  const path = (url || "").toLowerCase();
+  if (path.includes("/user-articles/")) return "User Article";
+  if (path.includes("/user-guides/")) return "User Guide";
+  if (path.includes("/developer-articles/")) return "Developer Article";
+  if (path.includes("/developer-guides/")) return "Developer Guide";
+  if (path.includes("/developer-reference/")) return "Developer Reference";
+  if (path.includes("/changelog/")) return "Changelog";
+  return "";
+}
+
+/**
  * Checks if the current URL matches a target URL
  * @param currentUrl - The current page URL
  * @param targetUrl - The URL to check against

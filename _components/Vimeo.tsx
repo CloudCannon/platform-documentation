@@ -20,3 +20,7 @@ export default function Vimeo(
     />
   );
 }
+
+export function toMarkdown({ id, title }: VimeoProps): string {
+  return `[Video: ${title || "Video"}](https://vimeo.com/${id})\n\n`;
+}

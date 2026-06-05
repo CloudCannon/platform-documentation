@@ -41,3 +41,7 @@ export default function CodeBlockCopyButton(
     </div>
   );
 }
+
+export function toMarkdown(): string {
+  return "";
+}

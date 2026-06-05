@@ -16,3 +16,10 @@ export default function CommonParam(
     </>
   );
 }
+
+export function toMarkdown(
+  { parameter, parameters, append = "", prepend = "" }: CommonParamProps,
+): string {
+  const value = parameters[parameter];
+  return value ? `${prepend}${value}${append}` : "";
+}

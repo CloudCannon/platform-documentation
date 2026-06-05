@@ -72,3 +72,7 @@ export default function Tabs({ label, children }: TabsProps) {
     </div>
   );
 }
+
+export function toMarkdown(_props: TabsProps, childrenMd: string): string {
+  return childrenMd;
+}

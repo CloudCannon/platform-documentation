@@ -170,6 +170,8 @@ export default function RefType(
       <TypeDisplay entry={doc} currentUrl={currentUrl} section={section} />
       {doc.required && " "}
       {doc.required && <small className="pill pill--red">Required</small>}
+      {doc.deprecated && " "}
+      {doc.deprecated && <small className="pill pill--warn">Deprecated</small>}
     </>
   );
 }

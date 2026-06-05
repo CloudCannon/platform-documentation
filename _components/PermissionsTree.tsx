@@ -101,3 +101,21 @@ export default function PermissionsTree(
     </comp.DataReference>
   );
 }
+
+export function toMarkdown(
+  { permissions }: PermissionsTreeProps,
+  _childrenMd: string,
+  helpers?: Helpers,
+): string {
+  const rows = getPermissionDocs(permissions);
+  const lines = rows.map((perm) => {
+    const scopes = perm.scopes
+      .map((s) => helpers?.unslug?.(s) ?? s)
+      .join(", ");
+    const docs = perm.docs
+      .map(([action, doc]) => `  - \`${action}\`: ${doc}`)
+      .join("\n");
+    return `**\`${perm.key}\`**\n\nAvailable scopes: *${scopes}*\n\n${docs}\n`;
+  });
+  return lines.join("\n") + "\n";
+}

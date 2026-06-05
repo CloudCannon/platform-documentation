@@ -1,5 +1,6 @@
 import Card from "../Card/Card.tsx";
 import { truncate } from "../utils/index.ts";
+import { getPagefindContentType } from "../utils/urlHelpers.ts";
 import type {
   ArticlePage,
   Details,
@@ -73,7 +74,7 @@ export default async function RelatedArticles(
   if (articlesFound.length === 0) {
     articlesFound = validRelatedArticles
       .map((relatedArticle) => search.page(`_uuid=${relatedArticle.item}`))
-      .filter((article): article is ArticlePage => article !== null);
+      .filter((article) => !!article);
   }
 
   // Don't render the section if no articles were found
@@ -82,6 +83,9 @@ export default async function RelatedArticles(
   // Pre-render descriptions from content for articles without details.description
   const descriptions = await Promise.all(
     articlesFound.map(async (article) => {
+      if (!article) {
+            return;
+      }
       // Use details.description if available
       if (article.details?.description) {
         return article.details.description;
@@ -95,23 +99,8 @@ export default async function RelatedArticles(
     }),
   );
 
-  // Determine category based on URL path (Developer or User)
-  const getCategory = (article: ArticlePage): string | undefined => {
-    const url = article.url || "";
-    
-    // Check for Developer content
-    if (url.includes("/developer-articles/") || url.includes("/developer-guides/")) {
-      return "Developer Article";
-    }
-    
-    // Check for User content
-    if (url.includes("/user-articles/") || url.includes("/user-guides/")) {
-      return "User Article";
-    }
-    
-    // Return undefined for other content types (changelog, reference, glossary)
-    return undefined;
-  };
+  const getCategory = (article: ArticlePage): string | undefined =>
+    getPagefindContentType(article.url || "") || undefined;
 
   return (
     <>
@@ -123,6 +112,9 @@ export default async function RelatedArticles(
           data-prop="details.related_articles"
         >
           {articlesFound.map((article, i) => {
+            if (!article) {
+                  return;
+            }
             // Fall back to top-level title for pages without details (e.g., changelogs)
             const title = article.details?.title || article.title;
 

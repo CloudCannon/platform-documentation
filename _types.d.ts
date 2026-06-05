@@ -55,6 +55,7 @@ export interface Details {
   description?: string;
   category?: string;
   order?: number;
+  start_nav_group?: string;
   related_articles?: Array<{
     item: string;
   }>;
@@ -182,6 +183,8 @@ export interface DocEntry {
   uniqueItems?: boolean;
   const?: string;
   default?: unknown;
+  deprecated?: boolean;
+  deprecated_description?: string;
   enum?: string[];
   examples?: CodeExample[];
   documentation?: {

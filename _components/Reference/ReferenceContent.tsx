@@ -14,6 +14,7 @@ import MultiCodeBlock from "../MultiCodeBlock.tsx";
 import Annotation from "../Annotation.tsx";
 import InteractiveTree, { type TreeNode } from "../InteractiveTree.tsx";
 import type { DocEntry, Helpers } from "../../_types.d.ts";
+import Notice from "../Notice.tsx";
 
 interface TocItem {
   id: string;
@@ -167,14 +168,12 @@ function AppearsIn({
     <>
       <dt id="appears-in" data-pagefind-ignore>Appears in:</dt>
       <dd data-pagefind-ignore>
-        <div style="font-size: 16px;">
-          <InteractiveTree
-            nodes={nodes}
-            helpers={helpers}
-            defaultOpen
-            iconMode="key"
-          />
-        </div>
+        <InteractiveTree
+          nodes={nodes}
+          helpers={helpers}
+          defaultOpen
+          iconMode="key"
+        />
       </dd>
     </>
   );
@@ -257,7 +256,7 @@ export function TableOfContents(
     <>
       {withHeading && (
         <h3 className="l-toc__heading" data-pagefind-ignore>
-          Table of contents
+          On this page
         </h3>
       )}
       <ol className="l-toc__list" data-pagefind-ignore>
@@ -288,103 +287,119 @@ export default function ReferenceContent({
   );
 
   return (
-    <dl>
-      {showDescription && (
-        <>
-          <dt id="description" data-pagefind-ignore>Description:</dt>
-          <dd>
-            {entry.description && (
-              <span
+    <>
+      {entry.deprecated && (
+        <Notice info_type="important">
+          {entry.deprecated_description
+            ? (
+              <div
                 dangerouslySetInnerHTML={{
-                  __html: helpers.md(entry.description),
+                  __html: helpers.md(entry.deprecated_description),
                 }}
               />
-            )}
-          </dd>
-        </>
+            )
+            : "This key is deprecated: it is still supported, but no longer recommended."}
+        </Notice>
       )}
 
-      {showAppearsIn && (
-        <AppearsIn doc={entry} section={section} helpers={helpers} />
-      )}
-
-      {!entry.anyOf?.length && (
-        <>
-          <dt id="type" data-pagefind-ignore>Type:</dt>
-          <dd data-pagefind-ignore>
-            <RefType doc={entry} currentUrl={currentUrl} section={section} />
-          </dd>
-        </>
-      )}
-
-      {entry.default !== undefined && (
-        <>
-          <dt id="default-value" data-pagefind-ignore>Default value:</dt>
-          <dd data-pagefind-ignore>
-            <code>{String(entry.default)}</code>
-          </dd>
-        </>
-      )}
-
-      {entry.enum?.length && entry.enum.length > 0 && (
-        <>
-          <dt id="allowed-values" data-pagefind-ignore>Allowed values:</dt>
-          {entry.enum.map((val, i) => (
-            <dd key={i} data-pagefind-ignore>
-              <code>{val}</code>
-            </dd>
-          ))}
-        </>
-      )}
-
-      <PropertiesTable
-        entry={entry}
-        currentUrl={currentUrl}
-        section={section}
-        helpers={helpers}
-        withIds
-        slugify={slugify}
-      />
-
-      {showExamples && (
-        <>
-          <dt id="examples">Examples:</dt>
-          {examples.map((example, i) => (
-            <dd key={i}>
-              {example.description && (
-                <div
+      <dl>
+        {showDescription && (
+          <>
+            <dt id="description" data-pagefind-ignore>Description:</dt>
+            <dd>
+              {entry.description && (
+                <span
                   dangerouslySetInnerHTML={{
-                    __html: helpers.md(example.description),
+                    __html: helpers.md(entry.description),
                   }}
                 />
               )}
-              <MultiCodeBlock
-                language={example.language || "yaml"}
-                source={example.source || "cloudcannon.config.yml"}
-                translate_into={(!example.language ||
-                    example.language === "yaml")
-                  ? ["json"]
-                  : []}
-              >
-                <pre>
+            </dd>
+          </>
+        )}
+
+        {showAppearsIn && (
+          <AppearsIn doc={entry} section={section} helpers={helpers} />
+        )}
+
+        {!entry.anyOf?.length && (
+          <>
+            <dt id="type" data-pagefind-ignore>Type:</dt>
+            <dd data-pagefind-ignore>
+              <RefType doc={entry} currentUrl={currentUrl} section={section} />
+            </dd>
+          </>
+        )}
+
+        {entry.default !== undefined && (
+          <>
+            <dt id="default-value" data-pagefind-ignore>Default value:</dt>
+            <dd data-pagefind-ignore>
+              <code>{String(entry.default)}</code>
+            </dd>
+          </>
+        )}
+
+        {entry.enum?.length && entry.enum.length > 0 && (
+          <>
+            <dt id="allowed-values" data-pagefind-ignore>Allowed values:</dt>
+            {entry.enum.map((val, i) => (
+              <dd key={i} data-pagefind-ignore>
+                <code>{val}</code>
+              </dd>
+            ))}
+          </>
+        )}
+
+        <PropertiesTable
+          entry={entry}
+          currentUrl={currentUrl}
+          section={section}
+          helpers={helpers}
+          withIds
+          slugify={slugify}
+        />
+
+        {showExamples && (
+          <>
+            <dt id="examples">Examples:</dt>
+            {examples.map((example, i) => (
+              <dd key={i}>
+                {example.description && (
+                  <div
+                    dangerouslySetInnerHTML={{
+                      __html: helpers.md(example.description),
+                    }}
+                  />
+                )}
+                <MultiCodeBlock
+                  language={example.language || "yaml"}
+                  source={example.source || "cloudcannon.config.yml"}
+                  translate_into={(!example.language ||
+                      example.language === "yaml")
+                    ? ["json"]
+                    : []}
+                >
+                  <pre>
                   <code className={`language-${example.language || "yaml"}`}>
                     {example.code}
                   </code>
-                </pre>
-                {example.annotations?.map((annotation, j) => (
-                  <Annotation
-                    key={j}
-                    number={annotation.number || 0}
-                    contentHtml={helpers.md(annotation.content || "")}
-                  >
-                  </Annotation>
-                ))}
-              </MultiCodeBlock>
-            </dd>
-          ))}
-        </>
-      )}
-    </dl>
+                  </pre>
+                  {example.annotations?.map((annotation, j) => (
+                    <Annotation
+                      key={j}
+                      number={annotation.number || 0}
+                      contentHtml={helpers.md(annotation.content || "")}
+                    >
+                    </Annotation>
+                  ))}
+                </MultiCodeBlock>
+              </dd>
+            ))}
+          </>
+        )}
+      </dl>
+    </>
   );
 }
 

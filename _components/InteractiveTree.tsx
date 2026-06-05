@@ -72,7 +72,7 @@ function getLeafIcon(iconMode: IconMode): string {
 function getBranchIcons(iconMode: IconMode): { closed: string; open: string } {
   if (iconMode === "key") {
     return {
-      closed: "data_object:outlined",
+      closed: "more_horiz:outlined",
       open: "data_object:outlined",
     };
   }
@@ -172,6 +172,12 @@ export default function InteractiveTree({
       </ul>
     </div>
   );
+}
+
+export function toMarkdown(
+  { nodes }: InteractiveTreeProps,
+): string {
+  return `\`\`\`\n${nodesToText(nodes)}\n\`\`\`\n\n`;
 }
 
 export { nodesToText };

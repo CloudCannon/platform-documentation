@@ -1,5 +1,7 @@
 import {
   getDisplayName,
+  getDisplayNamePair,
+  getDocByGid,
   getRefUrl,
   resolveRef,
   type SectionId,
@@ -11,12 +13,73 @@ import type { DocEntry, Helpers } from "../../_types.d.ts";
 
 const MAX_ENUM_VALUES = 10;
 
-interface RefSummaryProps {
-  entry: DocEntry;
-  helpers?: Helpers;
+function appearsIn({ entry, section }: RefSummaryProps) {
+  const gids = (entry.parent ? [entry.parent] : []).concat(
+    entry.appears_in || [],
+  ).filter((gid) => gid !== section);
+
+  const items = gids.flatMap((gid, i) => {
+    const isLast = i === gids.length - 1;
+    const doc = getDocByGid(gid, section);
+    if (!doc) {
+      return isLast ? [gid] : [gid, ", "];
+    }
+
+    const url = getRefUrl(doc, section);
+    const { label, useCode } = getDisplayNamePair(doc);
+    let text = useCode ? <code className="code-no-box">{label}</code> : label;
+
+    if (!doc.title) {
+      const parentDoc = doc.parent === section
+        ? undefined
+        : getDocByGid(doc.parent, section);
+
+      if (parentDoc) {
+        const { label: parentLabel, useCode: parentUseCode } =
+          getDisplayNamePair(parentDoc);
+
+        if (parentLabel) {
+          const join = (parentUseCode && useCode)
+            ? (label.startsWith("[") ? "" : ".")
+            : " ";
+
+          text = (
+            <>
+              {parentUseCode
+                ? <code className="code-no-box">{parentLabel}</code>
+                : parentLabel}
+              {join}
+              {text}
+            </>
+          );
+        }
+      }
+    }
+
+    const item = url
+      ? <a href={url} key={gid} className="c-data-reference__link">{text}</a>
+      : text;
+
+    return isLast ? [item] : [item, ", "];
+  });
+
+  return (items.length > 0 && (
+    <p data-pagefind-ignore>
+      <em>Appears in:</em> {items}.
+    </p>
+  ));
 }
 
-function RefSummary({ entry, helpers }: RefSummaryProps) {
+interface RefSummaryProps {
+  entry: DocEntry;
+  section: SectionId;
+  helpers?: Helpers;
+  hideAppearsIn?: boolean;
+}
+
+function RefSummary(
+  { entry, helpers, section, hideAppearsIn }: RefSummaryProps,
+) {
   const examples = entry.documentation?.examples || [];
   const examplesWithCode = examples.filter((example) => example.code);
   const enumValues = entry.enum || [];
@@ -25,12 +88,11 @@ function RefSummary({ entry, helpers }: RefSummaryProps) {
 
   return (
     <div class="c-data-reference__description">
-      {entry.description && helpers && (
-        <div
-          dangerouslySetInnerHTML={{ __html: helpers.md(entry.description) }}
-        />
+      {entry.description && (
+        helpers
+          ? <div dangerouslySetInnerHTML={{ __html: helpers.md(entry.description) }} />
+          : <div>{entry.description}</div>
       )}
-      {entry.description && !helpers && <div>{entry.description}</div>}
 
       {entry.default !== undefined && (
         <p>
@@ -51,6 +113,8 @@ function RefSummary({ entry, helpers }: RefSummaryProps) {
         </p>
       )}
 
+      {!hideAppearsIn && appearsIn({ entry, section })}
+
       {examplesWithCode.length > 0 && (
         <details className="c-example">
           <summary data-pagefind-ignore>
@@ -59,15 +123,10 @@ function RefSummary({ entry, helpers }: RefSummaryProps) {
           </summary>
           {examplesWithCode.map((example, i) => (
             <div key={i}>
-              {example.description && helpers && (
-                <div
-                  dangerouslySetInnerHTML={{
-                    __html: helpers.md(example.description),
-                  }}
-                />
-              )}
-              {example.description && !helpers && (
-                <div>{example.description}</div>
+              {example.description && (
+                helpers
+                  ? <div dangerouslySetInnerHTML={{ __html: helpers.md(example.description) }} />
+                  : <div>{example.description}</div>
               )}
               <MultiCodeBlock
                 language={example.language || "yaml"}
@@ -104,15 +163,25 @@ interface RefItemProps {
   section: SectionId;
   useKey?: boolean;
   keyOverride?: string;
+  hideAppearsIn?: boolean;
   helpers?: Helpers;
 }
 
 export default function RefItem(
-  { docRef, currentUrl, section, useKey = true, keyOverride, helpers }:
-    RefItemProps,
+  {
+    docRef,
+    currentUrl,
+    section,
+    useKey = true,
+    keyOverride,
+    helpers,
+    hideAppearsIn,
+  }: RefItemProps,
 ) {
   const doc = resolveRef(docRef, section);
-  if (!doc) return null;
+  if (!doc) {
+    return null;
+  }
 
   const url = getRefUrl(doc, section);
   const displayName = getDisplayName(doc);
@@ -131,7 +200,12 @@ export default function RefItem(
         </span>
         <RefType doc={doc} currentUrl={currentUrl} section={section} />
       </div>
-      <RefSummary entry={doc} helpers={helpers} />
+      <RefSummary
+        entry={doc}
+        helpers={helpers}
+        section={section}
+        hideAppearsIn={hideAppearsIn}
+      />
     </>
   );
 }

@@ -65,12 +65,6 @@ export default function BaseLayout(props: Props, helpers: Helpers) {
         <meta charSet="UTF-8" />
         <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <link
-          href="https://fonts.cloudcannon.com/css/2025-TT-Norms-Pro_400_500_800-swap.css"
-          rel="stylesheet"
-          type="text/css"
-          async=""
-        />
         <link href="/documentation/assets/css/site.css" rel="stylesheet" type="text/css" />
         <link
           rel="apple-touch-icon"
