@@ -1,0 +1,53 @@
+---
+_schema: default
+_uuid: 472b9f72-90df-4bd2-a5fc-e459f7f16bd8
+_created_at: 2026-06-05T00:00:00.000Z
+details:
+  title: What are access keys?
+  description: >-
+    Learn what access keys are and how they let the CloudCannon CLI and SDK act
+    in CloudCannon on your behalf.
+  image: >-
+    https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+  category:
+    - Explanation
+  related_articles:
+    - _type: developer_articles
+      item: f2582238-c61e-4594-88de-7339cb7b1447
+    - _type: developer_articles
+      item: 853f4856-089e-4a1f-a9de-0863428fd00e
+    - _type: developer_articles
+      item: 0c9c4622-09b7-4c45-ba02-94d4881a451a
+author_notes:
+  docshots: Needs docshots
+---
+An access key is a personal credential that lets other programs take action in CloudCannon on your behalf. You can use an access key to authenticate the official CloudCannon CLI, or a third-party program built with the CloudCannon SDK, so those tools can do the things you can do without logging in through your browser.
+
+An access key belongs to your CloudCannon account, not to a single Site. This makes it different from a [bearer token](/documentation/developer-articles/generate-a-bearer-token/), which grants a trusted application access to one Site. Any program that holds your access key can take any action your account has permission to take, across every Organization and Site you belong to.
+
+## How access keys work
+
+Each access key has two parts:
+
+* **Access Key ID** — A public identifier that begins with `ccu_`. CloudCannon uses the ID to look up which key is making a request.
+* **Access Key Secret** — A private value that proves the request is genuinely from you. Treat the secret like a password.
+
+When you set up the CLI or an SDK-based program, you provide your Access Key ID and Access Key Secret once. From then on, the tool uses these values to sign each request it sends to CloudCannon, and CloudCannon verifies the signature before allowing the request. You do not need to handle the signing yourself — the CLI and SDK do it for you.
+
+## Creating and storing access keys
+
+You create access keys on the *Access Keys* page under *Account Settings*. For step-by-step instructions, read [Create an access key](/documentation/developer-articles/create-an-access-key/).
+
+CloudCannon shows your *Access Key Secret* only once, at the moment you create the key. Copy it and store it somewhere safe, such as a password manager. If you lose the secret, you cannot recover it — you will need to revoke the key and create a new one.
+
+## Permissions and security
+
+An access key inherits your account's full permissions. There are no narrower scopes to limit what a key can do, so a program using your access key can take any action you can take. For this reason, treat each access key like a password, and create a separate key for each program so you can revoke one without affecting the others.
+
+An access key does not expire on its own. It remains valid until you revoke it.
+
+## Revoking access keys
+
+You can revoke an access key at any time from the *Access Keys* page. When you revoke a key, CloudCannon moves it to the *Revoked access keys* list and rejects any request signed with it. Revoke a key whenever you suspect its secret has been exposed, or when the program using it no longer needs access.
+
+CloudCannon keeps revoked keys in the *Revoked access keys* list for a short period so you can confirm which key you removed, then deletes them permanently 30 days after revocation.
