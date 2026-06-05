@@ -1,4 +1,4 @@
-# 📚 CloudCannon Platform Documentation
+# 📚 CloudCannon Platform Documentation (Hey!)
 
 Welcome! This is the source repository for the **CloudCannon platform documentation** — the official docs site at [cloudcannon.com/documentation](https://cloudcannon.com/documentation/). It covers everything users and developers need to know about CloudCannon, from getting started to advanced configuration.
 
