@@ -42,6 +42,21 @@ deno task audit-queue -- --section=developer/guides --json | jq '.pages | map(se
 - Pages with `author_notes.priority` set are treated as priority-confirmed; the frontmatter value wins over the rubric.
 - Pages with the `priority:` key present but empty (typically new docs scaffolded from the schema) are surfaced separately as "Needs triage" and sort first within their priority tier — these are new arrivals that haven't had their Phase 1 skim yet.
 
+## How "last substantive edit" is computed
+
+The script reports `last sub-edit YYYY-MM-DD` (or `no substantive edits`) per page, based on git history:
+
+1. **Bulk pass.** One `git log --numstat` over all in-scope directories finds commits touching each file by ≥30 lines (`substantive_edit_threshold_lines` in the config), excluding commits whose subject matches `non_substantive_commit_patterns` or whose date falls in a `skip_commit_date_ranges` window. Fast (~0.7s) but doesn't follow renames.
+2. **Recovery pass.** For every page the bulk pass returned null on, the script runs `git log --follow --numstat` per file in parallel. `--follow` walks the rename chain, so files renamed during the 2025 redesign recover their real pre-rename history. ~5s wall on a cold cache.
+
+**"No substantive edits" / `no record` in output means**: even after the recovery pass, no commit at any historical name for this file crossed the ≥30-line threshold (and wasn't skipped by pattern or date window). Three possible underlying causes:
+
+- The page is genuinely new since the redesign and hasn't had a substantive write since.
+- The page is small and stable — exists, had small edits over the years, but never crossed the 30-line bar.
+- The page truly hasn't been substantively touched in a long time — a coverage-gap signal worth treating seriously.
+
+The script can't distinguish these three without a human read. In all three cases the rubric treats null as a P0/P1 trigger when paired with a high-stakes seed, on the principle that "I can't tell" is closer to "needs attention" than to "fine."
+
 ## When the output looks wrong
 
 Most likely cause: the config in [`_scripts/audit-config.yml`](../../_scripts/audit-config.yml) is missing a high-stakes seed or has the wrong staleness thresholds. Edit and re-run. If a specific page is mis-prioritised, add `author_notes.priority: P<N>` to its frontmatter as a one-page override.

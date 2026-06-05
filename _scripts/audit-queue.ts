@@ -91,6 +91,9 @@ function dateInRanges(iso: string, ranges: Array<{ start: string; end: string }>
 // renamed files lose their pre-rename history; for this audit's purposes
 // that's acceptable since most renames happened during the skipped redesign
 // window. Saves ~378 subprocess spawns per script invocation.
+// Fast path: one bulk git log over all in-scope dirs. The trade-off is that
+// `--follow` doesn't work with multi-path log, so files renamed during the
+// 2025 redesign lose their pre-rename history here.
 async function loadLastSubstantiveEdits(
   scope: string[],
   threshold: number,
@@ -129,6 +132,45 @@ async function loadLastSubstantiveEdits(
     }
   }
   return lastSub;
+}
+
+// Recovery pass for files the bulk log returned null for. Runs `--follow` so
+// rename chains are walked. Spawns one git subprocess per file; called only
+// for the small set of unresolved paths to keep total runtime ~2s.
+async function recoverRenameHistory(
+  path: string,
+  threshold: number,
+  skipPatterns: RegExp[],
+  skipRanges: Array<{ start: string; end: string }>,
+): Promise<string | null> {
+  const cmd = new Deno.Command("git", {
+    args: ["log", "--follow", "--numstat", "--pretty=format:COMMIT|%H|%ad|%s", "--date=short", "--", path],
+    cwd: repoRoot,
+    stdout: "piped",
+    stderr: "null",
+  });
+  const { stdout } = await cmd.output();
+  const text = new TextDecoder().decode(stdout);
+  let currentDate: string | null = null;
+  let currentSkip = false;
+  for (const line of text.split("\n")) {
+    if (line.startsWith("COMMIT|")) {
+      const parts = line.split("|");
+      currentDate = parts[2] ?? null;
+      const subject = parts.slice(3).join("|");
+      const dateSkip = currentDate ? dateInRanges(currentDate, skipRanges) : false;
+      const patternSkip = skipPatterns.some((re) => re.test(subject));
+      currentSkip = dateSkip || patternSkip;
+      continue;
+    }
+    if (!line.trim() || !currentDate || currentSkip) continue;
+    const cols = line.split("\t");
+    if (cols.length !== 3) continue;
+    const added = cols[0] === "-" ? 0 : parseInt(cols[0]);
+    const deleted = cols[1] === "-" ? 0 : parseInt(cols[1]);
+    if (added + deleted >= threshold) return currentDate;
+  }
+  return null;
 }
 
 function monthsSince(isoDate: string | null): number | null {
@@ -303,6 +345,23 @@ async function collectPages(config: Config, changelogBlob: string): Promise<Page
       if (!(e instanceof Deno.errors.NotFound)) throw e;
     }
   }
+
+  const needsRecovery = pages.filter((p) => p.lastSubstantiveEdit === null);
+  const recovered = await Promise.all(
+    needsRecovery.map((p) =>
+      recoverRenameHistory(p.path, config.substantive_edit_threshold_lines, skipPatterns, skipRanges),
+    ),
+  );
+  for (let i = 0; i < needsRecovery.length; i++) {
+    const date = recovered[i];
+    if (date) {
+      const p = needsRecovery[i];
+      p.lastSubstantiveEdit = date;
+      p.monthsSinceSubstantive = monthsSince(date);
+      computePriority(p, config);
+    }
+  }
+
   return pages;
 }
 
