@@ -36,7 +36,6 @@ interface AuditFrontmatter {
   style?: "ok" | "needs_update";
   ui?: "ok" | "stale";
   priority?: Priority;
-  phase1_confirmed?: boolean;
   notes?: string;
 }
 
@@ -53,7 +52,7 @@ interface PageInfo {
   changelogPressure: boolean;
   changelogTopics: string[];
   audited: boolean;
-  phase1Confirmed: boolean;
+  needsTriage: boolean;
   audit: AuditFrontmatter;
   planTag: { kind: PlanKind; plan: string } | null;
   priority: Priority;
@@ -81,7 +80,6 @@ function getAuditFields(fm: Record<string, unknown>): AuditFrontmatter {
   for (const k of ["last_reviewed", "audited_at_sha", "app_sha", "factual", "persona", "style", "ui", "priority", "notes"] as const) {
     if (an[k] !== undefined) (out as Record<string, unknown>)[k] = an[k];
   }
-  if (typeof an.phase1_confirmed === "boolean") out.phase1_confirmed = an.phase1_confirmed;
   return out;
 }
 
@@ -204,14 +202,14 @@ function planTagFor(path: string, config: Config): PageInfo["planTag"] {
 }
 
 function computePriority(page: PageInfo, config: Config): void {
-  if (page.phase1Confirmed && page.audit.priority) {
-    page.priority = page.audit.priority;
-    page.rationale = ["phase1_confirmed override"];
-    return;
-  }
   if (page.audited) {
     page.priority = page.audit.priority ?? "P2";
     page.rationale = ["already audited"];
+    return;
+  }
+  if (page.audit.priority) {
+    page.priority = page.audit.priority;
+    page.rationale = ["frontmatter override"];
     return;
   }
   const months = page.monthsSinceSubstantive;
@@ -219,6 +217,7 @@ function computePriority(page: PageInfo, config: Config): void {
   const staleMod = months !== null && months >= config.staleness.moderate_months;
 
   const reasons: string[] = [];
+  if (page.needsTriage) reasons.push("NEW (priority key empty)");
   if (page.highStakes) reasons.push(`high-stakes (${page.highStakesMatches.slice(0, 2).join(", ")})`);
   if (page.changelogPressure) reasons.push(`changelog activity (last ${config.changelog_lookback_months}mo)`);
   if (months === null) reasons.push("no substantive edit on record");
@@ -271,6 +270,8 @@ async function collectPages(config: Config, changelogBlob: string): Promise<Page
           }
         }
         const audit = getAuditFields(parsed);
+        const authorNotes = (parsed.author_notes ?? {}) as Record<string, unknown>;
+        const needsTriage = "priority" in authorNotes && !audit.priority;
         const title = (((parsed.details as Record<string, unknown>) ?? {}).title as string) ?? rel;
         const lastSub = lastSubMap.get(rel) ?? null;
         const haystackLower = `${rel} ${title}`.toLowerCase();
@@ -289,7 +290,7 @@ async function collectPages(config: Config, changelogBlob: string): Promise<Page
           changelogPressure: pressure.hit,
           changelogTopics: pressure.topics,
           audited: !!audit.last_reviewed,
-          phase1Confirmed: !!audit.phase1_confirmed,
+          needsTriage,
           audit,
           planTag: planTagFor(rel, config),
           priority: "P3",
@@ -309,9 +310,9 @@ function currentPhase(pages: PageInfo[]): { phase: number; label: string } {
   const queue = pages.filter((p) => !p.audited && !p.planTag);
   const p0 = queue.filter((p) => p.priority === "P0").length;
   const p1 = queue.filter((p) => p.priority === "P1").length;
-  const confirmedNeeded = queue.filter((p) => (p.priority === "P0" || p.priority === "P1") && !p.phase1Confirmed).length;
+  const p0Unconfirmed = queue.filter((p) => p.priority === "P0" && !p.audit.priority).length;
 
-  if (confirmedNeeded > 0) return { phase: 1, label: "Phase 1 — script + P0/P1 confirmation" };
+  if (p0Unconfirmed > 0) return { phase: 1, label: "Phase 1 — script + P0 confirmation" };
   if (p0 > 0) return { phase: 2, label: "Phase 2 — P0 audit" };
   if (p1 > 0) return { phase: 3, label: "Phase 3 — P1 audit" };
   return { phase: 4, label: "Phase 4 — P2 sweep" };
@@ -326,7 +327,7 @@ function printHuman(pages: PageInfo[], args: { phase?: string; section?: string;
   const confirmed: Record<Priority, number> = { P0: 0, P1: 0, P2: 0, P3: 0 };
   for (const p of pages.filter((x) => !x.audited && !x.planTag)) {
     counts[p.priority]++;
-    if (p.phase1Confirmed) confirmed[p.priority]++;
+    if (p.audit.priority) confirmed[p.priority]++;
   }
 
   const { phase, label } = currentPhase(pages);
@@ -337,12 +338,17 @@ function printHuman(pages: PageInfo[], args: { phase?: string; section?: string;
     .filter((p) => !p.audited && !p.planTag && p.priority === targetPriority);
   if (args.section) queue = queue.filter((p) => p.section.startsWith(args.section!));
   if (phase === 1) {
-    queue = queue.filter((p) => !p.phase1Confirmed);
+    queue = queue.filter((p) => !p.audit.priority);
   }
-  queue.sort((a, b) => (b.monthsSinceSubstantive ?? 99) - (a.monthsSinceSubstantive ?? 99));
+  queue.sort((a, b) => {
+    if (a.needsTriage !== b.needsTriage) return a.needsTriage ? -1 : 1;
+    return (b.monthsSinceSubstantive ?? 99) - (a.monthsSinceSubstantive ?? 99);
+  });
 
+  const needsTriage = pages.filter((p) => p.needsTriage && !p.audited && !p.planTag).length;
   console.log(`Phase: ${phase} (${label})`);
   console.log(`Audited so far: ${audited}/${total}`);
+  if (needsTriage > 0) console.log(`Needs triage: ${needsTriage} new pages with empty priority key`);
   console.log(`Queue: P0 ${counts.P0} (${confirmed.P0} confirmed)  P1 ${counts.P1} (${confirmed.P1} confirmed)  P2 ${counts.P2}  P3 ${counts.P3}`);
   const skipped = pages.filter((p) => p.planTag);
   if (skipped.length > 0) console.log(`Plan-owned (skipped): ${skipped.length}`);

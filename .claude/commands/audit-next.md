@@ -39,8 +39,9 @@ deno task audit-queue -- --section=developer/guides --json | jq '.pages | map(se
 
 - Pages with `author_notes.last_reviewed` are audited and skipped.
 - Pages tagged as plan-owned in [`_scripts/audit-config.yml`](../../_scripts/audit-config.yml) (`pre_scheduled_pages`, `externally_coupled_pages`) are skipped.
-- Pages with `author_notes.phase1_confirmed: true` are treated as priority-confirmed for Phase 1; their `author_notes.priority` value wins.
+- Pages with `author_notes.priority` set are treated as priority-confirmed; the frontmatter value wins over the rubric.
+- Pages with the `priority:` key present but empty (typically new docs scaffolded from the schema) are surfaced separately as "Needs triage" and sort first within their priority tier — these are new arrivals that haven't had their Phase 1 skim yet.
 
 ## When the output looks wrong
 
-Most likely cause: the config in [`_scripts/audit-config.yml`](../../_scripts/audit-config.yml) is missing a high-stakes seed or has the wrong staleness thresholds. Edit and re-run. If a specific page is mis-prioritised, add a `phase1_confirmed: true` + correct `priority` to its frontmatter as a one-page override.
+Most likely cause: the config in [`_scripts/audit-config.yml`](../../_scripts/audit-config.yml) is missing a high-stakes seed or has the wrong staleness thresholds. Edit and re-run. If a specific page is mis-prioritised, add `author_notes.priority: P<N>` to its frontmatter as a one-page override.
