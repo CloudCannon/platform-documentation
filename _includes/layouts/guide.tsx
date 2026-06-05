@@ -66,7 +66,7 @@ export default function GuideLayout(props: Props, helpers: Helpers) {
           <nav
             id="t-docs-nav"
             className="t-docs-nav"
-            alpine:class="isPageNavOpen ? 't-docs-nav t-docs-nav--open' : 't-docs-nav'"
+            x-bind:class="isPageNavOpen ? 't-docs-nav t-docs-nav--open' : 't-docs-nav'"
           >
             <div className="t-docs-nav__heading">
 							{guide_icon && <img src={guide_icon} width="50" height="50" className={guide_icon_invert_for_dark_mode ? `u-grayscale-invert` : ''} />}
@@ -76,7 +76,7 @@ export default function GuideLayout(props: Props, helpers: Helpers) {
                 data-pagefind-ignore
                 type="button"
                 className="t-docs-nav__control"
-                x-on-click="isPageNavOpen = true; $focusNav(true);"
+                x-on:click="isPageNavOpen = true; $focusNav(true);"
                 x-show="!isPageNavOpen"
                 aria-label="Open guide menu"
               >
@@ -86,7 +86,7 @@ export default function GuideLayout(props: Props, helpers: Helpers) {
                 data-pagefind-ignore
                 type="button"
                 className="t-docs-nav__control"
-                x-on-click="isPageNavOpen = false; $focusNav(false);"
+                x-on:click="isPageNavOpen = false; $focusNav(false);"
                 x-show="isPageNavOpen"
                 aria-label="Close guide menu"
               >
@@ -173,7 +173,7 @@ export default function GuideLayout(props: Props, helpers: Helpers) {
             {details?.description}
           </p>
           <div className="l-copy-page-mobile" data-pagefind-ignore>
-            <CopyPageDropdown title={details?.title || ""} url={url} />
+            <CopyPageDropdown title={details?.title || ""} url={url} helpers={helpers} />
           </div>
           <MobileTOC helpers={helpers} />
           <div className="l-content-split">
@@ -182,8 +182,8 @@ export default function GuideLayout(props: Props, helpers: Helpers) {
               dangerouslySetInnerHTML={{ __html: content }}
             />
             <aside data-pagefind-ignore className="l-right">
-              <CopyPageDropdown title={details?.title || ""} url={url} />
-              <div className="l-toc" alpine:scroll="onScroll()" />
+              <CopyPageDropdown title={details?.title || ""} url={url} helpers={helpers} />
+              <div className="l-toc" {...{ "x-on:scroll.window.throttle.50ms": "onScroll()" }} />
             </aside>
           </div>
 

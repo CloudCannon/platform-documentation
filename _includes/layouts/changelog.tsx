@@ -59,7 +59,7 @@ export default function ChangelogLayout(props: Props, helpers: Helpers) {
             <RelativeDate date={date} />
           </p>
           <div className="l-copy-page-mobile" data-pagefind-ignore>
-            <CopyPageDropdown title={title || ""} url={url} />
+            <CopyPageDropdown title={title || ""} url={url} helpers={helpers} />
           </div>
           <MobileTOC helpers={helpers} />
           <div className="l-content-split" x-data="visibleNavHighlighter">
@@ -70,10 +70,10 @@ export default function ChangelogLayout(props: Props, helpers: Helpers) {
               />
             </main>
             <aside data-pagefind-ignore className="l-right">
-              <CopyPageDropdown title={title || ""} url={url} />
+              <CopyPageDropdown title={title || ""} url={url} helpers={helpers} />
               <div
                 className="l-toc-changelog-list"
-                alpine:scroll="onScroll()"
+                {...{ "x-on:scroll.window.throttle.50ms": "onScroll()" }}
               />
             </aside>
           </div>

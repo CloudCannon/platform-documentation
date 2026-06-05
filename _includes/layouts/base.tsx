@@ -52,10 +52,10 @@ export default function BaseLayout(props: Props, helpers: Helpers) {
   const ogImage = image ||
     "/documentation/static/CloudCannonDocumentationog.jpg";
 
-  let canonicalUrl = `https://cloudcannon.com${url}`;
+  let canonicalUrl = helpers.url(url, true);
   if (explicit_canonical?.length && explicit_canonical.length > 0) {
     canonicalUrl = explicit_canonical.startsWith("http")
-      ? url
+      ? explicit_canonical
       : `https://cloudcannon.com${explicit_canonical}`;
   }
 
@@ -109,7 +109,7 @@ export default function BaseLayout(props: Props, helpers: Helpers) {
         <meta content={pageDescription} name="twitter:image:alt" />
         <meta content="@CloudCannon" name="twitter:creator" />
 
-        <meta content={`https://cloudcannon.com${url}`} property="og:url" />
+        <meta content={helpers.url(url, true)} property="og:url" />
         <link href={canonicalUrl} rel="canonical" />
 
         <Analytics
@@ -163,7 +163,7 @@ export default function BaseLayout(props: Props, helpers: Helpers) {
                     ...$themeManager
                 }`}
         x-effect="document.documentElement.style.colorScheme = themePreference === 'system' ? '' : effectiveTheme; document.documentElement.dataset.pfTheme = effectiveTheme"
-        alpine-scroll-window="updateOffset()"
+        {...{ "@scroll.window": "updateOffset()" }}
       >
         {/* Apply theme immediately to prevent flash - Alpine will take over state management */}
         <script

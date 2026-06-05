@@ -32,9 +32,11 @@ export default function NavLinks({ headingnav, url, helpers }: NavLinksProps) {
                   {...(isActive ? { "aria-current": "page" } : {})}
                   aria-expanded="false"
                   style={{ "anchor-name": `--nav-trigger-${index}` }}
-                  alpine-keydown-down={`open = ${index}; document.getElementById('${popoverId}').showPopover(); $nextTick(() => $focus.within($refs.${dropdownRef}).first())`}
-                  alpine-keydown-up={`open = ${index}; document.getElementById('${popoverId}').showPopover(); $nextTick(() => $focus.within($refs.${dropdownRef}).last())`}
-                  x-on-click={`open = open === ${index} ? -1 : ${index}`}
+                  {...{
+                    "@keydown.down": `open = ${index}; document.getElementById('${popoverId}').showPopover(); $nextTick(() => $focus.within($refs.${dropdownRef}).first())`,
+                    "@keydown.up": `open = ${index}; document.getElementById('${popoverId}').showPopover(); $nextTick(() => $focus.within($refs.${dropdownRef}).last())`,
+                  }}
+                  x-on:click={`open = open === ${index} ? -1 : ${index}; if (open === ${index}) $nextTick(() => $focus.within($refs.${dropdownRef}).first())`}
                 >
                   {item.text}{" "}
                   <img
@@ -58,14 +60,16 @@ export default function NavLinks({ headingnav, url, helpers }: NavLinksProps) {
                 popover="auto"
                 className="l-header__links--sub-list"
                 style={{ "position-anchor": `--nav-trigger-${index}` }}
-                x-on-toggle={`if (!$event.newState || $event.newState === 'closed') open = -1`}
+                x-on:toggle={`if (!$event.newState || $event.newState === 'closed') open = -1`}
               >
                 <ul
                   x-ref={dropdownRef}
-                  alpine-keydown-down-prevent="$focus.wrap().next()"
-                  alpine-keydown-up-prevent="$focus.wrap().previous()"
-                  alpine-keydown-escape={`open = -1; document.getElementById('${popoverId}').hidePopover()`}
-                  x-trap-inert={`open === ${index}`}
+                  {...{
+                    "@keydown.down.prevent": "$focus.wrap().next()",
+                    "@keydown.up.prevent": "$focus.wrap().previous()",
+                    "@keydown.escape": `open = -1; document.getElementById('${popoverId}').hidePopover()`,
+                    "x-trap.inert": `open === ${index}`,
+                  }}
                 >
                   {item.items!.map((subitem, subIndex) => (
                     <li key={subIndex}>

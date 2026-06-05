@@ -21,7 +21,7 @@ export default function GlossaryNav({ title, allLetters }: GlossaryNavProps) {
           <li key={letter} className="t-docs-nav__main-list__item glossary-nav">
             <a
               className="cc-helper__button"
-              alpine:class={`{ 'selected': active === '#${letter.toLowerCase()}' }`}
+              x-bind:class={`{ 'selected': active === '#${letter.toLowerCase()}' }`}
               href={`/documentation/user-glossary/#${letter.toLowerCase()}`}
             >
               {letter}

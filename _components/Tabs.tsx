@@ -46,8 +46,8 @@ export default function Tabs({ label, children }: TabsProps) {
         aria-controls={`${uniqueId}-panel-${tab}`}
         x-bind:aria-selected={`selectedTab === '${tab}' ? 'true' : 'false'`}
         x-bind:tabindex={`selectedTab === '${tab}' ? '0' : '-1'`}
-        x-on-click={`selectedTab = '${tab}'`}
-        x-on-keydown={tabButtonKeyboardHandler}
+        x-on:click={`selectedTab = '${tab}'`}
+        x-on:keydown={tabButtonKeyboardHandler}
         key={tab}
       >
         {tab}

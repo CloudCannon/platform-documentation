@@ -95,7 +95,7 @@ export default function ArticleLayout(props: Props, helpers: Helpers) {
             Last modified: {helpers.date(date, "HUMAN_DATE")}
           </p>
           <div className="l-copy-page-mobile" data-pagefind-ignore>
-            <CopyPageDropdown title={details?.title || ""} url={url} />
+            <CopyPageDropdown title={details?.title || ""} url={url} helpers={helpers} />
           </div>
           <MobileTOC helpers={helpers} />
           <div className="l-content-split">
@@ -104,8 +104,8 @@ export default function ArticleLayout(props: Props, helpers: Helpers) {
               dangerouslySetInnerHTML={{ __html: content }}
             />
             <aside data-pagefind-ignore className="l-right">
-              <CopyPageDropdown title={details?.title || ""} url={url} />
-              <div className="l-toc" alpine:scroll="onScroll()" />
+              <CopyPageDropdown title={details?.title || ""} url={url} helpers={helpers} />
+              <div className="l-toc" {...{ "x-on:scroll.window.throttle.50ms": "onScroll()" }} />
             </aside>
           </div>
 

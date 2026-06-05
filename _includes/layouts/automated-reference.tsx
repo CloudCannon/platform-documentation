@@ -109,7 +109,7 @@ export default function AutomatedReferenceLayout(
           </div>
 
           <div className="l-copy-page-mobile" data-pagefind-ignore>
-            <CopyPageDropdown title={entry.title || ""} url={currentUrl} />
+            <CopyPageDropdown title={entry.title || ""} url={currentUrl} helpers={helpers} />
           </div>
           <MobileTOC helpers={helpers} listClassName="">
             <TableOfContents items={tocItems} />
@@ -126,8 +126,8 @@ export default function AutomatedReferenceLayout(
             </main>
 
             <aside data-pagefind-ignore className="l-right">
-              <CopyPageDropdown title={entry.title || ""} url={currentUrl} />
-              <div className="l-toc" alpine:scroll="onScroll()">
+              <CopyPageDropdown title={entry.title || ""} url={currentUrl} helpers={helpers} />
+              <div className="l-toc" {...{ "x-on:scroll.window.throttle.50ms": "onScroll()" }}>
                 <TableOfContents items={tocItems} withHeading />
               </div>
             </aside>

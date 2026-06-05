@@ -135,7 +135,7 @@ export default async function ChangelogCardsLayout(
             </main>
 
             <aside data-pagefind-ignore="" className="l-right">
-              <div className="l-toc" alpine:scroll="onScroll()" />
+              <div className="l-toc" {...{ "x-on:scroll.window.throttle.50ms": "onScroll()" }} />
             </aside>
           </div>
         </div>

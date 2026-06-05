@@ -112,8 +112,8 @@ export default function CodeTabs({ children }: CodeTabsProps) {
       aria-controls={`${uniqueId}-panel-${tab.language}`}
       x-bind:aria-selected={`selectedTab === '${tab.language}' ? 'true' : 'false'`}
       x-bind:tabindex={`selectedTab === '${tab.language}' ? '0' : '-1'`}
-      x-on-click={`selectedTab = '${tab.language}'`}
-      x-on-keydown={tabButtonKeyboardHandler}
+      x-on:click={`selectedTab = '${tab.language}'`}
+      x-on:keydown={tabButtonKeyboardHandler}
       key={tab.language}
     >
       {getLanguageLabel(tab.language)}
@@ -144,7 +144,7 @@ export default function CodeTabs({ children }: CodeTabsProps) {
             <div className="c-code-block__copy" data-pagefind-ignore>
               <button
                 type="button"
-                x-on-click={copyFromDomHandler}
+                x-on:click={copyFromDomHandler}
                 className="c-code-block__copy__button"
                 title="Copy to clipboard"
               >

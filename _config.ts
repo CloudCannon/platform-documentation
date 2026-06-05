@@ -155,6 +155,11 @@ site.ignore(
   "cloudcannon.config.yml",
 );
 
+// Hides "empty page" warning for each glossary item - used on combined list instead.
+site.ignore((path) =>
+  path.startsWith("/user/glossary/") && path.endsWith(".yml")
+);
+
 // Detect dev mode (serve command uses -s flag)
 const isDevMode = Deno.args.includes("-s") || Deno.args.includes("--serve");
 
@@ -275,38 +280,6 @@ site.preprocess([".md"], (pages) => {
     }
   }
 });
-
-// JSX doesn't like to output some alpine attributes,
-// so we write them with an `alpine` prefix and re-map them here.
-const alpineRemaps = {
-  "alpine:class": ":class",
-  "alpine:click": "@click",
-  "alpine:href": ":href",
-  "alpine:src": ":src",
-  "alpine:style": ":style",
-  "alpine:key": ":key",
-  "alpine-click-stop": "@click.stop",
-  "alpine-click-away": "@click.away",
-  "alpine-click-outside": "@click.outside",
-  "alpine:checked": ":checked",
-  "alpine:scroll": "x-on:scroll.window.throttle.50ms",
-  "alpine-scroll-window": "@scroll.window",
-  "alpine-resize-window": "@resize.window",
-  "alpine-keydown-down": "@keydown.down",
-  "alpine-keydown-up": "@keydown.up",
-  "alpine-keydown-down-prevent": "@keydown.down.prevent",
-  "alpine-keydown-up-prevent": "@keydown.up.prevent",
-  "alpine-keydown-escape": "@keydown.escape",
-  "alpine-keydown-window-prevent-ctrl-k": "@keydown.window.prevent.ctrl.k",
-  "alpine-keydown-window-prevent-cmd-k": "@keydown.window.prevent.cmd.k",
-  "x-trap-inert": "x-trap.inert",
-  "x-trap-noscroll": "x-trap.noscroll",
-  "x-on-toggle": "x-on:toggle",
-  "x-on-click": "x-on:click",
-  "x-on-keydown": "x-on:keydown",
-  "x-on-mouseenter": "x-on:mouseenter",
-  "x-on-mouseleave": "x-on:mouseleave",
-};
 
 function createLink(page: Lume.Page, text: string, href: string) {
   const a = page.document!.createElement("a");
@@ -505,36 +478,7 @@ site.process([".html"], async function processInjectReusableContent(pages) {
 });
 
 site.process([".html"], function processHTMLPages(pages) {
-  // Helper function to remap Alpine attributes
-  function remapAlpineAttrs(root: Document | DocumentFragment): void {
-    for (const [attr, newattr] of Object.entries(alpineRemaps)) {
-      root?.querySelectorAll(`[${attr}]`).forEach(
-        (
-          el: {
-            setAttribute: (a: string, b: string) => void;
-            getAttribute: (a: string) => string | null;
-            removeAttribute: (a: string) => void;
-          },
-        ) => {
-          el.setAttribute(newattr, el.getAttribute(attr) || "");
-          el.removeAttribute(attr);
-        },
-      );
-    }
-
-    // Also process elements inside <template> tags
-    root.querySelectorAll<HTMLTemplateElement>("template").forEach(
-      (template) => {
-        if (template.content) {
-          remapAlpineAttrs(template.content);
-        }
-      },
-    );
-  }
-
   for (const page of pages) {
-    remapAlpineAttrs(page.document);
-
     const collisions: Record<string, boolean> = {};
 
     const fixIdCollisions = (slugPrefix: string): string => {
@@ -582,7 +526,7 @@ site.process([".html"], function processHTMLPages(pages) {
     }
 
     if (!tocContainer) {
-      return;
+      continue;
     }
 
     page.document.querySelectorAll<HTMLElement>(selector).forEach((el) => {

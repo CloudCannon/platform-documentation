@@ -108,7 +108,7 @@ export default async function GlossaryListLayout(
             </main>
 
             <aside data-pagefind-ignore="" className="l-right">
-              <div className="l-toc-glossary" alpine:scroll="onScroll()" />
+              <div className="l-toc-glossary" {...{ "x-on:scroll.window.throttle.50ms": "onScroll()" }} />
             </aside>
           </div>
         </div>

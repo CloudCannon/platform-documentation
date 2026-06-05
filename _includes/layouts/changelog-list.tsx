@@ -97,7 +97,7 @@ export default async function ChangelogListLayout(
             <aside data-pagefind-ignore="" className="l-right">
               <div
                 className="l-toc-changelog-list"
-                alpine:scroll="onScroll()"
+                {...{ "x-on:scroll.window.throttle.50ms": "onScroll()" }}
               />
             </aside>
           </div>

@@ -11,7 +11,7 @@ export default function Annotation(
   return (
     <div
       className="c-annotation"
-      alpine:class={`highlighedAnnotation === ${number} ? "c-annotation c-annotation--highlighted" : "c-annotation"`}
+      x-bind:class={`highlighedAnnotation === ${number} ? "c-annotation c-annotation--highlighted" : "c-annotation"`}
       x-effect={`if (highlighedAnnotation === ${number}) { $el.scrollIntoView({ behavior: "smooth", block: "nearest", container: 'nearest' }) }`}
       data-annotation-number={number}
     >
