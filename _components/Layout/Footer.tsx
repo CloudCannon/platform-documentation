@@ -1,3 +1,5 @@
+import { Helpers } from "../../_types.d.ts";
+
 interface FooterLink {
   href: string;
   text: string;
@@ -22,9 +24,7 @@ interface FooterNav {
 
 interface FooterProps {
   footernav?: FooterNav;
-  helpers: {
-    icon: (name: string, set: string) => string;
-  };
+  helpers: Helpers;
 }
 
 export default function Footer({ footernav, helpers }: FooterProps) {

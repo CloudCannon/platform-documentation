@@ -87,7 +87,7 @@ export default function DocNav(
       items: [],
     });
   }
-  
+
   if (permissionsPage) {
     allEntries.push({
       id: "permissions" as SectionId,
@@ -156,7 +156,7 @@ export default function DocNav(
                   className={`t-docs-nav__main-list__item__heading-group t-docs-nav__sub-list__article ${
                     isActive ? "is-active" : ""
                   }`}
-                  href={sec.basePath}
+                  href={helpers.url(sec.basePath)}
                   aria-current={isActive ? "page" : undefined}
                 >
                   <img
@@ -207,19 +207,22 @@ export default function DocNav(
                   {/* Section home page link (Overview) - only when distinct from first item */}
                   {sectionHomePage &&
                     sectionHomePage.url?.replace(/\/$/, "") !==
-                      sec.items[0]?.url?.replace(/\/$/, "") && (
-                    <li>
-                      <a
-                        className="t-docs-nav__sub-list__article"
-                        href={sectionHomePage.url}
-                        aria-current={isSectionHomeActive ? "page" : undefined}
-                      >
-                        {sectionHomePage.attrs?.details?.title ||
-                          sectionHomePage.title ||
-                          "Overview"}
-                      </a>
-                    </li>
-                  )}
+                      sec.items[0]?.url?.replace(/\/$/, "") &&
+                    (
+                      <li>
+                        <a
+                          className="t-docs-nav__sub-list__article"
+                          href={sectionHomePage.url}
+                          aria-current={isSectionHomeActive
+                            ? "page"
+                            : undefined}
+                        >
+                          {sectionHomePage.attrs?.details?.title ||
+                            sectionHomePage.title ||
+                            "Overview"}
+                        </a>
+                      </li>
+                    )}
 
                   {/* Reference items */}
                   {sec.items.map((item, index) => (

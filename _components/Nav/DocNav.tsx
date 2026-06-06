@@ -5,6 +5,7 @@ import type {
   ContentNavBlock,
   ContentNavigation,
   ContentNavItem,
+  Helpers,
   IndexPage,
   PageSearch,
 } from "../../_types.d.ts";
@@ -14,9 +15,7 @@ interface SubNavProps {
   url?: string;
   pageUuid?: string;
   search: PageSearch;
-  helpers: {
-    icon: (name: string, set: string) => string;
-  };
+  helpers: Helpers;
 }
 
 function SubNav({ block, url, pageUuid, search, helpers }: SubNavProps) {
@@ -61,7 +60,7 @@ function SubNav({ block, url, pageUuid, search, helpers }: SubNavProps) {
             <li key={`${i}-${j}`}>
               <a
                 className="t-docs-nav__sub-list__article"
-                href={articlePage.url}
+                href={helpers.url(articlePage.url)}
                 aria-current={isCurrent ? "page" : undefined}
               >
                 {articlePage.page?.data?.details?.title ||
@@ -84,9 +83,7 @@ interface DocNavProps {
     };
   };
   search: PageSearch;
-  helpers: {
-    icon: (name: string, set: string) => string;
-  };
+  helpers: Helpers;
   getIndexPage?: (url?: string) => IndexPage | null;
   bubbleUpNav?: (headings?: ContentNavBlock[]) => ContentNavBlock[];
 }
@@ -128,7 +125,7 @@ export default function DocNav(
               className={`t-docs-nav__main-list__item__heading-group t-docs-nav__sub-list__article ${
                 pageUuid === indexPage.attrs?._uuid ? "is-active" : ""
               }`}
-              href={indexPage.url}
+              href={helpers.url(indexPage.url)}
               aria-current={pageUuid === indexPage.attrs?._uuid
                 ? "page"
                 : undefined}
