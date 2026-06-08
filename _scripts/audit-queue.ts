@@ -315,7 +315,21 @@ async function collectPages(config: Config, changelogBlob: string): Promise<Page
         const authorNotes = (parsed.author_notes ?? {}) as Record<string, unknown>;
         const needsTriage = "priority" in authorNotes && !audit.priority;
         const title = (((parsed.details as Record<string, unknown>) ?? {}).title as string) ?? rel;
-        const lastSub = lastSubMap.get(rel) ?? null;
+        let lastSub = lastSubMap.get(rel) ?? null;
+        // If frontmatter _created_at is newer than git's last-substantive date,
+        // prefer it. This catches files that were rewritten/recreated where
+        // --follow walks back into pre-rewrite history that no longer applies.
+        // YAML parses ISO dates into Date objects; raw quoted strings stay as strings.
+        const createdRaw = parsed._created_at;
+        let createdAt: string | null = null;
+        if (createdRaw instanceof Date && !isNaN(createdRaw.getTime())) {
+          createdAt = createdRaw.toISOString().slice(0, 10);
+        } else if (typeof createdRaw === "string") {
+          createdAt = createdRaw.slice(0, 10);
+        }
+        if (createdAt && (!lastSub || createdAt > lastSub)) {
+          lastSub = createdAt;
+        }
         const haystackLower = `${rel} ${title}`.toLowerCase();
         const matches = findSeedMatches(haystackLower, seedsLower, config.high_stakes_seeds);
         const matchesLower = matches.map((m) => m.toLowerCase());
