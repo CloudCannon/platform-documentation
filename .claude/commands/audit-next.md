@@ -12,6 +12,12 @@ Show the next batch of pages to audit, ranked by the priority framework in [`.cl
 deno task audit-queue
 ```
 
+The script refuses to run if any of these are true:
+
+- `app/` (path configurable via `app_repo_path` in [`_scripts/audit-config.yml`](../../_scripts/audit-config.yml), default `../app`) isn't checked out on `main` and up to date with `origin/main` — auditors verify factual claims against released app code, not feature-branch or stale state. Origin is fetched on each run (soft-fails offline) and the script exits with a commits-behind count if local main is behind.
+- Any audited page is missing `app_sha`.
+- Any in-scope `.mdx` has unparseable YAML frontmatter — the offending paths and parser messages are printed so they can be fixed before the next run. (Silently skipping broken pages would hide audit state behind a "looks unaudited" mask.)
+
 The output is:
 - Current phase (1 — script + P0/P1 confirmation, 2 — P0 audit, 3 — P1 audit, 4 — P2 sweep).
 - Audit progress (audited / total) and queue counts per priority.
@@ -31,16 +37,31 @@ deno task audit-queue -- --phase=3
 # Scope to a specific nav section (path prefix match).
 deno task audit-queue -- --section=developer/articles
 
+# Explain why a single page got its priority. Dumps every input signal
+# (last substantive edit, high-stakes matches, changelog pressure, plan
+# ownership), the current audit verdicts, any drift since review, and any
+# standing-check flags. Useful when the queue surprises you.
+deno task audit-queue -- --explain=user/articles/<slug>.mdx
+
 # Combine — and use JSON for ad-hoc filtering.
 deno task audit-queue -- --section=developer/guides --json | jq '.pages | map(select(.priority=="P0"))'
 ```
 
 ## What "next" depends on
 
-- Pages with `author_notes.last_reviewed` are audited and skipped.
+- Pages with `author_notes.last_reviewed` are audited and skipped from the priority queue, but re-surface in the **Standing checks** block when something has moved on (see below).
 - Pages tagged as plan-owned in [`_scripts/audit-config.yml`](../../_scripts/audit-config.yml) (`pre_scheduled_pages`, `externally_coupled_pages`) are skipped.
 - Pages with `author_notes.priority` set are treated as priority-confirmed; the frontmatter value wins over the rubric.
 - Pages with the `priority:` key present but empty (typically new docs scaffolded from the schema) are surfaced separately as "Needs triage" and sort first within their priority tier — these are new arrivals that haven't had their Phase 1 skim yet.
+
+## Standing checks — when re-audit is due
+
+After every full pass, the script keeps watching audited pages. A page re-surfaces in the **Standing checks** block at the bottom of the output when:
+
+- **Drift since review.** One or more substantive commits (≥30 lines, non-mechanical) have touched the file since `author_notes.last_reviewed`. The verdicts on file may no longer reflect what's there now.
+- **Re-review due.** Either the page's notes contain a `Next review: YYYY-MM-DD` hint and that date has passed, or it doesn't and `last_reviewed` is more than 12 months ago.
+
+To override the 12-month default for a specific page, drop a line like `Next review: 2027-03-01` anywhere in `author_notes.notes` — the script picks it up case-insensitively.
 
 ## What each audit lens tracks
 

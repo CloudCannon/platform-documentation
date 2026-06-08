@@ -1,6 +1,11 @@
 # Audit queue configuration. Read by _scripts/audit-queue.ts.
 # See .claude/plans/content-audit-mega.plan.md for context.
 
+# Path to the app/ repo used as factual ground truth. Relative to this repo
+# root, or absolute. The script verifies the path exists, is on main, and is
+# up to date with origin/main before letting any audit work proceed.
+app_repo_path: ../app
+
 # In-scope directories (relative to repo root).
 scope:
   - user/articles
@@ -55,6 +60,50 @@ staleness:
 # current without yearly config maintenance.
 changelogs_root: changelogs
 changelog_lookback_months: 6
+
+# Words to ignore when extracting changelog-pressure terms from page paths
+# and titles. Without this, generic words like "guide", "article", "create",
+# "your" match every changelog and trigger false-positive pressure signals.
+# Case-insensitive; minimum word length of 5 is enforced separately.
+changelog_pressure_stopwords:
+  - guide
+  - guides
+  - article
+  - articles
+  - cloudcannon
+  - create
+  - creating
+  - update
+  - updating
+  - delete
+  - deleting
+  - manage
+  - managing
+  - configure
+  - configuring
+  - access
+  - accessing
+  - settings
+  - using
+  - their
+  - there
+  - which
+  - other
+  - about
+  - default
+  - between
+  - through
+  - before
+  - after
+  - while
+  - works
+  - working
+  - feature
+  - features
+  - option
+  - options
+  - example
+  - examples
 
 # High-stakes topic seeds. A page is "high stakes" if its path,
 # title, or body matches any of these (case-insensitive).
