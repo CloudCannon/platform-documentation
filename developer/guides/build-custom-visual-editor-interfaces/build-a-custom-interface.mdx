@@ -1,0 +1,55 @@
+---
+_schema: default
+_uuid: 90ef473d-9390-4f97-a733-83e999e14f26
+_created_at: '2026-03-12 02:49:17 +0000'
+details:
+  title: Build a custom interface
+  order: 3
+  image: >-
+    https://cc-dam.imgix.net/documentation/images/guides/getting-started/guide-thumbnails/CloudCannon-Getting-Started-Thumbnail-Universal.png
+  description: Render a custom drawing interface that only appears for editors inside the Visual Editor.
+  start_nav_group: null
+  related_articles: null
+author_notes:
+  docshots: Needs docshots
+---
+Now that we detect the <comp.GlossaryTerm term="/user/glossary/v/visual-editor.yml">Visual Editor</comp.GlossaryTerm> and have the API, we can render our own interface. The Doodle Gallery brings its own UI: a canvas to draw on, a caption field, and a submit button. Because we gated the component on `inCloudCannonEditor` in the previous step, this interface only renders inside the *Visual Editor*.
+
+Wrap your interface in an element with the `cloudcannon-visual-editor-component` class. This is CloudCannon's convention for UI you inject into the *Visual Editor*, and it keeps your styling isolated from the surrounding editor.
+
+<comp.CodeBlock language="tsx" source="src/components/doodle.tsx">
+```
+return (
+  <div className="cloudcannon-visual-editor-component"> /*1*/
+    <h1>Why not draw something?</h1>
+
+    <DoodleCanvas canvasRef={canvasRef} finishDraw={addStroke} /> /*2*/
+
+    <label htmlFor="caption">Caption for the new image (required)</label>
+    <input
+      type="text"
+      id="caption"
+      onInput={(e) => setCaption(e.currentTarget.value)} /*3*/
+    />
+
+    <button type="button" disabled={!caption} onClick={submit}>Finish and submit</button> /*4*/
+  </div>
+);
+```
+<comp.Annotation number="1">
+  Wrap your interface in an element with the `cloudcannon-visual-editor-component` class — CloudCannon's convention for UI injected into the *Visual Editor*.
+</comp.Annotation>
+<comp.Annotation number="2">
+  `DoodleCanvas` is a plain React component that captures the drawing. None of its code touches the *Visual Editor API* — it's just a canvas.
+</comp.Annotation>
+<comp.Annotation number="3">
+  Capture the caption the editor types. We'll save it alongside the image.
+</comp.Annotation>
+<comp.Annotation number="4">
+  The submit button calls our `submit()` function, which we'll build over the next two steps.
+</comp.Annotation>
+</comp.CodeBlock>
+
+Bringing your own UI like this gives you complete control over the experience. If instead you want to reuse CloudCannon's native editing surfaces, the *Visual Editor API* can also open its own input panels and make page elements directly editable — see [Create a custom Data Panel](/documentation/developer-articles/create-a-custom-data-panel-with-the-visual-editor-api/) and [Create custom inline editing](/documentation/developer-articles/create-custom-inline-editing-with-the-visual-editor-api/).
+
+In the next step of this guide, we'll start building the submit function, beginning by uploading the finished doodle as an image.
