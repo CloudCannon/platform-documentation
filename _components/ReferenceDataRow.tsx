@@ -5,6 +5,7 @@ import RefItem from "./Reference/RefItem.tsx";
 interface ReferenceDataRowProps {
   section: string;
   ref_key: string;
+  display_label?: string;
 }
 
 function findEntryByGid(
@@ -28,7 +29,7 @@ function formatDefault(value: unknown): string {
 }
 
 export default function ReferenceDataRow(
-  { section, ref_key }: ReferenceDataRowProps,
+  { section, ref_key, display_label }: ReferenceDataRowProps,
   helpers: Helpers,
 ) {
   if (!ref_key?.trim()) return null;
@@ -58,7 +59,7 @@ export default function ReferenceDataRow(
       <RefItem
         docRef={entry}
         section={section as SectionId}
-        keyOverride={getDisplayKey(entry)}
+        keyOverride={display_label ?? getDisplayKey(entry)}
         helpers={helpers}
       />
     </div>

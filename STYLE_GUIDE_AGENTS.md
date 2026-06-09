@@ -7,8 +7,8 @@ Machine-readable style rules for AI agents and automated linters. These rules ar
 **For agents making updates to this file:** Also update the corresponding section in `STYLE_GUIDE.mdx` with the prose explanation and examples. Update the revision history in both files: `last_updated` and `style_guide_version` in the YAML block below, and the `Last Updated` and `Version` fields and the revision history table (Section 4) in `STYLE_GUIDE.mdx`.
 
 ```yaml
-style_guide_version: "2.13"
-last_updated: "2026-05-06"
+style_guide_version: "2.14"
+last_updated: "2026-05-13"
 
 terminology:
   disambiguation:
@@ -73,6 +73,7 @@ terminology:
     "log in": ["login (as verb)"]
     "dropdown": ["drop-down", "drop down"]
     "checkbox": ["check box"]
+    "modal": ["dialog", "popup", "popover"]
     "filename": ["file name"]
     "insecure": ["unsecure"]
 

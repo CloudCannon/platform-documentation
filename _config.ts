@@ -228,7 +228,7 @@ const injectedSections: Promise<string>[] = [];
 
 const mdFilter = site.renderer.helpers.get("md")?.[0];
 
-site.ignore("README.md", "AGENTS.md", "unused", "STYLE_GUIDE.mdx", "scripts");
+site.ignore("README.md", "AGENTS.md", "unused", "STYLE_GUIDE.mdx", "STYLE_GUIDE_AGENTS.md", "scripts", ".claude");
 
 // Detect dev mode (serve command uses -s flag)
 const isDevMode = Deno.args.includes("-s") || Deno.args.includes("--serve");
@@ -310,7 +310,7 @@ if (Deno.env.get("DOCSHOTS_LOCAL")) {
 (site.formats.get(".md")?.engines?.[0] as any)?.engine?.disable?.("code");
 
 // Pagefind search indexing - runs automatically after each build
-// Uses local plugin (_plugins/pagefind.ts) with pagefind v1.5.0-beta.1
+// Uses local plugin (_plugins/pagefind.ts) with pagefind v1.5.0
 site.use(pagefind({
   outputPath: "/documentation/_pagefind",
   ui: false, // Disable old PagefindUI
