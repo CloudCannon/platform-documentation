@@ -1,11 +1,4 @@
-import ChangeNav from "../../_components/Nav/ChangeNav.tsx";
-import Breadcrumb from "../../_components/Layout/Breadcrumb.tsx";
-import CopyPageDropdown from "../../_components/CopyPageDropdown.tsx";
-import PagefindCategoryMeta from "../../_components/Layout/PagefindCategoryMeta.tsx";
-import MobileTOC from "../../_components/Layout/MobileTOC.tsx";
-import NavSidebar from "../../_components/Layout/NavSidebar.tsx";
-import RelativeDate from "../../_components/RelativeDate.tsx";
-import type { ChangelogYears, Helpers } from "../../_types.d.ts";
+import type { ChangelogYears, Comp, Helpers } from "../../_types.d.ts";
 
 interface Props {
   content: string;
@@ -13,10 +6,12 @@ interface Props {
   title: string;
   date: string;
   changelog_years?: () => ChangelogYears;
+  comp: Comp;
 }
 
 export default function ChangelogLayout(props: Props, helpers: Helpers) {
   const {
+    comp,
     content,
     url,
     title,
@@ -33,17 +28,17 @@ export default function ChangelogLayout(props: Props, helpers: Helpers) {
       data-pagefind-filter="site:Changelog"
       data-pagefind-meta="site:Changelog"
     >
-      <PagefindCategoryMeta category="Changelog" />
+      <comp.Layout.PagefindCategoryMeta category="Changelog" />
       <div className="l-column">
-        <NavSidebar>
-          <ChangeNav
+        <comp.Layout.NavSidebar>
+          <comp.Nav.ChangeNav
             title="Changelog"
             url={url}
             changelogYears={changelog_years}
           />
-        </NavSidebar>
+        </comp.Layout.NavSidebar>
         <div className="u-card-box l-small-content">
-          <Breadcrumb
+          <comp.Layout.Breadcrumb
             items={[
               { label: "Changelog", href: "/documentation/changelog/" },
               { label: year, href: `/documentation/changelog/${year}/` },
@@ -56,12 +51,12 @@ export default function ChangelogLayout(props: Props, helpers: Helpers) {
             </h1>
           </div>
           <p className="changelog-entry__date">
-            <RelativeDate date={date} />
+            <comp.RelativeDate date={date} />
           </p>
           <div className="l-copy-page-mobile" data-pagefind-ignore>
-            <CopyPageDropdown title={title || ""} url={url} helpers={helpers} />
+            <comp.CopyPageDropdown title={title || ""} url={url} helpers={helpers} />
           </div>
-          <MobileTOC helpers={helpers} />
+          <comp.Layout.MobileTOC helpers={helpers} />
           <div className="l-content-split" x-data="visibleNavHighlighter">
             <main id="main-content">
               <div
@@ -70,7 +65,7 @@ export default function ChangelogLayout(props: Props, helpers: Helpers) {
               />
             </main>
             <aside data-pagefind-ignore className="l-right">
-              <CopyPageDropdown title={title || ""} url={url} helpers={helpers} />
+              <comp.CopyPageDropdown title={title || ""} url={url} helpers={helpers} />
               <div
                 className="l-toc-changelog-list"
                 {...{ "x-on:scroll.window.throttle.50ms": "onScroll()" }}

@@ -45,6 +45,8 @@ declare global {
 // Re-export Lume.Helpers as Helpers for convenience
 export type Helpers = Lume.Helpers;
 
+export type Comp = Lume.Data["comp"];
+
 // ============================================================================
 // COMMON PAGE & DOCUMENT TYPES
 // ============================================================================

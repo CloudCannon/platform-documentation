@@ -1,7 +1,5 @@
-import NavWrapper from "./NavWrapper.tsx";
-import NavHeading from "./NavHeading.tsx";
-// import ScrollGradient from "./ScrollGradient.tsx";
 import type {
+  Comp,
   ContentNavBlock,
   ContentNavigation,
   ContentNavItem,
@@ -86,10 +84,11 @@ interface DocNavProps {
   helpers: Helpers;
   getIndexPage?: (url?: string) => IndexPage | null;
   bubbleUpNav?: (headings?: ContentNavBlock[]) => ContentNavBlock[];
+  comp: Comp;
 }
 
 export default function DocNav(
-  { navigation, url, page, search, helpers, getIndexPage, bubbleUpNav }:
+  { comp, navigation, url, page, search, helpers, getIndexPage, bubbleUpNav }:
     DocNavProps,
 ) {
   if (!navigation) {
@@ -102,9 +101,9 @@ export default function DocNav(
   const pageUuid = page?.data?._uuid;
 
   return (
-    <NavWrapper>
-      {/* <ScrollGradient position="top" /> */}
-      <NavHeading title={navigation.title} />
+    <comp.Nav.NavWrapper>
+      {/* <comp.Nav.ScrollGradient position="top" /> */}
+      <comp.Nav.NavHeading title={navigation.title} />
 
       <ol
         className="t-docs-nav__main-list"
@@ -188,7 +187,7 @@ export default function DocNav(
           );
         })}
       </ol>
-      {/* <ScrollGradient position="bottom" /> */}
-    </NavWrapper>
+      {/* <comp.Nav.ScrollGradient position="bottom" /> */}
+    </comp.Nav.NavWrapper>
   );
 }

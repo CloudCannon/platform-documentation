@@ -1,9 +1,5 @@
-import PrevNext from "../../_components/Content/PrevNext.tsx";
-import MobileTOC from "../../_components/Layout/MobileTOC.tsx";
-import CopyPageDropdown from "../../_components/CopyPageDropdown.tsx";
-import PagefindCategoryMeta from "../../_components/Layout/PagefindCategoryMeta.tsx";
-import { getPagefindContentType } from "../../_components/utils/urlHelpers.ts";
-import type { Details, Helpers, Page } from "../../_types.d.ts";
+import { getPagefindContentType } from "../../_components/utils/url-util.ts";
+import type { Comp, Details, Helpers, Page } from "../../_types.d.ts";
 
 interface GuideArticle {
   url: string;
@@ -24,10 +20,12 @@ interface Props {
   guide_icon_invert_for_dark_mode?: boolean;
   initial_section_heading?: string;
   search: Search;
+  comp: Comp;
 }
 
 export default function GuideLayout(props: Props, helpers: Helpers) {
   const {
+    comp,
     content,
     url,
     page,
@@ -60,7 +58,7 @@ export default function GuideLayout(props: Props, helpers: Helpers) {
       data-pagefind-weight="30"
       data-pagefind-filter="site:Guides"
       data-pagefind-meta="site:Guides">
-      <PagefindCategoryMeta category={getPagefindContentType(url)} />
+      <comp.Layout.PagefindCategoryMeta category={getPagefindContentType(url)} />
       <div className="l-column">
         <aside className="l-left" x-data="{ more: true }">
           <nav
@@ -173,21 +171,21 @@ export default function GuideLayout(props: Props, helpers: Helpers) {
             {details?.description}
           </p>
           <div className="l-copy-page-mobile" data-pagefind-ignore>
-            <CopyPageDropdown title={details?.title || ""} url={url} helpers={helpers} />
+            <comp.CopyPageDropdown title={details?.title || ""} url={url} helpers={helpers} />
           </div>
-          <MobileTOC helpers={helpers} />
+          <comp.Layout.MobileTOC helpers={helpers} />
           <div className="l-content-split">
             <main
               id="main-content"
               dangerouslySetInnerHTML={{ __html: content }}
             />
             <aside data-pagefind-ignore className="l-right">
-              <CopyPageDropdown title={details?.title || ""} url={url} helpers={helpers} />
+              <comp.CopyPageDropdown title={details?.title || ""} url={url} helpers={helpers} />
               <div className="l-toc" {...{ "x-on:scroll.window.throttle.50ms": "onScroll()" }} />
             </aside>
           </div>
 
-          <PrevNext
+          <comp.Content.PrevNext
             prev={prev}
             next={next}
             guideIcon={guide_icon}

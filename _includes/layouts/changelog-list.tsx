@@ -1,8 +1,4 @@
-import ChangeNav from "../../_components/Nav/ChangeNav.tsx";
-import MobileTOC from "../../_components/Layout/MobileTOC.tsx";
-import NavSidebar from "../../_components/Layout/NavSidebar.tsx";
-import RelativeDate from "../../_components/RelativeDate.tsx";
-import type { ChangelogYears, Helpers, Page } from "../../_types.d.ts";
+import type { ChangelogYears, Comp, Helpers, Page } from "../../_types.d.ts";
 
 interface Changelog {
   url: string;
@@ -18,6 +14,7 @@ interface Props {
   url: string;
   data?: Data;
   changelog_years?: () => ChangelogYears;
+  comp: Comp;
 }
 
 export default async function ChangelogListLayout(
@@ -25,6 +22,7 @@ export default async function ChangelogListLayout(
   helpers: Helpers,
 ) {
   const {
+    comp,
     url,
     data,
     changelog_years,
@@ -40,13 +38,13 @@ export default async function ChangelogListLayout(
   return (
     <div className="l-page" x-init="showmobilenav = true">
       <div className="l-column">
-        <NavSidebar>
-          <ChangeNav
+        <comp.Layout.NavSidebar>
+          <comp.Nav.ChangeNav
             title="Changelog"
             url={url}
             changelogYears={changelog_years}
           />
-        </NavSidebar>
+        </comp.Layout.NavSidebar>
         <div className="u-card-box l-small-content">
           <div className="l-breadcrumb" />
           <h1 className="l-heading u-margin-bottom-0">
@@ -58,7 +56,7 @@ export default async function ChangelogListLayout(
             to keep up with the latest changes.
           </p>
 
-          <MobileTOC helpers={helpers} />
+          <comp.Layout.MobileTOC helpers={helpers} />
           <div className="l-content-split" x-data="visibleNavHighlighter">
             <main id="main-content" className="changelog-main">
               {data?.results?.map((changelog, i) => (
@@ -71,7 +69,7 @@ export default async function ChangelogListLayout(
                     <a href={changelog.url}>{changelog.page?.data?.title}</a>
                   </h2>
                   <p className="changelog-entry__date">
-                    <RelativeDate date={changelog.page?.data?.date || ""} />
+                    <comp.RelativeDate date={changelog.page?.data?.date || ""} />
                   </p>
                   <div
                     dangerouslySetInnerHTML={{ __html: renderedContent[i] }}

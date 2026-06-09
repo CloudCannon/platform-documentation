@@ -110,22 +110,22 @@ Usage: <comp.DocsImage path="/img.png" alt="Alt text" type="screenshot" />
 ```
 
 ```tsx
-import ImageWrapper from "./ImageWrapper.tsx";
-import type { Helpers } from "../_types.d.ts";
+import type { Helpers, Comp } from "../_types.d.ts";
 
 interface DocsImageProps {
   type?: string;
   path: string;
   alt?: string;
   title?: string;
+  comp: Comp;
 }
 
 export default function DocsImage(
-  { type, path, alt, title }: DocsImageProps,
+  { type, path, alt, title, comp }: DocsImageProps,
   helpers: Helpers,
 ) {
   return (
-    <ImageWrapper src={helpers.url(path)} alt={alt} title={title} type={type} />
+    <comp.ImageWrapper src={helpers.url(path)} alt={alt} title={title} type={type} />
   );
 }
 ```

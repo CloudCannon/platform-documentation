@@ -1,6 +1,7 @@
-import RelativeDate from "../RelativeDate.tsx";
+import type { Comp } from "../../_types.d.ts";
 
 interface CardProps {
+  comp: Comp;
   href?: string;
   title?: string;
   description?: string;
@@ -18,7 +19,6 @@ interface CardProps {
   helpers?: {
     icon?: (name: string, set: string) => string;
   };
-  [key: string]: unknown;
 }
 
 /**
@@ -28,6 +28,7 @@ interface CardProps {
  * with multiple variants for different use cases.
  */
 export default function Card({
+  comp,
   href,
   title,
   description,
@@ -43,7 +44,6 @@ export default function Card({
   className = "",
   children,
   helpers,
-  ...rest
 }: CardProps) {
   const isInteractive = Boolean(href);
   const Element = isInteractive ? "a" : "div";
@@ -65,11 +65,8 @@ export default function Card({
     : "arrow_forward";
   const arrowIconUrl = helpers?.icon?.(`${arrowIconName}:outlined`, "material");
 
-  // Common link props for interactive cards
-  const allProps = isInteractive ? { href, ...rest } : { ...rest };
-
   return (
-    <Element className={cardClasses} {...allProps}>
+    <Element className={cardClasses} href={href}>
       {/* Optional label (e.g., "Previous", "Next") */}
       {label && <strong className="c-card__label">{label}</strong>}
 
@@ -91,7 +88,7 @@ export default function Card({
       {/* Optional date (for changelog) */}
       {date && (
         <p className="c-card__date">
-          <RelativeDate date={date} />
+          <comp.RelativeDate date={date} />
         </p>
       )}
 

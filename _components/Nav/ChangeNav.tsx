@@ -1,21 +1,20 @@
-import NavWrapper from "./NavWrapper.tsx";
-import NavHeading from "./NavHeading.tsx";
-import type { ChangelogYears } from "../../_types.d.ts";
+import type { ChangelogYears, Comp } from "../../_types.d.ts";
 
 interface ChangeNavProps {
   title: string;
   url?: string;
   changelogYears?: () => ChangelogYears;
+  comp: Comp;
 }
 
 export default function ChangeNav(
-  { title, url, changelogYears }: ChangeNavProps,
+  { comp, title, url, changelogYears }: ChangeNavProps,
 ) {
   const years = changelogYears?.() || { keys: [] };
 
   return (
-    <NavWrapper>
-      <NavHeading title={title} />
+    <comp.Nav.NavWrapper>
+      <comp.Nav.NavHeading title={title} />
 
       <ol
         className="t-docs-nav__main-list"
@@ -59,6 +58,6 @@ export default function ChangeNav(
         ))}
       </ol>
       <div x-intersect="more = false" x-intersect:leave="more = true" />
-    </NavWrapper>
+    </comp.Nav.NavWrapper>
   );
 }

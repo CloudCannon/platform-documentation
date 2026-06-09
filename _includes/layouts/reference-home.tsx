@@ -1,18 +1,7 @@
-import CopyPageDropdown from "../../_components/CopyPageDropdown.tsx";
-import PagefindCategoryMeta from "../../_components/Layout/PagefindCategoryMeta.tsx";
-import DocNav from "../../_components/Reference/DocNav.tsx";
-import MobileTOC from "../../_components/Layout/MobileTOC.tsx";
-import NavSidebar from "../../_components/Layout/NavSidebar.tsx";
-import RelatedArticles from "../../_components/Content/RelatedArticles.tsx";
-import PropertiesTable from "../../_components/Reference/PropertiesTable.tsx";
-import RefType from "../../_components/Reference/RefType.tsx";
-import {
-  getTocItems,
-  TableOfContents,
-} from "../../_components/Reference/ReferenceContent.tsx";
 import type { SectionId } from "../../_components/Reference/helpers.ts";
-import { slugify } from "../../_components/utils/index.ts";
+import { slugify } from "../../_components/utils/string-util.ts";
 import type {
+  Comp,
   Details,
   DocEntry,
   Helpers,
@@ -43,10 +32,12 @@ interface Props {
   ref_nav?: RefNavSection[];
   url?: string;
   search?: PageSearch;
+  comp: Comp;
 }
 
 export default function ReferenceHomeLayout(
   {
+    comp,
     content,
     details,
     date,
@@ -82,22 +73,17 @@ export default function ReferenceHomeLayout(
     );
   }
 
-  // Generate TOC items from the root entry (only for section home pages)
-  const tocItems = derivedRootEntry
-    ? getTocItems(derivedRootEntry, section)
-    : [];
-
   return (
     <div className="l-page" x-init="showmobilenav = true"
       data-pagefind-body
       data-pagefind-weight="0.1"
       data-pagefind-filter="site:Reference"
       data-pagefind-meta="site:Reference">
-      <PagefindCategoryMeta category="Developer Reference" />
+      <comp.Layout.PagefindCategoryMeta category="Developer Reference" />
       <div className="l-column">
-        <NavSidebar className="developer-reference">
+        <comp.Layout.NavSidebar className="developer-reference">
           {ref_nav && search && (
-            <DocNav
+            <comp.Reference.DocNav
               ref_nav={ref_nav}
               currentUrl={currentUrl}
               section={section}
@@ -105,7 +91,7 @@ export default function ReferenceHomeLayout(
               helpers={helpers}
             />
           )}
-        </NavSidebar>
+        </comp.Layout.NavSidebar>
 
         <div className="u-card-box l-content" x-data="visibleNavHighlighter">
           <h1
@@ -121,11 +107,11 @@ export default function ReferenceHomeLayout(
           </p>
 
           <div className="l-copy-page-mobile" data-pagefind-ignore>
-            <CopyPageDropdown title={details?.title || ""} url={currentUrl} helpers={helpers} />
+            <comp.CopyPageDropdown title={details?.title || ""} url={currentUrl} helpers={helpers} />
           </div>
-          <MobileTOC helpers={helpers} listClassName="">
-            <TableOfContents items={tocItems} />
-          </MobileTOC>
+          <comp.Layout.MobileTOC helpers={helpers} listClassName="">
+            <comp.Reference.TableOfContents entry={derivedRootEntry} section={section} />
+          </comp.Layout.MobileTOC>
 
           <div className="l-content-split">
             <main id="main-content">
@@ -150,7 +136,7 @@ export default function ReferenceHomeLayout(
                     <>
                       <dt id="type" data-pagefind-ignore>Type:</dt>
                       <dd data-pagefind-ignore>
-                        <RefType
+                        <comp.Reference.RefType
                           doc={derivedRootEntry}
                           currentUrl={currentUrl}
                           section={section}
@@ -159,7 +145,7 @@ export default function ReferenceHomeLayout(
                     </>
                   )}
 
-                  <PropertiesTable
+                  <comp.Reference.PropertiesTable
                     entry={derivedRootEntry}
                     currentUrl={currentUrl}
                     section={section}
@@ -172,14 +158,14 @@ export default function ReferenceHomeLayout(
             </main>
 
             <aside data-pagefind-ignore className="l-right">
-              <CopyPageDropdown title={details?.title || ""} url={currentUrl} helpers={helpers} />
+              <comp.CopyPageDropdown title={details?.title || ""} url={currentUrl} helpers={helpers} />
               <div className="l-toc" {...{ "x-on:scroll.window.throttle.50ms": "onScroll()" }}>
-                <TableOfContents items={tocItems} withHeading />
+                <comp.Reference.TableOfContents entry={derivedRootEntry} section={section} withHeading />
               </div>
             </aside>
           </div>
 
-          <RelatedArticles
+          <comp.Content.RelatedArticles
             details={details}
             search={search}
             helpers={helpers}

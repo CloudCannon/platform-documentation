@@ -1,10 +1,5 @@
-import ChangeNav from "../../_components/Nav/ChangeNav.tsx";
-import Breadcrumb from "../../_components/Layout/Breadcrumb.tsx";
-import MobileTOC from "../../_components/Layout/MobileTOC.tsx";
-import NavSidebar from "../../_components/Layout/NavSidebar.tsx";
-import Card from "../../_components/Card/Card.tsx";
-import { truncate } from "../../_components/utils/index.ts";
-import type { ChangelogYears, Helpers } from "../../_types.d.ts";
+import { truncate } from "../../_components/utils/string-util.ts";
+import type { ChangelogYears, Comp, Helpers } from "../../_types.d.ts";
 
 interface ChangelogPage {
   url: string;
@@ -34,6 +29,7 @@ interface Props {
   url: string;
   data?: Data;
   changelog_years?: () => ChangelogYears;
+  comp: Comp;
 }
 
 export default async function ChangelogCardsLayout(
@@ -41,6 +37,7 @@ export default async function ChangelogCardsLayout(
   helpers: Helpers,
 ) {
   const {
+    comp,
     url,
     data,
     changelog_years,
@@ -61,22 +58,22 @@ export default async function ChangelogCardsLayout(
   return (
     <div className="l-page" x-init="showmobilenav = true">
       <div className="l-column">
-        <NavSidebar>
-          <ChangeNav
+        <comp.Layout.NavSidebar>
+          <comp.Nav.ChangeNav
             title="Changelog"
             url={url}
             changelogYears={changelog_years}
           />
-        </NavSidebar>
+        </comp.Layout.NavSidebar>
         <div className="u-card-box l-small-content">
-          <Breadcrumb
+          <comp.Layout.Breadcrumb
             items={[{ label: "Changelog", href: "/documentation/changelog/" }]}
             helpers={helpers}
           />
           <h1 className="l-heading u-margin-bottom-0">
             {data?.year}
           </h1>
-          <MobileTOC helpers={helpers} />
+          <comp.Layout.MobileTOC helpers={helpers} />
           <div className="l-content-split" x-data="visibleNavHighlighter">
             <main id="main-content">
               {data?.months?.map((monthGroup, mi) => (
@@ -84,7 +81,7 @@ export default async function ChangelogCardsLayout(
                   <h2 className="changelog-month-heading">{monthGroup.name}</h2>
                   <div className="c-card-container--changelog">
                     {monthGroup.results?.map((changelog, ci) => (
-                      <Card
+                      <comp.Card.Card
                         key={ci}
                         href={changelog.url}
                         title={changelog.page?.data?.title}

@@ -1,10 +1,10 @@
-import NavLinks from "./NavLinks.tsx";
-import type { HeaderNavigation, Helpers } from "../../_types.d.ts";
+import type { Comp, HeaderNavigation, Helpers } from "../../_types.d.ts";
 
 interface NavProps {
   headingnav?: HeaderNavigation;
   url?: string;
   helpers: Helpers;
+  comp: Comp;
 }
 
 function ThemeDropdown(
@@ -95,7 +95,7 @@ function ThemeDropdown(
   );
 }
 
-export default function Nav({ headingnav, url, helpers }: NavProps) {
+export default function Nav({ comp, headingnav, url, helpers }: NavProps) {
   const items = headingnav?.items || [];
 
   return (
@@ -116,7 +116,7 @@ export default function Nav({ headingnav, url, helpers }: NavProps) {
       </div>
 
       <div className="l-header__middle">
-        <NavLinks headingnav={headingnav} url={url} helpers={helpers} />
+        <comp.Layout.NavLinks headingnav={headingnav} url={url} helpers={helpers} />
       </div>
 
       <div className="l-header__right">

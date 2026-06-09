@@ -1,9 +1,9 @@
-import InlineSearch from "./InlineSearch.tsx";
+import type { Comp } from "../../_types.d.ts";
 
 /**
  * Shared content for 404 pages
  */
-export default function NotFoundContent() {
+export default function NotFoundContent({ comp }: { comp: Comp }) {
   return (
     <div className="l-home-card">
       <h1 className="l-heading l-center-heading" data-skip-anchor="">
@@ -14,7 +14,7 @@ export default function NotFoundContent() {
         or has been moved.
       </p>
 
-      <InlineSearch className="t-404-search" />
+      <comp.Layout.InlineSearch className="t-404-search" />
     </div>
   );
 }

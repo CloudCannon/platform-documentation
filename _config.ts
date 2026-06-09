@@ -14,7 +14,7 @@ import basePath from "lume/plugins/base_path.ts";
 import jsx from "lume/plugins/jsx.ts";
 import mdx from "lume/plugins/mdx.ts";
 
-import { slugify } from "./_components/utils/stringHelpers.ts";
+import { slugify } from "./_components/utils/string-util.ts";
 
 import { parse as yamlParse } from "@std/yaml";
 

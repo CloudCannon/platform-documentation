@@ -1,13 +1,10 @@
 import { parse as yamlParse } from "@std/yaml";
 import { join } from "@std/path";
-import GlossaryNav from "../../_components/Nav/GlossaryNav.tsx";
-import NavSidebar from "../../_components/Layout/NavSidebar.tsx";
-import MobileTOC from "../../_components/Layout/MobileTOC.tsx";
-import Card from "../../_components/Card/Card.tsx";
-import type { GlossaryEntry, Helpers } from "../../_types.d.ts";
+import type { Comp, GlossaryEntry, Helpers } from "../../_types.d.ts";
 
 interface Props {
   all_letters?: () => string[];
+  comp: Comp;
 }
 
 async function getGlossaryEntriesByLetter(
@@ -37,7 +34,7 @@ export default async function GlossaryListLayout(
   props: Props,
   helpers: Helpers,
 ) {
-  const { all_letters } = props;
+  const { comp, all_letters } = props;
   const letters = all_letters?.() || [];
 
   // Pre-fetch all glossary entries by letter (async)
@@ -51,12 +48,12 @@ export default async function GlossaryListLayout(
   return (
     <div className="l-page" x-init="showmobilenav = true">
       <div className="l-column">
-        <NavSidebar>
-          <GlossaryNav
+        <comp.Layout.NavSidebar>
+          <comp.Nav.GlossaryNav
             title="User Glossary"
             allLetters={all_letters}
           />
-        </NavSidebar>
+        </comp.Layout.NavSidebar>
         <div
           className="u-card-box l-small-content"
           x-data="visibleNavHighlighter"
@@ -64,7 +61,7 @@ export default async function GlossaryListLayout(
           <h1 className="l-heading u-margin-bottom-0 u-padding-bottom-0">
             User Glossary
           </h1>
-          <MobileTOC helpers={helpers} />
+          <comp.Layout.MobileTOC helpers={helpers} />
           <div className="l-content-split">
             <main id="main-content" className="c-card-container--glossary">
               {entriesByLetter.flatMap(({ letter, entries }) => [
@@ -78,7 +75,7 @@ export default async function GlossaryListLayout(
                 ...(entries && entries.length > 0
                   ? (
                     entries.map((entry, i) => (
-                      <Card
+                      <comp.Card.Card
                         key={`${letter}-${i}`}
                         title={entry.glossary_term_name}
                         variant="glossary"
@@ -89,11 +86,11 @@ export default async function GlossaryListLayout(
                             __html: helpers.md(entry.term_description),
                           }}
                         />
-                      </Card>
+                      </comp.Card.Card>
                     ))
                   )
                   : [
-                    <Card
+                    <comp.Card.Card
                       key={`${letter}-empty`}
                       variant="glossary"
                       helpers={helpers}
@@ -102,7 +99,7 @@ export default async function GlossaryListLayout(
                         No glossary entries found for the letter "{letter
                           .toUpperCase()}".
                       </p>
-                    </Card>,
+                    </comp.Card.Card>,
                   ]),
               ])}
             </main>

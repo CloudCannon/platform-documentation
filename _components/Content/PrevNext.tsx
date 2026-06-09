@@ -1,5 +1,4 @@
-import Card from "../Card/Card.tsx";
-import type { Details, Helpers } from "../../_types.d.ts";
+import type { Comp, Details, Helpers } from "../../_types.d.ts";
 
 interface Page {
   url?: string;
@@ -14,10 +13,11 @@ interface PrevNextProps {
   details?: Details;
   totalPages?: number;
   helpers: Helpers;
+  comp: Comp;
 }
 
 export default function PrevNext(
-  { prev, next, guideIcon, guideTitle, details, totalPages, helpers }:
+  { comp, prev, next, guideIcon, guideTitle, details, totalPages, helpers }:
     PrevNextProps,
 ) {
   return (
@@ -25,7 +25,7 @@ export default function PrevNext(
       <div className="c-card-container--prev-next" data-pagefind-ignore>
         {prev?.url
           ? (
-            <Card
+            <comp.Card.Card
               href={prev.url}
               label="Previous"
               title={prev.details?.title}
@@ -40,7 +40,7 @@ export default function PrevNext(
 
         {next?.url
           ? (
-            <Card
+            <comp.Card.Card
               href={next.url}
               label="Next"
               title={next.details?.title}
