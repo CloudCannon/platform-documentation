@@ -102,7 +102,7 @@ export default function Nav({ comp, headingnav, url, helpers }: NavProps) {
     <nav className="l-header">
       <div className="l-header__site">
         <a
-          href="/documentation"
+          href="/documentation/"
           className="l-header__emblem"
           aria-label="Go to cloudcannon.com"
         >
@@ -181,7 +181,7 @@ export default function Nav({ comp, headingnav, url, helpers }: NavProps) {
           <div className="l-header__mobile-menu-header">
             <div className="l-header__site">
               <a
-                href="/documentation"
+                href="/documentation/"
                 className="l-header__emblem"
                 aria-label="Go to CloudCannon Documentation"
               >
