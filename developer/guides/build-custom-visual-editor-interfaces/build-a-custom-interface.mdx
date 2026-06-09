@@ -23,16 +23,15 @@ return (
   <div className="cloudcannon-visual-editor-component"> /*1*/
     <h1>Why not draw something?</h1>
 
-    <DoodleCanvas canvasRef={canvasRef} finishDraw={addStroke} /> /*2*/
+    <DoodleCanvas
+      canvasRef={canvasRef}
+      finishDraw={(newPixels: CoordArray) => { setSavedPixels([...savedPixels, [...newPixels]]); }} /*2*/
+    ></DoodleCanvas>
 
     <label htmlFor="caption">Caption for the new image (required)</label>
-    <input
-      type="text"
-      id="caption"
-      onInput={(e) => setCaption(e.currentTarget.value)} /*3*/
-    />
+    <input type="text" id="caption" onInput={(e) => { setCaption(e.currentTarget.value); }} /> /*3*/
 
-    <button type="button" disabled={!caption} onClick={submit}>Finish and submit</button> /*4*/
+    <button type="button" disabled={!!currentStateMessage || !caption} onClick={submit}>Finish and submit</button> /*4*/
   </div>
 );
 ```
@@ -40,13 +39,31 @@ return (
   Wrap your interface in an element with the `cloudcannon-visual-editor-component` class — CloudCannon's convention for UI injected into the *Visual Editor*.
 </comp.Annotation>
 <comp.Annotation number="2">
-  `DoodleCanvas` is a plain React component that captures the drawing. None of its code touches the *Visual Editor API* — it's just a canvas.
+  `DoodleCanvas` is a plain React component that captures the drawing and hands the strokes back through `finishDraw`. None of its code touches the *Visual Editor API* — it's just a canvas.
 </comp.Annotation>
 <comp.Annotation number="3">
   Capture the caption the editor types. We'll save it alongside the image.
 </comp.Annotation>
 <comp.Annotation number="4">
   The submit button calls our `submit()` function, which we'll build over the next two steps.
+</comp.Annotation>
+</comp.CodeBlock>
+
+The Doodle Gallery renders this component on its homepage. In Astro, that means importing it and rendering `<Doodler client:load />` — the `client:load` directive hydrates the component in the browser, where it can reach the *Visual Editor API*.
+
+<comp.CodeBlock language="astro" source="src/pages/index.astro">
+```
+---
+import { Doodler } from "../components/doodle.tsx"; /*1*/
+---
+
+<Doodler client:load /> /*2*/
+```
+<comp.Annotation number="1">
+  Import the component into the page where you want the tool to appear.
+</comp.Annotation>
+<comp.Annotation number="2">
+  Render it with `client:load` so it hydrates in the browser — the integration has to run client-side to reach the *Visual Editor API*.
 </comp.Annotation>
 </comp.CodeBlock>
 

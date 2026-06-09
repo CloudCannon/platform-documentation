@@ -21,21 +21,22 @@ To get type checking and autocomplete as you write, type the global `window` wit
 
 <comp.CodeBlock language="tsx" source="src/components/doodle.tsx">
 ```
-import { useState, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import type { CloudCannonVisualEditorAPIV1, CloudCannonVisualEditorWindow } from '@cloudcannon/visual-editor-api'; /*1*/
 
 declare const window: CloudCannonVisualEditorWindow & { inEditorMode: true | undefined } /*2*/
 
 export function Doodler() {
   let cloudcannonApi: CloudCannonVisualEditorAPIV1 | undefined;
-  const [inCloudCannonEditor, setInCloudCannonEditor] = useState(false);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [inCloudCannonEditor, setInCloudCannonEditor] = useState<boolean>(false);
 
   useEffect(() => {
     if (window.inEditorMode) { /*3*/
-      setInCloudCannonEditor(true);
+      setInCloudCannonEditor(!!window.inEditorMode);
       cloudcannonApi = window.CloudCannonAPI?.useVersion('v1', true); /*4*/
     }
-  });
+  })
 
   if (!inCloudCannonEditor) {
     return undefined; /*5*/
@@ -61,6 +62,6 @@ export function Doodler() {
 </comp.Annotation>
 </comp.CodeBlock>
 
-The Doodle Gallery does this inside a React `useEffect`, but the pattern is the same in any framework: check `window.inEditorMode`, then call `useVersion('v1')` once the API is available. If your integration code can run before the *Visual Editor* finishes loading, you can wait for the `cloudcannon:load` event instead — see [Initialize the Visual Editor API](/documentation/developer-articles/initialize-the-visual-editor-api/) for both patterns.
+The Doodle Gallery does this inside a React `useEffect`, but the pattern is the same in any framework: check `window.inEditorMode`, then call `useVersion('v1', true)` once the API is available. If your integration code can run before the *Visual Editor* finishes loading, you can wait for the `cloudcannon:load` event instead — see [Initialize the Visual Editor API](/documentation/developer-articles/initialize-the-visual-editor-api/) for both patterns.
 
 In the next step of this guide, we'll render the custom interface that editors use to draw a doodle.
