@@ -20,6 +20,7 @@ jobs:
         uses: denoland/setup-deno@v2
         with:
           deno-version-file: .dvmrc
+          cache: true
 
       - name: Run lint
         run: deno lint
@@ -48,6 +49,14 @@ jobs:
         uses: denoland/setup-deno@v2
         with:
           deno-version-file: .dvmrc
+
+      - name: Cache Deno dependencies
+        uses: actions/cache@v4
+        with:
+          path: _vendor
+          key: deno-vendor-${{ runner.os }}-${{ hashFiles('deno.json', 'import_map.json', 'deno.lock', 'assets/js/site.js', '_includes/scripts/alpine.js') }}
+          restore-keys: |
+            deno-vendor-${{ runner.os }}-
 
       - name: Build step
         run: "deno task build"
