@@ -7,8 +7,8 @@ Machine-readable style rules for AI agents and automated linters. These rules ar
 **For agents making updates to this file:** Also update the corresponding section in `STYLE_GUIDE.mdx` with the prose explanation and examples. Update the revision history in both files: `last_updated` and `style_guide_version` in the YAML block below, and the `Last Updated` and `Version` fields and the revision history table (Section 4) in `STYLE_GUIDE.mdx`.
 
 ```yaml
-style_guide_version: "2.15"
-last_updated: "2026-06-10"
+style_guide_version: "2.16"
+last_updated: "2026-06-11"
 
 terminology:
   disambiguation:
@@ -360,6 +360,7 @@ documentation_types:
           - "Organization"
           - "Project"
           - "Collection"
+          - "Team Member"
           - "Permission Group"
           - "Schema"
           - "Structure"
@@ -375,7 +376,7 @@ documentation_types:
         all_input_types: true
       
       do_not_italicize:
-        - "account, user, team member"
+        - "account, user"
         - "file, files, assets, uploads"
         - "permission (standalone)"
         - "layout, routing, markup, link"
@@ -394,11 +395,11 @@ documentation_types:
       examples:
         correct:
           - "Once you group your files into *Collections*, they appear in the *Site Navigation* for easy access."
-          - "Team members are invited to your *Organization* to collaborate on *Sites*."
-          - "Each team member has permissions assigned through *Permission Groups*."
+          - "*Team Members* are invited to your *Organization* to collaborate on *Sites*."
+          - "Each *Team Member* has permissions assigned through *Permission Groups*."
         incorrect:
           - "Collections appear in the Site Navigation."  # Should italicize CloudCannon terms
-          - "Each team member belongs to at least one Permission Group."  # Should italicize *Permission Group*
+          - "Each team member belongs to at least one Permission Group."  # Should italicize *Team Member* and *Permission Group*
     
     link_format:
       pattern: "/documentation/[user|developer]-articles/[slug]/"
