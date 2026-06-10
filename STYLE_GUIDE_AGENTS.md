@@ -7,8 +7,8 @@ Machine-readable style rules for AI agents and automated linters. These rules ar
 **For agents making updates to this file:** Also update the corresponding section in `STYLE_GUIDE.mdx` with the prose explanation and examples. Update the revision history in both files: `last_updated` and `style_guide_version` in the YAML block below, and the `Last Updated` and `Version` fields and the revision history table (Section 4) in `STYLE_GUIDE.mdx`.
 
 ```yaml
-style_guide_version: "2.14"
-last_updated: "2026-05-13"
+style_guide_version: "2.15"
+last_updated: "2026-06-10"
 
 terminology:
   disambiguation:
@@ -584,6 +584,7 @@ components:
       - "Term must have a corresponding YML file in user/glossary/"
       - "Replaces markdown links on first use — do not combine with markdown links"
       - "Subsequent mentions use italics instead"
+      - "Do not use inside comp.Annotation blocks — use italics for the term there instead"
       - "Display text can differ from glossary_term_name (plurals, derived forms)"
       - "Never replace an existing markdown link with a glossary term — if text is already a link, leave it as a link"
 
