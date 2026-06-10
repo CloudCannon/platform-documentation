@@ -1,0 +1,175 @@
+.c-mermaid {
+  position: relative;
+  margin: 1.5rem auto;
+  min-height: 200px;
+  text-align: center;
+
+  > pre.mermaid {
+    position: relative;
+    visibility: hidden;
+    width: 100%;
+    min-height: 200px;
+    max-height: 800px;
+    margin: 0;
+    background: none;
+    padding: 1rem;
+    text-align: center;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 0.5rem;
+    overflow: hidden;
+    // aspect-ratio is set per-diagram from the SVG viewBox in the
+    // mermaid loader script (base.tsx); falls back to a sensible default
+    // if the script hasn't run yet.
+    aspect-ratio: 4 / 3;
+
+    svg {
+      width: 100%;
+      height: 100%;
+      max-width: 100%;
+      display: block;
+      margin: 0 auto;
+    }
+  }
+
+  &:has(pre.mermaid[data-processed="true"]) {
+    min-height: 0;
+
+    > pre.mermaid {
+      visibility: visible;
+    }
+
+    .c-mermaid__loader {
+      display: none;
+    }
+  }
+
+  &__loader {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    color: var(--text-muted, #666);
+  }
+
+  &__spinner {
+    width: 1.5rem;
+    height: 1.5rem;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+
+    @media (prefers-reduced-motion: no-preference) {
+      animation: c-mermaid-spin 0.8s linear infinite;
+    }
+  }
+
+  &__loader-text {
+    font-size: 0.875rem;
+  }
+
+  &__noscript {
+    display: none;
+    padding: 1rem;
+    font-style: italic;
+    color: var(--text-muted, #666);
+  }
+
+  &__caption {
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--text-muted, #666);
+  }
+
+  // svg-pan-zoom wraps the SVG in a viewport; give the control icons a
+  // visible position and don't let the rendered SVG overflow its figure.
+  .svg-pan-zoom_viewport {
+    width: 100%;
+    height: 100%;
+  }
+
+  &__controls {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    display: grid;
+    grid-template-columns: repeat(3, 2rem);
+    grid-template-rows: repeat(3, 2rem);
+    gap: 0.125rem;
+    padding: 0.25rem;
+    background: rgba(245, 245, 245, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 0.5rem;
+    z-index: 2;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+
+    button {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+      padding: 0;
+      background: #fff;
+      border: 1px solid rgba(0, 0, 0, 0.06);
+      border-radius: 0.25rem;
+      color: #333;
+      cursor: pointer;
+      transition: background 120ms ease, border-color 120ms ease;
+
+      &:hover { background: rgba(0, 0, 0, 0.04); border-color: rgba(0, 0, 0, 0.12); }
+      &:active { background: rgba(0, 0, 0, 0.08); }
+      &:focus-visible { outline: 2px solid var(--selected-blue, #0066ff); outline-offset: -1px; }
+
+      &::before {
+        content: "";
+        display: block;
+        width: 1.125rem;
+        height: 1.125rem;
+        background-color: currentColor;
+        -webkit-mask-image: var(--c-mermaid-icon);
+        mask-image: var(--c-mermaid-icon);
+        -webkit-mask-size: contain;
+        mask-size: contain;
+        -webkit-mask-position: center;
+        mask-position: center;
+        -webkit-mask-repeat: no-repeat;
+        mask-repeat: no-repeat;
+      }
+    }
+
+    button[data-action="pan-up"]    { grid-area: 1 / 2; }
+    button[data-action="zoom-in"]   { grid-area: 1 / 3; }
+    button[data-action="pan-left"]  { grid-area: 2 / 1; }
+    button[data-action="reset"]     { grid-area: 2 / 2; }
+    button[data-action="pan-right"] { grid-area: 2 / 3; }
+    button[data-action="pan-down"]  { grid-area: 3 / 2; }
+    button[data-action="zoom-out"]  { grid-area: 3 / 3; }
+  }
+}
+
+html[data-pf-theme="dark"] .c-mermaid > pre.mermaid {
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+html[data-pf-theme="dark"] .c-mermaid__controls {
+  background: rgba(28, 28, 32, 0.95);
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+
+  button {
+    background: rgba(60, 60, 68, 1);
+    border-color: rgba(255, 255, 255, 0.06);
+    color: #e5e5e5;
+
+    &:hover { background: rgba(80, 80, 90, 1); border-color: rgba(255, 255, 255, 0.12); }
+    &:active { background: rgba(50, 50, 58, 1); }
+  }
+}
+
+@keyframes c-mermaid-spin {
+  to { transform: rotate(360deg); }
+}
