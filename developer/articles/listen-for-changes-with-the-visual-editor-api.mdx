@@ -28,13 +28,15 @@ author_notes:
   The *Visual Editor API* is designed for advanced CloudCannon users. If you need help with custom integrations or your CloudCannon setup in general, please contact our friendly [support team](/support/).
 </comp.Notice>
 
-CloudCannon's *Visual Editor API* exposes `change` and `delete` events on the API root, on individual files, and on <comp.GlossaryTerm term="/user/glossary/c/collection.yml">Collections</comp.GlossaryTerm> and <comp.GlossaryTerm term="/user/glossary/d/dataset.yml">Datasets</comp.GlossaryTerm>. Add listeners with `addEventListener` and remove them with `removeEventListener` when your custom UI or preview is torn down.
+CloudCannon's <comp.GlossaryTerm term="/user/glossary/v/visual-editor-api.yml">Visual Editor API</comp.GlossaryTerm> exposes `change` and `delete` events on the API root, on individual files, and on <comp.GlossaryTerm term="/user/glossary/c/collection.yml">Collections</comp.GlossaryTerm> and <comp.GlossaryTerm term="/user/glossary/d/dataset.yml">Datasets</comp.GlossaryTerm>. Add listeners with `addEventListener` and remove them with `removeEventListener` when your custom UI or preview is torn down.
 
 This article assumes you know how to [initialize the Visual Editor API](/documentation/developer-articles/initialize-the-visual-editor-api/) and [access a file, Collection, and Dataset](/documentation/developer-articles/access-files-collections-and-datasets-with-the-visual-editor-api/).
 
 ## Event types and scopes
 
 You can listen to two types of events using the *Visual Editor API*: `change`, which fires when a file in your *Site* is created or updated, or `delete`, which fires when a file is deleted. Both use the standard `addEventListener` and `removeEventListener` interface from `EventTarget`.
+
+Each event carries a `detail` object. Because `change` fires for both new and updated files, check `event.detail.isNew` to tell them apart. The value is `true` when the file was newly created and `false` when an existing file was updated. Root, *Collection*, and *Dataset* events also include `event.detail.sourcePath`, the path of the file that changed.
 
 You can also attach listeners at multiple levels, depending on how broad or narrow you need your events to be, including root, file, data, content, *Collection*, and *Dataset*.
 
@@ -134,7 +136,7 @@ locales.addEventListener('delete', () => { /*3*/
 
 ## Update your custom integration after a change
 
-A common pattern is to re-render your custom integration whenever data changes. Listening for both `change` and `delete` events ensures your integration stays in sync regardless of what the user does.
+A common pattern is to re-render your custom integration whenever data changes. Listening for both `change` and `delete` events ensures your integration stays in sync regardless of what the <comp.GlossaryTerm term="/user/glossary/t/team-member.yml">Team Member</comp.GlossaryTerm> does.
 
 <comp.CodeBlock language="javascript" source="script.js">
 ```

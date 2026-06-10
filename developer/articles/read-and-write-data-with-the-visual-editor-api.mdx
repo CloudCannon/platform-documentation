@@ -26,7 +26,7 @@ author_notes:
   The *Visual Editor API* is designed for advanced CloudCannon users. If you need help with custom integrations or your CloudCannon setup in general, please contact our friendly [support team](/support/).
 </comp.Notice>
 
-CloudCannon's *Visual Editor API* exposes each website file as an object you open from your <comp.GlossaryTerm term="/user/glossary/s/site.yml">Site</comp.GlossaryTerm> code. After you have that file reference, you can read and write structured data in <comp.GlossaryTerm term="/user/glossary/f/front-matter.yml">Front Matter</comp.GlossaryTerm> or data files, work with body content, read or replace raw source, read file metadata, add or remove array items or change their order, open the hosted *Data Panel* for a single field, and claim a file lock while you coordinate updates with other people editing in the *Visual Editor*.
+CloudCannon's <comp.GlossaryTerm term="/user/glossary/v/visual-editor-api.yml">Visual Editor API</comp.GlossaryTerm> exposes each website file as an object you open from your <comp.GlossaryTerm term="/user/glossary/s/site.yml">Site</comp.GlossaryTerm> code. After you have that file reference, you can read and write structured data in <comp.GlossaryTerm term="/user/glossary/f/front-matter.yml">Front Matter</comp.GlossaryTerm> or data files, work with body content, read or replace raw source, read file metadata, add or remove array items or change their order, open the hosted *Data Panel* for a single field, and claim a file lock while you coordinate updates with other <comp.GlossaryTerm term="/user/glossary/t/team-member.yml">Team Members</comp.GlossaryTerm> editing in the *Visual Editor*.
 
 This article assumes you know how to [initialize the Visual Editor API](/documentation/developer-articles/initialize-the-visual-editor-api/) and [access a file, Collection, and Dataset](/documentation/developer-articles/access-files-collections-and-datasets-with-the-visual-editor-api/).
 
@@ -189,7 +189,7 @@ Calling `*.metadata()` allows you to read metadata about an accessed file, such 
 
 <comp.CodeBlock language="javascript" source="script.js">
 ```
-const file = api.file('content/pages/about.md'); /*1*/
+const file = api.file('/content/pages/about.md'); /*1*/
 const meta = await file.metadata(); /*2*/
 console.log(meta); /*3*/
 ```
@@ -212,7 +212,7 @@ You can use *Data Panels* in CloudCannon's *Visual Editor* to edit the value of 
 
 By calling `*.data.edit()` and passing a `slug` option, you can open a *Data Panel* for a specific field. This is useful when you want to use CloudCannon's built-in interface for your custom integration.
 
-Optionally, pass a position object to anchor the *Data Panel* to the HTML element that triggered the action (for example, the element the user clicked).
+Optionally, pass a position object to anchor the *Data Panel* to the HTML element that triggered the action (for example, the element the *Team Member* clicked).
 
 <comp.CodeBlock language="javascript" source="script.js">
 ```
@@ -335,11 +335,11 @@ await file.data.moveArrayItem({ /*2*/
 
 ## Lock editing on a file
 
-File locking prevents other people from making changes to a file while your custom integration is working with it. Use `api.file()` to access the specific file you want to lock, then call `claimLock()` before making changes and `releaseLock()` when you are done.
+File locking prevents other *Team Members* from making changes to a file while your custom integration is working with it. Use `api.file()` to access the specific file you want to lock, then call `claimLock()` before making changes and `releaseLock()` when you are done.
 
 <comp.CodeBlock language="javascript" source="script.js">
 ```
-const file = api.file('_data/settings.yml'); /*1*/
+const file = api.file('/_data/settings.yml'); /*1*/
 const lock = await file.claimLock(); /*2*/
 
 if (!lock.readOnly) { /*3*/
@@ -349,13 +349,13 @@ if (!lock.readOnly) { /*3*/
 await file.releaseLock(); /*4*/
 ```
 <comp.Annotation number="1">
-  Use `api.file()` to access the specific file you want to lock. File locking is most useful when your integration needs to modify a shared file that other people might also be editing.
+  Use `api.file()` to access the specific file you want to lock. File locking is most useful when your integration needs to modify a shared file that other *Team Members* might also be editing.
 </comp.Annotation>
 <comp.Annotation number="2">
   Call `claimLock()` to request an editing lock on `file`. Returns an object with a `readOnly` property.
 </comp.Annotation>
 <comp.Annotation number="3">
-  Only make changes if the lock was granted. If someone else holds the lock, `readOnly` will be `true`.
+  Only make changes if the lock was granted. If another *Team Member* holds the lock, `readOnly` will be `true`.
 </comp.Annotation>
 <comp.Annotation number="4">
   Call `releaseLock()` to release the lock when you are done making changes.
