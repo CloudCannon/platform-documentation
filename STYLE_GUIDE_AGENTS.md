@@ -7,7 +7,7 @@ Machine-readable style rules for AI agents and automated linters. These rules ar
 **For agents making updates to this file:** Also update the corresponding section in `STYLE_GUIDE.mdx` with the prose explanation and examples. Update the revision history in both files: `last_updated` and `style_guide_version` in the YAML block below, and the `Last Updated` and `Version` fields and the revision history table (Section 4) in `STYLE_GUIDE.mdx`.
 
 ```yaml
-style_guide_version: "2.16"
+style_guide_version: "2.17"
 last_updated: "2026-06-11"
 
 terminology:
@@ -581,11 +581,12 @@ components:
       - "term"
     syntax: "<comp.GlossaryTerm term=\"/user/glossary/[letter]/[term].yml\">Display Text</comp.GlossaryTerm>"
     rules:
-      - "Use on first mention of a term in an article only"
+      - "Use on first mention of a term in an article's body prose only"
       - "Term must have a corresponding YML file in user/glossary/"
       - "Replaces markdown links on first use — do not combine with markdown links"
       - "Subsequent mentions use italics instead"
       - "Do not use inside comp.Annotation blocks — use italics for the term there instead"
+      - "Do not place the first-use glossary term inside a standard/boilerplate comp.Notice (e.g. the 'designed for advanced users' callout) when the term also appears in body prose — put it on the first body-prose mention and leave the Notice mention italicized"
       - "Display text can differ from glossary_term_name (plurals, derived forms)"
       - "Never replace an existing markdown link with a glossary term — if text is already a link, leave it as a link"
 
