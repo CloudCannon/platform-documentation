@@ -13,9 +13,11 @@ details:
 author_notes:
   docshots: Needs docshots
 ---
-When a <comp.GlossaryTerm term="/user/glossary/t/team-member.yml">Team Member</comp.GlossaryTerm> clicks *Finish and submit*, our `submit()` function runs. It's defined inside the same `Doodler` component, so it can use the `cloudcannonApi` we initialized earlier. The function has two jobs: upload the drawing as an image, then add that image to the gallery data file. We'll build the upload here and finish the data write in the next step.
+Custom integrations often need to add new files to a <comp.GlossaryTerm term="/user/glossary/s/site.yml">Site</comp.GlossaryTerm> and write changes back to existing files. Additionally, because more than one <comp.GlossaryTerm term="/user/glossary/t/team-member.yml">Team Member</comp.GlossaryTerm> can edit a *Site* in the <comp.GlossaryTerm term="/user/glossary/v/visual-editor.yml">Visual Editor</comp.GlossaryTerm> at once, you may need to claim a lock on a file before writing, so two people don't overwrite each other's work. The *Visual Editor API* allows you to do all of these.
 
-Before we touch anything, we open the write transaction: get a reference to the data file we'll be changing, then claim a lock on it. Locking up front matters because more than one person can edit a <comp.GlossaryTerm term="/user/glossary/s/site.yml">Site</comp.GlossaryTerm> in the <comp.GlossaryTerm term="/user/glossary/v/visual-editor.yml">Visual Editor</comp.GlossaryTerm> at the same time. `claimLock()` returns `readOnly: true` if someone else already holds the lock, so we retry a few times and give up rather than overwrite their work.
+In the Doodle Gallery, this happens when a *Team Member* clicks *Finish and submit*: the `submit()` function uploads the drawing as an image, then adds that image to the gallery data file. It's defined inside the same `Doodler` component, so it can use the `cloudcannonApi` we initialized earlier. We'll build the upload here and finish the data write in the next step.
+
+First, we open the write transaction: get a reference to the data file we'll be changing, then claim a lock on it. `claimLock()` returns `readOnly: true` if someone else already holds the lock, so we retry a few times and give up rather than overwrite their work.
 
 <comp.CodeBlock language="typescript" source="src/components/doodle.tsx">
 ```
