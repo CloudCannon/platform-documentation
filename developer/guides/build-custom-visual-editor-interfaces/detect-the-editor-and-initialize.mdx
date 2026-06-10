@@ -4,7 +4,7 @@ _uuid: 5b7c3994-b318-4b7e-8220-c9a6f2633232
 _created_at: '2026-03-12 02:49:17 +0000'
 details:
   title: Detect the editor and initialize
-  order: 2
+  order: 3
   image: >-
     https://cc-dam.imgix.net/documentation/images/guides/getting-started/guide-thumbnails/CloudCannon-Getting-Started-Thumbnail-Universal.png
   description: Detect the Visual Editor and initialize the Visual Editor API before your integration runs.
@@ -13,13 +13,21 @@ details:
 author_notes:
   docshots: Needs docshots
 ---
-The Doodle Gallery's drawing tool should only appear while someone is editing in the <comp.GlossaryTerm term="/user/glossary/v/visual-editor.yml">Visual Editor</comp.GlossaryTerm> — never on the live <comp.GlossaryTerm term="/user/glossary/s/site.yml">Site</comp.GlossaryTerm>. So before our integration does anything else, it checks whether it's running inside the *Visual Editor*, and only then initializes the *Visual Editor API*.
+Custom interfaces built with the <comp.GlossaryTerm term="/user/glossary/v/visual-editor-api.yml">Visual Editor API</comp.GlossaryTerm> should only appear inside the <comp.GlossaryTerm term="/user/glossary/v/visual-editor.yml">Visual Editor</comp.GlossaryTerm>, never on the live website.
 
-CloudCannon sets `window.inEditorMode` to `true` when your *Site* is loaded inside the *Visual Editor*, and leaves it `undefined` everywhere else. We use it to gate the whole integration. Once we know we're in the editor, we request the API with `window.CloudCannonAPI.useVersion('v1', true)`.
+In the Doodle Gallery example, the drawing canvas appears at the top of the webpage when that page is loaded in the *Visual Editor*.
 
-To get type checking and autocomplete as you write, type the global `window` with the types from the `@cloudcannon/visual-editor-api` package. For more on typing the API, see [Use TypeScript with the Visual Editor API](/documentation/developer-articles/use-typescript-with-the-visual-editor-api/).
+[image]
 
-<comp.CodeBlock language="tsx" source="src/components/doodle.tsx">
+Before the Doodle Gallery integration performs any other actions, it checks whether the webpage is running inside the *Visual Editor*, and only then initializes the *Visual Editor API*.
+
+When you open a file in the *Visual Editor*, CloudCannon injects a script that sets `window.inEditorMode` to `true` in the document before loading it into the iframe, and leaves it `undefined` everywhere else. We can use this flag to keep custom interfaces inside the *Visual Editor*. Once we know we're in the editor, we can request the API with `window.CloudCannonAPI.useVersion('v1', true)`.
+
+<comp.Notice info_type="info">
+  The Doodle Gallery is written in TypeScript. To get type checking and autocomplete, type the global `window` with the types from the `@cloudcannon/visual-editor-api` package — see [Use TypeScript with the Visual Editor API](/documentation/developer-articles/use-typescript-with-the-visual-editor-api/). If you're writing plain JavaScript, you can skip this.
+</comp.Notice>
+
+<comp.CodeBlock language="typescript" source="src/components/doodle.tsx">
 ```
 import { useState, useRef, useEffect } from 'react';
 import type { CloudCannonVisualEditorAPIV1, CloudCannonVisualEditorWindow } from '@cloudcannon/visual-editor-api'; /*1*/
@@ -62,6 +70,17 @@ export function Doodler() {
 </comp.Annotation>
 </comp.CodeBlock>
 
-The Doodle Gallery does this inside a React `useEffect`, but the pattern is the same in any framework: check `window.inEditorMode`, then call `useVersion('v1', true)` once the API is available. If your integration code can run before the *Visual Editor* finishes loading, you can wait for the `cloudcannon:load` event instead — see [Initialize the Visual Editor API](/documentation/developer-articles/initialize-the-visual-editor-api/) for both patterns.
+The Doodle Gallery checks `window.inEditorMode` inside a React `useEffect`, but the same approach works in any framework. If your code might run before the *Visual Editor* has finished loading, listen for the `cloudcannon:load` event and call `useVersion()` on the `CloudCannonAPI` it provides in `event.detail`.
+
+<comp.CodeBlock language="javascript">
+```
+document.addEventListener('cloudcannon:load', (event) => { /*1*/
+  const api = event.detail.CloudCannonAPI.useVersion('v1', true);
+});
+```
+<comp.Annotation number="1">
+  This snippet isn't from the `doodle-example` repo — it's the alternative pattern for code that runs before the *Visual Editor* loads.
+</comp.Annotation>
+</comp.CodeBlock>
 
 In the next step of this guide, we'll render the custom interface that editors use to draw a doodle.
