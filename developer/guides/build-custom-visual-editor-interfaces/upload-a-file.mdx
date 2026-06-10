@@ -4,7 +4,7 @@ _uuid: d68146ee-f2a7-4c56-a1fa-ec05e69dab66
 _created_at: '2026-03-12 02:49:17 +0000'
 details:
   title: Upload a file
-  order: 4
+  order: 5
   image: >-
     https://cc-dam.imgix.net/documentation/images/guides/getting-started/guide-thumbnails/CloudCannon-Getting-Started-Thumbnail-Universal.png
   description: Open the submit flow, lock the data file, and upload the doodle as an image with uploadFile.
@@ -13,11 +13,11 @@ details:
 author_notes:
   docshots: Needs docshots
 ---
-When the editor clicks *Finish and submit*, our `submit()` function runs. It's defined inside the same `Doodler` component, so it can use the `cloudcannonApi` we initialized earlier. The function has two jobs: upload the drawing as an image, then add that image to the gallery data file. We'll build the upload here and finish the data write in the next step.
+When a <comp.GlossaryTerm term="/user/glossary/t/team-member.yml">Team Member</comp.GlossaryTerm> clicks *Finish and submit*, our `submit()` function runs. It's defined inside the same `Doodler` component, so it can use the `cloudcannonApi` we initialized earlier. The function has two jobs: upload the drawing as an image, then add that image to the gallery data file. We'll build the upload here and finish the data write in the next step.
 
 Before we touch anything, we open the write transaction: get a reference to the data file we'll be changing, then claim a lock on it. Locking up front matters because more than one person can edit a <comp.GlossaryTerm term="/user/glossary/s/site.yml">Site</comp.GlossaryTerm> in the <comp.GlossaryTerm term="/user/glossary/v/visual-editor.yml">Visual Editor</comp.GlossaryTerm> at the same time. `claimLock()` returns `readOnly: true` if someone else already holds the lock, so we retry a few times and give up rather than overwrite their work.
 
-<comp.CodeBlock language="tsx" source="src/components/doodle.tsx">
+<comp.CodeBlock language="typescript" source="src/components/doodle.tsx">
 ```
 async function submit() {
   if (cloudcannonApi === undefined) { /*1*/
@@ -71,7 +71,7 @@ async function submit() {
   Get a reference to the data file we'll add the doodle to with `cloudcannonApi.file()`.
 </comp.Annotation>
 <comp.Annotation number="3">
-  Claim a lock before writing. We retry while `readOnly` is `true`, then give up after a few attempts so two editors can't overwrite each other.
+  Claim a lock before writing. We retry while `readOnly` is `true`, then give up after a few attempts so two *Team Members* can't overwrite each other.
 </comp.Annotation>
 <comp.Annotation number="4">
   Turn the drawing on the canvas into a PNG image file.
@@ -81,7 +81,7 @@ async function submit() {
 </comp.Annotation>
 </comp.CodeBlock>
 
-In the example repo, `submit()` wraps these steps in a `try`/`catch` and updates a status message as it runs, so any error is surfaced back to the editor. We've left that out here to focus on the API calls.
+In the example repo, `submit()` wraps these steps in a `try`/`catch` and updates a status message as it runs, so any error is surfaced back to the *Team Member*. We've left that out here to focus on the API calls.
 
 The `paths` options tell CloudCannon where to store the upload and how to name it. They line up with the `paths` in your <comp.GlossaryTerm term="/user/glossary/c/configuration-files.yml">Configuration File</comp.GlossaryTerm>, and `doodle[count].png` keeps each filename unique.
 
