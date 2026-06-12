@@ -7,8 +7,8 @@ Machine-readable style rules for AI agents and automated linters. These rules ar
 **For agents making updates to this file:** Also update the corresponding section in `STYLE_GUIDE.mdx` with the prose explanation and examples. Update the revision history in both files: `last_updated` and `style_guide_version` in the YAML block below, and the `Last Updated` and `Version` fields and the revision history table (Section 4) in `STYLE_GUIDE.mdx`.
 
 ```yaml
-style_guide_version: "2.17"
-last_updated: "2026-06-11"
+style_guide_version: "2.18"
+last_updated: "2026-06-12"
 
 terminology:
   disambiguation:
@@ -85,6 +85,12 @@ prohibited_phrases:
   - "easy"
   - "obviously"
   - "clearly"
+  - "powerful"
+  - "seamless"
+  - "seamlessly"
+  - "effortless"
+  - "robust"
+  - "intuitive"
 
 voice_and_tense:
   voice: "active"
@@ -115,6 +121,25 @@ voice_and_tense:
       - "The Connector detects all data-rosey-tagged elements and injects the locale switcher interface."
       - "It then connects each tagged element to its corresponding entry in the locale JSON."
     note: "Reserve internal process descriptions ('the system detects… injects… connects…') for 'How it works' subsections or reference documentation."
+  describe_dont_sell:
+    rule: "Describe what a feature or API does, plainly and accurately. Do not use marketing or value-laden language, and never claim a capability the product does not have."
+    reference: "STYLE_GUIDE.mdx §1.1.9"
+    avoid_marketing_words:
+      - "powerful"
+      - "seamless"
+      - "effortless"
+      - "robust"
+      - "intuitive"
+      - "blazing-fast"
+      - "smart"
+      - "useful"
+    correct:
+      - "Pass an Input configuration to control where the file is uploaded and which asset sources are offered."
+      - "Resolves to undefined if the file does not exist."
+    incorrect:
+      - "Pass an Input configuration to control the upload destination, filename, and allowed types."
+      - "Gracefully handles any missing file."
+    overstatement_is_a_factual_error: "Most damaging in reference and developer documentation, where readers act on the exact claim. Document only what the implementation does; trace each claim to code, configuration, or observed UI behaviour before writing it."
   first_person_plural_we_exception:
     article_path: "/documentation/developer-articles/what-is-the-visual-editor-api/"
     note: "Sole allowed 'we' in articles; company dogfoods public Visual Editor API (see prose §2.2.5)"
