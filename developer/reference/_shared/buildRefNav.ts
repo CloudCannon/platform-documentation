@@ -4,7 +4,8 @@ import type { DocEntry } from "../../../_types.d.ts";
 export type SectionId =
   | "type.Configuration"
   | "type.Routing"
-  | "type.InitialSiteSettings";
+  | "type.InitialSiteSettings"
+  | "type.VisualEditorAPI";
 
 // Precompiled reference navigation item
 export interface RefNavItem {
@@ -39,7 +40,7 @@ function getNavDisplayName(
 // Build precompiled reference navigation items for a section
 function buildRefNavItems(
   docs: DocEntry[],
-  sectionId: SectionId,
+  sectionId: string,
 ): RefNavItem[] {
   const properties = docs.find((doc) => doc.gid === sectionId)?.properties ||
     {};
@@ -76,6 +77,7 @@ export function buildRefNav(
   configDocs: DocEntry[],
   routingDocs: DocEntry[],
   initialSiteSettingsDocs: DocEntry[],
+  veapiDocs: DocEntry[],
 ): RefNavSection[] {
   return [
     {
@@ -102,6 +104,13 @@ export function buildRefNav(
         initialSiteSettingsDocs,
         "type.InitialSiteSettings",
       ),
+    },
+    {
+      id: "type.VisualEditorAPI",
+      heading: "Visual Editor API",
+      icon: "code",
+      basePath: "/documentation/developer-reference/visual-editor-api/",
+      items: buildRefNavItems(veapiDocs, "type.VisualEditorAPI.objects"),
     },
   ];
 }

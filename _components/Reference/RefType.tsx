@@ -28,6 +28,28 @@ function GenericParams({ children }: { children: unknown }) {
   );
 }
 
+// Render a free-text TS type string, linking any identifier that resolves to a
+// reference page in this section (so types link recursively between each other).
+function linkifyType(
+  typeText: string,
+  section: SectionId,
+  currentUrl?: string,
+) {
+  const sectionDocs = globalThis.DOCS?.[section] ?? {};
+  const tokens = typeText.split(/([A-Za-z_$][\w$]*)/);
+  return (
+    <code>
+      {tokens.map((token, i) => {
+        const entry = sectionDocs[token];
+        const url = entry ? getRefUrl(entry, section) : null;
+        return url && url !== currentUrl
+          ? <a href={url} key={i}>{token}</a>
+          : <span key={i}>{token}</span>;
+      })}
+    </code>
+  );
+}
+
 function TypeDisplay(
   { entry, currentUrl, section, nested = false }: {
     entry: DocEntry | null;
@@ -148,6 +170,11 @@ function TypeDisplay(
         })}
       </>
     );
+  }
+
+  // Visual Editor API types are free-text TS strings; linkify known type names.
+  if (section === "type.VisualEditorAPI" && entry.type) {
+    return linkifyType(entry.type, section, currentUrl);
   }
 
   const fallback = entry.type || (entry ? <DocName doc={entry} /> : "unknown");

@@ -4,7 +4,8 @@ import { DocEntry } from "./types.d.ts";
 export type SectionId =
   | "type.Configuration"
   | "type.Routing"
-  | "type.InitialSiteSettings";
+  | "type.InitialSiteSettings"
+  | "type.VisualEditorAPI";
 
 // Base URL for all reference pages (entry.url already includes section path)
 const DEVELOPER_REFERENCE_BASE = "/documentation/developer-reference";

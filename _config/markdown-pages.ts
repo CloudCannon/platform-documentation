@@ -725,11 +725,18 @@ export default function markdownPages() {
               .trim();
           } catch { /* intro text is optional */ }
 
+          // Match the page URL to its reference section. This defaults to
+          // type.Configuration, so EVERY new reference-home section must be
+          // added here — otherwise its .md silently inherits the Configuration
+          // File's properties (the HTML page would look fine; only the markdown
+          // export would be wrong). Add a branch whenever you add a section.
           let section: SectionId = "type.Configuration";
           if (url.includes("routing-file")) {
             section = "type.Routing";
           } else if (url.includes("initial-site-settings-file")) {
             section = "type.InitialSiteSettings";
+          } else if (url.includes("visual-editor-api")) {
+            section = "type.VisualEditorAPI";
           }
 
           const sectionDocs = (globalThis as Record<string, unknown>).DOCS as
@@ -740,8 +747,11 @@ export default function markdownPages() {
             (doc: DocEntry) => doc.gid === section || doc.url === "/",
           );
 
+          // The Visual Editor API overview renders its methods inline via
+          // <comp.MethodsTable> in the intro, so skip the root-properties dump
+          // here to avoid duplicating them.
           let refBody = "";
-          if (rootEntry) {
+          if (rootEntry && section !== "type.VisualEditorAPI") {
             refBody = docEntryToMarkdown(rootEntry, section, url)
               .replace(/\n{3,}/g, "\n\n")
               .trim();
