@@ -250,7 +250,9 @@ site.add("/assets/img");
 // site.add("/uploads");
 
 site.use(date());
-site.use(sitemap());
+site.use(sitemap({
+  query: "!url^=/404/",
+}));
 
 site.use(markdownPages());
 site.use(llmsTxt());
