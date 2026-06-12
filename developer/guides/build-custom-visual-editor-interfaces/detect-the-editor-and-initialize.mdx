@@ -27,6 +27,14 @@ When you open a file in the *Visual Editor*, CloudCannon injects a script that s
   If you are writing in TypeScript, you can get [type checking and autocomplete with the Visual Editor API](/documentation/developer-articles/use-typescript-with-the-visual-editor-api/).
 </comp.Notice>
 
+The Doodle Gallery imports the API's types from the `@cloudcannon/visual-editor-api` package. Because the types are only used at build time, install it as a dev dependency:
+
+<comp.CodeBlock language="shell" source="Terminal">
+```
+npm install --save-dev @cloudcannon/visual-editor-api
+```
+</comp.CodeBlock>
+
 <comp.CodeBlock language="typescript" source="src/components/doodle.tsx">
 ```
 import { useState, useRef, useEffect } from 'react';
@@ -63,19 +71,21 @@ export function Doodler() {
   Only run inside the *Visual Editor* — `window.inEditorMode` is `true` there and `undefined` on the live *Site*.
 </comp.Annotation>
 <comp.Annotation number="4">
-  Request v1 of the API with `useVersion('v1', true)`. The second argument also exposes the handler as `window.CloudCannon`.
+  Request v1 of the API with `useVersion('v1', true)`. The `true` keeps the handler off the global `window.CloudCannon`, so it won't clash with other integrations using a different API version.
 </comp.Annotation>
 <comp.Annotation number="5">
   Render nothing outside the *Visual Editor*, so the tool never appears for site visitors.
 </comp.Annotation>
 </comp.CodeBlock>
 
-The Doodle Gallery checks `window.inEditorMode` inside a React `useEffect`, but the same approach works in any framework. If your code might run before the *Visual Editor* has finished loading, listen for the `cloudcannon:load` event and call `useVersion()` on the `CloudCannonAPI` it provides in `event.detail`.
+The *Visual Editor API* is available on `window.CloudCannonAPI` whenever a file is open in the *Visual Editor*. The Doodle Gallery checks `window.inEditorMode` inside a React `useEffect`, but the same approach works in any framework.
+
+If your code might run before the *Visual Editor* has finished loading, and therefore before `window.CloudCannonAPI` exists, you can listen for the `cloudcannon:load` event then read `window.CloudCannonAPI` once it fires. CloudCannon sets `window.CloudCannonAPI` before dispatching the event, so it's available inside the listener.
 
 <comp.CodeBlock language="javascript">
 ```
-document.addEventListener('cloudcannon:load', (event) => { /*1*/
-  const api = event.detail.CloudCannonAPI.useVersion('v1', true);
+document.addEventListener('cloudcannon:load', () => { /*1*/
+  const api = window.CloudCannonAPI?.useVersion('v1', true);
 });
 ```
 <comp.Annotation number="1">

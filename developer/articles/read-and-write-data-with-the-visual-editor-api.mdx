@@ -335,7 +335,7 @@ await file.data.moveArrayItem({ /*2*/
 
 ## Lock editing on a file
 
-File locking prevents other *Team Members* from making changes to a file while your custom integration is working with it. Use `api.file()` to access the specific file you want to lock, then call `claimLock()` before making changes and `releaseLock()` when you are done.
+Claiming a lock on a file gives your integration the editing lock for that file. Only one lock can be held at a time, so other *Team Members* working in the *Visual Editor* see the file as read-only while your integration holds it. Use `api.file()` to access the file you want to lock, call `claimLock()` before making changes, and `releaseLock()` when you are done.
 
 <comp.CodeBlock language="javascript" source="script.js">
 ```
@@ -343,10 +343,12 @@ const file = api.file('/_data/settings.yml'); /*1*/
 const lock = await file.claimLock(); /*2*/
 
 if (!lock.readOnly) { /*3*/
-  await file.data.set({ slug: 'status', value: 'in-progress' });
+  try {
+    await file.data.set({ slug: 'status', value: 'in-progress' });
+  } finally {
+    await file.releaseLock(); /*4*/
+  }
 }
-
-await file.releaseLock(); /*4*/
 ```
 <comp.Annotation number="1">
   Use `api.file()` to access the specific file you want to lock. File locking is most useful when your integration needs to modify a shared file that other *Team Members* might also be editing.
@@ -355,12 +357,16 @@ await file.releaseLock(); /*4*/
   Call `claimLock()` to request an editing lock on `file`. Returns an object with a `readOnly` property.
 </comp.Annotation>
 <comp.Annotation number="3">
-  Only make changes if the lock was granted. If another *Team Member* holds the lock, `readOnly` will be `true`.
+  Only make changes if the lock was granted. If another *Team Member* already holds the lock, `readOnly` is `true`, so stop here and try again later rather than editing.
 </comp.Annotation>
 <comp.Annotation number="4">
-  Call `releaseLock()` to release the lock when you are done making changes.
+  Release the lock in a `finally` block so it is always released, even if the write throws partway through. Otherwise other *Team Members* are left viewing the file as read-only until they take the lock back manually.
 </comp.Annotation>
 </comp.CodeBlock>
+
+A lock is cooperative, not absolute. A *Team Member* editing in the *Visual Editor* can take the lock from your integration at any time: when they open a file that is already being edited, CloudCannon shows them a banner with a *Switch to editing* button. Clicking it hands them the lock, moves your integration to read-only, and keeps any unsaved changes. Because a held lock is not a guarantee of exclusive access, call `claimLock()` again and check `readOnly` before resuming writes to confirm your integration still holds the lock. For how this looks to a *Team Member* in the *Visual Editor*, see [Editing sessions and collaboration](/documentation/user-guides/editing-in-cloudcannon/editing-sessions-and-collaboration/).
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Content-Editor-Viewing-Mode" alt="A banner at the bottom of an editing interface reads 'Heather Scott is currently editing' alongside a Switch to editing button." title="Taking over editing from another Team Member" type="screenshot"/>
 
 ## Read input configuration
 

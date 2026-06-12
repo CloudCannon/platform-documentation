@@ -47,7 +47,9 @@ We read the current `doodles` array, then append a new item to it. Each item hol
 
 We used `file()` with a path here, rather than `currentFile()`, because we're writing to a specific data file instead of the page open in the *Visual Editor*.
 
-That completes `submit()`. The new doodle now appears in any open <comp.GlossaryTerm term="/user/glossary/d/data-editor.yml">Data Editor</comp.GlossaryTerm> and is written to `doodles.json`, ready to commit when a *Team Member* saves the <comp.GlossaryTerm term="/user/glossary/s/site.yml">Site</comp.GlossaryTerm>. Because the gallery page renders straight from that data file, the new doodle shows up on the live webpage after the next *Build*.
+That completes `submit()`. Once the write finishes (or fails partway through) the Doodle Gallery releases the file lock with `releaseLock()`, so other *Team Members* can edit `doodles.json` again. In the example repo this runs in the `finally` block of the `try`/`catch` we left out in the previous step, which guarantees the lock is released no matter how `submit()` exits. Always release a lock once you're done writing — see [Read and write data with the Visual Editor API](/documentation/developer-articles/read-and-write-data-with-the-visual-editor-api/).
+
+The new doodle now appears in any open <comp.GlossaryTerm term="/user/glossary/d/data-editor.yml">Data Editor</comp.GlossaryTerm> and is written to `doodles.json`, ready to commit when a *Team Member* saves the <comp.GlossaryTerm term="/user/glossary/s/site.yml">Site</comp.GlossaryTerm>. Because the gallery page renders straight from that data file, the new doodle shows up on the live webpage after the next *Build*.
 
 [image]
 
