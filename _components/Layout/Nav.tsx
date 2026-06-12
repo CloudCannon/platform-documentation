@@ -247,7 +247,10 @@ export default function Nav({ comp, headingnav, url, helpers }: NavProps) {
                     return item.items.map((subitem, subIndex) => (
                       <li key={`${index}-${subIndex}`}>
                         <a
-                          {...(subitem.href && url?.startsWith(subitem.href)
+                          {...(subitem.href && url &&
+                              helpers.url(url).startsWith(
+                                helpers.url(subitem.href),
+                              )
                             ? { "aria-current": "page" }
                             : {})}
                           className="c-card-grid__card--item"
@@ -285,7 +288,8 @@ export default function Nav({ comp, headingnav, url, helpers }: NavProps) {
                       <a
                         className="c-card-grid__card--item"
                         href={item.href}
-                        {...(item.href && url?.startsWith(item.href)
+                        {...(item.href && url &&
+                            helpers.url(url).startsWith(helpers.url(item.href))
                           ? { "aria-current": "page" }
                           : {})}
                       >

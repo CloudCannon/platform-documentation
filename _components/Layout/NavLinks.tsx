@@ -16,7 +16,11 @@ export default function NavLinks({ headingnav, url, helpers }: NavLinksProps) {
     >
       {items.map((item, index) => {
         const hasSubItems = item.items && item.items.length > 0;
-        const isActive = item.href && url?.includes(item.href);
+        // `url` (page.data.url) is unprefixed in the basePath model, while
+        // item.href carries the /documentation base. Normalise both through
+        // helpers.url (idempotent) so the comparison happens in the same space.
+        const isActive = !!item.href && !!url &&
+          helpers.url(url).includes(helpers.url(item.href));
         const popoverId = `nav-dropdown-${index}`;
         const dropdownRef = `dropdown_menu_${index}`;
 
@@ -71,7 +75,7 @@ export default function NavLinks({ headingnav, url, helpers }: NavLinksProps) {
                     "x-trap.inert": `open === ${index}`,
                   }}
                 >
-                  {item.items!.map((subitem, subIndex) => (
+                  {item.items?.map((subitem, subIndex) => (
                     <li key={subIndex}>
                       <a
                         className="c-card-grid__card--item"

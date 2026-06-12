@@ -18,32 +18,36 @@ interface Guide {
   children: DocPage[];
 }
 
-const BASE_URL = "https://cloudcannon.com";
 const GITHUB_REPO_URL = "https://github.com/CloudCannon/platform-documentation";
 
+// `baseUrl` (e.g. "https://cloudcannon.com/documentation") is resolved at build
+// time from site.options.location so absolute links here match the /documentation
+// base path applied by the basePath() plugin. `page.data.url` is unprefixed in the
+// basePath model, so we must add the base ourselves when building absolute URLs.
+
 /** Build the URL to the built .md file for a page */
-function mdUrl(p: DocPage): string {
-  return `${BASE_URL}${p.url}${p.url.endsWith("/") ? "index.md" : ".md"}`;
+function mdUrl(baseUrl: string, p: DocPage): string {
+  return `${baseUrl}${p.url}${p.url.endsWith("/") ? "index.md" : ".md"}`;
 }
 
 /** Format a page with a link to its built .md file and page URL */
-function formatPageLink(p: DocPage, fallback = "Documentation"): string {
-  const pageUrl = `${BASE_URL}${p.url}`;
+function formatPageLink(baseUrl: string, p: DocPage, fallback = "Documentation"): string {
+  const pageUrl = `${baseUrl}${p.url}`;
   const desc = p.description || fallback;
-  return `- [${p.title}](${mdUrl(p)}): ${desc} ([view page](${pageUrl}))`;
+  return `- [${p.title}](${mdUrl(baseUrl, p)}): ${desc} ([view page](${pageUrl}))`;
 }
 
 /** Format a page as an ordered subitem (indented with number) */
-function formatSubPageLink(p: DocPage, index: number, fallback = "Documentation"): string {
-  const pageUrl = `${BASE_URL}${p.url}`;
+function formatSubPageLink(baseUrl: string, p: DocPage, index: number, fallback = "Documentation"): string {
+  const pageUrl = `${baseUrl}${p.url}`;
   const desc = p.description || fallback;
-  return `  ${index}. [${p.title}](${mdUrl(p)}): ${desc} ([view page](${pageUrl}))`;
+  return `  ${index}. [${p.title}](${mdUrl(baseUrl, p)}): ${desc} ([view page](${pageUrl}))`;
 }
 
 /** Format a guide with its children as a nested list */
-function formatGuide(guide: Guide, fallback = "Guide"): string {
+function formatGuide(baseUrl: string, guide: Guide, fallback = "Guide"): string {
   const lines: string[] = [];
-  lines.push(formatPageLink(guide.parent, fallback));
+  lines.push(formatPageLink(baseUrl, guide.parent, fallback));
   
   // Sort children by order, then by title
   const sortedChildren = [...guide.children].sort((a, b) => {
@@ -54,14 +58,14 @@ function formatGuide(guide: Guide, fallback = "Guide"): string {
   });
   
   sortedChildren.forEach((child, i) => {
-    lines.push(formatSubPageLink(child, i + 1, fallback));
+    lines.push(formatSubPageLink(baseUrl, child, i + 1, fallback));
   });
   return lines.join("\n");
 }
 
 /** Get the static Developer Reference section */
-function getDeveloperReferenceSection(): string {
-  const refBase = `${BASE_URL}/documentation/developer-reference`;
+function getDeveloperReferenceSection(baseUrl: string): string {
+  const refBase = `${baseUrl}/developer-reference`;
   const schemaBase = "https://github.com/CloudCannon/configuration-types/releases/latest/download";
   return `## Developer Reference
 
@@ -109,7 +113,7 @@ const SECTIONS: SectionDef[] = [
 ];
 
 /** Generate llms.txt content with GitHub links */
-function generateLlmsContent(collections: Collections): string {
+function generateLlmsContent(collections: Collections, baseUrl: string): string {
   const parts: string[] = [];
 
   // Header
@@ -118,7 +122,7 @@ function generateLlmsContent(collections: Collections): string {
 > CloudCannon is a Git-based Content Management System for static site generators. This documentation covers setup, configuration, editing interfaces, hosting, and all platform features.
 
 - Source: ${GITHUB_REPO_URL}
-- Website: ${BASE_URL}/documentation/`);
+- Website: ${baseUrl}/`);
 
   // Dynamic sections
   for (const section of SECTIONS) {
@@ -126,15 +130,15 @@ function generateLlmsContent(collections: Collections): string {
     
     if (section.isGuide) {
       const guides = collections[section.key] as Guide[];
-      parts.push(guides.map(g => formatGuide(g, section.fallback)).join("\n"));
+      parts.push(guides.map(g => formatGuide(baseUrl, g, section.fallback)).join("\n"));
     } else {
       const pages = collections[section.key] as DocPage[];
-      parts.push(pages.map(p => formatPageLink(p, section.fallback)).join("\n"));
+      parts.push(pages.map(p => formatPageLink(baseUrl, p, section.fallback)).join("\n"));
     }
   }
 
   // Developer Reference (static)
-  parts.push(`\n${getDeveloperReferenceSection()}`);
+  parts.push(`\n${getDeveloperReferenceSection(baseUrl)}`);
 
   // Changelogs - show latest 3 and link to full archive
   parts.push(`\n## Changelogs
@@ -143,8 +147,8 @@ Release notes and platform updates.
 
 ### Latest Updates
 `);
-  parts.push(collections.latestChangelogs.map(p => formatPageLink(p, "Release notes")).join("\n"));
-  parts.push(`\n- [All changelogs](${GITHUB_REPO_URL}/tree/main/changelogs): Full archive organized by year ([view page](${BASE_URL}/documentation/changelog/))`);
+  parts.push(collections.latestChangelogs.map(p => formatPageLink(baseUrl, p, "Release notes")).join("\n"));
+  parts.push(`\n- [All changelogs](${GITHUB_REPO_URL}/tree/main/changelogs): Full archive organized by year ([view page](${baseUrl}/changelog/))`);
 
   return parts.join("\n");
 }
@@ -282,8 +286,12 @@ export default function llmsTxt() {
         latestChangelogs,
       };
 
+      // Resolve the absolute site base (incl. the /documentation base path) from
+      // the location config, via site.url, so links match the basePath() output.
+      const baseUrl = site.url("/", true).replace(/\/$/, "");
+
       // Generate llms.txt
-      const llmsTxt = generateLlmsContent(collections);
+      const llmsTxt = generateLlmsContent(collections, baseUrl);
 
       // Write file to output
       const outputPath = site.options.dest;
@@ -323,10 +331,10 @@ export default function llmsTxt() {
       try {
         let sitemapContent = Deno.readTextFileSync(sitemapPath);
         const llmsEntries = `  <url>
-    <loc>${BASE_URL}/documentation/llms.txt</loc>
+    <loc>${baseUrl}/llms.txt</loc>
   </url>
   <url>
-    <loc>${BASE_URL}/documentation/llms-full.txt</loc>
+    <loc>${baseUrl}/llms-full.txt</loc>
   </url>
 </urlset>`;
         sitemapContent = sitemapContent.replace("</urlset>", llmsEntries);
