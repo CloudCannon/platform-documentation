@@ -1,3 +1,5 @@
+import { Helpers } from "../../_types.d.ts";
+
 interface FooterLink {
   href: string;
   text: string;
@@ -22,9 +24,7 @@ interface FooterNav {
 
 interface FooterProps {
   footernav?: FooterNav;
-  helpers: {
-    icon: (name: string, set: string) => string;
-  };
+  helpers: Helpers;
 }
 
 export default function Footer({ footernav, helpers }: FooterProps) {
@@ -83,7 +83,7 @@ export default function Footer({ footernav, helpers }: FooterProps) {
         <a
           href="https://status.cloudcannon.com/"
           className="l-footer__status"
-          alpine:class="indicator"
+          x-bind:class="indicator"
         >
           <div className="logo-container">
             <svg
@@ -105,7 +105,7 @@ export default function Footer({ footernav, helpers }: FooterProps) {
               />
             </svg>
           </div>
-          <div className="status-message" alpine:class="indicator">
+          <div className="status-message" x-bind:class="indicator">
             <img
               src={helpers.icon("circle:filled", "material")}
               inline="true"

@@ -1,21 +1,20 @@
-import NavWrapper from "./NavWrapper.tsx";
-import NavHeading from "./NavHeading.tsx";
-import type { ChangelogYears } from "../../_types.d.ts";
+import type { ChangelogYears, Comp } from "../../_types.d.ts";
 
 interface ChangeNavProps {
   title: string;
   url?: string;
   changelogYears?: () => ChangelogYears;
+  comp: Comp;
 }
 
 export default function ChangeNav(
-  { title, url, changelogYears }: ChangeNavProps,
+  { comp, title, url, changelogYears }: ChangeNavProps,
 ) {
   const years = changelogYears?.() || { keys: [] };
 
   return (
-    <NavWrapper>
-      <NavHeading title={title} />
+    <comp.Nav.NavWrapper>
+      <comp.Nav.NavHeading title={title} />
 
       <ol
         className="t-docs-nav__main-list"
@@ -26,9 +25,9 @@ export default function ChangeNav(
       >
         <li
           className={`t-docs-nav__main-list__item changelog-nav ${
-            url === "/documentation/changelog/" ? "selected" : ""
+            url === "/changelog/" ? "selected" : ""
           }`}
-          {...(url === "/documentation/changelog/"
+          {...(url === "/changelog/"
             ? { "aria-current": "page" }
             : {})}
         >
@@ -44,7 +43,7 @@ export default function ChangeNav(
           <li
             key={year}
             className={`t-docs-nav__main-list__item changelog-nav ${
-              url?.startsWith(`/documentation/changelog/${year}/`)
+              url?.startsWith(`/changelog/${year}/`)
                 ? "selected"
                 : ""
             }`}
@@ -59,6 +58,6 @@ export default function ChangeNav(
         ))}
       </ol>
       <div x-intersect="more = false" x-intersect:leave="more = true" />
-    </NavWrapper>
+    </comp.Nav.NavWrapper>
   );
 }

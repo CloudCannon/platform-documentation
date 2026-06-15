@@ -1,8 +1,9 @@
-import InteractiveTree, { type TreeNode, nodesToText } from "./InteractiveTree.tsx";
-import type { Helpers } from "../_types.d.ts";
+import { nodesToText, type TreeNode } from "./utils/tree-util.ts";
+import type { Comp, Helpers } from "../_types.d.ts";
 
 interface TreeProps {
   children: unknown;
+  comp: Comp;
 }
 
 // Helper to extract code string from JSX children structure
@@ -128,23 +129,21 @@ function parseTreeText(text: string): TreeNode[] {
   return root;
 }
 
-export default function Tree({ children }: TreeProps, helpers: Helpers) {
+export default function Tree({ comp, children }: TreeProps, helpers: Helpers) {
   const text = extractCodeString(children) || "";
   const nodes = parseTreeText(text);
 
   return (
     <div className="c-code-block c-code-block--tree">
       <div className="c-code-block__code">
-        <InteractiveTree nodes={nodes} helpers={helpers} defaultOpen />
+        <comp.InteractiveTree nodes={nodes} helpers={helpers} defaultOpen />
       </div>
     </div>
   );
 }
 
-export function toMarkdown(_props: TreeProps, childrenMd: string): string {
+export function toMarkdown(_props: Omit<TreeProps, 'comp'>, childrenMd: string): string {
   const nodes = parseTreeText(childrenMd.trim());
   const text = nodesToText(nodes);
   return `\`\`\`\n${text}\n\`\`\`\n\n`;
 }
-
-export { parseTreeText, type TreeNode };

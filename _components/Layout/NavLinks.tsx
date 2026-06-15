@@ -16,7 +16,11 @@ export default function NavLinks({ headingnav, url, helpers }: NavLinksProps) {
     >
       {items.map((item, index) => {
         const hasSubItems = item.items && item.items.length > 0;
-        const isActive = item.href && url?.includes(item.href);
+        // `url` (page.data.url) is unprefixed in the basePath model, while
+        // item.href carries the /documentation base. Normalise both through
+        // helpers.url (idempotent) so the comparison happens in the same space.
+        const isActive = !!item.href && !!url &&
+          helpers.url(url).includes(helpers.url(item.href));
         const popoverId = `nav-dropdown-${index}`;
         const dropdownRef = `dropdown_menu_${index}`;
 
@@ -32,9 +36,11 @@ export default function NavLinks({ headingnav, url, helpers }: NavLinksProps) {
                   {...(isActive ? { "aria-current": "page" } : {})}
                   aria-expanded="false"
                   style={{ "anchor-name": `--nav-trigger-${index}` }}
-                  alpine-keydown-down={`open = ${index}; document.getElementById('${popoverId}').showPopover(); $nextTick(() => $focus.within($refs.${dropdownRef}).first())`}
-                  alpine-keydown-up={`open = ${index}; document.getElementById('${popoverId}').showPopover(); $nextTick(() => $focus.within($refs.${dropdownRef}).last())`}
-                  x-on-click={`open = open === ${index} ? -1 : ${index}`}
+                  {...{
+                    "@keydown.down": `open = ${index}; document.getElementById('${popoverId}').showPopover(); $nextTick(() => $focus.within($refs.${dropdownRef}).first())`,
+                    "@keydown.up": `open = ${index}; document.getElementById('${popoverId}').showPopover(); $nextTick(() => $focus.within($refs.${dropdownRef}).last())`,
+                  }}
+                  x-on:click={`open = open === ${index} ? -1 : ${index}; if (open === ${index}) $nextTick(() => $focus.within($refs.${dropdownRef}).first())`}
                 >
                   {item.text}{" "}
                   <img
@@ -58,16 +64,18 @@ export default function NavLinks({ headingnav, url, helpers }: NavLinksProps) {
                 popover="auto"
                 className="l-header__links--sub-list"
                 style={{ "position-anchor": `--nav-trigger-${index}` }}
-                x-on-toggle={`if (!$event.newState || $event.newState === 'closed') open = -1`}
+                x-on:toggle={`if (!$event.newState || $event.newState === 'closed') open = -1`}
               >
                 <ul
                   x-ref={dropdownRef}
-                  alpine-keydown-down-prevent="$focus.wrap().next()"
-                  alpine-keydown-up-prevent="$focus.wrap().previous()"
-                  alpine-keydown-escape={`open = -1; document.getElementById('${popoverId}').hidePopover()`}
-                  x-trap-inert={`open === ${index}`}
+                  {...{
+                    "@keydown.down.prevent": "$focus.wrap().next()",
+                    "@keydown.up.prevent": "$focus.wrap().previous()",
+                    "@keydown.escape": `open = -1; document.getElementById('${popoverId}').hidePopover()`,
+                    "x-trap.inert": `open === ${index}`,
+                  }}
                 >
-                  {item.items!.map((subitem, subIndex) => (
+                  {item.items?.map((subitem, subIndex) => (
                     <li key={subIndex}>
                       <a
                         className="c-card-grid__card--item"

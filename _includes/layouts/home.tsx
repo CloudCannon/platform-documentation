@@ -1,7 +1,4 @@
-import Card from "../../_components/Card/Card.tsx";
-import { GridCard } from "../../_components/Card/index.ts";
-import InlineSearch from "../../_components/Layout/InlineSearch.tsx";
-import type { Helpers } from "../../_types.d.ts";
+import type { Comp, Helpers } from "../../_types.d.ts";
 
 interface Item {
   url?: string;
@@ -47,10 +44,12 @@ interface Props {
   changelog?: LinkSection;
   community?: CommunitySection;
   beta?: BetaSection;
+  comp: Comp;
 }
 
 export default function HomeLayout(props: Props, helpers: Helpers) {
   const {
+    comp,
     hero_title,
     user_docs,
     developer_docs,
@@ -67,7 +66,7 @@ export default function HomeLayout(props: Props, helpers: Helpers) {
     propPrefix: string,
     hasImage = true,
   ) => (
-    <GridCard
+    <comp.Card.GridCard
       title={data.heading}
       description={data.description}
       image={hasImage && data.image ? helpers.url(data.image) : undefined}
@@ -119,7 +118,7 @@ export default function HomeLayout(props: Props, helpers: Helpers) {
           </div>
         ))}
       </div>
-    </GridCard>
+    </comp.Card.GridCard>
   );
 
   return (
@@ -127,7 +126,7 @@ export default function HomeLayout(props: Props, helpers: Helpers) {
       {/* Hero Section with Search */}
       <div className="c-hero">
         <h1 data-editable="text" data-prop="hero_title">{hero_title}</h1>
-        <InlineSearch autofocus />
+        <comp.Layout.InlineSearch autofocus />
       </div>
 
       {/* Card Grid Section */}
@@ -141,7 +140,7 @@ export default function HomeLayout(props: Props, helpers: Helpers) {
         {/* Changelog Card */}
         {changelog && (
           <div style={{ "grid-column": "span 2" }}>
-            <Card
+            <comp.Card.Card
               href={changelog.url}
               title={changelog.heading}
               description={changelog.description}
