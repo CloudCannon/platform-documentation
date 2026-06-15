@@ -1,0 +1,160 @@
+# Audit queue configuration. Read by _scripts/audit-queue.ts.
+# See .claude/plans/content-audit-mega.plan.md for context.
+
+# Path to the app/ repo used as factual ground truth. Relative to this repo
+# root, or absolute. The script verifies the path exists, is on main, and is
+# up to date with origin/main before letting any audit work proceed.
+app_repo_path: ../app
+
+# In-scope directories (relative to repo root).
+scope:
+  - user/articles
+  - developer/articles
+  - user/guides
+  - developer/guides
+
+# A commit is "substantive" if it added+deleted ≥ this many lines for the file
+# AND its subject doesn't match any non_substantive_commit_patterns.
+substantive_edit_threshold_lines: 30
+
+# Date ranges to skip when computing last substantive edit. Captures known
+# bulk migration windows whose individual commits are mechanical churn (frontmatter
+# restructures, schema changes, file moves) that would otherwise reset every
+# page's "last substantive edit" date.
+# Format: ISO YYYY-MM-DD; both endpoints inclusive.
+skip_commit_date_ranges:
+  - start: "2025-10-01"
+    end: "2025-12-31"
+    reason: "Docs redesign / migration 2025 — schema, frontmatter, editable regions, guide rework. 548 commits over 3 months; treated as one event."
+
+# Commit subjects matching any of these patterns are treated as non-substantive
+# regardless of line count. Captures redesign-class migrations (docshots,
+# component swaps, image replacements, font/CSS, alt-text) so they don't
+# reset every page's last-substantive-edit date.
+# Case-insensitive JavaScript regex.
+non_substantive_commit_patterns:
+  - docshot
+  - docsimage
+  - "replace comp\\."
+  - comp\\.
+  - "(update|fix|add|local).*(image|screenshot|asset)"
+  - "alt text"
+  - "alt and title"
+  - thumbnail
+  - mermaid
+  - "css.*variable"
+  - "font.*variable"
+  - "broken image"
+  - deprecated.*reference
+  - guide layout
+
+# Staleness buckets, in months since last substantive edit.
+staleness:
+  severe_months: 12
+  moderate_months: 6
+  recent_months: 3
+
+# Where to look for product change pressure. Walks all year subdirectories
+# under changelogs_root and filters by the date encoded in each entry's path
+# (changelogs/YYYY/MM-DD_*.mdx). Lookback is rolling, so the signal stays
+# current without yearly config maintenance.
+changelogs_root: changelogs
+changelog_lookback_months: 6
+
+# Words to ignore when extracting changelog-pressure terms from page paths
+# and titles. Without this, generic words like "guide", "article", "create",
+# "your" match every changelog and trigger false-positive pressure signals.
+# Case-insensitive; minimum word length of 5 is enforced separately.
+changelog_pressure_stopwords:
+  - guide
+  - guides
+  - article
+  - articles
+  - cloudcannon
+  - create
+  - creating
+  - update
+  - updating
+  - delete
+  - deleting
+  - manage
+  - managing
+  - configure
+  - configuring
+  - access
+  - accessing
+  - settings
+  - using
+  - their
+  - there
+  - which
+  - other
+  - about
+  - default
+  - between
+  - through
+  - before
+  - after
+  - while
+  - works
+  - working
+  - feature
+  - features
+  - option
+  - options
+  - example
+  - examples
+
+# High-stakes topic seeds. A page is "high stakes" if its path,
+# title, or body matches any of these (case-insensitive).
+# Order is informational only.
+high_stakes_seeds:
+  - SAML
+  - SSO
+  - Okta
+  - MFA
+  - login session
+  - account recovery
+  - billing
+  - invoice
+  - payment method
+  - plan change
+  - trial
+  - Permission Group
+  - Site Sharing
+  - Client Sharing
+  - API key
+  - Organization deletion
+  - ownership transfer
+  - SOC 2
+  - DPA
+  - data residency
+  - publishing workflow
+  - branch protection
+  - conflict resolution
+
+# Absorbed plans: which plan files own which kinds of work.
+# The script doesn't read the plan files themselves; this is just
+# for the human-friendly output (so a page audited by a plan is shown
+# tagged with that plan, not as a fresh audit candidate).
+absorbed_plans:
+  net_new:
+    - VE-API_phase-1.plan.md
+    - VE-API_phase-2.plan.md
+    - VE-API_phase-3.plan.md
+    - VE-API_phase-4.plan.md
+    - create-a-standalone-site-article.plan.md
+    - new-project-docs.plan.md
+    - future-user-guides.plan.md
+  pre_scheduled_fix:
+    - datareference-removal.plan.md
+    - project-browser-terminology.plan.md
+  externally_coupled:
+    - pr-feature-docs-review.plan.md
+    - unify-delete-after-publish-docs.plan.md
+
+# Optional per-page plan ownership. Path → plan filename.
+# Use this when a plan owns a specific page that shouldn't be re-prioritised.
+# Fill in as plans are scoped concretely.
+pre_scheduled_pages: {}
+externally_coupled_pages: {}
