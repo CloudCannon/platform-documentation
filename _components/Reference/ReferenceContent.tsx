@@ -360,7 +360,7 @@ export default function ReferenceContent({
           slugify={slugify}
         />
 
-        {showExamples && (
+        {showExamples && examples.length > 0 && (
           <>
             <dt id="examples">Examples:</dt>
             {examples.map((example, i) => (
