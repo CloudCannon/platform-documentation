@@ -1,0 +1,122 @@
+---
+_schema: reference_landing_page
+_uuid: 6f3b9a1e-5c2d-4f8a-9b14-7d0c2e6a4f51
+layout: layouts/reference-home.tsx
+details:
+  title: API
+---
+The CloudCannon API lets you manage your organizations, projects, sites, builds, and more programmatically. This reference is generated from the CloudCannon OpenAPI specification and covers every available endpoint, grouped by resource.
+
+<comp.Notice info_type="info">
+  The API is versioned under the `/api/v0/` path. While it is on a `v0` version, endpoints and fields may change.
+</comp.Notice>
+
+## Working with the API
+
+The easiest way to work with the CloudCannon API is through one of our official tools. They handle authentication, request signing, and pagination for you, so reach for these before calling the HTTP endpoints directly.
+
+### CloudCannon CLI
+
+The CLI manages your organizations, sites, builds, files, and form submissions from the terminal, and can generate CloudCannon configuration files for your site. Install it globally and log in:
+
+<comp.CodeBlock language="bash" source="Terminal">
+```bash
+npm install --global @cloudcannon/cli
+cloudcannon login
+```
+</comp.CodeBlock>
+
+See the [CloudCannon CLI on GitHub](https://github.com/CloudCannon/cli) for the full command reference.
+
+### TypeScript SDK
+
+The SDK is a typed client for the CloudCannon API, with a sub-client for each resource and built-in pagination, sorting, and filtering. Install it, then create a client with your API key:
+
+<comp.CodeBlock language="bash" source="Terminal">
+```bash
+npm install @cloudcannon/sdk
+```
+</comp.CodeBlock>
+
+<comp.CodeBlock language="typescript" source="example.ts">
+```typescript
+import CloudCannonClient from '@cloudcannon/sdk';
+
+const client = new CloudCannonClient({ key: '<your-api-key>' });
+
+const { items } = await client.orgs();
+```
+</comp.CodeBlock>
+
+See the [CloudCannon SDK on GitHub](https://github.com/CloudCannon/sdk) for the full documentation.
+
+If you need direct access — for another language, or a use case the tools don't cover — the rest of this reference documents the underlying HTTP API.
+
+## OpenAPI specification
+
+This reference is generated from CloudCannon's OpenAPI specification, which is published as a machine-readable document at:
+
+<comp.CodeBlock language="bash" source="OpenAPI specification">
+```bash
+https://app.cloudcannon.com/api/v0/openapi.json
+```
+</comp.CodeBlock>
+
+Point your tooling at this URL to generate API clients, explore endpoints in a tool like Postman or Insomnia, or give an AI agent the complete, structured definition of every endpoint, parameter, and response in one request.
+
+## Base URL
+
+All API requests are made to:
+
+<comp.CodeBlock language="bash" source="Base URL">
+```bash
+https://app.cloudcannon.com/api/v0
+```
+</comp.CodeBlock>
+
+## Authentication
+
+Every request must be authenticated. The CloudCannon API supports two types of credentials:
+
+- **API keys** — scoped to an organization. Best for server-to-server integrations, and the method this reference documents.
+- **User access keys** — scoped to an individual user. Created and used by the CloudCannon CLI to act on that user's behalf.
+
+<comp.Notice info_type="info">
+  These are not the same as a [bearer token](/documentation/developer-articles/generate-a-bearer-token/), which controls access to content on a hosted Site and is not used to authenticate the CloudCannon API.
+</comp.Notice>
+
+### API keys
+
+An API key authenticates as an organization and grants access to that organization's resources. Generate one from your organization's *API Keys* settings, then pass it in the `X-API-KEY` header on every request:
+
+<comp.CodeBlock language="bash" source="Terminal">
+```bash
+curl https://app.cloudcannon.com/api/v0/orgs \
+  -H "X-API-KEY: <your-api-key>"
+```
+</comp.CodeBlock>
+
+### User access keys
+
+A user access key authenticates as an individual user, with that user's permissions across the organizations they belong to. Access keys are created when you authenticate the CloudCannon CLI by running `cloudcannon login`, and can be managed or revoked from *Account Settings → Access Keys*. Requests made with an access key are cryptographically signed; the CLI and SDK handle this for you.
+
+For direct HTTP access we recommend using an API key. If you need to sign access-key requests in another language, see the [`signRequest` method in the SDK](https://github.com/CloudCannon/sdk/blob/main/index.ts) for a reference implementation of the signing scheme.
+
+Requests without valid credentials return a `401 Unauthorized` response.
+
+## Pagination
+
+List endpoints accept `page` and `items` query parameters to page through results, and `sort_attribute` and `sort_direction` to control ordering. `sort_direction` accepts `ASC` or `DESC` and defaults to `DESC`. The available `sort_attribute` values vary by endpoint and are listed with each endpoint's parameters.
+
+<comp.CodeBlock language="bash" source="Terminal">
+```bash
+curl "https://app.cloudcannon.com/api/v0/orgs/<org_uuid>/sites?page=2&items=50" \
+  -H "X-API-KEY: <your-api-key>"
+```
+</comp.CodeBlock>
+
+## Endpoints
+
+Endpoints are grouped by resource. Select a resource to see its endpoints, parameters, and example requests, or browse them using the navigation on the left.
+
+<comp.Api.ApiResourceIndex />

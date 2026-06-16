@@ -56,6 +56,10 @@ import strip from "strip-markdown";
 import { parseChangelogFilename } from "./parseChangelogFilename.ts";
 import type { ContentNavItem, DocEntry } from "./_types.d.ts";
 import { buildRefNav } from "./developer/reference/_shared/buildRefNav.ts";
+import {
+  API_BASE_PATH,
+  getApiResources,
+} from "./developer/reference/api/_shared/openapi.ts";
 
 import documentation from "@cloudcannon/configuration-types/dist/documentation.json" with {
   type: "json",
@@ -121,7 +125,21 @@ const refNavSections = buildRefNav(
   routingDocs,
   initialSiteSettingsDocs,
 );
-site.data("ref_nav", refNavSections);
+
+// API reference navigation section (generated from the OpenAPI spec)
+const apiNavSection = {
+  id: "type.Api",
+  heading: "API",
+  icon: "api",
+  basePath: API_BASE_PATH,
+  items: getApiResources().map((resource) => ({
+    url: `${API_BASE_PATH}${resource.slug}/`,
+    name: resource.title,
+    gid: `api.${resource.slug}`,
+  })),
+};
+
+site.data("ref_nav", [...refNavSections, apiNavSection]);
 
 // Log the server URL when it starts (currently suppressed by LUME_LOGS=critical)
 site.addEventListener("afterStartServer", () => {
