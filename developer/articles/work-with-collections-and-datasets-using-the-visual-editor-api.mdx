@@ -68,7 +68,7 @@ for (const file of files) { /*3*/
   Call `items()` to get an array of file objects in the *Collection*.
 </comp.Annotation>
 <comp.Annotation number="3">
-  Iterate over the files. Each file object has the same interface as `currentFile()` — you can call `data.get()`, `data.set()`, `content.get()`, and all other file methods on it.
+  Iterate over the files. Each file object has the same interface as `currentFile()`, so you can call `data.get()`, `data.set()`, `content.get()`, and all other file methods on it.
 </comp.Annotation>
 </comp.CodeBlock>
 
@@ -121,16 +121,16 @@ To list all files or all *Collections* on the *Site*:
 
 1. Open your website files in your local development environment.
 2. Open the JavaScript file where your *Visual Editor API* integration runs.
-3. Call `await api.files()` for every file path, or `await api.collections()` for every configured *Collection*.
-4. Iterate `allFiles` and `allCollections` — for example log each path from `allFiles` and each `collectionKey` from `allCollections`.
+3. Call `await api.files()` for every file, or `await api.collections()` for every configured *Collection*.
+4. Iterate `allFiles` and `allCollections`, logging each file's `path` from `allFiles` and each `collectionKey` from `allCollections`.
 
 <comp.CodeBlock language="javascript" source="script.js">
 ```
 const allFiles = await api.files(); /*1*/
 const allCollections = await api.collections(); /*2*/
 
-for (const path of allFiles) { /*3*/
-  console.log(path);
+for (const file of allFiles) { /*3*/
+  console.log(file.path);
 }
 
 for (const collection of allCollections) { /*4*/
@@ -144,7 +144,7 @@ for (const collection of allCollections) { /*4*/
   Call `api.collections()` to get all *Collections* in your *Site* as an array.
 </comp.Annotation>
 <comp.Annotation number="3">
-  Log all the file paths in `allFiles`.
+  Log each file's `path` from `allFiles`.
 </comp.Annotation>
 <comp.Annotation number="4">
   Log all the keys in `allCollections`, which match the *Collections* in your *CloudCannon Configuration File*.
@@ -153,7 +153,7 @@ for (const collection of allCollections) { /*4*/
 
 ### Filter files
 
-Because `items()` returns an array, you can filter it using standard JavaScript. This works for *Collections* and folder-based *Datasets* — if a *Dataset* is configured as a single file, `items()` returns a single file object rather than an array.
+Because `items()` returns an array, you can filter it using standard JavaScript. This works for *Collections* and folder-based *Datasets*. If a *Dataset* is configured as a single file, `items()` returns a single file object rather than an array.
 
 <comp.CodeBlock language="javascript" source="script.js">
 ```
@@ -215,7 +215,7 @@ To branch on a value that might be a file, *Collection*, or *Dataset*:
 2. Open the JavaScript file where your *Visual Editor API* integration runs.
 3. Pass the value to `api.isAPIFile()`, `api.isAPICollection()`, or `api.isAPIDataset()`.
 
-When a guard returns `true`, call only the methods that exist on that type — for example `obj.data.get()` on a file object, or `await obj.items()` on a *Collection* or *Dataset* handle — so TypeScript and the runtime agree on the object shape.
+When a guard returns `true`, call only the methods that exist on that type (for example, `obj.data.get()` on a file object, or `await obj.items()` on a *Collection* or *Dataset* handle), so TypeScript and the runtime agree on the object shape.
 
 <comp.CodeBlock language="javascript" source="script.js">
 ```
@@ -235,9 +235,9 @@ if (api.isAPIDataset(obj)) { /*3*/
   `isAPIFile()` returns `true` if `obj` is a file object, allowing you to safely call file methods on it.
 </comp.Annotation>
 <comp.Annotation number="2">
-  `isAPICollection()` returns `true` if `obj` is a collection object.
+  `isAPICollection()` returns `true` if `obj` is a *Collection* object.
 </comp.Annotation>
 <comp.Annotation number="3">
-  `isAPIDataset()` returns `true` if `obj` is a dataset object.
+  `isAPIDataset()` returns `true` if `obj` is a *Dataset* object.
 </comp.Annotation>
 </comp.CodeBlock>

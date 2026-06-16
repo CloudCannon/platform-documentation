@@ -28,7 +28,7 @@ The `@cloudcannon/visual-editor-api` package includes TypeScript declarations th
 This article assumes you know how to [initialize the Visual Editor API](/documentation/developer-articles/initialize-the-visual-editor-api/) and have already installed the `@cloudcannon/visual-editor-api` package.
 
 <comp.Notice info_type="info">
-  This approach requires your project to have a TypeScript compilation pipeline. Some SSGs (such as Astro, Next.js, SvelteKit, and Nuxt) include one out of the box. For others (such as Eleventy, Jekyll, and Hugo), you will need to add a build step — for example, using <a href="https://esbuild.github.io/" target="_blank" rel="noopener">esbuild</a> or <a href="https://rollupjs.org/" target="_blank" rel="noopener">Rollup</a> — to compile the helper module to JavaScript before it runs in the browser. Install `typescript` as a dev dependency if you have not already.
+  This approach requires your project to have a TypeScript compilation pipeline. Some SSGs (such as Astro, Next.js, SvelteKit, and Nuxt) include one out of the box. For others (such as Eleventy, Jekyll, and Hugo), you will need to add a build step (for example, using <a href="https://esbuild.github.io/" target="_blank" rel="noopener">esbuild</a> or <a href="https://rollupjs.org/" target="_blank" rel="noopener">Rollup</a>) to compile the helper module to JavaScript before it runs in the browser. Install `typescript` as a dev dependency if you have not already.
 </comp.Notice>
 
 ## Declare CloudCannon's globals on the Window type
@@ -53,13 +53,13 @@ const api = window.CloudCannonAPI?.useVersion('v1', true); /*3*/
   `import type` pulls the TypeScript declarations from `@cloudcannon/visual-editor-api`.
 </comp.Annotation>
 <comp.Annotation number="2">
-  `declare const window` re-declares the `window` global for this module. Combining `CloudCannonVisualEditorWindow` with `{ inEditorMode: true | undefined }` tells TypeScript that both `window.CloudCannonAPI` and `window.inEditorMode` are available without needing a cast. The declaration applies to this file only — repeat it in any other module that talks to the API.
+  `declare const window` re-declares the `window` global for this module. Combining `CloudCannonVisualEditorWindow` with `{ inEditorMode: true | undefined }` tells TypeScript that both `window.CloudCannonAPI` and `window.inEditorMode` are available without needing a cast. The declaration applies to this file only. Repeat it in any other module that talks to the API.
 </comp.Annotation>
 <comp.Annotation number="3">
-  `?.` skips the call when `CloudCannonAPI` is missing, returning `undefined` — for example, outside the *Visual Editor*. Passing `true` as the second argument to `useVersion()` prevents the handler from being assigned to `window.CloudCannon`; see [Initialize the Visual Editor API](/documentation/developer-articles/initialize-the-visual-editor-api/) for context.
+  `?.` skips the call when `CloudCannonAPI` is missing, returning `undefined` (for example, outside the *Visual Editor*). Passing `true` as the second argument to `useVersion()` prevents the handler from being assigned to `window.CloudCannon`; see [Initialize the Visual Editor API](/documentation/developer-articles/initialize-the-visual-editor-api/) for context.
 </comp.Annotation>
 </comp.CodeBlock>
 
 Once you have declared CloudCannon's globals, `window.CloudCannonAPI` and `window.inEditorMode` work with full autocomplete and type checking in the same module.
 
-If you call the API from many modules, you can wrap the `window.CloudCannonAPI?.useVersion('v1')` call in a helper function and import it where you need it, rather than re-declaring `window` in every file.
+If you call the API from many modules, you can wrap the `window.CloudCannonAPI?.useVersion('v1', true)` call in a helper function and import it where you need it, rather than re-declaring `window` in every file.
