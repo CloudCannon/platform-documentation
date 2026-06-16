@@ -145,7 +145,7 @@ export default function DocNav(
     {
       label: "Platform",
       homeUrl: "/developer-reference/platform/",
-      sectionIds: ["cli", "sdk", "type.Api", "permissions"],
+      sectionIds: ["cli", "sdk", "type.Api", "type.ApiSchemas", "permissions"],
     },
   ];
 

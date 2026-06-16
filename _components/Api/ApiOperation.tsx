@@ -1,9 +1,26 @@
 import type {
   OperationView,
   ParameterView,
+  SchemaTypeRef,
 } from "../../developer/reference/api/_shared/openapi.ts";
 import type { Comp, Helpers } from "../../_types.d.ts";
 
+const MAX_ENUM_VALUES = 30;
+
+// Renders a response/request body as a link to its named schema page.
+function SchemaReference({ reference }: { reference: SchemaTypeRef }) {
+  return (
+    <p className="c-api-schema-ref">
+      {reference.isArray && "Array of "}
+      <a href={reference.url}>
+        <code className="code-no-box">{reference.name}</code>
+      </a>
+    </p>
+  );
+}
+
+// Renders a labelled group of parameters as a dt/dd pair, matching the
+// configuration reference's c-data-reference layout.
 function Parameters(
   { title, params, helpers }: {
     title: string;
@@ -14,33 +31,54 @@ function Parameters(
   if (!params.length) return null;
   return (
     <>
-      <h3 className="c-api-operation__subheading exclude-from-toc">{title}</h3>
-      <div className="c-data-reference">
-        {params.map((param) => (
-          <div className="c-data-reference__item" key={`${param.in}-${param.name}`}>
-            <div className="c-data-reference__header">
-              <span className="c-data-reference__key">
-                <code className="code-no-box">{param.name}</code>
-              </span>
-              <code>{param.typeLabel}</code>
-              {param.required && <small className="pill pill--red">Required</small>}
-            </div>
-            {param.description && (
-              <div className="c-data-reference__description">
-                {helpers
-                  ? (
-                    <div
-                      dangerouslySetInnerHTML={{
-                        __html: helpers.md(param.description),
-                      }}
-                    />
-                  )
-                  : <div>{param.description}</div>}
+      <dt>{title}:</dt>
+      <dd className="c-data-reference">
+        {params.map((param) => {
+          const enumValues = (param.enumValues ?? []).slice(0, MAX_ENUM_VALUES);
+          const enumMore = (param.enumValues?.length ?? 0) - enumValues.length;
+          return (
+            <div className="c-data-reference__item" key={`${param.in}-${param.name}`}>
+              <div className="c-data-reference__header">
+                <span className="c-data-reference__key">
+                  <code className="code-no-box">{param.name}</code>
+                </span>
+                <code>{param.typeLabel}</code>
+                {param.required && <small className="pill pill--red">Required</small>}
               </div>
-            )}
-          </div>
-        ))}
-      </div>
+              <div className="c-data-reference__description">
+                {param.description && (
+                  helpers
+                    ? (
+                      <div
+                        dangerouslySetInnerHTML={{
+                          __html: helpers.md(param.description),
+                        }}
+                      />
+                    )
+                    : <div>{param.description}</div>
+                )}
+                {param.defaultValue !== undefined && (
+                  <p>
+                    <em>Defaults to:</em> <code>{param.defaultValue}</code>
+                  </p>
+                )}
+                {enumValues.length > 0 && (
+                  <p>
+                    <em>Allowed values:</em>{" "}
+                    {enumValues.map((val, i) => (
+                      <span key={i}>
+                        {i > 0 && " "}
+                        <code>{val}</code>
+                      </span>
+                    ))}
+                    {enumMore > 0 && ` and ${enumMore} more.`}
+                  </p>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </dd>
     </>
   );
 }
@@ -59,11 +97,13 @@ export default function ApiOperation(
 
   return (
     <section className="c-api-operation" id={operation.id}>
+      <h2 className="c-api-operation__title exclude-from-toc">
+        {operation.title}
+      </h2>
       <div className="c-api-operation__signature">
         <comp.Api.HttpMethod method={operation.method} />
         <code className="c-api-operation__path">{operation.path}</code>
       </div>
-      <p className="c-api-operation__title">{operation.title}</p>
 
       {operation.deprecated && (
         <p>
@@ -85,60 +125,88 @@ export default function ApiOperation(
         </div>
       )}
 
-      <Parameters
-        title="Path parameters"
-        params={operation.pathParams}
-        helpers={helpers}
-      />
-      <Parameters
-        title="Query parameters"
-        params={operation.queryParams}
-        helpers={helpers}
-      />
-      <Parameters
-        title="Header parameters"
-        params={operation.headerParams}
-        helpers={helpers}
-      />
+      <dl>
+        <Parameters
+          title="Path parameters"
+          params={operation.pathParams}
+          helpers={helpers}
+        />
+        <Parameters
+          title="Filters"
+          params={operation.filterParams}
+          helpers={helpers}
+        />
+        <Parameters
+          title="Sorting"
+          params={operation.sortParams}
+          helpers={helpers}
+        />
+        <Parameters
+          title="Pagination"
+          params={operation.paginationParams}
+          helpers={helpers}
+        />
+        <Parameters
+          title="Query parameters"
+          params={operation.queryParams}
+          helpers={helpers}
+        />
+        <Parameters
+          title="Header parameters"
+          params={operation.headerParams}
+          helpers={helpers}
+        />
 
-      {operation.requestRows.length > 0 && (
-        <>
-          <h3 className="c-api-operation__subheading exclude-from-toc">
-            Request body
-          </h3>
-          <comp.Api.ApiSchema rows={operation.requestRows} helpers={helpers} />
-        </>
-      )}
-
-      <h3 className="c-api-operation__subheading exclude-from-toc">
-        Example request
-      </h3>
-      <comp.CodeBlock language="bash" source="Terminal">
-        <pre><code className="language-bash">{operation.curl}</code></pre>
-      </comp.CodeBlock>
-
-      {hasResponses && (
-        <>
-          <h3 className="c-api-operation__subheading exclude-from-toc">
-            Responses
-          </h3>
-          {operation.responses.map((response) => (
-            <div className="c-api-response" key={response.status}>
-              <div className="c-api-response__header">
-                <span className="c-api-response__status">{response.status}</span>
-                {response.description && (
-                  <span className="c-api-response__description">
-                    {response.description}
-                  </span>
+        {(operation.requestSchemaRef || operation.requestRows.length > 0) && (
+          <>
+            <dt>Request body:</dt>
+            <dd>
+              {operation.requestSchemaRef
+                ? <SchemaReference reference={operation.requestSchemaRef} />
+                : (
+                  <comp.Api.ApiSchema
+                    rows={operation.requestRows}
+                    helpers={helpers}
+                  />
                 )}
-              </div>
-              {response.rows.length > 0 && (
-                <comp.Api.ApiSchema rows={response.rows} helpers={helpers} />
-              )}
-            </div>
-          ))}
-        </>
-      )}
+            </dd>
+          </>
+        )}
+
+        <dt>Example request:</dt>
+        <dd>
+          <comp.CodeBlock language="bash" source="Terminal">
+            <pre><code className="language-bash">{operation.curl}</code></pre>
+          </comp.CodeBlock>
+        </dd>
+
+        {hasResponses && (
+          <>
+            <dt>Responses:</dt>
+            <dd>
+              {operation.responses.map((response) => (
+                <div className="c-api-response" key={response.status}>
+                  <div className="c-api-response__header">
+                    <span className="c-api-response__status">
+                      {response.status}
+                    </span>
+                    {response.description && (
+                      <span className="c-api-response__description">
+                        {response.description}
+                      </span>
+                    )}
+                  </div>
+                  {response.schemaRef
+                    ? <SchemaReference reference={response.schemaRef} />
+                    : response.rows.length > 0 && (
+                      <comp.Api.ApiSchema rows={response.rows} helpers={helpers} />
+                    )}
+                </div>
+              ))}
+            </dd>
+          </>
+        )}
+      </dl>
     </section>
   );
 }

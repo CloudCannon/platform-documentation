@@ -58,6 +58,7 @@ import type { ContentNavItem, DocEntry } from "./_types.d.ts";
 import { buildRefNav } from "./developer/reference/_shared/buildRefNav.ts";
 import {
   API_BASE_PATH,
+  API_SCHEMAS_BASE_PATH,
   getApiResources,
 } from "./developer/reference/api/_shared/openapi.ts";
 
@@ -139,7 +140,16 @@ const apiNavSection = {
   })),
 };
 
-site.data("ref_nav", [...refNavSections, apiNavSection]);
+// Schemas index (a single nav link; the index page lists every schema)
+const apiSchemasNavSection = {
+  id: "type.ApiSchemas",
+  heading: "Schemas",
+  icon: "data_object",
+  basePath: API_SCHEMAS_BASE_PATH,
+  items: [] as { url: string; name: string; gid: string }[],
+};
+
+site.data("ref_nav", [...refNavSections, apiNavSection, apiSchemasNavSection]);
 
 // Log the server URL when it starts (currently suppressed by LUME_LOGS=critical)
 site.addEventListener("afterStartServer", () => {

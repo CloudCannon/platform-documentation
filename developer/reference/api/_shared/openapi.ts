@@ -94,6 +94,9 @@ interface OpenApiSecurityScheme {
 export interface SchemaRow {
   name: string;
   typeLabel: string;
+  // When the type is a named (page-worthy) schema, link to its page instead of
+  // expanding it inline.
+  typeUrl?: string;
   required: boolean;
   description?: string;
   nullable: boolean;
@@ -102,17 +105,38 @@ export interface SchemaRow {
   children?: SchemaRow[];
 }
 
+// A response or request body that returns/accepts a named schema, rendered as a
+// link to that schema's page rather than an inline property table.
+export interface SchemaTypeRef {
+  name: string;
+  url: string;
+  isArray: boolean;
+}
+
+// A named component schema, documented once on its own page.
+export interface SchemaDoc {
+  slug: string;
+  name: string;
+  description?: string;
+  rows: SchemaRow[];
+}
+
 export interface ParameterView {
   name: string;
   in: "path" | "query" | "header" | "cookie";
   required: boolean;
   description?: string;
   typeLabel: string;
+  enumValues?: string[];
+  defaultValue?: string;
 }
 
 export interface ResponseView {
   status: string;
   description?: string;
+  // Either a reference to a named schema page, or inline rows for an anonymous
+  // schema. schemaRef takes precedence when present.
+  schemaRef?: SchemaTypeRef;
   rows: SchemaRow[];
 }
 
@@ -124,8 +148,14 @@ export interface OperationView {
   description?: string;
   deprecated: boolean;
   pathParams: ParameterView[];
+  // Query params, classified so the keys can be grouped in the output.
+  filterParams: ParameterView[];
+  sortParams: ParameterView[];
+  paginationParams: ParameterView[];
   queryParams: ParameterView[];
   headerParams: ParameterView[];
+  // Request body: a reference to a named schema page, or inline rows.
+  requestSchemaRef?: SchemaTypeRef;
   requestRows: SchemaRow[];
   requestExample?: string;
   responses: ResponseView[];
@@ -153,6 +183,62 @@ const spec = rawSpec as OpenApiSpec;
 
 const HTTP_METHODS = ["get", "post", "put", "patch", "delete"] as const;
 const MAX_DEPTH = 4;
+
+export const API_BASE_PATH = "/documentation/developer-reference/api/";
+export const API_SCHEMAS_BASE_PATH =
+  "/documentation/developer-reference/api/schemas/";
+
+// ---------------------------------------------------------------------------
+// Named schema registry
+// ---------------------------------------------------------------------------
+
+// A component schema is "page-worthy" (gets its own page and is linked to rather
+// than expanded inline) when it resolves to an object with properties. Scalar
+// aliases like UUID render inline as their type name with no page.
+function isPageWorthy(name: string): boolean {
+  const schema = spec.components?.schemas?.[name];
+  if (!schema) return false;
+  let resolved: OpenApiSchema | undefined = schema;
+  if (resolved.allOf?.length) resolved = mergeAllOf(resolved);
+  resolved = resolveSchema(resolved);
+  const props = resolved?.properties ??
+    (resolved?.type === "array" ? resolveSchema(resolved.items)?.properties : undefined);
+  return Boolean(props && Object.keys(props).length);
+}
+
+let pageWorthyCache: Set<string> | null = null;
+function pageWorthySchemas(): Set<string> {
+  if (!pageWorthyCache) {
+    pageWorthyCache = new Set(
+      Object.keys(spec.components?.schemas ?? {}).filter(isPageWorthy),
+    );
+  }
+  return pageWorthyCache;
+}
+
+function schemaSlug(name: string): string {
+  return slugify(name, { decamelize: true });
+}
+
+function schemaUrl(name: string): string {
+  return `${API_SCHEMAS_BASE_PATH}${schemaSlug(name)}/`;
+}
+
+// If a schema is a $ref (or array of $ref) to a page-worthy named schema,
+// return a reference to its page; otherwise null.
+function namedSchemaRef(schema?: OpenApiSchema): SchemaTypeRef | null {
+  if (!schema) return null;
+  let isArray = false;
+  let ref = schema.$ref;
+  if (!ref && schema.type === "array" && schema.items?.$ref) {
+    ref = schema.items.$ref;
+    isArray = true;
+  }
+  if (!ref) return null;
+  const name = refName(ref);
+  if (!pageWorthySchemas().has(name)) return null;
+  return { name, url: schemaUrl(name), isArray };
+}
 
 // ---------------------------------------------------------------------------
 // $ref resolution
@@ -294,9 +380,11 @@ function schemaToRows(
 
   return Object.entries(properties).map(([name, propSchema]) => {
     const resolvedProp = resolveSchema(propSchema) ?? propSchema;
+    const named = namedSchemaRef(propSchema);
     const row: SchemaRow = {
       name,
       typeLabel: typeLabel(propSchema),
+      typeUrl: named?.url,
       required: requiredSet.has(name),
       description: resolvedProp.description,
       nullable: resolvedProp.nullable === true,
@@ -306,8 +394,11 @@ function schemaToRows(
         : undefined,
     };
 
-    // Recurse into nested objects (and arrays of objects) within a depth cap,
-    // guarding against recursive schemas via the originating $ref name.
+    // A page-worthy named schema links to its own page — never expanded here.
+    if (named) return row;
+
+    // Otherwise recurse into anonymous inline objects (and arrays of objects)
+    // within a depth cap, guarding against recursion via the originating $ref.
     const refKey = propSchema.$ref ?? "";
     const target = resolvedProp.type === "array"
       ? resolveSchema(resolvedProp.items)
@@ -467,31 +558,65 @@ function humaniseAction(operationId: string | undefined, method: string): string
     .trim() || method.toUpperCase();
 }
 
+const PAGINATION_PARAMS = new Set(["page", "items"]);
+const SORT_PARAMS = new Set(["sort_attribute", "sort_direction"]);
+
+// For a parameter, prefer the concrete scalar type over typeLabel()'s "enum"
+// so an enum param still reads as e.g. "string" with its allowed values listed.
+function paramTypeLabel(schema?: OpenApiSchema): string {
+  if (schema?.type) return schema.type;
+  return typeLabel(schema);
+}
+
 function buildParameters(op: OpenApiOperation): {
   path: ParameterView[];
+  filters: ParameterView[];
+  sort: ParameterView[];
+  pagination: ParameterView[];
   query: ParameterView[];
   header: ParameterView[];
 } {
   const path: ParameterView[] = [];
-  const query: ParameterView[] = [];
+  const pagination: ParameterView[] = [];
+  const sort: ParameterView[] = [];
+  const rest: ParameterView[] = [];
   const header: ParameterView[] = [];
 
   for (const rawParam of op.parameters ?? []) {
     const param = resolveParameter(rawParam);
     if (!param.name || !param.in) continue;
+    const schema = param.schema;
     const view: ParameterView = {
       name: param.name,
       in: param.in,
       required: param.in === "path" ? true : param.required === true,
-      description: param.description ?? param.schema?.description,
-      typeLabel: typeLabel(param.schema),
+      description: param.description ?? schema?.description,
+      typeLabel: paramTypeLabel(schema),
+      enumValues: schema?.enum?.map((v) => String(v)),
+      defaultValue: schema?.default !== undefined
+        ? JSON.stringify(schema.default)
+        : undefined,
     };
     if (param.in === "path") path.push(view);
-    else if (param.in === "query") query.push(view);
     else if (param.in === "header") header.push(view);
+    else if (param.in === "query") {
+      if (PAGINATION_PARAMS.has(param.name)) pagination.push(view);
+      else if (SORT_PARAMS.has(param.name)) sort.push(view);
+      else rest.push(view);
+    }
   }
 
-  return { path, query, header };
+  // On list-style endpoints (those exposing pagination or sort controls) the
+  // remaining query params are filters; elsewhere they're plain query params.
+  const isListLike = pagination.length > 0 || sort.length > 0;
+  return {
+    path,
+    filters: isListLike ? rest : [],
+    sort,
+    pagination,
+    query: isListLike ? [] : rest,
+    header,
+  };
 }
 
 function buildResponses(op: OpenApiOperation): ResponseView[] {
@@ -501,10 +626,12 @@ function buildResponses(op: OpenApiOperation): ResponseView[] {
     .map(([status, rawResp]) => {
       const resp = resolveResponse(rawResp);
       const schema = resp.content?.["application/json"]?.schema;
+      const schemaRef = namedSchemaRef(schema) ?? undefined;
       return {
         status,
         description: resp.description,
-        rows: schemaToRows(schema),
+        schemaRef,
+        rows: schemaRef ? [] : schemaToRows(schema),
       };
     });
 }
@@ -516,7 +643,8 @@ function buildOperation(
 ): OperationView {
   const params = buildParameters(op);
   const bodySchema = requestBodySchema(op);
-  const requestRows = schemaToRows(bodySchema);
+  const requestSchemaRef = namedSchemaRef(bodySchema) ?? undefined;
+  const requestRows = requestSchemaRef ? [] : schemaToRows(bodySchema);
   const example = bodySchema ? exampleValue(bodySchema) : undefined;
 
   return {
@@ -527,8 +655,12 @@ function buildOperation(
     description: op.summary ? op.description : undefined,
     deprecated: op.deprecated === true,
     pathParams: params.path,
+    filterParams: params.filters,
+    sortParams: params.sort,
+    paginationParams: params.pagination,
     queryParams: params.query,
     headerParams: params.header,
+    requestSchemaRef,
     requestRows,
     requestExample: example !== undefined
       ? JSON.stringify(example, null, 2)
@@ -536,6 +668,78 @@ function buildOperation(
     responses: buildResponses(op),
     curl: buildCurl(op, method, path),
   };
+}
+
+// Conceptual ordering for the resource nav and landing index. Leads with the
+// core concepts — Organizations, then Sites (most resources belong to a site),
+// then Projects and Domains — and clusters related resources beneath each.
+// Tags not listed here fall to the end, alphabetically.
+const RESOURCE_ORDER: string[] = [
+  // Organization
+  "Organizations",
+  "Organization Activity",
+  "Organization Inboxes",
+  // Sites — and everything that belongs to a site
+  "Sites",
+  "Site Activity",
+  "Site Analytics",
+  "Builds",
+  "Site Scheduled Builds",
+  "Files",
+  "Backups",
+  "Site Archives",
+  "Syncs",
+  "Editing Sessions",
+  "Editing Session",
+  "Editing Session Files",
+  "Editing Session File",
+  "Editing Session Contributions",
+  "Site Provider",
+  "Site Provider Branch",
+  "Providers",
+  "Pull Requests",
+  "Upstream Pull Requests",
+  "Site Authentication",
+  "Site Authentication Users",
+  "Site Bearer Tokens",
+  "Site SSL Custom",
+  "Site SSL Auto",
+  "Site SSL Cloudflare",
+  "Site Domain Name",
+  "Site DAMs",
+  "Dams",
+  "Site Mountings",
+  "Outputs",
+  "Output Site Providers",
+  "Site Inboxes",
+  "Site Form Hooks",
+  "Screenshots",
+  "Scans",
+  // Projects
+  "Projects",
+  "Project Git",
+  // Domains
+  "Base Domains",
+  "Base Domain Dns",
+  "Base Domain Dns Records",
+  "Subdomains",
+  // Account- and organization-wide resources
+  "Users",
+  "Users Avatar",
+  "Bearer Tokens",
+  "DAMs",
+  "Ssl Certificates",
+  "Whitelabel",
+  // Inboxes and form hooks
+  "Inboxes",
+  "Inbox Targets",
+  "Inbox Form Hooks",
+  "Form Hook",
+];
+
+function resourceRank(tag: string): number {
+  const index = RESOURCE_ORDER.indexOf(tag);
+  return index === -1 ? RESOURCE_ORDER.length : index;
 }
 
 let cachedResources: ApiResource[] | null = null;
@@ -558,7 +762,12 @@ function buildResources(): ApiResource[] {
   const usedSlugs = new Set<string>();
   const resources: ApiResource[] = [];
 
-  for (const tag of [...byTag.keys()].sort((a, b) => a.localeCompare(b))) {
+  const orderedTags = [...byTag.keys()].sort((a, b) => {
+    const rank = resourceRank(a) - resourceRank(b);
+    return rank !== 0 ? rank : a.localeCompare(b);
+  });
+
+  for (const tag of orderedTags) {
     let slug = slugify(tag);
     while (usedSlugs.has(slug)) slug = `${slug}-x`;
     usedSlugs.add(slug);
@@ -583,6 +792,31 @@ export function getApiResourceBySlug(slug: string): ApiResource | undefined {
   return getApiResources().find((r) => r.slug === slug);
 }
 
+let cachedSchemas: SchemaDoc[] | null = null;
+
+// Build one SchemaDoc per page-worthy named component schema, sorted by name.
+function buildSchemas(): SchemaDoc[] {
+  const names = [...pageWorthySchemas()].sort((a, b) => a.localeCompare(b));
+  return names.map((name) => {
+    const schema = spec.components?.schemas?.[name];
+    return {
+      slug: schemaSlug(name),
+      name,
+      description: resolveSchema(schema)?.description,
+      rows: schemaToRows(schema),
+    };
+  });
+}
+
+export function getApiSchemas(): SchemaDoc[] {
+  if (!cachedSchemas) cachedSchemas = buildSchemas();
+  return cachedSchemas;
+}
+
+export function getApiSchemaBySlug(slug: string): SchemaDoc | undefined {
+  return getApiSchemas().find((s) => s.slug === slug);
+}
+
 export function getApiInfo(): ApiInfo {
   const scheme = Object.values(spec.components?.securitySchemes ?? {})[0];
   return {
@@ -595,17 +829,21 @@ export function getApiInfo(): ApiInfo {
   };
 }
 
-export const API_BASE_PATH = "/documentation/developer-reference/api/";
-
 // ---------------------------------------------------------------------------
 // Markdown serialisation (for the markdown-pages / llms.txt pipeline)
 // ---------------------------------------------------------------------------
+
+function schemaRefMd(ref: SchemaTypeRef): string {
+  const link = `[${ref.name}](${ref.url})`;
+  return ref.isArray ? `array of ${link}` : link;
+}
 
 function rowsToMarkdown(rows: SchemaRow[], indent = 0): string {
   const pad = "  ".repeat(indent);
   const lines: string[] = [];
   for (const row of rows) {
-    const meta = [row.typeLabel];
+    const type = row.typeUrl ? `[${row.typeLabel}](${row.typeUrl})` : row.typeLabel;
+    const meta = [type];
     if (row.required) meta.push("required");
     if (row.nullable) meta.push("nullable");
     const desc = row.description ? ` — ${row.description.replace(/\s+/g, " ").trim()}` : "";
@@ -627,6 +865,12 @@ function paramsToMarkdown(label: string, params: ParameterView[]): string {
       ? ` — ${param.description.replace(/\s+/g, " ").trim()}`
       : "";
     lines.push(`- \`${param.name}\` (${meta.join(", ")})${desc}`);
+    if (param.enumValues?.length) {
+      lines.push(`  - Allowed values: ${param.enumValues.map((v) => `\`${v}\``).join(", ")}`);
+    }
+    if (param.defaultValue !== undefined) {
+      lines.push(`  - Default: \`${param.defaultValue}\``);
+    }
   }
   return lines.join("\n") + "\n";
 }
@@ -650,6 +894,9 @@ export function resourceToMarkdown(resource: ApiResource): string {
 
     const params = [
       paramsToMarkdown("Path parameters", op.pathParams),
+      paramsToMarkdown("Filters", op.filterParams),
+      paramsToMarkdown("Sorting", op.sortParams),
+      paramsToMarkdown("Pagination", op.paginationParams),
       paramsToMarkdown("Query parameters", op.queryParams),
       paramsToMarkdown("Header parameters", op.headerParams),
     ].filter(Boolean);
@@ -657,10 +904,14 @@ export function resourceToMarkdown(resource: ApiResource): string {
       parts.push(params.join("\n"));
     }
 
-    if (op.requestRows.length) {
+    if (op.requestSchemaRef || op.requestRows.length) {
       parts.push("**Request body**");
       parts.push("");
-      parts.push(rowsToMarkdown(op.requestRows));
+      if (op.requestSchemaRef) {
+        parts.push(schemaRefMd(op.requestSchemaRef));
+      } else {
+        parts.push(rowsToMarkdown(op.requestRows));
+      }
       parts.push("");
     }
 
@@ -676,7 +927,8 @@ export function resourceToMarkdown(resource: ApiResource): string {
       parts.push("");
       for (const response of op.responses) {
         const desc = response.description ? ` ${response.description}` : "";
-        parts.push(`- \`${response.status}\`${desc}`);
+        const ref = response.schemaRef ? ` — ${schemaRefMd(response.schemaRef)}` : "";
+        parts.push(`- \`${response.status}\`${desc}${ref}`);
         if (response.rows.length) {
           parts.push(rowsToMarkdown(response.rows, 1));
         }
@@ -685,5 +937,19 @@ export function resourceToMarkdown(resource: ApiResource): string {
     }
   }
 
+  return parts.join("\n").replace(/\n{3,}/g, "\n\n").trim();
+}
+
+export function schemaDocToMarkdown(doc: SchemaDoc): string {
+  const parts: string[] = [`# ${doc.name}`, ""];
+  if (doc.description) {
+    parts.push(doc.description);
+    parts.push("");
+  }
+  if (doc.rows.length) {
+    parts.push("**Properties**");
+    parts.push("");
+    parts.push(rowsToMarkdown(doc.rows));
+  }
   return parts.join("\n").replace(/\n{3,}/g, "\n\n").trim();
 }

@@ -26,6 +26,8 @@ import type { DocEntry } from "../_types.d.ts";
 import {
   type ApiResource,
   resourceToMarkdown,
+  type SchemaDoc,
+  schemaDocToMarkdown,
 } from "../developer/reference/api/_shared/openapi.ts";
 
 type ToMarkdownFn = (
@@ -761,6 +763,15 @@ export default function markdownPages() {
             continue;
           }
           body = resourceToMarkdown(resource);
+          writtenRef++;
+        } else if (layout === "layouts/api-schema.tsx") {
+          // API schema pages generated from the OpenAPI spec
+          const schema = page.data.schema as SchemaDoc | undefined;
+          if (!schema) {
+            noSource++;
+            continue;
+          }
+          body = schemaDocToMarkdown(schema);
           writtenRef++;
         } else {
           // MDX-sourced pages

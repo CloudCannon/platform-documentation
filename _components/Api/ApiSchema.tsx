@@ -27,8 +27,10 @@ function Row(
         <span className="c-data-reference__key">
           <code className="code-no-box">{row.name}</code>
         </span>
-        <code>{row.typeLabel}</code>
-        {row.nullable && <span className="c-api-tag">nullable</span>}
+        {row.typeUrl
+          ? <a href={row.typeUrl}><code>{row.typeLabel}</code></a>
+          : <code>{row.typeLabel}</code>}
+        {row.nullable && <small className="pill">Nullable</small>}
         {row.required && <small className="pill pill--red">Required</small>}
       </div>
       <div className="c-data-reference__description">
