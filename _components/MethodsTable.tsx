@@ -7,8 +7,9 @@ interface MethodsTableProps {
 }
 
 // Renders every method of a section (the section root's properties) as reference
-// rows, in source order. Auto-syncs: a new method in the source appears here
-// with no manual edit. Return types linkify to their object pages.
+// rows, alphabetically by key to match the object pages (ReferenceContent sorts
+// the same way). Auto-syncs: a new method in the source appears here with no
+// manual edit. Return types linkify to their object pages.
 export default function MethodsTable(
   { section }: MethodsTableProps,
   helpers: Helpers,
@@ -17,7 +18,11 @@ export default function MethodsTable(
   const root = sectionDocs[section];
   const gids = Object.values(root?.properties ?? {})
     .map((ref) => ref.gid)
-    .filter((gid): gid is string => !!gid);
+    .filter((gid): gid is string => !!gid)
+    .sort((a, b) =>
+      (sectionDocs[a]?.key ?? a).replace(/^_+/, "")
+        .localeCompare((sectionDocs[b]?.key ?? b).replace(/^_+/, ""))
+    );
 
   if (gids.length === 0) return null;
 
@@ -37,8 +42,8 @@ export default function MethodsTable(
 }
 
 // Markdown rendering for the markdown / llms.txt export. Mirrors the HTML above:
-// one entry per method, in source order, with its return type, description, and
-// examples — read from the same globalThis.DOCS data the component renders from.
+// one entry per method, alphabetically by key, with its return type, description,
+// and examples — read from the same globalThis.DOCS data the component renders from.
 export function toMarkdown(props: Record<string, unknown>): string {
   const section = props.section as SectionId | undefined;
   if (!section) return "";
@@ -46,7 +51,12 @@ export function toMarkdown(props: Record<string, unknown>): string {
   const root = sectionDocs[section];
   const methods = Object.values(root?.properties ?? {})
     .map((ref) => (ref?.gid ? sectionDocs[ref.gid] : undefined))
-    .filter((entry): entry is DocEntry => !!entry);
+    .filter((entry): entry is DocEntry => !!entry)
+    .sort((a, b) =>
+      (a.key ?? "").replace(/^_+/, "").localeCompare(
+        (b.key ?? "").replace(/^_+/, ""),
+      )
+    );
   if (methods.length === 0) return "";
 
   const lines: string[] = [];

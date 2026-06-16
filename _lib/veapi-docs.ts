@@ -7,6 +7,7 @@
 // `comp.ReferenceDataRow` (article tables) and the reference page generator.
 
 import {
+  type MethodSignature,
   Project,
   type PropertySignature,
   type SourceFile,
@@ -25,12 +26,25 @@ const OPTION_INTERFACES: Record<string, string> = {
   createCustomDataPanel: "CreateCustomDataPanelOptions",
 };
 
+// Option interfaces passed to surfaced-interface methods (e.g. FileData.set).
+// Their fields are expanded into `<method>.options.<prop>` rows, including any
+// fields inherited from a base interface (e.g. ArrayOptions.slug).
+const OPTION_TYPE_NAMES = new Set([
+  "SetOptions",
+  "EditOptions",
+  "AddArrayItemOptions",
+  "MoveArrayItemOptions",
+  "RemoveArrayItemOptions",
+  "GetInputConfigOptions",
+]);
+
 // Interface types surfaced as their own reference pages, so method return types
 // and properties can link between them recursively.
 const SURFACED_INTERFACES = [
   "CloudCannonVisualEditorAPIV1File",
   "CloudCannonVisualEditorAPIV1FileData",
   "CloudCannonVisualEditorAPIV1FileContent",
+  "FileMetadata",
   "CloudCannonVisualEditorAPIV1Collection",
   "CloudCannonVisualEditorAPIV1Dataset",
   "CloudCannonVisualEditorAPIV1TextEditableRegion",
@@ -42,6 +56,7 @@ const INTERFACE_TITLES: Record<string, string> = {
   CloudCannonVisualEditorAPIV1File: "File",
   CloudCannonVisualEditorAPIV1FileData: "FileData",
   CloudCannonVisualEditorAPIV1FileContent: "FileContent",
+  FileMetadata: "FileMetadata",
   CloudCannonVisualEditorAPIV1Collection: "Collection",
   CloudCannonVisualEditorAPIV1Dataset: "Dataset",
   CloudCannonVisualEditorAPIV1TextEditableRegion: "TextEditableRegion",
@@ -149,7 +164,7 @@ function methodDescription(info: JsDocInfo): string {
     parts.push(
       "**Parameters:**\n\n" +
         info.params
-          .map((p) => `- \`${p.name}\`${p.text ? ` — ${p.text}` : ""}`)
+          .map((p) => `- \`${p.name}\`${p.text ? `: ${p.text}` : ""}`)
           .join("\n"),
     );
   }
@@ -229,6 +244,79 @@ function extractOptionProps(
   }
 }
 
+/** Collect an option interface's own + inherited properties, base-first. */
+function collectOptionProps(
+  name: string,
+  sf: SourceFile,
+  seen = new Set<string>(),
+): PropertySignature[] {
+  if (seen.has(name)) return [];
+  seen.add(name);
+  const iface = sf.getInterface(name);
+  if (!iface) return [];
+  const inherited = iface.getExtends().flatMap((ext) =>
+    collectOptionProps(ext.getExpression().getText(), sf, seen)
+  );
+  return [...inherited, ...iface.getProperties()];
+}
+
+/**
+ * Surface one "events" entry for an interface's `addEventListener`, instead of
+ * the raw addEventListener/removeEventListener overload rows. The entry's type
+ * is the event-name union; its description (from the JSDoc) covers both adding
+ * and removing listeners.
+ */
+function emitEventsEntry(
+  addListener: MethodSignature,
+  gid: string,
+  parentGid: string,
+  out: Record<string, DocEntry>,
+  props: Record<string, DocEntry>,
+): void {
+  const info = getJsDoc(addListener);
+  const eventType =
+    addListener.getParameters()[0]?.getTypeNode()?.getText() ?? "string";
+  out[gid] = makeEntry({
+    gid,
+    key: "addEventListener",
+    fullKey: gid,
+    parent: parentGid,
+    type: eventType,
+    required: false,
+    description: methodDescription(info),
+    info,
+  });
+  props["addEventListener"] = { gid };
+}
+
+/**
+ * Surface a concise companion entry for an interface's `removeEventListener`,
+ * for findability and symmetry with `addEventListener`. Its type is the
+ * event-name union; its description comes from the method's own JSDoc.
+ */
+function emitRemoveEventsEntry(
+  removeListener: MethodSignature,
+  gid: string,
+  parentGid: string,
+  out: Record<string, DocEntry>,
+  props: Record<string, DocEntry>,
+): void {
+  const info = getJsDoc(removeListener);
+  const eventType =
+    removeListener.getParameters()[0]?.getTypeNode()?.getText() ?? "string";
+  out[gid] = makeEntry({
+    gid,
+    key: "removeEventListener",
+    fullKey: gid,
+    parent: parentGid,
+    type: eventType,
+    required: false,
+    description: methodDescription(info),
+    info,
+  });
+  props["removeEventListener"] = { gid };
+}
+
 /**
  * Emit a reference entry for an interface type and one entry per member, so the
  * type gets its own page and its members render (with linkable types).
@@ -275,7 +363,11 @@ function extractType(
       fullKey: gid,
       parent: interfaceName,
       type: propType(prop),
-      required: !prop.hasQuestionToken(),
+      // Interface properties are always present on the object the API returns,
+      // so the "Required" badge (which reads as "a required input") is
+      // misleading here. It belongs only on method inputs — see the option
+      // fields in extractOptionProps, which keep `!hasQuestionToken()`.
+      required: false,
       description: pinfo.description,
       info: pinfo,
     });
@@ -284,8 +376,15 @@ function extractType(
 
   for (const method of iface.getMethods()) {
     const name = method.getName();
-    if (name === "addEventListener" || name === "removeEventListener") continue;
     const gid = `${interfaceName}.${name}`;
+    if (name === "removeEventListener") {
+      emitRemoveEventsEntry(method, gid, interfaceName, out, properties);
+      continue;
+    }
+    if (name === "addEventListener") {
+      emitEventsEntry(method, gid, interfaceName, out, properties);
+      continue;
+    }
     const minfo = getJsDoc(method);
     out[gid] = makeEntry({
       gid,
@@ -298,6 +397,13 @@ function extractType(
       info: minfo,
     });
     properties[name] = { gid };
+    // Expand option-object parameters into `<method>.options.<prop>` rows.
+    for (const param of method.getParameters()) {
+      const typeText = param.getTypeNode()?.getText() ?? "";
+      if (OPTION_TYPE_NAMES.has(typeText)) {
+        extractOptionProps(collectOptionProps(typeText, sf), gid, out, out[gid]);
+      }
+    }
   }
 }
 
@@ -337,8 +443,12 @@ export function buildVeapiDocs(): Record<string, DocEntry> {
 
     for (const method of root.getMethods()) {
       const name = method.getName();
-      // addEventListener/removeEventListener are low-signal overloaded noise.
-      if (name === "addEventListener" || name === "removeEventListener") {
+      if (name === "removeEventListener") {
+        emitRemoveEventsEntry(method, name, VEAPI_SECTION, out, rootProperties);
+        continue;
+      }
+      if (name === "addEventListener") {
+        emitEventsEntry(method, name, VEAPI_SECTION, out, rootProperties);
         continue;
       }
       const info = getJsDoc(method);
