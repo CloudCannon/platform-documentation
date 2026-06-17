@@ -14,9 +14,23 @@ import type { DocEntry, Helpers } from "../../_types.d.ts";
 const MAX_ENUM_VALUES = 10;
 
 function appearsIn({ entry, section }: RefSummaryProps) {
-  const gids = (entry.parent ? [entry.parent] : []).concat(
+  let gids = (entry.parent ? [entry.parent] : []).concat(
     entry.appears_in || [],
   ).filter((gid) => gid !== section);
+
+  // The Visual Editor API cross-lists shared methods (e.g. addEventListener)
+  // across every object that exposes them, so order the whole list
+  // alphabetically. Other sections keep parent-first ordering (the structural
+  // parent leads, then the other places the type appears).
+  if (section === "type.VisualEditorAPI") {
+    gids = [...gids].sort((a, b) => {
+      const da = getDocByGid(a, section);
+      const db = getDocByGid(b, section);
+      const la = da ? getDisplayNamePair(da).label : a;
+      const lb = db ? getDisplayNamePair(db).label : b;
+      return la.localeCompare(lb);
+    });
+  }
 
   const items = gids.flatMap((gid, i) => {
     const isLast = i === gids.length - 1;

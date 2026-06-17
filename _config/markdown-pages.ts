@@ -747,9 +747,9 @@ export default function markdownPages() {
             (doc: DocEntry) => doc.gid === section || doc.url === "/",
           );
 
-          // The Visual Editor API overview renders its methods inline via
-          // <comp.MethodsTable> in the intro, so skip the root-properties dump
-          // here to avoid duplicating them.
+          // The Visual Editor API landing is a thin section container with no
+          // properties of its own (its methods live on the API object page), so
+          // skip the root-properties dump to avoid emitting a stray title.
           let refBody = "";
           if (rootEntry && section !== "type.VisualEditorAPI") {
             refBody = docEntryToMarkdown(rootEntry, section, url)

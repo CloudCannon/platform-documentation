@@ -72,7 +72,7 @@ const typedDocs = documentation as unknown as Record<
 // Parse the Visual Editor API TypeScript declarations (JSDoc -> DocEntry) at
 // build time and merge them in as their own section, so the reference section
 // and article tables render from the same source and stay in sync.
-typedDocs[VEAPI_SECTION] = buildVeapiDocs();
+typedDocs[VEAPI_SECTION] = await buildVeapiDocs();
 
 // Store nested documentation structure for section-aware lookups
 globalThis.DOCS = typedDocs;

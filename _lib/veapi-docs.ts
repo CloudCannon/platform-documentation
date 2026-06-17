@@ -65,17 +65,42 @@ const INTERFACE_TITLES: Record<string, string> = {
 // Synthetic nav root that groups the surfaced types into their own nav section.
 export const VEAPI_OBJECTS_GID = "type.VisualEditorAPI.objects";
 
+// The top-level API object. It is a first-class object page (like Collection),
+// distinct from the section container (VEAPI_SECTION) so the methods get a real
+// home and shared methods can reference it in `appears_in`. Uses the root
+// interface name as its gid, consistent with the other surfaced objects.
+const VEAPI_ROOT_OBJECT_GID = "CloudCannonVisualEditorAPIV1";
+
+// Keep in sync with the published @cloudcannon/visual-editor-api release.
+// Bump this when the maintainer tags a new version (the only edit needed to pin
+// the reference to newer published types).
+const VEAPI_VERSION = "0.0.17";
+
 /**
- * Resolve the VEAPI `index.d.ts` to parse.
+ * Load the VEAPI `index.d.ts` source to parse.
  *
- * For now this reads the sibling repo (`../visual-editor-api`), which is also
- * what `VEAPI_LOCAL` selects. The VEAPI package is currently unpublished
- * (0.0.0); once it is published and pinned in import_map.json/deno.lock, add an
- * npm-resolution branch here (preferred for CI) and keep the sibling path as
- * the `VEAPI_LOCAL` dev override.
+ * Default (CI/production): fetch the pinned, published types from the CDN, so the
+ * reference builds without the sibling repo checked out and the VEAPI repo stays
+ * lean (it only publishes to npm; jsDelivr mirrors npm by version).
+ *
+ * `VEAPI_LOCAL` override: read the sibling repo's working tree
+ * (`../visual-editor-api`) instead, for authoring against unpublished changes.
  */
-function resolveSourceUrl(): URL {
-  return new URL("../../visual-editor-api/src/index.d.ts", import.meta.url);
+async function loadVeapiSource(): Promise<string> {
+  if (Deno.env.get("VEAPI_LOCAL")) {
+    const url = new URL(
+      "../../visual-editor-api/src/index.d.ts",
+      import.meta.url,
+    );
+    return Deno.readTextFileSync(url);
+  }
+  const url =
+    `https://cdn.jsdelivr.net/npm/@cloudcannon/visual-editor-api@${VEAPI_VERSION}/src/index.d.ts`;
+  const res = await fetch(url);
+  if (!res.ok) {
+    throw new Error(`Failed to fetch VEAPI types (${res.status}) from ${url}`);
+  }
+  return await res.text();
 }
 
 interface JsDocInfo {
@@ -407,9 +432,9 @@ function extractType(
   }
 }
 
-export function buildVeapiDocs(): Record<string, DocEntry> {
+export async function buildVeapiDocs(): Promise<Record<string, DocEntry>> {
   try {
-    const sourceText = Deno.readTextFileSync(resolveSourceUrl());
+    const sourceText = await loadVeapiSource();
     const project = new Project({
       useInMemoryFileSystem: true,
       skipAddingFilesFromTsConfig: true,
@@ -418,13 +443,32 @@ export function buildVeapiDocs(): Record<string, DocEntry> {
     const sf = project.createSourceFile("index.d.ts", sourceText);
     const out: Record<string, DocEntry> = {};
 
-    // Root entry (the v1 API surface).
     const rootProperties: Record<string, DocEntry> = {};
+
+    // Thin section container. Its gid equals the section id, which the shared
+    // finders (reference-home.tsx, markdown-pages.ts) rely on to locate the
+    // landing root. It no longer holds the methods; those live on the API object.
     out[VEAPI_SECTION] = {
       gid: VEAPI_SECTION,
       key: "Visual Editor API",
       title: "Visual Editor API",
       full_key: VEAPI_SECTION,
+      type: "object",
+      description:
+        "The v1 Visual Editor API, available via `window.CloudCannonAPI.useVersion('v1', true)`.",
+      properties: {},
+      appears_in: [],
+      documentation: { show_in_navigation: true },
+    };
+
+    // The API object: a first-class object page that owns the top-level methods.
+    out[VEAPI_ROOT_OBJECT_GID] = {
+      gid: VEAPI_ROOT_OBJECT_GID,
+      key: VEAPI_ROOT_OBJECT_GID,
+      title: "API Object",
+      full_key: VEAPI_ROOT_OBJECT_GID,
+      url: "/visual-editor-api/api/",
+      parent: VEAPI_SECTION,
       type: "object",
       description:
         "Methods exposed by the v1 Visual Editor API, available via `window.CloudCannonAPI.useVersion('v1', true)`.",
@@ -444,11 +488,17 @@ export function buildVeapiDocs(): Record<string, DocEntry> {
     for (const method of root.getMethods()) {
       const name = method.getName();
       if (name === "removeEventListener") {
-        emitRemoveEventsEntry(method, name, VEAPI_SECTION, out, rootProperties);
+        emitRemoveEventsEntry(
+          method,
+          name,
+          VEAPI_ROOT_OBJECT_GID,
+          out,
+          rootProperties,
+        );
         continue;
       }
       if (name === "addEventListener") {
-        emitEventsEntry(method, name, VEAPI_SECTION, out, rootProperties);
+        emitEventsEntry(method, name, VEAPI_ROOT_OBJECT_GID, out, rootProperties);
         continue;
       }
       const info = getJsDoc(method);
@@ -457,7 +507,7 @@ export function buildVeapiDocs(): Record<string, DocEntry> {
         gid: name,
         key: name,
         fullKey: name,
-        parent: VEAPI_SECTION,
+        parent: VEAPI_ROOT_OBJECT_GID,
         type: returnType,
         required: false,
         description: methodDescription(info),
@@ -487,8 +537,10 @@ export function buildVeapiDocs(): Record<string, DocEntry> {
     }
 
     // Surface the interface types referenced by method return types and
-    // properties, so the reference can link recursively between them.
+    // properties, so the reference can link recursively between them. The API
+    // object leads the group (inserted first) so it sits above the rest.
     const typeProperties: Record<string, DocEntry> = {};
+    typeProperties[VEAPI_ROOT_OBJECT_GID] = { gid: VEAPI_ROOT_OBJECT_GID };
     for (const interfaceName of SURFACED_INTERFACES) {
       extractType(sf, interfaceName, out, typeProperties);
     }
@@ -503,6 +555,19 @@ export function buildVeapiDocs(): Record<string, DocEntry> {
       appears_in: [],
     };
 
+    // Cross-list the shared event methods: each addEventListener /
+    // removeEventListener entry lists the other objects that also expose it
+    // (including the API object), so "Appears in" reflects that they're shared.
+    for (const eventKey of ["addEventListener", "removeEventListener"]) {
+      const entries = Object.values(out).filter((e) => e.key === eventKey);
+      const homeGids = entries
+        .map((e) => e.parent)
+        .filter((gid): gid is string => !!gid);
+      for (const e of entries) {
+        e.appears_in = homeGids.filter((gid) => gid !== e.parent);
+      }
+    }
+
     return out;
   } catch (err) {
     console.warn(`[veapi-docs] Failed to build VE API docs: ${err}`);
@@ -511,7 +576,7 @@ export function buildVeapiDocs(): Record<string, DocEntry> {
 }
 
 if (import.meta.main) {
-  const docs = buildVeapiDocs();
+  const docs = await buildVeapiDocs();
   const keys = Object.keys(docs).sort();
   console.log(`[veapi-docs] ${keys.length} entries`);
   for (const k of keys) {
