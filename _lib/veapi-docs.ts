@@ -231,8 +231,14 @@ function makeEntry(opts: {
   return entry;
 }
 
+/** Collapse whitespace in a TS type string so multi-line object literals (e.g.
+ * `{ x: number; y: number; … }`) render inline instead of as a vertical block. */
+function normalizeTypeText(text: string): string {
+  return text.replace(/\s+/g, " ").trim();
+}
+
 function propType(prop: PropertySignature): string {
-  return prop.getTypeNode()?.getText() ?? "unknown";
+  return normalizeTypeText(prop.getTypeNode()?.getText() ?? "unknown");
 }
 
 /** Extract DocEntry rows for each property of an option object. */
@@ -282,7 +288,7 @@ function extractMethodParams(
   let optionsExpanded = false;
   for (const param of method.getParameters()) {
     const pname = param.getName();
-    const typeText = param.getTypeNode()?.getText() ?? "";
+    const typeText = normalizeTypeText(param.getTypeNode()?.getText() ?? "");
     const isOptions = optionProps.length > 0 && !optionsExpanded && (
       OPTION_TYPE_NAMES.has(typeText) ||
       typeText === OPTION_INTERFACES[methodName] ||
