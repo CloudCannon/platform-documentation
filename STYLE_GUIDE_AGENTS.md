@@ -139,7 +139,7 @@ voice_and_tense:
     incorrect:
       - "Pass an Input configuration to control the upload destination, filename, and allowed types."
       - "Gracefully handles any missing file."
-    overstatement_is_a_factual_error: "Most damaging in reference and developer documentation, where readers act on the exact claim. Document only what the implementation does; trace each claim to code, configuration, or observed UI behaviour before writing it."
+    overstatement_is_a_factual_error: "Most damaging in reference and developer documentation, where readers act on the exact claim. Document only what the implementation does; trace each claim to code, configuration, or observed UI behavior before writing it."
   first_person_plural_we_exception:
     article_path: "/documentation/developer-articles/what-is-the-visual-editor-api/"
     note: "Sole allowed 'we' in articles; company dogfoods public Visual Editor API (see prose §2.2.5)"
