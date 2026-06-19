@@ -3,6 +3,7 @@ import {
   getDisplayNamePair,
   getDocByGid,
   getRefUrl,
+  getShortKey,
   resolveRef,
   type SectionId,
 } from "./helpers.ts";
@@ -79,7 +80,9 @@ function appearsIn({ entry, section }: RefSummaryProps) {
 
   return (items.length > 0 && (
     <p data-pagefind-ignore>
-      <em>Appears in:</em> {items}.
+      <em>
+        {section === "type.VisualEditorAPI" ? "Available on:" : "Appears in:"}
+      </em> {items}.
     </p>
   ));
 }
@@ -106,6 +109,39 @@ function RefSummary(
         helpers
           ? <div dangerouslySetInnerHTML={{ __html: helpers.md(entry.description) }} />
           : <div>{entry.description}</div>
+      )}
+
+      {section === "type.VisualEditorAPI" &&
+        entry.type !== "object" &&
+        entry.properties &&
+        Object.keys(entry.properties).length > 0 && (
+        <>
+          <p data-pagefind-ignore><em>Parameters:</em></p>
+          <ul class="c-data-reference__params">
+            {Object.entries(entry.properties).map(([key, ref]) => {
+              const param = resolveRef(ref, section);
+              if (!param) return null;
+              const descHtml = helpers && param.description
+                ? helpers.md(param.description)
+                  .replace(/^\s*<p>/, "").replace(/<\/p>\s*$/, "").trim()
+                : null;
+              return (
+                <li key={key}>
+                  <code class="code-no-box">{getShortKey(key)}</code>{" "}
+                  <RefType doc={param} section={section} />
+                  {param.description && (
+                    <>
+                      {" — "}
+                      {descHtml !== null
+                        ? <span dangerouslySetInnerHTML={{ __html: descHtml }} />
+                        : param.description}
+                    </>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        </>
       )}
 
       {entry.default !== undefined && (

@@ -185,8 +185,12 @@ export function getTocItems(entry: DocEntry, section: SectionId): TocItem[] {
     Object.keys(entry.properties).length > 0;
 
   if (entry.type === "object" || hasProperties) {
-    const properties = Object.keys(entry.properties || {})
-      .sort((a, b) => a.replace(/^_+/, "").localeCompare(b.replace(/^_+/, "")));
+    const properties = Object.keys(entry.properties || {});
+    if (section !== "type.VisualEditorAPI") {
+      properties.sort((a, b) =>
+        a.replace(/^_+/, "").localeCompare(b.replace(/^_+/, ""))
+      );
+    }
     const additionalProps = entry.additionalProperties || [];
     let additionalValues: DocEntry[] = [];
 

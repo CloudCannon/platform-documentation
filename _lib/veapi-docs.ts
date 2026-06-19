@@ -181,18 +181,14 @@ function getJsDoc(node: any): JsDocInfo {
   return info;
 }
 
-/** Compose a markdown description for a method from its JSDoc parts. */
+/**
+ * Compose a markdown description for a method from its JSDoc parts. Parameters
+ * are not included here: they render as structured rows (with the "Required"
+ * pill) from the method entry's `properties` — see extractMethodParams.
+ */
 function methodDescription(info: JsDocInfo): string {
   const parts: string[] = [];
   if (info.description) parts.push(info.description);
-  if (info.params.length > 0) {
-    parts.push(
-      "**Parameters:**\n\n" +
-        info.params
-          .map((p) => `- \`${p.name}\`${p.text ? `: ${p.text}` : ""}`)
-          .join("\n"),
-    );
-  }
   if (info.returns) parts.push(`**Returns:** ${info.returns}`);
   if (info.throws.length > 0) {
     parts.push(`**Throws:** ${info.throws.join("; ")}`);
@@ -269,6 +265,56 @@ function extractOptionProps(
   }
 }
 
+/**
+ * Build child entries for a method's parameters on its `properties`, in
+ * declaration order: positional params, plus the options object expanded into
+ * its individual fields. The reference renders these as parameter rows with the
+ * shared "Required" pill (see RefItem / RefType), instead of a plain-text list.
+ */
+function extractMethodParams(
+  method: MethodSignature,
+  methodName: string,
+  optionProps: PropertySignature[],
+  out: Record<string, DocEntry>,
+  methodEntry: DocEntry,
+  info: JsDocInfo,
+): void {
+  let optionsExpanded = false;
+  for (const param of method.getParameters()) {
+    const pname = param.getName();
+    const typeText = param.getTypeNode()?.getText() ?? "";
+    const isOptions = optionProps.length > 0 && !optionsExpanded && (
+      OPTION_TYPE_NAMES.has(typeText) ||
+      typeText === OPTION_INTERFACES[methodName] ||
+      (pname === "options" &&
+        !!param.getTypeNode()?.asKind(SyntaxKind.TypeLiteral))
+    );
+    if (isOptions) {
+      extractOptionProps(optionProps, methodName, out, methodEntry);
+      optionsExpanded = true;
+      continue;
+    }
+    const fullKey = `${methodName}.params.${pname}`;
+    out[fullKey] = makeEntry({
+      gid: fullKey,
+      key: pname,
+      fullKey,
+      parent: methodName,
+      type: typeText || "unknown",
+      required: !param.hasQuestionToken(),
+      description: info.params.find((p) => p.name === pname)?.text ?? "",
+      info: emptyJsDoc(),
+    });
+    methodEntry.properties ||= {};
+    methodEntry.properties[pname] = { gid: fullKey };
+  }
+  // Fallback: if the options object wasn't tied to a specific param (e.g. a
+  // named interface keyed by method name), still expand it so fields aren't lost.
+  if (optionProps.length > 0 && !optionsExpanded) {
+    extractOptionProps(optionProps, methodName, out, methodEntry);
+  }
+}
+
 /** Collect an option interface's own + inherited properties, base-first. */
 function collectOptionProps(
   name: string,
@@ -283,6 +329,29 @@ function collectOptionProps(
     collectOptionProps(ext.getExpression().getText(), sf, seen)
   );
   return [...inherited, ...iface.getProperties()];
+}
+
+/**
+ * Resolve a method's option-object fields, in declaration order: a named option
+ * interface (keyed by method name, or by the param's type name), or an inline
+ * `options` object literal. Returns [] when the method has no options object.
+ */
+function optionPropsForMethod(
+  method: MethodSignature,
+  sf: SourceFile,
+  methodName: string,
+): PropertySignature[] {
+  const named = OPTION_INTERFACES[methodName];
+  if (named && sf.getInterface(named)) return collectOptionProps(named, sf);
+
+  for (const param of method.getParameters()) {
+    const typeNode = param.getTypeNode();
+    const typeText = typeNode?.getText() ?? "";
+    if (OPTION_TYPE_NAMES.has(typeText)) return collectOptionProps(typeText, sf);
+    const literal = typeNode?.asKind(SyntaxKind.TypeLiteral);
+    if (literal && param.getName() === "options") return literal.getProperties();
+  }
+  return [];
 }
 
 /**
@@ -411,6 +480,7 @@ function extractType(
       continue;
     }
     const minfo = getJsDoc(method);
+    const optionProps = optionPropsForMethod(method, sf, name);
     out[gid] = makeEntry({
       gid,
       key: name,
@@ -422,13 +492,9 @@ function extractType(
       info: minfo,
     });
     properties[name] = { gid };
-    // Expand option-object parameters into `<method>.options.<prop>` rows.
-    for (const param of method.getParameters()) {
-      const typeText = param.getTypeNode()?.getText() ?? "";
-      if (OPTION_TYPE_NAMES.has(typeText)) {
-        extractOptionProps(collectOptionProps(typeText, sf), gid, out, out[gid]);
-      }
-    }
+    // Expose the method's parameters (positional + expanded option fields) as
+    // child rows on its `properties`.
+    extractMethodParams(method, gid, optionProps, out, out[gid], minfo);
   }
 }
 
@@ -503,6 +569,7 @@ export async function buildVeapiDocs(): Promise<Record<string, DocEntry>> {
       }
       const info = getJsDoc(method);
       const returnType = method.getReturnTypeNode()?.getText() ?? "void";
+      const optionProps = optionPropsForMethod(method, sf, name);
       const methodEntry = makeEntry({
         gid: name,
         key: name,
@@ -513,27 +580,14 @@ export async function buildVeapiDocs(): Promise<Record<string, DocEntry>> {
         description: methodDescription(info),
         info,
       });
-      // Methods have no url: they are listed in the overview's methods table
-      // rather than each getting a dedicated page.
+      // Methods have no url: they are listed on the API Object page rather than
+      // each getting a dedicated page.
       out[name] = methodEntry;
       rootProperties[name] = { gid: name };
 
-      // Associated option-object interface, if any.
-      const optionInterfaceName = OPTION_INTERFACES[name];
-      if (optionInterfaceName) {
-        const optIface = sf.getInterface(optionInterfaceName);
-        if (optIface) {
-          extractOptionProps(optIface.getProperties(), name, out, methodEntry);
-        }
-      }
-
-      // Inline options object literal on the 3rd parameter (e.g.
-      // createTextEditableRegion(element, onChange, options?: { ... })).
-      const lastParam = method.getParameters().at(-1);
-      const literal = lastParam?.getTypeNode()?.asKind(SyntaxKind.TypeLiteral);
-      if (literal && lastParam?.getName() === "options") {
-        extractOptionProps(literal.getProperties(), name, out, methodEntry);
-      }
+      // Expose the method's parameters (positional + expanded option fields) as
+      // child rows on its `properties`.
+      extractMethodParams(method, name, optionProps, out, methodEntry, info);
     }
 
     // Surface the interface types referenced by method return types and

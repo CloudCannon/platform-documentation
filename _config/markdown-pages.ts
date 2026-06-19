@@ -479,6 +479,26 @@ function serializeRefItem(
     lines.push("", doc.description);
   }
 
+  // VE API methods list their parameters as child entries (positional params and
+  // expanded option fields), mirroring the structured rows on the HTML pages.
+  if (section === "type.VisualEditorAPI" && doc.type !== "object") {
+    const params = Object.entries(doc.properties || {});
+    if (params.length > 0) {
+      lines.push("", "**Parameters:**", "");
+      for (const [key, ref] of params) {
+        const p = resolveRef(ref, section);
+        if (!p) continue;
+        const req = p.required ? " (Required)" : "";
+        const pdesc = p.description
+          ? ` — ${p.description.replace(/\s+/g, " ").trim()}`
+          : "";
+        lines.push(
+          `- \`${getShortKey(key)}\` (${typeToText(p, section)})${req}${pdesc}`,
+        );
+      }
+    }
+  }
+
   if (doc.default !== undefined) {
     lines.push("", `**Default:** \`${String(doc.default)}\``);
   }
@@ -508,8 +528,12 @@ function serializeProperties(entry: DocEntry, section: SectionId): string {
   const hasProperties = entry.properties && Object.keys(entry.properties).length > 0;
 
   if (entry.type === "object" || hasProperties) {
-    const properties = Object.entries(entry.properties || {})
-      .sort(([a], [b]) => a.replace(/^_+/, "").localeCompare(b.replace(/^_+/, "")));
+    const properties = Object.entries(entry.properties || {});
+    if (section !== "type.VisualEditorAPI") {
+      properties.sort(([a], [b]) =>
+        a.replace(/^_+/, "").localeCompare(b.replace(/^_+/, ""))
+      );
+    }
     const additionalProps = entry.additionalProperties || [];
     let additionalValues: DocEntry[] = [];
 
