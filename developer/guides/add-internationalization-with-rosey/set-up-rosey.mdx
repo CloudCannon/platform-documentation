@@ -145,6 +145,10 @@ npx rosey build --source _untranslated_site --dest _site
 ```
 </comp.CodeBlock>
 
+<comp.Notice info_type="info">
+  `npx rosey build` runs the latest published version of *Rosey*, so a new release can change your build output. To keep your local and CloudCannon builds reproducible, add `rosey` to your `package.json` dependencies at a fixed version — your build then runs the pinned version instead of the latest.
+</comp.Notice>
+
 Replace `_site` with your SSG's output directory if it differs. If your *Site* includes Chinese, Japanese, or Korean content, add the `--wrap` flag to the `rosey build` command for correct word-wrapping:
 
 <comp.CodeBlock language="sh" source=".cloudcannon/postbuild">
@@ -169,6 +173,10 @@ collections_config:
 
 Each locale file (`fr.json`, `de.json`, etc.) will appear as a separate item in the *Collection*, where your team can update translation values directly in CloudCannon.
 
+<comp.Notice info_type="info">
+  You can also surface your locale files as a *Dataset* under `data_config` instead of a *Collection*. Both make the same JSON files editable — a *Collection* lists each locale file as a separate item, while a *Dataset* manages them as shared data. This guide uses a *Collection*.
+</comp.Notice>
+
 ## Check for stale translations
 
 *Rosey* uses the `original` field in each locale file to detect stale translations. When your source text changes, you can run `rosey check` to find any locale entries that need updating.
@@ -179,29 +187,39 @@ npx rosey check
 ```
 </comp.CodeBlock>
 
-*Rosey* outputs a `checks.json` report. Each locale gets a summary and a per-key status — `"current"`, `"outdated"`, `"missing"`, or `"unused"`.
+*Rosey* outputs a `checks.json` report. Each locale gets a summary, a `states` count for every status — `"current"`, `"outdated"`, `"missing"`, and `"unused"` are always reported, even when zero — and a per-key status.
 
 <comp.CodeBlock language="json" source="checks.json">
 ```
 {
-  "fr": {
-    "current": true,
-    "baseTotal": 2,
-    "total": 2,
-    "states": { "current": 2 },
-    "keys": {
-      "hero.heading": "current",
-      "hero.subheading": "current"
-    }
-  },
   "de": {
     "current": false,
     "baseTotal": 2,
     "total": 2,
-    "states": { "outdated": 1, "missing": 1 },
+    "states": {
+      "current": 0,
+      "outdated": 1,
+      "missing": 1,
+      "unused": 0
+    },
     "keys": {
       "hero.heading": "outdated",
       "hero.subheading": "missing"
+    }
+  },
+  "fr": {
+    "current": true,
+    "baseTotal": 2,
+    "total": 2,
+    "states": {
+      "current": 2,
+      "outdated": 0,
+      "missing": 0,
+      "unused": 0
+    },
+    "keys": {
+      "hero.heading": "current",
+      "hero.subheading": "current"
     }
   }
 }
