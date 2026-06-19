@@ -43,19 +43,31 @@ import type { CloudCannonVisualEditorAPIV1, CloudCannonVisualEditorWindow } from
 declare const window: CloudCannonVisualEditorWindow & { inEditorMode: true | undefined } /*2*/
 
 export function Doodler() {
-  let cloudcannonApi: CloudCannonVisualEditorAPIV1 | undefined;
+  const apiRef = useRef<CloudCannonVisualEditorAPIV1 | undefined>(undefined); /*3*/
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [inCloudCannonEditor, setInCloudCannonEditor] = useState<boolean>(false);
 
   useEffect(() => {
-    if (window.inEditorMode) { /*3*/
-      setInCloudCannonEditor(!!window.inEditorMode);
-      cloudcannonApi = window.CloudCannonAPI?.useVersion('v1', true); /*4*/
+    if (!window.inEditorMode) { /*4*/
+      return;
     }
-  })
+    setInCloudCannonEditor(true);
+
+    const initApi = () => {
+      apiRef.current = window.CloudCannonAPI?.useVersion('v1', true); /*5*/
+    };
+
+    if (window.CloudCannonAPI) { /*6*/
+      initApi();
+      return;
+    }
+
+    document.addEventListener('cloudcannon:load', initApi, { once: true }); /*7*/
+    return () => document.removeEventListener('cloudcannon:load', initApi);
+  }, []);
 
   if (!inCloudCannonEditor) {
-    return undefined; /*5*/
+    return undefined; /*8*/
   }
 
   // ...render the drawing tool
@@ -68,29 +80,27 @@ export function Doodler() {
   Declare `window` with CloudCannon's types so `inEditorMode` and `CloudCannonAPI` are typed.
 </comp.Annotation>
 <comp.Annotation number="3">
-  Only run inside the *Visual Editor* — `window.inEditorMode` is `true` there and `undefined` on the live *Site*.
+  Hold the API in a `useRef` so the handle persists across re-renders and is ready whenever a *Team Member* submits later. `useRef(undefined)` touches no browser globals, so it's safe during a server-side build — unlike reading `window` directly in the component body.
 </comp.Annotation>
 <comp.Annotation number="4">
-  Request v1 of the API with `useVersion('v1', true)`. The `true` keeps the handler off the global `window.CloudCannon`, so it won't clash with other integrations using a different API version.
+  Only run inside the *Visual Editor* — `window.inEditorMode` is `true` there and `undefined` on the live *Site* — and bail out early everywhere else.
 </comp.Annotation>
 <comp.Annotation number="5">
+  Request v1 of the API with `useVersion('v1', true)`. The `true` keeps the handler off the global `window.CloudCannon`, so it won't clash with other integrations using a different API version.
+</comp.Annotation>
+<comp.Annotation number="6">
+  If `window.CloudCannonAPI` already exists, initialize immediately.
+</comp.Annotation>
+<comp.Annotation number="7">
+  Otherwise wait for the `cloudcannon:load` event — CloudCannon sets `window.CloudCannonAPI` before dispatching it. `{ once: true }` and the cleanup remove the listener after it fires or if the component unmounts first.
+</comp.Annotation>
+<comp.Annotation number="8">
   Render nothing outside the *Visual Editor*, so the tool never appears for site visitors.
 </comp.Annotation>
 </comp.CodeBlock>
 
-The *Visual Editor API* is available on `window.CloudCannonAPI` whenever a file is open in the *Visual Editor*. The Doodle Gallery checks `window.inEditorMode` inside a React `useEffect`, but the same approach works in any framework.
+The *Visual Editor API* is available on `window.CloudCannonAPI` whenever a file is open in the *Visual Editor*. The Doodle Gallery initializes it inside a React `useEffect`, but the same approach works in any framework — the only requirement is that the code runs in the browser, not during a server-side build.
 
-If your code might run before the *Visual Editor* has finished loading, and therefore before `window.CloudCannonAPI` exists, you can listen for the `cloudcannon:load` event then read `window.CloudCannonAPI` once it fires. CloudCannon sets `window.CloudCannonAPI` before dispatching the event, so it's available inside the listener.
-
-<comp.CodeBlock language="javascript">
-```
-document.addEventListener('cloudcannon:load', () => { /*1*/
-  const api = window.CloudCannonAPI?.useVersion('v1', true);
-});
-```
-<comp.Annotation number="1">
-  This snippet isn't from the `doodle-example` repo — it's the alternative pattern for code that runs before the *Visual Editor* loads.
-</comp.Annotation>
-</comp.CodeBlock>
+Depending on how your integration loads, `window.CloudCannonAPI` may not exist yet when your code first runs. The Doodle Gallery handles both cases: if the API is already present it initializes straight away, and otherwise it waits for the `cloudcannon:load` event, which CloudCannon dispatches after setting `window.CloudCannonAPI`. Because the handle lives in a `useRef`, it's ready whenever a *Team Member* later submits a doodle, no matter which path initialized it.
 
 In the next step of this guide, we'll render the custom interface <comp.GlossaryTerm term="/user/glossary/t/team-member.yml">Team Members</comp.GlossaryTerm> use to draw a doodle.
