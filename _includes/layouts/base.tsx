@@ -1,9 +1,9 @@
-import Analytics from "../../_components/Layout/Analytics.tsx";
-import Nav from "../../_components/Layout/Nav.tsx";
-import Search from "../../_components/Layout/Search.tsx";
-import Footer from "../../_components/Layout/Footer.tsx";
-import Hubspot from "../../_components/Layout/Hubspot.tsx";
-import type { Details, HeaderNavigation, Helpers } from "../../_types.d.ts";
+import type {
+  Comp,
+  Details,
+  HeaderNavigation,
+  Helpers,
+} from "../../_types.d.ts";
 
 interface FooterNav {
   [key: string]: unknown;
@@ -24,10 +24,12 @@ interface Props {
   hubspot_id?: string;
   ga_id?: string;
   ga_verify?: string;
+  comp: Comp;
 }
 
 export default function BaseLayout(props: Props, helpers: Helpers) {
   const {
+    comp,
     content,
     title,
     details,
@@ -52,10 +54,10 @@ export default function BaseLayout(props: Props, helpers: Helpers) {
   const ogImage = image ||
     "/documentation/static/CloudCannonDocumentationog.jpg";
 
-  let canonicalUrl = `https://cloudcannon.com${url}`;
+  let canonicalUrl = helpers.url(url, true);
   if (explicit_canonical?.length && explicit_canonical.length > 0) {
     canonicalUrl = explicit_canonical.startsWith("http")
-      ? url
+      ? explicit_canonical
       : `https://cloudcannon.com${explicit_canonical}`;
   }
 
@@ -109,10 +111,10 @@ export default function BaseLayout(props: Props, helpers: Helpers) {
         <meta content={pageDescription} name="twitter:image:alt" />
         <meta content="@CloudCannon" name="twitter:creator" />
 
-        <meta content={`https://cloudcannon.com${url}`} property="og:url" />
+        <meta content={helpers.url(url, true)} property="og:url" />
         <link href={canonicalUrl} rel="canonical" />
 
-        <Analytics
+        <comp.Layout.Analytics
           hubspot_id={hubspot_id}
           ga_id={ga_id}
           ga_verify={ga_verify}
@@ -328,7 +330,7 @@ export default function BaseLayout(props: Props, helpers: Helpers) {
                     ...$themeManager
                 }`}
         x-effect="document.documentElement.style.colorScheme = themePreference === 'system' ? '' : effectiveTheme; document.documentElement.dataset.pfTheme = effectiveTheme"
-        alpine-scroll-window="updateOffset()"
+        {...{ "@scroll.window": "updateOffset()" }}
       >
         {/* Apply theme immediately to prevent flash - Alpine will take over state management */}
         <script
@@ -356,7 +358,7 @@ export default function BaseLayout(props: Props, helpers: Helpers) {
           Skip to content
         </a>
 
-        <pagefind-config bundle-path="/documentation/_pagefind/" base-url="/"></pagefind-config>
+        <pagefind-config bundle-path="/documentation/_pagefind/" base-url="/documentation/"></pagefind-config>
 
         {headingnav?.banner_html && (
           <>
@@ -396,20 +398,20 @@ export default function BaseLayout(props: Props, helpers: Helpers) {
         )}
 
         <div className="l-nav">
-          <Nav headingnav={headingnav} url={url} helpers={helpers} />
+          <comp.Layout.Nav headingnav={headingnav} url={url} helpers={helpers} />
         </div>
 
-        <Search />
+        <comp.Layout.Search />
 
         {typeof content === "string"
           ? <div dangerouslySetInnerHTML={{ __html: content }} />
           : content}
 
         <div className="l-footer">
-          <Footer footernav={footernav} helpers={helpers} />
+          <comp.Layout.Footer footernav={footernav} helpers={helpers} />
         </div>
 
-        <Hubspot />
+        <comp.Layout.Hubspot />
 
         <div className="iframe-controls">
           <a href={url} target="_blank">

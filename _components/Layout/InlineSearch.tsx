@@ -1,9 +1,10 @@
-import { SearchResults } from "./Search.tsx";
+import type { Comp } from "../../_types.d.ts";
 
 interface InlineSearchProps {
   placeholder?: string;
   autofocus?: boolean;
   className?: string;
+  comp: Comp;
 }
 
 /**
@@ -11,6 +12,7 @@ interface InlineSearchProps {
  * Used on the home page and 404 page.
  */
 export default function InlineSearch({
+  comp,
   placeholder = "Search documentation...",
   autofocus = false,
   className,
@@ -21,7 +23,7 @@ export default function InlineSearch({
         placeholder={placeholder}
         {...(autofocus ? { autofocus: true } : {})}
       ></pagefind-input>
-      <SearchResults />
+      <comp.Layout.SearchResults />
     </div>
   );
 }

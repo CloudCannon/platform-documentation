@@ -1,8 +1,8 @@
-import Card from "../Card/Card.tsx";
-import { truncate } from "../utils/index.ts";
-import { getPagefindContentType } from "../utils/urlHelpers.ts";
+import { truncate } from "../utils/string-util.ts";
+import { getPagefindContentType } from "../utils/url-util.ts";
 import type {
   ArticlePage,
+  Comp,
   Details,
   Helpers,
   PageSearch,
@@ -12,10 +12,11 @@ interface RelatedArticlesProps {
   details?: Details;
   search?: PageSearch;
   helpers: Helpers;
+  comp: Comp;
 }
 
 export default async function RelatedArticles(
-  { details, search, helpers }: RelatedArticlesProps,
+  { comp, details, search, helpers }: RelatedArticlesProps,
 ) {
   if (!details?.related_articles?.length || !search) return <div class="c-card-container--bottom-spacing"></div>;
 
@@ -120,7 +121,7 @@ export default async function RelatedArticles(
 
             return (
               <li key={article.url} data-editable="array-item">
-                <Card
+                <comp.Card.Card
                   href={article.url}
                   title={title}
                   description={descriptions[i]}

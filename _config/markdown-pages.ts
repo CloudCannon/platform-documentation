@@ -659,12 +659,12 @@ export default function markdownPages() {
         if (!url) continue;
 
         const isDoc =
-          url.includes("/documentation/user-") ||
-          url.includes("/documentation/developer-") ||
-          url.includes("/documentation/changelog/") ||
-          url.includes("/documentation/guides/");
+          url.startsWith("/user-") ||
+          url.startsWith("/developer-") ||
+          url.startsWith("/changelog/") ||
+          url.startsWith("/guides/");
         if (!isDoc) continue;
-        if (url === "/documentation/changelog/") continue;
+        if (url === "/changelog/") continue;
         if (page.data.published === false) continue;
 
         const layout = page.data.layout as string | undefined;
@@ -781,7 +781,7 @@ export default function markdownPages() {
         const fm: string[] = ["---"];
         fm.push(`title: ${escapeFrontmatter(title)}`);
         if (description) fm.push(`description: ${escapeFrontmatter(description)}`);
-        fm.push(`url: https://cloudcannon.com${url.replace(/\/+/g, "/").replace(/\/?$/, "/")}`);
+        fm.push(`url: ${site.url(url.replace(/\/+/g, "/").replace(/\/?$/, "/"), true)}`);
         fm.push(`content_type: ${contentType}`);
         if (date) fm.push(`last_modified: ${date}`);
         fm.push("---");

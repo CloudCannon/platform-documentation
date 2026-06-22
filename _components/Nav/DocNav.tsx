@@ -1,10 +1,9 @@
-import NavWrapper from "./NavWrapper.tsx";
-import NavHeading from "./NavHeading.tsx";
-// import ScrollGradient from "./ScrollGradient.tsx";
 import type {
+  Comp,
   ContentNavBlock,
   ContentNavigation,
   ContentNavItem,
+  Helpers,
   IndexPage,
   PageSearch,
 } from "../../_types.d.ts";
@@ -14,9 +13,7 @@ interface SubNavProps {
   url?: string;
   pageUuid?: string;
   search: PageSearch;
-  helpers: {
-    icon: (name: string, set: string) => string;
-  };
+  helpers: Helpers;
 }
 
 function SubNav({ block, url, pageUuid, search, helpers }: SubNavProps) {
@@ -61,7 +58,7 @@ function SubNav({ block, url, pageUuid, search, helpers }: SubNavProps) {
             <li key={`${i}-${j}`}>
               <a
                 className="t-docs-nav__sub-list__article"
-                href={articlePage.url}
+                href={helpers.url(articlePage.url)}
                 aria-current={isCurrent ? "page" : undefined}
               >
                 {articlePage.page?.data?.details?.title ||
@@ -84,15 +81,14 @@ interface DocNavProps {
     };
   };
   search: PageSearch;
-  helpers: {
-    icon: (name: string, set: string) => string;
-  };
+  helpers: Helpers;
   getIndexPage?: (url?: string) => IndexPage | null;
   bubbleUpNav?: (headings?: ContentNavBlock[]) => ContentNavBlock[];
+  comp: Comp;
 }
 
 export default function DocNav(
-  { navigation, url, page, search, helpers, getIndexPage, bubbleUpNav }:
+  { comp, navigation, url, page, search, helpers, getIndexPage, bubbleUpNav }:
     DocNavProps,
 ) {
   if (!navigation) {
@@ -105,9 +101,9 @@ export default function DocNav(
   const pageUuid = page?.data?._uuid;
 
   return (
-    <NavWrapper>
-      {/* <ScrollGradient position="top" /> */}
-      <NavHeading title={navigation.title} />
+    <comp.Nav.NavWrapper>
+      {/* <comp.Nav.ScrollGradient position="top" /> */}
+      <comp.Nav.NavHeading title={navigation.title} />
 
       <ol
         className="t-docs-nav__main-list"
@@ -128,7 +124,7 @@ export default function DocNav(
               className={`t-docs-nav__main-list__item__heading-group t-docs-nav__sub-list__article ${
                 pageUuid === indexPage.attrs?._uuid ? "is-active" : ""
               }`}
-              href={indexPage.url}
+              href={helpers.url(indexPage.url)}
               aria-current={pageUuid === indexPage.attrs?._uuid
                 ? "page"
                 : undefined}
@@ -191,7 +187,7 @@ export default function DocNav(
           );
         })}
       </ol>
-      {/* <ScrollGradient position="bottom" /> */}
-    </NavWrapper>
+      {/* <comp.Nav.ScrollGradient position="bottom" /> */}
+    </comp.Nav.NavWrapper>
   );
 }

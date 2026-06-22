@@ -1,6 +1,6 @@
-import NotFoundContent from "../../_components/Layout/NotFoundContent.tsx";
+import type { Comp } from "../../_types.d.ts";
 
-export default function NotFoundLayout() {
+export default function NotFoundLayout({ comp }: { comp: Comp }) {
   return (
     <div className="l-page">
       <div className="l-column">
@@ -10,7 +10,7 @@ export default function NotFoundLayout() {
             style={{ "justify-content": "center" }}
           >
             <main id="main-content">
-              <NotFoundContent />
+              <comp.Layout.NotFoundContent />
             </main>
           </div>
         </div>

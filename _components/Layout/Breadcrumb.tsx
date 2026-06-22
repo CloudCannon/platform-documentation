@@ -1,3 +1,5 @@
+import { Helpers } from "../../_types.d.ts";
+
 interface BreadcrumbItem {
   label: string;
   href: string;
@@ -5,9 +7,7 @@ interface BreadcrumbItem {
 
 interface BreadcrumbProps {
   items: BreadcrumbItem[];
-  helpers: {
-    icon: (name: string, set: string) => string;
-  };
+  helpers: Helpers;
 }
 
 /**

@@ -1,9 +1,5 @@
-import PrevNext from "../../_components/Content/PrevNext.tsx";
-import MobileTOC from "../../_components/Layout/MobileTOC.tsx";
-import CopyPageDropdown from "../../_components/CopyPageDropdown.tsx";
-import PagefindCategoryMeta from "../../_components/Layout/PagefindCategoryMeta.tsx";
-import { getPagefindContentType } from "../../_components/utils/urlHelpers.ts";
-import type { Details, Helpers, Page } from "../../_types.d.ts";
+import { getPagefindContentType } from "../../_components/utils/url-util.ts";
+import type { Comp, Details, Helpers, Page } from "../../_types.d.ts";
 
 interface GuideArticle {
   url: string;
@@ -24,10 +20,12 @@ interface Props {
   guide_icon_invert_for_dark_mode?: boolean;
   initial_section_heading?: string;
   search: Search;
+  comp: Comp;
 }
 
 export default function GuideLayout(props: Props, helpers: Helpers) {
   const {
+    comp,
     content,
     url,
     page,
@@ -40,7 +38,7 @@ export default function GuideLayout(props: Props, helpers: Helpers) {
   } = props;
 
   const guideParts = url.split("/");
-  const guideId = [guideParts[1], guideParts[2], guideParts[3]].join("/");
+  const guideId = [guideParts[1], guideParts[2]].join("/");
   const guideArticles = search.pages(`url^=/${guideId}`, "details.order") || [];
   const totalPages = guideArticles.length;
 
@@ -60,13 +58,13 @@ export default function GuideLayout(props: Props, helpers: Helpers) {
       data-pagefind-weight="30"
       data-pagefind-filter="site:Guides"
       data-pagefind-meta="site:Guides">
-      <PagefindCategoryMeta category={getPagefindContentType(url)} />
+      <comp.Layout.PagefindCategoryMeta category={getPagefindContentType(url)} />
       <div className="l-column">
         <aside className="l-left" x-data="{ more: true }">
           <nav
             id="t-docs-nav"
             className="t-docs-nav"
-            alpine:class="isPageNavOpen ? 't-docs-nav t-docs-nav--open' : 't-docs-nav'"
+            x-bind:class="isPageNavOpen ? 't-docs-nav t-docs-nav--open' : 't-docs-nav'"
           >
             <div className="t-docs-nav__heading">
 							{guide_icon && <img src={guide_icon} width="50" height="50" className={guide_icon_invert_for_dark_mode ? `u-grayscale-invert` : ''} />}
@@ -76,7 +74,7 @@ export default function GuideLayout(props: Props, helpers: Helpers) {
                 data-pagefind-ignore
                 type="button"
                 className="t-docs-nav__control"
-                x-on-click="isPageNavOpen = true; $focusNav(true);"
+                x-on:click="isPageNavOpen = true; $focusNav(true);"
                 x-show="!isPageNavOpen"
                 aria-label="Open guide menu"
               >
@@ -86,7 +84,7 @@ export default function GuideLayout(props: Props, helpers: Helpers) {
                 data-pagefind-ignore
                 type="button"
                 className="t-docs-nav__control"
-                x-on-click="isPageNavOpen = false; $focusNav(false);"
+                x-on:click="isPageNavOpen = false; $focusNav(false);"
                 x-show="isPageNavOpen"
                 aria-label="Close guide menu"
               >
@@ -173,21 +171,21 @@ export default function GuideLayout(props: Props, helpers: Helpers) {
             {details?.description}
           </p>
           <div className="l-copy-page-mobile" data-pagefind-ignore>
-            <CopyPageDropdown title={details?.title || ""} url={url} />
+            <comp.CopyPageDropdown title={details?.title || ""} url={url} helpers={helpers} />
           </div>
-          <MobileTOC helpers={helpers} />
+          <comp.Layout.MobileTOC helpers={helpers} />
           <div className="l-content-split">
             <main
               id="main-content"
               dangerouslySetInnerHTML={{ __html: content }}
             />
             <aside data-pagefind-ignore className="l-right">
-              <CopyPageDropdown title={details?.title || ""} url={url} />
-              <div className="l-toc" alpine:scroll="onScroll()" />
+              <comp.CopyPageDropdown title={details?.title || ""} url={url} helpers={helpers} />
+              <div className="l-toc" {...{ "x-on:scroll.window.throttle.50ms": "onScroll()" }} />
             </aside>
           </div>
 
-          <PrevNext
+          <comp.Content.PrevNext
             prev={prev}
             next={next}
             guideIcon={guide_icon}

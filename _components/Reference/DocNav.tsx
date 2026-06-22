@@ -1,8 +1,5 @@
-import NavWrapper from "../Nav/NavWrapper.tsx";
-import NavHeading from "../Nav/NavHeading.tsx";
-// import ScrollGradient from "../Nav/ScrollGradient.tsx";
 import type { SectionId } from "./helpers.ts";
-import type { Helpers, PageSearch } from "../../_types.d.ts";
+import type { Comp, Helpers, PageSearch } from "../../_types.d.ts";
 
 // Precompiled reference navigation item (matches _config.ts)
 interface RefNavItem {
@@ -27,10 +24,12 @@ interface DocNavProps {
   section: SectionId;
   search: PageSearch;
   helpers: Helpers;
+  comp: Comp;
 }
 
 export default function DocNav(
   {
+    comp,
     ref_nav,
     currentUrl,
     section: _section,
@@ -46,20 +45,20 @@ export default function DocNav(
   const normalizedUrl = currentUrl?.replace(/\/$/, "") || "";
 
   // Find the developer-reference home page
-  const indexPage = search.page("url=/documentation/developer-reference/");
+  const indexPage = search.page("url=/developer-reference/");
 
   // Find static pages for nav entries
   const schemasPage = search.page(
-    "url=/documentation/developer-reference/schemas/",
+    "url=/developer-reference/schemas/",
   );
   const typescriptPage = search.page(
-    "url=/documentation/developer-reference/typescript/",
+    "url=/developer-reference/typescript/",
   );
   const editableRegionsPage = search.page(
-    "url=/documentation/developer-reference/editable-regions/",
+    "url=/developer-reference/editable-regions/",
   );
   const permissionsPage = search.page(
-    "url=/documentation/developer-reference/permissions/",
+    "url=/developer-reference/permissions/",
   );
 
   // Build unified nav entries: home link + utility links + sections
@@ -70,7 +69,7 @@ export default function DocNav(
       id: "home" as SectionId,
       heading: indexPage.attrs?.details?.title || indexPage.title || "Home",
       icon: "home",
-      basePath: indexPage.url || "/documentation/developer-reference/",
+      basePath: indexPage.url || "/developer-reference/",
       items: [], // No items = renders as simple link
     });
   }
@@ -83,11 +82,11 @@ export default function DocNav(
         editableRegionsPage.title || "Editable Regions",
       icon: "preview",
       basePath: editableRegionsPage.url ||
-        "/documentation/developer-reference/editable-regions/",
+        "/developer-reference/editable-regions/",
       items: [],
     });
   }
-  
+
   if (permissionsPage) {
     allEntries.push({
       id: "permissions" as SectionId,
@@ -95,7 +94,7 @@ export default function DocNav(
         "Permissions",
       icon: "groups",
       basePath: permissionsPage.url ||
-        "/documentation/developer-reference/permissions/",
+        "/developer-reference/permissions/",
       items: [],
     });
   }
@@ -107,7 +106,7 @@ export default function DocNav(
         "JSON Schemas",
       icon: "data_object",
       basePath: schemasPage.url ||
-        "/documentation/developer-reference/schemas/",
+        "/developer-reference/schemas/",
       items: [],
     });
   }
@@ -119,14 +118,14 @@ export default function DocNav(
         "TypeScript Types",
       icon: "code",
       basePath: typescriptPage.url ||
-        "/documentation/developer-reference/typescript/",
+        "/developer-reference/typescript/",
       items: [],
     });
   }
   return (
-    <NavWrapper>
-      {/* <ScrollGradient position="top" /> */}
-      <NavHeading title="Developer Reference" />
+    <comp.Nav.NavWrapper>
+      {/* <comp.Nav.ScrollGradient position="top" /> */}
+      <comp.Nav.NavHeading title="Developer Reference" />
 
       <ol
         className="t-docs-nav__main-list"
@@ -156,7 +155,7 @@ export default function DocNav(
                   className={`t-docs-nav__main-list__item__heading-group t-docs-nav__sub-list__article ${
                     isActive ? "is-active" : ""
                   }`}
-                  href={sec.basePath}
+                  href={helpers.url(sec.basePath)}
                   aria-current={isActive ? "page" : undefined}
                 >
                   <img
@@ -207,26 +206,29 @@ export default function DocNav(
                   {/* Section home page link (Overview) - only when distinct from first item */}
                   {sectionHomePage &&
                     sectionHomePage.url?.replace(/\/$/, "") !==
-                      sec.items[0]?.url?.replace(/\/$/, "") && (
-                    <li>
-                      <a
-                        className="t-docs-nav__sub-list__article"
-                        href={sectionHomePage.url}
-                        aria-current={isSectionHomeActive ? "page" : undefined}
-                      >
-                        {sectionHomePage.attrs?.details?.title ||
-                          sectionHomePage.title ||
-                          "Overview"}
-                      </a>
-                    </li>
-                  )}
+                      sec.items[0]?.url?.replace(/\/$/, "") &&
+                    (
+                      <li>
+                        <a
+                          className="t-docs-nav__sub-list__article"
+                          href={helpers.url(sectionHomePage.url)}
+                          aria-current={isSectionHomeActive
+                            ? "page"
+                            : undefined}
+                        >
+                          {sectionHomePage.attrs?.details?.title ||
+                            sectionHomePage.title ||
+                            "Overview"}
+                        </a>
+                      </li>
+                    )}
 
                   {/* Reference items */}
                   {sec.items.map((item, index) => (
                     <li key={item.gid || index}>
                       <a
                         className="t-docs-nav__sub-list__article"
-                        href={item.url}
+                        href={helpers.url(item.url)}
                         aria-current={currentUrl.startsWith(item.url)
                           ? "page"
                           : undefined}
@@ -243,7 +245,7 @@ export default function DocNav(
           );
         })}
       </ol>
-      {/* <ScrollGradient position="bottom" /> */}
-    </NavWrapper>
+      {/* <comp.Nav.ScrollGradient position="bottom" /> */}
+    </comp.Nav.NavWrapper>
   );
 }

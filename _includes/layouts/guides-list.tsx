@@ -1,6 +1,4 @@
-import Card from "../../_components/Card/Card.tsx";
-import FeaturedGuideCard from "../../_components/Card/FeaturedGuideCard.tsx";
-import type { Helpers } from "../../_types.d.ts";
+import type { Comp, Helpers } from "../../_types.d.ts";
 
 interface GuideItem {
   item: string;
@@ -31,10 +29,11 @@ interface Props {
   title: string;
   guide_sections?: GuideSection[];
   search: Search;
+  comp: Comp;
 }
 
 export default function GuidesListLayout(props: Props, helpers: Helpers) {
-  const { title, guide_sections, search } = props;
+  const { comp, title, guide_sections, search } = props;
 
   return (
     <main id="main-content" className="l-page guide-page">
@@ -68,7 +67,7 @@ export default function GuidesListLayout(props: Props, helpers: Helpers) {
                       return (
                         <editable-array-item key={ii}>
                           {isLargeGrid ? (
-                            <FeaturedGuideCard
+                            <comp.Card.FeaturedGuideCard
                               href={guide.url}
                               eyebrow={guide.guide_eyebrow}
                               title={guide.guide_title}
@@ -77,7 +76,7 @@ export default function GuidesListLayout(props: Props, helpers: Helpers) {
                               image={guide.guide_image}
                             />
                           ) : (
-                            <Card
+                            <comp.Card.Card
                               href={guide.url}
                               title={guide.guide_title}
                               description={guide.guide_summary}
