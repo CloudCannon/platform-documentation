@@ -21,4 +21,3 @@ EXPOSE 3000
 
 # Run the server on host=0.0.0.0 inside Docker
 CMD ["deno", "task", "serve", "--", "--host", "0.0.0.0", "--port", "3000"]
-
