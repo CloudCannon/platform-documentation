@@ -1,11 +1,11 @@
-import type { DocEntry, Helpers } from "../_types.d.ts";
+import type { Comp, DocEntry, Helpers } from "../_types.d.ts";
 import { BASE_URL, type SectionId } from "./Reference/helpers.ts";
-import RefItem from "./Reference/RefItem.tsx";
 
 interface ReferenceDataRowProps {
   section: string;
   ref_key: string;
   display_label?: string;
+  comp: Comp;
 }
 
 function findEntryByGid(
@@ -29,7 +29,7 @@ function formatDefault(value: unknown): string {
 }
 
 export default function ReferenceDataRow(
-  { section, ref_key, display_label }: ReferenceDataRowProps,
+  { comp, section, ref_key, display_label }: ReferenceDataRowProps,
   helpers: Helpers,
 ) {
   if (!ref_key?.trim()) return null;
@@ -56,7 +56,7 @@ export default function ReferenceDataRow(
 
   return (
     <div className="c-data-reference__item">
-      <RefItem
+      <comp.Reference.RefItem
         docRef={entry}
         section={section as SectionId}
         keyOverride={display_label ?? getDisplayKey(entry)}
@@ -67,7 +67,7 @@ export default function ReferenceDataRow(
 }
 
 export function toMarkdown(
-  { section, ref_key }: ReferenceDataRowProps,
+  { section, ref_key }: Omit<ReferenceDataRowProps, "comp">,
 ): string {
   if (!ref_key?.trim()) return "";
   const entry = findEntryByGid(section, ref_key);

@@ -1,17 +1,10 @@
-import DocNav from "../../_components/Nav/DocNav.tsx";
-import RelatedArticles from "../../_components/Content/RelatedArticles.tsx";
-import Breadcrumb from "../../_components/Layout/Breadcrumb.tsx";
-import MobileTOC from "../../_components/Layout/MobileTOC.tsx";
-import NavSidebar from "../../_components/Layout/NavSidebar.tsx";
-import CopyPageDropdown from "../../_components/CopyPageDropdown.tsx";
-import PagefindArticleCategoryMeta from "../../_components/Layout/PagefindArticleCategoryMeta.tsx";
-import PagefindCategoryMeta from "../../_components/Layout/PagefindCategoryMeta.tsx";
+import { formatTitle } from "../../_components/utils/string-util.ts";
 import {
-  formatTitle,
   getPagefindContentType,
   parseDocUrl,
-} from "../../_components/utils/index.ts";
+} from "../../_components/utils/url-util.ts";
 import type {
+  Comp,
   ContentNavigation,
   Details,
   Helpers,
@@ -34,10 +27,12 @@ interface Props {
   date: string;
   search?: PageSearch;
   author_notes?: AuthorNotes;
+  comp: Comp;
 }
 
 export default function ArticleLayout(props: Props, helpers: Helpers) {
   const {
+    comp,
     content,
     url,
     page,
@@ -58,12 +53,12 @@ export default function ArticleLayout(props: Props, helpers: Helpers) {
         data-pagefind-filter="site:Articles"
         data-pagefind-meta="site:Articles"
       >
-      <PagefindCategoryMeta category={getPagefindContentType(url)} />
-      <PagefindArticleCategoryMeta category={details?.category} />
+      <comp.Layout.PagefindCategoryMeta category={getPagefindContentType(url)} />
+      <comp.Layout.PagefindArticleCategoryMeta category={details?.category} />
       <div className="l-column">
-        <NavSidebar>
+        <comp.Layout.NavSidebar>
           {navData && search && (
-            <DocNav
+            <comp.Nav.DocNav
               navigation={navData}
               url={url}
               page={page}
@@ -73,10 +68,10 @@ export default function ArticleLayout(props: Props, helpers: Helpers) {
               bubbleUpNav={helpers.bubble_up_nav}
             />
           )}
-        </NavSidebar>
+        </comp.Layout.NavSidebar>
         <div className="u-card-box l-content" x-data="visibleNavHighlighter">
           {urlParts.length > 1 && (
-            <Breadcrumb
+            <comp.Layout.Breadcrumb
               items={[{
                 label: formatTitle(navKey),
                 href: `/documentation/${navKey}/`,
@@ -95,22 +90,22 @@ export default function ArticleLayout(props: Props, helpers: Helpers) {
             Last modified: {helpers.date(date, "HUMAN_DATE")}
           </p>
           <div className="l-copy-page-mobile" data-pagefind-ignore>
-            <CopyPageDropdown title={details?.title || ""} url={url} />
+            <comp.CopyPageDropdown title={details?.title || ""} url={url} helpers={helpers} />
           </div>
-          <MobileTOC helpers={helpers} />
+          <comp.Layout.MobileTOC helpers={helpers} />
           <div className="l-content-split">
             <main
               id="main-content"
               dangerouslySetInnerHTML={{ __html: content }}
             />
             <aside data-pagefind-ignore className="l-right">
-              <CopyPageDropdown title={details?.title || ""} url={url} />
-              <div className="l-toc" alpine:scroll="onScroll()" />
+              <comp.CopyPageDropdown title={details?.title || ""} url={url} helpers={helpers} />
+              <div className="l-toc" {...{ "x-on:scroll.window.throttle.50ms": "onScroll()" }} />
             </aside>
           </div>
 
           {search && (
-            <RelatedArticles
+            <comp.Content.RelatedArticles
               details={details}
               search={search}
               helpers={helpers}

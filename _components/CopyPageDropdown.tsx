@@ -1,14 +1,19 @@
+import type { Helpers } from "../_types.d.ts";
+
 interface CopyPageDropdownProps {
   title: string;
   url: string;
+  helpers: Helpers;
 }
 
 export default function CopyPageDropdown(
-  { title, url }: CopyPageDropdownProps,
+  { title, url, helpers }: CopyPageDropdownProps,
 ) {
+  // helpers.url() applies the site's /documentation/ base path; the page url
+  // passed in is root-relative without it.
   const normalizedUrl = url.replace(/\/+/g, "/").replace(/\/?$/, "/");
-  const mdPath = `${normalizedUrl}index.md`;
-  const pageUrl = `https://cloudcannon.com${normalizedUrl}`;
+  const mdPath = `${helpers.url(normalizedUrl)}index.md`;
+  const pageUrl = helpers.url(normalizedUrl, true);
 
   return (
     <div
@@ -60,8 +65,8 @@ export default function CopyPageDropdown(
       <button
         type="button"
         className="c-copy-page__trigger"
-        alpine:class="{ 'c-copy-page__trigger--copied': copied }"
-        x-on-click="if (!copied) open = !open"
+        x-bind:class="{ 'c-copy-page__trigger--copied': copied }"
+        x-on:click="if (!copied) open = !open"
         aria-label="Copy page content"
         title="Copy page content"
       >
@@ -90,7 +95,7 @@ export default function CopyPageDropdown(
         <span x-show="copied" x-cloak="true" role="status" aria-live="polite">Copied</span>
         <svg
           className="c-copy-page__chevron"
-          alpine:class="{ 'c-copy-page__chevron--open': open, 'c-copy-page__chevron--hidden': copied }"
+          x-bind:class="{ 'c-copy-page__chevron--open': open, 'c-copy-page__chevron--hidden': copied }"
           width="10"
           height="6"
           viewBox="0 0 10 6"
@@ -101,16 +106,16 @@ export default function CopyPageDropdown(
         </svg>
       </button>
 
-      <div className="c-copy-page__menu" x-cloak="true" x-show="open" x-transition alpine-click-outside="open = false">
-        <button type="button" className="c-copy-page__option" x-on-click="copyMarkdown()">
+      <div className="c-copy-page__menu" x-cloak="true" x-show="open" x-transition {...{ "@click.outside": "open = false" }}>
+        <button type="button" className="c-copy-page__option" x-on:click="copyMarkdown()">
           <strong>Copy as Markdown</strong>
           <span>Page content as clean Markdown</span>
         </button>
-        <button type="button" className="c-copy-page__option" x-on-click="copyUrl()">
+        <button type="button" className="c-copy-page__option" x-on:click="copyUrl()">
           <strong>Copy page URL</strong>
           <span>{pageUrl}</span>
         </button>
-        <button type="button" className="c-copy-page__option" x-on-click="copyForLlm()">
+        <button type="button" className="c-copy-page__option" x-on:click="copyForLlm()">
           <strong>Copy for LLM prompt</strong>
           <span>Markdown wrapped in context for LLMs</span>
         </button>

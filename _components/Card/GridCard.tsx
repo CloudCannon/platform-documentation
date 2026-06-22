@@ -11,7 +11,6 @@ interface GridCardProps {
     icon?: (name: string, set: string) => string;
   };
   dataEditable?: Record<string, Record<string, unknown>>;
-  [key: string]: unknown;
 }
 
 /**
@@ -31,7 +30,6 @@ export default function GridCard({
   children,
   helpers,
   dataEditable = {},
-  ...rest
 }: GridCardProps) {
   const isInteractive = Boolean(href);
   const Element = isInteractive ? "a" : "div";
@@ -46,11 +44,8 @@ export default function GridCard({
   // Get arrow icon URL
   const arrowIconUrl = helpers?.icon?.("arrow_forward:outlined", "material");
 
-  // Common link props for interactive cards
-  const allProps = isInteractive ? { href, ...rest } : { ...rest };
-
   return (
-    <Element className={cardClasses} {...allProps}>
+    <Element className={cardClasses} href={href}>
       {title && <Heading {...(dataEditable.title || {})}>{title}</Heading>}
 
       {description && <p {...(dataEditable.description || {})}>{description}
