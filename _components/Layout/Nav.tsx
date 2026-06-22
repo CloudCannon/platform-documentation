@@ -1,17 +1,17 @@
-import NavLinks from "./NavLinks.tsx";
-import type { HeaderNavigation, Helpers } from "../../_types.d.ts";
+import type { Comp, HeaderNavigation, Helpers } from "../../_types.d.ts";
 
 interface NavProps {
   headingnav?: HeaderNavigation;
   url?: string;
   helpers: Helpers;
+  comp: Comp;
 }
 
 function ThemeDropdown(
   { helpers, id = "theme-dropdown" }: { helpers: Helpers; id?: string },
 ) {
   const anchorName = `--${id}-anchor`;
-  const dropdownRef = `${id}_menu`;
+  const dropdownRef = `${id.replace(/-/g, "_")}_menu`;
 
   return (
     <div x-data="{ themeOpen: false }">
@@ -21,9 +21,11 @@ function ThemeDropdown(
         popovertarget={id}
         title="Theme"
         style={{ "anchor-name": anchorName }}
-        alpine-keydown-down={`themeOpen = true; document.getElementById('${id}').showPopover(); $nextTick(() => $focus.within($refs.${dropdownRef}).first())`}
-        alpine-keydown-up={`themeOpen = true; document.getElementById('${id}').showPopover(); $nextTick(() => $focus.within($refs.${dropdownRef}).last())`}
-        x-on-click="themeOpen = !themeOpen"
+        {...{
+          "@keydown.down": `themeOpen = true; document.getElementById('${id}').showPopover(); $nextTick(() => $focus.within($refs.${dropdownRef}).first())`,
+          "@keydown.up": `themeOpen = true; document.getElementById('${id}').showPopover(); $nextTick(() => $focus.within($refs.${dropdownRef}).last())`,
+        }}
+        x-on:click={`themeOpen = !themeOpen; if (themeOpen) $nextTick(() => $focus.within($refs.${dropdownRef}).first())`}
       >
         <template x-if="effectiveTheme === 'dark'">
           <img
@@ -43,19 +45,21 @@ function ThemeDropdown(
         popover="auto"
         className="theme-dropdown"
         style={{ "position-anchor": anchorName }}
-        x-on-toggle="if (!$event.newState || $event.newState === 'closed') themeOpen = false"
+        x-on:toggle="if (!$event.newState || $event.newState === 'closed') themeOpen = false"
       >
         <div
           x-ref={dropdownRef}
-          alpine-keydown-down-prevent="$focus.wrap().next()"
-          alpine-keydown-up-prevent="$focus.wrap().previous()"
-          alpine-keydown-escape={`themeOpen = false; document.getElementById('${id}').hidePopover()`}
-          x-trap-inert="themeOpen"
+          {...{
+            "@keydown.down.prevent": "$focus.wrap().next()",
+            "@keydown.up.prevent": "$focus.wrap().previous()",
+            "@keydown.escape": `themeOpen = false; document.getElementById('${id}').hidePopover()`,
+            "x-trap.inert": "themeOpen",
+          }}
         >
           <button
             type="button"
-            x-on-click="setTheme('system')"
-            alpine:class="themePreference === 'system' ? 'active' : ''"
+            x-on:click="setTheme('system')"
+            x-bind:class="themePreference === 'system' ? 'active' : ''"
           >
             <img
               src={helpers.icon("brightness_6:outlined", "material")}
@@ -65,8 +69,8 @@ function ThemeDropdown(
           </button>
           <button
             type="button"
-            x-on-click="setTheme('light')"
-            alpine:class="themePreference === 'light' ? 'active' : ''"
+            x-on:click="setTheme('light')"
+            x-bind:class="themePreference === 'light' ? 'active' : ''"
           >
             <img
               src={helpers.icon("light_mode:filled", "material")}
@@ -76,8 +80,8 @@ function ThemeDropdown(
           </button>
           <button
             type="button"
-            x-on-click="setTheme('dark')"
-            alpine:class="themePreference === 'dark' ? 'active' : ''"
+            x-on:click="setTheme('dark')"
+            x-bind:class="themePreference === 'dark' ? 'active' : ''"
           >
             <img
               src={helpers.icon("dark_mode:filled", "material")}
@@ -91,14 +95,14 @@ function ThemeDropdown(
   );
 }
 
-export default function Nav({ headingnav, url, helpers }: NavProps) {
+export default function Nav({ comp, headingnav, url, helpers }: NavProps) {
   const items = headingnav?.items || [];
 
   return (
     <nav className="l-header">
       <div className="l-header__site">
         <a
-          href="/documentation"
+          href="/documentation/"
           className="l-header__emblem"
           aria-label="Go to cloudcannon.com"
         >
@@ -112,7 +116,7 @@ export default function Nav({ headingnav, url, helpers }: NavProps) {
       </div>
 
       <div className="l-header__middle">
-        <NavLinks headingnav={headingnav} url={url} helpers={helpers} />
+        <comp.Layout.NavLinks headingnav={headingnav} url={url} helpers={helpers} />
       </div>
 
       <div className="l-header__right">
@@ -158,7 +162,7 @@ export default function Nav({ headingnav, url, helpers }: NavProps) {
               <button
                 type="button"
                 aria-label="close announcement banner"
-                x-on-click="showBanner = false; sessionStorage.setItem('announcementBannerOpenDocs', 'false'); document.getElementById('announcement-banner').hidden = true;"
+                x-on:click="showBanner = false; sessionStorage.setItem('announcementBannerOpenDocs', 'false'); document.getElementById('announcement-banner').hidden = true;"
               >
                 <div className="flex items-center">
                   <div className="inner-cross">
@@ -177,7 +181,7 @@ export default function Nav({ headingnav, url, helpers }: NavProps) {
           <div className="l-header__mobile-menu-header">
             <div className="l-header__site">
               <a
-                href="/documentation"
+                href="/documentation/"
                 className="l-header__emblem"
                 aria-label="Go to CloudCannon Documentation"
               >
@@ -222,7 +226,7 @@ export default function Nav({ headingnav, url, helpers }: NavProps) {
             <div
               className="mobile-docnav-trigger"
               x-show="hasDocNav"
-              x-on-click="showmobilenav = true"
+              x-on:click="showmobilenav = true"
             >
               <img
                 src={helpers.icon("menu_book:outlined", "material")}
@@ -243,7 +247,10 @@ export default function Nav({ headingnav, url, helpers }: NavProps) {
                     return item.items.map((subitem, subIndex) => (
                       <li key={`${index}-${subIndex}`}>
                         <a
-                          {...(subitem.href && url?.startsWith(subitem.href)
+                          {...(subitem.href && url &&
+                              helpers.url(url).startsWith(
+                                helpers.url(subitem.href),
+                              )
                             ? { "aria-current": "page" }
                             : {})}
                           className="c-card-grid__card--item"
@@ -281,7 +288,8 @@ export default function Nav({ headingnav, url, helpers }: NavProps) {
                       <a
                         className="c-card-grid__card--item"
                         href={item.href}
-                        {...(item.href && url?.startsWith(item.href)
+                        {...(item.href && url &&
+                            helpers.url(url).startsWith(helpers.url(item.href))
                           ? { "aria-current": "page" }
                           : {})}
                       >
@@ -311,7 +319,7 @@ export default function Nav({ headingnav, url, helpers }: NavProps) {
           >
             <div
               className="back-button"
-              x-on-click="showmobilenav = false"
+              x-on:click="showmobilenav = false"
             >
               <img
                 src={helpers.icon("arrow_back_ios:filled", "material")}

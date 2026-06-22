@@ -1,5 +1,4 @@
-import ImageWrapper from "./ImageWrapper.tsx";
-import type { Helpers } from "../_types.d.ts";
+import type { Comp, Helpers } from "../_types.d.ts";
 
 interface DocShotProps {
   type?: string;
@@ -9,10 +8,11 @@ interface DocShotProps {
   docshots: {
     source: string;
   };
+  comp: Comp;
 }
 
 export default function DocShot(
-  { type, docshot_key, alt, title, docshots }: DocShotProps,
+  { comp, type, docshot_key, alt, title, docshots }: DocShotProps,
   helpers: Helpers,
 ) {
   const local = Deno.env.get("DOCSHOTS_LOCAL");
@@ -20,7 +20,7 @@ export default function DocShot(
     ? `/documentation/local-docshots/${docshot_key}.webp`
     : `https://cc-screenshots.imgix.net/${docshots.source}/${docshot_key}.webp`;
   return (
-    <ImageWrapper
+    <comp.ImageWrapper
       src={helpers.url(finalPath)}
       alt={alt}
       title={title}
@@ -30,7 +30,7 @@ export default function DocShot(
 }
 
 export function toMarkdown(
-  { docshot_key, alt, title, docshots }: DocShotProps,
+  { docshot_key, alt, title, docshots }: Omit<DocShotProps, "comp">,
 ): string {
   const url =
     `https://cc-screenshots.imgix.net/${docshots.source}/${docshot_key}.webp`;

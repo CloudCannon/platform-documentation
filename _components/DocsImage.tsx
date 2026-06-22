@@ -1,22 +1,22 @@
-import ImageWrapper from "./ImageWrapper.tsx";
-import type { Helpers } from "../_types.d.ts";
+import type { Comp, Helpers } from "../_types.d.ts";
 
 interface DocsImageProps {
   type?: string;
   path: string;
   alt?: string;
   title?: string;
+  comp: Comp;
 }
 
 export default function DocsImage(
-  { type, path, alt, title }: DocsImageProps,
+  { comp, type, path, alt, title }: DocsImageProps,
   helpers: Helpers,
 ) {
   return (
-    <ImageWrapper src={helpers.url(path)} alt={alt} title={title} type={type} />
+    <comp.ImageWrapper src={helpers.url(path)} alt={alt} title={title} type={type} />
   );
 }
 
-export function toMarkdown({ path, alt, title }: DocsImageProps): string {
+export function toMarkdown({ path, alt, title }: Omit<DocsImageProps, "comp">): string {
   return `![${alt || title || ""}](${path})\n\n`;
 }

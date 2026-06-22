@@ -62,7 +62,7 @@ function buildRefNavItems(
     )
     .map((d) => ({
       ...getNavDisplayName(d),
-      url: `/documentation/developer-reference${d.url}`, // d.url already includes section path
+      url: `/developer-reference${d.url}`, // d.url already includes section path
       gid: d.gid || "",
     }))
     .sort((a, b) =>
@@ -84,22 +84,21 @@ export function buildRefNav(
       id: "type.Configuration",
       heading: "Configuration File",
       icon: "settings",
-      basePath: "/documentation/developer-reference/configuration-file/",
+      basePath: "/developer-reference/configuration-file/",
       items: buildRefNavItems(configDocs, "type.Configuration"),
     },
     {
       id: "type.Routing",
       heading: "Routing File",
       icon: "route",
-      basePath: "/documentation/developer-reference/routing-file/",
+      basePath: "/developer-reference/routing-file/",
       items: buildRefNavItems(routingDocs, "type.Routing"),
     },
     {
       id: "type.InitialSiteSettings",
       heading: "Initial Site Settings File",
       icon: "tune",
-      basePath:
-        "/documentation/developer-reference/initial-site-settings-file/",
+      basePath: "/developer-reference/initial-site-settings-file/",
       items: buildRefNavItems(
         initialSiteSettingsDocs,
         "type.InitialSiteSettings",

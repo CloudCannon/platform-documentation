@@ -1,4 +1,4 @@
-import { slugify } from "../_components/utils/stringHelpers.ts";
+import { slugify } from "../_components/utils/string-util.ts";
 import { parseChangelogFilename } from "../parseChangelogFilename.ts";
 
 export const type = "changelog";

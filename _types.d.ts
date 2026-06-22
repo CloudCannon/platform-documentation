@@ -17,8 +17,8 @@ declare global {
       // Markdown helper (provided by Lume)
       md: (content: string, inline?: boolean) => string;
 
-      // Icon helpers (custom)
-      icon: (name: string, source: string) => string;
+      // Icon helper (provided by Lume icons plugin)
+      icon: (key: string, catalogId: string, rest?: string) => string;
 
       // String helpers (custom)
       unslug: (s: string) => string;
@@ -44,6 +44,8 @@ declare global {
 
 // Re-export Lume.Helpers as Helpers for convenience
 export type Helpers = Lume.Helpers;
+
+export type Comp = Lume.Data["comp"];
 
 // ============================================================================
 // COMMON PAGE & DOCUMENT TYPES

@@ -1,7 +1,7 @@
+import { Helpers } from "../../_types.d.ts";
+
 interface MobileTOCProps {
-  helpers: {
-    icon: (name: string, set: string) => string;
-  };
+  helpers: Helpers;
   children?: unknown;
   listClassName?: string;
 }

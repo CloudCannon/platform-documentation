@@ -9,11 +9,12 @@ import esbuild from "lume/plugins/esbuild.ts";
 import prism from "lume/plugins/prism.ts";
 import sitemap from "lume/plugins/sitemap.ts";
 import feed from "lume/plugins/feed.ts";
+import basePath from "lume/plugins/base_path.ts";
 
 import jsx from "lume/plugins/jsx.ts";
 import mdx from "lume/plugins/mdx.ts";
 
-import { slugify } from "./_components/utils/stringHelpers.ts";
+import { slugify } from "./_components/utils/string-util.ts";
 
 import { parse as yamlParse } from "@std/yaml";
 
@@ -91,10 +92,6 @@ const veapiDocs: DocEntry[] = Object.values(
   typedDocs[VEAPI_SECTION] ?? {},
 );
 
-// Build timing instrumentation
-const buildTimings: Record<string, number> = {};
-const phaseStarts: Record<string, number> = {};
-
 // Caches for expensive operations (persist across incremental builds)
 const renderTextOnlyCache = new Map<string, string>();
 const glossaryTermCache = new Map<string, string>();
@@ -111,14 +108,6 @@ function getRemarkProcessor() {
   return remarkProcessor;
 }
 
-function startPhase(name: string) {
-  phaseStarts[name] = performance.now();
-}
-
-function endPhase(name: string) {
-  buildTimings[name] = performance.now() - phaseStarts[name];
-}
-
 function stripHTML(html: string): string {
   const doc = new DOMParser().parseFromString(html, "text/html");
   return doc?.body?.textContent || "";
@@ -128,8 +117,10 @@ const domainsRegExp = new RegExp("cloudcannon.com|^\/|^\#");
 
 const site = lume({
   location: new URL("https://cloudcannon.com/documentation/"),
+  dest: "_site/documentation",
   server: {
     port: 9010,
+    root: "../",
   },
 });
 
@@ -141,81 +132,6 @@ const refNavSections = buildRefNav(
   veapiDocs,
 );
 site.data("ref_nav", refNavSections);
-
-// Track whether we're in an update cycle (vs initial build)
-let isUpdating = false;
-let updatePageCount = 0;
-
-// Build timing event listeners
-site.addEventListener("afterLoad", () => {
-  endPhase("load");
-  startPhase("render");
-  if (!isUpdating) {
-    console.log(`  Load files:    ${buildTimings.load.toFixed(0)}ms`);
-  }
-});
-
-site.addEventListener("afterRender", (event) => {
-  endPhase("render");
-  startPhase("process");
-  updatePageCount = event.pages.length;
-  if (!isUpdating) {
-    console.log(
-      `  Render pages:  ${
-        buildTimings.render.toFixed(0)
-      }ms (${event.pages.length} pages)`,
-    );
-  }
-});
-
-site.addEventListener("beforeSave", () => {
-  endPhase("process");
-  startPhase("save");
-  if (!isUpdating) {
-    console.log(`  Process HTML:  ${buildTimings.process.toFixed(0)}ms`);
-  }
-});
-
-site.addEventListener("afterBuild", (event) => {
-  endPhase("save");
-  endPhase("total");
-  console.log(`  Save files:    ${buildTimings.save.toFixed(0)}ms`);
-  console.log(`  ─────────────────────────`);
-  console.log(`  TOTAL:         ${buildTimings.total.toFixed(0)}ms`);
-  console.log(`  Pages built:   ${event.pages.length}`);
-  console.log(`  Static files:  ${event.staticFiles.length}`);
-  console.log("=== BUILD TIMING END ===\n");
-});
-
-// Incremental update timing (for watch mode)
-site.addEventListener("beforeUpdate", (event) => {
-  isUpdating = true;
-  startPhase("update");
-  startPhase("load");
-  console.log(`\n=== UPDATE START (${event.files.size} files changed) ===`);
-  for (const file of event.files) {
-    console.log(`  Changed: ${file}`);
-  }
-});
-
-site.addEventListener("afterUpdate", (event) => {
-  endPhase("save");
-  endPhase("update");
-  console.log(`  ─────────────────────────`);
-  console.log(`  Load files:    ${buildTimings.load.toFixed(0)}ms`);
-  console.log(
-    `  Render pages:  ${
-      buildTimings.render.toFixed(0)
-    }ms (${updatePageCount} pages)`,
-  );
-  console.log(`  Process HTML:  ${buildTimings.process.toFixed(0)}ms`);
-  console.log(`  Save files:    ${buildTimings.save.toFixed(0)}ms`);
-  console.log(`  ─────────────────────────`);
-  console.log(`  TOTAL:         ${buildTimings.update.toFixed(0)}ms`);
-  console.log(`  Pages rebuilt: ${event.pages.length}`);
-  console.log("=== UPDATE END ===\n");
-  isUpdating = false;
-});
 
 // Log the server URL when it starts (currently suppressed by LUME_LOGS=critical)
 site.addEventListener("afterStartServer", () => {
@@ -238,7 +154,21 @@ const injectedSections: Promise<string>[] = [];
 
 const mdFilter = site.renderer.helpers.get("md")?.[0];
 
-site.ignore("README.md", "AGENTS.md", "unused", "STYLE_GUIDE.mdx", "STYLE_GUIDE_AGENTS.md", "scripts", ".claude");
+site.ignore(
+  "README.md",
+  "AGENTS.md",
+  "unused",
+  "STYLE_GUIDE.mdx",
+  "STYLE_GUIDE_AGENTS.md",
+  "scripts",
+  ".claude",
+  "cloudcannon.config.yml",
+);
+
+// Hides "empty page" warning for each glossary item - used on combined list instead.
+site.ignore((path) =>
+  path.startsWith("/user/glossary/") && path.endsWith(".yml")
+);
 
 // Detect dev mode (serve command uses -s flag)
 const isDevMode = Deno.args.includes("-s") || Deno.args.includes("--serve");
@@ -259,21 +189,8 @@ if (isDevMode) {
   console.log("  Dev mode: Loading only recent changelogs (2024-2025)");
 }
 
-// Sets `/documentation/` through the url filter when running locally
-if (isDevMode) {
-  site.options.location = new URL("http://localhost:9010/documentation/");
-}
-
-// Output all files to `/documentation/*` to match the location
-// (by default `_site/index.html` would represent `https://cloudcannon.com/documentation/`,
-//  but to subpath it on CloudCannon we want this at `_site/documentation/index.html`)
-site.preprocess("*", (pages) =>
-  pages.forEach((page) => {
-    page.data.url = `/documentation${page.data.url}`;
-  }));
-
 // Creates an excerpt for all changelogs saved in description.
-site.preprocess([".md", ".mdx"], (pages) =>
+site.preprocess([".md", ".mdx"], function processExcerpt(pages) {
   pages.forEach((page) => {
     if (
       !page.data.description && page.src.path.startsWith("/changelogs/")
@@ -301,18 +218,19 @@ site.preprocess([".md", ".mdx"], (pages) =>
       changelogDescriptionCache.set(cacheKey, description);
       page.data.description = description;
     }
-  }));
+  });
+});
 
-site.copy("ye_olde_images", "documentation/ye_olde_images");
-site.copy("assets/external_screenshots", "documentation/assets/external_screenshots");
-site.copy("assets/onboarding_screenshots", "documentation/assets/onboarding_screenshots");
-site.copy("assets/diagrams", "documentation/assets/diagrams");
-site.copy("assets/deprecated", "documentation/assets/deprecated");
-site.copy("uploads", "documentation/static");
-site.copy("robots.txt", "documentation/robots.txt");
+site.copy("ye_olde_images");
+site.copy("assets/external_screenshots");
+site.copy("assets/onboarding_screenshots");
+site.copy("assets/diagrams");
+site.copy("assets/deprecated");
+site.copy("uploads", "static");
+site.copy("robots.txt");
 
 if (Deno.env.get("DOCSHOTS_LOCAL")) {
-  site.copy("local-docshots", "documentation/local-docshots");
+  site.copy("local-docshots");
 }
 
 // Temporary trick to disable indented code blocks if we happen to use markdown-it
@@ -322,7 +240,7 @@ if (Deno.env.get("DOCSHOTS_LOCAL")) {
 // Pagefind search indexing - runs automatically after each build
 // Uses local plugin (_plugins/pagefind.ts) with pagefind v1.5.0
 site.use(pagefind({
-  outputPath: "/documentation/_pagefind",
+  outputPath: "/_pagefind", // Match templates, routing.json and postbuild
   ui: false, // Disable old PagefindUI
   componentUI: true, // Enable new Component UI (v1.5+)
 }));
@@ -330,18 +248,20 @@ site.use(pagefind({
 site.use(jsx());
 site.use(mdx());
 site.use(esbuild());
-site.add("/assets/js/site.js", "/documentation/assets/js/site.js");
 site.use(sass());
-site.add("/assets/css/site.scss", "/documentation/assets/css/site.css");
+site.add("/assets/js/site.js");
+site.add("/assets/css/site.scss");
 
-site.add("/assets/img", "/documentation/assets/img");
+// Append the /documentation/ prefix to all links
+site.use(basePath());
+
+site.add("/assets/img");
 // Uploads are copied via site.copy() above - don't also add them here
 // site.add("/uploads");
 
 site.use(date());
 site.use(sitemap({
-  filename: "/documentation/sitemap.xml",
-  query: "!url^=/documentation/404/",
+  query: "!url^=/404/",
 }));
 
 site.use(markdownPages());
@@ -349,7 +269,7 @@ site.use(llmsTxt());
 
 // Changelog RSS feed - uses changelogs tag (year pages use changelog-year tag instead)
 site.use(feed({
-  output: ["/documentation/changelog/feed.xml"],
+  output: ["/changelog/feed.xml"],
   query: "changelogs",
   sort: "date=desc",
   limit: 20,
@@ -372,38 +292,6 @@ site.preprocess([".md"], (pages) => {
     }
   }
 });
-
-// JSX doesn't like to output some alpine attributes,
-// so we write them with an `alpine` prefix and re-map them here.
-const alpineRemaps = {
-  "alpine:class": ":class",
-  "alpine:click": "@click",
-  "alpine:href": ":href",
-  "alpine:src": ":src",
-  "alpine:style": ":style",
-  "alpine:key": ":key",
-  "alpine-click-stop": "@click.stop",
-  "alpine-click-away": "@click.away",
-  "alpine-click-outside": "@click.outside",
-  "alpine:checked": ":checked",
-  "alpine:scroll": "x-on:scroll.window.throttle.50ms",
-  "alpine-scroll-window": "@scroll.window",
-  "alpine-resize-window": "@resize.window",
-  "alpine-keydown-down": "@keydown.down",
-  "alpine-keydown-up": "@keydown.up",
-  "alpine-keydown-down-prevent": "@keydown.down.prevent",
-  "alpine-keydown-up-prevent": "@keydown.up.prevent",
-  "alpine-keydown-escape": "@keydown.escape",
-  "alpine-keydown-window-prevent-ctrl-k": "@keydown.window.prevent.ctrl.k",
-  "alpine-keydown-window-prevent-cmd-k": "@keydown.window.prevent.cmd.k",
-  "x-trap-inert": "x-trap.inert",
-  "x-trap-noscroll": "x-trap.noscroll",
-  "x-on-toggle": "x-on:toggle",
-  "x-on-click": "x-on:click",
-  "x-on-keydown": "x-on:keydown",
-  "x-on-mouseenter": "x-on:mouseenter",
-  "x-on-mouseleave": "x-on:mouseleave",
-};
 
 function createLink(page: Lume.Page, text: string, href: string) {
   const a = page.document!.createElement("a");
@@ -550,25 +438,24 @@ const annotateCodeBlocks = (page: Lume.Page): void => {
   );
 };
 
-const injectReusableContent = async (el: Element) => {
-  const reusableContent = el.querySelectorAll(
+const injectReusableContent = async (el: HTMLElement) => {
+  const reusableContent = el.querySelectorAll<HTMLElement>(
     `:scope [data-common-content-id]`,
   );
 
-  for (const node of reusableContent) {
-    const injectionEl = node as Element;
+  for (const injectionEl of reusableContent) {
     const injectionSlots: Record<string, string> = {};
     for (
-      const slotContentEl of injectionEl.querySelectorAll(
+      const slotContentEl of injectionEl.querySelectorAll<HTMLElement>(
         `:scope [data-common-content-slot-content]`,
       )
     ) {
-      const slotName = (slotContentEl as Element).getAttribute(
+      const slotName = slotContentEl.getAttribute(
         "data-common-content-slot-content",
       );
       if (!slotName) continue;
 
-      injectionSlots[slotName] = (slotContentEl as Element).innerHTML;
+      injectionSlots[slotName] = slotContentEl.innerHTML;
     }
 
     const content_id = parseInt(
@@ -582,57 +469,31 @@ const injectReusableContent = async (el: Element) => {
         `:scope [data-common-content-slot]`,
       )
     ) {
-      const slotName = (slotEl as Element).getAttribute(
+      const slotName = slotEl.getAttribute(
         "data-common-content-slot",
       );
       if (!slotName) continue;
 
       if (injectionSlots[slotName]) {
-        (slotEl as Element).innerHTML = injectionSlots[slotName];
+        slotEl.innerHTML = injectionSlots[slotName];
       }
     }
 
-    injectReusableContent(injectionEl);
+    await injectReusableContent(injectionEl);
   }
 };
 
-site.process([".html"], async (pages) => {
-  await Promise.all(pages.map(async (page) => {
-    if (page.document) {
-      await injectReusableContent(page.document.body as unknown as Element);
-    }
+site.process([".html"], async function processInjectReusableContent(pages) {
+  await Promise.all(
+    pages.map((page) => injectReusableContent(page.document.body)),
+  );
+});
 
-    // Helper function to remap Alpine attributes
-    // deno-lint-ignore no-explicit-any
-    function remapAlpineAttrs(root: any): void {
-      for (const [attr, newattr] of Object.entries(alpineRemaps)) {
-        root?.querySelectorAll(`[${attr}]`).forEach(
-          (
-            el: {
-              setAttribute: (a: string, b: string) => void;
-              getAttribute: (a: string) => string | null;
-              removeAttribute: (a: string) => void;
-            },
-          ) => {
-            el.setAttribute(newattr, el.getAttribute(attr) || "");
-            el.removeAttribute(attr);
-          },
-        );
-      }
-      // Also process elements inside <template> tags
-      // deno-lint-ignore no-explicit-any
-      root?.querySelectorAll("template").forEach((template: any) => {
-        if (template.content) {
-          remapAlpineAttrs(template.content);
-        }
-      });
-    }
-
-    remapAlpineAttrs(page.document);
-
+site.process([".html"], function processHTMLPages(pages) {
+  for (const page of pages) {
     const collisions: Record<string, boolean> = {};
 
-    function fixIdCollisions(slugPrefix: string): string {
+    const fixIdCollisions = (slugPrefix: string): string => {
       let slug = slugPrefix;
       let count = 0;
       while (collisions[slug]) {
@@ -642,20 +503,20 @@ site.process([".html"], async (pages) => {
 
       collisions[slug] = true;
       return slug;
-    }
+    };
 
-    let tocContainer = page.document?.querySelectorAll(`.l-toc`)?.[0];
-    const toc = page.document.createElement("ol");
-    toc.classList.add("l-toc__list");
-    // deno-lint-ignore no-explicit-any
-    function appendAnchorHeader(el: any, slug: string): void {
+    const appendAnchorHeader = (el: HTMLElement, slug: string): void => {
       el.setAttribute("id", slug);
       el.classList.add("c-anchor-header");
       const link = createLink(page, "#", `#${slug}`);
       link.classList.add("c-anchor-header__link");
       link.setAttribute("data-pagefind-ignore", "true");
       el.appendChild(link);
-    }
+    };
+
+    let tocContainer = page.document?.querySelectorAll(`.l-toc`)?.[0];
+    const toc = page.document.createElement("ol");
+    toc.classList.add("l-toc__list");
 
     let hasItems = false;
     let selector =
@@ -677,13 +538,13 @@ site.process([".html"], async (pages) => {
     }
 
     if (!tocContainer) {
-      return;
+      continue;
     }
 
-    page.document?.querySelectorAll(selector).forEach((el) => {
+    page.document.querySelectorAll<HTMLElement>(selector).forEach((el) => {
       if (el.hasAttribute("data-skip-anchor")) return;
 
-      const text = (el as HTMLElement).innerText || el.textContent || "";
+      const text = el.innerText || el.textContent || "";
       const slugPrefix = el.getAttribute("id") || slugify(text);
       if (!slugPrefix) {
         return;
@@ -704,16 +565,15 @@ site.process([".html"], async (pages) => {
       }
     });
 
-    page.document?.querySelectorAll(`.c-data-reference__header`).forEach(
-      (el) => {
-        const keyEl = el.querySelector(".c-data-reference__key") as
-          | HTMLElement
-          | null;
-        const text = keyEl?.innerText || keyEl?.textContent || "";
-        const slug = fixIdCollisions(text);
-        appendAnchorHeader(el, slug);
-      },
-    );
+    page.document.querySelectorAll<HTMLElement>(`.c-data-reference__header`)
+      .forEach(
+        (el) => {
+          const keyEl = el.querySelector<HTMLElement>(".c-data-reference__key");
+          const text = keyEl?.innerText || keyEl?.textContent || "";
+          const slug = fixIdCollisions(text);
+          appendAnchorHeader(el, slug);
+        },
+      );
 
     if (hasItems) {
       const h3 = page.document.createElement("h3");
@@ -737,7 +597,7 @@ site.process([".html"], async (pages) => {
         mobile_toc.closest(".l-toc-mobile")?.remove();
       }
     }
-  }));
+  }
 });
 
 // These MUST appear after our custom site.process([".html"] handling,
@@ -750,10 +610,8 @@ site.use(prism());
 
 // This annotation process relies on the syntax highlighting,
 // so needs to run after prism
-site.process([".html"], async (pages) => {
-  await Promise.all(pages.map((page) => {
-    annotateCodeBlocks(page);
-  }));
+site.process([".html"], function processAnnotateCodeBlocks(pages) {
+  pages.map(annotateCodeBlocks);
 });
 
 site.filter(
@@ -940,11 +798,10 @@ site.filter("get_glossary_term", (file: string) => {
     return cached;
   }
 
-  const mdFilterFn = site.renderer.helpers.get("md")?.[0];
   const file_content = Deno.readTextFileSync(`${file.slice(1)}`);
   // deno-lint-ignore no-explicit-any
   const yml = yamlParse(file_content) as any;
-  const description = mdFilterFn?.(yml?.term_description) || "";
+  const description = mdFilter?.(yml?.term_description) || "";
   glossaryTermCache.set(file, description);
   return description;
 });
@@ -964,7 +821,7 @@ site.filter("get_glossary_term_name", (file: string) => {
 });
 
 site.filter("get_index_page", (page: string) => {
-  page = page.replace("/documentation", "").split("/")[1];
+  page = page.split("/")[1];
   if (page.indexOf("-") != -1) {
     try {
       const page_parts = page.split("-");
@@ -974,7 +831,7 @@ site.filter("get_index_page", (page: string) => {
       const { attrs } = extract(file_content);
       return {
         attrs: attrs as Record<string, unknown>,
-        url: `/documentation/${page_parts[0]}-${page_parts[1]}/`,
+        url: `/${page_parts[0]}-${page_parts[1]}/`,
       };
     } catch (_e) {
       //console.log(e);
@@ -991,9 +848,6 @@ let changelogsData: { keys: string[]; [year: string]: number | string[] } = {
 };
 
 site.addEventListener("beforeBuild", async () => {
-  startPhase("total");
-  startPhase("load");
-  console.log("\n=== BUILD TIMING START ===");
   const dir = "changelogs";
   const years: { keys: string[]; [year: string]: number | string[] } = {
     keys: [],

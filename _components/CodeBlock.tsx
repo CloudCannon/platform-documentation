@@ -1,8 +1,7 @@
 import yaml from "js-yaml";
 import TOML from "@iarna/toml";
-import CodeBlockCopyButton from "./CodeBlockCopyButton.tsx";
-import CodeTabs, { getLanguageLabel } from "./CodeTabs.tsx";
-import CodeTab from "./CodeTab.tsx";
+import { getLanguageLabel } from "./utils/code-util.ts";
+import type { Comp } from "../_types.d.ts";
 
 const sentinalBread = "🥖";
 const sentinalSandwich = (key: string) => {
@@ -153,10 +152,11 @@ interface CodeBlockProps {
   translate_into?: string[];
   source?: string;
   children: unknown;
+  comp: Comp;
 }
 
 export function toMarkdown(
-  { language = "plaintext", source }: CodeBlockProps,
+  { language = "plaintext", source }: Omit<CodeBlockProps, 'comp'>,
   childrenMd: string,
 ): string {
   const header = source ? `File: \`${source}\`\n\n` : "";
@@ -171,7 +171,7 @@ export function toMarkdown(
 }
 
 export default function CodeBlock(
-  { language = "plaintext", translate_into = [], source, children }:
+  { comp, language = "plaintext", translate_into = [], source, children }:
     CodeBlockProps,
 ) {
   const code_block: unknown = Array.isArray(children) ? children[0] : children;
@@ -249,7 +249,7 @@ export default function CodeBlock(
                 {getLanguageLabel(block.lang)}
               </span>
             </div>
-            <CodeBlockCopyButton codeEncoded={block.codeEncoded} />
+            <comp.CodeBlockCopyButton codeEncoded={block.codeEncoded} />
           </div>
           <div className="c-code-block__code">
             <figure className="highlight">
@@ -272,16 +272,16 @@ export default function CodeBlock(
   // Multiple code blocks - use CodeTabs component
   return (
     <div x-data="{ highlighedAnnotation: null }">
-      <CodeTabs>
+      <comp.CodeTabs>
         {codeBlocks.map((block) => (
-          <CodeTab
+          <comp.CodeTab
             language={block.lang}
             source={block.source}
             code={block.code}
             codeEncoded={block.codeEncoded}
           />
         ))}
-      </CodeTabs>
+      </comp.CodeTabs>
       {annotations}
     </div>
   );

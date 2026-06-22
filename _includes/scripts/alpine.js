@@ -431,7 +431,7 @@ Alpine.magic("themeManager", () => ({
     this.effectiveTheme = getEffectiveTheme(preference);
     localStorage.setItem("cc_darkMode", preference);
     // Close the popover
-    document.getElementById("theme-dropdown")?.hidePopover();
+    document.querySelector(".theme-dropdown:popover-open")?.hidePopover();
   },
 }));
 

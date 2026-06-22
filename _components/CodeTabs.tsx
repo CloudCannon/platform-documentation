@@ -1,29 +1,5 @@
-import CodeBlockCopyButton from "./CodeBlockCopyButton.tsx";
-
-const tabNames: Record<string, string> = {
-  javascript: "JavaScript",
-  typescript: "TypeScript",
-  json: "JSON",
-  yaml: "YAML",
-  yml: "YAML",
-  toml: "TOML",
-  html: "HTML",
-  css: "CSS",
-  scss: "SCSS",
-  shell: "Shell",
-  bash: "Bash",
-  markdown: "Markdown",
-  ruby: "Ruby",
-  python: "Python",
-  go: "Go",
-  jsx: "JSX",
-  liquid: "Liquid",
-  plaintext: "Text",
-};
-
-function getLanguageLabel(lang: string): string {
-  return tabNames[lang.toLowerCase()] || lang.toUpperCase();
-}
+import { getLanguageLabel } from "./utils/code-util.ts";
+import type { Comp } from "../_types.d.ts";
 
 interface CodeTabChild {
   props?: {
@@ -36,6 +12,7 @@ interface CodeTabChild {
 
 interface CodeTabsProps {
   children: CodeTabChild | CodeTabChild[];
+  comp: Comp;
 }
 
 // Generate a unique ID for each CodeTabs instance
@@ -44,7 +21,7 @@ function generateUniqueId(): string {
   return `ct-${++codeTabsCounter}`;
 }
 
-export default function CodeTabs({ children }: CodeTabsProps) {
+export default function CodeTabs({ comp, children }: CodeTabsProps) {
   const uniqueId = generateUniqueId();
   const childrenArray = Array.isArray(children) ? children : [children];
 
@@ -58,17 +35,17 @@ export default function CodeTabs({ children }: CodeTabsProps) {
   const defaultTab = tabs[0]?.language ?? "plaintext";
 
   // Build source and encoded maps for Alpine.js
-  const sourcesMap = tabs.reduce((acc, tab) => {
+  const sourcesMap = tabs.reduce((acc: Record<string, string>, tab) => {
     acc[tab.language] = tab.source;
     return acc;
-  }, {} as Record<string, string>);
+  }, {});
 
-  const encodedMap = tabs.reduce((acc, tab) => {
+  const encodedMap = tabs.reduce((acc: Record<string, string>, tab) => {
     if (tab.codeEncoded) {
       acc[tab.language] = tab.codeEncoded;
     }
     return acc;
-  }, {} as Record<string, string>);
+  }, {});
 
   const hasEncodedContent = Object.keys(encodedMap).length > 0;
   const hasSource = tabs.some((tab) => tab.source);
@@ -112,8 +89,8 @@ export default function CodeTabs({ children }: CodeTabsProps) {
       aria-controls={`${uniqueId}-panel-${tab.language}`}
       x-bind:aria-selected={`selectedTab === '${tab.language}' ? 'true' : 'false'`}
       x-bind:tabindex={`selectedTab === '${tab.language}' ? '0' : '-1'`}
-      x-on-click={`selectedTab = '${tab.language}'`}
-      x-on-keydown={tabButtonKeyboardHandler}
+      x-on:click={`selectedTab = '${tab.language}'`}
+      x-on:keydown={tabButtonKeyboardHandler}
       key={tab.language}
     >
       {getLanguageLabel(tab.language)}
@@ -139,12 +116,12 @@ export default function CodeTabs({ children }: CodeTabsProps) {
           {tabButtons}
         </div>
         {hasEncodedContent
-          ? <CodeBlockCopyButton codeEncoded={tabs[0].codeEncoded} />
+          ? <comp.CodeBlockCopyButton codeEncoded={tabs[0].codeEncoded} />
           : (
             <div className="c-code-block__copy" data-pagefind-ignore>
               <button
                 type="button"
-                x-on-click={copyFromDomHandler}
+                x-on:click={copyFromDomHandler}
                 className="c-code-block__copy__button"
                 title="Copy to clipboard"
               >
@@ -182,9 +159,6 @@ export default function CodeTabs({ children }: CodeTabsProps) {
   );
 }
 
-export function toMarkdown(_props: CodeTabsProps, childrenMd: string): string {
+export function toMarkdown(_props: Omit<CodeTabsProps, 'comp'>, childrenMd: string): string {
   return childrenMd;
 }
-
-// Re-export the language label function for use by CodeBlock
-export { getLanguageLabel };

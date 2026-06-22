@@ -1,13 +1,5 @@
+import { nodesToText, type TreeNode } from "./utils/tree-util.ts";
 import type { Helpers } from "../_types.d.ts";
-
-export interface TreeNode {
-  label: string;
-  useCode?: boolean;
-  href?: string;
-  isFolder?: boolean;
-  children?: TreeNode[];
-  annotation?: string; // e.g., "1", "2", "*" for #1, #2, #*
-}
 
 // "folder" = folder/file icons, "key" = code/data_object icons for JSON keys
 export type IconMode = "folder" | "key";
@@ -31,23 +23,6 @@ interface TreeBranchProps {
 let treeIdCounter = 0;
 function getTreeId() {
   return `tree-${++treeIdCounter}`;
-}
-
-// Convert nodes to ASCII text for screen readers
-function nodesToText(nodes: TreeNode[], prefix = ""): string {
-  return nodes
-    .map((node, i) => {
-      const isLast = i === nodes.length - 1;
-      const connector = isLast ? "└── " : "├── ";
-      const childPrefix = prefix + (isLast ? "    " : "│   ");
-
-      let line = prefix + connector + node.label;
-      if (node.children?.length) {
-        line += "\n" + nodesToText(node.children, childPrefix);
-      }
-      return line;
-    })
-    .join("\n");
 }
 
 function AnnotationMarker({ annotation }: { annotation?: string }) {
@@ -179,5 +154,3 @@ export function toMarkdown(
 ): string {
   return `\`\`\`\n${nodesToText(nodes)}\n\`\`\`\n\n`;
 }
-
-export { nodesToText };

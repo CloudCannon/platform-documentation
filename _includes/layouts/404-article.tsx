@@ -1,7 +1,9 @@
-import DocNav from "../../_components/Nav/DocNav.tsx";
-import NavSidebar from "../../_components/Layout/NavSidebar.tsx";
-import NotFoundContent from "../../_components/Layout/NotFoundContent.tsx";
-import type { ContentNavigation, Helpers, PageSearch } from "../../_types.d.ts";
+import type {
+  Comp,
+  ContentNavigation,
+  Helpers,
+  PageSearch,
+} from "../../_types.d.ts";
 
 interface Props {
   navigation?: Record<string, ContentNavigation>;
@@ -13,18 +15,26 @@ interface Props {
   };
   search?: PageSearch;
   nav_key?: string;
+  comp: Comp;
 }
 
 export default function NotFoundArticleLayout(props: Props, helpers: Helpers) {
-  const { navigation, url, page, search, nav_key = "developer-articles" } = props;
+  const {
+    comp,
+    navigation,
+    url,
+    page,
+    search,
+    nav_key = "developer-articles",
+  } = props;
   const navData = navigation?.[nav_key];
 
   return (
     <div className="l-page">
       <div className="l-column">
-        <NavSidebar>
+        <comp.Layout.NavSidebar>
           {navData && search && (
-            <DocNav
+            <comp.Nav.DocNav
               navigation={navData}
               url={url}
               page={page}
@@ -34,10 +44,10 @@ export default function NotFoundArticleLayout(props: Props, helpers: Helpers) {
               bubbleUpNav={helpers.bubble_up_nav}
             />
           )}
-        </NavSidebar>
+        </comp.Layout.NavSidebar>
         <div className="u-card-box l-content">
           <main id="main-content" style="margin: 0 auto;">
-            <NotFoundContent />
+            <comp.Layout.NotFoundContent />
           </main>
         </div>
       </div>

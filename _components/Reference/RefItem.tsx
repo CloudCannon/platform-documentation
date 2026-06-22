@@ -7,16 +7,15 @@ import {
   resolveRef,
   type SectionId,
 } from "./helpers.ts";
-import RefType from "./RefType.tsx";
-import MultiCodeBlock from "../MultiCodeBlock.tsx";
-import Annotation from "../Annotation.tsx";
-import type { DocEntry, Helpers } from "../../_types.d.ts";
+import type { Comp, DocEntry, Helpers } from "../../_types.d.ts";
 
 const MAX_ENUM_VALUES = 10;
 
-function appearsIn({ entry, section }: RefSummaryProps) {
-  let gids = (entry.parent ? [entry.parent] : []).concat(
-    entry.appears_in || [],
+function appearsIn(
+  { doc, section }: { doc: DocEntry; section: SectionId },
+): JSX.Component | undefined {
+  let gids = (doc.parent ? [doc.parent] : []).concat(
+    doc.appears_in || [],
   ).filter((gid) => gid !== section);
 
   // The Visual Editor API cross-lists shared methods (e.g. addEventListener)
@@ -78,133 +77,15 @@ function appearsIn({ entry, section }: RefSummaryProps) {
     return isLast ? [item] : [item, ", "];
   });
 
-  return (items.length > 0 && (
-    <p data-pagefind-ignore>
-      <em>
-        {section === "type.VisualEditorAPI" ? "Available on:" : "Appears in:"}
-      </em> {items}.
-    </p>
-  ));
-}
-
-interface RefSummaryProps {
-  entry: DocEntry;
-  section: SectionId;
-  helpers?: Helpers;
-  hideAppearsIn?: boolean;
-}
-
-function RefSummary(
-  { entry, helpers, section, hideAppearsIn }: RefSummaryProps,
-) {
-  const examples = entry.documentation?.examples || [];
-  const examplesWithCode = examples.filter((example) => example.code);
-  const enumValues = entry.enum || [];
-  const displayEnumCount = Math.min(enumValues.length, MAX_ENUM_VALUES);
-  const enumMore = enumValues.length - displayEnumCount;
-
-  return (
-    <div class="c-data-reference__description">
-      {entry.description && (
-        helpers
-          ? <div dangerouslySetInnerHTML={{ __html: helpers.md(entry.description) }} />
-          : <div>{entry.description}</div>
-      )}
-
-      {section === "type.VisualEditorAPI" &&
-        entry.type !== "object" &&
-        entry.properties &&
-        Object.keys(entry.properties).length > 0 && (
-        <>
-          <p data-pagefind-ignore><em>Parameters:</em></p>
-          <ul class="c-data-reference__params">
-            {Object.entries(entry.properties).map(([key, ref]) => {
-              const param = resolveRef(ref, section);
-              if (!param) return null;
-              const descHtml = helpers && param.description
-                ? helpers.md(param.description)
-                  .replace(/^\s*<p>/, "").replace(/<\/p>\s*$/, "").trim()
-                : null;
-              return (
-                <li key={key}>
-                  <code class="code-no-box">{getShortKey(key)}</code>{" "}
-                  <RefType doc={param} section={section} />
-                  {param.description && (
-                    <>
-                      {" — "}
-                      {descHtml !== null
-                        ? <span dangerouslySetInnerHTML={{ __html: descHtml }} />
-                        : param.description}
-                    </>
-                  )}
-                </li>
-              );
-            })}
-          </ul>
-        </>
-      )}
-
-      {entry.default !== undefined && (
-        <p>
-          <em>Defaults to:</em> <code>{String(entry.default)}</code>
-        </p>
-      )}
-
-      {displayEnumCount > 0 && (
-        <p>
-          <em>Allowed values:</em>{" "}
-          {enumValues.slice(0, displayEnumCount).map((val, i) => (
-            <span key={i}>
-              {i > 0 && " "}
-              <code>{val}</code>
-            </span>
-          ))}
-          {enumMore > 0 && ` and ${enumMore} more.`}
-        </p>
-      )}
-
-      {!hideAppearsIn && appearsIn({ entry, section })}
-
-      {examplesWithCode.length > 0 && (
-        <details className="c-example">
-          <summary data-pagefind-ignore>
-            <span class="__open">Show examples</span>
-            <span class="__close">Hide examples</span>
-          </summary>
-          {examplesWithCode.map((example, i) => (
-            <div key={i}>
-              {example.description && (
-                helpers
-                  ? <div dangerouslySetInnerHTML={{ __html: helpers.md(example.description) }} />
-                  : <div>{example.description}</div>
-              )}
-              <MultiCodeBlock
-                language={example.language || "yaml"}
-                source={example.source || "cloudcannon.config.yml"}
-                translate_into={(!example.language ||
-                    example.language === "yaml")
-                  ? ["json"]
-                  : []}
-              >
-                <pre><code className={`language-${example.language || 'yaml'}`}>
-                                  {example.code}
-                              </code></pre>
-                {helpers &&
-                  example.annotations?.map((annotation, j) => (
-                    <Annotation
-                      key={j}
-                      number={annotation.number || 0}
-                      contentHtml={helpers.md(annotation.content || "")}
-                    >
-                    </Annotation>
-                  ))}
-              </MultiCodeBlock>
-            </div>
-          ))}
-        </details>
-      )}
-    </div>
-  );
+  if (items.length !== 0) {
+    return (
+      <p data-pagefind-ignore>
+        <em>
+          {section === "type.VisualEditorAPI" ? "Available on:" : "Appears in:"}
+        </em> {items}.
+      </p>
+    );
+  }
 }
 
 interface RefItemProps {
@@ -215,10 +96,12 @@ interface RefItemProps {
   keyOverride?: string;
   hideAppearsIn?: boolean;
   helpers?: Helpers;
+  comp: Comp;
 }
 
 export default function RefItem(
   {
+    comp,
     docRef,
     currentUrl,
     section,
@@ -240,6 +123,12 @@ export default function RefItem(
     ? <code class="code-no-box">{key}</code>
     : displayName;
 
+  const examples = doc.documentation?.examples || [];
+  const examplesWithCode = examples.filter((example) => example.code);
+  const enumValues = doc.enum || [];
+  const displayEnumCount = Math.min(enumValues.length, MAX_ENUM_VALUES);
+  const enumMore = enumValues.length - displayEnumCount;
+
   return (
     <>
       <div class="c-data-reference__header c-anchor-header">
@@ -248,16 +137,128 @@ export default function RefItem(
             {url ? <a href={url}>{label}</a> : label}
           </strong>
         </span>
-        <RefType doc={doc} currentUrl={currentUrl} section={section} />
+        <comp.Reference.RefType
+          doc={doc}
+          currentUrl={currentUrl}
+          section={section}
+        />
       </div>
-      <RefSummary
-        entry={doc}
-        helpers={helpers}
-        section={section}
-        hideAppearsIn={hideAppearsIn}
-      />
+      <div class="c-data-reference__description">
+        {doc.description && (
+          helpers
+            ? (
+              <div
+                dangerouslySetInnerHTML={{
+                  __html: helpers.md(doc.description),
+                }}
+              />
+            )
+            : <div>{doc.description}</div>
+        )}
+
+        {section === "type.VisualEditorAPI" &&
+          doc.type !== "object" &&
+          doc.properties &&
+          Object.keys(doc.properties).length > 0 && (
+          <>
+            <p data-pagefind-ignore><em>Parameters:</em></p>
+            <ul class="c-data-reference__params">
+              {Object.entries(doc.properties).map(([key, ref]) => {
+                const param = resolveRef(ref, section);
+                if (!param) return null;
+                const descHtml = helpers && param.description
+                  ? helpers.md(param.description)
+                    .replace(/^\s*<p>/, "").replace(/<\/p>\s*$/, "").trim()
+                  : null;
+                return (
+                  <li key={key}>
+                    <code class="code-no-box">{getShortKey(key)}</code>{" "}
+                    <comp.Reference.RefType doc={param} section={section} />
+                    {param.description && (
+                      <>
+                        {" — "}
+                        {descHtml !== null
+                          ? (
+                            <span
+                              dangerouslySetInnerHTML={{ __html: descHtml }}
+                            />
+                          )
+                          : param.description}
+                      </>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          </>
+        )}
+
+        {doc.default !== undefined && (
+          <p>
+            <em>Defaults to:</em> <code>{String(doc.default)}</code>
+          </p>
+        )}
+
+        {displayEnumCount > 0 && (
+          <p>
+            <em>Allowed values:</em>{" "}
+            {enumValues.slice(0, displayEnumCount).map((val, i) => (
+              <span key={i}>
+                {i > 0 && " "}
+                <code>{val}</code>
+              </span>
+            ))}
+            {enumMore > 0 && ` and ${enumMore} more.`}
+          </p>
+        )}
+
+        {!hideAppearsIn && appearsIn({ doc, section })}
+
+        {examplesWithCode.length > 0 && (
+          <details className="c-example">
+            <summary data-pagefind-ignore>
+              <span class="__open">Show examples</span>
+              <span class="__close">Hide examples</span>
+            </summary>
+            {examplesWithCode.map((example, i) => (
+              <div key={i}>
+                {example.description && (
+                  helpers
+                    ? (
+                      <div
+                        dangerouslySetInnerHTML={{
+                          __html: helpers.md(example.description),
+                        }}
+                      />
+                    )
+                    : <div>{example.description}</div>
+                )}
+                <comp.MultiCodeBlock
+                  language={example.language || "yaml"}
+                  source={example.source || "cloudcannon.config.yml"}
+                  translate_into={(!example.language ||
+                      example.language === "yaml")
+                    ? ["json"]
+                    : []}
+                >
+                  <pre><code className={`language-${example.language || 'yaml'}`}>
+                                  {example.code}
+                              </code></pre>
+                  {helpers &&
+                    example.annotations?.map((annotation, j) => (
+                      <comp.Annotation
+                        key={j}
+                        number={annotation.number || 0}
+                        contentHtml={helpers.md(annotation.content || "")}
+                      >
+                      </comp.Annotation>
+                    ))}
+                </comp.MultiCodeBlock>
+              </div>
+            ))}
+          </details>
+        )}
+      </div>
     </>
   );
 }
-
-export { RefSummary };

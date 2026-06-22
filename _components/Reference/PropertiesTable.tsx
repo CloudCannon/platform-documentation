@@ -4,8 +4,7 @@ import {
   resolveRef,
   type SectionId,
 } from "./helpers.ts";
-import RefItem from "./RefItem.tsx";
-import type { DocEntry, Helpers } from "../../_types.d.ts";
+import type { Comp, DocEntry, Helpers } from "../../_types.d.ts";
 
 interface PropertiesTableProps {
   entry: DocEntry;
@@ -14,10 +13,11 @@ interface PropertiesTableProps {
   helpers?: Helpers;
   withIds?: boolean;
   slugify?: (str: string) => string;
+  comp: Comp;
 }
 
 function ObjectProperties(
-  { entry, currentUrl, section, helpers, withIds, slugify }:
+  { comp, entry, currentUrl, section, helpers, withIds, slugify }:
     PropertiesTableProps,
 ) {
   // The Visual Editor API reference follows declaration order from the source
@@ -53,7 +53,7 @@ function ObjectProperties(
                   ? `prop-${slugify(getShortKey(key))}`
                   : undefined}
               >
-                <RefItem
+                <comp.Reference.RefItem
                   docRef={ref}
                   currentUrl={currentUrl}
                   section={section}
@@ -82,7 +82,7 @@ function ObjectProperties(
                     ? `addvalue-${slugify(label)}`
                     : undefined}
                 >
-                  <RefItem
+                  <comp.Reference.RefItem
                     docRef={ref}
                     currentUrl={currentUrl}
                     section={section}
@@ -115,7 +115,7 @@ function ObjectProperties(
                     ? `addprop-${slugify(label)}`
                     : undefined}
                 >
-                  <RefItem
+                  <comp.Reference.RefItem
                     docRef={ref}
                     currentUrl={currentUrl}
                     section={section}
@@ -136,7 +136,7 @@ function ObjectProperties(
 }
 
 function ArrayItems(
-  { entry, currentUrl, section, helpers, withIds, slugify }:
+  { comp, entry, currentUrl, section, helpers, withIds, slugify }:
     PropertiesTableProps,
 ) {
   const items = entry.items || [];
@@ -155,7 +155,7 @@ function ArrayItems(
               key={resolved?.gid || i}
               id={withIds && slugify ? `item-${slugify(label)}` : undefined}
             >
-              <RefItem
+              <comp.Reference.RefItem
                 docRef={ref}
                 currentUrl={currentUrl}
                 section={section}
@@ -180,7 +180,7 @@ function ArrayItems(
 }
 
 function AnyOfTypes(
-  { entry, currentUrl, section, helpers, withIds, slugify }:
+  { comp, entry, currentUrl, section, helpers, withIds, slugify }:
     PropertiesTableProps,
 ) {
   const anyOf = entry.anyOf || [];
@@ -199,7 +199,7 @@ function AnyOfTypes(
               key={resolved?.gid || i}
               id={withIds && slugify ? `type-${slugify(label)}` : undefined}
             >
-              <RefItem
+              <comp.Reference.RefItem
                 docRef={ref}
                 currentUrl={currentUrl}
                 section={section}
@@ -216,12 +216,12 @@ function AnyOfTypes(
 }
 
 export default function PropertiesTable(
-  { entry, currentUrl, section, helpers, withIds = false, slugify }:
+  { comp, entry, currentUrl, section, helpers, withIds = false, slugify }:
     PropertiesTableProps,
 ) {
   if (!entry) return null;
 
-  const props = { entry, currentUrl, section, helpers, withIds, slugify };
+  const props = { comp, entry, currentUrl, section, helpers, withIds, slugify };
   const hasProperties = entry.properties &&
     Object.keys(entry.properties).length > 0;
 
@@ -241,5 +241,3 @@ export default function PropertiesTable(
 
   return null;
 }
-
-export { AnyOfTypes, ArrayItems, ObjectProperties };
