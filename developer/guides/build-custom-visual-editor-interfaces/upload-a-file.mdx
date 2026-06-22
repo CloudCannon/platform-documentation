@@ -1,0 +1,109 @@
+---
+_schema: default
+_uuid: d68146ee-f2a7-4c56-a1fa-ec05e69dab66
+_created_at: '2026-03-12 02:49:17 +0000'
+details:
+  title: Upload a file
+  order: 5
+  image: >-
+    https://cc-dam.imgix.net/documentation/images/guides/getting-started/guide-thumbnails/CloudCannon-Getting-Started-Thumbnail-Universal.png
+  description: >-
+    Open the submit flow, lock the data file, and upload the doodle as an image
+    with uploadFile.
+  start_nav_group:
+  related_articles:
+author_notes:
+  docshots: Needs docshots
+---
+Custom integrations often need to add new files to a <comp.GlossaryTerm term="/user/glossary/s/site.yml">Site</comp.GlossaryTerm> and write changes back to existing files. Additionally, because more than one <comp.GlossaryTerm term="/user/glossary/t/team-member.yml">Team Member</comp.GlossaryTerm> can edit a *Site* in the <comp.GlossaryTerm term="/user/glossary/v/visual-editor.yml">Visual Editor</comp.GlossaryTerm> at once, you may need to claim a lock on a file before writing, so two people don't overwrite each other's work. The *Visual Editor API* allows you to do all of these.
+
+In the Doodle Gallery, this happens when a *Team Member* clicks the *Finish and submit* button: the `submit()` function uploads the drawing as an image, then adds that image to the gallery data file. It's defined inside the same `Doodler` component, so it can read the API handle from the `apiRef` we set up earlier. We'll build the upload here and finish the data write in the next step.
+
+First, we open the write transaction: get a reference to the data file we'll be changing, then claim a lock on it. `claimLock()` returns `readOnly: true` if someone else already holds the lock, so we retry a few times and give up rather than interrupt their work.
+
+<comp.Notice info_type="info">
+  A file editing lock is cooperative, not absolute.
+
+  A *Team Member* editing in the *Visual Editor* can take the lock from your integration at any time: when they open a file that is already being edited, CloudCannon shows them a banner with a *Switch to editing* button. Clicking it gives them the lock, moves your integration to read-only, and keeps any unsaved changes.
+
+  Because a held lock is not a guarantee of exclusive access, call `claimLock()` again and check `readOnly` before resuming writes to confirm your integration still holds the lock. For how this looks to a *Team Member* in the *Visual Editor*, please read our documentation on [Editing sessions and collaboration](/documentation/user-guides/editing-in-cloudcannon/editing-sessions-and-collaboration/).
+</comp.Notice>
+
+<comp.CodeBlock language="typescript" source="src/components/doodle.tsx">
+```
+async function submit() {
+  const cloudcannonApi = apiRef.current; /*1*/
+  if (cloudcannonApi === undefined) {
+    throw new Error("Can't access the CloudCannon API! Refresh and try again.");
+  }
+
+  const file = cloudcannonApi.file('/src/data/doodles.json'); /*2*/
+
+  let readOnly = true;
+  for (let fileLockAttempts = 0; readOnly; fileLockAttempts++) { /*3*/
+    readOnly = (await file.claimLock()).readOnly;
+    if (readOnly) {
+      if (fileLockAttempts > 3) {
+        throw new Error('Someone else is editing this file. Try again in a second!');
+      }
+      await new Promise((resolve) => window.setTimeout(resolve, 1000));
+    }
+  }
+
+  const canvas = canvasRef.current;
+  if (!canvas) {
+    throw new Error('Lost reference to the canvas.');
+  }
+
+  const blob: Blob | null = await new Promise((resolve) => canvas.toBlob(resolve)); /*4*/
+  if (!blob) {
+    throw new Error("couldn't turn this drawing into an image file");
+  }
+
+  const uploadedPath = await cloudcannonApi.uploadFile( /*5*/
+    new File([blob], 'doodle.png'),
+    {
+      type: 'image',
+      options: {
+        paths: {
+          uploads: 'public/doodles',
+          uploads_filename: 'doodle[count].png',
+          static: 'public',
+        },
+      },
+    },
+  );
+
+  // ...continued in the next step
+}
+```
+<comp.Annotation number="1">
+  Read the API handle from the `apiRef` we set on load, and bail out early if it isn't available — everything below depends on it.
+</comp.Annotation>
+<comp.Annotation number="2">
+  Get a reference to the data file we'll add the doodle to with `cloudcannonApi.file()`.
+</comp.Annotation>
+<comp.Annotation number="3">
+  Claim a lock before writing. We retry while `readOnly` is `true`, then give up after a few attempts so two *Team Members* can't overwrite each other.
+</comp.Annotation>
+<comp.Annotation number="4">
+  Turn the drawing on the canvas into a PNG image file.
+</comp.Annotation>
+<comp.Annotation number="5">
+  Upload the image with `uploadFile()`. It returns the path to the uploaded file, which we'll save as the doodle's image source.
+</comp.Annotation>
+</comp.CodeBlock>
+
+In this example, `submit()` wraps these steps in a `try`/`catch` and updates a status message as it runs, so any error is surfaced back to the *Team Member*. We've left that out here to focus on the API calls.
+
+The `paths` options tell CloudCannon where to store the upload and how to name it. They line up with the `paths` in your <comp.GlossaryTerm term="/user/glossary/c/configuration-files.yml">Configuration File</comp.GlossaryTerm>, and `doodle[count].png` keeps each filename unique.
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+```
+paths:
+  static: public
+  uploads: public/doodles
+```
+</comp.MultiCodeBlock>
+
+In the next step of this guide, we'll finish the submit function by writing the new doodle into the gallery data file.

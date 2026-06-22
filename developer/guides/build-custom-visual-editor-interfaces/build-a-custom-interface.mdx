@@ -1,0 +1,74 @@
+---
+_schema: default
+_uuid: 90ef473d-9390-4f97-a733-83e999e14f26
+_created_at: '2026-03-12 02:49:17 +0000'
+details:
+  title: Build a custom interface
+  order: 4
+  image: >-
+    https://cc-dam.imgix.net/documentation/images/guides/getting-started/guide-thumbnails/CloudCannon-Getting-Started-Thumbnail-Universal.png
+  description: Render a custom drawing interface that only appears inside the Visual Editor.
+  start_nav_group: null
+  related_articles: null
+author_notes:
+  docshots: Needs docshots
+---
+Now that we've detected the <comp.GlossaryTerm term="/user/glossary/v/visual-editor.yml">Visual Editor</comp.GlossaryTerm> and have the API, we can render our own interface. The Doodle Gallery brings its own UI: a canvas to draw on, a caption field, and a submit button. Because we gated the component on `inCloudCannonEditor` in the previous step, this interface only renders inside the *Visual Editor*.
+
+[image]
+
+Render whatever markup your interface needs — CloudCannon doesn't require any particular wrapper or class.
+
+<comp.CodeBlock language="typescript" source="src/components/doodle.tsx">
+```
+return (
+  <div className="cloudcannon-visual-editor-component"> /*1*/
+    <h1>Why not draw something?</h1>
+
+    <DoodleCanvas
+      canvasRef={canvasRef}
+      finishDraw={(newPixels: CoordArray) => { setSavedPixels([...savedPixels, [...newPixels]]); }} /*2*/
+    ></DoodleCanvas>
+
+    <label htmlFor="caption">Caption for the new image (required)</label>
+    <input type="text" id="caption" onInput={(e) => { setCaption(e.currentTarget.value); }} /> /*3*/
+
+    <button type="button" disabled={!!currentStateMessage || !caption} onClick={submit}>Finish and submit</button> /*4*/
+  </div>
+);
+```
+<comp.Annotation number="1">
+  The Doodle Gallery styles this wrapper with its own striped background in `main.css`. The class name isn't special to CloudCannon — use whatever markup and styling you like.
+</comp.Annotation>
+<comp.Annotation number="2">
+  `DoodleCanvas` is a plain React component that captures the drawing and hands the strokes back through `finishDraw`. None of its code touches the *Visual Editor API* — it's just a canvas.
+</comp.Annotation>
+<comp.Annotation number="3">
+  Capture the caption a *Team Member* types. We'll save it alongside the image.
+</comp.Annotation>
+<comp.Annotation number="4">
+  The submit button calls our `submit()` function, which we'll build over the next two steps.
+</comp.Annotation>
+</comp.CodeBlock>
+
+The Doodle Gallery renders this component on its homepage. In Astro, that means importing it and rendering `<Doodler client:load />` — the `client:load` directive hydrates the component in the browser, where it can reach the <comp.GlossaryTerm term="/user/glossary/v/visual-editor-api.yml">Visual Editor API</comp.GlossaryTerm>. Other frameworks and SSGs each have their own way to mount a client-side component; whichever you use, the only requirement is that your integration runs in the browser.
+
+<comp.CodeBlock language="astro" source="src/pages/index.astro">
+```
+---
+import { Doodler } from "../components/doodle.tsx"; /*1*/
+---
+
+<Doodler client:load /> /*2*/
+```
+<comp.Annotation number="1">
+  Import the component into the page where you want the tool to appear.
+</comp.Annotation>
+<comp.Annotation number="2">
+  Render it with `client:load` so the component hydrates in the browser.
+</comp.Annotation>
+</comp.CodeBlock>
+
+Bringing your own UI like this gives you complete control over the experience. If instead you want to reuse CloudCannon's native editing surfaces, the *Visual Editor API* can also open its own *Data Panels* and make page elements directly editable.
+
+In the next step of this guide, we'll start building the submit function, beginning by uploading the finished doodle as an image.

@@ -1,0 +1,93 @@
+---
+_schema: default
+_uuid: 9e7d5c3b-2a1f-4e8d-9b6c-8a7f5e4d3c2b
+_created_at: '2026-04-24 00:00:00 +0000'
+details:
+  title: Manage loading, uploads, and previews with the Visual Editor API
+  description: >-
+    Learn how to use setLoading, uploadFile, getPreviewUrl,
+    and configuration utility methods with the Visual Editor API in CloudCannon.
+  image: >-
+    https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+  category:
+    - Instructions
+  related_articles:
+    - _type: developer_articles
+      item: f8a2c4e6-1b3d-4a9f-8c7e-5d4f3a2b1c0e
+    - _type: developer_articles
+      item: b7e4a1c3-9d2f-4e8b-a451-6c8d3f2e1a09
+    - _type: developer_articles
+      item: c2407e1f-4ba7-41b0-a5a3-69ac86cf3c41
+author_notes:
+  docshots: Not applicable
+---
+<comp.Notice info_type="important">
+  The *Visual Editor API* is designed for advanced CloudCannon users. If you need help with custom integrations or your CloudCannon setup in general, please contact our friendly [support team](/support/).
+</comp.Notice>
+
+CloudCannon's <comp.GlossaryTerm term="/user/glossary/v/visual-editor-api.yml">Visual Editor API</comp.GlossaryTerm> exposes methods for managing your integration's loading state, uploading files, generating preview URLs, and accessing CloudCannon's configuration utilities. This article covers how to use each of these in your custom integration.
+
+This article assumes you know how to [initialize the Visual Editor API](/documentation/developer-articles/initialize-the-visual-editor-api/) and [access a Collection or Dataset](/documentation/developer-articles/access-files-collections-and-datasets-with-the-visual-editor-api/). For custom inline editing, read [Create custom inline editing with the Visual Editor API](/documentation/developer-articles/create-custom-inline-editing-with-the-visual-editor-api/).
+
+## Control the loading state
+
+Calling `setLoading()` allows you to show or hide the *Visual Editor*'s loading indicator. This is useful when your custom integration needs time to initialize.
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+await api.setLoading('Initializing custom integration...'); /*1*/
+
+// Do async setup work
+
+await api.setLoading(undefined); /*2*/
+```
+<comp.Annotation number="1">
+  Pass a string to `setLoading()` to show the loading indicator with a message.
+</comp.Annotation>
+<comp.Annotation number="2">
+  Pass `undefined` to clear the loading indicator when your integration is ready.
+</comp.Annotation>
+</comp.CodeBlock>
+
+## Upload a file
+
+Calling `uploadFile()` allows you to upload a file through CloudCannon's file handling system.
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+const input = document.querySelector('input[type="file"]'); /*1*/
+const file = input.files[0]; /*2*/
+
+const path = await api.uploadFile(file, undefined); /*3*/
+console.log('Uploaded to:', path);
+```
+<comp.Annotation number="1">
+  Get the file input element from the DOM.
+</comp.Annotation>
+<comp.Annotation number="2">
+  Get the selected file from the input.
+</comp.Annotation>
+<comp.Annotation number="3">
+  Call `uploadFile()` to upload the file. Pass `undefined` as the second argument to use default upload behavior, or pass an *Input* configuration object (the same shape as an *Input* in your *CloudCannon Configuration File*) to control where the file is uploaded and which asset sources or DAMs are offered.
+</comp.Annotation>
+</comp.CodeBlock>
+
+## Rewrite preview URLs
+
+Calling `getPreviewUrl()` allows you to get a working URL for a file that may not yet be committed to your *Site*, such as an image uploaded in the current editing session. Use this instead of the source path directly when displaying images in the *Visual Editor*.
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+const previewUrl = await api.getPreviewUrl('/images/hero.jpg'); /*1*/
+```
+<comp.Annotation number="1">
+  Pass a source path to `getPreviewUrl()` to get a URL that works within the *Visual Editor*, including for files that haven't yet been committed to the *Site*.
+</comp.Annotation>
+</comp.CodeBlock>
+
+## Utility methods
+
+The API provides several utility methods for working with CloudCannon's configuration:
+
+- `findStructure(structure, value)`: find a matching *Structure* value for a given data object.
+- `getInputType(key, value, inputConfig)`: determine the *Input* type CloudCannon would use for a field.

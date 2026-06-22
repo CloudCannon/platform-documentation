@@ -20,10 +20,15 @@ function ObjectProperties(
   { comp, entry, currentUrl, section, helpers, withIds, slugify }:
     PropertiesTableProps,
 ) {
-  const properties = Object.entries(entry.properties || {})
-    .sort(([keyA], [keyB]) =>
+  // The Visual Editor API reference follows declaration order from the source
+  // .d.ts (so get/set lead before the event listeners, matching how the API
+  // reads). Every other section sorts members alphabetically.
+  const properties = Object.entries(entry.properties || {});
+  if (section !== "type.VisualEditorAPI") {
+    properties.sort(([keyA], [keyB]) =>
       keyA.replace(/^_+/, "").localeCompare(keyB.replace(/^_+/, ""))
     );
+  }
   const additionalProps = entry.additionalProperties || [];
   let additionalValues: DocEntry[] = [];
 

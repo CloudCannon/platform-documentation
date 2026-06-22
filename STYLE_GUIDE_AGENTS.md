@@ -7,8 +7,8 @@ Machine-readable style rules for AI agents and automated linters. These rules ar
 **For agents making updates to this file:** Also update the corresponding section in `STYLE_GUIDE.mdx` with the prose explanation and examples. Update the revision history in both files: `last_updated` and `style_guide_version` in the YAML block below, and the `Last Updated` and `Version` fields and the revision history table (Section 4) in `STYLE_GUIDE.mdx`.
 
 ```yaml
-style_guide_version: "2.14"
-last_updated: "2026-05-13"
+style_guide_version: "2.18"
+last_updated: "2026-06-12"
 
 terminology:
   disambiguation:
@@ -85,6 +85,12 @@ prohibited_phrases:
   - "easy"
   - "obviously"
   - "clearly"
+  - "powerful"
+  - "seamless"
+  - "seamlessly"
+  - "effortless"
+  - "robust"
+  - "intuitive"
 
 voice_and_tense:
   voice: "active"
@@ -115,6 +121,25 @@ voice_and_tense:
       - "The Connector detects all data-rosey-tagged elements and injects the locale switcher interface."
       - "It then connects each tagged element to its corresponding entry in the locale JSON."
     note: "Reserve internal process descriptions ('the system detects… injects… connects…') for 'How it works' subsections or reference documentation."
+  describe_dont_sell:
+    rule: "Describe what a feature or API does, plainly and accurately. Do not use marketing or value-laden language, and never claim a capability the product does not have."
+    reference: "STYLE_GUIDE.mdx §1.1.9"
+    avoid_marketing_words:
+      - "powerful"
+      - "seamless"
+      - "effortless"
+      - "robust"
+      - "intuitive"
+      - "blazing-fast"
+      - "smart"
+      - "useful"
+    correct:
+      - "Pass an Input configuration to control where the file is uploaded and which asset sources are offered."
+      - "Resolves to undefined if the file does not exist."
+    incorrect:
+      - "Pass an Input configuration to control the upload destination, filename, and allowed types."
+      - "Gracefully handles any missing file."
+    overstatement_is_a_factual_error: "Most damaging in reference and developer documentation, where readers act on the exact claim. Document only what the implementation does; trace each claim to code, configuration, or observed UI behavior before writing it."
   first_person_plural_we_exception:
     article_path: "/documentation/developer-articles/what-is-the-visual-editor-api/"
     note: "Sole allowed 'we' in articles; company dogfoods public Visual Editor API (see prose §2.2.5)"
@@ -360,6 +385,7 @@ documentation_types:
           - "Organization"
           - "Project"
           - "Collection"
+          - "Team Member"
           - "Permission Group"
           - "Schema"
           - "Structure"
@@ -375,7 +401,7 @@ documentation_types:
         all_input_types: true
       
       do_not_italicize:
-        - "account, user, team member"
+        - "account, user"
         - "file, files, assets, uploads"
         - "permission (standalone)"
         - "layout, routing, markup, link"
@@ -394,11 +420,11 @@ documentation_types:
       examples:
         correct:
           - "Once you group your files into *Collections*, they appear in the *Site Navigation* for easy access."
-          - "Team members are invited to your *Organization* to collaborate on *Sites*."
-          - "Each team member has permissions assigned through *Permission Groups*."
+          - "*Team Members* are invited to your *Organization* to collaborate on *Sites*."
+          - "Each *Team Member* has permissions assigned through *Permission Groups*."
         incorrect:
           - "Collections appear in the Site Navigation."  # Should italicize CloudCannon terms
-          - "Each team member belongs to at least one Permission Group."  # Should italicize *Permission Group*
+          - "Each team member belongs to at least one Permission Group."  # Should italicize *Team Member* and *Permission Group*
     
     link_format:
       pattern: "/documentation/[user|developer]-articles/[slug]/"
@@ -580,10 +606,12 @@ components:
       - "term"
     syntax: "<comp.GlossaryTerm term=\"/user/glossary/[letter]/[term].yml\">Display Text</comp.GlossaryTerm>"
     rules:
-      - "Use on first mention of a term in an article only"
+      - "Use on first mention of a term in an article's body prose only"
       - "Term must have a corresponding YML file in user/glossary/"
       - "Replaces markdown links on first use — do not combine with markdown links"
       - "Subsequent mentions use italics instead"
+      - "Do not use inside comp.Annotation blocks — use italics for the term there instead"
+      - "Do not place the first-use glossary term inside a standard/boilerplate comp.Notice (e.g. the 'designed for advanced users' callout) when the term also appears in body prose — put it on the first body-prose mention and leave the Notice mention italicized"
       - "Display text can differ from glossary_term_name (plurals, derived forms)"
       - "Never replace an existing markdown link with a glossary term — if text is already a link, leave it as a link"
 

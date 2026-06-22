@@ -1,0 +1,387 @@
+---
+_schema: default
+_uuid: 11b29768-6312-47fc-bc43-9a613d70e5f2
+_created_at: '2026-04-16 00:00:00 +0000'
+details:
+  title: Read and write data with the Visual Editor API
+  description: >-
+    Access file data, body content, and raw source through the Visual Editor API.
+    Learn how to read, write, and edit structured data in CloudCannon's Visual
+    Editor.
+  image: >-
+    https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+  category:
+    - Instructions
+  related_articles:
+    - _type: developer_articles
+      item: c2407e1f-4ba7-41b0-a5a3-69ac86cf3c41
+    - _type: developer_articles
+      item: 64747bc3-c130-44d1-a871-53a9caffc25f
+    - _type: developer_articles
+      item: b7e4a1c3-9d2f-4e8b-a451-6c8d3f2e1a09
+author_notes:
+  docshots: Added!
+---
+<comp.Notice info_type="important">
+  The *Visual Editor API* is designed for advanced CloudCannon users. If you need help with custom integrations or your CloudCannon setup in general, please contact our friendly [support team](/support/).
+</comp.Notice>
+
+CloudCannon's <comp.GlossaryTerm term="/user/glossary/v/visual-editor-api.yml">Visual Editor API</comp.GlossaryTerm> exposes each website file as an object you open from your <comp.GlossaryTerm term="/user/glossary/s/site.yml">Site</comp.GlossaryTerm> code. After you have that file reference, you can read and write structured data in <comp.GlossaryTerm term="/user/glossary/f/front-matter.yml">Front Matter</comp.GlossaryTerm> or data files, work with body content, read or replace raw source, read file metadata, add or remove array items or change their order, open the hosted *Data Panel* for a single field, and claim a file lock while you coordinate updates with other <comp.GlossaryTerm term="/user/glossary/t/team-member.yml">Team Members</comp.GlossaryTerm> editing in the *Visual Editor*.
+
+This article assumes you know how to [initialize the Visual Editor API](/documentation/developer-articles/initialize-the-visual-editor-api/) and [access a file, Collection, and Dataset](/documentation/developer-articles/access-files-collections-and-datasets-with-the-visual-editor-api/).
+
+## Read and write file data
+
+You can read and write to your website files with the *Visual Editor API* using the following functions:
+
+- Use `*.data.get()` and `*.data.set()` for structured data: the <comp.GlossaryTerm term="/user/glossary/f/front-matter.yml">Front Matter</comp.GlossaryTerm> of a content file, or the full contents of a data file (such as JSON or YAML).
+- Use `*.content.get()` and `*.content.set()` for file body content.
+- Use `*.get()` and `*.set()` for raw source.
+- Use `*.metadata()` for file metadata (you cannot write to file metadata).
+
+### Structured data
+
+Calling `*.data.get()` returns the structured data in the accessed file: every field in the *Front Matter* of a content file, or the full contents of a data file (such as JSON or YAML). The *Visual Editor API* returns a JavaScript object, or a JavaScript array if the file's top-level value is a list.
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+const file = api.currentFile(); /*1*/
+const frontmatter = await file.data.get(); /*2*/
+console.log(frontmatter); /*3*/
+console.log(frontmatter.title); /*4*/
+```
+<comp.Annotation number="1">
+  Create a `file` variable to access the file currently open in the *Visual Editor* using `currentFile()`.
+</comp.Annotation>
+<comp.Annotation number="2">
+  Create a `frontmatter` variable to read the structured data in `file`.
+</comp.Annotation>
+<comp.Annotation number="3">
+  Log the full object returned by `file.data.get()` so you can inspect the structured data.
+</comp.Annotation>
+<comp.Annotation number="4">
+  Log the `title` value from the `file.data.get()` object.
+</comp.Annotation>
+</comp.CodeBlock>
+
+You can also read one field at a time by passing a `slug` option to `get()`. When you supply `{ slug: 'author' }`, CloudCannon returns only that field's value instead of the entire object.
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+const file = api.currentFile();
+const author = await file.data.get({ slug: 'author' }); /*1*/
+console.log(author);
+```
+<comp.Annotation number="1">
+  Pass the `{ slug: 'author'}` option to `file.data.get()` to read the specific structured data field `author`.
+</comp.Annotation>
+</comp.CodeBlock>
+
+Calling `*.data.set()` allows you to write to a structured data field in an accessed file by passing the field's `slug` and the new `value`. This updates the *Visual Editor* data model and marks the file as having unsaved changes. The change will be visible in any open *Editing Interfaces* (not just the *Visual Editor*).
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+const file = api.currentFile(); /*1*/
+await file.data.set({ /*2*/
+  slug: 'title', /*3*/
+  value: 'Updated title' /*4*/
+});
+```
+<comp.Annotation number="1">
+  Create a `file` variable to access the file currently open in the *Visual Editor* using `currentFile()`.
+</comp.Annotation>
+<comp.Annotation number="2">
+  Call `file.data.set()` to write to a structured data field in `file`.
+</comp.Annotation>
+<comp.Annotation number="3">
+  Pass the `{ slug: 'title'}` option to specify the structured data field to update.
+</comp.Annotation>
+<comp.Annotation number="4">
+  Pass the `{ value: 'Updated title'}` option with the new value for the field.
+</comp.Annotation>
+</comp.CodeBlock>
+
+### Body content
+
+Body content is the part of a file that comes after the front matter (for example, the Markdown body of a blog post).
+
+Calling `*.content.get()` allows you to read the body content of an accessed file as a string.
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+const file = api.currentFile(); /*1*/
+const content = await file.content.get(); /*2*/
+console.log(content); /*3*/
+```
+<comp.Annotation number="1">
+  Create a `file` variable to access the file currently open in the *Visual Editor* using `currentFile()`.
+</comp.Annotation>
+<comp.Annotation number="2">
+  Create a `content` variable to read the body content of `file` as a string.
+</comp.Annotation>
+<comp.Annotation number="3">
+  Log the body content of `file`.
+</comp.Annotation>
+</comp.CodeBlock>
+
+Calling `*.content.set()` allows you to replace the body content of an accessed file by passing a string. This updates the *Visual Editor* data model and marks the file as having unsaved changes. The change will be visible in any open *Editing Interfaces*.
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+const file = api.currentFile(); /*1*/
+const content = await file.content.get(); /*2*/
+await file.content.set(`${content}\n\nAppended paragraph.`); /*3*/
+```
+<comp.Annotation number="1">
+  Create a `file` variable to access the file currently open in the *Visual Editor* using `currentFile()`.
+</comp.Annotation>
+<comp.Annotation number="2">
+  Read the current body content of `file` as a string.
+</comp.Annotation>
+<comp.Annotation number="3">
+  Call `file.content.set()` to replace the body content of `file`, appending a new paragraph to the existing content (e.g., if content was "Hello world", the result passed to `set()` would be "Hello world\n\nAppended paragraph").
+</comp.Annotation>
+</comp.CodeBlock>
+
+### Raw source
+
+Calling `*.get()` allows you to read the entire raw source of an accessed file as a string, including both front matter and body content. Use this when you need access to the complete file rather than structured data or body content separately.
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+const file = api.currentFile(); /*1*/
+const raw = await file.get(); /*2*/
+console.log(raw); /*3*/
+```
+<comp.Annotation number="1">
+  Create a `file` variable to access the file currently open in the *Visual Editor* using `currentFile()`.
+</comp.Annotation>
+<comp.Annotation number="2">
+  Create a `raw` variable to read the entire raw source of `file` as a string.
+</comp.Annotation>
+<comp.Annotation number="3">
+  Log the raw source of `file`.
+</comp.Annotation>
+</comp.CodeBlock>
+
+Calling `*.set()` allows you to replace the entire raw source of an accessed file by passing a string. Use this for files that are not structured data, or that are not normally editable through CloudCannon. This updates the *Visual Editor* data model and marks the file as having unsaved changes. The change will be visible in any open *Editing Interfaces*.
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+const file = api.file('/public/robots.txt'); /*1*/
+const raw = await file.get(); /*2*/
+await file.set(raw.replace('old text', 'new text')); /*3*/
+```
+<comp.Annotation number="1">
+  Use `api.file()` with a source path to access a specific file, regardless of which page is currently open in the *Visual Editor*.
+</comp.Annotation>
+<comp.Annotation number="2">
+  Read the entire raw source of `file` as a string.
+</comp.Annotation>
+<comp.Annotation number="3">
+  Call `file.set()` to replace the raw source of `file` with the updated string.
+</comp.Annotation>
+</comp.CodeBlock>
+
+### File metadata
+
+Calling `*.metadata()` allows you to read metadata about an accessed file, such as its file size and when it was created or last modified. File metadata is read-only. You cannot write to it using the *Visual Editor API*.
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+const file = api.file('/content/pages/about.md'); /*1*/
+const meta = await file.metadata(); /*2*/
+console.log(meta); /*3*/
+```
+<comp.Annotation number="1">
+  Use `api.file()` with a source path to access a specific file. You can also use `api.currentFile()` to read the metadata of the file currently open in the *Visual Editor*.
+</comp.Annotation>
+<comp.Annotation number="2">
+  Create a `meta` variable to read the metadata of `file`.
+</comp.Annotation>
+<comp.Annotation number="3">
+  Log the metadata of `file`.
+</comp.Annotation>
+</comp.CodeBlock>
+
+## Open the *Visual Editor* *Data Panel*
+
+You can use *Data Panels* in CloudCannon's *Visual Editor* to edit the value of structured data fields in your files.
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Visual-Editor-Bookshop-Sendit-Home-Data-Panel" alt="A screenshot of the Visual Editor displays a webpage preview with a data panel containing inputs open over top." title="The Visual Editor with data panel" type="screenshot"/>
+
+By calling `*.data.edit()` and passing a `slug` option, you can open a *Data Panel* for a specific field. This is useful when you want to use CloudCannon's built-in interface for your custom integration.
+
+Optionally, pass a position object to anchor the *Data Panel* to the HTML element that triggered the action (for example, the element the *Team Member* clicked).
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+const file = api.currentFile(); /*1*/
+file.data.edit({ /*2*/
+  slug: 'hero_image', /*3*/
+  position: { /*4*/
+    x: event.clientX,
+    y: event.clientY,
+    left: rect.left,
+    width: rect.width,
+    top: rect.top,
+    height: rect.height
+  }
+});
+```
+<comp.Annotation number="1">
+  Create a `file` variable to access the file currently open in the *Visual Editor* using `currentFile()`.
+</comp.Annotation>
+<comp.Annotation number="2">
+  Call `file.data.edit()` to open the editing panel for a field in `file`.
+</comp.Annotation>
+<comp.Annotation number="3">
+  Pass the `{ slug: 'hero_image'}` option to specify which field to open in the *Data Panel*.
+</comp.Annotation>
+<comp.Annotation number="4">
+  Optional. Pass a `position` object to tell CloudCannon where to anchor the editing panel relative to the element.
+</comp.Annotation>
+</comp.CodeBlock>
+
+## Edit Array Inputs
+
+You can use the *Visual Editor API* to add, remove, and reorder items in an [Array Input](/documentation/user-articles/what-is-an-array-input/), either in the *Front Matter* of a content file or in a data file.
+
+### Add an item
+
+Calling `*.data.addArrayItem()` allows you to add an item to an array field in an accessed file.
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+const file = api.currentFile(); /*1*/
+await file.data.addArrayItem({ /*2*/
+  slug: 'items', /*3*/
+  index: null, /*4*/
+  value: { title: 'New item', description: '' } /*5*/
+});
+```
+<comp.Annotation number="1">
+  Create a `file` variable to access the file currently open in the *Visual Editor* using `currentFile()`.
+</comp.Annotation>
+<comp.Annotation number="2">
+  Call `file.data.addArrayItem()` to add an item to an array field in `file`.
+</comp.Annotation>
+<comp.Annotation number="3">
+  Pass the `{ slug: 'items'}` option to specify the array field to add an item to.
+</comp.Annotation>
+<comp.Annotation number="4">
+  Pass `index: null` to append the new item to the end of the array, or pass a number to insert it at a specific position.
+</comp.Annotation>
+<comp.Annotation number="5">
+  Pass a `value` option with the content of the new item.
+</comp.Annotation>
+</comp.CodeBlock>
+
+### Remove an item
+
+Calling `*.data.removeArrayItem()` allows you to remove an item from an array field in an accessed file.
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+const file = api.currentFile(); /*1*/
+await file.data.removeArrayItem({ /*2*/
+  slug: 'items', /*3*/
+  index: 2 /*4*/
+});
+```
+<comp.Annotation number="1">
+  Create a `file` variable to access the file currently open in the *Visual Editor* using `currentFile()`.
+</comp.Annotation>
+<comp.Annotation number="2">
+  Call `file.data.removeArrayItem()` to remove an item from an array field in `file`.
+</comp.Annotation>
+<comp.Annotation number="3">
+  Pass the `{ slug: 'items'}` option to specify the array field to remove an item from.
+</comp.Annotation>
+<comp.Annotation number="4">
+  Pass an `index` option to specify the position of the item to remove.
+</comp.Annotation>
+</comp.CodeBlock>
+
+### Move an item
+
+Calling `*.data.moveArrayItem()` allows you to reorder items within an array field, or move items between different array fields, in an accessed file.
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+const file = api.currentFile(); /*1*/
+await file.data.moveArrayItem({ /*2*/
+  fromSlug: 'items', /*3*/
+  fromIndex: 0, /*4*/
+  toIndex: 3 /*5*/
+});
+```
+<comp.Annotation number="1">
+  Create a `file` variable to access the file currently open in the *Visual Editor* using `currentFile()`.
+</comp.Annotation>
+<comp.Annotation number="2">
+  Call `file.data.moveArrayItem()` to move an item within or between array fields in `file`.
+</comp.Annotation>
+<comp.Annotation number="3">
+  Pass a `fromSlug` option to specify the array field containing the item to move. Pass a `toSlug` option to move the item to a different array field.
+</comp.Annotation>
+<comp.Annotation number="4">
+  Pass a `fromIndex` option to specify the current position of the item.
+</comp.Annotation>
+<comp.Annotation number="5">
+  Pass a `toIndex` option to specify the new position of the item.
+</comp.Annotation>
+</comp.CodeBlock>
+
+## Lock editing on a file
+
+Claiming a lock on a file gives your integration the editing lock for that file. Only one lock can be held at a time, so other *Team Members* working in the *Visual Editor* see the file as read-only while your integration holds it. Use `api.file()` to access the file you want to lock, call `claimLock()` before making changes, and `releaseLock()` when you are done.
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+const file = api.file('/_data/settings.yml'); /*1*/
+const lock = await file.claimLock(); /*2*/
+
+if (!lock.readOnly) { /*3*/
+  try {
+    await file.data.set({ slug: 'status', value: 'in-progress' });
+  } finally {
+    await file.releaseLock(); /*4*/
+  }
+}
+```
+<comp.Annotation number="1">
+  Use `api.file()` to access the specific file you want to lock. File locking is most useful when your integration needs to modify a shared file that other *Team Members* might also be editing.
+</comp.Annotation>
+<comp.Annotation number="2">
+  Call `claimLock()` to request an editing lock on `file`. Returns an object with a `readOnly` property.
+</comp.Annotation>
+<comp.Annotation number="3">
+  Only make changes if the lock was granted. If another *Team Member* already holds the lock, `readOnly` is `true`, so stop here and try again later rather than editing.
+</comp.Annotation>
+<comp.Annotation number="4">
+  Release the lock in a `finally` block so it is always released, even if the write throws partway through. Otherwise other *Team Members* are left viewing the file as read-only until they take the lock back manually.
+</comp.Annotation>
+</comp.CodeBlock>
+
+A lock is cooperative, not absolute. A *Team Member* editing in the *Visual Editor* can take the lock from your integration at any time: when they open a file that is already being edited, CloudCannon shows them a banner with a *Switch to editing* button. Clicking it hands them the lock, moves your integration to read-only, and keeps any unsaved changes. Because a held lock is not a guarantee of exclusive access, call `claimLock()` again and check `readOnly` before resuming writes to confirm your integration still holds the lock. For how this looks to a *Team Member* in the *Visual Editor*, see [Editing sessions and collaboration](/documentation/user-guides/editing-in-cloudcannon/editing-sessions-and-collaboration/).
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Content-Editor-Viewing-Mode" alt="A banner at the bottom of an editing interface reads 'Heather Scott is currently editing' alongside a Switch to editing button." title="Taking over editing from another Team Member" type="screenshot"/>
+
+## Read Input configuration
+
+Calling `*.getInputConfig()` allows you to read the resolved *Input* configuration for a field in an accessed file. Pass a `slug` option to specify the field.
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+const file = api.currentFile(); /*1*/
+const inputConfig = await file.getInputConfig({ slug: 'hero_image' }); /*2*/
+console.log(inputConfig?.type);
+```
+<comp.Annotation number="1">
+  Create a `file` variable to access the file currently open in the *Visual Editor* using `currentFile()`.
+</comp.Annotation>
+<comp.Annotation number="2">
+  Call `getInputConfig()` with a `slug` option to get the resolved *Input* configuration for that field.
+</comp.Annotation>
+</comp.CodeBlock>

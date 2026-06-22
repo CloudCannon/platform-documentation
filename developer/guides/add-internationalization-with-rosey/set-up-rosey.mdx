@@ -1,0 +1,374 @@
+---
+_schema: default
+_uuid: c8804420-2015-42fe-b793-dab814a2c0a5
+_created_at: '2026-04-28 00:00:00 +0000'
+details:
+  title: Set up Rosey
+  order: 3
+  image: >-
+    https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+  description: Set up Rosey on CloudCannon by tagging translatable content, creating locale files, and configuring your postbuild script.
+  start_nav_group: null
+  related_articles: null
+author_notes:
+  docshots: Needs docshots
+---
+
+This page walks you through setting up <comp.GlossaryTerm term="/user/glossary/r/rosey.yml">Rosey</comp.GlossaryTerm> on CloudCannon from scratch. By the end, you'll have a multilingual static site that generates locale-specific output as part of your CloudCannon build.
+
+## Install Rosey
+
+In your Terminal, navigate to your website project and initialize `npm` using the following command.
+
+<comp.CodeBlock language="sh">
+```
+npm init
+```
+</comp.CodeBlock>
+
+Still in your Terminal, install *Rosey* using the following command.
+
+<comp.CodeBlock language="sh">
+```
+npm install rosey
+```
+</comp.CodeBlock>
+
+## Tag translatable content
+
+Add `data-rosey` attributes to the HTML elements in your site templates that you want *Rosey* to translate. The attribute value is a key that *Rosey* uses to look up the translation in your locale files. Choose key names that are descriptive and unique within your site.
+
+*Rosey* can translate three types of content: text, images, and HTML attributes.
+
+For text content, you can add `data-rosey` to any element to translate its inner text.
+
+<comp.CodeBlock language="html" source="layout.html">
+```
+<h1 data-rosey="hero.heading">Welcome to our site</h1>
+<p data-rosey="hero.subheading">We build great things.</p>
+```
+</comp.CodeBlock>
+
+For images, you can add `data-rosey` to an `<img>` element to swap the image itself per locale.
+
+<comp.CodeBlock language="html" source="layout.html">
+```
+<img data-rosey="hero.image" src="/images/hero-en.jpg" alt="A team working together" />
+```
+</comp.CodeBlock>
+
+For HTML attributes, you can use `data-rosey-attr` and `data-rosey-attr-value` to translate attribute values such as `alt` text or `meta` descriptions.
+
+<comp.CodeBlock language="html" source="layout.html">
+```
+<img src="/images/hero.jpg" alt="A team working together" data-rosey-attr="alt" data-rosey-attr-value="hero.image-alt" />
+<meta name="description" content="We build great things." data-rosey-attr="content" data-rosey-attr-value="meta.description" />
+```
+</comp.CodeBlock>
+
+## Configure Rosey
+
+Create a `rosey.yml` file at the root of your project to tell *Rosey* where your built site lives and which attribute to look for.
+
+<comp.CodeBlock language="yaml" source="rosey.yml">
+```
+source: _site
+tag: data-rosey
+```
+</comp.CodeBlock>
+
+The value of the `source` key tells *Rosey* where to find your SSG's built output. If you are using an SSG like Eleventy or Jekyll, the output will be `_site` (like the example above); however, you should set this to the appropriate value for your project.
+
+The value of the `tag` key should match the HTML attribute on elements in your files.
+
+## Test locally
+
+Before adding locale files, you can verify that *Rosey* can read your tagged content by running a local build.
+
+<comp.CodeBlock language="sh">
+```
+npx rosey build --serve
+```
+</comp.CodeBlock>
+
+*Rosey* will build your *Site* and start a local server. At this stage your *Site* will have no translations yet, but this confirms that *Rosey* is reading your output directory correctly.
+
+## Generate your base locale file
+
+Run the `rosey generate` command in your Terminal to produce a base locale JSON file. *Rosey* scans your built *Site* for all `data-rosey` tagged elements and outputs a JSON file listing every translatable string.
+
+<comp.CodeBlock language="sh">
+```
+npx rosey generate
+```
+</comp.CodeBlock>
+
+This produces `rosey/base.json` by default. The file lists each key with its source text:
+
+<comp.CodeBlock language="json" source="rosey/base.json">
+```
+{
+  "hero.heading": { "original": "Welcome to our site" },
+  "hero.subheading": { "original": "We build great things." }
+}
+```
+</comp.CodeBlock>
+
+## Create locale files
+
+Create a file in `rosey/locales/` for each language you want to support. The filename should be a locale code (`fr.json`, `de.json`, `es.json`, etc.). Copy the structure from `base.json` and add translated values.
+
+<comp.CodeBlock language="json" source="rosey/locales/fr.json">
+```
+{
+  "hero.heading": {
+    "original": "Welcome to our site",
+    "value": "Bienvenue sur notre site"
+  },
+  "hero.subheading": {
+    "original": "We build great things.",
+    "value": "Nous construisons de grandes choses."
+  }
+}
+```
+</comp.CodeBlock>
+
+## Set up the postbuild script
+
+*Rosey* runs as a postbuild step on CloudCannon. Create a `.cloudcannon/postbuild` script to run *Rosey* after every build.
+
+<comp.CodeBlock language="sh" source=".cloudcannon/postbuild">
+```
+echo "Translating site with Rosey"
+mv ./_site ./_untranslated_site
+npx rosey build --source _untranslated_site --dest _site
+```
+</comp.CodeBlock>
+
+<comp.Notice info_type="info">
+  `npx rosey build` runs the latest published version of *Rosey*, so a new release can change your build output. To keep your local and CloudCannon builds reproducible, add `rosey` to your `package.json` dependencies at a fixed version — your build then runs the pinned version instead of the latest.
+</comp.Notice>
+
+Replace `_site` with your SSG's output directory if it differs. If your *Site* includes Chinese, Japanese, or Korean content, add the `--wrap` flag to the `rosey build` command for correct word-wrapping:
+
+<comp.CodeBlock language="sh" source=".cloudcannon/postbuild">
+```
+npx rosey build --source _untranslated_site --dest _site --wrap
+```
+</comp.CodeBlock>
+
+Because *Rosey* moves your output files to language-prefixed paths, the *Visual Editor* needs to be configured to find your pages after a build. The next step covers how to do this.
+
+## Add locale files as a CloudCannon Collection
+
+To make your locale files editable in CloudCannon, add them as a *Collection* in your *Configuration File*. This lets your team open and edit individual locale files in the *Data Editor*.
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+```
+collections_config:
+  translations:
+    path: rosey/locales
+```
+</comp.MultiCodeBlock>
+
+Each locale file (`fr.json`, `de.json`, etc.) will appear as a separate item in the *Collection*, where your team can update translation values directly in CloudCannon.
+
+<comp.Notice info_type="info">
+  You can also surface your locale files as a *Dataset* under `data_config` instead of a *Collection*. Both make the same JSON files editable — a *Collection* lists each locale file as a separate item, while a *Dataset* manages them as shared data. This guide uses a *Collection*.
+</comp.Notice>
+
+## Check for stale translations
+
+*Rosey* uses the `original` field in each locale file to detect stale translations. When your source text changes, you can run `rosey check` to find any locale entries that need updating.
+
+<comp.CodeBlock language="sh">
+```
+npx rosey check
+```
+</comp.CodeBlock>
+
+*Rosey* outputs a `checks.json` report. Each locale gets a summary, a `states` count for every status — `"current"`, `"outdated"`, `"missing"`, and `"unused"` are always reported, even when zero — and a per-key status.
+
+<comp.CodeBlock language="json" source="checks.json">
+```
+{
+  "de": {
+    "current": false,
+    "baseTotal": 2,
+    "total": 2,
+    "states": {
+      "current": 0,
+      "outdated": 1,
+      "missing": 1,
+      "unused": 0
+    },
+    "keys": {
+      "hero.heading": "outdated",
+      "hero.subheading": "missing"
+    }
+  },
+  "fr": {
+    "current": true,
+    "baseTotal": 2,
+    "total": 2,
+    "states": {
+      "current": 2,
+      "outdated": 0,
+      "missing": 0,
+      "unused": 0
+    },
+    "keys": {
+      "hero.heading": "current",
+      "hero.subheading": "current"
+    }
+  }
+}
+```
+</comp.CodeBlock>
+
+Review this file after updating your content to see which translations need attention.
+
+## Attributes reference
+
+Rosey uses the following `data-*` attributes on your HTML elements:
+
+<comp.DataReference>
+  <comp.DataReferenceRow label="`data-rosey`" type_markdown="String">
+    Marks an element as translatable. The attribute value becomes the translation key in `base.json`, with the element's inner text captured as the source string.
+
+    <comp.Example>
+    <comp.CodeBlock language="html" source="layout.html">
+    ```
+    <h1 data-rosey="hero.title">Welcome to our site</h1> <!--1-->
+    <p data-rosey="hero.subtitle">We build great things.</p> <!--2-->
+    ```
+    <comp.Annotation number="1">
+
+Adds the key `hero.title` to `base.json` with `"Welcome to our site"` as the source string.
+
+</comp.Annotation>
+    <comp.Annotation number="2">
+
+Adds a separate key `hero.subtitle` with `"We build great things."` as the source string.
+
+</comp.Annotation>
+    </comp.CodeBlock>
+    </comp.Example>
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="`data-rosey-ns`" type_markdown="String">
+    Prepends a namespace segment to all child `data-rosey` keys, separated by colons. Namespaces stack — `data-rosey-ns="hero"` on a parent and `data-rosey="title"` on a child produces the key `hero:title`.
+
+    <comp.Example>
+    <comp.CodeBlock language="html" source="layout.html">
+    ```
+    <body data-rosey-ns="home"> <!--1-->
+      <h1 data-rosey="title">Home page title</h1> <!--2-->
+      <div data-rosey-ns="contact-info"> <!--3-->
+        <h2 data-rosey="title">Contact us</h2> <!--4-->
+      </div>
+    </body>
+    ```
+    <comp.Annotation number="1">
+
+Sets the top-level namespace. All child `data-rosey` keys are prefixed with `home:`.
+
+</comp.Annotation>
+    <comp.Annotation number="2">
+
+Produces the key `home:title` in `base.json`.
+
+</comp.Annotation>
+    <comp.Annotation number="3">
+
+Adds a second namespace segment, stacking onto `home`. Child keys are now prefixed with `home:contact-info:`.
+
+</comp.Annotation>
+    <comp.Annotation number="4">
+
+Produces the key `home:contact-info:title` — the same attribute value as annotation 2, but a distinct key due to the nested namespace.
+
+</comp.Annotation>
+    </comp.CodeBlock>
+    </comp.Example>
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="`data-rosey-root`" type_markdown="String">
+    Resets the namespace at this element, replacing any inherited parent namespaces. Set to an empty string (`""`) to clear the namespace entirely for that subtree.
+
+    <comp.Example>
+    <comp.CodeBlock language="html" source="layout.html">
+    ```
+    <body data-rosey-ns="home"> <!--1-->
+      <h1 data-rosey="title">Home page title</h1> <!--2-->
+      <section data-rosey-root="features"> <!--3-->
+        <h2 data-rosey="title">Our features</h2> <!--4-->
+      </section>
+      <section data-rosey-root=""> <!--5-->
+        <p data-rosey="tagline">Built for you.</p> <!--6-->
+      </section>
+    </body>
+    ```
+    <comp.Annotation number="1">
+
+Sets the top-level namespace to `home`.
+
+</comp.Annotation>
+    <comp.Annotation number="2">
+
+Produces the key `home:title`.
+
+</comp.Annotation>
+    <comp.Annotation number="3">
+
+Resets the namespace to `features`, discarding the inherited `home` namespace.
+
+</comp.Annotation>
+    <comp.Annotation number="4">
+
+Produces the key `features:title`, not `home:features:title`.
+
+</comp.Annotation>
+    <comp.Annotation number="5">
+
+Resets the namespace to an empty string, clearing it entirely for this subtree.
+
+</comp.Annotation>
+    <comp.Annotation number="6">
+
+Produces the bare key `tagline` with no namespace prefix.
+
+</comp.Annotation>
+    </comp.CodeBlock>
+    </comp.Example>
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="`data-rosey-attr`" type_markdown="String">
+    The name of the HTML attribute to translate. Use alongside `data-rosey-attr-value` on the same element — for example, `data-rosey-attr="alt"` with `data-rosey-attr-value="hero.image-alt"` translates the `alt` attribute using the key `hero.image-alt`.
+
+    <comp.Example>
+    <comp.CodeBlock language="html" source="layout.html">
+    ```
+    <img src="/images/hero.jpg" alt="A team working together"
+      data-rosey-attr="alt"
+      data-rosey-attr-value="hero.image-alt" /> <!--1-->
+    <meta name="description" content="We build great things."
+      data-rosey-attr="content"
+      data-rosey-attr-value="meta.description" /> <!--2-->
+    ```
+    <comp.Annotation number="1">
+
+Translates the `alt` attribute using the key `hero.image-alt`. The attribute's current value is captured as the source string in `base.json`.
+
+</comp.Annotation>
+    <comp.Annotation number="2">
+
+Translates the `content` attribute using the key `meta.description`.
+
+</comp.Annotation>
+    </comp.CodeBlock>
+    </comp.Example>
+  </comp.DataReferenceRow>
+  <comp.DataReferenceRow label="`data-rosey-attr-value`" type_markdown="String">
+    The translation key for the attribute named in `data-rosey-attr`. The attribute's current value is captured as the source string in `base.json`.
+  </comp.DataReferenceRow>
+</comp.DataReference>
+
+In the next step of this guide, we'll look at the URL configuration options available to you — including how to update your *Collection* URLs so the *Visual Editor* can find your pages, and how to control where your default language is served.

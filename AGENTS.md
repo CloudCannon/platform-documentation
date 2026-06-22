@@ -14,6 +14,7 @@ Do exactly what was asked. Nothing more.
 - Do not edit files outside the ones implicated by the request, even if you see issues. Mention them at the end instead.
 - Do not refactor or rename adjacent code/content.
 - Do not create new files (including new articles, guides, components, READMEs, examples) unless explicitly requested. Prefer editing existing files.
+- Do not create stub articles that only redirect to another article. Use `routing.json` for redirects instead.
 - Do not add narrating comments to code. Comments only for non-obvious intent or workarounds.
 - Do not run `git add` / `commit` / `push` / `branch` / open PRs unless explicitly asked.
 - Do not start follow-up work after finishing. Stop and report.

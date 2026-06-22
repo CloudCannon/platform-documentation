@@ -1,0 +1,62 @@
+---
+_schema: reference_landing_page
+_uuid: c8f1a2b3-4d5e-4a6f-8b9c-0d1e2f3a4b5c
+layout: layouts/reference-home.tsx
+details:
+  title: Visual Editor API
+---
+The <comp.GlossaryTerm term="/user/glossary/v/visual-editor-api.yml">Visual Editor API</comp.GlossaryTerm> is a JavaScript API for building custom integrations that run inside CloudCannon's <comp.GlossaryTerm term="/user/glossary/v/visual-editor.yml">Visual Editor</comp.GlossaryTerm>. Obtain the API Object, then call its methods to access files, <comp.GlossaryTerm term="/user/glossary/c/collection.yml">Collections</comp.GlossaryTerm>, and <comp.GlossaryTerm term="/user/glossary/d/dataset.yml">Datasets</comp.GlossaryTerm>, read and write content, upload files, and build custom editing interfaces. This reference covers the v1 API.
+
+For an introduction and walkthroughs, please read our documentation on the [Visual Editor API](/documentation/developer-articles/what-is-the-visual-editor-api/) and the [Building custom visual editor interfaces](/documentation/developer-guides/build-custom-visual-editor-interfaces/) guide. For IDE autocomplete and validation, please read our documentation on [using TypeScript with the Visual Editor API](/documentation/developer-articles/use-typescript-with-the-visual-editor-api/).
+
+## Getting the API Object
+
+The API is exposed on `window.CloudCannonAPI`, a router that hands you a versioned API Object. Call `useVersion('v1', true)` to get the v1 object:
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+const api = window.CloudCannonAPI.useVersion('v1', true);
+```
+</comp.CodeBlock>
+
+The second argument, `preventGlobalInstall`, keeps the v1 handler off the global `window.CloudCannon` so it can't clash with other integrations that request a different version, such as Bookshop. Pass `true` unless you have a reason not to.
+
+`window.CloudCannonAPI` is available whenever a file is open in the *Visual Editor*. If your script might run before that, listen for the `cloudcannon:load` event on `document` and read `window.CloudCannonAPI` once it fires. For the full initialization pattern, see [Initialize the Visual Editor API](/documentation/developer-articles/initialize-the-visual-editor-api/).
+
+## Events
+
+Several objects let you react to content changes with `addEventListener`, and stop listening with `removeEventListener`. Both accept the same two event types:
+
+- `change` fires when a file is created or updated. `event.detail.isNew` is `true` when the file was newly created, and `false` when an existing file was updated.
+- `delete` fires when a file is removed.
+
+The object you attach the listener to sets its scope. Listening on the API Object reacts to any file across the *Site*; listening on a `Collection` or `Dataset` reacts to any file within it; listening on a `File`, its `data`, or its `content` reacts to that one file.
+
+For *Site*, `Collection`, and `Dataset` listeners, `event.detail.sourcePath` holds the path of the file that changed, so you can tell which file triggered the event. A `File`, `FileData`, or `FileContent` listener is already scoped to a single known file, so its events don't carry `sourcePath`.
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+api.collection('posts').addEventListener('change', (event) => {
+  console.log('A post changed:', event.detail.sourcePath);
+});
+```
+</comp.CodeBlock>
+
+Remove a listener with `removeEventListener` when your integration is torn down.
+
+## Methods
+
+The v1 API Object's methods are documented on the [API Object](/documentation/developer-reference/visual-editor-api/api/) page. Return types link to the object pages they produce.
+
+## Objects
+
+The API Object is your entry point: call its methods to reach everything else. Those methods return the objects below, and a `File` exposes `data` and `content` objects. Each is documented on its own page:
+
+- [API Object](/documentation/developer-reference/visual-editor-api/api/) — the v1 entry point and its methods
+- [`Collection`](/documentation/developer-reference/visual-editor-api/Collection/)
+- [`Dataset`](/documentation/developer-reference/visual-editor-api/Dataset/)
+- [`File`](/documentation/developer-reference/visual-editor-api/File/)
+- [`FileContent`](/documentation/developer-reference/visual-editor-api/FileContent/)
+- [`FileData`](/documentation/developer-reference/visual-editor-api/FileData/)
+- [`FileMetadata`](/documentation/developer-reference/visual-editor-api/FileMetadata/)
+- [`TextEditableRegion`](/documentation/developer-reference/visual-editor-api/TextEditableRegion/)

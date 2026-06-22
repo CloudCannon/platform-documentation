@@ -56,6 +56,7 @@ import strip from "strip-markdown";
 import { parseChangelogFilename } from "./parseChangelogFilename.ts";
 import type { ContentNavItem, DocEntry } from "./_types.d.ts";
 import { buildRefNav } from "./developer/reference/_shared/buildRefNav.ts";
+import { buildVeapiDocs, VEAPI_SECTION } from "./_lib/veapi-docs.ts";
 
 import documentation from "@cloudcannon/configuration-types/dist/documentation.json" with {
   type: "json",
@@ -69,6 +70,11 @@ const typedDocs = documentation as unknown as Record<
   Record<string, DocEntry>
 >;
 
+// Parse the Visual Editor API TypeScript declarations (JSDoc -> DocEntry) at
+// build time and merge them in as their own section, so the reference section
+// and article tables render from the same source and stay in sync.
+typedDocs[VEAPI_SECTION] = await buildVeapiDocs();
+
 // Store nested documentation structure for section-aware lookups
 globalThis.DOCS = typedDocs;
 
@@ -81,6 +87,9 @@ const initialSiteSettingsDocs: DocEntry[] = Object.values(
 );
 const configDocs: DocEntry[] = Object.values(
   typedDocs["type.Configuration"] ?? {},
+);
+const veapiDocs: DocEntry[] = Object.values(
+  typedDocs[VEAPI_SECTION] ?? {},
 );
 
 // Caches for expensive operations (persist across incremental builds)
@@ -120,6 +129,7 @@ const refNavSections = buildRefNav(
   configDocs,
   routingDocs,
   initialSiteSettingsDocs,
+  veapiDocs,
 );
 site.data("ref_nav", refNavSections);
 

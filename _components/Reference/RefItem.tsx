@@ -3,6 +3,7 @@ import {
   getDisplayNamePair,
   getDocByGid,
   getRefUrl,
+  getShortKey,
   resolveRef,
   type SectionId,
 } from "./helpers.ts";
@@ -13,9 +14,23 @@ const MAX_ENUM_VALUES = 10;
 function appearsIn(
   { doc, section }: { doc: DocEntry; section: SectionId },
 ): JSX.Component | undefined {
-  const gids = (doc.parent ? [doc.parent] : []).concat(
+  let gids = (doc.parent ? [doc.parent] : []).concat(
     doc.appears_in || [],
   ).filter((gid) => gid !== section);
+
+  // The Visual Editor API cross-lists shared methods (e.g. addEventListener)
+  // across every object that exposes them, so order the whole list
+  // alphabetically. Other sections keep parent-first ordering (the structural
+  // parent leads, then the other places the type appears).
+  if (section === "type.VisualEditorAPI") {
+    gids = [...gids].sort((a, b) => {
+      const da = getDocByGid(a, section);
+      const db = getDocByGid(b, section);
+      const la = da ? getDisplayNamePair(da).label : a;
+      const lb = db ? getDisplayNamePair(db).label : b;
+      return la.localeCompare(lb);
+    });
+  }
 
   const items = gids.flatMap((gid, i) => {
     const isLast = i === gids.length - 1;
@@ -65,7 +80,9 @@ function appearsIn(
   if (items.length !== 0) {
     return (
       <p data-pagefind-ignore>
-        <em>Appears in:</em> {items}.
+        <em>
+          {section === "type.VisualEditorAPI" ? "Available on:" : "Appears in:"}
+        </em> {items}.
       </p>
     );
   }
@@ -137,6 +154,43 @@ export default function RefItem(
               />
             )
             : <div>{doc.description}</div>
+        )}
+
+        {section === "type.VisualEditorAPI" &&
+          doc.type !== "object" &&
+          doc.properties &&
+          Object.keys(doc.properties).length > 0 && (
+          <>
+            <p data-pagefind-ignore><em>Parameters:</em></p>
+            <ul class="c-data-reference__params">
+              {Object.entries(doc.properties).map(([key, ref]) => {
+                const param = resolveRef(ref, section);
+                if (!param) return null;
+                const descHtml = helpers && param.description
+                  ? helpers.md(param.description)
+                    .replace(/^\s*<p>/, "").replace(/<\/p>\s*$/, "").trim()
+                  : null;
+                return (
+                  <li key={key}>
+                    <code class="code-no-box">{getShortKey(key)}</code>{" "}
+                    <comp.Reference.RefType doc={param} section={section} />
+                    {param.description && (
+                      <>
+                        {" — "}
+                        {descHtml !== null
+                          ? (
+                            <span
+                              dangerouslySetInnerHTML={{ __html: descHtml }}
+                            />
+                          )
+                          : param.description}
+                      </>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          </>
         )}
 
         {doc.default !== undefined && (

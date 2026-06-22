@@ -1,0 +1,76 @@
+---
+_schema: default
+_uuid: 3c74c1af-44d1-45ea-b3ff-c10228d90029
+_created_at: '2026-03-12 02:49:17 +0000'
+details:
+  title: Write data back
+  order: 6
+  image: >-
+    https://cc-dam.imgix.net/documentation/images/guides/getting-started/guide-thumbnails/CloudCannon-Getting-Started-Thumbnail-Universal.png
+  description: >-
+    Finish the submit flow by reading the gallery array and appending the new
+    doodle with addArrayItem.
+  start_nav_group:
+  related_articles:
+author_notes:
+  docshots: Needs docshots
+---
+Using the same `submit()` function, we need to add the new doodle to the gallery by writing the path to the uploaded image to the array in `/src/data/doodles.json`. This file is already referenced by our previous work: `const file = cloudcannonApi.file('/src/data/doodles.json');`.
+
+<comp.CodeBlock language="JavaScript" source="src/data/doodles.json">
+``````````
+{
+    "doodles": [
+        {
+            "src": "/favicon.png",
+            "caption": "COOL S"
+        },
+        {
+            "src": "/doodles/doodle-1.png",
+            "caption": "kat"
+        }
+    ]
+}
+
+``````````
+</comp.CodeBlock>
+
+The Doodle Gallery integration can read the `doodles` array, then append a new item to it. Each item holds the uploaded image path and the caption a <comp.GlossaryTerm term="/user/glossary/t/team-member.yml">Team Member</comp.GlossaryTerm> typed.
+
+<comp.CodeBlock language="typescript" source="src/components/doodle.tsx">
+```
+  const doodles = await file.data.get({ slug: 'doodles' }); /*1*/
+  if (typeof doodles !== 'object' || typeof doodles.length !== 'number') {
+    throw new Error('The data file is incorrectly formatted.');
+  }
+
+  await file.data.addArrayItem({ /*2*/
+    slug: 'doodles',
+    index: doodles.length, /*3*/
+    value: { src: uploadedPath, caption }, /*4*/
+  });
+}
+```
+<comp.Annotation number="1">
+  Read the current `doodles` array from the data file with `file.data.get()`, passing the `slug` of the field we want.
+</comp.Annotation>
+<comp.Annotation number="2">
+  Add a new item to that array with `file.data.addArrayItem()`.
+</comp.Annotation>
+<comp.Annotation number="3">
+  Append to the end by using the current array length as the index.
+</comp.Annotation>
+<comp.Annotation number="4">
+  The new item carries the uploaded image path and the caption, matching the shape of the other doodles in the file.
+</comp.Annotation>
+</comp.CodeBlock>
+
+The integration uses `file()` with a path, rather than `currentFile()`, because we're writing to a specific data file instead of the page open in the *Visual Editor*.
+
+The `submit()` function is now complete. Once the write finishes (or fails partway through) the Doodle Gallery releases the file lock with `releaseLock()`, to indicate to other *Team Members* viewing `doodles.json` that they can edit again. In the Doodle Gallery example this runs in the `finally` block of the `try`/`catch` we left out in the previous step, which guarantees the lock is released no matter how `submit()` exits. Always release a lock once you're done writing — see [Read and write data with the Visual Editor API](/documentation/developer-articles/read-and-write-data-with-the-visual-editor-api/).
+
+The new doodle now appears in any open <comp.GlossaryTerm term="/user/glossary/d/data-editor.yml">Data Editor</comp.GlossaryTerm> and is written to `doodles.json`, ready to commit when a *Team Member* saves the <comp.GlossaryTerm term="/user/glossary/s/site.yml">Site</comp.GlossaryTerm>. Because the gallery page renders straight from that data file, the new doodle shows up on the live webpage after the next *Build*.
+
+\[image\]
+
+In the next step of this guide, we'll point you to the full <comp.GlossaryTerm term="/user/glossary/v/visual-editor-api.yml">Visual Editor API</comp.GlossaryTerm> reference and some ideas for other integrations to build.
