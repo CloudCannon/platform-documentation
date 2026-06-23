@@ -7,8 +7,8 @@ Machine-readable style rules for AI agents and automated linters. These rules ar
 **For agents making updates to this file:** Also update the corresponding section in `STYLE_GUIDE.mdx` with the prose explanation and examples. Update the revision history in both files: `last_updated` and `style_guide_version` in the YAML block below, and the `Last Updated` and `Version` fields and the revision history table (Section 4) in `STYLE_GUIDE.mdx`.
 
 ```yaml
-style_guide_version: "2.19"
-last_updated: "2026-06-04"
+style_guide_version: "2.20"
+last_updated: "2026-06-23"
 
 terminology:
   disambiguation:
@@ -279,7 +279,7 @@ documentation_types:
       emoji: "A single emoji is permitted in the congratulatory opening sentence (e.g. 🎉)"
       required_elements:
         - "Congratulatory opening sentence acknowledging guide completion"
-        - "Support callout linking to /support/ and CloudCannon Community (external link with target=_blank rel=noopener)"
+        - "Support callout linking to https://cloudcannon.com/support/ (HTML anchor, rel=noreferrer) and CloudCannon Community (external link with target=_blank rel=noopener)"
         - "Contextual section headings (## level) that describe what the reader can do next, not bare topic labels"
         - "One-sentence prose intro before each bullet list explaining why these resources are useful"
         - "Bullet list entries formatted as: [Link text](/path/) — One sentence description"
@@ -431,17 +431,19 @@ documentation_types:
     link_format:
       pattern: "/documentation/[user|developer]-articles/[slug]/"
       include_documentation_prefix_for: "articles and guides only"
-      other_internal_pages: "link directly without /documentation/ (e.g., /pricing/)"
+      non_documentation_pages: "use a full absolute URL (e.g., https://cloudcannon.com/pricing/); never root-relative — basePath prepends /documentation/ and breaks it"
+      never_protocol_relative: "a leading // is read as a hostname; use a single leading / for documentation paths"
       examples:
         correct:
           - "/documentation/user-articles/what-is-a-collection/"
           - "/documentation/developer-articles/configure-collections/"
           - "/documentation/developer-guides/okta-sso-saml/"
-          - "/pricing/"  # Other internal pages
+          - "https://cloudcannon.com/pricing/"  # Non-documentation pages: absolute URL
         incorrect:
           - "/user-articles/what-is-a-collection/"  # Missing /documentation/
           - "/user/articles/what-is-a-collection/"  # Wrong structure
-          - "/documentation/pricing/"  # Don't add /documentation/ to other pages
+          - "/pricing/"  # Root-relative non-doc link — basePath breaks it to /documentation/pricing/
+          - "//documentation/developer-articles/..."  # Protocol-relative — resolves to https://documentation/...
           - "/changelogs/..."  # Don't link to changelogs
       
       acceptable_empty_for:
@@ -469,6 +471,17 @@ link_formats:
       - "/documentation/user-guides/getting-started/create-a-site/"
       - "/documentation/developer-guides/okta-sso-saml/"
   
+  non_documentation_pages:
+    description: "Pages on cloudcannon.com outside /documentation/ (e.g. the marketing pricing page)"
+    syntax: '<a href="https://cloudcannon.com/[path]/" rel="noreferrer">[Link text]</a>'
+    rule: "Use a full absolute URL in an HTML anchor; never a root-relative path. basePath prepends /documentation/ to any root-relative link, so /pricing/ breaks as /documentation/pricing/"
+    no_new_tab: "Same domain, so omit target=_blank — keep the reader in the same tab"
+    examples:
+      - '<a href="https://cloudcannon.com/pricing/" rel="noreferrer">Team or Enterprise plan</a>'
+
+  protocol_relative_links:
+    rule: "Never use a leading // — the browser reads the first segment as a hostname (//documentation/... resolves to https://documentation/...). Use a single leading / for documentation paths"
+
   external_links:
     syntax: '<a href="[url]" target="_blank" rel="noopener">[Link text]</a>'
     rule: "Always use HTML anchor tags for external links, never markdown syntax"
@@ -497,17 +510,17 @@ components:
       permissions: "Must always be first in the article, immediately after front matter. Always start with bold 'Permissions required' heading."
       pricing: "Can be first if the entire feature is plan-specific; otherwise inline."
     pricing_notice_content:
-      single_feature_form: "**This feature is available on our [Team or Enterprise plan](/pricing/).** OR ***Feature Name* is available on our [Team or Enterprise plan](/pricing/).**"
+      single_feature_form: "**This feature is available on our <a href="https://cloudcannon.com/pricing/" rel="noreferrer">Team or Enterprise plan</a>.** OR ***Feature Name* is available on our <a href="https://cloudcannon.com/pricing/" rel="noreferrer">Team or Enterprise plan</a>.**"
       overview_article_form: "Name the gated sub-features the article actually discusses; do not list the full set of gated features under the parent"
       examples:
         correct:
-          - "**This feature is available on our [Team or Enterprise plan](/pricing/).**"
-          - "***Deploy Previews* are available on our [Team or Enterprise plan](/pricing/).**"
-          - "***Projects* are available on all plans. *Site* branching and *Publishing Workflows* are available on our [Team or Enterprise plan](/pricing/).**"
-          - "**The *Pull Requests* tab and *Deploy Previews* settings are available on our [Team or Enterprise plan](/pricing/). Other parts of the *Project Browser* are available on all plans.**"
+          - "**This feature is available on our <a href="https://cloudcannon.com/pricing/" rel="noreferrer">Team or Enterprise plan</a>.**"
+          - "***Deploy Previews* are available on our <a href="https://cloudcannon.com/pricing/" rel="noreferrer">Team or Enterprise plan</a>.**"
+          - "***Projects* are available on all plans. *Site* branching and *Publishing Workflows* are available on our <a href="https://cloudcannon.com/pricing/" rel="noreferrer">Team or Enterprise plan</a>.**"
+          - "**The *Pull Requests* tab and *Deploy Previews* settings are available on our <a href="https://cloudcannon.com/pricing/" rel="noreferrer">Team or Enterprise plan</a>. Other parts of the *Project Browser* are available on all plans.**"
         incorrect:
-          - "**Some features are only available on our [Team or Enterprise plan](/pricing/).**"  # vague — doesn't say which features
-          - "**This feature is available on our** [**Team or Enterprise plan**](/pricing/)**.**"  # over-wrapped bold/link splits
+          - "**Some features are only available on our <a href="https://cloudcannon.com/pricing/" rel="noreferrer">Team or Enterprise plan</a>.**"  # vague — doesn't say which features
+          - "**This feature is available on our** [**Team or Enterprise plan**](https://cloudcannon.com/pricing/)**.**"  # over-wrapped bold/link splits; also: non-doc links must be HTML anchors, not markdown
     general_rules:
       - "Only one notice at the start of an article (permissions, pricing, or important — never info)"
       - "Keep notice text concise"
