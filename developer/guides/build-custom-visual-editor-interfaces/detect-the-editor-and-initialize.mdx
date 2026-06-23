@@ -10,8 +10,8 @@ details:
   description: >-
     Detect the Visual Editor and initialize the Visual Editor API before your
     integration runs.
-  start_nav_group:
-  related_articles:
+  start_nav_group: null
+  related_articles: null
 author_notes:
   docshots: Needs docshots
 ---
@@ -78,19 +78,19 @@ export function Doodler() {
   Declare `window` with CloudCannon's types so `inEditorMode` and `CloudCannonAPI` are typed.
 </comp.Annotation>
 <comp.Annotation number="3">
-  Hold the API in a `useRef` so the handle persists across re-renders and is ready whenever a *Team Member* submits later. `useRef(undefined)` touches no browser globals, so it's safe during a server-side build — unlike reading `window` directly in the component body.
+  Hold the API in a `useRef` so the handle persists across re-renders, ready for whenever a *Team Member* submits. `useRef(undefined)` touches no browser globals, so it's safe during a server-side build.
 </comp.Annotation>
 <comp.Annotation number="4">
   Only run inside the *Visual Editor* — `window.inEditorMode` is `true` there and `undefined` on the live *Site* — and bail out early everywhere else.
 </comp.Annotation>
 <comp.Annotation number="5">
-  Request v1 of the API with `useVersion('v1', true)`. The `true` keeps the handler off the global `window.CloudCannon`, so it won't clash with other integrations using a different API version.
+  Request v1 of the API with `useVersion('v1', true)`. The `true` keeps the handle off the global `window.CloudCannon`, so it won't clash with integrations using another API version.
 </comp.Annotation>
 <comp.Annotation number="6">
   If `window.CloudCannonAPI` already exists, initialize immediately.
 </comp.Annotation>
 <comp.Annotation number="7">
-  Otherwise wait for the `cloudcannon:load` event — CloudCannon sets `window.CloudCannonAPI` before dispatching it. `{ once: true }` and the cleanup remove the listener after it fires or if the component unmounts first.
+  Otherwise wait for the `cloudcannon:load` event, which CloudCannon dispatches after setting `window.CloudCannonAPI`. `{ once: true }` and the cleanup remove the listener once it fires or the component unmounts.
 </comp.Annotation>
 <comp.Annotation number="8">
   Render nothing outside the *Visual Editor*, so the tool never appears for site visitors.

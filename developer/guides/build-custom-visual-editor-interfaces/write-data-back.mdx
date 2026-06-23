@@ -10,8 +10,8 @@ details:
   description: >-
     Finish the submit flow by reading the gallery array and appending the new
     doodle with addArrayItem.
-  start_nav_group:
-  related_articles:
+  start_nav_group: null
+  related_articles: null
 author_notes:
   docshots: Needs docshots
 ---
@@ -65,11 +65,78 @@ The Doodle Gallery integration can read the `doodles` array, then append a new i
 </comp.Annotation>
 </comp.CodeBlock>
 
-The integration uses `file()` with a path, rather than `currentFile()`, because we're writing to a specific data file instead of the page open in the *Visual Editor*.
+The integration uses `file()` with a path, rather than `currentFile()`, because we're writing to a specific data file instead of the page open in the <comp.GlossaryTerm term="/user/glossary/v/visual-editor.yml">Visual Editor</comp.GlossaryTerm>.
 
-The `submit()` function is now complete. Once the write finishes (or fails partway through) the Doodle Gallery releases the file lock with `releaseLock()`, to indicate to other *Team Members* viewing `doodles.json` that they can edit again. In the Doodle Gallery example this runs in the `finally` block of the `try`/`catch` we left out in the previous step, which guarantees the lock is released no matter how `submit()` exits. Always release a lock once you're done writing — see [Read and write data with the Visual Editor API](/documentation/developer-articles/read-and-write-data-with-the-visual-editor-api/).
+The `submit()` function is now complete, and its final job is to release the file lock on `doodles.json`. If your integration never releases the lock, other *Team Members* stay locked out until they take the lock back manually.
+
+The Doodle Gallery wraps the steps from the previous two pages in a `try`/`catch`/`finally` and calls `releaseLock()` in the `finally` block. A `finally` block runs no matter how `submit()` exits, so the lock is released whether the write succeeds or throws partway through. The `file` reference sits outside the `try` so the `finally` block can still reach it on any exit path.
+
+<comp.CodeBlock language="typescript" source="src/components/doodle.tsx">
+```
+async function submit() {
+  const file = cloudcannonApi.file('/src/data/doodles.json'); /*1*/
+
+  try {
+    // Claim the lock, upload the image, and write the data
+    // (the steps we built across the previous two pages).
+  } catch (error) {
+    // Show the Team Member what went wrong.
+  } finally {
+    file.releaseLock(); /*2*/
+  }
+}
+```
+<comp.Annotation number="1">
+  Declare the `file` reference before the `try` block so the `finally` block can release its lock, regardless of where the code inside `try` exits.
+</comp.Annotation>
+<comp.Annotation number="2">
+  Release the lock in the `finally` block so it runs even when the code above throws. This frees the lock on every exit path, so a failed write never leaves another *Team Member* stranded with a read-only file.
+</comp.Annotation>
+</comp.CodeBlock>
 
 The new doodle now appears in any open <comp.GlossaryTerm term="/user/glossary/d/data-editor.yml">Data Editor</comp.GlossaryTerm> and is written to `doodles.json`, ready to commit when a *Team Member* saves the <comp.GlossaryTerm term="/user/glossary/s/site.yml">Site</comp.GlossaryTerm>. Because the gallery page renders straight from that data file, the new doodle shows up on the live webpage after the next *Build*.
+
+The same `src/pages/index.astro` page we set up earlier renders that gallery. It reads the `doodles` array and maps each item to an image, using the same `src` and `caption` fields that `submit()` writes, so every new doodle appears automatically.
+
+<comp.CodeBlock language="astro" source="src/pages/index.astro">
+```
+---
+import { doodles } from '../data/doodles.json'; /*1*/
+
+const colors = ['pink', 'cyan', 'yellow', 'blue', 'lime'];
+---
+
+{doodles.length ? ( /*2*/
+  <section class="wall">
+    <div class="wall-head">
+      <h2>Gallery</h2>
+    </div>
+    <div class="bento gallery">
+      {doodles.map(({ src, caption }, index) => ( /*3*/
+        <figure
+          class="tile"
+          style={{ '--accent': `var(--${colors[index % colors.length]})` }}
+        >
+          <div class="tile-img">
+            <img src={src} alt={null} width="300" height="300" />
+          </div>
+          <figcaption class="tile-cap">{caption}</figcaption>
+        </figure>
+      ))}
+    </div>
+  </section>
+) : undefined}
+```
+<comp.Annotation number="1">
+  Import the same `doodles` array your integration writes to. CloudCannon rebuilds the page from this file, so it always reflects the latest data.
+</comp.Annotation>
+<comp.Annotation number="2">
+  Only render the gallery section once at least one doodle exists.
+</comp.Annotation>
+<comp.Annotation number="3">
+  Map over the array, reading the `src` and `caption` fields that `addArrayItem()` wrote. The shape matches on both ends: the integration writes it, and the page reads it.
+</comp.Annotation>
+</comp.CodeBlock>
 
 \[image\]
 
