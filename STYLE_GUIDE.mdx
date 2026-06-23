@@ -1,7 +1,7 @@
 # CloudCannon Documentation Style Guide
 
 **Last Updated:** June 23, 2026  
-**Version:** 2.20
+**Version:** 2.22
 
 This style guide establishes writing standards for all CloudCannon documentation. It combines patterns from our existing documentation with industry best practices from Microsoft Writing Style Guide, Google Developer Documentation Style Guide, and Write the Docs community standards.
 
@@ -41,6 +41,16 @@ CloudCannon uses the following documentation types:
    - Not part of the traditional Diátaxis framework, but essential for keeping users informed
 
 This structure helps users find the right information at the right time, whether they're learning a new concept, completing a specific task, or looking up a term.
+
+### Specific pages, single source of truth
+
+Prefer specific, single-purpose pages. A discrete topic earns its own page — especially opt-in or configurable behavior (as distinct from default behavior), or content serving a distinct reading context. Splitting for specificity is good.
+
+Give each behavior, feature, or screen **one home**. A general page may introduce a topic in a short paragraph and link out to the specific page that covers it thoroughly — that is the intended pattern, not duplication. Similarity across pages is also fine when they cover *different* topics: the *Snippets* pages look alike because each snippet type behaves similarly, but each type has its own home, so describing that shared behavior on each page is accurate, not duplicated.
+
+What to avoid: the **same** behavior or appearance documented in full on two pages — even when both are accurate. Two homes for one thing dilute search results and will eventually drift apart. Consolidate to a single authoritative page and have the other defer with a short summary and a link. **Always cross-link related pages.**
+
+When pages do disagree, accuracy wins, not recency: a newer page is not automatically right, and an older page is not automatically stale. Verify against app behavior and this style guide — they are the ultimate tie-breakers — and fix toward them.
 
 ---
 
@@ -1147,6 +1157,8 @@ The *App Sidebar* contains links to top-level pages (*Home*, *Sites*, *Projects*
 
 Changelogs announce new features, improvements, and bug fixes for CloudCannon releases.
 
+Changelogs document changes that have **shipped to all users**. Exclude features that are still in beta or otherwise unreleased, along with their supporting plumbing (error handling, migrations, API wiring) — even if the code merged during the period the changelog covers.
+
 #### 2.1.1 File Naming
 - Location: `changelogs/YYYY/` (where YYYY is the year)
 - Format: `MM-DD_descriptive-title.mdx`
@@ -1158,14 +1170,18 @@ Changelogs announce new features, improvements, and bug fixes for CloudCannon re
 ---
 _schema: default
 title: Use a filename as the value_key for Select Inputs
+date: 2026-06-23T14:42:44+12:00
 ---
 ```
+
+- `date` is required — an ISO 8601 timestamp in the `+12:00` (NZ) timezone, set to when the changelog is published. It drives ordering, so it must be present even though the rendered page does not always show it.
 
 **Title Guidelines:**
 - Should be descriptive, not just a date
 - Use sentence case (capitalize first word and proper nouns only)
 - Use feature names as they appear in CloudCannon
 - Focus on the main feature or improvement of the release
+- If a release has no notable features (fixes only), use a general title such as `general-fixes`
 
 #### 2.1.3 Structure
 
@@ -1178,7 +1194,7 @@ title: Use a filename as the value_key for Select Inputs
 1. **Features & Improvements**
    - List new features and enhancements
    - Use bullet points
-   - Start each item with what the user can now do
+   - Start each item with a past-tense verb (Added, Changed, Improved, Removed). To convey *what the reader can now do*, follow the verb with an "allowing you to…" clause rather than the present-tense "You can now…" (see the Entry Shape pattern in §2.1.4)
    - Include code examples for configuration changes
    - Link to relevant documentation
 
@@ -1187,6 +1203,7 @@ title: Use a filename as the value_key for Select Inputs
    - Use bullet points
    - Start with "Fixed an issue where..."
    - Be specific but concise
+   - Roll up dependency bumps (Dependabot, `npm_and_yarn`, `bundler`, patch-only library updates) into a single closing line: "Updated dependencies to patch security vulnerabilities."
 
 #### 2.1.4 Writing Style
 
@@ -1219,6 +1236,24 @@ Standard past-tense verbs:
 - ✅ **Good:** "Fixed an issue where Rich Text Inputs were not resizable."
 - ✅ **Good:** "Fixed an issue where adding a date to a Datetime Input did not work unless time was also added."
 - ❌ **Avoid:** "Fixes an issue where..." (present tense)
+
+**Entry Shape**
+
+Lead with a past-tense verb, state the capability with an "allowing you to…" clause, then locate the controls descriptively. This conveys *what the reader can now do* without slipping into present-tense instruction.
+
+Pattern: **Added** *[Name]*, allowing you to *[capability]*. *[Where the controls live, stated descriptively.]*
+
+- ✅ **Good:** "Added *Deploy Previews*, allowing you to build a *Site* for each *Pull Request* and comment on it automatically. These settings live in the *Deploy Previews* section of *Project Settings*."
+- ❌ **Avoid:** "You can now build a *Site* for each *Pull Request*…" (present-tense instruction)
+- ❌ **Avoid:** "Go to *Project Settings* to turn this on." (instructional, not descriptive)
+
+**Nested Detail**
+
+When an entry uses sub-bullets to explain how a feature works, keep the lead bullet in past tense and describe behaviour in the descriptive present. Never issue instructions ("You can now…", "Click *Save*").
+
+- ✅ **Good:**
+  - "Added two new optional *Project* tabs, *Pull Requests* and *Branches*, which you can turn on from the *Details* section under *Project Settings*."
+    - "The *Pull Requests* tab shows all open and draft *Pull Requests* in the connected *Git Repository*."
 
 **Specificity**
 - Be specific about what changed.
@@ -2490,6 +2525,8 @@ accessibility_requirements:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.22 | 2026-06-23 | Changelogs (§2.1.2, §2.1.3): documented the required `date` front-matter field (ISO 8601, +12:00) and the `general-fixes` title fallback; added a scope note that changelogs cover only shipped features (beta/unreleased work and its plumbing excluded); added the dependency-bump roll-up line to the Fixes guidance |
+| 2.21 | 2026-06-23 | Changelogs (§2.1.3, §2.1.4): resolved the tense conflict between "start each item with what the user can now do" and "past tense exclusively". Entries now lead with a past-tense verb and convey capability via an "allowing you to…" clause, never "You can now…". Added an Entry Shape pattern and a Nested Detail rule (past-tense lead, behaviour in the descriptive present, no instructions) |
 | 2.20 | 2026-06-23 | Links (§1.4.4, §2.5.6): documented that Lume's `basePath` prepends `/documentation/` to every root-relative link. Links to non-documentation `cloudcannon.com` pages (e.g. `/pricing/`, `/support/`) must now be full absolute URLs in HTML anchors, not root-relative paths; added a prohibition on protocol-relative (`//`) links. Updated pricing-notice and support-callout examples accordingly |
 | 2.19 | 2026-06-04 | Mermaid component (§1.5.5) now renders client-side via `mermaid.js` (lazy-loaded on diagram pages from a pinned jsDelivr URL). Removed the build-time renderer, the local-render-and-commit workflow, and the `name` prop. Loader visible during render; no-JS readers see the `alt` |
 | 2.18 | 2026-06-04 | Mermaid component (§1.5.5): added required `name` prop (kebab-case identifier). SVGs are now stored as `_cache/mermaid/{name}-{theme}.svg` instead of SHA1 hashes; each SVG embeds a `<!-- mermaid-hash: ... -->` comment so stale files are detected at build time |

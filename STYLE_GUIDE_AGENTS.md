@@ -7,8 +7,17 @@ Machine-readable style rules for AI agents and automated linters. These rules ar
 **For agents making updates to this file:** Also update the corresponding section in `STYLE_GUIDE.mdx` with the prose explanation and examples. Update the revision history in both files: `last_updated` and `style_guide_version` in the YAML block below, and the `Last Updated` and `Version` fields and the revision history table (Section 4) in `STYLE_GUIDE.mdx`.
 
 ```yaml
-style_guide_version: "2.20"
-last_updated: "2026-06-23"
+style_guide_version: "2.23"
+last_updated: "2026-06-24"
+
+documentation_architecture:
+  single_source_of_truth:
+    prefer: "Specific, single-purpose pages. Split by discrete topic or distinct reading context (e.g. opt-in/configurable behavior vs default behavior). Splitting for specificity is good."
+    one_home: "Each behavior, feature, or screen has one home page. A general page may summarize a topic in a short paragraph and link to the specific page that covers it thoroughly — intended pattern, not duplication."
+    similarity_ok: "Similar content across pages covering DIFFERENT topics is accurate, not duplication (e.g. Snippets pages, where each snippet type behaves similarly but has its own home)."
+    avoid: "The SAME behavior or appearance documented in full on two pages, even when both are accurate — dilutes search and will drift. Consolidate to one authoritative page; others defer with a short summary and a link."
+    always_cross_link: true
+    tie_breaker: "When pages disagree, accuracy wins, not recency. App behavior and STYLE_GUIDE.mdx are the ultimate tie-breakers; fix toward them."
 
 terminology:
   disambiguation:
@@ -168,10 +177,19 @@ documentation_types:
     required_front_matter:
       - "_schema"
       - "title"
+      - "date (ISO 8601, +12:00 NZ timezone; publish time; drives ordering)"
+    title_fallback: "general-fixes (when a release has no notable features)"
+    scope: "Document only features shipped to all users. Exclude beta/unreleased features and their supporting plumbing (error handling, migrations, API wiring), even if merged during the period covered."
     required_sections:
       - "Features & Improvements"
       - "Fixes"
+    dependency_rollup: "Roll up Dependabot/npm_and_yarn/bundler/patch-only bumps into a single closing Fixes line: 'Updated dependencies to patch security vulnerabilities.'"
     tense: "past"
+    entry_shape: "Lead with a past-tense verb, then an 'allowing you to…' capability clause, then locate the controls descriptively. Convey what the reader can now do via 'allowing you to…', never 'You can now…'. Pattern: Added *[Name]*, allowing you to *[capability]*. [Where the controls live, stated descriptively.]"
+    nested_detail: "Sub-bullets explaining how a feature works keep a past-tense lead and describe behaviour in the descriptive present; never instructional ('You can now…', 'Click Save')."
+    avoid:
+      - "You can now… (present-tense instruction)"
+      - "Go to X to… (instructional rather than descriptive)"
     preferred_verbs:
       - "Added"
       - "Changed"
