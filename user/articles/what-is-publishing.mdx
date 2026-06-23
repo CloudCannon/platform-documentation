@@ -1,0 +1,76 @@
+---
+_schema: default
+_uuid: c5a12118-37f9-4f12-b5df-4a50cad3f5a8
+_created_at: 2025-02-28T02:41:38.000Z
+details:
+  title: What is publishing?
+  description: >-
+    Learn how publishing in CloudCannon moves changes between Sites, including how Publish Branches and Publishing Workflows define where your changes go.
+  image: >-
+    https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+  category:
+    - Explanation
+  related_articles:
+    - _type: user_articles
+      item: c163b32b-ad46-4634-b910-25e5da550db9
+    - _type: user_articles
+      item: c0536066-95b8-4298-bc99-ebcecf9b3260
+    - _type: user_articles
+      item: d57b2929-5dbd-49b9-8e15-f83fc54630fd
+author_notes:
+  docshots: Added!
+---
+<comp.Notice info_type="pricing">
+  ***Publishing Workflows* are available on our <a href="https://cloudcannon.com/pricing/" rel="noreferrer">Team or Enterprise plan</a>.** *Sites* on our Standard plan can still publish to a *Publish Branch*; for setup, please follow the [Getting Started with CloudCannon](/documentation/developer-guides/getting-started-with-cloudcannon/) guide.
+
+  Want to chat about whether this feature is right for you? Our support team is always <a href="mailto:success@cloudcannon.com?subject=A%20question%20about%20publishing" rel="noreferrer">happy to hear from you</a>.
+</comp.Notice>
+
+*Publishing* is the process of moving content changes from one <comp.GlossaryTerm term="/user/glossary/s/site.yml">Site</comp.GlossaryTerm> to another. When you publish, CloudCannon copies the changes from the *Site* you have been working on to its <comp.GlossaryTerm term="/user/glossary/p/publish-branch.yml">Publish Branch</comp.GlossaryTerm>: the *Site* immediately "upstream" that you want your changes to reach.
+
+Moving changes between *Sites* like this is called a <comp.GlossaryTerm term="/user/glossary/p/publishing-workflow.yml">Publishing Workflow</comp.GlossaryTerm>, and allows you to draft changes on an independent copy of your *Site* without affecting the work of other *Team Members* or the live website your visitors see. To use a *Publishing Workflow*, a developer needs to set up a [Project](/documentation/user-articles/what-is-a-project/) for your website.
+
+## What is a Publish Branch?
+
+A *Publish Branch* is the destination *Site* for your changes. Each *Site* in your *Project* has one *Publish Branch* assigned to it. When you publish, CloudCannon sends your changes from the *Site* you are working on to that destination *Site*. Often the *Publish Branch* is the *Site* you branched from, allowing you to start with an exact copy of a *Site*, make intentional changes on that separate copy, and then move them back. For more information, please read our documentation on [what branching is](/documentation/user-articles/what-is-branching/).
+
+You can see the name of your *Site's* *Publish Branch* on the *Publishing* page, alongside any changes ready to publish to it. For more information, please read our documentation on the [Publishing page](/documentation/user-articles/what-is-the-publishing-page/).
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Publishing-Page-Merge-Immediately" alt="A screenshot of the Publishing page shows a notice that changes are available to publish from the current Site to its Publish Branch." title="The Publishing page" type="screenshot" />
+
+## What happens when you publish
+
+When you publish a *Site*, CloudCannon copies your changes to the *Site's* *Publish Branch*. There are two methods for publishing changes: *Merge Immediately* and *Pull Request*. *Merge Immediately* allows CloudCannon to move changes from one *Site* to another without any review process. *Pull Request* requires the person publishing the changes to submit a request for those changes to move from one *Site* to another, which requires approval by another *Team Member* through your *Git Provider*. Your developer selects which *Publishing Method* your *Project* should use. For more information, please read our documentation on [what Publishing Methods are](/documentation/user-articles/what-are-publishing-methods/).
+
+If multiple *Team Members* are making changes to the same parts of your website on different branched *Sites*, publishing your changes may lead to a *Publishing Conflict*. For more information, please read our documentation on [what Publishing Conflicts are](/documentation/user-articles/what-are-publishing-conflicts/) and [how to resolve them](/documentation/user-articles/resolve-publishing-conflicts/).
+
+Also, if new changes were published to your *Publish Branch* since you created your *Site*, CloudCannon will ask you to update your branched *Site* to match. For more information, please read our documentation on [updating from a Publish Branch](/documentation/user-articles/update-from-a-publish-branch/).
+
+## Who can publish?
+
+Once a developer has set up the *Publishing Workflow* for your *Project*, anyone in [Default Permission Groups](/documentation/user-articles/what-are-default-permission-groups/) (except *Billing*) can publish changes from one *Site* to another via the *Publishing* page. However, if your *Organization* uses [Custom Permission Groups](/documentation/developer-articles/what-are-custom-permission-groups/), you will need permission to publish. For more information, please read our documentation on [publishing changes to a Publish Branch](/documentation/user-articles/publish-changes-to-a-publish-branch/).
+
+## An example of a Publishing Workflow
+
+<comp.Mermaid
+  alt="Three task Sites publish to a Staging Site, which publishes to a Production Site."
+  chart={`graph BT
+    A["Site 3:<br/>Write a new blog"] -->|Publishes to| S["Site 2:<br/>Staging"]
+    B["Site 4:<br/>Remove a product page"] -->|Publishes to| S
+    C["Site 5:<br/>Update Site navigation"] -->|Publishes to| S
+    S -->|Publishes to| P["Site 1:<br/>Production"]
+  `}
+/>
+
+The diagram above shows a common *Publishing Workflow* with five *Sites*. "Production" is the live version of your website. "Staging" is a branched copy of "Production", and the three *Sites* below — "Write a new blog", "Remove a product page", and "Update Site navigation" — are each branched from "Staging".
+
+In this workflow:
+
+* The three draft *Sites* share a *Publish Branch*: "Staging". *Team Members* working on each draft can publish their changes to "Staging" when they are happy with them, without affecting each other's work.
+* "Staging" has its own *Publish Branch*: "Production". Once the combined changes on "Staging" are ready to go live, you can publish them to "Production".
+
+This layered approach is a common publishing pattern. The draft *Sites* protect your *Team Members* from each other's in-progress changes, while "Staging" protects your live website from changes you haven't reviewed together yet.
+
+<comp.Notice info_type="info">
+  Not every team needs three layers in their *Publishing Workflow*. Smaller teams may publish directly from draft *Sites* to "Production", without a "Staging" *Site* in between.
+</comp.Notice>

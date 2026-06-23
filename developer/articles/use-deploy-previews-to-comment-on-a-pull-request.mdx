@@ -1,0 +1,100 @@
+---
+_schema: default
+_uuid: 8b76cacb-21e2-4238-b28e-aebb3b60be80
+_created_at: '2026-04-24 00:00:00 +0000'
+details:
+  title: Use Deploy Previews to comment on a Pull Request
+  description: >-
+    Learn how CloudCannon posts and updates deploy preview comments on Pull
+    Requests, and how to configure comment behavior for your Project.
+  image: >-
+    https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+  category:
+    - Explanation
+  related_articles:
+    - _type: developer_articles
+      item: 1b92a30d-2449-441c-aa24-7f52412b511b
+    - _type: developer_articles
+      item: 3a358dae-b9bd-4961-b680-6685cd867722
+    - _type: developer_articles
+      item: cf1a6a0b-42bb-4ed1-bce3-fbb697dffc12
+author_notes:
+  docshots: Needs docshots
+---
+<comp.Notice info_type="pricing">
+  ***Deploy Previews* are available on our <a href="https://cloudcannon.com/pricing/" rel="noreferrer">Team or Enterprise plan</a>.**
+
+  Want to chat about whether this feature is right for you? Our support team is always <a href="mailto:success@cloudcannon.com?subject=A%20question%20about%20pull%20request%20deploy%20previews" rel="noreferrer">happy to hear from you</a>.
+</comp.Notice>
+
+CloudCannon can use <comp.GlossaryTerm term="/user/glossary/d/deploy-preview.yml">Deploy Previews</comp.GlossaryTerm> to automatically post a comment to the *Pull Request* in your *Git Provider*. Each comment includes the following details:
+
+* The *Site Name* and the branch it tracks
+* The *Site's* current *Build Status* on CloudCannon (e.g., Ready, Building, Build Failed, or Not configured)
+* A *View Testing Domain* link that opens the *Site's* <comp.GlossaryTerm term="/user/glossary/t/testing-domain.yml">Testing Domain</comp.GlossaryTerm>
+* An *Open Site* link that opens the *Site Dashboard* in CloudCannon
+* A *View Build Logs* link that opens the *Builds* tab on your *Site Dashboard*
+* A *Latest Commit* link (shown as the short commit SHA) that opens the latest commit on your *Git Provider*
+
+If multiple *Sites* are connected to the same branch, CloudCannon renders the details as a table with one row per *Site*, including both manually connected *Sites* and *Sites* that CloudCannon created automatically for the *Pull Request*.
+
+<comp.Notice info_type="info">
+  Normally, the *Latest Commit* is the same for each *Site*, because CloudCannon syncs changes from your *Git Repository* to every connected *Site*. A different *Latest Commit* on one row can mean syncing for that *Site* is blocked, paused, or filtered.
+</comp.Notice>
+
+If no *Sites* are connected yet, the automatic comment links to your <comp.GlossaryTerm term="/user/glossary/p/project.yml">Project</comp.GlossaryTerm> so you can connect one.
+
+Automatic comments can be useful for teams where some members review *Pull Requests* in their *Git Provider* (e.g., developers reviewing code changes alongside the diff), and other members manage content from inside CloudCannon. *Deploy Previews* bridge this gap by posting the *Testing Domain*, *Build Status*, and links back to your *Site* directly on the *Pull Request*, so reviewers can preview changes and open the *Site* without leaving their *Git Provider*.
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Project-Settings-Deploy-Previews-Automatic-Comments" alt="A screenshot of the Deploy Previews section showing the Automatic Comments fieldset with Comment on Pull Requests with Site details enabled." title="The Automatic Comments fieldset enabled" type="screenshot" />
+
+You can turn on *Pull Request* comments via *Deploy Previews* for any <comp.GlossaryTerm term="/user/glossary/p/project.yml">Project</comp.GlossaryTerm> in CloudCannon by [configuring Deploy Previews](/documentation/developer-articles/configure-deploy-previews/), including custom footer content and whether CloudCannon does this for draft *Pull Requests*.
+
+## Posting and updating *Pull Request* comments
+
+By default, CloudCannon posts the *Pull Request* comment via *Deploy Preview* when a *Team Member* opens a *Pull Request* for a branch in your *Project*. CloudCannon updates that comment after any of the following triggers:
+
+* A *Pull Request* event is received (opened, reopened, ready for review, edited, and so on).
+* A *Site* linked to the *Pull Request* changes branch, is renamed, or has its stable domain updated.
+* A *Site* is created for the *Pull Request* (including automatically created *Sites*).
+* A build on a connected *Site* completes, so the status and commit information stay current.
+
+Rather than create a new comment after any of these triggers, CloudCannon always updates the existing comment and moves the comment to the most recent event on your *Pull Request* timeline (e.g., your Conversation in GitHub, Discussion in GitLab, and Overview in Bitbucket). CloudCannon identifies its own comment using a hidden HTML marker scoped to your *Organization*. Editing or reacting to a comment from your *Git Provider* does not affect CloudCannon's ability to update it.
+
+## Manually refreshing *Deploy Preview* comments
+
+CloudCannon updates *Deploy Preview* comments automatically when *Pull Requests*, *Sites*, or builds change. *Refresh Deploy Preview comments* is an option in the *Context Menu* on the *Project* page that triggers an immediate refresh, without waiting for the next event.
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Project-Refresh-Deploy-Preview-Comments-Menu" alt="A screenshot of the Project page with the Context Menu open, showing Refresh Deploy Preview comments and Copy link to project options." title="The Project page Context Menu" type="screenshot" />
+
+Selecting this option re-runs the comment posting and updating flow for every *Site* on the *Project*. CloudCannon updates the comment on each open *Pull Request*.
+
+<comp.Notice info_type="info">
+  You must have permission to edit *Build Deploys* to use this option.
+</comp.Notice>
+
+A manual refresh is useful when *Deploy Previews* settings change and existing comments should reflect the new content immediately, when CloudCannon's automatic comment failed to post or was deleted from the *Pull Request*, or when debugging *Deploy Preview* comment behavior.
+
+## The comment footer
+
+By default, each comment has a footer with the text "Deployed by CloudCannon." You can append extra content to this footer, for example, including useful links to internal review checklists, tagging reviewers, or pointing at documentation specific to your team.
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Project-Settings-Deploy-Previews-Comment-Footer" alt="A screenshot of the Deploy Previews section in Project Settings, showing the Comment footer text area populated with custom Markdown." title="A comment footer added to a Deploy Preview comment" type="screenshot" />
+
+## Skipping draft *Pull Requests*
+
+You can skip automatic comment posting for draft *Pull Requests*. Once a *Pull Request* is marked as ready for review, CloudCannon posts a comment.
+
+<comp.Notice info_type="info">
+  This option is independent of the *Skip for draft Pull Requests* option for *Site* creation and destruction—you can, for example, create a *Site* for drafts but defer posting a comment until a *Pull Request* is ready.
+</comp.Notice>
+
+## Disabling automatic comments
+
+If you disable automatic comments on your *Project*, CloudCannon does not delete any existing comments in your *Git Repository*. Instead, CloudCannon reconciles every open *Pull Request* in the *Project* and rewrites its automatic comment with a short notice explaining that *Pull Request* comments have been disabled.
+
+The same reconciliation runs if you mark a *Pull Request* as a draft or change the content of the comment footer. *Pull Requests* that were previously eligible are updated with the disabled notice, and *Pull Requests* that are newly eligible are back-filled with a fresh *Deploy Preview* comment.
+
+<comp.Notice info_type="info">
+  Reconciliation only touches comments that CloudCannon posted using the marker for your *Organization*. It never edits or deletes comments written by people or other integrations.
+</comp.Notice>
