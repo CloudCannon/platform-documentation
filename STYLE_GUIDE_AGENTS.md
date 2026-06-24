@@ -511,7 +511,7 @@ components:
     naming: "Hyphenated names describing the page and state (e.g., Site-Settings-Syncing-Connected)"
 
   docsimage:
-    usage: "Illustrations, diagrams, and conceptual graphics only — being phased out for CloudCannon app images"
+    usage: "Illustrations, diagrams, conceptual graphics, and non-CloudCannon-app screenshots (external services or live Site pages) — being phased out for CloudCannon app images"
     required_attributes:
       - "path"
       - "alt"
@@ -519,7 +519,7 @@ components:
       - "type"
     use_for:
       - "Illustrations and diagrams"
-      - "Images that are not screenshots of the CloudCannon interface"
+      - "Screenshots that are not of the CloudCannon app — external services or live Site pages in a plain browser"
       - "External screenshots (assets/external_screenshots/)"
     never_use_for:
       - "Screenshots of the CloudCannon app (use comp.DocShot instead)"
