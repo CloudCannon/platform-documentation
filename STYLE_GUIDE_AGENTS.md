@@ -297,7 +297,7 @@ documentation_types:
       emoji: "A single emoji is permitted in the congratulatory opening sentence (e.g. 🎉)"
       required_elements:
         - "Congratulatory opening sentence acknowledging guide completion"
-        - "Support callout linking to https://cloudcannon.com/support/ (HTML anchor, rel=noreferrer) and CloudCannon Community (external link with target=_blank rel=noopener)"
+        - "Support callout linking to https://cloudcannon.com/support/ (HTML anchor) and CloudCannon Community (external link with target=_blank rel=noopener)"
         - "Contextual section headings (## level) that describe what the reader can do next, not bare topic labels"
         - "One-sentence prose intro before each bullet list explaining why these resources are useful"
         - "Bullet list entries formatted as: [Link text](/path/) — One sentence description"
@@ -491,11 +491,11 @@ link_formats:
   
   non_documentation_pages:
     description: "Pages on cloudcannon.com outside /documentation/ (e.g. the marketing pricing page)"
-    syntax: '<a href="https://cloudcannon.com/[path]/" rel="noreferrer">[Link text]</a>'
+    syntax: '<a href="https://cloudcannon.com/[path]/">[Link text]</a>'
     rule: "Use a full absolute URL in an HTML anchor; never a root-relative path. basePath prepends /documentation/ to any root-relative link, so /pricing/ breaks as /documentation/pricing/"
     no_new_tab: "Same domain, so omit target=_blank — keep the reader in the same tab"
     examples:
-      - '<a href="https://cloudcannon.com/pricing/" rel="noreferrer">Team or Enterprise plan</a>'
+      - '<a href="https://cloudcannon.com/pricing/">Team or Enterprise plan</a>'
 
   protocol_relative_links:
     rule: "Never use a leading // — the browser reads the first segment as a hostname (//documentation/... resolves to https://documentation/...). Use a single leading / for documentation paths"
@@ -528,16 +528,16 @@ components:
       permissions: "Must always be first in the article, immediately after front matter. Always start with bold 'Permissions required' heading."
       pricing: "Can be first if the entire feature is plan-specific; otherwise inline."
     pricing_notice_content:
-      single_feature_form: "**This feature is available on our <a href="https://cloudcannon.com/pricing/" rel="noreferrer">Team or Enterprise plan</a>.** OR ***Feature Name* is available on our <a href="https://cloudcannon.com/pricing/" rel="noreferrer">Team or Enterprise plan</a>.**"
+      single_feature_form: "**This feature is available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise plan</a>.** OR ***Feature Name* is available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise plan</a>.**"
       overview_article_form: "Name the gated sub-features the article actually discusses; do not list the full set of gated features under the parent"
       examples:
         correct:
-          - "**This feature is available on our <a href="https://cloudcannon.com/pricing/" rel="noreferrer">Team or Enterprise plan</a>.**"
-          - "***Deploy Previews* are available on our <a href="https://cloudcannon.com/pricing/" rel="noreferrer">Team or Enterprise plan</a>.**"
-          - "***Projects* are available on all plans. *Site* branching and *Publishing Workflows* are available on our <a href="https://cloudcannon.com/pricing/" rel="noreferrer">Team or Enterprise plan</a>.**"
-          - "**The *Pull Requests* tab and *Deploy Previews* settings are available on our <a href="https://cloudcannon.com/pricing/" rel="noreferrer">Team or Enterprise plan</a>. Other parts of the *Project Browser* are available on all plans.**"
+          - "**This feature is available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise plan</a>.**"
+          - "***Deploy Previews* are available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise plan</a>.**"
+          - "***Projects* are available on all plans. *Site* branching and *Publishing Workflows* are available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise plan</a>.**"
+          - "**The *Pull Requests* tab and *Deploy Previews* settings are available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise plan</a>. Other parts of the *Project Browser* are available on all plans.**"
         incorrect:
-          - "**Some features are only available on our <a href="https://cloudcannon.com/pricing/" rel="noreferrer">Team or Enterprise plan</a>.**"  # vague — doesn't say which features
+          - "**Some features are only available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise plan</a>.**"  # vague — doesn't say which features
           - "**This feature is available on our** [**Team or Enterprise plan**](https://cloudcannon.com/pricing/)**.**"  # over-wrapped bold/link splits; also: non-doc links must be HTML anchors, not markdown
     general_rules:
       - "Only one notice at the start of an article (permissions, pricing, or important — never info)"
