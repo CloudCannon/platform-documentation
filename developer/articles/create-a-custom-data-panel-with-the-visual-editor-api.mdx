@@ -31,7 +31,7 @@ The [Visual Editor](/documentation/user-articles/what-is-the-visual-editor/) use
 
 <comp.DocShot docshot_key="CloudCannon-Documentation-Visual-Editor-Data-Panel-Sidebar-Collapsed" alt="A screenshot of the Visual Editor displays a webpage preview with a data panel containing inputs open over top." title="The Visual Editor with data panel" type="screenshot"/>
 
-This article assumes you know how to [initialize the Visual Editor API](/documentation/developer-articles/initialize-the-visual-editor-api/) and [listen for changes](/documentation/developer-articles/listen-for-changes-with-the-visual-editor-api/).
+This article assumes you know how to [initialize the Visual Editor API](/documentation/developer-articles/initialize-the-visual-editor-api/).
 
 ## Open a custom *Data Panel* with *Input* fields
 
@@ -208,6 +208,21 @@ await api.createCustomDataPanel({ /*1*/
   Set `allowFullDataCascade` to `true` to widen the cascade to the open file and *Site* configuration; omit the property or set `false` to keep the panel self-contained.
 </comp.Annotation>
 </comp.CodeBlock>
+
+## Match the Input type CloudCannon would use
+
+When you build a *Data Panel* from data whose shape you don't know ahead of time, you can ask CloudCannon which *Input* type it would use for a field and configure your panel to match. CloudCannon resolves the type from the field's value and the naming convention of its key.
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+const inputType = api.getInputType('published_at', '2026-06-24'); /*1*/
+```
+<comp.Annotation number="1">
+  Pass a field's key and value to `getInputType()` to get the *Input* type CloudCannon would use to edit it. Here, the `_at` suffix on the key resolves to a `datetime` input, even though the value is a plain string. Pass an *Input* configuration object as an optional third argument to override the inferred type.
+</comp.Annotation>
+</comp.CodeBlock>
+
+For the full signature and return values, please read our documentation on the [Visual Editor API Object reference](/documentation/developer-reference/visual-editor-api/api/).
 
 ## Custom *Data Panel* configuration options
 
