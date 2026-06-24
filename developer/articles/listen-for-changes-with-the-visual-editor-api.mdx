@@ -11,7 +11,7 @@ details:
   image: >-
     https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
   category:
-    - Explanation
+    - Instructions
   related_articles:
     - _type: developer_articles
       item: 11b29768-6312-47fc-bc43-9a613d70e5f2
@@ -25,7 +25,7 @@ author_notes:
   docshots: Not applicable
 ---
 <comp.Notice info_type="important">
-  The *Visual Editor API* is designed for advanced CloudCannon users. If you need help with custom integrations or your CloudCannon setup in general, please contact our friendly [support team](/support/).
+  The *Visual Editor API* is designed for experienced CloudCannon users. If you need help with custom integrations or your CloudCannon setup in general, please contact our friendly [support team](/support/).
 </comp.Notice>
 
 CloudCannon's <comp.GlossaryTerm term="/user/glossary/v/visual-editor-api.yml">Visual Editor API</comp.GlossaryTerm> exposes `change` and `delete` events on the API root, on individual files, and on <comp.GlossaryTerm term="/user/glossary/c/collection.yml">Collections</comp.GlossaryTerm> and <comp.GlossaryTerm term="/user/glossary/d/dataset.yml">Datasets</comp.GlossaryTerm>. Add listeners with `addEventListener` and remove them with `removeEventListener` when your custom UI or preview is torn down.
@@ -82,11 +82,38 @@ file.addEventListener('delete', () => { /*3*/
 </comp.Annotation>
 </comp.CodeBlock>
 
+### Data and content level events
+
+You can narrow a file listener to just its structured data or just its body content. Listen on `file.data` to react only when data in a file's front matter, or an entire data file, changes. Similarly, listen on `file.content` to react only when a file's body content changes. Both fire the `change` event only, and because they are scoped to a single known file, their events do not carry `event.detail.sourcePath`.
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+const file = api.currentFile(); /*1*/
+
+file.data.addEventListener('change', () => { /*2*/
+  console.log('File data changed');
+});
+
+file.content.addEventListener('change', () => { /*3*/
+  console.log('File content changed');
+});
+```
+<comp.Annotation number="1">
+  Create a `file` variable to access the file currently open in the *Visual Editor* using `currentFile()`.
+</comp.Annotation>
+<comp.Annotation number="2">
+  Call `addEventListener()` with `'change'` on `file.data` to listen for changes to the file's structured data.
+</comp.Annotation>
+<comp.Annotation number="3">
+  Call `addEventListener()` with `'change'` on `file.content` to listen for changes to the file's body content.
+</comp.Annotation>
+</comp.CodeBlock>
+
 ### Collection and *Dataset* level
 
 Calling `.addEventListener()` on a <comp.GlossaryTerm term="/user/glossary/c/collection.yml">Collection</comp.GlossaryTerm> or *Dataset* allows you to receive events for any file within it.
 
-For more information about how *Collections* and *Datasets* work with the *Visual Editor API*, please read our documentation on [working with Collections and Datasets using the Visual Editor API](/documentation/developer-articles/work-with-collections-and-datasets-using-the-visual-editor-api/).
+For more information about how *Collections* and *Datasets* work with the *Visual Editor API*, please read our documentation on [listing and filtering files with the Visual Editor API](/documentation/developer-articles/list-and-filter-files-with-the-visual-editor-api/).
 
 <comp.CodeBlock language="javascript" source="script.js">
 ```
@@ -213,37 +240,50 @@ window.addEventListener('beforeunload', () => { /*3*/
 </comp.Annotation>
 </comp.CodeBlock>
 
-If you are building with a framework, clean up listeners in the appropriate lifecycle hook. The following examples use React and Vue, but the same principle applies to any framework with lifecycle hooks.
+If you are building with a framework, clean up listeners in the appropriate lifecycle hook. The following examples use React and Vue, but the approach is the same in any framework: add the listener when the component mounts, and remove it when the component unmounts. Both examples use the `withCloudCannonApi` helper from [initializing the Visual Editor API](/documentation/developer-articles/initialize-the-visual-editor-api/).
 
 <comp.CodeBlock language="javascript" source="React">
 ```
 useEffect(() => {
-  withCloudCannonApi((api) => {
-    const onChange = () => { /* ... */ };
+  let api; /*1*/
+  const onChange = () => { /* ... */ };
+
+  withCloudCannonApi((cloudCannon) => {
+    api = cloudCannon;
     api.addEventListener('change', onChange);
-    return () => api.removeEventListener('change', onChange); /*1*/
   });
+
+  return () => api?.removeEventListener('change', onChange); /*2*/
 }, []);
 ```
 <comp.Annotation number="1">
-  Return a cleanup function from `useEffect` to remove the listener when the component unmounts.
+  Declare `api` and `onChange` in the effect so the cleanup function can reach them, then capture the API Object inside the helper callback.
+</comp.Annotation>
+<comp.Annotation number="2">
+  Return a cleanup function from `useEffect` to remove the listener when the component unmounts. Returning it from inside the `withCloudCannonApi` callback instead would not work, as `useEffect` never receives it.
 </comp.Annotation>
 </comp.CodeBlock>
 
 <comp.CodeBlock language="javascript" source="Vue">
 ```
+let api;
+const onChange = () => { /* ... */ };
+
 onMounted(() => {
-  withCloudCannonApi((api) => {
-    onChange = () => { /* ... */ };
+  withCloudCannonApi((cloudCannon) => {
+    api = cloudCannon; /*1*/
     api.addEventListener('change', onChange);
   });
 });
 
 onUnmounted(() => {
-  api?.removeEventListener('change', onChange); /*1*/
+  api?.removeEventListener('change', onChange); /*2*/
 });
 ```
 <comp.Annotation number="1">
+  Declare `api` and `onChange` at setup scope so both lifecycle hooks can reach them, then capture the API Object here.
+</comp.Annotation>
+<comp.Annotation number="2">
   Call `removeEventListener` in `onUnmounted` to clean up the listener when the component is destroyed.
 </comp.Annotation>
 </comp.CodeBlock>

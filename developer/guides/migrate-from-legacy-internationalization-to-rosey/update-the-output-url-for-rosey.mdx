@@ -15,7 +15,12 @@ author_notes:
 
 Migrating to <comp.GlossaryTerm term="/user/glossary/r/rosey.yml">Rosey</comp.GlossaryTerm> can cause the CloudCannon *Visual Editor* to become misconfigured.
 
-CloudCannon uses your output files as the webpage preview in the *Visual Editor*. However, because *Rosey* moves your output files from their original paths (e.g. `/about/`) to language-prefixed ones (e.g. `/en/about/`), you will need to update where CloudCannon looks for your output files. You can do this in CloudCannon, or in your *Local Development Environment*.
+CloudCannon uses your output files as the webpage preview in the *Visual Editor*. Because *Rosey* moves your output files from their original paths (e.g. `/about/`) to language-prefixed ones (e.g. `/en/about/`), the *Visual Editor* may no longer find them.
+
+How you resolve this depends on where you want *Rosey* to serve your default language:
+
+- **Under a language prefix** (e.g. `/en/about/`), which is *Rosey*'s default. Update your *Collection* URLs to match, using one of the methods below.
+- **At the root path** (e.g. `/about/`), by setting `default_language_at_root` in your `rosey.yml`. Your default language's output URL doesn't change, so the *Visual Editor* continues to find those pages without a *Collection* URL update; only your non-default languages move to prefixed paths. Note that this disables *Rosey*'s redirect page, so visitors landing on `/` get your default language instead of being sent to their locale.
 
 <comp.Notice info_type="info">
   If you prefer to keep your collection URLs un-prefixed, you can instead run *Rosey* only on your production branch and use a separate staging branch for content editing. See the [staging workflow guide](/documentation/developer-guides/staging-workflow-guide/) for guidance on setting this up.
@@ -23,13 +28,13 @@ CloudCannon uses your output files as the webpage preview in the *Visual Editor*
 
 ## Use CloudCannon
 
-To update the URL in CloudCannon, navigate to the relevant *Collection* in the *Collection Browser* and enable *Configuration Mode* using the switch on the right of the *Site Header* — purple *Edit Configuration* buttons will appear. Click *Edit Advanced* in the top right to open the *Edit Advanced* data panel, enter the language-prefixed template string in the *URL* field, and save your *Site*. Repeat for each collection.
+To update the URL in CloudCannon, navigate to the relevant *Collection* in the *Collection Browser* and enable *Configuration Mode* using the switch on the right of the *Site Header* — purple *Edit Configuration* buttons will appear. Click *Edit Advanced* in the top right to open the *Edit Advanced* data panel, enter the language-prefixed template string in the *URL* field, and save your *Site*. Repeat for each *Collection*.
 
 <comp.DocShot docshot_key="CloudCannon-Documentation-Collection-Browser-Configuration-Mode-Edit-Advanced-URL" alt="A screenshot of the Collection Browser shows the Edit Advanced data panel open with a text field for URL configuration." title="The Collection Browser with Edit Advanced panel" type="screenshot"/>
 
-## Use your *Local Development Environment*
+## Use your local development environment
 
-To update the URL in your *Local Development Environment*, edit the `url` key for each collection in `cloudcannon.config.yml`.
+To update the URL in your local development environment, edit the `url` key for each *Collection* in `cloudcannon.config.yml`.
 
 <comp.CodeBlock language="yaml" source="cloudcannon.config.yml">
 ```
@@ -39,4 +44,4 @@ collections_config:
 ```
 </comp.CodeBlock>
 
-Once you've updated the `url` key for each collection, the *Visual Editor* will be able to locate your pages correctly after every build.
+Once you've updated the `url` key for each *Collection*, the *Visual Editor* will be able to locate your pages correctly after every build.
