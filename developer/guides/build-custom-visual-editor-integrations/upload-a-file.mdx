@@ -17,7 +17,7 @@ author_notes:
 ---
 Custom integrations often need to add new files to a <comp.GlossaryTerm term="/user/glossary/s/site.yml">Site</comp.GlossaryTerm> and write changes back to existing files. Additionally, because more than one <comp.GlossaryTerm term="/user/glossary/t/team-member.yml">Team Member</comp.GlossaryTerm> can edit a *Site* in the <comp.GlossaryTerm term="/user/glossary/v/visual-editor.yml">Visual Editor</comp.GlossaryTerm> at once, you may need to claim a lock on a file before writing, so two people don't overwrite each other's work. The *Visual Editor API* allows you to do all of these.
 
-In the Doodle Gallery, this happens when a *Team Member* clicks the *Add to the gallery* button: the `submit()` function uploads the drawing as an image, then adds that image to the gallery data file. It's defined inside the same `Doodler` component, so it can read the API handle from the `apiRef` we set up earlier. We'll build the upload here and finish the data write in the next step.
+In the Doodle Gallery, this happens when a *Team Member* clicks the *Add to the gallery* button: the `submit()` function uploads the drawing as an image, then adds that image to the gallery data file. It's defined inside the same `Doodler` component, so it can read the API Object from the `apiRef` we set up earlier. We'll build the upload here and finish the data write in the next step.
 
 First, we open the write transaction: get a reference to the data file we'll be changing, then claim a lock on it. `claimLock()` returns `readOnly: true` if someone else already holds the lock, so we retry a few times and give up rather than interrupt their work.
 
@@ -78,7 +78,7 @@ async function submit() {
 }
 ```
 <comp.Annotation number="1">
-  Read the API handle from the `apiRef` we set on load, and bail out early if it isn't available — everything below depends on it.
+  Read the API Object from the `apiRef` we set on load, and bail out early if it isn't available — everything below depends on it.
 </comp.Annotation>
 <comp.Annotation number="2">
   Get a reference to the data file we'll add the doodle to with `cloudcannonApi.file()`.
@@ -104,4 +104,4 @@ paths:
 ```
 </comp.MultiCodeBlock>
 
-In the next step, we'll wrap these calls in a `try`/`catch`/`finally` that releases the file lock and keeps *Team Members* looking at the *Visual Editor* informed as your `submit()` function runs, then finish the function by writing the new doodle into the gallery data file.
+In the next step of this guide, we'll wrap these calls in a `try`/`catch`/`finally` that releases the file lock and keeps *Team Members* looking at the *Visual Editor* informed as your `submit()` function runs, then finish the function by writing the new doodle into the gallery data file.

@@ -10,8 +10,8 @@ details:
   description: >-
     Detect the Visual Editor and initialize the Visual Editor API before your
     integration runs.
-  start_nav_group:
-  related_articles:
+  start_nav_group: null
+  related_articles: null
 author_notes:
   docshots: Added!
 ---
@@ -85,13 +85,13 @@ export function Doodler() {
   Declare `window` with CloudCannon's types so `inEditorMode` and `CloudCannonAPI` are typed.
 </comp.Annotation>
 <comp.Annotation number="3">
-  Hold the API in a `useRef` so the handle persists across re-renders, ready for whenever a *Team Member* submits. `useRef(undefined)` touches no browser globals, so it's safe during a server-side build.
+  Hold the API Object in a `useRef` so it persists across re-renders, ready for whenever a *Team Member* submits. `useRef(undefined)` touches no browser globals, so it's safe during a server-side build.
 </comp.Annotation>
 <comp.Annotation number="4">
   Only run inside the *Visual Editor* — `window.inEditorMode` is `true` there and `undefined` on the live *Site* — and bail out early everywhere else.
 </comp.Annotation>
 <comp.Annotation number="5">
-  Request v1 of the API with `useVersion('v1', true)`. The `true` keeps the handle off the global `window.CloudCannon`, so it won't clash with integrations using another API version.
+  Request v1 of the API with `useVersion('v1', true)`. The `true` keeps the API Object off the global `window.CloudCannon`, so it won't clash with integrations using another API version.
 </comp.Annotation>
 <comp.Annotation number="6">
   If `window.CloudCannonAPI` already exists, initialize immediately.
@@ -108,6 +108,6 @@ The *Visual Editor API* is available on `window.CloudCannonAPI` whenever a file 
 
 Depending on how your integration loads, `window.CloudCannonAPI` may not exist yet when your code first runs.
 
-Before the Doodle Gallery integration performs any other actions, it checks whether the webpage is already running in the *Visual Editor*, then initializes the *Visual Editor API*. If not, it waits for the `cloudcannon:load` event, which CloudCannon dispatches after setting `window.CloudCannonAPI`. Because the handle lives in a `useRef`, it's ready whenever a <comp.GlossaryTerm term="/user/glossary/t/team-member.yml">Team Member</comp.GlossaryTerm> later submits a doodle, no matter which path initialized it.
+Before the Doodle Gallery integration performs any other actions, it checks whether the webpage is already running in the *Visual Editor*, then initializes the *Visual Editor API*. If not, it waits for the `cloudcannon:load` event, which CloudCannon dispatches after setting `window.CloudCannonAPI`. Because the API Object lives in a `useRef`, it's ready whenever a <comp.GlossaryTerm term="/user/glossary/t/team-member.yml">Team Member</comp.GlossaryTerm> later submits a doodle, no matter which path initialized it.
 
 In the next step of this guide, we'll render the custom interface *Team Members* use to draw a doodle.
