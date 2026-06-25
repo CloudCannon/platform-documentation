@@ -108,7 +108,7 @@ export function buildRefNav(
       id: "type.VisualEditorAPI",
       heading: "Visual Editor API",
       icon: "code",
-      basePath: "/documentation/developer-reference/visual-editor-api/",
+      basePath: "/developer-reference/visual-editor-api/",
       items: buildRefNavItems(veapiDocs, "type.VisualEditorAPI.objects"),
     },
   ];
