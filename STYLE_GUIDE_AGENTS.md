@@ -7,8 +7,8 @@ Machine-readable style rules for AI agents and automated linters. These rules ar
 **For agents making updates to this file:** Also update the corresponding section in `STYLE_GUIDE.mdx` with the prose explanation and examples. Update the revision history in both files: `last_updated` and `style_guide_version` in the YAML block below, and the `Last Updated` and `Version` fields and the revision history table (Section 4) in `STYLE_GUIDE.mdx`.
 
 ```yaml
-style_guide_version: "2.18"
-last_updated: "2026-06-12"
+style_guide_version: "2.20"
+last_updated: "2026-06-25"
 
 terminology:
   disambiguation:
@@ -23,6 +23,11 @@ terminology:
         - "Visual Editor API"
         - "inEditorMode"
         - "editor-only (preview vs live Site when sentence names the environment)"
+    dataset:
+      rule: "Distinguish the CloudCannon concept from the generic term. *Dataset* (one word, capitalized, italicized) is the CloudCannon concept — structured data configured under data_config. 'data set' (two words, lowercase, not italicized) is any generic, non-CloudCannon collection of data."
+      cloudcannon_concept: "Dataset — one word; capitalize and italicize; structured data configured under data_config"
+      generic: "data set — two words, lowercase, do not italicize; a generic collection of data"
+      reference: "STYLE_GUIDE.mdx §1.3.4"
   required_terms:
     product_name: "CloudCannon"
     git_providers:
@@ -48,10 +53,12 @@ terminology:
     - "Schema"
     - "Structure"
     - "Configuration File"
+    - "Dataset"
     - "Visual Editor"
     - "Content Editor"
     - "Data Editor"
     - "Source Editor"
+    - "Data Panel"
     - "Collection Browser"
     - "File Browser"
     - "Sites Browser"
@@ -373,6 +380,7 @@ documentation_types:
           - "Content Editor"
           - "Data Editor"
           - "Source Editor"
+          - "Data Panel"
           - "App Sidebar"
           - "Site Header"
           - "Site Navigation"
@@ -385,6 +393,7 @@ documentation_types:
           - "Organization"
           - "Project"
           - "Collection"
+          - "Dataset"
           - "Team Member"
           - "Permission Group"
           - "Schema"
