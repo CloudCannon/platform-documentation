@@ -34,10 +34,10 @@ This article assumes you know how to [initialize the Visual Editor API](/documen
 
 ## List files
 
-The *Visual Editor API* allows you to programmatically list all files in a *Collection* or *Dataset* using the `*.items()` function, or list all files and *Collections* across your *Site* using `api.files()` and `api.collections()`.
+The *Visual Editor API* allows you to programmatically list all files in a *Collection* or *Dataset* using the `*.items()` function, or list all files, *Collections*, and *Datasets* across your *Site* using `api.files()`, `api.collections()`, and `api.datasets()`.
 
 <comp.Notice info_type="info">
-  `api.collection()` returns one *Collection* so you can call `items()`, attach listeners, and use other *Collection* methods on it. `api.collections()` returns an array of every configured *Collection* on the *Site*. Please ensure you are using the correct function.
+  `api.collection()` returns one *Collection* so you can call `items()`, attach listeners, and use other *Collection* methods on it. `api.collections()` returns an array of every configured *Collection* on the *Site*. Similarly, `api.dataset()` returns one *Dataset*, while `api.datasets()` returns an array of every configured *Dataset*. Please ensure you are using the correct function.
 </comp.Notice>
 
 ### Items in a *Collection*
@@ -115,28 +115,33 @@ if (Array.isArray(result)) { /*3*/
 </comp.Annotation>
 </comp.CodeBlock>
 
-### All files and Collections in a *Site*
+### All files, Collections, and Datasets in a *Site*
 
-Calling `api.files()` or `api.collections()` allows you to list all the files or *Collections* across your *Site* in an array.
+Calling `api.files()`, `api.collections()`, or `api.datasets()` allows you to list all the files, *Collections*, or *Datasets* across your *Site* in an array.
 
-To list all files or all *Collections* on the *Site*:
+To list all files, *Collections*, or *Datasets* on the *Site*:
 
 1. Open your website files in your local development environment.
 2. Open the JavaScript file where your *Visual Editor API* integration runs.
-3. Call `await api.files()` for every file, or `await api.collections()` for every configured *Collection*.
-4. Iterate `allFiles` and `allCollections`, logging each file's `path` from `allFiles` and each `collectionKey` from `allCollections`.
+3. Call `await api.files()` for every file, `await api.collections()` for every configured *Collection*, or `await api.datasets()` for every configured *Dataset*.
+4. Iterate the returned arrays, logging each file's `path`, each `collectionKey`, and each `datasetKey`.
 
 <comp.CodeBlock language="javascript" source="script.js">
 ```
 const allFiles = await api.files(); /*1*/
 const allCollections = await api.collections(); /*2*/
+const allDatasets = await api.datasets(); /*3*/
 
-for (const file of allFiles) { /*3*/
+for (const file of allFiles) { /*4*/
   console.log(file.path);
 }
 
-for (const collection of allCollections) { /*4*/
+for (const collection of allCollections) { /*5*/
   console.log(collection.collectionKey);
+}
+
+for (const dataset of allDatasets) { /*6*/
+  console.log(dataset.datasetKey);
 }
 ```
 <comp.Annotation number="1">
@@ -146,10 +151,16 @@ for (const collection of allCollections) { /*4*/
   Call `api.collections()` to get all *Collections* in your *Site* as an array.
 </comp.Annotation>
 <comp.Annotation number="3">
-  Log each file's `path` from `allFiles`.
+  Call `api.datasets()` to get all *Datasets* in your *Site* as an array.
 </comp.Annotation>
 <comp.Annotation number="4">
+  Log each file's `path` from `allFiles`.
+</comp.Annotation>
+<comp.Annotation number="5">
   Log all the keys in `allCollections`, which match the *Collections* in your *CloudCannon Configuration File*.
+</comp.Annotation>
+<comp.Annotation number="6">
+  Log all the keys in `allDatasets`, which match the *Datasets* under `data_config` in your *CloudCannon Configuration File*.
 </comp.Annotation>
 </comp.CodeBlock>
 
