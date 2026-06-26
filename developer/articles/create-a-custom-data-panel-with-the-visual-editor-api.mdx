@@ -17,8 +17,6 @@ details:
     - _type: developer_articles
       item: f8a2c4e6-1b3d-4a9f-8c7e-5d4f3a2b1c0e
     - _type: developer_articles
-      item: 9e7d5c3b-2a1f-4e8d-9b6c-8a7f5e4d3c2b
-    - _type: developer_articles
       item: 11b29768-6312-47fc-bc43-9a613d70e5f2
 author_notes:
   docshots: Added!
@@ -35,13 +33,13 @@ This article assumes you know how to [initialize the Visual Editor API](/documen
 
 ## Open a custom *Data Panel* with *Input* fields
 
-The `api.createCustomDataPanel()` function allows you to open a custom *Data Panel* in the *Visual Editor* programmatically, and accepts a single argument with several properties that control <comp.GlossaryTerm term="/user/glossary/i/input.yml">Inputs</comp.GlossaryTerm>, panel position and behavior. While configuring *Input* fields is technically optional, they are the primary purpose of a *Data Panel*.
+Calling `*.createCustomDataPanel()` on the <comp.GlossaryTerm term="/user/glossary/a/api-object.yml">API Object</comp.GlossaryTerm> opens a custom *Data Panel* in the *Visual Editor* programmatically. The function accepts a single argument with several properties that control <comp.GlossaryTerm term="/user/glossary/i/input.yml">Inputs</comp.GlossaryTerm>, panel position and behavior. While configuring *Input* fields is technically optional, they are the primary purpose of a *Data Panel*.
 
 To open a custom *Data Panel*:
 
 1. Open your website files in your local development environment.
 2. Open the JavaScript file where your *Visual Editor API* integration runs.
-3. Add a call to `api.createCustomDataPanel({...})` in your script.
+3. Add a call to `*.createCustomDataPanel({...})` in your script.
 4. Add the `title` property, where the value is the heading for your *Data Panel*.
 5. Add the `onChange` property, where the value is the function CloudCannon should call whenever a <comp.GlossaryTerm term="/user/glossary/t/team-member.yml">Team Member</comp.GlossaryTerm> changes a value in the *Data Panel* (e.g., using the new data to update your custom integration). CloudCannon passes your function the full updated data object, not a diff.
 6. Optional. Add the `data` property, where the value is an object whose keys are *Input* field names and whose values are the default values for those fields in your *Data Panel*.
@@ -83,7 +81,7 @@ document.querySelector('#open-image-seo-panel').addEventListener('click', async 
   Listen for a `click` on the element that should open the *Data Panel*, such as a button in your custom integration.
 </comp.Annotation>
 <comp.Annotation number="2">
-  `createCustomDataPanel()` opens the panel when the handler runs; the awaited value is the `panelId` string.
+  `api.createCustomDataPanel()` opens the panel when the handler runs; the awaited value is the `panelId` string.
 </comp.Annotation>
 <comp.Annotation number="3">
   Set the heading of the *Data Panel* to "Image SEO" using the required property `title`.
@@ -104,11 +102,11 @@ document.querySelector('#open-image-seo-panel').addEventListener('click', async 
 
 For more information on configuring *Inputs*, please read the documentation specific to each *Input* type: [Array Inputs](/documentation/developer-articles/configure-an-array-input/), [Boolean Inputs](/documentation/developer-articles/configure-a-boolean-input/), [Code Inputs](/documentation/developer-articles/configure-a-code-input/), [Color Inputs](/documentation/developer-articles/configure-a-color-input/), [Date or Time Inputs](/documentation/developer-articles/configure-a-date-or-time-input/), [File Inputs](/documentation/developer-articles/configure-a-file-input/), [Number Inputs](/documentation/developer-articles/configure-a-number-input/), [Object Inputs](/documentation/developer-articles/configure-an-object-input/), [Rich Text Inputs](/documentation/developer-articles/configure-a-rich-text-input/), [Select Inputs](/documentation/developer-articles/configure-a-select-input/), [Text Inputs](/documentation/developer-articles/configure-a-text-input/), and [URL Inputs](/documentation/developer-articles/configure-a-url-input/).
 
-When using `api.createCustomDataPanel()`, the call resolves to a string `panelId`. This will be either the `id` property you defined, or a random seven-character alphanumeric string using digits `0`–`9` and lowercase letters `a`–`z` (base 36), such as `k4j92xq`. A new value is generated each time you open a panel without an `id`. Treat it as an opaque token you store and pass back to `destroyCustomDataPanel()`, not as a UUID or a pattern to parse.
+When using `*.createCustomDataPanel()`, the call resolves to a string `panelId`. This will be either the `id` property you defined, or a random seven-character alphanumeric string using digits `0`–`9` and lowercase letters `a`–`z` (base 36), such as `k4j92xq`. A new value is generated each time you open a panel without an `id`. Treat it as an opaque token you store and pass back to `*.destroyCustomDataPanel()`, not as a UUID or a pattern to parse.
 
 ## Close the panel
 
-The `api.destroyCustomDataPanel()` function closes a custom *Data Panel* that you opened with `createCustomDataPanel()`. `destroyCustomDataPanel()` accepts the value of the `id` property, or the `panelId` string that `createCustomDataPanel()` returned if you did not set one.
+The `*.destroyCustomDataPanel()` function closes a custom *Data Panel* that you opened with `*.createCustomDataPanel()`. `*.destroyCustomDataPanel()` accepts the value of the `id` property, or the `panelId` string that `*.createCustomDataPanel()` returned if you did not set one.
 
 <comp.Notice info_type="info">
   Ensure you stored the `panelId` string from when you opened the panel (for example in a variable, on a component instance, or in closure scope).
@@ -118,7 +116,7 @@ To close a custom *Data Panel*:
 
 1. Open your website files in your local development environment.
 2. Open the JavaScript file where your *Visual Editor API* integration runs.
-3. Add a call to `api.destroyCustomDataPanel(panelId)` in the appropriate place (for example, after a *Close* control in your integration or when tearing down the integration).
+3. Add a call to `*.destroyCustomDataPanel(panelId)` in the appropriate place (for example, after a *Close* control in your integration or when tearing down the integration).
 4. Pass the stored `panelId` as the only argument to `destroyCustomDataPanel`.
 5. Optional. Use `await` with `destroyCustomDataPanel` when your script should wait until the panel is closed before continuing.
 
@@ -131,13 +129,13 @@ await api.destroyCustomDataPanel(idToClose); /*2*/
   Use the same `panelId` you captured when you opened the panel (or the string you passed as `id`).
 </comp.Annotation>
 <comp.Annotation number="2">
-  Pass that string to `destroyCustomDataPanel()` to close the panel.
+  Pass that string to `api.destroyCustomDataPanel()` to close the panel.
 </comp.Annotation>
 </comp.CodeBlock>
 
 ## Anchor the panel to a control
 
-By default, CloudCannon decides where to place the *Data Panel* on screen. Passing the optional `position` property to `createCustomDataPanel()` anchors the panel to a specific element, such as next to a button the *Team Member* clicked.
+By default, CloudCannon decides where to place the *Data Panel* on screen. Passing the optional `position` property to `*.createCustomDataPanel()` anchors the panel to a specific element, such as next to a button the *Team Member* clicked.
 
 The `position` value should be a `DOMRect`, which describes the size and location of an element in the *Visual Editor*. You can get this by calling `getBoundingClientRect()` on the element the *Team Member* clicked (or any anchor element). CloudCannon uses that rectangle to position the *Data Panel* next to the control that triggered it.
 
@@ -172,7 +170,7 @@ button.addEventListener('click', async (event) => { /*1*/
   Call `getBoundingClientRect()` on the anchor element to get its position and size on screen as a `DOMRect` object.
 </comp.Annotation>
 <comp.Annotation number="3">
-  Call `createCustomDataPanel()` with your usual `title`, `onChange`, `data`, `config`, and optional `id`.
+  Call `api.createCustomDataPanel()` with your usual `title`, `onChange`, `data`, `config`, and optional `id`.
 </comp.Annotation>
 <comp.Annotation number="4">
   Pass the `DOMRect` as `position`. CloudCannon uses it to place the *Data Panel* near the control that triggered it.
@@ -203,7 +201,7 @@ await api.createCustomDataPanel({ /*1*/
 });
 ```
 <comp.Annotation number="1">
-  Call `createCustomDataPanel()` with the same options you would use for a self-contained panel.
+  Call `api.createCustomDataPanel()` with the same options you would use for a self-contained panel.
 </comp.Annotation>
 <comp.Annotation number="2">
   Set `allowFullDataCascade` to `true` to widen the cascade to the open file and *Site* configuration; omit the property or set `false` to keep the panel self-contained.
@@ -219,7 +217,7 @@ When you build a *Data Panel* from data whose shape you don't know ahead of time
 const inputType = api.getInputType('published_at', '2026-06-24'); /*1*/
 ```
 <comp.Annotation number="1">
-  Pass a field's key and value to `getInputType()` to get the *Input* type CloudCannon would use to edit it. Here, the `_at` suffix on the key resolves to a `datetime` input, even though the value is a plain string. Pass an *Input* configuration object as an optional third argument to override the inferred type.
+  Pass a field's key and value to `api.getInputType()` to get the *Input* type CloudCannon would use to edit it. Here, the `_at` suffix on the key resolves to a `datetime` input, even though the value is a plain string. Pass an *Input* configuration object as an optional third argument to override the inferred type.
 </comp.Annotation>
 </comp.CodeBlock>
 
@@ -227,9 +225,9 @@ For the full signature and return values, please read our documentation on the [
 
 ## Custom *Data Panel* configuration options
 
-The `createCustomDataPanel()` function accepts several properties. You can define the title of the *Data Panel*, which *Input* fields are available and their configuration, the position of the *Data Panel* when it opens, and more.
+The `*.createCustomDataPanel()` function accepts several properties. You can define the title of the *Data Panel*, which *Input* fields are available and their configuration, the position of the *Data Panel* when it opens, and more.
 
-These keys configure the options object passed to `createCustomDataPanel()`. The properties `title` and `onChange` are required; the rest are optional.
+These keys configure the options object passed to `*.createCustomDataPanel()`. The properties `title` and `onChange` are required; the rest are optional.
 
 <comp.ReferenceDataTable>
   <comp.ReferenceDataRow section="type.VisualEditorAPI" ref_key="createCustomDataPanel.options.title" display_label="title" />

@@ -1,0 +1,239 @@
+---
+_schema: default
+_uuid: d0c914cf-d151-4e3e-a02b-7cf017528d19
+_created_at: '2026-04-16 00:00:00 +0000'
+details:
+  title: Access and list files, Collections, and Datasets with the Visual Editor API
+  description: >-
+    Learn how to access and list files, Collections, and Datasets with the
+    Visual Editor API using currentFile(), file(), collection(), dataset(),
+    site-wide helpers, and type guards in CloudCannon.
+  image: >-
+    https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+  category:
+    - Instructions
+  related_articles:
+    - _type: developer_articles
+      item: c2407e1f-4ba7-41b0-a5a3-69ac86cf3c41
+    - _type: developer_articles
+      item: 11b29768-6312-47fc-bc43-9a613d70e5f2
+    - _type: developer_articles
+      item: 64747bc3-c130-44d1-a871-53a9caffc25f
+author_notes:
+  docshots: Not applicable
+---
+<comp.Notice info_type="important">
+  The *Visual Editor API* is designed for experienced CloudCannon developers. If you need help with custom integrations or your CloudCannon setup in general, please contact our friendly [support team](/support/).
+</comp.Notice>
+
+CloudCannon's <comp.GlossaryTerm term="/user/glossary/v/visual-editor-api.yml">Visual Editor API</comp.GlossaryTerm> exposes files, <comp.GlossaryTerm term="/user/glossary/c/collection.yml">Collections</comp.GlossaryTerm>, and <comp.GlossaryTerm term="/user/glossary/d/dataset.yml">Datasets</comp.GlossaryTerm> from your <comp.GlossaryTerm term="/user/glossary/s/site.yml">Site</comp.GlossaryTerm> code. This article covers how to access and list each one, and how to apply type guards before you call type-specific methods on mixed values.
+
+This article assumes you know how to [initialize the Visual Editor API](/documentation/developer-articles/initialize-the-visual-editor-api/). For a complete list of API objects and methods, please read our reference documentation on the [Visual Editor API](/documentation/developer-reference/visual-editor-api/).
+
+## Files
+
+Calling `*.files()` on the <comp.GlossaryTerm term="/user/glossary/a/api-object.yml">API Object</comp.GlossaryTerm> returns an array of every file across your *Site*. To access an individual file, use `*.currentFile()`, which returns the file currently open in the *Visual Editor*, or `*.file(path)`, which returns a specific file by its source path regardless of what is currently open.
+
+To list all files:
+
+1. Open your website files in your local development environment.
+2. Open the JavaScript file where your *Visual Editor API* integration runs.
+3. Call `await *.files()` for an array of every file in your *Site*.
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+const api = window.CloudCannonAPI.useVersion('v1', true);
+const allFiles = await api.files(); /*1*/
+
+for (const file of allFiles) { /*2*/
+  const data = await file.data.get();
+  console.log(file.path, data?.title);
+}
+```
+<comp.Annotation number="1">
+  Call `api.files()` to get an array of every file in your *Site*.
+</comp.Annotation>
+<comp.Annotation number="2">
+  Iterate over the files. Each file object has the same interface, so you can call `file.data.get()`, `file.data.set()`, `file.content.get()`, and all other file methods on it.
+</comp.Annotation>
+</comp.CodeBlock>
+
+To access a file:
+
+1. Open your website files in your local development environment.
+2. Open the JavaScript file where your *Visual Editor API* integration runs.
+3. Call `*.currentFile()` for the file open in the preview, or `*.file('/path/example.md')` with a path relative to your *Site* root.
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+const current = api.currentFile(); /*1*/
+const specific = api.file('/content/pages/about.md'); /*2*/
+```
+<comp.Annotation number="1">
+  Access the file currently open in the *Visual Editor*.
+</comp.Annotation>
+<comp.Annotation number="2">
+  Access the file `/content/pages/about.md`, regardless of what is currently open in the *Visual Editor*.
+</comp.Annotation>
+</comp.CodeBlock>
+
+<comp.Notice info_type="info">
+  Not every page in the *Visual Editor* has an associated file. If `*.currentFile()` is called for a page without an associated file, it throws an error. Wrap `*.currentFile()` in a `try`/`catch` block to handle this gracefully.
+
+  If you call a method on a file object whose path does not back a real file (for example, `*.file('/does-not-exist.md').data.get()`), the method resolves to `undefined` instead of throwing. Check the return value before using it.
+</comp.Notice>
+
+## *Collections*
+
+A [Collection](/documentation/developer-articles/configure-your-collections/) is a folder of files with a similar format, defined under `collections_config` in your *CloudCannon Configuration File*. Calling `*.collections()` on the *API Object* returns an array of every configured *Collection* on the *Site*, while `*.collection()` accesses one.
+
+To list all *Collections*:
+
+1. Open your website files in your local development environment.
+2. Open the JavaScript file where your *Visual Editor API* integration runs.
+3. Call `await *.collections()` for an array of every configured *Collection*.
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+const allCollections = await api.collections(); /*1*/
+
+for (const collection of allCollections) { /*2*/
+  console.log(collection.collectionKey);
+}
+```
+<comp.Annotation number="1">
+  Call `api.collections()` to get an array of every configured *Collection* on the *Site*.
+</comp.Annotation>
+<comp.Annotation number="2">
+  Log each `collectionKey`, which matches the *Collections* in your *CloudCannon Configuration File*.
+</comp.Annotation>
+</comp.CodeBlock>
+
+To access a *Collection* and list its files:
+
+1. Open your website files in your local development environment.
+2. Open the JavaScript file where your *Visual Editor API* integration runs.
+3. Call `*.collection('example-key')`, where `example-key` is a *Collection* key under `collections_config` in your *CloudCannon Configuration File*.
+4. Await `*.items()` on the returned object for an array of file objects.
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+const posts = api.collection('posts'); /*1*/
+const files = await posts.items(); /*2*/
+
+for (const file of files) { /*3*/
+  const data = await file.data.get();
+  console.log(file.path, data?.title);
+}
+```
+<comp.Annotation number="1">
+  Access the `posts` *Collection*. The key must match an entry under `collections_config` in your *CloudCannon Configuration File*.
+</comp.Annotation>
+<comp.Annotation number="2">
+  Call `posts.items()` to get an array of file objects in the *Collection*. *Collections* are always configured with a folder path, so `posts.items()` always returns an array.
+</comp.Annotation>
+<comp.Annotation number="3">
+  Iterate over the files. Each file object has the same interface as `api.currentFile()`, so you can call `file.data.get()`, `file.data.set()`, `file.content.get()`, and all other file methods on it.
+</comp.Annotation>
+</comp.CodeBlock>
+
+## *Datasets*
+
+A [Dataset](/documentation/developer-articles/define-your-data/) is a structured data file or folder defined under `data_config` in your *CloudCannon Configuration File*, such as navigation links, locale strings, or site settings. Calling `*.datasets()` on the *API Object* returns an array of every configured *Dataset* on the *Site*, while `*.dataset()` accesses one.
+
+To list all *Datasets*:
+
+1. Open your website files in your local development environment.
+2. Open the JavaScript file where your *Visual Editor API* integration runs.
+3. Call `await *.datasets()` for an array of every configured *Dataset*.
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+const allDatasets = await api.datasets(); /*1*/
+
+for (const dataset of allDatasets) { /*2*/
+  console.log(dataset.datasetKey);
+}
+```
+<comp.Annotation number="1">
+  Call `api.datasets()` to get an array of every configured *Dataset* on the *Site*.
+</comp.Annotation>
+<comp.Annotation number="2">
+  Log each `datasetKey`, which matches the *Datasets* under `data_config` in your *CloudCannon Configuration File*.
+</comp.Annotation>
+</comp.CodeBlock>
+
+To access a *Dataset* and list its files:
+
+1. Open your website files in your local development environment.
+2. Open the JavaScript file where your *Visual Editor API* integration runs.
+3. Call `*.dataset('example-key')`, where `example-key` is a *Dataset* key under `data_config` in your *CloudCannon Configuration File*.
+4. Await `*.items()` on the returned object. If the *Dataset* is a folder path, it returns an array; if it is a single file path, it returns one file object.
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+const locales = api.dataset('locales'); /*1*/
+const result = await locales.items(); /*2*/
+
+if (Array.isArray(result)) { /*3*/
+  for (const file of result) {
+    const data = await file.data.get();
+    console.log(file.path, data?.title);
+  }
+} else {
+  const data = await result.data.get(); /*4*/
+  console.log(result.path, data?.title);
+}
+```
+<comp.Annotation number="1">
+  Access the `locales` *Dataset*. The key must match an entry under `data_config` in your *CloudCannon Configuration File*.
+</comp.Annotation>
+<comp.Annotation number="2">
+  Await `locales.items()` on the *Dataset* handle. `result` is either an array of file objects or one file object, depending on whether the *Dataset* is a folder path or a single file path.
+</comp.Annotation>
+<comp.Annotation number="3">
+  When `result` is an array, loop each file and call file methods such as `file.data.get()`, the same way you would with the files in a *Collection*.
+</comp.Annotation>
+<comp.Annotation number="4">
+  When `result` is a single file object, call file methods on that object directly.
+</comp.Annotation>
+</comp.CodeBlock>
+
+Because `*.items()`, `*.files()`, `*.collections()`, and `*.datasets()` return arrays, you can filter, sort, or transform the results with standard JavaScript. For worked examples, including filtering a *Collection* by a field, please read our documentation on [common patterns for the Visual Editor API](/documentation/developer-articles/common-patterns-for-the-visual-editor-api/).
+
+## Type guards
+
+The *API Object* provides the `*.isAPIFile()`, `*.isAPICollection()`, and `*.isAPIDataset()` type guard functions to check whether an object is a file, *Collection*, or *Dataset*. These are useful when working with mixed results or when you need to narrow the type of an object before calling methods on it.
+
+To branch on a value that might be a file, *Collection*, or *Dataset*:
+
+1. Open your website files in your local development environment.
+2. Open the JavaScript file where your *Visual Editor API* integration runs.
+3. Pass the value to `*.isAPIFile()`, `*.isAPICollection()`, or `*.isAPIDataset()`.
+
+When a guard returns `true`, call only the methods that exist on that type (for example, `*.data.get()` on a file object, or `await *.items()` on a *Collection* or *Dataset* handle), so TypeScript and the runtime agree on the object shape.
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+if (api.isAPIFile(obj)) { /*1*/
+  const data = await obj.data.get();
+}
+
+if (api.isAPICollection(obj)) { /*2*/
+  const items = await obj.items();
+}
+
+if (api.isAPIDataset(obj)) { /*3*/
+  const items = await obj.items();
+}
+```
+<comp.Annotation number="1">
+  `api.isAPIFile()` returns `true` if `obj` is a file object, allowing you to safely call file methods on it.
+</comp.Annotation>
+<comp.Annotation number="2">
+  `api.isAPICollection()` returns `true` if `obj` is a *Collection* object.
+</comp.Annotation>
+<comp.Annotation number="3">
+  `api.isAPIDataset()` returns `true` if `obj` is a *Dataset* object.
+</comp.Annotation>
+</comp.CodeBlock>

@@ -26,7 +26,7 @@ author_notes:
   The *Visual Editor API* is designed for experienced CloudCannon developers. If you need help with custom integrations or your CloudCannon setup in general, please contact our friendly [support team](/support/).
 </comp.Notice>
 
-CloudCannon's <comp.GlossaryTerm term="/user/glossary/v/visual-editor-api.yml">Visual Editor API</comp.GlossaryTerm> exposes `createTextEditableRegion()`, which makes any supported HTML element directly editable in the <comp.GlossaryTerm term="/user/glossary/v/visual-editor.yml">Visual Editor</comp.GlossaryTerm> page preview. This article covers how to create, configure, and update custom inline editable regions.
+CloudCannon's <comp.GlossaryTerm term="/user/glossary/v/visual-editor-api.yml">Visual Editor API</comp.GlossaryTerm> exposes `*.createTextEditableRegion()`, which makes any supported HTML element directly editable in the <comp.GlossaryTerm term="/user/glossary/v/visual-editor.yml">Visual Editor</comp.GlossaryTerm> page preview. This article covers how to create, configure, and update custom inline editable regions.
 
 This article assumes you know how to [initialize the Visual Editor API](/documentation/developer-articles/initialize-the-visual-editor-api/). For creating a floating <comp.GlossaryTerm term="/user/glossary/d/data-panel.yml">Data Panel</comp.GlossaryTerm>, read [Create a custom Data Panel with the Visual Editor API](/documentation/developer-articles/create-a-custom-data-panel-with-the-visual-editor-api/). For a complete list of API objects and methods, please read our reference documentation on the [Visual Editor API](/documentation/developer-reference/visual-editor-api/).
 
@@ -35,14 +35,14 @@ This article assumes you know how to [initialize the Visual Editor API](/documen
 Custom inline editing lets <comp.GlossaryTerm term="/user/glossary/t/team-member.yml">Team Members</comp.GlossaryTerm> change content directly in the page preview. Clicking an element opens a rich text toolbar and makes the element's content editable in place, without opening a separate panel. This is useful for building a live preview experience, where you can update content in context with your webpage design.
 
 <comp.Notice info_type="info">
-  Regions created with `createTextEditableRegion()` use the same underlying mechanism as CloudCannon's `data-editable` attribute, but give you programmatic control. For example, you can register elements dynamically, pass a custom callback, or configure the toolbar options at runtime.
+  Regions created with `*.createTextEditableRegion()` use the same underlying mechanism as CloudCannon's `data-editable` attribute, but give you programmatic control. For example, you can register elements dynamically, pass a custom callback, or configure the toolbar options at runtime.
   
   For more information about *Text Editable Regions*, please read our documentation on [Text Editable Regions](/documentation/developer-articles/configure-text-editable-regions/).
 </comp.Notice>
 
 ### Create a text editable region
 
-Calling `createTextEditableRegion()` allows you to make a supported HTML element inline-editable. This function takes three arguments: your HTML element, a callback which fires whenever the content changes and receives the updated content as a string, and an optional configuration object.
+Calling `*.createTextEditableRegion()` allows you to make a supported HTML element inline-editable. This function takes three arguments: your HTML element, a callback which fires whenever the content changes and receives the updated content as a string, and an optional configuration object.
 
 <comp.CodeBlock language="javascript" source="script.js">
 ```
@@ -59,7 +59,7 @@ const region = await api.createTextEditableRegion( /*2*/
   Select the HTML element you want to make inline-editable.
 </comp.Annotation>
 <comp.Annotation number="2">
-  Call `createTextEditableRegion()` to register the element as an editable region. It returns a region object you can use to update the content programmatically.
+  Call `api.createTextEditableRegion()` to register the element as an editable region. It returns a region object you can use to update the content programmatically.
 </comp.Annotation>
 <comp.Annotation number="3">
   Pass a callback as the second argument. The callback fires whenever the content changes and receives the updated content as a string.
@@ -68,7 +68,7 @@ const region = await api.createTextEditableRegion( /*2*/
 
 ### Configure a text editable region
 
-Passing an options object as the third argument to `createTextEditableRegion()` customizes how CloudCannon treats the region.
+Passing an options object as the third argument to `*.createTextEditableRegion()` customizes how CloudCannon treats the region.
 
 `elementType` tells CloudCannon which family of HTML tags you are editing (`text`, `block`, `span`, `image`, or `link`). That choice affects toolbar behavior and validation. If you omit it, CloudCannon guesses from the tag name (for example, `h2` as `text`, `div` as `block`).
 
@@ -115,7 +115,7 @@ const region = await api.createTextEditableRegion( /*1*/
 </comp.Annotation>
 </comp.CodeBlock>
 
-The following lists all options accepted by `createTextEditableRegion()`:
+The following lists all options accepted by `*.createTextEditableRegion()`:
 
 <comp.ReferenceDataTable>
   <comp.ReferenceDataRow section="type.VisualEditorAPI" ref_key="createTextEditableRegion.options.elementType" display_label="elementType" />
@@ -126,13 +126,13 @@ The following lists all options accepted by `createTextEditableRegion()`:
 
 ### Update an inline editable region
 
-Calling `setContent()` on the region object returned by `createTextEditableRegion()` allows you to update the content of the editable region programmatically.
+Calling `*.setContent()` on the region object returned by `*.createTextEditableRegion()` allows you to update the content of the editable region programmatically.
 
 <comp.CodeBlock language="javascript" source="script.js">
 ```
 region.setContent('<p>New content</p>'); /*1*/
 ```
 <comp.Annotation number="1">
-  Pass a string to `setContent()` to replace the content of the editable region.
+  Pass a string to `region.setContent()` to replace the content of the editable region.
 </comp.Annotation>
 </comp.CodeBlock>
