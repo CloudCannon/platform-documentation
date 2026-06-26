@@ -367,7 +367,7 @@ Claiming a lock on a file gives your integration the editing lock for that file.
 const file = api.file('/_data/settings.yml'); /*1*/
 const lock = await file.claimLock(); /*2*/
 
-if (!lock.readOnly) { /*3*/
+if (lock && !lock.readOnly) { /*3*/
   try {
     await file.data.set({ slug: 'status', value: 'in-progress' });
   } finally {
@@ -379,10 +379,10 @@ if (!lock.readOnly) { /*3*/
   Use `api.file()` to access the specific file you want to lock. File locking is most useful when your integration needs to modify a shared file that other *Team Members* might also be editing.
 </comp.Annotation>
 <comp.Annotation number="2">
-  Call `claimLock()` to request an editing lock on `file`. Returns an object with a `readOnly` property.
+  Call `claimLock()` to request an editing lock on `file`. It resolves to an object with a `readOnly` property, or `undefined` if the file does not exist.
 </comp.Annotation>
 <comp.Annotation number="3">
-  Only make changes if the lock was granted. If another *Team Member* already holds the lock, `readOnly` is `true`, so stop here and try again later rather than editing.
+  Only write if you actually hold the lock. The check fails in two cases: `claimLock()` resolves to `undefined` when the file does not exist, or to `{ readOnly: true }` when another *Team Member* already holds the lock. Either way, your integration skips the write.
 </comp.Annotation>
 <comp.Annotation number="4">
   Release the lock in a `finally` block so it is always released, even if the write throws partway through. Otherwise other *Team Members* are left viewing the file as read-only until they take the lock back manually.
