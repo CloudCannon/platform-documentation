@@ -74,7 +74,7 @@ const VEAPI_ROOT_OBJECT_GID = "CloudCannonVisualEditorAPIV1";
 // Keep in sync with the published @cloudcannon/visual-editor-api release.
 // Bump this when the maintainer tags a new version (the only edit needed to pin
 // the reference to newer published types).
-const VEAPI_VERSION = "0.0.17";
+const VEAPI_VERSION = "0.0.18";
 
 /**
  * Load the VEAPI `index.d.ts` source to parse.
