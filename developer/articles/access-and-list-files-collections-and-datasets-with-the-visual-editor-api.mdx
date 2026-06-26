@@ -83,6 +83,34 @@ const specific = api.file('/content/pages/about.md'); /*2*/
   If you call a method on a file object whose path does not back a real file (for example, `*.file('/does-not-exist.md').data.get()`), the method resolves to `undefined` instead of throwing. Check the return value before using it.
 </comp.Notice>
 
+To handle a page with no associated file, wrap `*.currentFile()` in a `try`/`catch` and check the result before using it:
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+let file;
+
+try {
+  file = api.currentFile(); /*1*/
+} catch (error) {
+  console.warn('No file is associated with this page.'); /*2*/
+}
+
+if (file) { /*3*/
+  const data = await file.data.get();
+  console.log(data);
+}
+```
+<comp.Annotation number="1">
+  `api.currentFile()` throws when the current page has no associated source file, such as a generated pagination page, so call it inside a `try`/`catch`.
+</comp.Annotation>
+<comp.Annotation number="2">
+  Handle the no-file case here, rather than letting the error propagate. This example logs a warning.
+</comp.Annotation>
+<comp.Annotation number="3">
+  Only use `file` if it was assigned. The `catch` leaves it undefined when the page has no file.
+</comp.Annotation>
+</comp.CodeBlock>
+
 ## *Collections*
 
 A [Collection](/documentation/developer-articles/configure-your-collections/) is a folder of files with a similar format, defined under `collections_config` in your *CloudCannon Configuration File*. Calling `*.collections()` on the *API Object* returns an array of every configured *Collection* on the *Site*, while `*.collection()` accesses one.

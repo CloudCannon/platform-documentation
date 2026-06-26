@@ -39,6 +39,10 @@ You can read and write to your website files with the *Visual Editor API* using 
 - Use `*.get()` and `*.set()` for raw source.
 - Use `*.metadata()` for file metadata (you cannot write to file metadata).
 
+<comp.Notice info_type="info">
+  The *Visual Editor API* has no method to save or publish. Writes such as `*.data.set()` and `*.content.set()` update the *Visual Editor* data model and mark the file as having unsaved changes. A *Team Member* using an integration made with the API must still save or publish the file as usual.
+</comp.Notice>
+
 ### Structured data
 
 Calling `*.data.get()` returns the structured data in the accessed file: every field in the front matter of a content file, or the full contents of a data file (such as JSON or YAML). The *Visual Editor API* returns a JavaScript object, or a JavaScript array if the file's top-level value is a list.
@@ -65,7 +69,11 @@ console.log(frontmatter.title); /*4*/
 </comp.Annotation>
 </comp.CodeBlock>
 
-You can also read one field at a time by passing a `slug` option to `get()`. When you supply `{ slug: 'author' }`, CloudCannon returns only that field's value instead of the entire object.
+<comp.Notice info_type="info">
+  `*.currentFile()` throws if the current page has no associated source file, such as a generated pagination page. Wrap it in a `try`/`catch`, or use `*.file(path)` to target a specific file. For a `try`/`catch` example, please read our documentation on [accessing files, Collections, and Datasets](/documentation/developer-articles/access-and-list-files-collections-and-datasets-with-the-visual-editor-api/).
+</comp.Notice>
+
+You can also read one field at a time by passing a `slug` option to `*.data.get()`. When you supply `{ slug: 'author' }`, CloudCannon returns only that field's value instead of the entire object.
 
 <comp.CodeBlock language="javascript" source="script.js">
 ```
@@ -101,6 +109,8 @@ await file.data.set({ /*2*/
   Pass the `{ value: 'Updated title'}` option with the new value for the field.
 </comp.Annotation>
 </comp.CodeBlock>
+
+`*.data.set()` updates one field per call. To update several fields, call it once for each field.
 
 ### Body content
 
@@ -218,28 +228,42 @@ Optionally, pass a position object to anchor the *Data Panel* to the HTML elemen
 <comp.CodeBlock language="javascript" source="script.js">
 ```
 const file = api.currentFile(); /*1*/
-file.data.edit({ /*2*/
-  slug: 'hero_image', /*3*/
-  position: { /*4*/
-    x: event.clientX,
-    y: event.clientY,
-    left: rect.left,
-    width: rect.width,
-    top: rect.top,
-    height: rect.height
-  }
+const element = document.querySelector('#hero-image'); /*2*/
+
+element.addEventListener('click', (event) => { /*3*/
+  const rect = element.getBoundingClientRect(); /*4*/
+  file.data.edit({ /*5*/
+    slug: 'hero_image', /*6*/
+    position: { /*7*/
+      x: event.clientX,
+      y: event.clientY,
+      left: rect.left,
+      width: rect.width,
+      top: rect.top,
+      height: rect.height
+    }
+  });
 });
 ```
 <comp.Annotation number="1">
   Create a `file` variable to access the file currently open in the *Visual Editor* using `api.currentFile()`.
 </comp.Annotation>
 <comp.Annotation number="2">
-  Call `file.data.edit()` to open the editing panel for a field in `file`.
+  Select the element that should open the *Data Panel* when clicked, such as the image in your preview.
 </comp.Annotation>
 <comp.Annotation number="3">
-  Pass the `{ slug: 'hero_image'}` option to specify which field to open in the *Data Panel*.
+  Listen for a `click` on that element. The `event` provides the cursor coordinates.
 </comp.Annotation>
 <comp.Annotation number="4">
+  Call `element.getBoundingClientRect()` to get the element's size and position for anchoring the panel.
+</comp.Annotation>
+<comp.Annotation number="5">
+  Call `file.data.edit()` to open the editing panel for a field in `file`.
+</comp.Annotation>
+<comp.Annotation number="6">
+  Pass the `{ slug: 'hero_image' }` option to specify which field to open in the *Data Panel*.
+</comp.Annotation>
+<comp.Annotation number="7">
   Optional. Pass a `position` object to tell CloudCannon where to anchor the editing panel relative to the element.
 </comp.Annotation>
 </comp.CodeBlock>

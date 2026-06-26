@@ -46,25 +46,31 @@ Calling `*.createTextEditableRegion()` allows you to make a supported HTML eleme
 
 <comp.CodeBlock language="javascript" source="script.js">
 ```
-const element = document.querySelector('#hero-heading'); /*1*/
+const file = api.currentFile(); /*1*/
+const element = document.querySelector('#hero-heading'); /*2*/
 
-const region = await api.createTextEditableRegion( /*2*/
+const region = await api.createTextEditableRegion( /*3*/
   element,
-  (content) => { /*3*/
-    console.log('Content updated:', content);
+  (content) => { /*4*/
+    file.data.set({ slug: 'heading', value: content });
   }
 );
 ```
 <comp.Annotation number="1">
-  Select the HTML element you want to make inline-editable.
+  Access the file whose content you want to update. Here, that's the file open in the *Visual Editor*.
 </comp.Annotation>
 <comp.Annotation number="2">
-  Call `api.createTextEditableRegion()` to register the element as an editable region. It returns a region object you can use to update the content programmatically.
+  Select the HTML element you want to make inline-editable.
 </comp.Annotation>
 <comp.Annotation number="3">
-  Pass a callback as the second argument. The callback fires whenever the content changes and receives the updated content as a string.
+  Call `api.createTextEditableRegion()` to register the element as an editable region. It returns a region object you can use to update the content programmatically.
+</comp.Annotation>
+<comp.Annotation number="4">
+  Pass a callback as the second argument. It fires whenever the content changes and receives the updated content as a string. The heading maps to a front matter field, so this example uses `file.data.set()` to write the value to the `heading` field.
 </comp.Annotation>
 </comp.CodeBlock>
+
+The region only makes the element editable in the preview. It doesn't write your changes anywhere on its own: not to a field, and not back to the element. That's up to you in the callback. Use `*.content.set()` for the file body, or `*.data.set()` for a structured data field. Like any edit, these update the *Visual Editor* data model and mark the file as having unsaved changes. The *Team Member* still saves the file as usual.
 
 ### Configure a text editable region
 
@@ -74,7 +80,7 @@ Passing an options object as the third argument to `*.createTextEditableRegion()
 
 `editableType` accepts the same values as `elementType` (`text`, `block`, `span`, `image`, or `link`), or `'content'`. As a rule of thumb, set `editableType` to the same value as `elementType`, unless you are editing body content, in which case set it to `'content'`.
 
-`extension` tells CloudCannon which file extension to use when persisting the edited fragment (for example, `'.html'` with `'html'`, or `'.md'` with `'markdown'`). Match it to the format of the underlying file so saves serialize the way your *Site* expects.
+`extension` only applies when you are editing markdown content. When the content changes, CloudCannon serializes it to a markdown string and passes that string to your callback. The `extension` value tells CloudCannon which markdown conventions to use when generating that string, based on a file extension such as `'md'`. Match it to the markdown file the content belongs to, so the markdown matches the format that file uses. For plain inline or HTML content, you can leave it out.
 
 You can also pass `inputConfig` to control which rich text toolbar options are available.
 
