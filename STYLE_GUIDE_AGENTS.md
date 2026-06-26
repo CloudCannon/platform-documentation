@@ -7,8 +7,8 @@ Machine-readable style rules for AI agents and automated linters. These rules ar
 **For agents making updates to this file:** Also update the corresponding section in `STYLE_GUIDE.mdx` with the prose explanation and examples. Update the revision history in both files: `last_updated` and `style_guide_version` in the YAML block below, and the `Last Updated` and `Version` fields and the revision history table (Section 4) in `STYLE_GUIDE.mdx`.
 
 ```yaml
-style_guide_version: "2.20"
-last_updated: "2026-06-25"
+style_guide_version: "2.24"
+last_updated: "2026-06-26"
 
 terminology:
   disambiguation:
@@ -59,6 +59,7 @@ terminology:
     - "Data Editor"
     - "Source Editor"
     - "Data Panel"
+    - "API Object"  # the Visual Editor API object from useVersion(); generic plural "API objects" stays lowercase
     - "Collection Browser"
     - "File Browser"
     - "Sites Browser"
@@ -157,6 +158,14 @@ formatting_rules:
   sentence_case_headings: true
   ui_elements_italicized: true
   code_inline_backticks: true
+
+  method_references:
+    body_prose_rule: "In body prose, refer to a method as `*.method()`. The `*` stands in for the receiver object, whose variable name is the reader's choice — never bake an example variable (like `api`) into body prose. Name the receiver in words where it matters (e.g. 'Call `*.collection()` on the API Object')."
+    matches_existing: "Consistent with `*.data.get()`, `*.items()`, `*.addEventListener()` already used across the developer API docs."
+    good_body: ["Call `*.files()` for an array of every file.", "the `*.isAPIDataset()` type guard", "await `*.items()` on the returned *Collection*"]
+    avoid_body: ["Call `api.files()`…  (bakes the example variable `api` into prose)"]
+    annotations_rule: "Annotations mirror the code they explain — use the concrete receiver shown in that code block (`api.files()`, `posts.items()`, `file.data.set()`), not `*.`. An annotation describes one specific line, so it should match that line's variable."
+    code_blocks: "Use concrete receivers in code blocks (`api.files()`, `posts.items()`, `file.data.get()`); code needs a real variable."
   
   emoji_policy:
     general: "Do not use emojis in documentation"
@@ -190,7 +199,12 @@ documentation_types:
   # - Guides (learning-oriented, like "tutorials")
   # - Glossary (reference)
   # - Changelogs (informational, not part of traditional Diátaxis)
-  
+
+  filename_matches_title:
+    rule: "An article's filename (which sets its URL slug) must be the slugified version of its details.title: lowercase, hyphens for spaces, no special characters. Title and slug must always stay in sync."
+    on_rename: "If you change a title, rename the file to match in the same change, update every link and related_articles entry pointing to it, and add a redirect in .cloudcannon/routing.json if the old URL has shipped to main."
+    exception: "Changelogs use a date-prefixed descriptive slug (MM-DD_descriptive-title.mdx), not the title."
+
   changelog:
     diataxis_category: "informational"
     purpose: "Document product changes and updates over time"
@@ -399,6 +413,7 @@ documentation_types:
           - "Schema"
           - "Structure"
           - "Configuration File"
+          - "API Object"
         features:
           - "Build"
           - "Git Repository"
