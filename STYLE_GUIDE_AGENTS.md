@@ -7,8 +7,8 @@ Machine-readable style rules for AI agents and automated linters. These rules ar
 **For agents making updates to this file:** Also update the corresponding section in `STYLE_GUIDE.mdx` with the prose explanation and examples. Update the revision history in both files: `last_updated` and `style_guide_version` in the YAML block below, and the `Last Updated` and `Version` fields and the revision history table (Section 4) in `STYLE_GUIDE.mdx`.
 
 ```yaml
-style_guide_version: "2.23"
-last_updated: "2026-06-24"
+style_guide_version: "2.25"
+last_updated: "2026-06-30"
 
 documentation_architecture:
   single_source_of_truth:
@@ -501,11 +501,17 @@ link_formats:
     rule: "Never use a leading // — the browser reads the first segment as a hostname (//documentation/... resolves to https://documentation/...). Use a single leading / for documentation paths"
 
   external_links:
-    syntax: '<a href="[url]" target="_blank" rel="noopener">[Link text]</a>'
-    rule: "Always use HTML anchor tags for external links, never markdown syntax"
-    reason: "Opens in a new tab so users don't lose their place; rel=noopener provides security benefits"
-    correct: '<a href="https://gohugo.io/content-management/multilingual/" target="_blank" rel="noopener">built-in multilingual support</a>'
-    incorrect: "[built-in multilingual support](https://gohugo.io/content-management/multilingual/)"
+    rule: "Always use HTML anchor tags for external links, never markdown syntax. Always target=_blank. The rel value depends on destination ownership."
+    rel_by_destination:
+      third_party: "rel='noopener noreferrer' — any destination NOT on a cloudcannon.com domain (github.com, gohugo.io, developer.mozilla.org, docs.imgix.com, forms.gle, etc.). noopener prevents tabnabbing; noreferrer stops the reader's doc URL leaking to the outside site."
+      cloudcannon_owned: "rel='noopener' — cloudcannon.com and its subdomains (e.g. community.cloudcannon.com). Keep the referrer so CloudCannon analytics attribute the traffic. NOTE: most cloudcannon.com links stay same-tab (see link_formats.non_documentation_pages); only add target=_blank + rel=noopener when a CloudCannon-owned link must open in a new tab."
+    syntax_third_party: '<a href="[url]" target="_blank" rel="noopener noreferrer">[Link text]</a>'
+    syntax_cloudcannon_owned: '<a href="https://community.cloudcannon.com/" target="_blank" rel="noopener">[Link text]</a>'
+    reason: "Opens in a new tab so users don't lose their place; noopener provides security benefits; noreferrer keeps the reader's doc URL from leaking to third parties"
+    correct: '<a href="https://gohugo.io/content-management/multilingual/" target="_blank" rel="noopener noreferrer">built-in multilingual support</a>'
+    incorrect:
+      - "[built-in multilingual support](https://gohugo.io/content-management/multilingual/)"  # markdown syntax for external link
+      - '<a href="https://gohugo.io/content-management/multilingual/" target="_blank" rel="noopener">built-in multilingual support</a>'  # third-party link missing noreferrer
 
   ui_elements_in_links:
     rule: "Drop italics when a UI element term is used as link text"
