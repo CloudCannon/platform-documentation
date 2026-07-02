@@ -1,7 +1,7 @@
 # CloudCannon Documentation Style Guide
 
-**Last Updated:** June 23, 2026  
-**Version:** 2.20
+**Last Updated:** June 30, 2026  
+**Version:** 2.25
 
 This style guide establishes writing standards for all CloudCannon documentation. It combines patterns from our existing documentation with industry best practices from Microsoft Writing Style Guide, Google Developer Documentation Style Guide, and Write the Docs community standards.
 
@@ -41,6 +41,16 @@ CloudCannon uses the following documentation types:
    - Not part of the traditional Diátaxis framework, but essential for keeping users informed
 
 This structure helps users find the right information at the right time, whether they're learning a new concept, completing a specific task, or looking up a term.
+
+### Specific pages, single source of truth
+
+Prefer specific, single-purpose pages. A discrete topic earns its own page — especially opt-in or configurable behavior (as distinct from default behavior), or content serving a distinct reading context. Splitting for specificity is good.
+
+Give each behavior, feature, or screen **one home**. A general page may introduce a topic in a short paragraph and link out to the specific page that covers it thoroughly — that is the intended pattern, not duplication. Similarity across pages is also fine when they cover *different* topics: the *Snippets* pages look alike because each snippet type behaves similarly, but each type has its own home, so describing that shared behavior on each page is accurate, not duplicated.
+
+What to avoid: the **same** behavior or appearance documented in full on two pages — even when both are accurate. Two homes for one thing dilute search results and will eventually drift apart. Consolidate to a single authoritative page and have the other defer with a short summary and a link. **Always cross-link related pages.**
+
+When pages do disagree, accuracy wins, not recency: a newer page is not automatically right, and an older page is not automatically stale. Verify against app behavior and this style guide — they are the ultimate tie-breakers — and fix toward them.
 
 ---
 
@@ -355,8 +365,8 @@ Only document behavior for active plans: **Standard**, **Team**, **Enterprise** 
 
 When stating plan gating for a feature, only name active tiers. If a feature flag lists deprecated plans alongside active ones, filter to the active ones for the plan-tier notice.
 
-- ✅ **Good:** "Branching is available on our <a href="https://cloudcannon.com/pricing/" rel="noreferrer">Standard plan</a> and above."
-- ✅ **Good:** "This feature is available on our <a href="https://cloudcannon.com/pricing/" rel="noreferrer">Team or Enterprise plan</a>."
+- ✅ **Good:** "Branching is available on our <a href="https://cloudcannon.com/pricing/">Standard plan</a> and above."
+- ✅ **Good:** "This feature is available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise plan</a>."
 - ❌ **Avoid:** "This feature is available on our Pro, Business, Team, or Enterprise plan." (enumerates a deprecated plan)
 - ❌ **Avoid:** "Available on our Developer plan and above." (Developer is deprecated)
 
@@ -465,7 +475,7 @@ Use bold for headings, labels, or important callouts within Notice components.
 ✅ **Good (using markdown bold):**
 ```mdx
 <comp.Notice info_type="pricing">
-  **This feature is available on our <a href="https://cloudcannon.com/pricing/" rel="noreferrer">Enterprise plan</a>.**
+  **This feature is available on our <a href="https://cloudcannon.com/pricing/">Enterprise plan</a>.**
 
   Want to chat about whether this feature is right for you?
 </comp.Notice>
@@ -699,8 +709,8 @@ The documentation site is served under the `/documentation/` path on `cloudcanno
 
 For links to pages on `cloudcannon.com` that live *outside* `/documentation/` — the marketing site's pricing page, for example — use a full absolute URL inside an HTML anchor. Do **not** write these as root-relative paths: `basePath` prepends `/documentation/` and breaks them (`/pricing/` becomes `/documentation/pricing/`, which doesn't exist).
 
-- ✅ **Good:** `<a href="https://cloudcannon.com/pricing/" rel="noreferrer">Team or Enterprise plan</a>`
-- ❌ **Avoid:** `<a href="https://cloudcannon.com/pricing/" rel="noreferrer">Team or Enterprise plan</a>` (`basePath` rewrites this to `/documentation/pricing/`)
+- ✅ **Good:** `<a href="https://cloudcannon.com/pricing/">Team or Enterprise plan</a>`
+- ❌ **Avoid:** `<a href="/pricing/">Team or Enterprise plan</a>` (`basePath` rewrites this to `/documentation/pricing/`)
 
 These links stay on `cloudcannon.com`, so — unlike external links (see §2.5.6) — don't add `target="_blank"`. Keep the reader in the same tab.
 
@@ -758,14 +768,19 @@ The same inline-noun-reference exception as the *"What...?"* rule applies — wh
 
 **External Links — Use HTML Anchor Tags**
 
-For links to external websites (outside CloudCannon documentation), use HTML anchor tags with `target="_blank"` and `rel="noopener"` to open in a new tab.
+For links to external websites (outside CloudCannon documentation), use HTML anchor tags with `target="_blank"` so they open in a new tab. The `rel` value depends on **who owns the destination**:
 
-- ✅ **Good:** `<a href="https://example.com" target="_blank" rel="noopener">Example Website</a>`
-- ❌ **Avoid:** `[Example Website](https://example.com)` (for external links)
+- **Third-party sites** (anything *not* on a `cloudcannon.com` domain — `github.com`, `gohugo.io`, `developer.mozilla.org`, `docs.imgix.com`, a Google Form on `forms.gle`, and so on): use `rel="noopener noreferrer"`. `noopener` stops the new tab from scripting the page that opened it; `noreferrer` also stops the reader's documentation URL from leaking to the outside site in the `Referer` header.
+- **CloudCannon-owned pages** (`cloudcannon.com` and its subdomains, e.g. `community.cloudcannon.com`): use `rel="noopener"` only. Keep the referrer so our own analytics can attribute the traffic to the documentation. (Most `cloudcannon.com` links should stay in the same tab — see §1.4.4. Only add `target="_blank"` and `rel="noopener"` when a CloudCannon-owned link genuinely needs to open in a new tab.)
+
+- ✅ **Good (third-party):** `<a href="https://example.com" target="_blank" rel="noopener noreferrer">Example Website</a>`
+- ✅ **Good (CloudCannon-owned, new tab):** `<a href="https://community.cloudcannon.com/" target="_blank" rel="noopener">CloudCannon Community</a>`
+- ❌ **Avoid:** `[Example Website](https://example.com)` (markdown syntax for an external link)
+- ❌ **Avoid:** `<a href="https://example.com" target="_blank" rel="noopener">Example Website</a>` (third-party link missing `noreferrer`)
 
 Why use HTML for external links:
 - Opens in a new tab so users don't lose their place in documentation
-- `rel="noopener"` provides security benefits
+- `rel="noopener"` provides security benefits; `noreferrer` additionally keeps the reader's documentation URL from leaking to third parties
 
 **UI Elements in Links — Drop the Italics**
 
@@ -840,7 +855,7 @@ Placement:
 
 ```mdx
 <comp.Notice info_type="pricing">
-  **This feature is available on our <a href="https://cloudcannon.com/pricing/" rel="noreferrer">Enterprise plan</a>.**
+  **This feature is available on our <a href="https://cloudcannon.com/pricing/">Enterprise plan</a>.**
   
   Want to chat about whether this feature is right for you? Our support team is always happy to hear from you.
 </comp.Notice>
@@ -854,16 +869,16 @@ Placement:
 **Canonical pricing-notice forms:**
 
 For an article about a single gated feature, name the feature explicitly:
-- ✅ `**This feature is available on our <a href="https://cloudcannon.com/pricing/" rel="noreferrer">Team or Enterprise plan</a>.**`
-- ✅ `***Deploy Previews* are available on our <a href="https://cloudcannon.com/pricing/" rel="noreferrer">Team or Enterprise plan</a>.**`
-- ✅ `***Allow all branching* is available on our <a href="https://cloudcannon.com/pricing/" rel="noreferrer">Team or Enterprise plan</a>.**`
+- ✅ `**This feature is available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise plan</a>.**`
+- ✅ `***Deploy Previews* are available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise plan</a>.**`
+- ✅ `***Allow all branching* is available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise plan</a>.**`
 
 For overview articles where the parent feature has multiple gated sub-features, name the gated sub-features explicitly. Scope the list to features the article actually discusses, not the full set of gated features under the parent.
-- ✅ `***Projects* are available on all plans. *Site* branching and *Publishing Workflows* are available on our <a href="https://cloudcannon.com/pricing/" rel="noreferrer">Team or Enterprise plan</a>.**`
-- ✅ `**The *Pull Requests* tab and *Deploy Previews* settings are available on our <a href="https://cloudcannon.com/pricing/" rel="noreferrer">Team or Enterprise plan</a>. Other parts of the *Project Browser* are available on all plans.**`
+- ✅ `***Projects* are available on all plans. *Site* branching and *Publishing Workflows* are available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise plan</a>.**`
+- ✅ `**The *Pull Requests* tab and *Deploy Previews* settings are available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise plan</a>. Other parts of the *Project Browser* are available on all plans.**`
 
 Avoid vague pricing notices that don't identify the gated feature:
-- ❌ `**Some features are only available on our <a href="https://cloudcannon.com/pricing/" rel="noreferrer">Team or Enterprise plan</a>.**` — leaves the reader guessing which features
+- ❌ `**Some features are only available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise plan</a>.**` — leaves the reader guessing which features
 - ❌ `**This feature is available on our** [**Team or Enterprise plan**](https://cloudcannon.com/pricing/)**.**` — over-wrapped bold/link splits (and a non-documentation link must be an HTML anchor, not markdown)
 
 **General Guidelines:**
@@ -1147,6 +1162,8 @@ The *App Sidebar* contains links to top-level pages (*Home*, *Sites*, *Projects*
 
 Changelogs announce new features, improvements, and bug fixes for CloudCannon releases.
 
+Changelogs document changes that have **shipped to all users**. Exclude features that are still in beta or otherwise unreleased, along with their supporting plumbing (error handling, migrations, API wiring) — even if the code merged during the period the changelog covers.
+
 #### 2.1.1 File Naming
 - Location: `changelogs/YYYY/` (where YYYY is the year)
 - Format: `MM-DD_descriptive-title.mdx`
@@ -1158,14 +1175,18 @@ Changelogs announce new features, improvements, and bug fixes for CloudCannon re
 ---
 _schema: default
 title: Use a filename as the value_key for Select Inputs
+date: 2026-06-23T14:42:44+12:00
 ---
 ```
+
+- `date` is required — an ISO 8601 timestamp in the `+12:00` (NZ) timezone, set to when the changelog is published. It drives ordering, so it must be present even though the rendered page does not always show it.
 
 **Title Guidelines:**
 - Should be descriptive, not just a date
 - Use sentence case (capitalize first word and proper nouns only)
 - Use feature names as they appear in CloudCannon
 - Focus on the main feature or improvement of the release
+- If a release has no notable features (fixes only), use a general title such as `general-fixes`
 
 #### 2.1.3 Structure
 
@@ -1178,7 +1199,7 @@ title: Use a filename as the value_key for Select Inputs
 1. **Features & Improvements**
    - List new features and enhancements
    - Use bullet points
-   - Start each item with what the user can now do
+   - Start each item with a past-tense verb (Added, Changed, Improved, Removed). To convey *what the reader can now do*, follow the verb with an "allowing you to…" clause rather than the present-tense "You can now…" (see the Entry Shape pattern in §2.1.4)
    - Include code examples for configuration changes
    - Link to relevant documentation
 
@@ -1187,6 +1208,7 @@ title: Use a filename as the value_key for Select Inputs
    - Use bullet points
    - Start with "Fixed an issue where..."
    - Be specific but concise
+   - Roll up dependency bumps (Dependabot, `npm_and_yarn`, `bundler`, patch-only library updates) into a single closing line: "Updated dependencies to patch security vulnerabilities."
 
 #### 2.1.4 Writing Style
 
@@ -1219,6 +1241,24 @@ Standard past-tense verbs:
 - ✅ **Good:** "Fixed an issue where Rich Text Inputs were not resizable."
 - ✅ **Good:** "Fixed an issue where adding a date to a Datetime Input did not work unless time was also added."
 - ❌ **Avoid:** "Fixes an issue where..." (present tense)
+
+**Entry Shape**
+
+Lead with a past-tense verb, state the capability with an "allowing you to…" clause, then locate the controls descriptively. This conveys *what the reader can now do* without slipping into present-tense instruction.
+
+Pattern: **Added** *[Name]*, allowing you to *[capability]*. *[Where the controls live, stated descriptively.]*
+
+- ✅ **Good:** "Added *Deploy Previews*, allowing you to build a *Site* for each *Pull Request* and comment on it automatically. These settings live in the *Deploy Previews* section of *Project Settings*."
+- ❌ **Avoid:** "You can now build a *Site* for each *Pull Request*…" (present-tense instruction)
+- ❌ **Avoid:** "Go to *Project Settings* to turn this on." (instructional, not descriptive)
+
+**Nested Detail**
+
+When an entry uses sub-bullets to explain how a feature works, keep the lead bullet in past tense and describe behaviour in the descriptive present. Never issue instructions ("You can now…", "Click *Save*").
+
+- ✅ **Good:**
+  - "Added two new optional *Project* tabs, *Pull Requests* and *Branches*, which you can turn on from the *Details* section under *Project Settings*."
+    - "The *Pull Requests* tab shows all open and draft *Pull Requests* in the connected *Git Repository*."
 
 **Specificity**
 - Be specific about what changed.
@@ -1813,7 +1853,7 @@ Every guide should end with a "More resources" page (`more-resources.mdx`, `orde
 
 2. **Support callout** (1 sentence, immediately after the opening)
    - Point readers to the support team and CloudCannon Community
-   - Use a standard form: "If you have any questions, please reach out to our friendly <a href="https://cloudcannon.com/support/" rel="noreferrer">support team</a> or check out the [CloudCannon Community](https://community.cloudcannon.com/)."
+   - Use a standard form: "If you have any questions, please reach out to our friendly <a href="https://cloudcannon.com/support/">support team</a> or check out the [CloudCannon Community](https://community.cloudcannon.com/)."
    - CloudCannon Community is an external link — use `<a href="..." target="_blank" rel="noopener">` syntax
 
 3. **Contextual section headings** (`##`)
@@ -2031,458 +2071,9 @@ documentation_link:
 
 ## 3. Machine-Readable Style Rules
 
-The following section contains structured rules for automated validation by AI agents and linters. These rules are formatted as YAML for easy parsing.
+The machine-readable version of this style guide — structured YAML rules for automated validation by AI agents and linters — lives in its own file, [`STYLE_GUIDE_AGENTS.md`](STYLE_GUIDE_AGENTS.md), alongside this one. That file is the single source of truth for the machine-readable rules; load it directly into agent or linter contexts.
 
-```yaml
-style_guide_version: "1.2"
-last_updated: "2026-03-30"
-
-terminology:
-  required_terms:
-    product_name: "CloudCannon"
-    git_providers:
-      - "GitHub"
-      - "GitLab"
-      - "Bitbucket"
-    static_site_generators:
-      - "Jekyll"
-      - "Hugo"
-      - "Eleventy"
-      - "Astro"
-      - "Next.js"
-      - "Gatsby"
-      - "SvelteKit"
-      - "Nuxt"
-  
-  capitalized_concepts:
-    - "Site"
-    - "Organization"
-    - "Collection"
-    - "Team Member"
-    - "Permission Group"
-    - "Schema"
-    - "Structure"
-    - "Configuration File"
-    - "Visual Editor"
-    - "Content Editor"
-    - "Data Editor"
-    - "Source Editor"
-    - "Collection Browser"
-    - "File Browser"
-    - "Sites Browser"
-    - "Organizations Browser"
-    - "Site Navigation"
-    - "Site Header"
-    - "App Sidebar"
-  
-  preferred_terms:
-    "Git repository": ["repo", "git repo"]
-    "Git provider": ["source provider", "git host"]
-    "Site files": ["source files"]
-    "Configuration File": ["config file"]
-    "front matter": ["frontmatter", "Front Matter"]
-    "webpage": ["web page"]
-    "website": ["web site"]
-    "email": ["e-mail"]
-    "sign in": ["login (as verb)"]
-    "log in": ["login (as verb)"]
-    "dropdown": ["drop-down", "drop down"]
-    "checkbox": ["check box"]
-    "filename": ["file name"]
-    "insecure": ["unsecure"]
-
-prohibited_phrases:
-  - "click here"
-  - "read more"
-  - "simply"
-  - "just"
-  - "easy"
-  - "obviously"
-  - "clearly"
-
-voice_and_tense:
-  voice: "active"
-  person: "second"
-  tense:
-    articles: "present"
-    instruction_steps: "imperative"
-    instruction_outcomes: "future"
-    changelogs: "past"
-  contractions: "allowed"
-
-formatting_rules:
-  oxford_comma: true
-  sentence_case_headings: true
-  ui_elements_italicized: true
-  code_inline_backticks: true
-  
-  ui_element_formatting:
-    pattern: "*[Element Name]*"
-    examples:
-      - "*Save* button"
-      - "*Site Navigation*"
-      - "*+ Add* dropdown"
-  
-  concept_capitalization:
-    rule: "Capitalize when referring to CloudCannon-specific concept"
-    examples:
-      correct:
-        - "A Collection is a group of files."
-        - "Each collection in your Site..."
-      incorrect:
-        - "A collection is a group of files."
-        - "Each Collection in your Site..."
-
-documentation_types:
-  # CloudCannon uses a modified Diátaxis framework with the following types:
-  # - Explanation (understanding-oriented)
-  # - Instructions (task-oriented, like "how-to guides")
-  # - Guides (learning-oriented, like "tutorials")
-  # - Glossary (reference)
-  # - Changelogs (informational, not part of traditional Diátaxis)
-  
-  changelog:
-    diataxis_category: "informational"
-    purpose: "Document product changes and updates over time"
-    filename_pattern: "MM-DD_descriptive-title.mdx within changelogs/YYYY/"
-    required_front_matter:
-      - "_schema"
-      - "title"
-    required_sections:
-      - "Features & Improvements"
-      - "Fixes"
-    tense: "past"
-    preferred_verbs:
-      - "Added"
-      - "Changed"
-      - "Improved"
-      - "Removed"
-      - "Fixed"
-  
-  explanation:
-    diataxis_category: "understanding-oriented"
-    purpose: "Help users understand concepts, features, context, and best practices"
-    filename_patterns:
-      concept_definition: "what-is-*.mdx"
-      context_benefits: "why-*.mdx"
-      best_practices: "best-practice-*.mdx | best-practices-*.mdx"
-    title_patterns:
-      concept_definition: "What is|What are"
-      context_benefits: "Why [action/feature]"
-      best_practices: "Best practice for|Best practices for"
-    required_front_matter:
-      - "_schema: default"
-      - "_uuid: [auto-generated UUID]"
-      - "_created_at: [auto-generated timestamp]"
-      - "details.title"
-      - "details.description"
-      - "details.image"
-      - "details.category: [Explanation]"
-      - "details.related_articles: [optional array, max 3 items]"
-      - "author_notes.docshots"
-    docshots_values:
-      "Added!": "All CloudCannon app screenshots use DocShot; no DocsImage remains except assets/external_screenshots/"
-      "Needs docshots": "Article still has DocsImage components (other than external screenshots) to migrate"
-      "Not applicable": "Article has no CloudCannon app screenshots"
-    related_articles_structure:
-      max_items: 3
-      _type: ["developer_articles", "user_articles", "developer_guides", "user_guides"]
-      item: "[UUID of related article]"
-    structure_varies_by_type:
-      concept_definition:
-        - "Opening definition"
-        - "Context and purpose"
-        - "Features and functionality"
-        - "Related information"
-      context_benefits:
-        - "Introduction"
-        - "Benefits and use cases"
-        - "How it works (optional)"
-        - "Limitations (optional)"
-        - "Related information"
-      best_practices:
-        - "Introduction"
-        - "Best practices (multiple sections)"
-        - "Related information"
-  
-  guide:
-    diataxis_category: "learning-oriented"
-    purpose: "Provide hands-on learning experiences through complete workflows"
-    filename_pattern: "[descriptive-name].mdx"
-    required_files:
-      - "index.mdx"
-      - "_data.yml"
-    required_front_matter:
-      - "_schema: default"
-      - "_uuid: [auto-generated UUID]"
-      - "_created_at: [auto-generated timestamp]"
-      - "details.title"
-      - "details.order"
-      - "details.image"
-      - "details.description"
-      - "details.start_nav_group: [null or section name string to group pages]"
-      - "details.related_articles: [typically null]"
-      - "author_notes.docshots: [Added! | Needs docshots | Not applicable]"
-    index_title: "Introduction"
-    note: "Guides use nested 'details' structure like articles"
-  
-  instructions:
-    diataxis_category: "task-oriented"
-    purpose: "Provide step-by-step guidance for specific tasks"
-    filename_pattern: "[action-verb]-*.mdx"
-    title_patterns:
-      - "Add a [thing]"
-      - "Configure [feature]"
-      - "Create a [thing]"
-      - "How to [action]"
-    required_front_matter:
-      - "_schema: default"
-      - "_uuid: [auto-generated UUID]"
-      - "_created_at: [auto-generated timestamp]"
-      - "details.title"
-      - "details.description"
-      - "details.image"
-      - "details.category: [Instructions]"
-      - "details.related_articles: [optional array, max 3 items]"
-      - "author_notes.docshots: [Added! | Needs docshots | Not applicable]"
-    related_articles_structure:
-      max_items: 3
-      _type: ["developer_articles", "user_articles", "developer_guides", "user_guides"]
-      item: "[UUID of related article]"
-    step_format: "numbered_list"
-  
-  glossary:
-    diataxis_category: "reference"
-    purpose: "Provide quick lookup of terminology and definitions"
-    filename_pattern: "[first-letter]/[term-name].yml"
-    location: "user/glossary/"
-    required_fields:
-      - "_schema: default"
-      - "glossary_term_name"
-      - "term_description"
-      - "documentation_link"
-    description_length:
-      target_sentences: "2-3"
-      target_percentage: "80%"
-      acceptable_short: "1 sentence for patterns (inputs, SSGs, file formats)"
-      acceptable_long: "4+ sentences for complex features"
-      max_words: 100
-    
-    sentence_structure:
-      sentence_1: "Core definition - What is it?"
-      sentence_2: "Context and purpose - How is it used?"
-      sentence_3_optional: "Additional context, cross-references, usage notes"
-    
-    italicization_rules:
-      use_asterisks_for:
-        ui_components:
-          - "Visual Editor"
-          - "Content Editor"
-          - "Data Editor"
-          - "Source Editor"
-          - "App Sidebar"
-          - "Site Header"
-          - "Site Navigation"
-          - "Collection Browser"
-          - "File Browser"
-          - "Sites Browser"
-          - "Organizations Browser"
-        core_concepts:
-          - "Site"
-          - "Organization"
-          - "Project"
-          - "Collection"
-          - "Permission Group"
-          - "Schema"
-          - "Structure"
-          - "Configuration File"
-        features:
-          - "Build"
-          - "Git Repository"
-          - "Publish Branch"
-          - "Custom Domain"
-          - "Testing Domain"
-          - "Client Sharing"
-          - "Site Sharing"
-        all_input_types: true
-      
-      do_not_italicize:
-        - "account, user, team member"
-        - "file, files, assets, uploads"
-        - "permission (standalone)"
-        - "layout, routing, markup, link"
-        - "building, editing, syncing (verbs)"
-        - "DAM, SSG, API, CDN, DNS, HTTP, CORS, XSS, SSO, SAML"
-        - "Git, GitHub, GitLab, Bitbucket"
-        - "HTML, CSS, JavaScript, YAML, JSON"
-        - "AWS, Azure, Make, Zapier, Okta"
-      
-      possessive_forms: "Include apostrophe-s inside italics (*Site's*)"
-    
-    cross_reference_rules:
-      italicize_cloudcannon_terms: true
-      includes: "UI elements, core concepts, and features"
-      do_not_italicize: "generic terms, external services, file formats"
-      examples:
-        correct:
-          - "Once you group your files into *Collections*, they appear in the *Site Navigation* for easy access."
-          - "Team members are invited to your *Organization* to collaborate on *Sites*."
-          - "Each team member has permissions assigned through *Permission Groups*."
-        incorrect:
-          - "Collections appear in the Site Navigation."  # Should italicize CloudCannon terms
-          - "Each team member belongs to at least one Permission Group."  # Should italicize *Permission Group*
-    
-    link_format:
-      pattern: "/documentation/[user|developer]-articles/[slug]/"
-      include_documentation_prefix_for: "articles and guides only"
-      non_documentation_pages: "use a full absolute URL (e.g., https://cloudcannon.com/pricing/); never root-relative — basePath prepends /documentation/ and breaks it"
-      never_protocol_relative: "a leading // is read as a hostname; use a single leading / for documentation paths"
-      examples:
-        correct:
-          - "/documentation/user-articles/what-is-a-collection/"
-          - "/documentation/developer-articles/configure-collections/"
-          - "/documentation/developer-guides/okta-sso-saml/"
-          - "https://cloudcannon.com/pricing/"  # Non-documentation pages: absolute URL
-        incorrect:
-          - "/user-articles/what-is-a-collection/"  # Missing /documentation/
-          - "/user/articles/what-is-a-collection/"  # Wrong structure
-          - "/pricing/"  # Root-relative non-doc link — basePath breaks it to /documentation/pricing/
-          - "//documentation/developer-articles/..."  # Protocol-relative — resolves to https://documentation/...
-          - "/changelogs/..."  # Don't link to changelogs
-      
-      acceptable_empty_for:
-        - "File formats (HTML, CSS, JavaScript, YAML, JSON, TOML, CSV, etc.)"
-        - "External services (GitHub, GitLab, AWS, Azure)"
-        - "SSGs (Jekyll, Hugo, Eleventy, etc.)"
-        - "DAM providers"
-        - "Generic technical terms (API, HTTP, DNS, MIME, CORS, XSS)"
-        - "Subscription plans"
-        - "Self-explanatory UI elements"
-
-link_formats:
-  internal_articles:
-    pattern: "/documentation/[user|developer]-articles/[slug]/"
-    examples:
-      - "/documentation/user-articles/what-is-a-collection/"
-      - "/documentation/developer-articles/configure-your-collections/"
-  
-  internal_guides:
-    user_pattern: "/documentation/user-guides/[guide-name]/[page-slug]/"
-    developer_pattern: "/documentation/developer-guides/[guide-name]/[page-slug]/"
-    examples:
-      - "/documentation/user-guides/getting-started/create-a-site/"
-      - "/documentation/developer-guides/okta-sso-saml/"
-  
-  glossary_documentation_links:
-    articles_pattern: "/documentation/[user|developer]-articles/[slug]/"
-    guides_pattern: "/documentation/[user|developer]-guides/[guide-name]/"
-    other_pages_pattern: "https://cloudcannon.com/[page-name]/"
-    note: "documentation_link requires the /documentation/ prefix for articles and guides; non-documentation pages use a full absolute URL (basePath prepends /documentation/ to any root-relative value)"
-    examples:
-      - "/documentation/user-articles/what-is-a-collection/"
-      - "/documentation/developer-guides/okta-sso-saml/"
-      - "https://cloudcannon.com/pricing/"
-
-components:
-  notice:
-    usage: "Tips, important information, permissions, and pricing notices"
-    types:
-      - "info"
-      - "important"
-      - "permissions"
-      - "pricing"
-    syntax: "<comp.Notice info_type=\"[type]\">...</comp.Notice>"
-  
-  docshot:
-    usage: "UI screenshots and snippets"
-    required_attributes:
-      - "docshot_key"
-      - "alt"
-      - "title"
-      - "type"
-    types:
-      screenshot: "Full viewport screenshots showing the entire CloudCannon interface"
-      ui-snippet: "Cropped screenshots of specific UI elements like inputs, buttons, dropdowns, or modals"
-    naming: "Hyphenated names describing the page and state (e.g., Site-Settings-Syncing-Connected)"
-  
-  multicodeblock:
-    usage: "Configuration examples with YAML/JSON translation"
-    required_attributes:
-      - "language"
-      - "translate_into"
-      - "source"
-    annotation_marker: "___NUMBER___"
-    annotation_example: "_inputs___1___:"
-    use_cases:
-      - "CloudCannon configuration files"
-      - "Input configuration examples"
-      - "Any config users can write in YAML or JSON"
-  
-  codeblock:
-    usage: "File content examples in a single format"
-    required_attributes:
-      - "language"
-      - "source"
-    annotation_marker: "/*NUMBER*/"
-    annotation_example: "<h1 data-editable>Title</h1> /*1*/"
-    use_cases:
-      - "HTML files"
-      - "Markdown files"
-      - "JavaScript files"
-      - "Any single-format file content"
-  
-  annotation:
-    usage: "Numbered explanations for code examples"
-    placement: "Immediately after closing code block tag"
-    numbering: "Sequential starting from 1"
-    length: "1-2 sentences (concise)"
-    syntax: "<comp.Annotation number=\"N\">Explanation</comp.Annotation>"
-    note: "Used with both MultiCodeBlock and CodeBlock components"
-  
-  glossaryterm:
-    usage: "Inline glossary tooltip for terms with a glossary entry"
-    required_attributes:
-      - "term"
-    syntax: "<comp.GlossaryTerm term=\"/user/glossary/[letter]/[term].yml\">Display Text</comp.GlossaryTerm>"
-    rules:
-      - "Use on first mention of a term in an article only"
-      - "Term must have a corresponding YML file in user/glossary/"
-      - "Replaces markdown links on first use — do not combine with markdown links"
-      - "Subsequent mentions use italics instead"
-      - "Display text can differ from glossary_term_name (plurals, derived forms)"
-
-validation_rules:
-  check_for:
-    - "passive_voice"
-    - "missing_alt_text"
-    - "broken_internal_links"
-    - "inconsistent_terminology"
-    - "missing_oxford_commas"
-    - "incorrect_capitalization"
-    - "non_italicized_ui_elements"
-    - "glossary_links_wrong_format"
-    - "changelog_fixes_present_tense"
-    - "instructions_without_numbered_steps"
-    - "explanation_without_opening_definition"
-    - "plain_code_blocks_instead_of_components"
-    - "trailing_prepositions"
-    - "repeated_action_verbs_in_consecutive_steps"
-    - "instructions_missing_final_outcome_sentence"
-    - "docshot_missing_title_attribute"
-    - "images_interrupting_ordered_lists"
-  
-  ignore:
-    - "Passive voice in: changelog features, technical descriptions"
-    - "Missing periods in: list fragments, single-word items"
-
-accessibility_requirements:
-  alt_text: "required_for_all_images"
-  heading_hierarchy: "no_skipped_levels"
-  link_text: "descriptive_not_generic"
-  color_dependence: "never_sole_indicator"
-  language: "simple_and_clear"
-  date_format: "YYYY-MM-DD or spelled out"
-```
+When you update a rule here, update the corresponding rule in `STYLE_GUIDE_AGENTS.md` and bump the revision history in both files (see the note at the top of this guide).
 
 ---
 
@@ -2490,6 +2081,11 @@ accessibility_requirements:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.25 | 2026-06-30 | Section 3 (Machine-Readable Style Rules): removed the embedded YAML block, which had drifted to `style_guide_version` 1.2 / 2026-03-30 and contradicted the current rules in `STYLE_GUIDE_AGENTS.md` (e.g. stale annotation-marker and placement guidance). Section 3 is now a pointer to `STYLE_GUIDE_AGENTS.md`, the single source of truth for the machine-readable rules. No rule content was lost — every rule in the removed block is present and current in `STYLE_GUIDE_AGENTS.md` |
+| 2.24 | 2026-06-30 | External links (§2.5.6): split the `rel` guidance by destination ownership. Third-party (non-`cloudcannon.com`) new-tab links now use `rel="noopener noreferrer"` (noreferrer stops the reader's doc URL leaking to outside sites); CloudCannon-owned external pages (`cloudcannon.com` and subdomains) keep `rel="noopener"` only, to preserve the referrer for our own analytics. Updated all third-party external anchors throughout the docs accordingly |
+| 2.23 | 2026-06-24 | Links (§1.4.4): removed `rel="noreferrer"` from on-site `cloudcannon.com` anchors throughout the docs and the style guide examples — it's unnecessary for same-site links. Fixed the §1.4.4 "Avoid" example so it shows the root-relative `/pricing/` path it warns against rather than duplicating the "Good" absolute URL |
+| 2.22 | 2026-06-23 | Changelogs (§2.1.2, §2.1.3): documented the required `date` front-matter field (ISO 8601, +12:00) and the `general-fixes` title fallback; added a scope note that changelogs cover only shipped features (beta/unreleased work and its plumbing excluded); added the dependency-bump roll-up line to the Fixes guidance |
+| 2.21 | 2026-06-23 | Changelogs (§2.1.3, §2.1.4): resolved the tense conflict between "start each item with what the user can now do" and "past tense exclusively". Entries now lead with a past-tense verb and convey capability via an "allowing you to…" clause, never "You can now…". Added an Entry Shape pattern and a Nested Detail rule (past-tense lead, behaviour in the descriptive present, no instructions) |
 | 2.20 | 2026-06-23 | Links (§1.4.4, §2.5.6): documented that Lume's `basePath` prepends `/documentation/` to every root-relative link. Links to non-documentation `cloudcannon.com` pages (e.g. `/pricing/`, `/support/`) must now be full absolute URLs in HTML anchors, not root-relative paths; added a prohibition on protocol-relative (`//`) links. Updated pricing-notice and support-callout examples accordingly |
 | 2.19 | 2026-06-04 | Mermaid component (§1.5.5) now renders client-side via `mermaid.js` (lazy-loaded on diagram pages from a pinned jsDelivr URL). Removed the build-time renderer, the local-render-and-commit workflow, and the `name` prop. Loader visible during render; no-JS readers see the `alt` |
 | 2.18 | 2026-06-04 | Mermaid component (§1.5.5): added required `name` prop (kebab-case identifier). SVGs are now stored as `_cache/mermaid/{name}-{theme}.svg` instead of SHA1 hashes; each SVG embeds a `<!-- mermaid-hash: ... -->` comment so stale files are detected at build time |

@@ -7,8 +7,17 @@ Machine-readable style rules for AI agents and automated linters. These rules ar
 **For agents making updates to this file:** Also update the corresponding section in `STYLE_GUIDE.mdx` with the prose explanation and examples. Update the revision history in both files: `last_updated` and `style_guide_version` in the YAML block below, and the `Last Updated` and `Version` fields and the revision history table (Section 4) in `STYLE_GUIDE.mdx`.
 
 ```yaml
-style_guide_version: "2.20"
-last_updated: "2026-06-23"
+style_guide_version: "2.25"
+last_updated: "2026-06-30"
+
+documentation_architecture:
+  single_source_of_truth:
+    prefer: "Specific, single-purpose pages. Split by discrete topic or distinct reading context (e.g. opt-in/configurable behavior vs default behavior). Splitting for specificity is good."
+    one_home: "Each behavior, feature, or screen has one home page. A general page may summarize a topic in a short paragraph and link to the specific page that covers it thoroughly — intended pattern, not duplication."
+    similarity_ok: "Similar content across pages covering DIFFERENT topics is accurate, not duplication (e.g. Snippets pages, where each snippet type behaves similarly but has its own home)."
+    avoid: "The SAME behavior or appearance documented in full on two pages, even when both are accurate — dilutes search and will drift. Consolidate to one authoritative page; others defer with a short summary and a link."
+    always_cross_link: true
+    tie_breaker: "When pages disagree, accuracy wins, not recency. App behavior and STYLE_GUIDE.mdx are the ultimate tie-breakers; fix toward them."
 
 terminology:
   disambiguation:
@@ -168,10 +177,19 @@ documentation_types:
     required_front_matter:
       - "_schema"
       - "title"
+      - "date (ISO 8601, +12:00 NZ timezone; publish time; drives ordering)"
+    title_fallback: "general-fixes (when a release has no notable features)"
+    scope: "Document only features shipped to all users. Exclude beta/unreleased features and their supporting plumbing (error handling, migrations, API wiring), even if merged during the period covered."
     required_sections:
       - "Features & Improvements"
       - "Fixes"
+    dependency_rollup: "Roll up Dependabot/npm_and_yarn/bundler/patch-only bumps into a single closing Fixes line: 'Updated dependencies to patch security vulnerabilities.'"
     tense: "past"
+    entry_shape: "Lead with a past-tense verb, then an 'allowing you to…' capability clause, then locate the controls descriptively. Convey what the reader can now do via 'allowing you to…', never 'You can now…'. Pattern: Added *[Name]*, allowing you to *[capability]*. [Where the controls live, stated descriptively.]"
+    nested_detail: "Sub-bullets explaining how a feature works keep a past-tense lead and describe behaviour in the descriptive present; never instructional ('You can now…', 'Click Save')."
+    avoid:
+      - "You can now… (present-tense instruction)"
+      - "Go to X to… (instructional rather than descriptive)"
     preferred_verbs:
       - "Added"
       - "Changed"
@@ -279,7 +297,7 @@ documentation_types:
       emoji: "A single emoji is permitted in the congratulatory opening sentence (e.g. 🎉)"
       required_elements:
         - "Congratulatory opening sentence acknowledging guide completion"
-        - "Support callout linking to https://cloudcannon.com/support/ (HTML anchor, rel=noreferrer) and CloudCannon Community (external link with target=_blank rel=noopener)"
+        - "Support callout linking to https://cloudcannon.com/support/ (HTML anchor) and CloudCannon Community (external link with target=_blank rel=noopener)"
         - "Contextual section headings (## level) that describe what the reader can do next, not bare topic labels"
         - "One-sentence prose intro before each bullet list explaining why these resources are useful"
         - "Bullet list entries formatted as: [Link text](/path/) — One sentence description"
@@ -473,21 +491,27 @@ link_formats:
   
   non_documentation_pages:
     description: "Pages on cloudcannon.com outside /documentation/ (e.g. the marketing pricing page)"
-    syntax: '<a href="https://cloudcannon.com/[path]/" rel="noreferrer">[Link text]</a>'
+    syntax: '<a href="https://cloudcannon.com/[path]/">[Link text]</a>'
     rule: "Use a full absolute URL in an HTML anchor; never a root-relative path. basePath prepends /documentation/ to any root-relative link, so /pricing/ breaks as /documentation/pricing/"
     no_new_tab: "Same domain, so omit target=_blank — keep the reader in the same tab"
     examples:
-      - '<a href="https://cloudcannon.com/pricing/" rel="noreferrer">Team or Enterprise plan</a>'
+      - '<a href="https://cloudcannon.com/pricing/">Team or Enterprise plan</a>'
 
   protocol_relative_links:
     rule: "Never use a leading // — the browser reads the first segment as a hostname (//documentation/... resolves to https://documentation/...). Use a single leading / for documentation paths"
 
   external_links:
-    syntax: '<a href="[url]" target="_blank" rel="noopener">[Link text]</a>'
-    rule: "Always use HTML anchor tags for external links, never markdown syntax"
-    reason: "Opens in a new tab so users don't lose their place; rel=noopener provides security benefits"
-    correct: '<a href="https://gohugo.io/content-management/multilingual/" target="_blank" rel="noopener">built-in multilingual support</a>'
-    incorrect: "[built-in multilingual support](https://gohugo.io/content-management/multilingual/)"
+    rule: "Always use HTML anchor tags for external links, never markdown syntax. Always target=_blank. The rel value depends on destination ownership."
+    rel_by_destination:
+      third_party: "rel='noopener noreferrer' — any destination NOT on a cloudcannon.com domain (github.com, gohugo.io, developer.mozilla.org, docs.imgix.com, forms.gle, etc.). noopener prevents tabnabbing; noreferrer stops the reader's doc URL leaking to the outside site."
+      cloudcannon_owned: "rel='noopener' — cloudcannon.com and its subdomains (e.g. community.cloudcannon.com). Keep the referrer so CloudCannon analytics attribute the traffic. NOTE: most cloudcannon.com links stay same-tab (see link_formats.non_documentation_pages); only add target=_blank + rel=noopener when a CloudCannon-owned link must open in a new tab."
+    syntax_third_party: '<a href="[url]" target="_blank" rel="noopener noreferrer">[Link text]</a>'
+    syntax_cloudcannon_owned: '<a href="https://community.cloudcannon.com/" target="_blank" rel="noopener">[Link text]</a>'
+    reason: "Opens in a new tab so users don't lose their place; noopener provides security benefits; noreferrer keeps the reader's doc URL from leaking to third parties"
+    correct: '<a href="https://gohugo.io/content-management/multilingual/" target="_blank" rel="noopener noreferrer">built-in multilingual support</a>'
+    incorrect:
+      - "[built-in multilingual support](https://gohugo.io/content-management/multilingual/)"  # markdown syntax for external link
+      - '<a href="https://gohugo.io/content-management/multilingual/" target="_blank" rel="noopener">built-in multilingual support</a>'  # third-party link missing noreferrer
 
   ui_elements_in_links:
     rule: "Drop italics when a UI element term is used as link text"
@@ -510,16 +534,16 @@ components:
       permissions: "Must always be first in the article, immediately after front matter. Always start with bold 'Permissions required' heading."
       pricing: "Can be first if the entire feature is plan-specific; otherwise inline."
     pricing_notice_content:
-      single_feature_form: "**This feature is available on our <a href="https://cloudcannon.com/pricing/" rel="noreferrer">Team or Enterprise plan</a>.** OR ***Feature Name* is available on our <a href="https://cloudcannon.com/pricing/" rel="noreferrer">Team or Enterprise plan</a>.**"
+      single_feature_form: "**This feature is available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise plan</a>.** OR ***Feature Name* is available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise plan</a>.**"
       overview_article_form: "Name the gated sub-features the article actually discusses; do not list the full set of gated features under the parent"
       examples:
         correct:
-          - "**This feature is available on our <a href="https://cloudcannon.com/pricing/" rel="noreferrer">Team or Enterprise plan</a>.**"
-          - "***Deploy Previews* are available on our <a href="https://cloudcannon.com/pricing/" rel="noreferrer">Team or Enterprise plan</a>.**"
-          - "***Projects* are available on all plans. *Site* branching and *Publishing Workflows* are available on our <a href="https://cloudcannon.com/pricing/" rel="noreferrer">Team or Enterprise plan</a>.**"
-          - "**The *Pull Requests* tab and *Deploy Previews* settings are available on our <a href="https://cloudcannon.com/pricing/" rel="noreferrer">Team or Enterprise plan</a>. Other parts of the *Project Browser* are available on all plans.**"
+          - "**This feature is available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise plan</a>.**"
+          - "***Deploy Previews* are available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise plan</a>.**"
+          - "***Projects* are available on all plans. *Site* branching and *Publishing Workflows* are available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise plan</a>.**"
+          - "**The *Pull Requests* tab and *Deploy Previews* settings are available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise plan</a>. Other parts of the *Project Browser* are available on all plans.**"
         incorrect:
-          - "**Some features are only available on our <a href="https://cloudcannon.com/pricing/" rel="noreferrer">Team or Enterprise plan</a>.**"  # vague — doesn't say which features
+          - "**Some features are only available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise plan</a>.**"  # vague — doesn't say which features
           - "**This feature is available on our** [**Team or Enterprise plan**](https://cloudcannon.com/pricing/)**.**"  # over-wrapped bold/link splits; also: non-doc links must be HTML anchors, not markdown
     general_rules:
       - "Only one notice at the start of an article (permissions, pricing, or important — never info)"
