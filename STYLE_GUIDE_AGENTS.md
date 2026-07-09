@@ -7,8 +7,8 @@ Machine-readable style rules for AI agents and automated linters. These rules ar
 **For agents making updates to this file:** Also update the corresponding section in `STYLE_GUIDE.mdx` with the prose explanation and examples. Update the revision history in both files: `last_updated` and `style_guide_version` in the YAML block below, and the `Last Updated` and `Version` fields and the revision history table (Section 4) in `STYLE_GUIDE.mdx`.
 
 ```yaml
-style_guide_version: "2.25"
-last_updated: "2026-06-30"
+style_guide_version: "2.27"
+last_updated: "2026-07-09"
 
 documentation_architecture:
   single_source_of_truth:
@@ -381,6 +381,7 @@ documentation_types:
           - "Project"
           - "Collection"
           - "Permission Group"
+          - "Team Member"
           - "Schema"
           - "Structure"
           - "Configuration File"
@@ -399,7 +400,7 @@ documentation_types:
         all_input_types: true
       
       do_not_italicize:
-        - "account, user, team member"
+        - "account, user"
         - "file, files, assets, uploads"
         - "permission (standalone)"
         - "layout, routing, markup, link"
@@ -440,11 +441,11 @@ documentation_types:
       examples:
         correct:
           - "Once you group your files into *Collections*, they appear in the *Site Navigation* for easy access."
-          - "Team members are invited to your *Organization* to collaborate on *Sites*."
-          - "Each team member has permissions assigned through *Permission Groups*."
+          - "*Team Members* are invited to your *Organization* to collaborate on *Sites*."
+          - "Each *Team Member* has permissions assigned through *Permission Groups*."
         incorrect:
           - "Collections appear in the Site Navigation."  # Should italicize CloudCannon terms
-          - "Each team member belongs to at least one Permission Group."  # Should italicize *Permission Group*
+          - "Each team member belongs to at least one Permission Group."  # Should italicize *Team Member* and *Permission Group*
     
     link_format:
       pattern: "/documentation/[user|developer]-articles/[slug]/"
@@ -514,10 +515,22 @@ link_formats:
       - '<a href="https://gohugo.io/content-management/multilingual/" target="_blank" rel="noopener">built-in multilingual support</a>'  # third-party link missing noreferrer
 
   ui_elements_in_links:
-    rule: "Drop italics when a UI element term is used as link text"
+    rule: "Drop italics when a UI element or Core Concept term (e.g. *Team Member*, *Site*) is used as link text"
     reason: "Link formatting (underline/color) already provides visual distinction; combining italics and links creates visual clutter"
     correct: "[Data Editor](/documentation/articles/what-is-the-data-editor/)"
     incorrect: "[*Data Editor*](/documentation/articles/what-is-the-data-editor/)"
+
+renaming_and_removing_content:
+  section: "1.4.5"
+  rule: "When renaming, moving, or removing an article or guide that was live on `main`, add a 301 redirect in `.cloudcannon/routing.json`. Never leave a stub article behind; delete the old file and handle the redirect in routing.json."
+  redirect_required_when:
+    - "Renaming an article or guide (the URL slug changes with the filename)"
+    - "Moving an article between collections (e.g. developer-articles to user-articles)"
+    - "Removing an article entirely (redirect to the closest replacement or the parent section)"
+  exception_never_on_main:
+    rule: "If an article only ever existed on a branch and was never published to `main`, its URL was never live, so no redirect is needed. Repoint internal links to the new slug and delete the old file."
+  chain_existing_redirects: "If an older path already redirects to the old URL, update that entry to point to the new URL as well, so every path resolves in a single hop."
+  redirect_entry_shape: '{ "from": "/documentation/user-articles/old-slug/", "to": "/documentation/user-articles/new-slug/", "status": 301 }'
 
 components:
   notice:
