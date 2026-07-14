@@ -112,9 +112,16 @@ We want to prevent a team member from editing the Production site but enable edi
 
 A file glob is a pattern used to identify matching files. File globs look similar to a file path with a mix of literal text and special characters such as `*` and `{ }`. In CloudCannon, you can specify read or write access to specific file globs in a Custom Permission Group. You can specify which collections, folders, filenames, and file extensions a team member is allowed to read or edit, allowing for fine-grain control over reading and editing site files.
 
-A read or write action is associated with each file glob. Additionally, when you specify a file glob in a permission or an exception, this will override any `site:file:read` and `site:file:write` resources selected from the resource tree. Because specifying a file glob implicitly includes the resource for read or write, the `site:file` checkbox in the resource tree is enabled by default.
+A read or write action is associated with each file glob. A `site:file:read` or `site:file:write` permission with no file glob covers every file within its scope. Adding file globs changes this:
 
-To create a file glob, type the file path of any files you want to determine access for. For more general file paths, you can create a glob using the special characters `*` and `{ }`. The `*` character denotes any file, `/**/` denotes any number of folders, and a glob ending in `/**` matches all files within a folder and all of its subfolders. Using the `{ }` brackets, you can specify a list of options separated by a comma.
+* A file glob in a **permission** narrows that permission to a whitelist — members can only read or write files that match one of its globs.
+* A file glob in an **exception** removes only the matching files, leaving the rest of the permission in place. A globless permission keeps its coverage of every other file.
+
+Because specifying a file glob implicitly includes the `site:file` resource for read or write, the `site:file` checkbox in the resource tree is enabled by default.
+
+As with other resources, read and write levels interact: a read-level file glob exception removes both read and write access to the matching files, while a write-level file glob exception removes only write access.
+
+To create a file glob, type the file path of any files you want to determine access for. For more general file paths, you can create a glob using special characters. The `*` character matches any file within a single folder — it does not cross folder boundaries — while `/**/` matches any number of folders. A glob ending in `/**` (equivalent to `/**/*`) matches all files within a folder and all of its subfolders. Using the `{ }` brackets, you can specify a list of options separated by a comma.
 
 For example, if we add a permission to write the file glob `/posts/**/*.{md,html}`, CloudCannon will allow members of this Permission Group to read and edit any Markdown or HTML files within any subfolders of the Collection "Posts".
 

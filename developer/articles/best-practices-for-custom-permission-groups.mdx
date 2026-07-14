@@ -55,15 +55,15 @@ A file glob is a pattern used to identify matching files. File globs look simila
 
 Here are some common pitfalls when creating file globs.
 
-### Adding a file glob overrides the resource tree
+### Adding a permission file glob narrows access to matching files
 
-Specifying a file glob in a permission or an exception will override any selections made in the resource tree. This is because adding globs enables the *site:file* resource at a more specific level.
+Adding a file glob to a *permission* narrows that permission to a whitelist of matching files. This is because adding globs enables the *site:file* resource at a more specific level.
 
-By selecting `site:file:read` or `site:file:write` in the resource tree, you allow Group members to read or write all files within your permission scope. However, as soon as you specify a file glob, CloudCannon will override the resource tree and limit access to only files that match your file glob.
+By selecting `site:file:read` or `site:file:write` in the resource tree with no file glob, you allow Group members to read or write all files within your permission scope. However, as soon as you add a permission file glob, CloudCannon limits that permission to only the files matching one of its globs. (A file glob in an *exception* behaves differently — it removes only the matching files and leaves the rest of the permission in place.)
 
-You may unintentionally lose access to files by specifying a file glob.
+You may unintentionally lose access to files by adding a permission file glob.
 
-For example, suppose we add the file glob `posts/**` with write access to a Custom Permission Group. Members of this Group will be able to see and edit any files within the collection “Posts” (as permission to write implicitly includes permission to read). Because we have not included any other file globs, members of this Group will lose read access to all files that do not match this file glob. Without permission to read other files, all other collections on your Site will not appear in the app.
+For example, suppose we add the file glob `posts/**` with write access to a Custom Permission Group, and add no other file globs. Members of this Group will be able to see and edit any files within the collection “Posts” (as permission to write implicitly includes permission to read). Because this permission now covers only files matching `posts/**`, members of this Group will lose access to all files that do not match. Without permission to read other files, all other collections on your Site will not appear in the app.
 
 To avoid this pitfall, carefully consider what files your Group members need access to and include a file glob for all these files.
 
@@ -77,17 +77,17 @@ You should also allow access to:
 * The Schemas folder or specific Schema for any files you want Group members to be able to edit or create.
 * Any folders in your repository for storing or uploading images and videos.
 
-### File globs in an exception but none specified in a permission
+### Exceptions carve out files without needing a matching permission glob
 
-Adding a file glob to an exception and none to permissions will prevent members of this Group from accessing any Site files, even if you selected `site:file:read` or `site:file:write` in the permission resource tree. This is because specifying a file glob in a permission or an exception will override any selections made in the resource tree.
+An exception file glob removes only the files it matches — it does not switch the permission into whitelist mode. So if you select `site:file:read` or `site:file:write` in the permission resource tree (a permission with no file glob, covering every file) and add an exception file glob, members keep access to every file *except* those the exception matches.
 
-In this case, a file glob in an exception overrides the permission tree, and because no permissions file globs are specified, the members of this Group cannot access any files.
+For example, a permission with `site:file:write` selected plus an exception for the file glob `secrets/**` lets members edit every file except those under `secrets`.
 
-To avoid this pitfall, add a permission with the file glob `**/*` for access to all files, or create a more specific file glob to allow access to some files. Your exception will now function.
+You do not need to add a `**/*` permission glob for the exception to work — a globless `site:file:read` or `site:file:write` permission already covers all files, and the exception carves out from it. Remember that a read-level exception glob also removes write access to the matching files, while a write-level exception glob leaves read access in place.
 
 ### Specifying files but not subfolders
 
-File globs include special characters such as `*` and `{ }`. The `*` character denotes any file, while `/**/` denotes any number of folders. When you want to specify any file, it is important to account for any subfolders within your collection.
+File globs include special characters such as `*` and `{ }`. The `*` character matches any file within a single folder — it does not cross folder boundaries — while `/**/` matches any number of folders. When you want to specify any file, it is important to account for any subfolders within your collection.
 
 For example, the file glob `/posts/*` will match any file located immediately within the “Posts” collection. The glob `/posts/*/*` will match any file located exactly one subfolder deep in your collection.
 
@@ -95,4 +95,4 @@ To account for files within any number of subfolders, we recommend using a file 
 
 ### Adding file globs but forgetting the read permission for your CloudCannon configuration file
 
-You need permission to read the [CloudCannon configuration file](/documentation/developer-articles/what-is-the-cloudcannon-configuration-file/)  to see the Collections in your *Site Navigation*. As soon as you specify a file glob, CloudCannon will override the generic options `site:file:read` or `site:file:write` in the resource tree and limit access to only files that match your file glob. If you do not provide permission to read the CloudCannon Configuration file, members of your Custom Permission Groups will be limited in their ability to use Sites on CloudCannon.
+You need permission to read the [CloudCannon configuration file](/documentation/developer-articles/what-is-the-cloudcannon-configuration-file/)  to see the Collections in your *Site Navigation*. As soon as you add a permission file glob, CloudCannon narrows the generic `site:file:read` or `site:file:write` options to only files that match one of your permission globs. If your globs do not cover the CloudCannon configuration file, members of your Custom Permission Groups will be limited in their ability to use Sites on CloudCannon.
