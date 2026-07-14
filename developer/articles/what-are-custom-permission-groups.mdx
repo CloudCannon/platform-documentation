@@ -54,6 +54,13 @@ The create action allows you to create new instances of a resource (in this exam
 
 You can only grant permissions that you already hold. When you create or edit a Custom Permission Group, CloudCannon checks each permission you add against your own permissions and blocks any resource you do not hold at that scope. For example, if you have `site:read` but not `site:write`, you cannot add `site:write` to a Group. The same rule applies to file globs — you can only grant access to files you can already read or write yourself, so a file glob you add must fall within your own file access. Adding an exception is not subject to this check, as an exception only removes access. This prevents team members from using Group management permissions to gain access they were never given.
 
+How CloudCannon checks a file glob you grant depends on the scope of the permission:
+
+* **Site scope** — CloudCannon compares the glob against your own file access on that Site. The grant succeeds when your access there covers the glob, whether you hold unrestricted file access or a permission glob matching the same files or more.
+* **Project or Global scope** — the grant covers every Site in the scope, including Sites created in the future, so CloudCannon applies a stricter check. Your covering access must be held at the same scope or above: a Global permission glob covers a grant at any scope, a Project permission glob covers grants on that Project, and fully unrestricted file access covers everything. Access assembled Site by Site never qualifies, no matter how many Sites it spans — to delegate your Site-level access, grant a Site-scoped permission for each Site instead.
+
+Exceptions make this check stricter. If an exception limits your file access, you cannot grant file globs for that action — even globs the exception does not touch. At Site scope, this only applies to exceptions affecting that Site; at Project or Global scope, any exception applies. Exceptions themselves can contain file globs at any scope, as they only remove access.
+
 Removing a permission or exception is checked the same way whenever it would widen access. Deleting an exception restores the access it was carving out, and deleting a file glob on a permission can expose a broader unrestricted permission, so CloudCannon requires you to hold the underlying resource at that scope before you can remove one. Deleting a plain permission only narrows access and is always allowed.
 
 For more information, including a complete list of resources available, please read our [permissions](/documentation/developer-reference/permissions/) reference documentation.
