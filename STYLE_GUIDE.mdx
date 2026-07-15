@@ -1,7 +1,7 @@
 # CloudCannon Documentation Style Guide
 
-**Last Updated:** July 9, 2026  
-**Version:** 2.27
+**Last Updated:** July 15, 2026  
+**Version:** 2.33
 
 This style guide establishes writing standards for all CloudCannon documentation. It combines patterns from our existing documentation with industry best practices from Microsoft Writing Style Guide, Google Developer Documentation Style Guide, and Write the Docs community standards.
 
@@ -394,6 +394,22 @@ Use "editor" only when referring to an editing interface, and only when it is im
 
 Established compounds such as *Visual Editor API*, `inEditorMode`, or **editor-only** (meaning "only in the preview, not on the live *Site*") are acceptable when the surrounding sentence already names the environment.
 
+#### 1.3.4 Settings navigation: pages, tabs, and sections
+
+CloudCannon's settings areas nest their destinations differently, and the correct noun depends on where the destination lives. Choose the word by location, not by label — the same label can be a page in one area and a section in another.
+
+- **Org Settings contains pages.** Each destination you open from the *Org Settings* navigation — *Details*, *Branding*, *Team*, *Subscription*, and so on — is a **page**. Refer to it as a page: "the *Details* page under *Org Settings*". Never call it a "section".
+- **The Team page contains tabs.** The *Team* page (under *Org Settings*) splits into two **tabs**: *Members* and *Groups*. Refer to these as tabs: "the *Members* tab".
+- **The Project Settings tab contains sections.** *Project Settings* is a tab in the *Project* view, and its destinations — *Details*, *Repository*, *Branch Defaults*, and so on — are **sections**. Refer to a *Project Settings* destination as a section: "the *Repository* section".
+
+Because *Details* appears in both *Org Settings* and *Project Settings*, the same label is a **page** in one place and a **section** in the other. Verify the location before choosing the noun.
+
+- ✅ **Good:** "Navigate to the *Details* page under *Org Settings*."
+- ✅ **Good:** "Open the *Members* tab on the *Team* page."
+- ✅ **Good:** "In the *Project Settings* tab, open the *Repository* section."
+- ❌ **Avoid:** "Navigate to the *Details* section in *Org Settings*." (It is a page, not a section.)
+- ❌ **Avoid:** "Open the *Members* page." (Members is a tab on the *Team* page.)
+
 ---
 
 ### 1.4 Formatting
@@ -724,15 +740,17 @@ A link beginning with `//` is protocol-relative: the browser reads its first seg
 
 Use descriptive link text that tells readers what they'll find when they click. Don't use "click here" or "read more."
 
-- ✅ **Good:** "For more information, read our documentation on [Collections](/documentation/articles/what-is-a-collection/)."
+- ✅ **Good:** "For more information, please read our documentation on [Collections](/documentation/articles/what-is-a-collection/)."
 - ❌ **Avoid:** "For more information, click [here](/documentation/articles/what-is-a-collection/)."
 
 **In-Text Relevant Links**
 
-When referencing a related topic inline, use the pattern "For more information, please read our documentation on [topic link]." This keeps the reader focused on the current task while providing a clear path to more detail.
+When referencing a related topic inline, use the pattern "please read our documentation on [topic link]." This keeps the reader focused on the current task while providing a clear path to more detail. The link text is a lowercase descriptive rephrase of the target article's title — **never the verbatim title-cased article name**, which duplicates the title Pagefind already shows as the result heading. For Instructions articles, turn the action-verb title into a gerund phrase (e.g. *Rename your Organization* → `[renaming your Organization]`, *Review and merge a Pull Request* → `[reviewing and merging a Pull Request]`). ("What...?" and "Why...?" Explanation titles have their own rephrasing rules below.)
 
 - ✅ **Good:** "For more information, please read our documentation on [setting the Main Branch](/documentation/developer-articles/set-the-main-branch-for-your-project/)."
 - ✅ **Good:** "For instructions, please read our documentation on [reviewing and merging a Pull Request](/documentation/developer-articles/review-and-merge-a-pull-request/)."
+- ✅ **Good:** "To rename your *Organization*, please read our documentation on [renaming your Organization](/documentation/user-articles/rename-your-organization/)."
+- ❌ **Avoid:** "To rename your *Organization*, see [Rename your Organization](/documentation/user-articles/rename-your-organization/)." (verbatim title-cased name as link text; use the gerund rephrase inside the "please read our documentation on [X]" frame)
 - ❌ **Avoid:** "Click [here](/documentation/developer-articles/set-the-main-branch-for-your-project/) to learn about setting the Main Branch."
 - ❌ **Avoid:** Adding a `## Related articles` section — use the front matter `related_articles` field instead.
 
@@ -917,6 +935,7 @@ Avoid vague pricing notices that don't identify the gated feature:
 - Keep notice text concise.
 - Prefer using only one notice at the start of an article (either permissions, pricing, or important).
 - If both a pricing notice and a permissions notice are genuinely needed (e.g., for an Instructions article that gates on both plan and permission), place the **pricing notice first**, followed immediately by the permissions notice, before any other content. Pricing comes first because plan availability is the more fundamental gate — readers on the wrong plan don't need to read the permission requirements.
+- **A destructive or irreversible action may stack a `permissions` notice and an `important` notice at the top.** For actions like deleting an *Organization* or *Site*, place the permissions notice first (who can perform the action), immediately followed by an `important` notice stating the irreversibility and what is lost, before any other content. This is the one case where two notices at the start is expected rather than noise: the irreversibility warning is a load-bearing caveat the reader must see before acting, so it belongs at the top for the same reason access gates do.
 - **Always place `pricing` and `permissions` notices at the top of the article**, never in section-level positions. Readers expect to see access gates up front; section-level notices add noise and obscure the canonical statement of requirements. (The `important` notice type can appear inline next to the section it applies to — see its placement guidance above.)
 - **Don't restate a parent feature's gates in a sub-feature article.** If *Projects* require Team/Enterprise plans, articles about specific *Project* sub-features (e.g., *Branch Defaults*, optional tabs, *Deploy Previews*) shouldn't carry their own Team/Enterprise pricing notice covering the same gate — readers without the parent feature wouldn't be in the sub-feature article. The same applies to permissions inherited from a parent feature.
 
@@ -978,7 +997,7 @@ collections_config:
 
 #### 1.5.4 DocsImage Component
 
-Use for illustrations and diagrams. This component is being phased out in favor of DocShots for images of the CloudCannon app.
+Use for illustrations, diagrams, and external screenshots only. Do not use it for images of the CloudCannon app — those use `<comp.DocShot>`.
 
 ```mdx
 <comp.DocsImage 
@@ -1347,10 +1366,10 @@ author_notes:
   - `_type`: The collection type (accepted values: `developer_articles`, `user_articles`, `developer_guides`, `user_guides`)
   - `item`: UUID of the related article or guide
 - When linking to a guide, include only one page from that guide (normally the index). Do not list multiple pages from the same guide as separate related articles.
-- `author_notes.docshots` tracks whether an article's CloudCannon app screenshots have been migrated to `<comp.DocShot>`. Values:
-  - `"Added!"` — All CloudCannon app screenshots use `<comp.DocShot>`. No `<comp.DocsImage>` components remain in the article body, with the exception of `<comp.DocsImage path="assets/external_screenshots/...">` (screenshots of external services, which are not CloudCannon UI).
-  - `"Needs docshots"` — This article still contains `<comp.DocsImage>` components (other than external screenshots) that need to be migrated to `<comp.DocShot>`.
-  - `"Not applicable"` — This article does not contain any screenshots of the CloudCannon app (e.g., it only has diagrams, code examples, or no images at all).
+- `author_notes.docshots` tracks whether an article has the CloudCannon app screenshots it needs, as `<comp.DocShot>` components. Values:
+  - `"Added!"` — Every CloudCannon app screenshot the article needs is present as a `<comp.DocShot>`.
+  - `"Needs docshots"` — The article needs one or more CloudCannon app screenshots that do not exist yet.
+  - `"Not applicable"` — The article does not need any screenshots of the CloudCannon app (e.g., it only has diagrams, code examples, or no images at all). Do not use this value when a screenshot is warranted but missing — that case is `"Needs docshots"`.
 
 **Do not duplicate related articles in the body.** The front matter `related_articles` field renders related articles automatically. Never add a manual `## Related articles` section with a bulleted list of links — this duplicates the front matter and creates maintenance burden. The "Related Information" guidance in article structures (below) refers to inline prose links within a closing paragraph (e.g., "For more information, read our documentation on [configuring your Collections]..."), not a standalone section.
 
@@ -1609,6 +1628,7 @@ Use imperative mood (base form of verbs) for instruction article titles. This ma
 
 3. **Main Instructions** (multiple sections)
    - Use clear subheadings for different methods or sections
+   - **Introduce every numbered list with a lead-in sentence** that names the task and ends in a colon — for example, "To switch Organizations:". Never jump straight from a heading into step 1; the reader should know what the steps accomplish before they start following them.
    - Provide numbered steps for sequential actions; each step should be an **executable action** (what to do next). Put explanations—why something works, what a value means, how to choose options—in prose before or after the list (or between two complete lists), not inside a numbered step.
    - Include screenshots showing each step
    - Use Notice components for important tips or warnings
@@ -2113,6 +2133,12 @@ When you update a rule here, update the corresponding rule in `STYLE_GUIDE_AGENT
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.33 | 2026-07-15 | Synced the Instructions prerequisites rule (§2.3.4 item 2) into `STYLE_GUIDE_AGENTS.md` as `documentation_types.instructions.prerequisites`: a task's prior-setup dependencies belong before the ordered list (intro prose, a "Before you..." section, or "Before we begin, this article assumes..."), never as a numbered step. No prose rule change |
+| 2.32 | 2026-07-15 | Notice placement (§1.5.1): added the destructive-action exception to the "one notice at the start" guideline. A destructive or irreversible action (e.g. deleting an *Organization* or *Site*) may stack a `permissions` notice followed by an `important` irreversibility notice at the top — the irreversibility warning is a load-bearing caveat the reader must see before acting. Reworded `components.notice.general_rules` and added a `destructive_action_notice_stack` placement key in `STYLE_GUIDE_AGENTS.md` |
+| 2.31 | 2026-07-15 | Synced the notice-placement ordering rule into `STYLE_GUIDE_AGENTS.md`. §1.5.1 already required the pricing notice to precede the permissions notice when both are present (plan availability is the more fundamental gate), but the machine-readable `components.notice.placement` block still said permissions "must always be first" with no tie-breaker. Reworded the `permissions` and `pricing` placement entries and added a `pricing_and_permissions_order` key so the two files no longer contradict. No prose rule change |
+| 2.30 | 2026-07-15 | Added §1.3.4 Settings navigation: pages, tabs, and sections. Established the location-based noun rule for CloudCannon settings destinations: *Org Settings* contains **pages** (*Details*, *Branding*, *Team*, etc. — never "sections"); the *Team* page contains **tabs** (*Members*, *Groups*); the *Project Settings* tab contains **sections** (*Details*, *Repository*, etc.). Because a label like *Details* is a page under *Org Settings* but a section under *Project Settings*, the noun must be chosen by location. Added `settings_navigation_hierarchy` to `terminology` and `settings_destination_wrong_noun` to `validation_rules.check_for` in `STYLE_GUIDE_AGENTS.md` |
+| 2.29 | 2026-07-15 | Cross-links (§1.4.4 Links): made the "please read our documentation on [X]" frame explicit and required; link text must be a lowercase descriptive rephrase of the target title (gerund for Instructions action titles, e.g. *Rename your Organization* → `[renaming your Organization]`), never the verbatim title-cased article name; added the machine-readable `cross_link_pointer` rule to `STYLE_GUIDE_AGENTS.md`. Rewrote the `author_notes.docshots` value definitions (§2.2.2): the DocsImage→DocShot migration is complete, so the values now track screenshot completeness rather than migration state — `"Needs docshots"` means the article needs a screenshot that does not exist yet, `"Added!"` means every needed screenshot is present, `"Not applicable"` means none is needed. Reworded the DocsImage component description (§1.5.4) from "being phased out" to a flat rule: use it for illustrations, diagrams, and external screenshots only, never for CloudCannon app images |
+| 2.28 | 2026-07-14 | Added §2.3.4 lead-in sentence rule: introduce every numbered list in an instruction article with a stem sentence naming the task and ending in a colon (e.g. "To switch Organizations:"); never jump from a heading straight into step 1. Added `instructions_missing_lead_in_sentence` to validation_rules.check_for |
 | 2.27 | 2026-07-09 | Corrected §1.4.1 italicisation: *Team Member* / *Team Members* is a CloudCannon Core Concept and is italicised like *Site* or *Organization*. Removed "team member" from the do-not-italicise generic-terms list; italics are dropped only in link text |
 | 2.26 | 2026-07-03 | Added §1.4.5 Renaming or Removing Content: mandatory chained 301 redirects in `.cloudcannon/routing.json` when renaming, moving, or removing an article that was live on `main`, with an exception for content that was never published to `main` (no redirect needed; repoint internal links and delete the old file) |
 | 2.25 | 2026-06-30 | Section 3 (Machine-Readable Style Rules): removed the embedded YAML block, which had drifted to `style_guide_version` 1.2 / 2026-03-30 and contradicted the current rules in `STYLE_GUIDE_AGENTS.md` (e.g. stale annotation-marker and placement guidance). Section 3 is now a pointer to `STYLE_GUIDE_AGENTS.md`, the single source of truth for the machine-readable rules. No rule content was lost — every rule in the removed block is present and current in `STYLE_GUIDE_AGENTS.md` |

@@ -7,8 +7,8 @@ Machine-readable style rules for AI agents and automated linters. These rules ar
 **For agents making updates to this file:** Also update the corresponding section in `STYLE_GUIDE.mdx` with the prose explanation and examples. Update the revision history in both files: `last_updated` and `style_guide_version` in the YAML block below, and the `Last Updated` and `Version` fields and the revision history table (Section 4) in `STYLE_GUIDE.mdx`.
 
 ```yaml
-style_guide_version: "2.27"
-last_updated: "2026-07-09"
+style_guide_version: "2.33"
+last_updated: "2026-07-15"
 
 documentation_architecture:
   single_source_of_truth:
@@ -32,6 +32,20 @@ terminology:
         - "Visual Editor API"
         - "inEditorMode"
         - "editor-only (preview vs live Site when sentence names the environment)"
+  settings_navigation_hierarchy:
+    rule: "Name a settings destination by its location, not its label — the same label can be a page in one area and a section in another. Verify location before choosing the noun."
+    org_settings: "Org Settings contains PAGES (Details, Branding, Team, Subscription, etc.). Refer to each as a 'page': 'the Details page under Org Settings'. Never call an Org Settings destination a 'section'."
+    team_page: "The Team page (a page under Org Settings) contains TABS: Members and Groups. Refer to these as 'tabs': 'the Members tab'. Members and Groups are not pages."
+    project_settings: "The Project Settings tab (in the Project view) contains SECTIONS (Details, Repository, Branch Defaults, Deploy Previews, etc.). Refer to each as a 'section': 'the Repository section'."
+    collision_note: "Details exists in both Org Settings (a page) and Project Settings (a section) — the correct noun depends on which area the doc is describing."
+    correct:
+      - "Navigate to the *Details* page under *Org Settings*."
+      - "Open the *Members* tab on the *Team* page."
+      - "In the *Project Settings* tab, open the *Repository* section."
+    incorrect:
+      - "Navigate to the *Details* section in *Org Settings*."  # it is a page, not a section
+      - "Open the *Members* page."  # Members is a tab on the Team page
+
   required_terms:
     product_name: "CloudCannon"
     git_providers:
@@ -221,9 +235,9 @@ documentation_types:
       - "details.related_articles: [optional array, max 3 items]"
       - "author_notes.docshots"
     docshots_values:
-      "Added!": "All CloudCannon app screenshots use DocShot; no DocsImage remains except assets/external_screenshots/"
-      "Needs docshots": "Article still has DocsImage components (other than external screenshots) to migrate"
-      "Not applicable": "Article has no CloudCannon app screenshots"
+      "Added!": "Every CloudCannon app screenshot the article needs is present as a DocShot."
+      "Needs docshots": "The article needs one or more CloudCannon app screenshots that do not exist yet."
+      "Not applicable": "The article does not need any CloudCannon app screenshots (e.g. it only has diagrams, code examples, or no images). Do not use this when a screenshot is warranted but missing — that is 'Needs docshots'."
     related_articles_structure:
       max_items: 3
       _type: ["developer_articles", "user_articles", "developer_guides", "user_guides"]
@@ -330,6 +344,13 @@ documentation_types:
       item: "[UUID of related article]"
       guide_link_rule: "When linking to a guide, include only one page from that guide (normally the index). Do not list multiple pages from the same guide as separate items."
     step_format: "numbered_list"
+    lead_in_sentence:
+      rule: "Introduce every numbered list with a stem sentence naming the task and ending in a colon (e.g. 'To switch Organizations:'). Never jump from a heading straight into step 1."
+      rationale: "The reader must know what the steps accomplish before following them."
+    prerequisites:
+      rule: "When a task depends on prior setup or a separate action, state it as a prerequisite BEFORE the ordered list — in the intro prose, a 'Before you...' section, or the pattern 'Before we begin, this article assumes...'. Never encode a prerequisite as a numbered step; steps are actions within THIS task. Link to the prerequisite instructions."
+      example: "Before we begin, this article assumes you have already configured your Collections."
+      mirrors: "STYLE_GUIDE.mdx §2.3.4 item 2 (Prerequisites)"
     numbered_steps:
       content: "imperative_actions_only"
       explanations: "prose_before_list | prose_after_list | prose_between_two_complete_lists"
@@ -520,6 +541,21 @@ link_formats:
     correct: "[Data Editor](/documentation/articles/what-is-the-data-editor/)"
     incorrect: "[*Data Editor*](/documentation/articles/what-is-the-data-editor/)"
 
+  cross_link_pointer:
+    rule: "When pointing readers to another article inline, use the sentence frame 'please read our documentation on [descriptive phrase]'. The link text is a lowercase descriptive rephrase of the target article's title — NEVER the verbatim title-cased article name, which duplicates the Pagefind result title."
+    rephrase_by_title_type:
+      instructions_action_title: "Rephrase the action-verb title as a lowercase gerund phrase. 'Rename your Organization' -> [renaming your Organization]; 'Review and merge a Pull Request' -> [reviewing and merging a Pull Request]; 'Customize your Organization branding' -> [customizing your Organization branding]"
+      explanation_what_title: "'What is/are X?' -> [what X is] / [what X are] — lowercase 'what', verb moved to the end"
+      explanation_why_title: "'Why <verb> X?' -> [why to <verb> X]"
+    inline_noun_reference_exception: "When the link is a courtesy hover-to-learn-more on a noun already in the sentence (not a cross-link pointer), use that noun as the link text, capitalized per the CloudCannon term (e.g. [Testing Domain]), not a rephrased title."
+    examples:
+      correct:
+        - "To rename your *Organization*, please read our documentation on [renaming your Organization](/documentation/user-articles/rename-your-organization/)."
+        - "For more information, please read our documentation on [what Branch Defaults are](/documentation/developer-articles/what-are-branch-defaults/)."
+      incorrect:
+        - "To rename your *Organization*, see [Rename your Organization](/documentation/user-articles/rename-your-organization/)."  # verbatim title-cased name as link text
+        - "See [Customize your Organization branding](/documentation/user-articles/customize-your-organization-branding/)."  # verbatim title; also missing the 'please read our documentation on' frame
+
 renaming_and_removing_content:
   section: "1.4.5"
   rule: "When renaming, moving, or removing an article or guide that was live on `main`, add a 301 redirect in `.cloudcannon/routing.json`. Never leave a stub article behind; delete the old file and handle the redirect in routing.json."
@@ -544,8 +580,10 @@ components:
     placement:
       info: "Inline, close to relevant content. Must not be the first element in an article."
       important: "Can be first if the information affects the entire article; otherwise inline."
-      permissions: "Must always be first in the article, immediately after front matter. Always start with bold 'Permissions required' heading."
-      pricing: "Can be first if the entire feature is plan-specific; otherwise inline."
+      permissions: "Must be at the top of the article, immediately after front matter, before any body content. Always start with bold 'Permissions required' heading. When a pricing notice is also present, the pricing notice comes first and the permissions notice immediately follows it (see pricing_and_permissions_order)."
+      pricing: "Can be first if the entire feature is plan-specific; otherwise inline. When both a pricing and a permissions notice are present, the pricing notice comes first (see pricing_and_permissions_order)."
+      pricing_and_permissions_order: "When an article genuinely needs both a pricing and a permissions notice (it gates on both plan and permission), place the pricing notice first, immediately followed by the permissions notice, before any other content. Pricing comes first because plan availability is the more fundamental gate — a reader on the wrong plan does not need the permission requirements. Mirrors STYLE_GUIDE.mdx §1.5.1."
+      destructive_action_notice_stack: "For a destructive or irreversible action (e.g. deleting an Organization or Site), stack a permissions notice first (who can perform the action), immediately followed by an important notice stating the irreversibility and what is lost, before any other content. The irreversibility warning is a load-bearing caveat the reader must see before acting, so two notices at the top is expected here, not overuse. Mirrors STYLE_GUIDE.mdx §1.5.1."
     pricing_notice_content:
       single_feature_form: "**This feature is available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise plan</a>.** OR ***Feature Name* is available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise plan</a>.**"
       overview_article_form: "Name the gated sub-features the article actually discusses; do not list the full set of gated features under the parent"
@@ -559,7 +597,7 @@ components:
           - "**Some features are only available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise plan</a>.**"  # vague — doesn't say which features
           - "**This feature is available on our** [**Team or Enterprise plan**](https://cloudcannon.com/pricing/)**.**"  # over-wrapped bold/link splits; also: non-doc links must be HTML anchors, not markdown
     general_rules:
-      - "Only one notice at the start of an article (permissions, pricing, or important — never info)"
+      - "Prefer one notice at the start of an article (permissions, pricing, or important — never info). Two exceptions where stacking at the top is expected: (1) an article gating on both plan and permission stacks pricing then permissions (see pricing_and_permissions_order); (2) a destructive/irreversible action stacks the permissions notice then an important irreversibility notice (see destructive_action_notice_stack)."
       - "Keep notice text concise"
   
   docshot:
@@ -575,7 +613,7 @@ components:
     naming: "Hyphenated names describing the page and state (e.g., Site-Settings-Syncing-Connected)"
 
   docsimage:
-    usage: "Illustrations, diagrams, and conceptual graphics only — being phased out for CloudCannon app images"
+    usage: "Illustrations, diagrams, conceptual graphics, and external screenshots only. Never for CloudCannon app images — those use comp.DocShot."
     required_attributes:
       - "path"
       - "alt"
@@ -717,6 +755,7 @@ validation_rules:
     - "glossary_links_wrong_format"
     - "changelog_fixes_present_tense"
     - "instructions_without_numbered_steps"
+    - "instructions_missing_lead_in_sentence"
     - "explanation_without_opening_definition"
     - "plain_code_blocks_instead_of_components"
     - "trailing_prepositions"
@@ -735,6 +774,7 @@ validation_rules:
     - "impersonal_action_sentences (e.g. 'X fixes this' instead of 'You can fix this by X')"
     - "system_focused_feature_description_in_explanation (in explanation articles and 'What is...' guide pages, prefer experiential language — what the user sees and can do — over internal mechanics descriptions)"
     - "vague_shorthand_references (e.g. 'This step covers both' without spelling out the referents)"
+    - "settings_destination_wrong_noun (Org Settings destinations called 'sections' instead of 'pages'; Project Settings destinations called 'pages' instead of 'sections'; Team's Members/Groups tabs mislabeled as pages or sections)"
   
   ignore:
     - "Passive voice in: changelog features, technical descriptions"
