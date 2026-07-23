@@ -28,6 +28,7 @@ interface Props {
   explicit_canonical?: string;
   headingnav?: HeaderNavigation;
   footernav?: FooterNav;
+  guide_title?: string;
   meta?: Meta;
   hubspot_id?: string;
   ga_id?: string;
@@ -49,13 +50,17 @@ export default function BaseLayout(props: Props, helpers: Helpers) {
     explicit_canonical,
     headingnav,
     footernav,
+    guide_title,
     meta,
     hubspot_id,
     ga_id,
     ga_verify,
   } = props;
 
-  const pageTitle_ = title || details?.title || "";
+  const pageTitle_ = title ||
+    (guide_title && details?.title
+      ? `${details.title} — ${guide_title}`
+      : details?.title) || "";
   const pageDescription = description || details?.description ||
     meta?.description || "";
   const pageTitle = omit_trailing_title
