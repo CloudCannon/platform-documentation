@@ -9,6 +9,13 @@ interface FooterNav {
   [key: string]: unknown;
 }
 
+interface Meta {
+  title?: string;
+  subtitle?: string;
+  description?: string;
+  [key: string]: unknown;
+}
+
 interface Props {
   content: unknown;
   title?: string;
@@ -21,6 +28,7 @@ interface Props {
   explicit_canonical?: string;
   headingnav?: HeaderNavigation;
   footernav?: FooterNav;
+  meta?: Meta;
   hubspot_id?: string;
   ga_id?: string;
   ga_verify?: string;
@@ -41,13 +49,15 @@ export default function BaseLayout(props: Props, helpers: Helpers) {
     explicit_canonical,
     headingnav,
     footernav,
+    meta,
     hubspot_id,
     ga_id,
     ga_verify,
   } = props;
 
   const pageTitle_ = title || details?.title || "";
-  const pageDescription = description || details?.description || "";
+  const pageDescription = description || details?.description ||
+    meta?.description || "";
   const pageTitle = omit_trailing_title
     ? pageTitle_
     : `${pageTitle_} | CloudCannon Documentation`;
