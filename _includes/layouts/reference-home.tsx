@@ -109,9 +109,7 @@ export default function ReferenceHomeLayout(
           <div className="l-copy-page-mobile" data-pagefind-ignore>
             <comp.CopyPageDropdown title={details?.title || ""} url={currentUrl} helpers={helpers} />
           </div>
-          <comp.Layout.MobileTOC helpers={helpers} listClassName="">
-            <comp.Reference.TableOfContents entry={derivedRootEntry} section={section} />
-          </comp.Layout.MobileTOC>
+          <comp.Layout.MobileTOC helpers={helpers} />
 
           <div className="l-content-split">
             <main id="main-content">
