@@ -296,6 +296,101 @@ document.addEventListener("toggle", (e) => {
   }
 }, true); // Use capture phase since toggle doesn't bubble
 
+const RECENTS_KEY = "docs-pagefind-recents";
+const RECENTS_MAX = 5;
+
+function readRecents() {
+  try {
+    return JSON.parse(localStorage.getItem(RECENTS_KEY)) ?? [];
+  } catch {
+    return [];
+  }
+}
+
+function writeRecents(recents) {
+  try {
+    localStorage.setItem(RECENTS_KEY, JSON.stringify(recents));
+  } catch {
+    // Ignore quota / private mode errors.
+  }
+}
+
+Alpine.store("search", {
+  hasQuery: false,
+  hasFocus: false,
+  recents: readRecents(),
+});
+
+function isPagefindInputFocused() {
+  const active = document.activeElement;
+  return !!active && typeof active.closest === "function" &&
+    active.closest("pagefind-input") !== null;
+}
+
+function refreshSearchFocus() {
+  const store = Alpine.store("search");
+  const now = isPagefindInputFocused();
+  if (store.hasFocus !== now) store.hasFocus = now;
+}
+
+document.addEventListener("focusin", refreshSearchFocus);
+document.addEventListener("focusout", () => {
+  requestAnimationFrame(refreshSearchFocus);
+});
+
+function setupPagefindInstance(attempt = 0) {
+  const im = globalThis.PagefindComponents?.getInstanceManager?.();
+  const instance = im?.getInstance?.("default");
+  if (!instance) {
+    if (attempt < 50) setTimeout(() => setupPagefindInstance(attempt + 1), 100);
+    return;
+  }
+  globalThis.searchInstance = instance;
+  instance.on("search", (term) => {
+    const trimmed = typeof term === "string" ? term.trim() : "";
+    const store = Alpine.store("search");
+    store.hasQuery = trimmed.length > 0;
+    if (trimmed.length > 0) {
+      const next = [
+        trimmed,
+        ...store.recents.filter((r) => r !== trimmed),
+      ].slice(0, RECENTS_MAX);
+      store.recents = next;
+      writeRecents(next);
+    } else {
+      store.recents = readRecents();
+    }
+  });
+}
+setupPagefindInstance();
+
+Alpine.data("searchRecents", () => ({
+  triggerRecent(term) {
+    // Find the pagefind-input that shares an ancestor with this recents block
+    // (so the modal's recents drive the modal's input, and the inline recents
+    // drive the inline input). Fall back to the first one in the document,
+    // then to triggerSearch as a last resort.
+    let inputEl = null;
+    let ancestor = this.$root;
+    while (ancestor && !inputEl) {
+      inputEl = ancestor.querySelector?.("pagefind-input input");
+      ancestor = ancestor.parentElement;
+    }
+    if (!inputEl) inputEl = document.querySelector("pagefind-input input");
+    if (inputEl) {
+      inputEl.value = term;
+      inputEl.dispatchEvent(new Event("input", { bubbles: true }));
+      return;
+    }
+    globalThis.searchInstance?.triggerSearch?.(term);
+  },
+  removeRecent(term) {
+    const store = Alpine.store("search");
+    store.recents = store.recents.filter((r) => r !== term);
+    writeRecents(store.recents);
+  },
+}));
+
 Alpine.magic("getRecentSearches", () => {
   return () => {
     try {

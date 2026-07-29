@@ -40,7 +40,14 @@ const SearchResultTemplate = `
 export default function SearchResults() {
   return (
     <div className="t-searcher-layout">
-      <pagefind-filter-pane filter="site" label="Filters" expanded></pagefind-filter-pane>
+      <pagefind-filter-pane
+        filter="site"
+        label="Filters"
+        expanded
+        x-data
+        x-show="$store.search.hasQuery"
+        x-cloak
+      ></pagefind-filter-pane>
       <div className="t-searcher-results">
         <pagefind-summary></pagefind-summary>
         <pagefind-results>
