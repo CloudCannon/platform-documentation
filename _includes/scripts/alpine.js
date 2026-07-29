@@ -318,6 +318,7 @@ function writeRecents(recents) {
 Alpine.store("search", {
   hasQuery: false,
   hasFocus: false,
+  selectedFilter: "",
   recents: readRecents(),
 });
 
@@ -346,10 +347,14 @@ function setupPagefindInstance(attempt = 0) {
     return;
   }
   globalThis.searchInstance = instance;
-  instance.on("search", (term) => {
+  // Default filter — start focused on Articles.
+  instance.triggerFilters?.({ site: ["Articles"] });
+  instance.on("search", (term, filters) => {
     const trimmed = typeof term === "string" ? term.trim() : "";
     const store = Alpine.store("search");
     store.hasQuery = trimmed.length > 0;
+    const sel = filters?.site;
+    store.selectedFilter = Array.isArray(sel) && sel.length ? sel[0] : "";
     if (trimmed.length > 0) {
       const next = [
         trimmed,
@@ -363,6 +368,49 @@ function setupPagefindInstance(attempt = 0) {
   });
 }
 setupPagefindInstance();
+
+Alpine.data("searchPills", () => ({
+  filters: {},
+  selected: "",
+  init() {
+    const wait = (attempt = 0) => {
+      const inst = globalThis.searchInstance;
+      if (!inst) {
+        if (attempt < 50) setTimeout(() => wait(attempt + 1), 100);
+        return;
+      }
+      inst.on("filters", (data) => {
+        // Prefer `total` — counts per category ignoring the currently applied
+        // site filter, so switching pills reflects what results you'd get.
+        // Fall back to `available` if `total` isn't populated for this index.
+        this.filters = data?.total?.site || data?.available?.site || {};
+      });
+      inst.on("search", (_term, filters) => {
+        const sel = filters?.site;
+        this.selected = Array.isArray(sel) && sel.length ? sel[0] : "";
+      });
+    };
+    wait();
+  },
+  entries() {
+    const preferred = ["Articles", "Guides", "Reference", "Changelog"];
+    const all = Object.entries(this.filters || {});
+    return all.sort((a, b) => {
+      const ai = preferred.indexOf(a[0]);
+      const bi = preferred.indexOf(b[0]);
+      if (ai === -1 && bi === -1) return a[0].localeCompare(b[0]);
+      if (ai === -1) return 1;
+      if (bi === -1) return -1;
+      return ai - bi;
+    });
+  },
+  setFilter(value) {
+    const inst = globalThis.searchInstance;
+    if (!inst?.triggerFilter) return;
+    this.selected = value;
+    inst.triggerFilter("site", value ? [value] : []);
+  },
+}));
 
 Alpine.data("searchRecents", () => ({
   triggerRecent(term) {
