@@ -60,7 +60,8 @@ export default function SearchResults() {
           x-bind:aria-pressed="!selected"
           x-on:click="setFilter('')"
         >
-          All
+          <span>All</span>
+          <span className="cc-search-pills__count" x-text="totalCount()"></span>
         </button>
         <template x-for="[value, count] in entries()" x-bind:key="value">
           <button

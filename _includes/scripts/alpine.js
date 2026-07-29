@@ -347,8 +347,6 @@ function setupPagefindInstance(attempt = 0) {
     return;
   }
   globalThis.searchInstance = instance;
-  // Default filter — start focused on Articles.
-  instance.triggerFilters?.({ site: ["Articles"] });
   instance.on("search", (term, filters) => {
     const trimmed = typeof term === "string" ? term.trim() : "";
     const store = Alpine.store("search");
@@ -403,6 +401,9 @@ Alpine.data("searchPills", () => ({
       if (bi === -1) return -1;
       return ai - bi;
     });
+  },
+  totalCount() {
+    return Object.values(this.filters || {}).reduce((s, v) => s + (v || 0), 0);
   },
   setFilter(value) {
     const inst = globalThis.searchInstance;
