@@ -165,13 +165,31 @@ export default function DocNav(
         <comp.Nav.NavHeading title="Developer Reference" />
 
         <div className="t-docs-nav__filter">
-          <input
-            type="search"
-            className="t-docs-nav__filter-input"
-            placeholder="Find a key"
-            x-model="filter"
-            aria-label="Filter reference keys"
-          />
+          <div className="t-docs-nav__filter-input-wrap">
+            <span className="t-docs-nav__filter-icon" aria-hidden="true">
+              <svg viewBox="0 0 20 20" width="20" height="20" fill="currentColor">
+                <path d="M12.755 11.255H11.965l-.28-.27a6.501 6.501 0 10-.7.7l.27.28v.79L16.255 17.745l1.49-1.49-4.99-4.99zM6.755 11.255a4.5 4.5 0 110-9 4.5 4.5 0 010 9z" />
+              </svg>
+            </span>
+            <input
+              type="search"
+              className="t-docs-nav__filter-input"
+              placeholder="Find a key"
+              x-model="filter"
+              aria-label="Filter reference keys"
+            />
+            <button
+              type="button"
+              className="t-docs-nav__filter-clear"
+              x-show="filter"
+              x-on:click="filter = ''"
+              aria-label="Clear filter"
+            >
+              <svg viewBox="0 0 20 20" width="14" height="14" fill="currentColor" aria-hidden="true">
+                <path d="M14.348 5.652a1 1 0 010 1.414L11.414 10l2.934 2.934a1 1 0 11-1.414 1.414L10 11.414l-2.934 2.934a1 1 0 01-1.414-1.414L8.586 10 5.652 7.066a1 1 0 011.414-1.414L10 8.586l2.934-2.934a1 1 0 011.414 0z" />
+              </svg>
+            </button>
+          </div>
         </div>
 
         {/* Filtered results — visible when filter has any non-whitespace input */}
