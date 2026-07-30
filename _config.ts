@@ -163,6 +163,61 @@ const configDocs: DocEntry[] = Object.values(
     }
   }
 
+  // Editable Regions page keys are authored in MDX (not the schema data),
+  // so regex-scrape <comp.OptionsRow label="..."> to add them to the filter.
+  // Each row's rendered HTML has an id matching the label, so anchor links
+  // jump straight to the row.
+  try {
+    const mdxSrc = Deno.readTextFileSync(
+      "developer/reference/editable-regions/index.mdx",
+    );
+    const labels = [
+      ...mdxSrc.matchAll(/<comp\.OptionsRow\s+label="([^"]+)"/g),
+    ].map((m) => m[1]);
+    for (const label of labels) {
+      items.push({
+        name: label,
+        url: `${basePath}/developer-reference/editable-regions/#${label}`,
+        section: "Editable Regions",
+        path: label,
+        parent: label,
+        depth: 0,
+        useCode: true,
+      });
+    }
+  } catch { /* file missing — skip */ }
+
+  // Permissions page keys come from _data/permissions.json (rendered by the
+  // PermissionsTree component). Walk the nested `children` tree and surface
+  // every permission key. The rendered page has an id matching each key.
+  try {
+    const permsSrc = Deno.readTextFileSync(
+      "_data/permissions.json",
+    );
+    // deno-lint-ignore no-explicit-any
+    const perms = JSON.parse(permsSrc) as Record<string, any>;
+    const collect = (node: Record<string, unknown>) => {
+      for (const [key, val] of Object.entries(node)) {
+        items.push({
+          name: key,
+          url:
+            `${basePath}/developer-reference/permissions/#${encodeURIComponent(key)}`,
+          section: "Permissions",
+          path: key,
+          parent: key,
+          depth: 0,
+          useCode: true,
+        });
+        // deno-lint-ignore no-explicit-any
+        const v = val as any;
+        if (v && typeof v === "object" && v.children) {
+          collect(v.children);
+        }
+      }
+    };
+    collect(perms);
+  } catch { /* file missing — skip */ }
+
   const payload = `window.__refNavItems = ${JSON.stringify(items)};`;
   const outPath = "assets/js/reference-nav-data.js";
   // Only write if the content changed, to avoid triggering unnecessary rebuilds
