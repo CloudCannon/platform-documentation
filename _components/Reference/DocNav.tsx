@@ -122,13 +122,113 @@ export default function DocNav(
       items: [],
     });
   }
+  // The flat items array for the filter is generated once at build time in
+  // _config.ts and served as a static JS file that assigns to
+  // window.__refNavItems. Alpine reads that global from init() below.
+
   return (
     <comp.Nav.NavWrapper>
       {/* <comp.Nav.ScrollGradient position="top" /> */}
-      <comp.Nav.NavHeading title="Developer Reference" />
+      <div
+        className="t-docs-nav__filter-scope"
+        x-data={`{
+          filter: '',
+          items: [],
+          init() { this.items = globalThis.__refNavItems || []; },
+          get filtered() {
+            const q = this.filter.trim().toLowerCase();
+            if (!q) return [];
+            return this.items.filter((i) => i.name.toLowerCase().includes(q));
+          },
+          get filteredGroups() {
+            const map = new Map();
+            for (const item of this.filtered) {
+              const key = item.name;
+              if (!map.has(key)) {
+                map.set(key, {
+                  key,
+                  name: item.name,
+                  useCode: item.useCode,
+                  items: [],
+                });
+              }
+              map.get(key).items.push(item);
+            }
+            for (const g of map.values()) {
+              g.items.sort((a, b) => a.section.localeCompare(b.section) || a.path.localeCompare(b.path));
+            }
+            return Array.from(map.values())
+              .sort((a, b) => b.items.length - a.items.length || a.name.localeCompare(b.name));
+          },
+        }`}
+      >
+        <comp.Nav.NavHeading title="Developer Reference" />
+
+        <div className="t-docs-nav__filter">
+          <input
+            type="search"
+            className="t-docs-nav__filter-input"
+            placeholder="Find a key"
+            x-model="filter"
+            aria-label="Filter reference keys"
+          />
+        </div>
+
+        {/* Filtered results — visible when filter has any non-whitespace input */}
+        <div
+          className="t-docs-nav__filter-results"
+          x-show="filter.trim()"
+          x-cloak
+        >
+          <div x-show="filtered.length > 0">
+            <template
+              x-for="group in filteredGroups"
+              x-bind:key="group.key"
+            >
+              <div className="t-docs-nav__filter-group">
+                <div className="t-docs-nav__filter-group-heading">
+                  <span className="t-docs-nav__filter-group-name">
+                    <code
+                      x-show="group.useCode"
+                      className="code-no-box"
+                      x-text="group.name"
+                    ></code>
+                    <span x-show="!group.useCode" x-text="group.name"></span>
+                  </span>
+                  <span
+                    className="t-docs-nav__filter-group-count"
+                    x-text="group.items.length + (group.items.length === 1 ? ' match' : ' matches')"
+                  ></span>
+                </div>
+                <ol className="t-docs-nav__sub-list">
+                  <template x-for="item in group.items" x-bind:key="item.url">
+                    <li>
+                      <a
+                        x-bind:href="item.url"
+                        className="t-docs-nav__sub-list__article t-docs-nav__filter-row"
+                      >
+                        <span
+                          className="t-docs-nav__filter-path"
+                          x-text="item.path"
+                        ></span>
+                      </a>
+                    </li>
+                  </template>
+                </ol>
+              </div>
+            </template>
+          </div>
+          <p
+            className="t-docs-nav__filter-empty"
+            x-show="filtered.length === 0"
+          >
+            No matches for <strong x-text="filter"></strong>
+          </p>
+        </div>
 
       <ol
         className="t-docs-nav__main-list"
+        x-show="!filter.trim()"
         x-init={`
           new ResizeObserver((entries) => {
             height = $refs.navParent.getBoundingClientRect().height;
@@ -245,6 +345,7 @@ export default function DocNav(
           );
         })}
       </ol>
+      </div>
       {/* <comp.Nav.ScrollGradient position="bottom" /> */}
     </comp.Nav.NavWrapper>
   );

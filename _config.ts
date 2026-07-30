@@ -83,6 +83,99 @@ const configDocs: DocEntry[] = Object.values(
   typedDocs["type.Configuration"] ?? {},
 );
 
+// Pre-compute the flat reference-nav items array for the sidebar filter, once
+// at build time. Written to a static JS file that assigns to window.__refNavItems.
+// Avoids embedding ~100KB of JSON in the x-data attribute of every reference
+// page (~700 pages), which was blowing the build's V8 heap during processing.
+{
+  const sectionInfo: Array<[string, string, string]> = [
+    ["type.Configuration", "Configuration File", "/configuration-file/"],
+    ["type.Routing", "Routing File", "/routing-file/"],
+    [
+      "type.InitialSiteSettings",
+      "Initial Site Settings File",
+      "/initial-site-settings-file/",
+    ],
+  ];
+
+  // Utility pages that live under /developer-reference/ but aren't schema-derived.
+  const utilityPages: Array<{ url: string; title: string }> = [
+    { url: "/developer-reference/", title: "Developer Reference" },
+    { url: "/developer-reference/editable-regions/", title: "Editable Regions" },
+    { url: "/developer-reference/permissions/", title: "Permissions" },
+    { url: "/developer-reference/schemas/", title: "JSON Schemas" },
+    { url: "/developer-reference/typescript/", title: "TypeScript Types" },
+  ];
+
+  const basePath = "/documentation";
+  const seenUrls = new Set<string>();
+  const items: Array<{
+    name: string;
+    url: string;
+    section: string;
+    path: string;
+    parent: string;
+    depth: number;
+    useCode: boolean;
+  }> = [];
+
+  for (const p of utilityPages) {
+    const url = `${basePath}${p.url}`;
+    if (seenUrls.has(url)) continue;
+    seenUrls.add(url);
+    items.push({
+      name: p.title,
+      url,
+      section: p.title,
+      path: p.title,
+      parent: p.title,
+      depth: 0,
+      useCode: false,
+    });
+  }
+
+  for (const [sectionId, sectionHeading, sectionPathPrefix] of sectionInfo) {
+    const entries = typedDocs[sectionId] ?? {};
+    for (const [gid, entry] of Object.entries(entries)) {
+      if (gid === sectionId) continue;
+      // deno-lint-ignore no-explicit-any
+      const e = entry as any;
+      if (!e.url) continue;
+      const url = `${basePath}/developer-reference${e.url}`;
+      if (seenUrls.has(url)) continue;
+      seenUrls.add(url);
+      const rest = String(e.url).replace(sectionPathPrefix, "").replace(
+        /\/$/,
+        "",
+      );
+      const segments = rest.split("/").filter(Boolean);
+      const name = e.title || e.key ||
+        segments[segments.length - 1] || "unknown";
+      items.push({
+        name,
+        url,
+        section: sectionHeading,
+        path: segments.join("."),
+        parent: segments[0] || name,
+        depth: Math.max(segments.length - 1, 0),
+        useCode: !e.title,
+      });
+    }
+  }
+
+  const payload = `window.__refNavItems = ${JSON.stringify(items)};`;
+  const outPath = "assets/js/reference-nav-data.js";
+  // Only write if the content changed, to avoid triggering unnecessary rebuilds
+  // during watch mode.
+  let existing = "";
+  try {
+    existing = Deno.readTextFileSync(outPath);
+  } catch { /* first build */ }
+  if (existing !== payload) {
+    Deno.writeTextFileSync(outPath, payload);
+  }
+}
+
 // Caches for expensive operations (persist across incremental builds)
 const renderTextOnlyCache = new Map<string, string>();
 const glossaryTermCache = new Map<string, string>();
@@ -240,6 +333,7 @@ site.use(mdx());
 site.use(esbuild());
 site.use(sass());
 site.add("/assets/js/site.js");
+site.add("/assets/js/reference-nav-data.js");
 site.add("/assets/css/site.scss");
 
 // Append the /documentation/ prefix to all links
