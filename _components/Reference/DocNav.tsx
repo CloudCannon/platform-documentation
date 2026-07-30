@@ -134,7 +134,16 @@ export default function DocNav(
         x-data={`{
           filter: '',
           items: [],
-          init() { this.items = globalThis.__refNavItems || []; },
+          init() {
+            this.items = globalThis.__refNavItems || [];
+            try { this.filter = sessionStorage.getItem('cc:ref-filter') || ''; } catch {}
+            this.$watch('filter', (v) => {
+              try {
+                if (v) sessionStorage.setItem('cc:ref-filter', v);
+                else sessionStorage.removeItem('cc:ref-filter');
+              } catch {}
+            });
+          },
           get filtered() {
             const q = this.filter.trim().toLowerCase();
             if (!q) return [];
