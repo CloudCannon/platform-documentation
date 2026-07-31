@@ -7,8 +7,8 @@ Machine-readable style rules for AI agents and automated linters. These rules ar
 **For agents making updates to this file:** Also update the corresponding section in `STYLE_GUIDE.mdx` with the prose explanation and examples. Update the revision history in both files: `last_updated` and `style_guide_version` in the YAML block below, and the `Last Updated` and `Version` fields and the revision history table (Section 4) in `STYLE_GUIDE.mdx`.
 
 ```yaml
-style_guide_version: "2.42"
-last_updated: "2026-07-24"
+style_guide_version: "2.44"
+last_updated: "2026-07-30"
 
 documentation_architecture:
   single_source_of_truth:
@@ -218,6 +218,14 @@ formatting_rules:
       - "*Save* button"
       - "*Site Navigation*"
       - "*+ Add* dropdown"
+    name_control_type:
+      rule: "When instructing the reader to interact with a control, name its type after the italicized label (button, link, icon, tab, dropdown, field, checkbox, toggle). Never a bare 'Click *X*'. The label is italicized; the type descriptor stays plain (see compound_nouns_with_concepts). Applies most in instruction steps but holds anywhere an interaction is directed. Mirrors STYLE_GUIDE.mdx §1.4.1 (Name the Control Type)."
+      correct:
+        - "Click the *Apply Coupon* button."
+        - "Enter your code in the *Coupon Code* field."
+      incorrect:
+        - "Click *Apply Coupon*."
+      exception: "When the descriptor is part of the literal label (e.g. the *Project Settings* tab), the whole name is the label; do not add a second descriptor."
   
   concept_capitalization:
     rule: "Capitalize when referring to CloudCannon-specific concept"
@@ -407,6 +415,7 @@ documentation_types:
     numbered_steps:
       content: "imperative_actions_only"
       explanations: "prose_before_list | prose_after_list | prose_between_two_complete_lists"
+      outcome_then_media: "The final outcome sentence ('CloudCannon will...') goes immediately after the numbered list. Any comp.DocShot or screenshot belongs AFTER the outcome sentence, not between the last step and the outcome. Order: steps -> outcome sentence -> DocShot. Mirrors STYLE_GUIDE.mdx §2.3.4 (Describe Outcomes)."
       avoid_in_step_text:
         - "Conceptual or background explanation that does not advance the task"
         - "Definitions, rationale, or API behavior unless phrased as the next action"
@@ -852,6 +861,7 @@ validation_rules:
     - "missing_oxford_commas"
     - "incorrect_capitalization"
     - "non_italicized_ui_elements"
+    - "interaction_missing_control_type (a bare 'Click *X*' with no control-type descriptor like button/link/icon/tab/field)"
     - "bold_used_for_emphasis (bold outside Notice headings and **Term** — definition lists; use *italics* for UI/terms, Notice components for emphasis)"
     - "glossary_links_wrong_format"
     - "changelog_fixes_present_tense"
@@ -865,6 +875,7 @@ validation_rules:
     - "docshot_missing_title_attribute"
     - "images_interrupting_ordered_lists"
     - "code_blocks_interrupting_ordered_lists"
+    - "docshot_before_outcome_sentence (a DocShot/screenshot placed between the last step and the outcome sentence; order must be steps -> outcome sentence -> DocShot)"
     - "code_example_explanations_only_in_annotations"
     - "explanatory_prose_inside_numbered_instruction_steps"
     - "bare_editor_word_ambiguous_context"
