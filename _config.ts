@@ -381,35 +381,42 @@ const annotateCodeBlocks = (page: Lume.Page): void => {
             }
             next_el = next_el.nextSibling;
           }
-          let insert_before_el: ChildNode | null = next_newline || token;
+          if (next_newline) {
+            let insert_before_el: ChildNode | null = next_newline;
 
-          // Text nodes might span multiple lines, so we split it on newlines
-          // and re-add each as independent text nodes, so that we can add an element before
-          // the newline.
-          const insertNodeValue = (insert_before_el as Text)?.nodeValue;
-          if (insertNodeValue && /\n/.test(insertNodeValue)) {
-            const chunks = insertNodeValue
-              .split("\n")
-              .map((chunk: string) => page.document!.createTextNode(chunk));
-            for (let i = 0; i < chunks.length; i += 1) {
-              insert_before_el?.parentNode?.insertBefore(
-                chunks[i],
-                insert_before_el,
-              );
-              if (i !== chunks.length - 1) {
+            // Text nodes might span multiple lines, so we split it on newlines
+            // and re-add each as independent text nodes, so that we can add an element before
+            // the newline.
+            const insertNodeValue = (insert_before_el as Text)?.nodeValue;
+            if (insertNodeValue && /\n/.test(insertNodeValue)) {
+              const chunks = insertNodeValue
+                .split("\n")
+                .map((chunk: string) => page.document!.createTextNode(chunk));
+              for (let i = 0; i < chunks.length; i += 1) {
                 insert_before_el?.parentNode?.insertBefore(
-                  page.document!.createTextNode("\n"),
+                  chunks[i],
                   insert_before_el,
                 );
+                if (i !== chunks.length - 1) {
+                  insert_before_el?.parentNode?.insertBefore(
+                    page.document!.createTextNode("\n"),
+                    insert_before_el,
+                  );
+                }
               }
+              insert_before_el?.remove();
+              insert_before_el = chunks[0].nextSibling;
             }
-            insert_before_el?.remove();
-            insert_before_el = chunks[0].nextSibling;
+            insert_before_el?.parentNode?.insertBefore(
+              commentEl,
+              insert_before_el,
+            );
+          } else {
+            // No newline found ahead — this marker is on the last line of the
+            // code block (which has been trimmed of its trailing newline).
+            // Append the badge as the last child so it lands at end-of-line.
+            codeEl.appendChild(commentEl);
           }
-          insert_before_el?.parentNode?.insertBefore(
-            commentEl,
-            insert_before_el,
-          );
         }
 
         if (is_text) {
