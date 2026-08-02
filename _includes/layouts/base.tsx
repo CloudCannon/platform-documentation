@@ -57,10 +57,21 @@ export default function BaseLayout(props: Props, helpers: Helpers) {
     ga_verify,
   } = props;
 
-  const pageTitle_ = title ||
+  // Strip inline markdown emphasis (italic/bold) from titles so the browser
+  // tab, og:title, and twitter:title show clean text — the on-page heading
+  // still renders the markdown normally.
+  const stripInlineMarkdown = (s: string) =>
+    s
+      .replace(/\*\*([^*]+)\*\*/g, "$1") // **bold**
+      .replace(/__([^_]+)__/g, "$1") // __bold__
+      .replace(/\*([^*]+)\*/g, "$1") // *italic*
+      .replace(/_([^_]+)_/g, "$1"); // _italic_
+
+  const rawPageTitle = title ||
     (guide_title && details?.title
       ? `${details.title} — ${guide_title}`
       : details?.title) || "";
+  const pageTitle_ = stripInlineMarkdown(rawPageTitle);
   const pageDescription = description || details?.description ||
     meta?.description || "";
   const pageTitle = omit_trailing_title
