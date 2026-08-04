@@ -27,18 +27,19 @@ function ThemeDropdown(
         }}
         x-on:click={`themeOpen = !themeOpen; if (themeOpen) $nextTick(() => $focus.within($refs.${dropdownRef}).first())`}
       >
-        <template x-if="effectiveTheme === 'dark'">
-          <img
-            src={helpers.icon("dark_mode:filled", "material")}
-            inline="true"
-          />
-        </template>
-        <template x-if="effectiveTheme === 'light'">
-          <img
-            src={helpers.icon("light_mode:filled", "material")}
-            inline="true"
-          />
-        </template>
+        {/* Both icons render — CSS shows the right one based on
+            data-pf-theme (set synchronously by the inline script in base.tsx
+            before Alpine loads, so there's no flash of the wrong icon). */}
+        <img
+          className="theme-toggle__icon theme-toggle__icon--dark"
+          src={helpers.icon("dark_mode:filled", "material")}
+          inline="true"
+        />
+        <img
+          className="theme-toggle__icon theme-toggle__icon--light"
+          src={helpers.icon("light_mode:filled", "material")}
+          inline="true"
+        />
       </button>
       <div
         id={id}
