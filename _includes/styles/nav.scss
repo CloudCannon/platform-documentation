@@ -232,6 +232,12 @@
         fill: var(--search-icon-fill);
         transition: fill 0.3s ease;
       }
+
+      // Hide both theme icons by default; the matching one is re-shown
+      // via top-level selectors below based on data-pf-theme.
+      .theme-toggle__icon {
+        display: none;
+      }
     }
   }
 
@@ -639,4 +645,15 @@
 
 footer .l-header__logo path {
 	fill: light-dark(var(--color-neptune), white);
+}
+
+// Show only the theme icon matching the current theme. data-pf-theme is
+// set synchronously by the inline script in base.tsx before Alpine loads,
+// so the correct icon is picked pre-render — no flash of the wrong icon.
+:root[data-pf-theme="dark"] .theme-toggle__icon--dark {
+  display: inline-block;
+}
+
+:root:not([data-pf-theme="dark"]) .theme-toggle__icon--light {
+  display: inline-block;
 }
