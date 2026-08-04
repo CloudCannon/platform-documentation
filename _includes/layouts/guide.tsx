@@ -141,8 +141,7 @@ export default function GuideLayout(props: Props, helpers: Helpers) {
                                 )
                                 : data.details?.order}
                             </span>
-                            {(data.details?.order || 0) <
-                                guideArticles.length &&
+                            {i < guideArticles.length - 1 &&
                               !guideArticles[i + 1]?.details
                                 ?.start_nav_group && (
                               <span
