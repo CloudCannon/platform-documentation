@@ -7,8 +7,8 @@ Machine-readable style rules for AI agents and automated linters. These rules ar
 **For agents making updates to this file:** Also update the corresponding section in `STYLE_GUIDE.mdx` with the prose explanation and examples. Update the revision history in both files: `last_updated` and `style_guide_version` in the YAML block below, and the `Last Updated` and `Version` fields and the revision history table (Section 4) in `STYLE_GUIDE.mdx`.
 
 ```yaml
-style_guide_version: "2.44"
-last_updated: "2026-07-30"
+style_guide_version: "2.45"
+last_updated: "2026-08-04"
 
 documentation_architecture:
   single_source_of_truth:
@@ -61,9 +61,8 @@ terminology:
     glossary_link:
       rule: "*Subscription Plan* takes a glossary link on first mention (comp.GlossaryTerm, term /user/glossary/s/subscription-plan.yml, glossary_term_name 'Subscription Plan'); subsequent mentions are italicized with no link. Named tiers are italicized but take no glossary link."
     ui_labels_exempt:
-      rule: "UI labels match the app verbatim, regardless of this rule (reproduce exact casing). The app is internally inconsistent about plan-label casing."
-      lowercase_in_app: ["Review your billing plan (button)", "Update your plan (page)"]
-      capitalized_in_app: ["Your Subscription Plan (page)", "Plan resources (label)"]
+      rule: "UI labels match the app verbatim, regardless of this rule (reproduce exact casing)."
+      capitalized_in_app: ["Review your Subscription Plan (button)", "Update your Subscription Plan (page)", "Your Subscription Plan (page)", "Plan resources (label)"]
     correct:
       - "Your trial starts on the *Standard Plan*."
       - "You can upgrade your *Subscription Plan* at any time."
