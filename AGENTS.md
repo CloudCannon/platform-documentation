@@ -106,6 +106,21 @@ Don't run any of these proactively.
 3. Don't add navigation entries or cross-links unless asked.
 4. Don't add images, screenshots, or DocShots unless asked.
 
+## Process for moving or renaming articles
+
+When an article is being renamed or moved between sections (e.g. `developer/articles/` → `user/articles/`):
+
+1. **Change the file name.** Use `git mv` to preserve history.
+2. **Change the title** if the new home implies different framing. If the title still works for the new audience, leave it.
+3. **Move the UUID** to the correct group in the navigation file (`_data/navigation/*.yml`). Remove from the old group, add to the new group.
+4. **Add a 301 redirect** to `.cloudcannon/routing.json` — **only if the article was live on production** (i.e. exists on `main`). Articles new on the current branch don't need redirects. Verify with `git log origin/main -- <path>`.
+5. **Update internal links** across the repo:
+    - `related_articles` entries with the moved UUID — change `_type` to match the new home (e.g. `developer_articles` → `user_articles`).
+    - Body markdown links to the old URL — update to the new URL.
+    - Grep for the article slug across the repo (`grep -rn "<old-url-fragment>" --include="*.mdx" --include="*.yml" --include="*.json"`) to catch all references.
+
+Run `deno task build` after the move to confirm nav and links resolve.
+
 ---
 
 ## Things that are explicit "ask first"

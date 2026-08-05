@@ -284,7 +284,38 @@ The `data-type` attribute accepts three values: `span`, `text`, or `block`. Sett
 
 Not all text values need rich text formatting options, and, in some cases, adding rich text formatting to an element that can only support plain text can be destructive to your content and HTML. When `data-type` is not defined, CloudCannon will determine an appropriate default value using the following process.
 
-<comp.DocsImage path="assets/diagrams/CloudCannon-Documentation-Editables-Data-Type-Flowchart.png" alt="An illustration of the flowchart CloudCannon uses to decide if rich text formatting is appropriate for an element." title="The Data Type Flowchart" type="ui-snippet"/>
+<comp.Mermaid
+  alt="A decision flowchart for CloudCannon's default data-type value. The chart first asks whether data-type is already defined; if so, the defined value is used. Otherwise, it branches on whether the Editable Region is for content or front matter; for front matter, on whether the input type is configured; and if configured, on which input type. Outcomes are data-type = span, text, or block."
+  chart={`flowchart TD
+    Start([&nbsp;&nbsp;Editable Region&nbsp;&nbsp;])
+    Q1{Is data-type<br/>defined?}
+    Defined([&nbsp;&nbsp;Use data-type&nbsp;&nbsp;])
+    Q2{Content or<br/>front matter?}
+    Q2a{Support<br/>block-level?}
+    RblockA([&nbsp;&nbsp;data-type = block&nbsp;&nbsp;])
+    RtextA([&nbsp;&nbsp;data-type = text&nbsp;&nbsp;])
+    Q3{Is input type<br/>configured?}
+    RspanA([&nbsp;&nbsp;data-type = span&nbsp;&nbsp;])
+    Q4{Which<br/>input type?}
+    RspanB([&nbsp;&nbsp;data-type = span&nbsp;&nbsp;])
+    Q4a{Support<br/>block-level?}
+    RblockB([&nbsp;&nbsp;data-type = block&nbsp;&nbsp;])
+    RtextB([&nbsp;&nbsp;data-type = text&nbsp;&nbsp;])
+    Start --> Q1
+    Q1 -->|Yes| Defined
+    Q1 -->|No| Q2
+    Q2 -->|Content| Q2a
+    Q2a -->|Yes| RblockA
+    Q2a -->|No| RtextA
+    Q2 -->|Front matter| Q3
+    Q3 -->|No| RspanA
+    Q3 -->|Yes| Q4
+    Q4 -->|Other| RspanB
+    Q4 -->|markdown or html| Q4a
+    Q4a -->|Yes| RblockB
+    Q4a -->|No| RtextB
+  `}
+/>
 
 To begin, CloudCannon determines whether the Editable is for content or front matter. Content is any Source *Editable Region* (i.e., `data-attribute="source"` or `<source-editable>`), or Text *Editable Region* where `data-prop="@content"`. Front matter is any Text Editable where `data-prop` is set to a structured data key.
 
