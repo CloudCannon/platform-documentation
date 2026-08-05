@@ -339,6 +339,45 @@ document.addEventListener("focusout", () => {
   requestAnimationFrame(refreshSearchFocus);
 });
 
+// Multiplier applied to changelog result scores before sort. Scales the score
+// down proportionally so changelogs are deprioritised in mixed results but
+// still surface when they are the only strong match.
+const CHANGELOG_SCORE_MULTIPLIER = 0.5;
+// Only rescore the top N results. Reordering beyond this rank is invisible
+// (below the fold) and each check requires an async data() fetch, so capping
+// keeps the wrap cheap on broad queries.
+const RESCORE_TOP_N = 15;
+
+function wrapPagefindSearch(instance) {
+  const pagefind = instance?.__pagefind__;
+  if (!pagefind || pagefind.__docsRescoreWrapped) return false;
+  const origSearch = pagefind.search.bind(pagefind);
+  pagefind.search = async (term, opts) => {
+    const res = await origSearch(term, opts);
+    if (!res?.results?.length) return res;
+    const top = res.results.slice(0, RESCORE_TOP_N);
+    await Promise.all(top.map(async (r) => {
+      try {
+        const d = await r.data();
+        r._isChangelog = d?.meta?.site === "Changelog" ||
+          (d?.filters?.site || []).includes("Changelog") ||
+          /\/changelog\//.test(d?.url || "");
+      } catch {
+        r._isChangelog = false;
+      }
+    }));
+    top.sort((a, b) => {
+      const as = a.score * (a._isChangelog ? CHANGELOG_SCORE_MULTIPLIER : 1);
+      const bs = b.score * (b._isChangelog ? CHANGELOG_SCORE_MULTIPLIER : 1);
+      return bs - as;
+    });
+    res.results.splice(0, top.length, ...top);
+    return res;
+  };
+  pagefind.__docsRescoreWrapped = true;
+  return true;
+}
+
 function setupPagefindInstance(attempt = 0) {
   const im = globalThis.PagefindComponents?.getInstanceManager?.();
   const instance = im?.getInstance?.("default");
@@ -347,6 +386,13 @@ function setupPagefindInstance(attempt = 0) {
     return;
   }
   globalThis.searchInstance = instance;
+  if (!wrapPagefindSearch(instance)) {
+    const retry = (a = 0) => {
+      if (wrapPagefindSearch(instance) || a >= 50) return;
+      setTimeout(() => retry(a + 1), 100);
+    };
+    retry();
+  }
   instance.on("search", (term, filters) => {
     const trimmed = typeof term === "string" ? term.trim() : "";
     const store = Alpine.store("search");
