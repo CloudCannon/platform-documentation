@@ -23,6 +23,12 @@ import {
   type SectionId,
 } from "../_components/Reference/helpers.ts";
 import type { DocEntry } from "../_types.d.ts";
+import {
+  type ApiResource,
+  resourceToMarkdown,
+  type SchemaDoc,
+  schemaDocToMarkdown,
+} from "../developer/reference/api/_shared/openapi.ts";
 
 type ToMarkdownFn = (
   props: Record<string, unknown>,
@@ -748,6 +754,24 @@ export default function markdownPages() {
           }
 
           body = [introBody, refBody].filter(Boolean).join("\n\n");
+          writtenRef++;
+        } else if (layout === "layouts/api-reference.tsx") {
+          // API reference pages generated from the OpenAPI spec
+          const resource = page.data.resource as ApiResource | undefined;
+          if (!resource) {
+            noSource++;
+            continue;
+          }
+          body = resourceToMarkdown(resource);
+          writtenRef++;
+        } else if (layout === "layouts/api-schema.tsx") {
+          // API schema pages generated from the OpenAPI spec
+          const schema = page.data.schema as SchemaDoc | undefined;
+          if (!schema) {
+            noSource++;
+            continue;
+          }
+          body = schemaDocToMarkdown(schema);
           writtenRef++;
         } else {
           // MDX-sourced pages

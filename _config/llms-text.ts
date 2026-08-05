@@ -79,14 +79,27 @@ JSON Schemas (with full descriptions, for use by LLMs and IDEs):
 - [Routing JSON Schema](${schemaBase}/cloudcannon-routing.documentation.schema.json): JSON Schema for .cloudcannon/routing.json
 - [Initial Site Settings JSON Schema](${schemaBase}/cloudcannon-initial-site-settings.documentation.schema.json): JSON Schema for .cloudcannon/initial-site-settings.json
 
-Reference documentation:
+Reference documentation is organized into two parts: Site configuration (files you add to your repository) and Platform (tools and controls for the CloudCannon backend).
+
 - [Developer Reference Overview](${refBase}/index.md): Index of all reference documentation ([view page](${refBase}/))
+
+Site configuration:
+- [Site Configuration Overview](${refBase}/site-configuration/index.md): Files you add to your repository to configure CloudCannon ([view page](${refBase}/site-configuration/))
 - [Configuration File Reference](${refBase}/configuration-file/index.md): All keys for cloudcannon.config.* ([view page](${refBase}/configuration-file/))
 - [Initial Site Settings Reference](${refBase}/initial-site-settings-file/index.md): Settings for .cloudcannon/initial-site-settings.json ([view page](${refBase}/initial-site-settings-file/))
 - [Routing File Reference](${refBase}/routing-file/index.md): Redirects and headers for .cloudcannon/routing.json ([view page](${refBase}/routing-file/))
-- [Permissions Reference](${refBase}/permissions/index.md): All available permission settings ([view page](${refBase}/permissions/))
+- [Editable Regions Reference](${refBase}/editable-regions/index.md): Mark parts of your built HTML as editable ([view page](${refBase}/editable-regions/))
+- [Visual Editor API Reference](${refBase}/visual-editor-api/index.md): Connect your front end to the visual editor ([view page](${refBase}/visual-editor-api/))
 - [JSON Schemas](${refBase}/schemas/index.md): Schema files for IDE autocomplete and validation ([view page](${refBase}/schemas/))
-- [TypeScript Types](${refBase}/typescript/index.md): @cloudcannon/configuration-types package ([view page](${refBase}/typescript/))`;
+- [TypeScript Types](${refBase}/typescript/index.md): @cloudcannon/configuration-types package ([view page](${refBase}/typescript/))
+
+Platform:
+- [Platform Overview](${refBase}/platform/index.md): Tools and controls for working with the CloudCannon backend ([view page](${refBase}/platform/))
+- [CLI Reference](${refBase}/cli/index.md): Manage CloudCannon from the terminal ([view page](${refBase}/cli/))
+- [SDK Reference](${refBase}/sdk/index.md): Typed client for the CloudCannon API ([view page](${refBase}/sdk/))
+- [API Reference](${refBase}/api/index.md): Manage organizations, projects, sites, and builds over HTTP ([view page](${refBase}/api/))
+- [OpenAPI specification](https://app.cloudcannon.com/api/v0/openapi.json): Machine-readable definition of every API endpoint, parameter, and response (for use by agents, code generation, and API tools)
+- [Permissions Reference](${refBase}/permissions/index.md): All available permission settings ([view page](${refBase}/permissions/))`;
 }
 
 interface Collections {
