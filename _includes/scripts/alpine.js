@@ -346,7 +346,7 @@ const CHANGELOG_SCORE_MULTIPLIER = 0.5;
 // Only rescore the top N results. Reordering beyond this rank is invisible
 // (below the fold) and each check requires an async data() fetch, so capping
 // keeps the wrap cheap on broad queries.
-const RESCORE_TOP_N = 30;
+const RESCORE_TOP_N = 15;
 
 function wrapPagefindSearch(instance) {
   const pagefind = instance?.__pagefind__;
