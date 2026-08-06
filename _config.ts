@@ -160,38 +160,6 @@ site.ignore((path) =>
   path.startsWith("/user/glossary/") && path.endsWith(".yml")
 );
 
-// Detect dev mode (serve command uses -s flag)
-const isDevMode = Deno.args.includes("-s") || Deno.args.includes("--serve");
-
-// In dev mode, only load changelogs from the last N months for faster builds
-if (isDevMode) {
-  const changelogMonths = Number(Deno.env.get("CHANGELOG_MONTHS") ?? "6");
-  const changelogCutoff = new Date();
-  changelogCutoff.setMonth(changelogCutoff.getMonth() - changelogMonths);
-  const oldChangelogs: string[] = [];
-  for (const yearEntry of Deno.readDirSync("changelogs")) {
-    if (!yearEntry.isDirectory) {
-      continue;
-    }
-    for (const fileEntry of Deno.readDirSync(`changelogs/${yearEntry.name}`)) {
-      if (!fileEntry.isFile || !fileEntry.name.endsWith(".mdx")) {
-        continue;
-      }
-      const relPath = `changelogs/${yearEntry.name}/${fileEntry.name}`;
-      const date = parseChangelogFilename(`/${relPath}`);
-      if (date && date < changelogCutoff) {
-        oldChangelogs.push(relPath);
-      }
-    }
-  }
-  if (oldChangelogs.length) {
-    site.ignore(...oldChangelogs);
-  }
-  console.log(
-    `  Dev mode: Loading only changelogs from the last ${changelogMonths} months (ignoring ${oldChangelogs.length} older)`,
-  );
-}
-
 // Creates an excerpt for all changelogs saved in description.
 site.preprocess([".md", ".mdx"], function processExcerpt(pages) {
   pages.forEach((page) => {
