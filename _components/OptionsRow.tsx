@@ -14,9 +14,11 @@ export default function OptionsRow(
   return (
     <div className="c-data-reference__item">
       <div className="c-data-reference__header">
-        <code className="c-data-reference__key code-no-box">
-          <strong>{label}</strong>
-        </code>
+        <span className="c-data-reference__key">
+          <strong>
+            <code class="code-no-box">{label}</code>
+          </strong>
+        </span>
         {type_markdown && " "}
         {type_markdown &&
           (

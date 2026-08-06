@@ -122,6 +122,7 @@ export default function RefItem(
             {url ? <a href={url}>{label}</a> : label}
           </strong>
         </span>
+        {" — "}
         <comp.Reference.RefType
           doc={doc}
           currentUrl={currentUrl}

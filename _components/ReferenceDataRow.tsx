@@ -41,7 +41,9 @@ export default function ReferenceDataRow(
       <div className="c-data-reference__item">
         <div className="c-data-reference__header c-anchor-header">
           <span className="c-data-reference__key">
-            <strong>{ref_key}</strong>
+            <strong>
+              <code class="code-no-box">{ref_key}</code>
+            </strong>
           </span>
         </div>
         <div className="c-data-reference__description">
@@ -71,7 +73,8 @@ export function toMarkdown(
   const entry = findEntryByGid(section, ref_key);
   if (!entry) return `**\`${ref_key}\`**\n\nDefinition not found.\n\n`;
 
-  const label = entry.documentation?.title || entry.title || entry.full_key || entry.key || ref_key;
+  const label = entry.documentation?.title || entry.title || entry.full_key ||
+    entry.key || ref_key;
   const type = entry.type ? ` ${entry.type}` : "";
   const badges = [
     entry.required ? "Required" : "",
