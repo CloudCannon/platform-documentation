@@ -296,6 +296,150 @@ document.addEventListener("toggle", (e) => {
   }
 }, true); // Use capture phase since toggle doesn't bubble
 
+const RECENTS_KEY = "docs-pagefind-recents";
+const RECENTS_MAX = 5;
+
+function readRecents() {
+  try {
+    return JSON.parse(localStorage.getItem(RECENTS_KEY)) ?? [];
+  } catch {
+    return [];
+  }
+}
+
+function writeRecents(recents) {
+  try {
+    localStorage.setItem(RECENTS_KEY, JSON.stringify(recents));
+  } catch {
+    // Ignore quota / private mode errors.
+  }
+}
+
+Alpine.store("search", {
+  hasQuery: false,
+  hasFocus: false,
+  selectedFilter: "",
+  recents: readRecents(),
+});
+
+function isPagefindInputFocused() {
+  const active = document.activeElement;
+  return !!active && typeof active.closest === "function" &&
+    active.closest("pagefind-input") !== null;
+}
+
+function refreshSearchFocus() {
+  const store = Alpine.store("search");
+  const now = isPagefindInputFocused();
+  if (store.hasFocus !== now) store.hasFocus = now;
+}
+
+document.addEventListener("focusin", refreshSearchFocus);
+document.addEventListener("focusout", () => {
+  requestAnimationFrame(refreshSearchFocus);
+});
+
+function setupPagefindInstance(attempt = 0) {
+  const im = globalThis.PagefindComponents?.getInstanceManager?.();
+  const instance = im?.getInstance?.("default");
+  if (!instance) {
+    if (attempt < 50) setTimeout(() => setupPagefindInstance(attempt + 1), 100);
+    return;
+  }
+  globalThis.searchInstance = instance;
+  instance.on("search", (term, filters) => {
+    const trimmed = typeof term === "string" ? term.trim() : "";
+    const store = Alpine.store("search");
+    store.hasQuery = trimmed.length > 0;
+    const sel = filters?.site;
+    store.selectedFilter = Array.isArray(sel) && sel.length ? sel[0] : "";
+    if (trimmed.length > 0) {
+      const next = [
+        trimmed,
+        ...store.recents.filter((r) => r !== trimmed),
+      ].slice(0, RECENTS_MAX);
+      store.recents = next;
+      writeRecents(next);
+    } else {
+      store.recents = readRecents();
+    }
+  });
+}
+setupPagefindInstance();
+
+Alpine.data("searchPills", () => ({
+  filters: {},
+  selected: "",
+  init() {
+    const wait = (attempt = 0) => {
+      const inst = globalThis.searchInstance;
+      if (!inst) {
+        if (attempt < 50) setTimeout(() => wait(attempt + 1), 100);
+        return;
+      }
+      inst.on("filters", (data) => {
+        // Prefer `total` — counts per category ignoring the currently applied
+        // site filter, so switching pills reflects what results you'd get.
+        // Fall back to `available` if `total` isn't populated for this index.
+        this.filters = data?.total?.site || data?.available?.site || {};
+      });
+      inst.on("search", (_term, filters) => {
+        const sel = filters?.site;
+        this.selected = Array.isArray(sel) && sel.length ? sel[0] : "";
+      });
+    };
+    wait();
+  },
+  entries() {
+    const preferred = ["Articles", "Guides", "Reference", "Changelog"];
+    const all = Object.entries(this.filters || {});
+    return all.sort((a, b) => {
+      const ai = preferred.indexOf(a[0]);
+      const bi = preferred.indexOf(b[0]);
+      if (ai === -1 && bi === -1) return a[0].localeCompare(b[0]);
+      if (ai === -1) return 1;
+      if (bi === -1) return -1;
+      return ai - bi;
+    });
+  },
+  totalCount() {
+    return Object.values(this.filters || {}).reduce((s, v) => s + (v || 0), 0);
+  },
+  setFilter(value) {
+    const inst = globalThis.searchInstance;
+    if (!inst?.triggerFilter) return;
+    this.selected = value;
+    inst.triggerFilter("site", value ? [value] : []);
+  },
+}));
+
+Alpine.data("searchRecents", () => ({
+  triggerRecent(term) {
+    // Find the pagefind-input that shares an ancestor with this recents block
+    // (so the modal's recents drive the modal's input, and the inline recents
+    // drive the inline input). Fall back to the first one in the document,
+    // then to triggerSearch as a last resort.
+    let inputEl = null;
+    let ancestor = this.$root;
+    while (ancestor && !inputEl) {
+      inputEl = ancestor.querySelector?.("pagefind-input input");
+      ancestor = ancestor.parentElement;
+    }
+    if (!inputEl) inputEl = document.querySelector("pagefind-input input");
+    if (inputEl) {
+      inputEl.value = term;
+      inputEl.dispatchEvent(new Event("input", { bubbles: true }));
+      return;
+    }
+    globalThis.searchInstance?.triggerSearch?.(term);
+  },
+  removeRecent(term) {
+    const store = Alpine.store("search");
+    store.recents = store.recents.filter((r) => r !== term);
+    writeRecents(store.recents);
+  },
+}));
+
 Alpine.magic("getRecentSearches", () => {
   return () => {
     try {
