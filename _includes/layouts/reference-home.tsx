@@ -1,4 +1,5 @@
 import type { SectionId } from "../../_components/Reference/helpers.ts";
+import type { RefNavSection } from "../../developer/reference/_shared/buildRefNav.ts";
 import { slugify } from "../../_components/utils/string-util.ts";
 import type {
   Comp,
@@ -8,21 +9,6 @@ import type {
   Page,
   PageSearch,
 } from "../../_types.d.ts";
-
-// Precompiled reference navigation types (matches _config.ts)
-interface RefNavItem {
-  url: string;
-  name: string;
-  gid: string;
-}
-
-interface RefNavSection {
-  id: SectionId;
-  heading: string;
-  icon: string;
-  basePath: string;
-  items: RefNavItem[];
-}
 
 interface Props {
   content: string;
