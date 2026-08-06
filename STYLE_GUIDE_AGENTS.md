@@ -7,8 +7,8 @@ Machine-readable style rules for AI agents and automated linters. These rules ar
 **For agents making updates to this file:** Also update the corresponding section in `STYLE_GUIDE.mdx` with the prose explanation and examples. Update the revision history in both files: `last_updated` and `style_guide_version` in the YAML block below, and the `Last Updated` and `Version` fields and the revision history table (Section 4) in `STYLE_GUIDE.mdx`.
 
 ```yaml
-style_guide_version: "2.25"
-last_updated: "2026-06-30"
+style_guide_version: "2.26"
+last_updated: "2026-08-06"
 
 documentation_architecture:
   single_source_of_truth:
@@ -646,15 +646,17 @@ components:
     inline_code_example: "<comp.Annotation number=\"1\">\n\nTranslates the `alt` attribute using the key `hero.image-alt`.\n\n</comp.Annotation>"
     note: "Used with both MultiCodeBlock and CodeBlock components"
   
-  datareference:
-    usage: "List API options, configuration keys, or properties with their types and descriptions. Being phased out for schema-sourced keys — use referencedatatable instead."
+  optionstable:
+    usage: "List hand-authored API options, method parameters, or configuration keys that are not sourced from the CloudCannon schema, with their types and descriptions. For schema-sourced keys, use referencedatatable instead."
     required_attributes:
-      - "label (on each DataReferenceRow)"
-      - "type_markdown (on each DataReferenceRow)"
-    syntax: "<comp.DataReference>\n  <comp.DataReferenceRow label=\"option_name\" type_markdown=\"String\">\n    Description.\n  </comp.DataReferenceRow>\n</comp.DataReference>"
+      - "label (on each OptionsRow)"
+      - "type_markdown (on each OptionsRow)"
+    optional_attributes:
+      - "required (on each OptionsRow; boolean, renders a red Required pill next to the label)"
+    syntax: "<comp.OptionsTable>\n  <comp.OptionsRow label=\"option_name\" type_markdown=\"`string`\">\n    Description.\n  </comp.OptionsRow>\n</comp.OptionsTable>"
     rules:
       - "Use instead of markdown pipe tables for all reference content"
-      - "type_markdown accepts String, Boolean, Object, Array, or other type names"
+      - "type_markdown accepts string, boolean, Object, Array, or other type names"
       - "Inner content of each row supports markdown"
       - "Do not use for CloudCannon configuration keys covered by the schema — use referencedatatable instead"
     never_use_markdown_tables: true
@@ -675,7 +677,7 @@ components:
       - "Article tables are intentionally curated — it is acceptable to omit keys; the reference section is the exhaustive source"
       - "Do not include deprecated keys — they are documented in the reference section with the deprecation notice and recommended alternative"
       - "When a parent key links to a reference page that fully documents its children, prefer listing only the parent"
-      - "Do not mix comp.DataReference and comp.ReferenceDataTable in the same table"
+      - "Do not mix comp.OptionsTable and comp.ReferenceDataTable in the same table"
 
   glossaryterm:
     usage: "Inline glossary tooltip for terms with a glossary entry"
@@ -692,7 +694,7 @@ components:
 
 validation_rules:
   check_for:
-    - "markdown_tables_used_instead_of_datareference"
+    - "markdown_tables_used_instead_of_optionstable"
     - "passive_voice"
     - "missing_alt_text"
     - "broken_internal_links"

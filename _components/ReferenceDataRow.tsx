@@ -55,14 +55,12 @@ export default function ReferenceDataRow(
   }
 
   return (
-    <div className="c-data-reference__item">
-      <comp.Reference.RefItem
-        docRef={entry}
-        section={section as SectionId}
-        keyOverride={display_label ?? getDisplayKey(entry)}
-        helpers={helpers}
-      />
-    </div>
+    <comp.Reference.RefItem
+      docRef={entry}
+      section={section as SectionId}
+      keyOverride={display_label ?? getDisplayKey(entry)}
+      helpers={helpers}
+    />
   );
 }
 
