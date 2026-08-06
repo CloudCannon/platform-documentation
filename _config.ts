@@ -163,20 +163,33 @@ site.ignore((path) =>
 // Detect dev mode (serve command uses -s flag)
 const isDevMode = Deno.args.includes("-s") || Deno.args.includes("--serve");
 
-// In dev mode, only load recent changelogs for faster builds
+// In dev mode, only load changelogs from the last N months for faster builds
 if (isDevMode) {
-  site.ignore(
-    "changelogs/2015",
-    "changelogs/2016",
-    "changelogs/2017",
-    "changelogs/2018",
-    "changelogs/2019",
-    "changelogs/2020",
-    "changelogs/2021",
-    "changelogs/2022",
-    "changelogs/2023",
+  const changelogMonths = Number(Deno.env.get("CHANGELOG_MONTHS") ?? "6");
+  const changelogCutoff = new Date();
+  changelogCutoff.setMonth(changelogCutoff.getMonth() - changelogMonths);
+  const oldChangelogs: string[] = [];
+  for (const yearEntry of Deno.readDirSync("changelogs")) {
+    if (!yearEntry.isDirectory) {
+      continue;
+    }
+    for (const fileEntry of Deno.readDirSync(`changelogs/${yearEntry.name}`)) {
+      if (!fileEntry.isFile || !fileEntry.name.endsWith(".mdx")) {
+        continue;
+      }
+      const relPath = `changelogs/${yearEntry.name}/${fileEntry.name}`;
+      const date = parseChangelogFilename(`/${relPath}`);
+      if (date && date < changelogCutoff) {
+        oldChangelogs.push(relPath);
+      }
+    }
+  }
+  if (oldChangelogs.length) {
+    site.ignore(...oldChangelogs);
+  }
+  console.log(
+    `  Dev mode: Loading only changelogs from the last ${changelogMonths} months (ignoring ${oldChangelogs.length} older)`,
   );
-  console.log("  Dev mode: Loading only recent changelogs (2024-2025)");
 }
 
 // Creates an excerpt for all changelogs saved in description.
