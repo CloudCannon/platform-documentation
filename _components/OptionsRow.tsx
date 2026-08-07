@@ -3,17 +3,23 @@ import type { Helpers } from "../_types.d.ts";
 interface OptionsRowProps {
   label: string;
   type_markdown?: string;
+  required?: boolean;
   children: unknown;
 }
 
 export default function OptionsRow(
-  { label, type_markdown, children }: OptionsRowProps,
+  { label, type_markdown, required, children }: OptionsRowProps,
   helpers: Helpers,
 ) {
   return (
     <div className="c-data-reference__item">
       <div className="c-data-reference__header">
-        <code className="c-data-reference__key">{label}</code>
+        <span className="c-data-reference__key">
+          <strong>
+            <code class="code-no-box">{label}</code>
+          </strong>
+        </span>
+        {type_markdown && " "}
         {type_markdown &&
           (
             <span
@@ -23,6 +29,8 @@ export default function OptionsRow(
               }}
             />
           )}
+        {required && " "}
+        {required && <small className="pill pill--red">Required</small>}
       </div>
       <div className="c-data-reference__description">{children}</div>
     </div>
