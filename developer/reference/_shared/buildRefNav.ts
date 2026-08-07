@@ -1,5 +1,10 @@
 import type { DocEntry } from "../../../_types.d.ts";
 import type { SectionId } from "../../../_components/Reference/helpers.ts";
+import {
+  CLI_BASE_PATH,
+  CliCommandDocumentation,
+  cliCommandUrl,
+} from "./command-line-interface.ts";
 
 // Precompiled reference navigation item
 export interface RefNavItem {
@@ -63,6 +68,24 @@ function buildRefNavItems(
     .sort((a, b) =>
       a.name.replace(/^_+/, "").localeCompare(b.name.replace(/^_+/, ""))
     );
+}
+
+export function buildCliRefNav(
+  cliDocs: CliCommandDocumentation,
+): RefNavSection {
+  return {
+    id: "cli",
+    heading: "Command Line Interface",
+    icon: "terminal",
+    basePath: CLI_BASE_PATH,
+    homeLabel: "Overview",
+    items: (cliDocs.subCommands ?? []).map((command) => ({
+      url: cliCommandUrl(command),
+      name: command.name,
+      useCode: true,
+      gid: command.fullName,
+    })),
+  };
 }
 
 /**

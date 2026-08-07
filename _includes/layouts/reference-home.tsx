@@ -1,5 +1,6 @@
 import type { SectionId } from "../../_components/Reference/helpers.ts";
 import type { RefNavSection } from "../../developer/reference/_shared/buildRefNav.ts";
+import { cliDocs } from "../../developer/reference/_shared/command-line-interface.ts";
 import { slugify } from "../../_components/utils/string-util.ts";
 import type {
   Comp,
@@ -41,6 +42,7 @@ export default function ReferenceHomeLayout(
   const isRoutingHome = currentUrl.includes("routing-file");
   const isISSHome = currentUrl.includes("initial-site-settings-file");
   const isSectionHome = isConfigurationHome || isRoutingHome || isISSHome;
+  const isCLIHome = currentUrl.includes("command-line-interface");
 
   // Derive section from the current URL (only matters for section home pages)
   let section: SectionId = "type.Configuration";
@@ -48,6 +50,8 @@ export default function ReferenceHomeLayout(
     section = "type.Routing";
   } else if (isISSHome) {
     section = "type.InitialSiteSettings";
+  } else if (isCLIHome) {
+    section = "cli";
   }
 
   // Only get root entry for section home pages, not the main developer-reference home
@@ -102,11 +106,25 @@ export default function ReferenceHomeLayout(
               helpers={helpers}
             />
           </div>
-          <comp.Layout.MobileTOC helpers={helpers} />
+          {isCLIHome
+            ? (
+              <comp.Layout.MobileTOC helpers={helpers} listClassName="">
+                <comp.Reference.CliTableOfContents command={cliDocs} />
+              </comp.Layout.MobileTOC>
+            )
+            : <comp.Layout.MobileTOC helpers={helpers} />}
 
           <div className="l-content-split">
             <main id="main-content">
               <div dangerouslySetInnerHTML={{ __html: content }} />
+
+              {isCLIHome && (
+                <comp.Reference.CliReferenceContent
+                  comp={comp}
+                  command={cliDocs}
+                  helpers={helpers}
+                />
+              )}
 
               {derivedRootEntry && (
                 <>
@@ -156,11 +174,20 @@ export default function ReferenceHomeLayout(
                 className="l-toc"
                 {...{ "x-on:scroll.window.throttle.50ms": "onScroll()" }}
               >
-                <comp.Reference.TableOfContents
-                  entry={derivedRootEntry}
-                  section={section}
-                  withHeading
-                />
+                {isCLIHome
+                  ? (
+                    <comp.Reference.CliTableOfContents
+                      command={cliDocs}
+                      withHeading
+                    />
+                  )
+                  : (
+                    <comp.Reference.TableOfContents
+                      entry={derivedRootEntry}
+                      section={section}
+                      withHeading
+                    />
+                  )}
               </div>
             </aside>
           </div>
