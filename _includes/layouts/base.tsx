@@ -1,3 +1,4 @@
+import { type FooterNav } from "../../_components/Layout/Footer.tsx";
 import type {
   Comp,
   Details,
@@ -5,7 +6,10 @@ import type {
   Helpers,
 } from "../../_types.d.ts";
 
-interface FooterNav {
+interface Meta {
+  title?: string;
+  subtitle?: string;
+  description?: string;
   [key: string]: unknown;
 }
 
@@ -21,6 +25,8 @@ interface Props {
   explicit_canonical?: string;
   headingnav?: HeaderNavigation;
   footernav?: FooterNav;
+  guide_title?: string;
+  meta?: Meta;
   hubspot_id?: string;
   ga_id?: string;
   ga_verify?: string;
@@ -41,13 +47,30 @@ export default function BaseLayout(props: Props, helpers: Helpers) {
     explicit_canonical,
     headingnav,
     footernav,
+    guide_title,
+    meta,
     hubspot_id,
     ga_id,
     ga_verify,
   } = props;
 
-  const pageTitle_ = title || details?.title || "";
-  const pageDescription = description || details?.description || "";
+  // Strip inline markdown emphasis (italic/bold) from titles so the browser
+  // tab, og:title, and twitter:title show clean text — the on-page heading
+  // still renders the markdown normally.
+  const stripInlineMarkdown = (s: string) =>
+    s
+      .replace(/\*\*([^*]+)\*\*/g, "$1") // **bold**
+      .replace(/__([^_]+)__/g, "$1") // __bold__
+      .replace(/\*([^*]+)\*/g, "$1") // *italic*
+      .replace(/_([^_]+)_/g, "$1"); // _italic_
+
+  const rawPageTitle = title ||
+    (guide_title && details?.title
+      ? `${details.title} — ${guide_title}`
+      : details?.title) || "";
+  const pageTitle_ = stripInlineMarkdown(rawPageTitle);
+  const pageDescription = description || details?.description ||
+    meta?.description || "";
   const pageTitle = omit_trailing_title
     ? pageTitle_
     : `${pageTitle_} | CloudCannon Documentation`;
@@ -147,6 +170,175 @@ export default function BaseLayout(props: Props, helpers: Helpers) {
           defer
         />
         <script src="/documentation/assets/js/site.js" type="text/javascript" defer />
+        <script
+          type="module"
+          dangerouslySetInnerHTML={{
+            __html: `
+              if (document.querySelector('pre.mermaid')) {
+                const [{ default: mermaid }, { default: svgPanZoom }] = await Promise.all([
+                  import('https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs'),
+                  import('https://cdn.jsdelivr.net/npm/svg-pan-zoom@3.6.2/+esm'),
+                ]);
+                const SHARED_THEME_CSS = \`
+                  g.node rect, g.node circle, g.node ellipse, g.node polygon, g.node path {
+                    stroke-width: 2px;
+                  }
+                  .edgePath .path, .flowchart-link {
+                    stroke-width: 2px;
+                  }
+                \`;
+                const SHARED_CONFIG = {
+                  startOnLoad: false,
+                  themeCSS: SHARED_THEME_CSS,
+                  securityLevel: 'strict',
+                  // Layout engine reads fontSize when measuring text, so this
+                  // resizes nodes too — not just the rendered glyphs.
+                  flowchart: { padding: 20, nodeSpacing: 60, rankSpacing: 60 },
+                };
+                const SHARED_FONT_SIZE = '18px';
+                const initMermaid = () => {
+                  const isDark = document.documentElement.dataset.pfTheme === 'dark';
+                  if (isDark) {
+                    mermaid.initialize({
+                      ...SHARED_CONFIG,
+                      theme: 'dark',
+                      themeVariables: { fontSize: SHARED_FONT_SIZE },
+                    });
+                  } else {
+                    mermaid.initialize({
+                      ...SHARED_CONFIG,
+                      theme: 'default',
+                      themeVariables: {
+                        fontSize: SHARED_FONT_SIZE,
+                        // node fills (covers all the variants the default theme uses)
+                        primaryColor: '#E6EDFB',
+                        secondaryColor: '#E6EDFB',
+                        tertiaryColor: '#E6EDFB',
+                        nodeBkg: '#E6EDFB',
+                        mainBkg: '#E6EDFB',
+                        clusterBkg: '#E6EDFB',
+                        // borders + lines (all brand blue)
+                        primaryBorderColor: '#034ad8',
+                        secondaryBorderColor: '#034ad8',
+                        tertiaryBorderColor: '#034ad8',
+                        nodeBorder: '#034ad8',
+                        clusterBorder: '#034ad8',
+                        lineColor: '#034ad8',
+                        defaultLinkColor: '#034ad8',
+                        // keep all text plain black
+                        primaryTextColor: '#000000',
+                        secondaryTextColor: '#000000',
+                        tertiaryTextColor: '#000000',
+                      },
+                    });
+                  }
+                };
+                const PAN_STEP = 40;
+                // Wrap each icon URL with helpers.url() so the basePath
+                // (/documentation) is prepended. basePath() only rewrites
+                // src/href in HTML attributes, not JS strings inside script
+                // tags — without this, all these SVGs 404.
+                const ICON_URLS = ${JSON.stringify({
+                  "pan-up": helpers.url(helpers.icon("keyboard_arrow_up:outlined", "material")),
+                  "pan-down": helpers.url(helpers.icon("keyboard_arrow_down:outlined", "material")),
+                  "pan-left": helpers.url(helpers.icon("keyboard_arrow_left:outlined", "material")),
+                  "pan-right": helpers.url(helpers.icon("keyboard_arrow_right:outlined", "material")),
+                  "zoom-in": helpers.url(helpers.icon("zoom_in:outlined", "material")),
+                  "zoom-out": helpers.url(helpers.icon("zoom_out:outlined", "material")),
+                  "reset": helpers.url(helpers.icon("crop_free:outlined", "material")),
+                })};
+                const ACTIONS = [
+                  ['pan-up',    'Pan up'],
+                  ['zoom-in',   'Zoom in'],
+                  ['pan-left',  'Pan left'],
+                  ['reset',     'Reset view'],
+                  ['pan-right', 'Pan right'],
+                  ['pan-down',  'Pan down'],
+                  ['zoom-out',  'Zoom out'],
+                ];
+                const buildControls = (mountTarget, panZoomInst) => {
+                  mountTarget.querySelector('.c-mermaid__controls')?.remove();
+                  const panel = document.createElement('div');
+                  panel.className = 'c-mermaid__controls';
+                  panel.innerHTML = ACTIONS.map(([action, label]) =>
+                    \`<button type="button" data-action="\${action}" aria-label="\${label}" style="--c-mermaid-icon: url('\${ICON_URLS[action]}')"></button>\`
+                  ).join('');
+                  panel.addEventListener('click', e => {
+                    const btn = e.target.closest('button');
+                    if (!btn) return;
+                    const action = btn.dataset.action;
+                    if (action === 'pan-up')         panZoomInst.panBy({ x: 0,         y: PAN_STEP });
+                    else if (action === 'pan-down')  panZoomInst.panBy({ x: 0,         y: -PAN_STEP });
+                    else if (action === 'pan-left')  panZoomInst.panBy({ x: PAN_STEP,  y: 0 });
+                    else if (action === 'pan-right') panZoomInst.panBy({ x: -PAN_STEP, y: 0 });
+                    else if (action === 'zoom-in')   panZoomInst.zoomIn();
+                    else if (action === 'zoom-out')  panZoomInst.zoomOut();
+                    else if (action === 'reset')     { panZoomInst.resetZoom(); panZoomInst.center(); panZoomInst.fit(); }
+                  });
+                  mountTarget.appendChild(panel);
+                };
+                let panZoomInstances = [];
+                const attachPanZoom = () => {
+                  panZoomInstances.forEach(inst => { try { inst.destroy(); } catch (_) {} });
+                  panZoomInstances = [];
+                  document.querySelectorAll('.c-mermaid').forEach(figure => {
+                    const pre = figure.querySelector('pre.mermaid');
+                    const svg = pre?.querySelector('svg');
+                    if (!pre || !svg) return;
+                    const vb = svg.viewBox?.baseVal;
+                    const w = (vb && vb.width)  || parseFloat(svg.getAttribute('width'))  || 800;
+                    const h = (vb && vb.height) || parseFloat(svg.getAttribute('height')) || 600;
+                    pre.style.aspectRatio = w + ' / ' + h;
+                    if (!svg.getAttribute('width'))  svg.setAttribute('width',  '100%');
+                    if (!svg.getAttribute('height')) svg.setAttribute('height', '100%');
+                    try {
+                      const inst = svgPanZoom(svg, {
+                        controlIconsEnabled: false,
+                        fit: true,
+                        center: true,
+                        mouseWheelZoomEnabled: false,
+                        minZoom: 0.5,
+                        maxZoom: 10,
+                      });
+                      panZoomInstances.push(inst);
+                      buildControls(pre, inst);
+                    } catch (e) {
+                      console.warn('svg-pan-zoom init failed:', e);
+                    }
+                  });
+                };
+                document.querySelectorAll('pre.mermaid').forEach(el => { el.dataset.mermaidSource = el.textContent; });
+                initMermaid();
+                try {
+                  await mermaid.run();
+                  attachPanZoom();
+                } catch (e) {
+                  document.querySelectorAll('.c-mermaid__loader-text').forEach(el => { el.textContent = 'Diagram failed to render.'; });
+                  console.error('Mermaid render failed:', e);
+                }
+                // Theme toggle: render the new SVG off-DOM via mermaid.render,
+                // then swap it in atomically. The old (wrong-theme) SVG stays
+                // visible until the swap, so there's no blank frame.
+                new MutationObserver(async () => {
+                  initMermaid();
+                  for (const pre of document.querySelectorAll('pre.mermaid')) {
+                    const source = pre.dataset.mermaidSource;
+                    if (!source) continue;
+                    try {
+                      const id = 'm-' + Math.random().toString(36).slice(2);
+                      const { svg } = await mermaid.render(id, source);
+                      pre.innerHTML = svg;
+                      pre.setAttribute('data-processed', 'true');
+                    } catch (e) {
+                      console.error('Mermaid re-render failed:', e);
+                    }
+                  }
+                  attachPanZoom();
+                }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-pf-theme'] });
+              }
+            `,
+          }}
+        />
       </head>
 
       <body

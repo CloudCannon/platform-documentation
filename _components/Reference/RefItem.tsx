@@ -90,6 +90,7 @@ function appearsIn(
 
 interface RefItemProps {
   docRef: DocEntry | null | undefined;
+  id?: string;
   currentUrl?: string;
   section: SectionId;
   useKey?: boolean;
@@ -103,6 +104,7 @@ export default function RefItem(
   {
     comp,
     docRef,
+    id,
     currentUrl,
     section,
     useKey = true,
@@ -130,13 +132,14 @@ export default function RefItem(
   const enumMore = enumValues.length - displayEnumCount;
 
   return (
-    <>
+    <div class="c-data-reference__item" id={id}>
       <div class="c-data-reference__header c-anchor-header">
         <span class="c-data-reference__key">
           <strong>
             {url ? <a href={url}>{label}</a> : label}
           </strong>
         </span>
+        {" — "}
         <comp.Reference.RefType
           doc={doc}
           currentUrl={currentUrl}
@@ -259,6 +262,6 @@ export default function RefItem(
           </details>
         )}
       </div>
-    </>
+    </div>
   );
 }

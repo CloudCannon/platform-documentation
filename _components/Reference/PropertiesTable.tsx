@@ -16,6 +16,52 @@ interface PropertiesTableProps {
   comp: Comp;
 }
 
+interface RefListProps extends Omit<PropertiesTableProps, "entry"> {
+  refs: DocEntry[];
+  idPrefix: string;
+  useKey: "auto" | boolean;
+  getLabel: (resolved: DocEntry | null, index: number) => string;
+}
+
+function RefList(
+  {
+    comp,
+    refs,
+    idPrefix,
+    useKey,
+    getLabel,
+    currentUrl,
+    section,
+    helpers,
+    withIds,
+    slugify,
+  }: RefListProps,
+) {
+  return (
+    <div class="c-data-reference">
+      {refs.map((ref, i) => {
+        const resolved = resolveRef(ref, section);
+        return (
+          <comp.Reference.RefItem
+            key={resolved?.gid || i}
+            id={withIds && slugify
+              ? `${idPrefix}-${slugify(getLabel(resolved, i))}`
+              : undefined}
+            docRef={ref}
+            currentUrl={currentUrl}
+            section={section}
+            useKey={useKey === "auto" ? !resolved?.title : useKey}
+            keyOverride={!resolved?.title && resolved?.key
+              ? getShortKey(resolved.key)
+              : undefined}
+            helpers={helpers}
+          />
+        );
+      })}
+    </div>
+  );
+}
+
 function ObjectProperties(
   { comp, entry, currentUrl, section, helpers, withIds, slugify }:
     PropertiesTableProps,
@@ -39,96 +85,68 @@ function ObjectProperties(
     }
   }
 
+  const shared = { comp, currentUrl, section, helpers, withIds, slugify };
+  const getAdditionalLabel = (resolved: DocEntry | null, i: number) =>
+    resolved?.title || resolved?.full_key || `item-${i}`;
+
   return (
     <>
       {properties.length > 0 && (
         <>
-          <dt id={withIds ? "properties" : undefined}>Properties:</dt>
-          <dd class="c-data-reference">
+          <h2 class="exclude-from-toc" id={withIds ? "properties" : undefined}>
+            Properties
+          </h2>
+          <div class="c-data-reference">
             {properties.map(([key, ref]) => (
-              <div
-                class="c-data-reference__item"
+              <comp.Reference.RefItem
                 key={key}
                 id={withIds && slugify
                   ? `prop-${slugify(getShortKey(key))}`
                   : undefined}
-              >
-                <comp.Reference.RefItem
-                  docRef={ref}
-                  currentUrl={currentUrl}
-                  section={section}
-                  keyOverride={getShortKey(key)}
-                  helpers={helpers}
-                />
-              </div>
+                docRef={ref}
+                currentUrl={currentUrl}
+                section={section}
+                keyOverride={getShortKey(key)}
+                helpers={helpers}
+              />
             ))}
-          </dd>
+          </div>
         </>
       )}
 
       {additionalValues.length > 0 && (
         <>
-          <dt id={withIds ? "additional-values" : undefined}>Values:</dt>
-          <dd class="c-data-reference">
-            {additionalValues.map((ref, i) => {
-              const resolved = resolveRef(ref, section);
-              const label = resolved?.title || resolved?.full_key ||
-                `item-${i}`;
-              return (
-                <div
-                  class="c-data-reference__item"
-                  key={resolved?.gid || i}
-                  id={withIds && slugify
-                    ? `addvalue-${slugify(label)}`
-                    : undefined}
-                >
-                  <comp.Reference.RefItem
-                    docRef={ref}
-                    currentUrl={currentUrl}
-                    section={section}
-                    useKey={!resolved?.title}
-                    keyOverride={!resolved?.title && resolved?.key
-                      ? getShortKey(resolved.key)
-                      : undefined}
-                    helpers={helpers}
-                  />
-                </div>
-              );
-            })}
-          </dd>
+          <h2
+            class="exclude-from-toc"
+            id={withIds ? "additional-values" : undefined}
+          >
+            Values
+          </h2>
+          <RefList
+            refs={additionalValues}
+            idPrefix="addvalue"
+            useKey="auto"
+            getLabel={getAdditionalLabel}
+            {...shared}
+          />
         </>
       )}
 
       {!additionalValues.length && additionalProps.length > 0 && (
         <>
-          <dt id={withIds ? "additional-properties" : undefined}>Values:</dt>
-          <dd class="c-data-reference">
-            {additionalProps.map((ref, i) => {
-              const resolved = resolveRef(ref, section);
-              const label = resolved?.title || resolved?.full_key ||
-                `item-${i}`;
-              return (
-                <div
-                  class="c-data-reference__item"
-                  key={resolved?.gid || i}
-                  id={withIds && slugify
-                    ? `addprop-${slugify(label)}`
-                    : undefined}
-                >
-                  <comp.Reference.RefItem
-                    docRef={ref}
-                    currentUrl={currentUrl}
-                    section={section}
-                    useKey={!resolved?.title}
-                    keyOverride={!resolved?.title && resolved?.key
-                      ? getShortKey(resolved.key)
-                      : undefined}
-                    helpers={helpers}
-                  />
-                </div>
-              );
-            })}
-          </dd>
+          <h2
+            class="exclude-from-toc"
+            id={withIds ? "additional-properties" : undefined}
+          >
+            Values
+          </h2>
+          <RefList
+            refs={additionalProps}
+            idPrefix="addprop"
+            useKey="auto"
+            getLabel={getAdditionalLabel}
+            {...shared}
+          />
         </>
       )}
     </>
@@ -144,37 +162,21 @@ function ArrayItems(
 
   return (
     <>
-      <dt id={withIds ? "items" : undefined}>Items:</dt>
-      <dd class="c-data-reference">
-        {items.map((ref, i) => {
-          const resolved = resolveRef(ref, section);
-          const label = getDisplayName(resolved) || `item-${i}`;
-          return (
-            <div
-              class="c-data-reference__item"
-              key={resolved?.gid || i}
-              id={withIds && slugify ? `item-${slugify(label)}` : undefined}
-            >
-              <comp.Reference.RefItem
-                docRef={ref}
-                currentUrl={currentUrl}
-                section={section}
-                useKey
-                keyOverride={!resolved?.title && resolved?.key
-                  ? getShortKey(resolved.key)
-                  : undefined}
-                helpers={helpers}
-              />
-            </div>
-          );
-        })}
-      </dd>
+      <h2 class="exclude-from-toc" id={withIds ? "items" : undefined}>Items</h2>
+      <RefList
+        comp={comp}
+        currentUrl={currentUrl}
+        section={section}
+        helpers={helpers}
+        withIds={withIds}
+        slugify={slugify}
+        refs={items}
+        idPrefix="item"
+        useKey
+        getLabel={(resolved, i) => getDisplayName(resolved) || `item-${i}`}
+      />
 
-      {entry.uniqueItems && (
-        <dd>
-          <p>All items must be unique.</p>
-        </dd>
-      )}
+      {entry.uniqueItems && <p>All items must be unique.</p>}
     </>
   );
 }
@@ -188,54 +190,38 @@ function AnyOfTypes(
 
   return (
     <>
-      <dt id={withIds ? "types" : undefined}>Types:</dt>
-      <dd class="c-data-reference">
-        {anyOf.map((ref, i) => {
-          const resolved = resolveRef(ref, section);
-          const label = getDisplayName(resolved) || `type-${i}`;
-          return (
-            <div
-              class="c-data-reference__item"
-              key={resolved?.gid || i}
-              id={withIds && slugify ? `type-${slugify(label)}` : undefined}
-            >
-              <comp.Reference.RefItem
-                docRef={ref}
-                currentUrl={currentUrl}
-                section={section}
-                useKey={false}
-                keyOverride={undefined}
-                helpers={helpers}
-              />
-            </div>
-          );
-        })}
-      </dd>
+      <h2 class="exclude-from-toc" id={withIds ? "types" : undefined}>Types</h2>
+      <RefList
+        comp={comp}
+        currentUrl={currentUrl}
+        section={section}
+        helpers={helpers}
+        withIds={withIds}
+        slugify={slugify}
+        refs={anyOf}
+        idPrefix="type"
+        useKey={false}
+        getLabel={(resolved, i) => getDisplayName(resolved) || `type-${i}`}
+      />
     </>
   );
 }
 
-export default function PropertiesTable(
-  { comp, entry, currentUrl, section, helpers, withIds = false, slugify }:
-    PropertiesTableProps,
-) {
-  if (!entry) return null;
-
-  const props = { comp, entry, currentUrl, section, helpers, withIds, slugify };
-  const hasProperties = entry.properties &&
-    Object.keys(entry.properties).length > 0;
-
+export default function PropertiesTable(props: PropertiesTableProps) {
   // Show properties for objects OR any entry type that has properties defined
   // (e.g., "array of objects" types where children define the item schema)
-  if (entry.type === "object" || hasProperties) {
+  if (
+    props.entry?.type === "object" ||
+    (props.entry?.properties && Object.keys(props.entry?.properties).length > 0)
+  ) {
     return <ObjectProperties {...props} />;
   }
 
-  if (entry.type === "array" && entry.items?.length) {
+  if (props.entry?.type === "array" && props.entry?.items?.length) {
     return <ArrayItems {...props} />;
   }
 
-  if (entry.anyOf?.length) {
+  if (props.entry?.anyOf?.length) {
     return <AnyOfTypes {...props} />;
   }
 

@@ -1,11 +1,5 @@
 import type { DocEntry } from "../../../_types.d.ts";
-
-// Section ID type for reference navigation
-export type SectionId =
-  | "type.Configuration"
-  | "type.Routing"
-  | "type.InitialSiteSettings"
-  | "type.VisualEditorAPI";
+import type { SectionId } from "../../../_components/Reference/helpers.ts";
 
 // Precompiled reference navigation item
 export interface RefNavItem {
@@ -21,6 +15,7 @@ export interface RefNavSection {
   heading: string;
   icon: string;
   basePath: string;
+  homeLabel?: string;
   items: RefNavItem[];
 }
 

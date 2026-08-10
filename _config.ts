@@ -391,35 +391,42 @@ const annotateCodeBlocks = (page: Lume.Page): void => {
             }
             next_el = next_el.nextSibling;
           }
-          let insert_before_el: ChildNode | null = next_newline || token;
+          if (next_newline) {
+            let insert_before_el: ChildNode | null = next_newline;
 
-          // Text nodes might span multiple lines, so we split it on newlines
-          // and re-add each as independent text nodes, so that we can add an element before
-          // the newline.
-          const insertNodeValue = (insert_before_el as Text)?.nodeValue;
-          if (insertNodeValue && /\n/.test(insertNodeValue)) {
-            const chunks = insertNodeValue
-              .split("\n")
-              .map((chunk: string) => page.document!.createTextNode(chunk));
-            for (let i = 0; i < chunks.length; i += 1) {
-              insert_before_el?.parentNode?.insertBefore(
-                chunks[i],
-                insert_before_el,
-              );
-              if (i !== chunks.length - 1) {
+            // Text nodes might span multiple lines, so we split it on newlines
+            // and re-add each as independent text nodes, so that we can add an element before
+            // the newline.
+            const insertNodeValue = (insert_before_el as Text)?.nodeValue;
+            if (insertNodeValue && /\n/.test(insertNodeValue)) {
+              const chunks = insertNodeValue
+                .split("\n")
+                .map((chunk: string) => page.document!.createTextNode(chunk));
+              for (let i = 0; i < chunks.length; i += 1) {
                 insert_before_el?.parentNode?.insertBefore(
-                  page.document!.createTextNode("\n"),
+                  chunks[i],
                   insert_before_el,
                 );
+                if (i !== chunks.length - 1) {
+                  insert_before_el?.parentNode?.insertBefore(
+                    page.document!.createTextNode("\n"),
+                    insert_before_el,
+                  );
+                }
               }
+              insert_before_el?.remove();
+              insert_before_el = chunks[0].nextSibling;
             }
-            insert_before_el?.remove();
-            insert_before_el = chunks[0].nextSibling;
+            insert_before_el?.parentNode?.insertBefore(
+              commentEl,
+              insert_before_el,
+            );
+          } else {
+            // No newline found ahead — this marker is on the last line of the
+            // code block (which has been trimmed of its trailing newline).
+            // Append the badge as the last child so it lands at end-of-line.
+            codeEl.appendChild(commentEl);
           }
-          insert_before_el?.parentNode?.insertBefore(
-            commentEl,
-            insert_before_el,
-          );
         }
 
         if (is_text) {
@@ -491,6 +498,36 @@ site.process([".html"], async function processInjectReusableContent(pages) {
 
 site.process([".html"], function processHTMLPages(pages) {
   for (const page of pages) {
+    // Bind inline `<code>` to adjacent parentheses so mobile line breaks
+    // don't strand a lone `(` on one line, the code on the next, and `)`
+    // below that. Insert U+2060 WORD JOINER (invisible, zero-width, forbids
+    // line break at its position) in the surrounding text nodes. Skip code
+    // inside <pre> blocks — those are display code and never wrap this way.
+    page.document?.querySelectorAll("code").forEach((codeEl) => {
+      const el = codeEl as unknown as HTMLElement & { parentElement?: unknown };
+      // Skip if inside a <pre> block
+      // deno-lint-ignore no-explicit-any
+      let anc: any = el;
+      while (anc) {
+        if (anc?.tagName === "PRE") return;
+        anc = anc.parentNode;
+      }
+      const prev = (codeEl as unknown as Node).previousSibling;
+      const next = (codeEl as unknown as Node).nextSibling;
+      if (prev && prev.nodeType === 3) {
+        const v = prev.nodeValue || "";
+        if (v.endsWith("(") && !v.endsWith("(⁠")) {
+          prev.nodeValue = v + "⁠";
+        }
+      }
+      if (next && next.nodeType === 3) {
+        const v = next.nodeValue || "";
+        if (v.startsWith(")") && !v.startsWith("⁠)")) {
+          next.nodeValue = "⁠" + v;
+        }
+      }
+    });
+
     const collisions: Record<string, boolean> = {};
 
     const fixIdCollisions = (slugPrefix: string): string => {

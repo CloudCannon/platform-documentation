@@ -7,8 +7,17 @@ Machine-readable style rules for AI agents and automated linters. These rules ar
 **For agents making updates to this file:** Also update the corresponding section in `STYLE_GUIDE.mdx` with the prose explanation and examples. Update the revision history in both files: `last_updated` and `style_guide_version` in the YAML block below, and the `Last Updated` and `Version` fields and the revision history table (Section 4) in `STYLE_GUIDE.mdx`.
 
 ```yaml
-style_guide_version: "2.24"
-last_updated: "2026-06-26"
+style_guide_version: "2.36"
+last_updated: "2026-08-06"
+
+documentation_architecture:
+  single_source_of_truth:
+    prefer: "Specific, single-purpose pages. Split by discrete topic or distinct reading context (e.g. opt-in/configurable behavior vs default behavior). Splitting for specificity is good."
+    one_home: "Each behavior, feature, or screen has one home page. A general page may summarize a topic in a short paragraph and link to the specific page that covers it thoroughly — intended pattern, not duplication."
+    similarity_ok: "Similar content across pages covering DIFFERENT topics is accurate, not duplication (e.g. Snippets pages, where each snippet type behaves similarly but has its own home)."
+    avoid: "The SAME behavior or appearance documented in full on two pages, even when both are accurate — dilutes search and will drift. Consolidate to one authoritative page; others defer with a short summary and a link."
+    always_cross_link: true
+    tie_breaker: "When pages disagree, accuracy wins, not recency. App behavior and STYLE_GUIDE.mdx are the ultimate tie-breakers; fix toward them."
 
 terminology:
   disambiguation:
@@ -148,9 +157,11 @@ voice_and_tense:
       - "Pass an Input configuration to control the upload destination, filename, and allowed types."
       - "Gracefully handles any missing file."
     overstatement_is_a_factual_error: "Most damaging in reference and developer documentation, where readers act on the exact claim. Document only what the implementation does; trace each claim to code, configuration, or observed UI behavior before writing it."
-  first_person_plural_we_exception:
-    article_path: "/documentation/developer-articles/what-is-the-visual-editor-api/"
-    note: "Sole allowed 'we' in articles; company dogfoods public Visual Editor API (see prose §2.2.5)"
+  first_person_plural_we_exceptions:
+    - article_path: "/documentation/developer-articles/what-is-the-visual-editor-api/"
+      note: "Company dogfoods public Visual Editor API (see prose §2.2.5 Exception 1)"
+    - filename_pattern: "introduction-to-*.mdx"
+      note: "Section-introduction articles may use editorial scaffolding such as 'we cover:' or 'Let's briefly introduce these topics.' Keep to one or two sentences per intro; body must still use 'you' for reader actions (see prose §2.2.5 Exception 2)"
     guide_transition_sentences: "'we'll' is permitted in the closing transition sentence of guide pages (e.g. 'In the next step of this guide, we'll...')"
 
 formatting_rules:
@@ -212,10 +223,19 @@ documentation_types:
     required_front_matter:
       - "_schema"
       - "title"
+      - "date (ISO 8601, +12:00 NZ timezone; publish time; drives ordering)"
+    title_fallback: "general-fixes (when a release has no notable features)"
+    scope: "Document only features shipped to all users. Exclude beta/unreleased features and their supporting plumbing (error handling, migrations, API wiring), even if merged during the period covered."
     required_sections:
       - "Features & Improvements"
       - "Fixes"
+    dependency_rollup: "Roll up Dependabot/npm_and_yarn/bundler/patch-only bumps into a single closing Fixes line: 'Updated dependencies to patch security vulnerabilities.'"
     tense: "past"
+    entry_shape: "Lead with a past-tense verb, then an 'allowing you to…' capability clause, then locate the controls descriptively. Convey what the reader can now do via 'allowing you to…', never 'You can now…'. Pattern: Added *[Name]*, allowing you to *[capability]*. [Where the controls live, stated descriptively.]"
+    nested_detail: "Sub-bullets explaining how a feature works keep a past-tense lead and describe behaviour in the descriptive present; never instructional ('You can now…', 'Click Save')."
+    avoid:
+      - "You can now… (present-tense instruction)"
+      - "Go to X to… (instructional rather than descriptive)"
     preferred_verbs:
       - "Added"
       - "Changed"
@@ -323,7 +343,7 @@ documentation_types:
       emoji: "A single emoji is permitted in the congratulatory opening sentence (e.g. 🎉)"
       required_elements:
         - "Congratulatory opening sentence acknowledging guide completion"
-        - "Support callout linking to /support/ and CloudCannon Community (external link with target=_blank rel=noopener)"
+        - "Support callout linking to https://cloudcannon.com/support/ (HTML anchor) and CloudCannon Community (external link with target=_blank rel=noopener)"
         - "Contextual section headings (## level) that describe what the reader can do next, not bare topic labels"
         - "One-sentence prose intro before each bullet list explaining why these resources are useful"
         - "Bullet list entries formatted as: [Link text](/path/) — One sentence description"
@@ -414,6 +434,8 @@ documentation_types:
           - "Structure"
           - "Configuration File"
           - "API Object"
+          - "Pull Request"
+          - "Git Provider"
         features:
           - "Build"
           - "Git Repository"
@@ -422,6 +444,8 @@ documentation_types:
           - "Testing Domain"
           - "Client Sharing"
           - "Site Sharing"
+          - "Publishing Method"
+          - "Publishing Workflow"
         all_input_types: true
       
       do_not_italicize:
@@ -436,7 +460,29 @@ documentation_types:
         - "AWS, Azure, Make, Zapier, Okta"
       
       possessive_forms: "Include apostrophe-s inside italics (*Site's*)"
-    
+
+      compound_nouns_with_concepts:
+        rule: "When a CloudCannon concept is followed by a generic descriptor (page, tab, section, view, link, button), italicise only the concept, not the descriptor"
+        examples:
+          correct:
+            - "at the top of your *Project* page"
+            - "click the *Publishing* link in the *Site Navigation*"
+            - "the *Pull Requests* tab groups *Pull Requests*"
+          incorrect:
+            - "at the top of your *Project page*"
+            - "click the *Publishing link* in the *Site Navigation*"
+        exception: "Italicise the whole literal UI element name when the descriptor is part of the label (e.g. *Project Settings* is the actual tab label)"
+
+      group_names_in_permissions_notices:
+        rule: "Inside permissions notices, italicise individual Permission Group names (Owners, Developers, Editors, Technical Editors, Billing) as well as the broader *Default Permission Groups* / *Custom Permission Groups* link text"
+        examples:
+          correct:
+            - "Members of the *Owners* and *Developers* [Default Permission Groups]"
+            - "Members of the *Editors* and *Technical Editors* [Default Permission Groups]"
+          incorrect:
+            - "Members of the Owners and Developers [Default Permission Groups]"
+        note: "Applies inside permissions notices. Body prose discussing groups as a category can stay plain."
+
     cross_reference_rules:
       italicize_cloudcannon_terms: true
       includes: "UI elements, core concepts, and features"
@@ -453,17 +499,19 @@ documentation_types:
     link_format:
       pattern: "/documentation/[user|developer]-articles/[slug]/"
       include_documentation_prefix_for: "articles and guides only"
-      other_internal_pages: "link directly without /documentation/ (e.g., /pricing/)"
+      non_documentation_pages: "use a full absolute URL (e.g., https://cloudcannon.com/pricing/); never root-relative — basePath prepends /documentation/ and breaks it"
+      never_protocol_relative: "a leading // is read as a hostname; use a single leading / for documentation paths"
       examples:
         correct:
           - "/documentation/user-articles/what-is-a-collection/"
           - "/documentation/developer-articles/configure-collections/"
           - "/documentation/developer-guides/okta-sso-saml/"
-          - "/pricing/"  # Other internal pages
+          - "https://cloudcannon.com/pricing/"  # Non-documentation pages: absolute URL
         incorrect:
           - "/user-articles/what-is-a-collection/"  # Missing /documentation/
           - "/user/articles/what-is-a-collection/"  # Wrong structure
-          - "/documentation/pricing/"  # Don't add /documentation/ to other pages
+          - "/pricing/"  # Root-relative non-doc link — basePath breaks it to /documentation/pricing/
+          - "//documentation/developer-articles/..."  # Protocol-relative — resolves to https://documentation/...
           - "/changelogs/..."  # Don't link to changelogs
       
       acceptable_empty_for:
@@ -491,12 +539,29 @@ link_formats:
       - "/documentation/user-guides/getting-started/create-a-site/"
       - "/documentation/developer-guides/okta-sso-saml/"
   
+  non_documentation_pages:
+    description: "Pages on cloudcannon.com outside /documentation/ (e.g. the marketing pricing page)"
+    syntax: '<a href="https://cloudcannon.com/[path]/">[Link text]</a>'
+    rule: "Use a full absolute URL in an HTML anchor; never a root-relative path. basePath prepends /documentation/ to any root-relative link, so /pricing/ breaks as /documentation/pricing/"
+    no_new_tab: "Same domain, so omit target=_blank — keep the reader in the same tab"
+    examples:
+      - '<a href="https://cloudcannon.com/pricing/">Team or Enterprise plan</a>'
+
+  protocol_relative_links:
+    rule: "Never use a leading // — the browser reads the first segment as a hostname (//documentation/... resolves to https://documentation/...). Use a single leading / for documentation paths"
+
   external_links:
-    syntax: '<a href="[url]" target="_blank" rel="noopener">[Link text]</a>'
-    rule: "Always use HTML anchor tags for external links, never markdown syntax"
-    reason: "Opens in a new tab so users don't lose their place; rel=noopener provides security benefits"
-    correct: '<a href="https://gohugo.io/content-management/multilingual/" target="_blank" rel="noopener">built-in multilingual support</a>'
-    incorrect: "[built-in multilingual support](https://gohugo.io/content-management/multilingual/)"
+    rule: "Always use HTML anchor tags for external links, never markdown syntax. Always target=_blank. The rel value depends on destination ownership."
+    rel_by_destination:
+      third_party: "rel='noopener noreferrer' — any destination NOT on a cloudcannon.com domain (github.com, gohugo.io, developer.mozilla.org, docs.imgix.com, forms.gle, etc.). noopener prevents tabnabbing; noreferrer stops the reader's doc URL leaking to the outside site."
+      cloudcannon_owned: "rel='noopener' — cloudcannon.com and its subdomains (e.g. community.cloudcannon.com). Keep the referrer so CloudCannon analytics attribute the traffic. NOTE: most cloudcannon.com links stay same-tab (see link_formats.non_documentation_pages); only add target=_blank + rel=noopener when a CloudCannon-owned link must open in a new tab."
+    syntax_third_party: '<a href="[url]" target="_blank" rel="noopener noreferrer">[Link text]</a>'
+    syntax_cloudcannon_owned: '<a href="https://community.cloudcannon.com/" target="_blank" rel="noopener">[Link text]</a>'
+    reason: "Opens in a new tab so users don't lose their place; noopener provides security benefits; noreferrer keeps the reader's doc URL from leaking to third parties"
+    correct: '<a href="https://gohugo.io/content-management/multilingual/" target="_blank" rel="noopener noreferrer">built-in multilingual support</a>'
+    incorrect:
+      - "[built-in multilingual support](https://gohugo.io/content-management/multilingual/)"  # markdown syntax for external link
+      - '<a href="https://gohugo.io/content-management/multilingual/" target="_blank" rel="noopener">built-in multilingual support</a>'  # third-party link missing noreferrer
 
   ui_elements_in_links:
     rule: "Drop italics when a UI element term is used as link text"
@@ -518,6 +583,18 @@ components:
       important: "Can be first if the information affects the entire article; otherwise inline."
       permissions: "Must always be first in the article, immediately after front matter. Always start with bold 'Permissions required' heading."
       pricing: "Can be first if the entire feature is plan-specific; otherwise inline."
+    pricing_notice_content:
+      single_feature_form: "**This feature is available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise plan</a>.** OR ***Feature Name* is available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise plan</a>.**"
+      overview_article_form: "Name the gated sub-features the article actually discusses; do not list the full set of gated features under the parent"
+      examples:
+        correct:
+          - "**This feature is available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise plan</a>.**"
+          - "***Deploy Previews* are available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise plan</a>.**"
+          - "***Projects* are available on all plans. *Site* branching and *Publishing Workflows* are available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise plan</a>.**"
+          - "**The *Pull Requests* tab and *Deploy Previews* settings are available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise plan</a>. Other parts of the *Project Browser* are available on all plans.**"
+        incorrect:
+          - "**Some features are only available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise plan</a>.**"  # vague — doesn't say which features
+          - "**This feature is available on our** [**Team or Enterprise plan**](https://cloudcannon.com/pricing/)**.**"  # over-wrapped bold/link splits; also: non-doc links must be HTML anchors, not markdown
     general_rules:
       - "Only one notice at the start of an article (permissions, pricing, or important — never info)"
       - "Keep notice text concise"
@@ -548,7 +625,33 @@ components:
     never_use_for:
       - "Screenshots of the CloudCannon app (use comp.DocShot instead)"
       - "UI snippets showing CloudCannon interface elements (use comp.DocShot instead)"
-  
+      - "Structural diagrams expressible in Mermaid syntax — flowcharts, sequence diagrams, decision trees (use comp.Mermaid instead)"
+
+  mermaid:
+    usage: "Structural diagrams whose source can be expressed in Mermaid syntax — flowcharts, sequence diagrams, decision trees, simple architecture sketches. Rendered in the reader's browser at page load via mermaid.js."
+    required_attributes:
+      - "chart (Mermaid source as a template literal)"
+      - "alt (full sentence describing the diagram for screen readers, no-JS readers, and Pagefind)"
+    optional_attributes:
+      - "caption (visible caption rendered below the diagram)"
+    syntax: "<comp.Mermaid alt=\"...\" chart={`graph LR\\n  A --> B\\n`} />"
+    use_for:
+      - "Flowcharts, branching diagrams, publish workflows"
+      - "Sequence diagrams (API calls, event flows)"
+      - "Small state machines, decision trees, or relationship graphs"
+    never_use_for:
+      - "Screenshots of the CloudCannon app (use comp.DocShot instead)"
+      - "Photographs, illustrations, or graphics that are not structural (use comp.DocsImage instead)"
+      - "Diagrams large enough that the source becomes harder to read than a hand-drawn image"
+    runtime:
+      render_location: "Client-side in the reader's browser."
+      script_loading: "An inline detector script in the base layout (_includes/layouts/base.tsx) lazy-imports mermaid.esm.min.mjs and svg-pan-zoom from pinned jsDelivr URLs only when document.querySelector('pre.mermaid') matches. Non-diagram pages do not fetch either library."
+      pan_zoom: "After mermaid.run() resolves, svg-pan-zoom attaches to each rendered SVG with controlIconsEnabled (visible +/- and reset buttons), drag-to-pan, fit/center on init, and mouseWheelZoomEnabled disabled (so page-scroll past a diagram doesn't trigger zoom). Re-attached after every theme-triggered re-render."
+      theme: "Theme follows document.documentElement.dataset.pfTheme; the script subscribes to MutationObserver on data-pf-theme and re-runs mermaid.initialize + mermaid.run when the reader toggles theme."
+      loader: "A spinner + 'Rendering diagram…' label is visible during render; CSS swaps to the rendered SVG once mermaid sets data-processed=true on the pre element."
+      noscript_fallback: "When JavaScript is disabled, the raw chart source and the loader are hidden via an inlined <style> in the <noscript> block, and the alt text is shown in italics."
+      pagefind: "The toMarkdown export emits '_[Diagram: {caption || alt}]_' so Pagefind indexes the alt/caption surface."
+
   multicodeblock:
     usage: "Configuration examples with YAML/JSON translation"
     required_attributes:
@@ -593,15 +696,17 @@ components:
     inline_code_example: "<comp.Annotation number=\"1\">\n\nTranslates the `alt` attribute using the key `hero.image-alt`.\n\n</comp.Annotation>"
     note: "Used with both MultiCodeBlock and CodeBlock components"
   
-  datareference:
-    usage: "List API options, configuration keys, or properties with their types and descriptions. Being phased out for schema-sourced keys — use referencedatatable instead."
+  optionstable:
+    usage: "List hand-authored API options, method parameters, or configuration keys that are not sourced from the CloudCannon schema, with their types and descriptions. For schema-sourced keys, use referencedatatable instead."
     required_attributes:
-      - "label (on each DataReferenceRow)"
-      - "type_markdown (on each DataReferenceRow)"
-    syntax: "<comp.DataReference>\n  <comp.DataReferenceRow label=\"option_name\" type_markdown=\"String\">\n    Description.\n  </comp.DataReferenceRow>\n</comp.DataReference>"
+      - "label (on each OptionsRow)"
+      - "type_markdown (on each OptionsRow)"
+    optional_attributes:
+      - "required (on each OptionsRow; boolean, renders a red Required pill next to the label)"
+    syntax: "<comp.OptionsTable>\n  <comp.OptionsRow label=\"option_name\" type_markdown=\"`string`\">\n    Description.\n  </comp.OptionsRow>\n</comp.OptionsTable>"
     rules:
       - "Use instead of markdown pipe tables for all reference content"
-      - "type_markdown accepts String, Boolean, Object, Array, or other type names"
+      - "type_markdown accepts string, boolean, Object, Array, or other type names"
       - "Inner content of each row supports markdown"
       - "Do not use for CloudCannon configuration keys covered by the schema — use referencedatatable instead"
     never_use_markdown_tables: true
@@ -622,7 +727,7 @@ components:
       - "Article tables are intentionally curated — it is acceptable to omit keys; the reference section is the exhaustive source"
       - "Do not include deprecated keys — they are documented in the reference section with the deprecation notice and recommended alternative"
       - "When a parent key links to a reference page that fully documents its children, prefer listing only the parent"
-      - "Do not mix comp.DataReference and comp.ReferenceDataTable in the same table"
+      - "Do not mix comp.OptionsTable and comp.ReferenceDataTable in the same table"
 
   glossaryterm:
     usage: "Inline glossary tooltip for terms with a glossary entry"
@@ -641,7 +746,7 @@ components:
 
 validation_rules:
   check_for:
-    - "markdown_tables_used_instead_of_datareference"
+    - "markdown_tables_used_instead_of_optionstable"
     - "passive_voice"
     - "missing_alt_text"
     - "broken_internal_links"
