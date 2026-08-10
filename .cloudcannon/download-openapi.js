@@ -5,12 +5,12 @@
 // (the cached copy) and continue the build rather than failing it.
 //
 // Override the source with OPENAPI_URL, e.g. for staging or dev:
-//   staging: https://staging-app.cloudcannon.io/api/v0/openapi.json
-//   dev:     https://dev-app.cloudcannon.com/api/v0/openapi.json
+//   staging: 'https://cdn.cloudcannon.com/openapi/staging.json',
+//   production: 'https://cdn.cloudcannon.com/openapi/production.json'
 
 const filepath = "_data/openapi.json";
 const specUrl = Deno.env.get("OPENAPI_URL") ??
-  "https://app.cloudcannon.com/api/v0/openapi.json";
+  "https://cdn.cloudcannon.com/openapi/staging.json";
 
 const useCached = (reason) => {
   console.warn(`${reason}`);
