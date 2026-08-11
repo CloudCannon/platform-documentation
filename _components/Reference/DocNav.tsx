@@ -101,7 +101,6 @@ export default function DocNav(
   register(
     pageSection("/developer-reference/sdk/", "sdk", "extension", "SDK"),
   );
-  register(pageSection("/developer-reference/cli/", "cli", "terminal", "CLI"));
   register(
     pageSection(
       "/developer-reference/permissions/",

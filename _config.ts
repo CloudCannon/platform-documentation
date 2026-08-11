@@ -55,7 +55,10 @@ import strip from "strip-markdown";
 
 import { parseChangelogFilename } from "./parseChangelogFilename.ts";
 import type { ContentNavItem, DocEntry } from "./_types.d.ts";
-import { buildRefNav } from "./developer/reference/_shared/buildRefNav.ts";
+import {
+  buildCliRefNav,
+  buildRefNav,
+} from "./developer/reference/_shared/buildRefNav.ts";
 import {
   API_BASE_PATH,
   API_SCHEMAS_BASE_PATH,
@@ -67,6 +70,7 @@ import documentation from "@cloudcannon/configuration-types/dist/documentation.j
 };
 import llmsTxt from "./_config/llms-text.ts";
 import markdownPages from "./_config/markdown-pages.ts";
+import { cliDocs } from "./developer/reference/_shared/command-line-interface.ts";
 
 // Type the documentation as nested sections (section -> gid -> entry)
 const typedDocs = documentation as unknown as Record<
@@ -121,11 +125,14 @@ const site = lume({
 });
 
 // Build precompiled reference navigation
-const refNavSections = buildRefNav(
-  configDocs,
-  routingDocs,
-  initialSiteSettingsDocs,
-);
+const refNavSections = [
+  ...buildRefNav(
+    configDocs,
+    routingDocs,
+    initialSiteSettingsDocs,
+  ),
+  buildCliRefNav(cliDocs),
+];
 
 // API reference navigation section (generated from the OpenAPI spec)
 const apiNavSection = {
