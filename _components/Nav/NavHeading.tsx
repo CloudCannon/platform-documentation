@@ -22,14 +22,16 @@ export default function NavHeading({
   return (
     <div className="t-docs-nav__heading">
       {icon}
-      <h2>{title}</h2>
+      <h2 id={`${popoverId}-heading`}>{title}</h2>
       <button
         type="button"
         className="t-docs-nav__control t-docs-nav__control--open"
         popovertarget={popoverId}
         aria-label={openLabel}
       >
-        <img src="/assets/img/expand.svg" inline="true" />
+        <span aria-hidden="true">
+          <img src="/assets/img/expand.svg" inline="true" />
+        </span>
       </button>
       <button
         type="button"
@@ -38,7 +40,9 @@ export default function NavHeading({
         popovertargetaction="hide"
         aria-label={closeLabel}
       >
-        <img src="/assets/img/close.svg" inline="true" />
+        <span aria-hidden="true">
+          <img src="/assets/img/close.svg" inline="true" />
+        </span>
       </button>
     </div>
   );

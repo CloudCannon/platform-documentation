@@ -148,10 +148,12 @@ export default function DocNav(
             href={helpers.url(sec.basePath)}
             aria-current={isActive ? "page" : undefined}
           >
-            <img
-              src={helpers.icon(`${sec.icon}:outlined`, "material")}
-              inline="true"
-            />
+            <span aria-hidden="true">
+              <img
+                src={helpers.icon(`${sec.icon}:outlined`, "material")}
+                inline="true"
+              />
+            </span>
             <span className="t-docs-nav__main-list__item__heading">
               {sec.heading}
             </span>
@@ -176,20 +178,24 @@ export default function DocNav(
               isActive ? "is-active" : ""
             }`}
           >
-            <img
-              src={helpers.icon(`${sec.icon}:outlined`, "material")}
-              inline="true"
-            />
+            <span aria-hidden="true">
+              <img
+                src={helpers.icon(`${sec.icon}:outlined`, "material")}
+                inline="true"
+              />
+            </span>
             <span className="t-docs-nav__main-list__item__heading">
               {sec.heading}
             </span>
-            <img
-              src={helpers.icon(
-                "arrow_forward_ios:outlined",
-                "material",
-              )}
-              inline="true"
-            />
+            <span aria-hidden="true">
+              <img
+                src={helpers.icon(
+                  "arrow_forward_ios:outlined",
+                  "material",
+                )}
+                inline="true"
+              />
+            </span>
           </summary>
 
           <ol className="t-docs-nav__sub-list">
@@ -239,7 +245,7 @@ export default function DocNav(
   // Renders a group heading as plain text (not a link).
   const renderGroupHeading = (group: NavGroup) => (
     <li key={`group:${group.label}`} className="t-docs-nav__group">
-      <span className="t-docs-nav__group__label">{group.label}</span>
+      <h3 className="t-docs-nav__group__label">{group.label}</h3>
     </li>
   );
 
@@ -260,11 +266,14 @@ export default function DocNav(
           }`}
           href={helpers.url(homeUrl)}
           aria-current={isActive ? "page" : undefined}
+          aria-label={`${group.label} overview`}
         >
-          <img
-            src={helpers.icon("info:outlined", "material")}
-            inline="true"
-          />
+          <span aria-hidden="true">
+            <img
+              src={helpers.icon("info:outlined", "material")}
+              inline="true"
+            />
+          </span>
           <span className="t-docs-nav__main-list__item__heading">Overview</span>
         </a>
       </li>
