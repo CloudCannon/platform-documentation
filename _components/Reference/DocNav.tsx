@@ -1,22 +1,6 @@
 import type { SectionId } from "./helpers.ts";
+import type { RefNavSection } from "../../developer/reference/_shared/buildRefNav.ts";
 import type { Comp, Helpers, PageSearch } from "../../_types.d.ts";
-
-// Precompiled reference navigation item (matches _config.ts)
-interface RefNavItem {
-  url: string;
-  name: string;
-  useCode?: boolean;
-  gid: string;
-}
-
-// Precompiled reference navigation section (matches _config.ts)
-interface RefNavSection {
-  id: SectionId;
-  heading: string;
-  icon: string;
-  basePath: string;
-  items: RefNavItem[];
-}
 
 interface DocNavProps {
   ref_nav: RefNavSection[];
@@ -343,7 +327,8 @@ export default function DocNav(
                             ? "page"
                             : undefined}
                         >
-                          {sectionHomePage.attrs?.details?.title ||
+                          {sec.homeLabel ||
+                            sectionHomePage.attrs?.details?.title ||
                             sectionHomePage.title ||
                             "Overview"}
                         </a>

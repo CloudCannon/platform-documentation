@@ -1,4 +1,5 @@
 import type { SectionId } from "../../_components/Reference/helpers.ts";
+import type { RefNavSection } from "../../developer/reference/_shared/buildRefNav.ts";
 import { slugify } from "../../_components/utils/string-util.ts";
 import type {
   Comp,
@@ -8,21 +9,6 @@ import type {
   Page,
   PageSearch,
 } from "../../_types.d.ts";
-
-// Precompiled reference navigation types (matches _config.ts)
-interface RefNavItem {
-  url: string;
-  name: string;
-  gid: string;
-}
-
-interface RefNavSection {
-  id: SectionId;
-  heading: string;
-  icon: string;
-  basePath: string;
-  items: RefNavItem[];
-}
 
 interface Props {
   content: string;
@@ -74,11 +60,14 @@ export default function ReferenceHomeLayout(
   }
 
   return (
-    <div className="l-page" x-init="showmobilenav = true"
+    <div
+      className="l-page"
+      x-init="showmobilenav = true"
       data-pagefind-body
       data-pagefind-weight="0.1"
       data-pagefind-filter="site:Reference"
-      data-pagefind-meta="site:Reference">
+      data-pagefind-meta="site:Reference"
+    >
       <comp.Layout.PagefindCategoryMeta category="Developer Reference" />
       <div className="l-column">
         <comp.Layout.NavSidebar className="developer-reference">
@@ -107,41 +96,41 @@ export default function ReferenceHomeLayout(
           </p>
 
           <div className="l-copy-page-mobile" data-pagefind-ignore>
-            <comp.CopyPageDropdown title={details?.title || ""} url={currentUrl} helpers={helpers} />
+            <comp.CopyPageDropdown
+              title={details?.title || ""}
+              url={currentUrl}
+              helpers={helpers}
+            />
           </div>
-          <comp.Layout.MobileTOC helpers={helpers} listClassName="">
-            <comp.Reference.TableOfContents entry={derivedRootEntry} section={section} />
-          </comp.Layout.MobileTOC>
+          <comp.Layout.MobileTOC helpers={helpers} />
 
           <div className="l-content-split">
             <main id="main-content">
               <div dangerouslySetInnerHTML={{ __html: content }} />
 
               {derivedRootEntry && (
-                <dl>
+                <>
                   {derivedRootEntry.description && (
                     <>
-                      <dt id="description" data-pagefind-ignore>Description:</dt>
-                      <dd>
-                        <span
-                          dangerouslySetInnerHTML={{
-                            __html: helpers.md(derivedRootEntry.description),
-                          }}
-                        />
-                      </dd>
+                      <div
+                        id="description"
+                        dangerouslySetInnerHTML={{
+                          __html: helpers.md(derivedRootEntry.description),
+                        }}
+                      />
                     </>
                   )}
 
                   {derivedRootEntry.type && (
                     <>
-                      <dt id="type" data-pagefind-ignore>Type:</dt>
-                      <dd data-pagefind-ignore>
+                      <h2 id="type" data-pagefind-ignore>Type</h2>
+                      <div data-pagefind-ignore>
                         <comp.Reference.RefType
                           doc={derivedRootEntry}
                           currentUrl={currentUrl}
                           section={section}
                         />
-                      </dd>
+                      </div>
                     </>
                   )}
 
@@ -153,14 +142,25 @@ export default function ReferenceHomeLayout(
                     withIds
                     slugify={slugify}
                   />
-                </dl>
+                </>
               )}
             </main>
 
             <aside data-pagefind-ignore className="l-right">
-              <comp.CopyPageDropdown title={details?.title || ""} url={currentUrl} helpers={helpers} />
-              <div className="l-toc" {...{ "x-on:scroll.window.throttle.50ms": "onScroll()" }}>
-                <comp.Reference.TableOfContents entry={derivedRootEntry} section={section} withHeading />
+              <comp.CopyPageDropdown
+                title={details?.title || ""}
+                url={currentUrl}
+                helpers={helpers}
+              />
+              <div
+                className="l-toc"
+                {...{ "x-on:scroll.window.throttle.50ms": "onScroll()" }}
+              >
+                <comp.Reference.TableOfContents
+                  entry={derivedRootEntry}
+                  section={section}
+                  withHeading
+                />
               </div>
             </aside>
           </div>

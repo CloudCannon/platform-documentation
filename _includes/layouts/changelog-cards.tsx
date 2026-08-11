@@ -84,7 +84,10 @@ export default async function ChangelogCardsLayout(
                       <comp.Card.Card
                         key={ci}
                         href={changelog.url}
-                        title={changelog.page?.data?.title}
+                        titleHtml={helpers.md(
+                          String(changelog.page?.data?.title || ""),
+                          true,
+                        )}
                         date={changelog.page?.data?.date || ""}
                         description={renderedTextByMonth[mi]?.[ci] || ""}
                         variant="changelog"
