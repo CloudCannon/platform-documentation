@@ -1,13 +1,10 @@
+import { type FooterNav } from "../../_components/Layout/Footer.tsx";
 import type {
   Comp,
   Details,
   HeaderNavigation,
   Helpers,
 } from "../../_types.d.ts";
-
-interface FooterNav {
-  [key: string]: unknown;
-}
 
 interface Meta {
   title?: string;
