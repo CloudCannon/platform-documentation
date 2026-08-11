@@ -7,13 +7,8 @@ Machine-readable style rules for AI agents and automated linters. These rules ar
 **For agents making updates to this file:** Also update the corresponding section in `STYLE_GUIDE.mdx` with the prose explanation and examples. Update the revision history in both files: `last_updated` and `style_guide_version` in the YAML block below, and the `Last Updated` and `Version` fields and the revision history table (Section 4) in `STYLE_GUIDE.mdx`.
 
 ```yaml
-<<<<<<< HEAD
-style_guide_version: "2.45"
-last_updated: "2026-08-04"
-=======
-style_guide_version: "2.26"
-last_updated: "2026-08-06"
->>>>>>> 28335051e864b68fdad9907085d49d170e0f76bf
+style_guide_version: "2.46"
+last_updated: "2026-08-11"
 
 documentation_architecture:
   single_source_of_truth:
