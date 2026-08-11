@@ -138,6 +138,8 @@ export interface ResponseView {
   // schema. schemaRef takes precedence when present.
   schemaRef?: SchemaTypeRef;
   rows: SchemaRow[];
+  // JSON-serialized example body, built from the response schema.
+  example?: string;
 }
 
 export interface OperationView {
@@ -627,11 +629,15 @@ function buildResponses(op: OpenApiOperation): ResponseView[] {
       const resp = resolveResponse(rawResp);
       const schema = resp.content?.["application/json"]?.schema;
       const schemaRef = namedSchemaRef(schema) ?? undefined;
+      const example = schema ? exampleValue(schema) : undefined;
       return {
         status,
         description: resp.description,
         schemaRef,
         rows: schemaRef ? [] : schemaToRows(schema),
+        example: example !== undefined
+          ? JSON.stringify(example, null, 2)
+          : undefined,
       };
     });
 }
@@ -742,6 +748,13 @@ function resourceRank(tag: string): number {
   return index === -1 ? RESOURCE_ORDER.length : index;
 }
 
+const METHOD_ORDER = ["GET", "POST", "PUT", "PATCH", "DELETE"];
+
+function methodRank(method: string): number {
+  const index = METHOD_ORDER.indexOf(method.toUpperCase());
+  return index === -1 ? METHOD_ORDER.length : index;
+}
+
 let cachedResources: ApiResource[] | null = null;
 
 function buildResources(): ApiResource[] {
@@ -774,7 +787,8 @@ function buildResources(): ApiResource[] {
 
     const operations = (byTag.get(tag) ?? []).sort((a, b) => {
       if (a.path !== b.path) return a.path.localeCompare(b.path);
-      return a.method.localeCompare(b.method);
+      const rank = methodRank(a.method) - methodRank(b.method);
+      return rank !== 0 ? rank : a.method.localeCompare(b.method);
     });
 
     resources.push({ slug, title: tag, operations });

@@ -49,11 +49,11 @@ function ApiTableOfContents(
             <a href={`#${op.id}`}>
               <span className="c-api-toc__item">
                 <span
-                  className={`c-api-toc__method c-api-toc__method--${op.method.toLowerCase()}`}
+                  className={`c-api-method c-api-method--${op.method.toLowerCase()}`}
                 >
                   {op.method}
                 </span>
-                <code className="code-no-box">{op.path}</code>
+                <span className="c-api-toc__title">{op.title}</span>
               </span>
             </a>
           </li>

@@ -261,6 +261,10 @@ export default function DocNav(
           href={helpers.url(homeUrl)}
           aria-current={isActive ? "page" : undefined}
         >
+          <img
+            src={helpers.icon("info:outlined", "material")}
+            inline="true"
+          />
           <span className="t-docs-nav__main-list__item__heading">Overview</span>
         </a>
       </li>

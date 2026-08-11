@@ -184,25 +184,43 @@ export default function ApiOperation(
           <>
             <dt>Responses:</dt>
             <dd>
-              {operation.responses.map((response) => (
-                <div className="c-api-response" key={response.status}>
-                  <div className="c-api-response__header">
-                    <span className="c-api-response__status">
-                      {response.status}
-                    </span>
-                    {response.description && (
-                      <span className="c-api-response__description">
-                        {response.description}
+              {operation.responses.map((response) => {
+                const range = /^[1-5]/.test(response.status)
+                  ? `${response.status[0]}xx`
+                  : "other";
+                return (
+                  <details
+                    className={`c-api-response c-api-response--${range}`}
+                    key={response.status}
+                  >
+                    <summary className="c-api-response__header">
+                      <span className="c-api-response__status">
+                        {response.status}
                       </span>
+                      {response.description && (
+                        <span className="c-api-response__description">
+                          {response.description}
+                        </span>
+                      )}
+                      {response.example && helpers && (
+                        <img
+                          className="c-api-response__chevron"
+                          src={helpers.icon("chevron_right:outlined", "material")}
+                          inline="true"
+                          alt=""
+                        />
+                      )}
+                    </summary>
+                    {response.example && (
+                      <div className="c-api-response__body">
+                        <comp.CodeBlock language="json" source="Response">
+                          <pre><code className="language-json">{response.example}</code></pre>
+                        </comp.CodeBlock>
+                      </div>
                     )}
-                  </div>
-                  {response.schemaRef
-                    ? <SchemaReference reference={response.schemaRef} />
-                    : response.rows.length > 0 && (
-                      <comp.Api.ApiSchema rows={response.rows} helpers={helpers} />
-                    )}
-                </div>
-              ))}
+                  </details>
+                );
+              })}
             </dd>
           </>
         )}
