@@ -14,6 +14,10 @@ interface PageData {
 }
 
 export default function* (): Generator<PageData> {
+  if (Deno.env.get("SKIP_REFERENCE")) {
+    console.log("  SKIP_REFERENCE set: skipping generated CLI reference pages");
+    return;
+  }
   for (const topLevelCommand of cliDocs.subCommands ?? []) {
     for (const command of walkCommands(topLevelCommand)) {
       yield {

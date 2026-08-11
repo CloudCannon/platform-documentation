@@ -14,6 +14,12 @@ interface SchemaPageData {
 // Generates one page per named component schema, so a schema is documented once
 // and responses/request bodies link to it rather than re-expanding it.
 export default function* (): Generator<SchemaPageData> {
+  if (Deno.env.get("SKIP_REFERENCE")) {
+    console.log(
+      "  SKIP_REFERENCE set: skipping generated API schema pages",
+    );
+    return;
+  }
   for (const schema of getApiSchemas()) {
     yield {
       url: `/developer-reference/api/schemas/${schema.slug}/`,

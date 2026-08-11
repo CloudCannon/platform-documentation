@@ -13,6 +13,10 @@ interface ApiPageData {
 
 // Generates one page per API resource (OpenAPI tag) from the vendored spec.
 export default function* (): Generator<ApiPageData> {
+  if (Deno.env.get("SKIP_REFERENCE")) {
+    console.log("  SKIP_REFERENCE set: skipping generated API reference pages");
+    return;
+  }
   for (const resource of getApiResources()) {
     yield {
       url: `/developer-reference/api/${resource.slug}/`,
