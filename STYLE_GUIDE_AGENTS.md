@@ -7,7 +7,7 @@ Machine-readable style rules for AI agents and automated linters. These rules ar
 **For agents making updates to this file:** Also update the corresponding section in `STYLE_GUIDE.mdx` with the prose explanation and examples. Update the revision history in both files: `last_updated` and `style_guide_version` in the YAML block below, and the `Last Updated` and `Version` fields and the revision history table (Section 4) in `STYLE_GUIDE.mdx`.
 
 ```yaml
-style_guide_version: "2.26"
+style_guide_version: "2.36"
 last_updated: "2026-08-06"
 
 documentation_architecture:
@@ -32,6 +32,11 @@ terminology:
         - "Visual Editor API"
         - "inEditorMode"
         - "editor-only (preview vs live Site when sentence names the environment)"
+    dataset:
+      rule: "Distinguish the CloudCannon concept from the generic term. *Dataset* (one word, capitalized, italicized) is the CloudCannon concept — structured data configured under data_config. 'data set' (two words, lowercase, not italicized) is any generic, non-CloudCannon collection of data."
+      cloudcannon_concept: "Dataset — one word; capitalize and italicize; structured data configured under data_config"
+      generic: "data set — two words, lowercase, do not italicize; a generic collection of data"
+      reference: "STYLE_GUIDE.mdx §1.3.4"
   required_terms:
     product_name: "CloudCannon"
     git_providers:
@@ -57,10 +62,13 @@ terminology:
     - "Schema"
     - "Structure"
     - "Configuration File"
+    - "Dataset"
     - "Visual Editor"
     - "Content Editor"
     - "Data Editor"
     - "Source Editor"
+    - "Data Panel"
+    - "API Object"  # the Visual Editor API object from useVersion(); generic plural "API objects" stays lowercase
     - "Collection Browser"
     - "File Browser"
     - "Sites Browser"
@@ -94,6 +102,12 @@ prohibited_phrases:
   - "easy"
   - "obviously"
   - "clearly"
+  - "powerful"
+  - "seamless"
+  - "seamlessly"
+  - "effortless"
+  - "robust"
+  - "intuitive"
 
 voice_and_tense:
   voice: "active"
@@ -124,6 +138,25 @@ voice_and_tense:
       - "The Connector detects all data-rosey-tagged elements and injects the locale switcher interface."
       - "It then connects each tagged element to its corresponding entry in the locale JSON."
     note: "Reserve internal process descriptions ('the system detects… injects… connects…') for 'How it works' subsections or reference documentation."
+  describe_dont_sell:
+    rule: "Describe what a feature or API does, plainly and accurately. Do not use marketing or value-laden language, and never claim a capability the product does not have."
+    reference: "STYLE_GUIDE.mdx §1.1.9"
+    avoid_marketing_words:
+      - "powerful"
+      - "seamless"
+      - "effortless"
+      - "robust"
+      - "intuitive"
+      - "blazing-fast"
+      - "smart"
+      - "useful"
+    correct:
+      - "Pass an Input configuration to control where the file is uploaded and which asset sources are offered."
+      - "Resolves to undefined if the file does not exist."
+    incorrect:
+      - "Pass an Input configuration to control the upload destination, filename, and allowed types."
+      - "Gracefully handles any missing file."
+    overstatement_is_a_factual_error: "Most damaging in reference and developer documentation, where readers act on the exact claim. Document only what the implementation does; trace each claim to code, configuration, or observed UI behavior before writing it."
   first_person_plural_we_exceptions:
     - article_path: "/documentation/developer-articles/what-is-the-visual-editor-api/"
       note: "Company dogfoods public Visual Editor API (see prose §2.2.5 Exception 1)"
@@ -136,6 +169,14 @@ formatting_rules:
   sentence_case_headings: true
   ui_elements_italicized: true
   code_inline_backticks: true
+
+  method_references:
+    body_prose_rule: "In body prose, refer to a method as `*.method()`. The `*` stands in for the receiver object, whose variable name is the reader's choice — never bake an example variable (like `api`) into body prose. Name the receiver in words where it matters (e.g. 'Call `*.collection()` on the API Object')."
+    matches_existing: "Consistent with `*.data.get()`, `*.items()`, `*.addEventListener()` already used across the developer API docs."
+    good_body: ["Call `*.files()` for an array of every file.", "the `*.isAPIDataset()` type guard", "await `*.items()` on the returned *Collection*"]
+    avoid_body: ["Call `api.files()`…  (bakes the example variable `api` into prose)"]
+    annotations_rule: "Annotations mirror the code they explain — use the concrete receiver shown in that code block (`api.files()`, `posts.items()`, `file.data.set()`), not `*.`. An annotation describes one specific line, so it should match that line's variable."
+    code_blocks: "Use concrete receivers in code blocks (`api.files()`, `posts.items()`, `file.data.get()`); code needs a real variable."
   
   emoji_policy:
     general: "Do not use emojis in documentation"
@@ -169,7 +210,12 @@ documentation_types:
   # - Guides (learning-oriented, like "tutorials")
   # - Glossary (reference)
   # - Changelogs (informational, not part of traditional Diátaxis)
-  
+
+  filename_matches_title:
+    rule: "An article's filename (which sets its URL slug) must be the slugified version of its details.title: lowercase, hyphens for spaces, no special characters. Title and slug must always stay in sync."
+    on_rename: "If you change a title, rename the file to match in the same change, update every link and related_articles entry pointing to it, and add a redirect in .cloudcannon/routing.json if the old URL has shipped to main."
+    exception: "Changelogs use a date-prefixed descriptive slug (MM-DD_descriptive-title.mdx), not the title."
+
   changelog:
     diataxis_category: "informational"
     purpose: "Document product changes and updates over time"
@@ -368,6 +414,7 @@ documentation_types:
           - "Content Editor"
           - "Data Editor"
           - "Source Editor"
+          - "Data Panel"
           - "App Sidebar"
           - "Site Header"
           - "Site Navigation"
@@ -380,10 +427,13 @@ documentation_types:
           - "Organization"
           - "Project"
           - "Collection"
+          - "Dataset"
+          - "Team Member"
           - "Permission Group"
           - "Schema"
           - "Structure"
           - "Configuration File"
+          - "API Object"
           - "Pull Request"
           - "Git Provider"
         features:
@@ -399,7 +449,7 @@ documentation_types:
         all_input_types: true
       
       do_not_italicize:
-        - "account, user, team member"
+        - "account, user"
         - "file, files, assets, uploads"
         - "permission (standalone)"
         - "layout, routing, markup, link"
@@ -440,11 +490,11 @@ documentation_types:
       examples:
         correct:
           - "Once you group your files into *Collections*, they appear in the *Site Navigation* for easy access."
-          - "Team members are invited to your *Organization* to collaborate on *Sites*."
-          - "Each team member has permissions assigned through *Permission Groups*."
+          - "*Team Members* are invited to your *Organization* to collaborate on *Sites*."
+          - "Each *Team Member* has permissions assigned through *Permission Groups*."
         incorrect:
           - "Collections appear in the Site Navigation."  # Should italicize CloudCannon terms
-          - "Each team member belongs to at least one Permission Group."  # Should italicize *Permission Group*
+          - "Each team member belongs to at least one Permission Group."  # Should italicize *Team Member* and *Permission Group*
     
     link_format:
       pattern: "/documentation/[user|developer]-articles/[slug]/"
@@ -562,7 +612,7 @@ components:
     naming: "Hyphenated names describing the page and state (e.g., Site-Settings-Syncing-Connected)"
 
   docsimage:
-    usage: "Illustrations, diagrams, and conceptual graphics only — being phased out for CloudCannon app images"
+    usage: "Illustrations, diagrams, conceptual graphics, and non-CloudCannon-app screenshots (external services or live Site pages) — being phased out for CloudCannon app images"
     required_attributes:
       - "path"
       - "alt"
@@ -570,7 +620,7 @@ components:
       - "type"
     use_for:
       - "Illustrations and diagrams"
-      - "Images that are not screenshots of the CloudCannon interface"
+      - "Screenshots that are not of the CloudCannon app — external services or live Site pages in a plain browser"
       - "External screenshots (assets/external_screenshots/)"
     never_use_for:
       - "Screenshots of the CloudCannon app (use comp.DocShot instead)"
@@ -685,10 +735,12 @@ components:
       - "term"
     syntax: "<comp.GlossaryTerm term=\"/user/glossary/[letter]/[term].yml\">Display Text</comp.GlossaryTerm>"
     rules:
-      - "Use on first mention of a term in an article only"
+      - "Use on first mention of a term in an article's body prose only"
       - "Term must have a corresponding YML file in user/glossary/"
       - "Replaces markdown links on first use — do not combine with markdown links"
       - "Subsequent mentions use italics instead"
+      - "Do not use inside comp.Annotation blocks — use italics for the term there instead"
+      - "Do not place the first-use glossary term inside a standard/boilerplate comp.Notice (e.g. the 'designed for advanced users' callout) when the term also appears in body prose — put it on the first body-prose mention and leave the Notice mention italicized"
       - "Display text can differ from glossary_term_name (plurals, derived forms)"
       - "Never replace an existing markdown link with a glossary term — if text is already a link, leave it as a link"
 

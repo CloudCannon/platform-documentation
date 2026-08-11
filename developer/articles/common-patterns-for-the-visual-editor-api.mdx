@@ -1,0 +1,242 @@
+---
+_schema: default
+_uuid: 7ea0a4ab-d50c-4961-9aaa-1c2ba16971ab
+_created_at: '2026-06-26 00:00:00 +0000'
+details:
+  title: Common patterns for the Visual Editor API
+  description: >-
+    Reusable patterns for the Visual Editor API, including initializing the
+    API, filtering files, debouncing re-renders, and reading the file that
+    changed from a change event in CloudCannon.
+  image: >-
+    https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+  category:
+    - Instructions
+  related_articles:
+    - _type: developer_articles
+      item: c2407e1f-4ba7-41b0-a5a3-69ac86cf3c41
+    - _type: developer_articles
+      item: 64747bc3-c130-44d1-a871-53a9caffc25f
+    - _type: developer_articles
+      item: d0c914cf-d151-4e3e-a02b-7cf017528d19
+author_notes:
+  docshots: Not applicable
+---
+<comp.Notice info_type="important">
+  The *Visual Editor API* is designed for experienced CloudCannon developers. If you need help with custom integrations or your CloudCannon setup in general, please contact our friendly [support team](/support/).
+</comp.Notice>
+
+CloudCannon's <comp.GlossaryTerm term="/user/glossary/v/visual-editor-api.yml">Visual Editor API</comp.GlossaryTerm> exposes files, <comp.GlossaryTerm term="/user/glossary/c/collection.yml">Collections</comp.GlossaryTerm>, and <comp.GlossaryTerm term="/user/glossary/d/dataset.yml">Datasets</comp.GlossaryTerm> so you can build custom integrations in the <comp.GlossaryTerm term="/user/glossary/v/visual-editor.yml">Visual Editor</comp.GlossaryTerm>. This article collects common patterns you can adapt when building those integrations.
+
+This article assumes you know how to [initialize the Visual Editor API](/documentation/developer-articles/initialize-the-visual-editor-api/) and [listen for changes](/documentation/developer-articles/listen-for-changes-with-the-visual-editor-api/). For a complete list of API objects and methods, please read our reference documentation on the [Visual Editor API](/documentation/developer-reference/visual-editor-api/).
+
+## Get the *API Object*
+
+Each pattern below assumes you have a v1 <comp.GlossaryTerm term="/user/glossary/a/api-object.yml">API Object</comp.GlossaryTerm> available as `api`. The following shows one way to obtain it. For a full explanation, please read our documentation on [initializing the Visual Editor API](/documentation/developer-articles/initialize-the-visual-editor-api/).
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+const apiPromise = new Promise((resolve) => { /*1*/
+  if (window.CloudCannonAPI) {
+    const api = window.CloudCannonAPI.useVersion('v1', true);
+    resolve(api);
+  } else {
+    document.addEventListener( /*2*/
+      'cloudcannon:load',
+      () => {
+        const api = window.CloudCannonAPI.useVersion('v1', true);
+        resolve(api);
+      },
+      { once: true }
+    );
+  }
+});
+
+(async () => { /*3*/
+  const api = await apiPromise;
+  // Custom integration code here
+})();
+```
+<comp.Annotation number="1">
+  Create a Promise that resolves with the v1 *API Object*. If `window.CloudCannonAPI` is already present when your script runs, it resolves immediately. Passing `true` as the second argument to `useVersion()` prevents the *API Object* from being assigned to `window.CloudCannon`.
+</comp.Annotation>
+<comp.Annotation number="2">
+  If the *API Object* is not present, the Promise waits for the `cloudcannon:load` event.
+</comp.Annotation>
+<comp.Annotation number="3">
+  Await `apiPromise` inside an async IIFE. The `api` variable holds the v1 *API Object* for use in your integration code.
+</comp.Annotation>
+</comp.CodeBlock>
+
+## Filter files
+
+Because `*.items()` returns an array, you can filter it using standard JavaScript. This works for *Collections* and folder-based *Datasets*.
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+const posts = api.collection('posts'); /*1*/
+const files = await posts.items(); /*2*/
+const published = []; /*3*/
+
+for (const file of files) {
+  const data = await file.data.get();
+  if (data?.published) published.push(file); /*4*/
+}
+```
+<comp.Annotation number="1">
+  Create a `posts` variable to access the `posts` *Collection*.
+</comp.Annotation>
+<comp.Annotation number="2">
+  Call `posts.items()` to get an array of file objects in the *Collection*.
+</comp.Annotation>
+<comp.Annotation number="3">
+  Create an empty array to hold the filtered results.
+</comp.Annotation>
+<comp.Annotation number="4">
+  Read the structured data for each file, and add files with a `published` field set to `true` to the results array.
+</comp.Annotation>
+</comp.CodeBlock>
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+const locales = api.dataset('locales'); /*1*/
+const files = await locales.items(); /*2*/
+const active = []; /*3*/
+
+for (const file of files) {
+  const data = await file.data.get();
+  if (data?.active) active.push(file); /*4*/
+}
+```
+<comp.Annotation number="1">
+  Create a `locales` variable to access the `locales` *Dataset*. This example assumes the *Dataset* is configured as a folder, so `locales.items()` returns an array.
+</comp.Annotation>
+<comp.Annotation number="2">
+  Call `locales.items()` to get an array of file objects in the *Dataset*.
+</comp.Annotation>
+<comp.Annotation number="3">
+  Create an empty array to hold the filtered results.
+</comp.Annotation>
+<comp.Annotation number="4">
+  Read the structured data for each file, and add files with an `active` field set to `true` to the results array.
+</comp.Annotation>
+</comp.CodeBlock>
+
+## Re-render when data changes
+
+A common pattern is to re-render your integration whenever data changes. Listening for both `change` and `delete` events keeps your integration in sync regardless of what the <comp.GlossaryTerm term="/user/glossary/t/team-member.yml">Team Member</comp.GlossaryTerm> does.
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+const refresh = async () => { /*1*/
+  const file = api.currentFile();
+  const data = await file.data.get();
+  renderPreview(data);
+};
+
+api.addEventListener('change', refresh); /*2*/
+api.addEventListener('delete', refresh); /*3*/
+```
+<comp.Annotation number="1">
+  Define a `refresh` function that reads the current file's data and re-renders your integration. `renderPreview` is a placeholder for whatever rendering your integration does, such as updating a live preview or refreshing a component tree.
+</comp.Annotation>
+<comp.Annotation number="2">
+  Call `refresh` whenever data is created or updated.
+</comp.Annotation>
+<comp.Annotation number="3">
+  Call `refresh` whenever a file is deleted. This handles cases where the current file is removed while open in the *Visual Editor*.
+</comp.Annotation>
+</comp.CodeBlock>
+
+## Debounce a re-render
+
+If your integration re-renders frequently (for example, on every keystroke), debounce the handler to avoid unnecessary work.
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+const debounce = (fn, ms) => { /*1*/
+  let timer;
+  return (...args) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn(...args), ms);
+  };
+};
+
+const refresh = debounce(async () => { /*2*/
+  const file = api.currentFile();
+  const data = await file.data.get();
+  renderPreview(data);
+}, 200);
+
+api.addEventListener('change', refresh);
+```
+<comp.Annotation number="1">
+  A simple debounce utility that delays execution until the function stops being called for a given number of milliseconds.
+</comp.Annotation>
+<comp.Annotation number="2">
+  Wrap `refresh` with `debounce()` so it only fires after 200ms of inactivity, rather than on every individual change event.
+</comp.Annotation>
+</comp.CodeBlock>
+
+## Read the file that changed
+
+`change` events on the *API Object* and on a *Collection* or *Dataset* include `event.detail.sourcePath`, the path of the file that changed, and `event.detail.isNew`, which is `true` for newly created files. Use `sourcePath` to load the file that changed and read its data. File level events fire for a single, known file, so they do not include `sourcePath`.
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+api.addEventListener('change', async (event) => { /*1*/
+  const pathToChangedFile = event.detail.sourcePath; /*2*/
+  const changedFileIsNew = event.detail.isNew; /*3*/
+
+  const file = api.file(pathToChangedFile); /*4*/
+  const newFileContent = await file.data.get();
+  console.log(newFileContent);
+});
+```
+<comp.Annotation number="1">
+  Listen for `change` events across your entire *Site*. Mark the callback `async` so you can await file methods inside it.
+</comp.Annotation>
+<comp.Annotation number="2">
+  `event.detail.sourcePath` is the path of the file that changed, relative to your *Site* root.
+</comp.Annotation>
+<comp.Annotation number="3">
+  `event.detail.isNew` is `true` when the file was newly created, and `false` when an existing file was updated.
+</comp.Annotation>
+<comp.Annotation number="4">
+  Pass `sourcePath` to `api.file()` to load the file that changed, then read its data with `file.data.get()`.
+</comp.Annotation>
+</comp.CodeBlock>
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+const posts = api.collection('posts'); /*1*/
+
+posts.addEventListener('change', (event) => { /*2*/
+  const pathToChangedFile = event.detail.sourcePath;
+  const changedFileIsNew = event.detail.isNew;
+});
+```
+<comp.Annotation number="1">
+  Create a `posts` variable to access the `posts` *Collection*. *Dataset* events carry the same `detail` fields.
+</comp.Annotation>
+<comp.Annotation number="2">
+  As with root level events, `event.detail.sourcePath` is the path of the file that changed, and `event.detail.isNew` is `true` for newly created files and `false` for updates.
+</comp.Annotation>
+</comp.CodeBlock>
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+const file = api.currentFile(); /*1*/
+
+file.addEventListener('change', async (event) => { /*2*/
+  const newFileContent = await file.data.get();
+  console.log(newFileContent);
+});
+```
+<comp.Annotation number="1">
+  Create a `file` variable to access the file currently open in the *Visual Editor*.
+</comp.Annotation>
+<comp.Annotation number="2">
+  File level events fire for one known file, so they do not include `event.detail.sourcePath`. Because you already have the `file` reference, read its data directly with `file.data.get()`.
+</comp.Annotation>
+</comp.CodeBlock>

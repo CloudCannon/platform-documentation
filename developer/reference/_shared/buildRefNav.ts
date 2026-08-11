@@ -40,7 +40,7 @@ function getNavDisplayName(
 // Build precompiled reference navigation items for a section
 function buildRefNavItems(
   docs: DocEntry[],
-  sectionId: SectionId,
+  sectionId: string,
 ): RefNavItem[] {
   const properties = docs.find((doc) => doc.gid === sectionId)?.properties ||
     {};
@@ -95,6 +95,7 @@ export function buildRefNav(
   configDocs: DocEntry[],
   routingDocs: DocEntry[],
   initialSiteSettingsDocs: DocEntry[],
+  veapiDocs: DocEntry[],
 ): RefNavSection[] {
   return [
     {
@@ -120,6 +121,13 @@ export function buildRefNav(
         initialSiteSettingsDocs,
         "type.InitialSiteSettings",
       ),
+    },
+    {
+      id: "type.VisualEditorAPI",
+      heading: "Visual Editor API",
+      icon: "code",
+      basePath: "/developer-reference/visual-editor-api/",
+      items: buildRefNavItems(veapiDocs, "type.VisualEditorAPI.objects"),
     },
   ];
 }

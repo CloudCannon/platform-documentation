@@ -5,7 +5,8 @@ export type SectionId =
   | "type.Configuration"
   | "type.Routing"
   | "type.InitialSiteSettings"
-  | "cli";
+  | "cli"
+  | "type.VisualEditorAPI";
 
 // Base URL for all reference pages (entry.url already includes section path)
 const DEVELOPER_REFERENCE_BASE = "/documentation/developer-reference";

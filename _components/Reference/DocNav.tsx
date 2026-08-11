@@ -76,14 +76,6 @@ export default function DocNav(
   );
   register(
     pageSection(
-      "/developer-reference/visual-editor-api/",
-      "visual-editor-api",
-      "dashboard_customize",
-      "Visual Editor API",
-    ),
-  );
-  register(
-    pageSection(
       "/developer-reference/schemas/",
       "schemas",
       "data_object",
@@ -120,7 +112,7 @@ export default function DocNav(
         "type.InitialSiteSettings",
         "type.Routing",
         "editable-regions",
-        "visual-editor-api",
+        "type.VisualEditorAPI",
         "schemas",
         "typescript",
       ],
