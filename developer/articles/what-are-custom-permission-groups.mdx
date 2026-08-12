@@ -61,7 +61,13 @@ How CloudCannon checks a file glob you grant depends on the scope of the permiss
 
 Exceptions make this check stricter. If an exception limits your file access, you cannot grant file globs for that action — even globs the exception does not touch. At Site scope, this only applies to exceptions affecting that Site; at Project or Global scope, any exception applies. Exceptions themselves can contain file globs at any scope, as they only remove access.
 
-Removing a permission or exception is checked the same way whenever it would widen access. Deleting an exception restores the access it was carving out, and deleting a file glob on a permission can expose a broader unrestricted permission, so CloudCannon requires you to hold the underlying resource at that scope before you can remove one. Deleting a plain permission only narrows access and is always allowed.
+Let’s walk through an example.
+
+We want to create a *Permission Group* that allows *Team Members* to add new *Sites* to the *Organization* (which they can then see and edit), but does not allow them to see any existing  *Sites* in the *Organization*. This type of *Permission Group* might work well to keep teams within your *Organization* from accessing each other’s content.
+
+When we create the *Permission Group*, we can add a *Permission* that omits `site:read`, preventing *Team Members* from seeing existing *Sites* in the *Organization*, but includes `site:create`.
+
+All create actions allow you to create new instances of a resource and then read and write to it. In this example, CloudCannon automatically grants the `site:read` and `site:write` permissions for all *Sites* created using `site:create`. CloudCannon adds these new permissions to each *Custom Permission Group* that gave you permission to create it, and all members of those *Groups* can then access and edit that *Site*.
 
 For more information, including a complete list of resources available, please read our [permissions](/documentation/developer-reference/permissions/) reference documentation.
 
@@ -77,10 +83,9 @@ With Custom Permission Groups, you can set a permission at one of five scopes: G
 * **Group** — This scope encompasses a specific Group (e.g., the resource `group:member:write` with a Group scope will allow all members of the Permission Group to edit the members of a specific Group).
 * **Base Domain** — This scope encompasses a specific Base Domain (e.g., the resource `base-domain:settings:dns:write` with a Domain scope will allow all members of the Permission Group to edit DNS records for a specific domain).
 
-Custom Permission Groups can include permissions with different scopes. For example, you might want to create a Group that can approve Pull Requests for a specific Project and manage the Domain associated with one Site in that Project. This Permission Group would contain two permissions: one with a Project scope and the resource `site:publish:pull-request:merge:write`, and one with a Base Domain scope and the resource `base-domain:write`.
+*Custom Permission Groups* can include permissions with different *Scopes*. For example, you might want to create a *Group* that can approve *Pull Requests* for a specific *Project* and manage the *Custom Domain* associated with one *Site* in that *Project*. This *Permission Group* would contain two permissions: one with a *Project* scope and the resource `site:publish:pull-request:merge:write`, and one with a *Base Domain* scope and the resource `base-domain:write`.
 
-Scope also applies to the create action. For example, the resource `site:create` with a Project scope will allow members of the Permission Group to create new Sites within the chosen Project, but not elsewhere in your Organization. Likewise, an exception for `site:create` scoped to a Project prevents members from creating Sites in that Project without affecting the rest of your Organization.
-
+*Scopes* can also have *Exceptions*. For example, you might want a *Group* to be able to create *Sites* across your *Organization*, except for in one *Project*. An *Exception* for `site:create` scoped to a *Project*, combined with a Global scope `site:create` *Permission* can accomplish this.
 When you select Project, Site, Group, or Base Domain as a scope, CloudCannon will prompt you to select the Target of that scope.
 
 * **Target** — Which instance you want a scope to pertain to (e.g., name the specific Site or Permission Group).
