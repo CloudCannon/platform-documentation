@@ -255,14 +255,13 @@ const veapiDocs: DocEntry[] = Object.values(
       const opUrl = `${resourceUrl}#${op.id}`;
       if (!seenUrls.has(opUrl)) {
         seenUrls.add(opUrl);
-        const method = op.method.toLowerCase();
-        const opPath = op.path.toLowerCase();
-        const opPathNorm = opPath.replace(/[/{}_-]/g, " ").replace(/\s+/g, " ")
-          .trim();
-        // Parameter and body-key names are emitted below as their own filter
-        // items, so they're kept OUT of the operation's keywords — otherwise
-        // searching a key name would match both the operation and the key.
-        const keywords = `${method} ${opPath} ${opPathNorm}`;
+        // HTTP method is the only extra keyword: URL path was originally in
+        // keywords so users could search a fragment like "GET /dams", but that
+        // also matched every operation under a resource for the resource's own
+        // slug ("site" hit every /sites/... operation). Parameter and body-key
+        // names are emitted below as their own filter items, so URL matching
+        // is now redundant — everything worth finding has its own row.
+        const keywords = op.method.toLowerCase();
         items.push({
           name: op.title,
           url: opUrl,

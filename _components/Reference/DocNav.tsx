@@ -396,7 +396,7 @@ export default function DocNav(
                     // Collapse a single-item group whose sole item echoes the
                     // parent name into a flat link — searching e.g. "site:*"
                     // in Permissions would otherwise force a click into every
-                    // "1 match" accordion just to reveal the same text as the
+                    // "1 found" accordion just to reveal the same text as the
                     // link inside.
                     const flatSingle = items.length === 1 && items[0].name === parent.name;
                     return {
@@ -481,16 +481,6 @@ export default function DocNav(
                     <template x-if="!parent.flatSingle">
                       <details x-bind:open="parent.hasCurrent">
                         <summary className="t-docs-nav__filter-group-heading">
-                          <svg
-                            aria-hidden="true"
-                            className="t-docs-nav__filter-group-chevron"
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="16"
-                            height="16"
-                            viewBox="0 0 24 24"
-                          >
-                            <path d="M10 6 8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6-6-6z" />
-                          </svg>
                           <span className="t-docs-nav__filter-group-name">
                             <code
                               x-show="parent.useCode"
@@ -501,8 +491,18 @@ export default function DocNav(
                           </span>
                           <span
                             className="t-docs-nav__filter-group-count"
-                            x-text="parent.items.length + (parent.items.length === 1 ? ' match' : ' matches')"
+                            x-text="parent.items.length + ' found'"
                           ></span>
+                          <svg
+                            aria-hidden="true"
+                            className="t-docs-nav__filter-group-chevron"
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                          >
+                            <path d="M10 6 8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6-6-6z" />
+                          </svg>
                         </summary>
                         <ol className="t-docs-nav__sub-list">
                           <template
@@ -526,7 +526,7 @@ export default function DocNav(
                                   x-text="item.display"
                                 ></span>
                                 <span
-                                  x-show="item.context"
+                                  x-show="item.context && item.context !== parent.name"
                                   className="t-docs-nav__filter-context"
                                   x-text="item.context"
                                 ></span>
