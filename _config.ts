@@ -186,6 +186,12 @@ const veapiDocs: DocEntry[] = Object.values(
       const segments = rest.split("/").filter(Boolean);
       const name = e.title || e.key ||
         segments[segments.length - 1] || "unknown";
+      // Middle segments (between the parent group heading and the leaf) act
+      // as a "where does this live" breadcrumb — helpful when the same leaf
+      // name (e.g. "block") shows up under different sub-paths in the same
+      // section. Empty for top-level items and for direct children of the
+      // parent group (nothing useful to add there).
+      const middle = segments.slice(1, -1).join(".");
       items.push({
         name,
         url,
@@ -194,6 +200,7 @@ const veapiDocs: DocEntry[] = Object.values(
         parent: segments[0] || name,
         depth: Math.max(segments.length - 1, 0),
         useCode: !e.title,
+        context: middle || undefined,
       });
     }
   }

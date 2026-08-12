@@ -393,12 +393,20 @@ export default function DocNav(
                           return normalized === currentUrl;
                         })(),
                       }));
-                    // Collapse a single-item group whose sole item echoes the
-                    // parent name into a flat link — searching e.g. "site:*"
-                    // in Permissions would otherwise force a click into every
-                    // "1 found" accordion just to reveal the same text as the
-                    // link inside.
-                    const flatSingle = items.length === 1 && items[0].name === parent.name;
+                    // Collapse a single-item group into a flat link ONLY when
+                    // the item has no distinctive context to lose:
+                    //   - item.name === parent.name (Permission-style)
+                    //   - item.context === parent.name (API schema key —
+                    //     context is the schema name, same as heading)
+                    //   - item has no context at all
+                    // When the item carries a specific context that DIFFERS
+                    // from the parent (e.g. an API body-key whose context is
+                    // its operation title like "Update a group's name…"),
+                    // keep the accordion so that context still renders under
+                    // the item — flattening would drop it.
+                    const only = items[0];
+                    const flatSingle = items.length === 1 &&
+                      (!only.context || only.context === parent.name);
                     return {
                       name: parent.name,
                       useCode: parent.useCode,
@@ -470,12 +478,20 @@ export default function DocNav(
                       >
                         <span className="t-docs-nav__filter-group-name">
                           <code
-                            x-show="parent.useCode"
+                            x-show="parent.items[0].useCode"
                             className="code-no-box"
-                            x-text="parent.name"
+                            x-text="parent.items[0].display"
                           ></code>
-                          <span x-show="!parent.useCode" x-text="parent.name"></span>
+                          <span
+                            x-show="!parent.items[0].useCode"
+                            x-text="parent.items[0].display"
+                          ></span>
                         </span>
+                        <span
+                          x-show="parent.items[0].name !== parent.name"
+                          className="t-docs-nav__filter-context"
+                          x-text="parent.name"
+                        ></span>
                       </a>
                     </template>
                     <template x-if="!parent.flatSingle">
