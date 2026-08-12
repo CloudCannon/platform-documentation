@@ -667,7 +667,7 @@ export default function markdownPages() {
         if (url === "/changelog/") continue;
         if (page.data.published === false) continue;
 
-        const layout = page.data.layout as string | undefined;
+        const layout = page.data.layout;
 
         // Skip navigational listing pages
         if (

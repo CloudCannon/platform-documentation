@@ -128,15 +128,17 @@ function AppearsIn({
 
   return (
     <>
-      <dt id="appears-in" data-pagefind-ignore>Appears in:</dt>
-      <dd data-pagefind-ignore>
+      <h2 id="appears-in" data-pagefind-ignore class="exclude-from-toc">
+        Appears in
+      </h2>
+      <div data-pagefind-ignore>
         <comp.InteractiveTree
           nodes={nodes}
           helpers={helpers}
           defaultOpen
           iconMode="key"
         />
-      </dd>
+      </div>
     </>
   );
 }
@@ -171,108 +173,111 @@ export default function ReferenceContent({
         </comp.Notice>
       )}
 
-      <dl>
-        {showDescription && (
-          <>
-            <dt id="description" data-pagefind-ignore>Description:</dt>
-            <dd>
-              {entry.description && (
-                <span
+      {showDescription && (
+        <>
+          {entry.description && (
+            <div
+              id="description"
+              dangerouslySetInnerHTML={{
+                __html: helpers.md(entry.description),
+              }}
+            />
+          )}
+        </>
+      )}
+
+      {showAppearsIn && (
+        <AppearsIn
+          comp={comp}
+          doc={entry}
+          section={section}
+          helpers={helpers}
+        />
+      )}
+
+      {!entry.anyOf?.length && (
+        <>
+          <h2 id="type" data-pagefind-ignore class="exclude-from-toc">Type</h2>
+          <p data-pagefind-ignore>
+            <comp.Reference.RefType
+              doc={entry}
+              currentUrl={currentUrl}
+              section={section}
+            />
+          </p>
+        </>
+      )}
+
+      {entry.default !== undefined && (
+        <>
+          <h2 id="default-value" data-pagefind-ignore class="exclude-from-toc">
+            Default value
+          </h2>
+          <p data-pagefind-ignore>
+            <code>{String(entry.default)}</code>
+          </p>
+        </>
+      )}
+
+      {entry.enum?.length && entry.enum.length > 0 && (
+        <>
+          <h2 id="allowed-values" data-pagefind-ignore class="exclude-from-toc">
+            Allowed values
+          </h2>
+          {entry.enum.map((val, i) => (
+            <div key={i} data-pagefind-ignore>
+              <code>{val}</code>
+            </div>
+          ))}
+        </>
+      )}
+
+      <comp.Reference.PropertiesTable
+        entry={entry}
+        currentUrl={currentUrl}
+        section={section}
+        helpers={helpers}
+        withIds
+        slugify={slugify}
+      />
+      {showExamples && examples.length > 0 && (
+        <>
+          <h2 id="examples" class="exclude-from-toc">Examples</h2>
+          {examples.map((example, i) => (
+            <div key={i}>
+              {example.description && (
+                <div
                   dangerouslySetInnerHTML={{
-                    __html: helpers.md(entry.description),
+                    __html: helpers.md(example.description),
                   }}
                 />
               )}
-            </dd>
-          </>
-        )}
-
-        {showAppearsIn && (
-          <AppearsIn
-            comp={comp}
-            doc={entry}
-            section={section}
-            helpers={helpers}
-          />
-        )}
-
-        {!entry.anyOf?.length && (
-          <>
-            <dt id="type" data-pagefind-ignore>Type:</dt>
-            <dd data-pagefind-ignore>
-              <comp.Reference.RefType doc={entry} currentUrl={currentUrl} section={section} />
-            </dd>
-          </>
-        )}
-
-        {entry.default !== undefined && (
-          <>
-            <dt id="default-value" data-pagefind-ignore>Default value:</dt>
-            <dd data-pagefind-ignore>
-              <code>{String(entry.default)}</code>
-            </dd>
-          </>
-        )}
-
-        {entry.enum?.length && entry.enum.length > 0 && (
-          <>
-            <dt id="allowed-values" data-pagefind-ignore>Allowed values:</dt>
-            {entry.enum.map((val, i) => (
-              <dd key={i} data-pagefind-ignore>
-                <code>{val}</code>
-              </dd>
-            ))}
-          </>
-        )}
-
-        <comp.Reference.PropertiesTable
-          entry={entry}
-          currentUrl={currentUrl}
-          section={section}
-          helpers={helpers}
-          withIds
-          slugify={slugify}
-        />
-
-        {showExamples && (
-          <>
-            <dt id="examples">Examples:</dt>
-            {examples.map((example, i) => (
-              <dd key={i}>
-                {example.description && (
-                  <div
-                    dangerouslySetInnerHTML={{
-                      __html: helpers.md(example.description),
-                    }}
-                  />
-                )}
-                <comp.MultiCodeBlock
-                  language={example.language || "yaml"}
-                  source={example.source || "cloudcannon.config.yml"}
-                  translate_into={(!example.language ||
-                      example.language === "yaml")
-                    ? ["json"]
-                    : []}
-                >
-                  <pre>
+              <comp.MultiCodeBlock
+                language={example.language || "yaml"}
+                source={example.source || "cloudcannon.config.yml"}
+                translate_into={(!example.language ||
+                    example.language === "yaml")
+                  ? ["json"]
+                  : []}
+              >
+                <pre>
                   <code className={`language-${example.language || "yaml"}`}>
                     {example.code}
                   </code>
-                  </pre>
-                  {example.annotations?.map((annotation, j) => (
-                    <comp.Annotation
-                      key={j}
-                      number={annotation.number || 0}
-                      contentHtml={helpers.md(annotation.content || "")}
-                    >
-                    </comp.Annotation>
-                  ))}
-                </comp.MultiCodeBlock>
-              </dd>
-            ))}
-          </>
-        )}
-      </dl>
+                </pre>
+                {example.annotations?.map((annotation, j) => (
+                  <comp.Annotation
+                    key={j}
+                    number={annotation.number || 0}
+                    contentHtml={helpers.md(annotation.content || "")}
+                  >
+                  </comp.Annotation>
+                ))}
+              </comp.MultiCodeBlock>
+            </div>
+          ))}
+        </>
+      )}
     </>
   );
 }
