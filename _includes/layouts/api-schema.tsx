@@ -81,7 +81,11 @@ export default function ApiSchemaLayout(
 
           <main id="main-content">
             {schema.description && <p>{schema.description}</p>}
-            <comp.Api.ApiSchema rows={schema.rows} helpers={helpers} />
+            <comp.Api.ApiSchema
+              rows={schema.rows}
+              helpers={helpers}
+              idPrefix={schema.slug}
+            />
           </main>
         </div>
       </div>

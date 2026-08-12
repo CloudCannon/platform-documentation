@@ -626,3 +626,234 @@
     background: linear-gradient(to top, var(--background), transparent 70%);
   }
 }
+
+// Reference sidebar: filter input + client-side filtered results
+.t-docs-nav__filter-scope {
+  display: contents;
+
+  [x-cloak] {
+    display: none !important;
+  }
+}
+
+.t-docs-nav__filter {
+  padding: 0 0 8px;
+
+  &-input-wrap {
+    position: relative;
+  }
+
+  &-icon {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--changelog-content);
+    pointer-events: none;
+
+    svg {
+      margin-top: 1px; // Nudge for optical centering
+    }
+  }
+
+  &-input {
+    width: 100%;
+    // Reserve room on the left for the icon and on the right for the clear button.
+    padding: 8px 36px 8px;
+    border: var(--border-width) solid var(--button-border);
+    border-radius: var(--border-radius);
+    background: var(--background);
+    color: var(--text);
+    font: inherit;
+    font-size: var(--font-size-x-small);
+    box-sizing: border-box;
+
+    &::placeholder {
+      color: var(--changelog-content);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--selected-blue);
+      outline-offset: -2px;
+    }
+
+    // Hide native search clear button — we render our own for a bigger
+    // click target and cross-browser consistency (Firefox has no native one).
+    &::-webkit-search-cancel-button {
+      -webkit-appearance: none;
+      display: none;
+    }
+  }
+
+  &-clear {
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 100%;
+    width: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    background: none;
+    border: none;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    color: var(--changelog-content);
+
+    &:hover {
+      color: var(--text);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--selected-blue);
+      outline-offset: -2px;
+    }
+  }
+}
+
+.t-docs-nav__filter-results {
+  padding-bottom: 8px;
+}
+
+.t-docs-nav__filter-group {
+  margin-bottom: 16px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.t-docs-nav__filter-group-heading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 6px;
+  border-radius: 4px;
+  font-size: var(--font-size-x-small);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text);
+  cursor: pointer;
+  list-style: none;
+
+  &::-webkit-details-marker {
+    display: none;
+  }
+
+  &:hover {
+    background: var(--background-footer);
+  }
+}
+
+.t-docs-nav__filter-group-chevron {
+  flex-shrink: 0;
+  transition: transform 0.15s ease;
+  fill: currentColor;
+}
+
+.t-docs-nav__filter-group > details[open] > .t-docs-nav__filter-group-heading > .t-docs-nav__filter-group-chevron {
+  transform: rotate(90deg);
+}
+
+.t-docs-nav__filter-group-heading--flat {
+  text-decoration: none;
+  // Offset the whole row (via margin, not padding) so the hover highlight is
+  // the same shape as the accordion siblings — just shifted right by the
+  // chevron + gap it doesn't have (16 + 8 = 24px).
+  margin-left: 24px;
+
+  &.active {
+    color: var(--selected-blue);
+  }
+}
+
+.t-docs-nav__filter-group-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.t-docs-nav__filter-group-count {
+  margin-left: auto;
+  font-size: var(--font-size-xxx-small);
+  font-weight: var(--font-weight-normal);
+  color: var(--changelog-content);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.t-docs-nav__filter-row {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 4px 6px;
+  border-radius: 4px;
+
+  &:hover {
+    background: var(--background-footer);
+  }
+
+  li.active > & {
+    color: var(--selected-blue);
+    font-weight: var(--font-weight-bold);
+  }
+}
+
+.t-docs-nav__filter-path {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--changelog-content);
+  font-size: var(--font-size-x-small);
+
+  li.active > .t-docs-nav__filter-row & {
+    color: var(--selected-blue);
+  }
+}
+
+.t-docs-nav__filter-context {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-secondary);
+  font-size: var(--font-size-xxx-small);
+  font-weight: var(--font-weight-normal);
+}
+
+.t-docs-nav__filter-section {
+  margin-bottom: 20px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.t-docs-nav__filter-section-heading {
+  font-size: var(--font-size-xx-small);
+  font-weight: var(--font-weight-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-secondary);
+  margin: 0 0 8px;
+  padding: 0 2px;
+}
+
+.t-docs-nav__filter-empty {
+  padding: 8px 4px;
+  color: var(--changelog-content);
+  font-size: var(--font-size-x-small);
+  margin: 0;
+
+  strong {
+    color: var(--text);
+    font-weight: var(--font-weight-semibold);
+  }
+}

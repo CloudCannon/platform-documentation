@@ -22,10 +22,11 @@ function SchemaReference({ reference }: { reference: SchemaTypeRef }) {
 // Renders a labelled group of parameters as a dt/dd pair, matching the
 // configuration reference's c-data-reference layout.
 function Parameters(
-  { title, params, helpers }: {
+  { title, params, helpers, idPrefix }: {
     title: string;
     params: ParameterView[];
     helpers?: Helpers;
+    idPrefix?: string;
   },
 ) {
   if (!params.length) return null;
@@ -36,9 +37,10 @@ function Parameters(
         {params.map((param) => {
           const enumValues = (param.enumValues ?? []).slice(0, MAX_ENUM_VALUES);
           const enumMore = (param.enumValues?.length ?? 0) - enumValues.length;
+          const rowId = idPrefix ? `${idPrefix}--${param.name}` : undefined;
           return (
             <div className="c-data-reference__item" key={`${param.in}-${param.name}`}>
-              <div className="c-data-reference__header">
+              <div className="c-data-reference__header" id={rowId}>
                 <span className="c-data-reference__key">
                   <code className="code-no-box">{param.name}</code>
                 </span>
@@ -130,31 +132,37 @@ export default function ApiOperation(
           title="Path parameters"
           params={operation.pathParams}
           helpers={helpers}
+          idPrefix={operation.id}
         />
         <Parameters
           title="Filters"
           params={operation.filterParams}
           helpers={helpers}
+          idPrefix={operation.id}
         />
         <Parameters
           title="Sorting"
           params={operation.sortParams}
           helpers={helpers}
+          idPrefix={operation.id}
         />
         <Parameters
           title="Pagination"
           params={operation.paginationParams}
           helpers={helpers}
+          idPrefix={operation.id}
         />
         <Parameters
           title="Query parameters"
           params={operation.queryParams}
           helpers={helpers}
+          idPrefix={operation.id}
         />
         <Parameters
           title="Header parameters"
           params={operation.headerParams}
           helpers={helpers}
+          idPrefix={operation.id}
         />
 
         {(operation.requestSchemaRef || operation.requestRows.length > 0) && (
@@ -167,6 +175,7 @@ export default function ApiOperation(
                   <comp.Api.ApiSchema
                     rows={operation.requestRows}
                     helpers={helpers}
+                    idPrefix={operation.id}
                   />
                 )}
             </dd>

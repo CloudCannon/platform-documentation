@@ -169,6 +169,7 @@ export default function BaseLayout(props: Props, helpers: Helpers) {
           type="module"
           defer
         />
+        <script src="/documentation/assets/js/reference-nav-data.js" defer />
         <script src="/documentation/assets/js/site.js" type="text/javascript" defer />
         <script
           type="module"

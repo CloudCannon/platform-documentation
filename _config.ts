@@ -63,8 +63,14 @@ import {
   API_BASE_PATH,
   API_SCHEMAS_BASE_PATH,
   getApiResources,
+  getApiSchemas,
 } from "./developer/reference/api/_shared/openapi.ts";
 import { buildVeapiDocs, VEAPI_SECTION } from "./_lib/veapi-docs.ts";
+import {
+  cliCommandPath,
+  cliCommandUrl,
+  walkCommands,
+} from "./developer/reference/_shared/command-line-interface.ts";
 
 import documentation from "@cloudcannon/configuration-types/dist/documentation.json" with {
   type: "json",
@@ -100,6 +106,305 @@ const configDocs: DocEntry[] = Object.values(
 const veapiDocs: DocEntry[] = Object.values(
   typedDocs[VEAPI_SECTION] ?? {},
 );
+
+// Pre-compute the flat reference-nav items array for the sidebar filter, once
+// at build time. Written to a static JS file that assigns to window.__refNavItems.
+// Avoids embedding ~100KB of JSON in the x-data attribute of every reference
+// page (~700 pages), which was blowing the build's V8 heap during processing.
+{
+  const sectionInfo: Array<[string, string, string]> = [
+    ["type.Configuration", "Configuration File", "/configuration-file/"],
+    ["type.Routing", "Routing File", "/routing-file/"],
+    [
+      "type.InitialSiteSettings",
+      "Initial Site Settings File",
+      "/initial-site-settings-file/",
+    ],
+    ["type.VisualEditorAPI", "Visual Editor API", "/visual-editor-api/"],
+  ];
+
+  // Utility pages that live under /developer-reference/ but aren't schema-derived.
+  const utilityPages: Array<{ url: string; title: string }> = [
+    { url: "/developer-reference/", title: "Developer Reference" },
+    {
+      url: "/developer-reference/editable-regions/",
+      title: "Editable Regions",
+    },
+    { url: "/developer-reference/permissions/", title: "Permissions" },
+    { url: "/developer-reference/schemas/", title: "JSON Schemas" },
+    { url: "/developer-reference/typescript/", title: "TypeScript Types" },
+    {
+      url: "/developer-reference/visual-editor-api/",
+      title: "Visual Editor API",
+    },
+    { url: "/developer-reference/cli/", title: "CLI" },
+    { url: "/developer-reference/sdk/", title: "SDK" },
+    { url: "/developer-reference/api/", title: "API" },
+  ];
+
+  const basePath = "/documentation";
+  const seenUrls = new Set<string>();
+  const items: Array<{
+    name: string;
+    url: string;
+    section: string;
+    path: string;
+    parent: string;
+    depth: number;
+    useCode: boolean;
+  }> = [];
+
+  for (const p of utilityPages) {
+    const url = `${basePath}${p.url}`;
+    if (seenUrls.has(url)) continue;
+    seenUrls.add(url);
+    items.push({
+      name: p.title,
+      url,
+      section: p.title,
+      path: p.title,
+      parent: p.title,
+      depth: 0,
+      useCode: false,
+    });
+  }
+
+  for (const [sectionId, sectionHeading, sectionPathPrefix] of sectionInfo) {
+    const entries = typedDocs[sectionId] ?? {};
+    for (const [gid, entry] of Object.entries(entries)) {
+      if (gid === sectionId) continue;
+      // deno-lint-ignore no-explicit-any
+      const e = entry as any;
+      if (!e.url) continue;
+      const url = `${basePath}/developer-reference${e.url}`;
+      if (seenUrls.has(url)) continue;
+      seenUrls.add(url);
+      const rest = String(e.url).replace(sectionPathPrefix, "").replace(
+        /\/$/,
+        "",
+      );
+      const segments = rest.split("/").filter(Boolean);
+      const name = e.title || e.key ||
+        segments[segments.length - 1] || "unknown";
+      items.push({
+        name,
+        url,
+        section: sectionHeading,
+        path: segments.join("."),
+        parent: segments[0] || name,
+        depth: Math.max(segments.length - 1, 0),
+        useCode: !e.title,
+      });
+    }
+  }
+
+  // CLI: every documented subcommand is a searchable command name.
+  for (const command of walkCommands(cliDocs)) {
+    const segments = cliCommandPath(command);
+    if (!segments.length) continue;
+    const url = `${basePath}${cliCommandUrl(command)}`;
+    if (seenUrls.has(url)) continue;
+    seenUrls.add(url);
+    const name = segments.join(" ");
+    items.push({
+      name,
+      url,
+      section: "CLI",
+      path: name,
+      parent: segments[0],
+      depth: Math.max(segments.length - 1, 0),
+      useCode: true,
+    });
+  }
+
+  // Collect every property name (recursively) from a SchemaRow tree.
+  // deno-lint-ignore no-explicit-any
+  const collectRowNames = (rows: any[]): string[] => {
+    const names: string[] = [];
+    for (const row of rows ?? []) {
+      if (row.name) names.push(row.name);
+      if (row.children) names.push(...collectRowNames(row.children));
+    }
+    return names;
+  };
+
+  // API: one entry per resource (page), plus one per operation (anchor on the
+  // resource page). API_BASE_PATH already includes the /documentation prefix.
+  // Each operation carries a `keywords` string (HTTP method, URL path, path
+  // parameter names, and any inline request-body property names — with
+  // hyphens/underscores also normalized to spaces) so the filter can match on
+  // e.g. "GET /sites", "site_uuid", "site dams", or a body key like "config".
+  for (const resource of getApiResources()) {
+    const resourceUrl = `${API_BASE_PATH}${resource.slug}/`;
+    if (!seenUrls.has(resourceUrl)) {
+      seenUrls.add(resourceUrl);
+      items.push({
+        name: resource.title,
+        url: resourceUrl,
+        section: "API",
+        path: resource.title,
+        parent: resource.title,
+        depth: 0,
+        useCode: false,
+        // Parent-group heading is the resource title (prose), regardless of
+        // whether individual items under it are keys (code) or op titles.
+        parentUseCode: false,
+      });
+    }
+    for (const op of resource.operations) {
+      const opUrl = `${resourceUrl}#${op.id}`;
+      if (!seenUrls.has(opUrl)) {
+        seenUrls.add(opUrl);
+        const method = op.method.toLowerCase();
+        const opPath = op.path.toLowerCase();
+        const opPathNorm = opPath.replace(/[/{}_-]/g, " ").replace(/\s+/g, " ")
+          .trim();
+        // Parameter and body-key names are emitted below as their own filter
+        // items, so they're kept OUT of the operation's keywords — otherwise
+        // searching a key name would match both the operation and the key.
+        const keywords = `${method} ${opPath} ${opPathNorm}`;
+        items.push({
+          name: op.title,
+          url: opUrl,
+          section: "API",
+          path: `${resource.title} / ${op.title}`,
+          parent: resource.title,
+          depth: 1,
+          useCode: false,
+          parentUseCode: false,
+          keywords,
+        });
+      }
+
+      // One item per parameter (path/query/header/etc.) or request-body key
+      // so a filter query for a name returns the key itself (not the enclosing
+      // operation title), with the operation title as secondary context.
+      // Anchors are namespaced with the operation id so URLs target the exact
+      // row rather than the first occurrence of that key on the page.
+      const emittedKeys = new Set<string>();
+      const emitKey = (name: string) => {
+        if (emittedKeys.has(name)) return;
+        emittedKeys.add(name);
+        items.push({
+          name,
+          url: `${resourceUrl}#${op.id}--${name}`,
+          section: "API",
+          path: `${resource.title} / ${op.title}`,
+          parent: resource.title,
+          context: op.title,
+          depth: 2,
+          useCode: true,
+          parentUseCode: false,
+        });
+      };
+      for (const p of op.pathParams) emitKey(p.name);
+      for (const p of op.filterParams) emitKey(p.name);
+      for (const p of op.sortParams) emitKey(p.name);
+      for (const p of op.paginationParams) emitKey(p.name);
+      for (const p of op.queryParams) emitKey(p.name);
+      for (const p of op.headerParams) emitKey(p.name);
+      for (const key of collectRowNames(op.requestRows)) emitKey(key);
+    }
+  }
+
+  // API schemas: one entry per named schema page, plus one per property key
+  // (same pattern as API operations). Property matches display the key itself
+  // with the schema name as secondary context.
+  for (const schema of getApiSchemas()) {
+    const url = `${API_SCHEMAS_BASE_PATH}${schema.slug}/`;
+    if (!seenUrls.has(url)) {
+      seenUrls.add(url);
+      items.push({
+        name: schema.name,
+        url,
+        section: "API Schemas",
+        path: schema.name,
+        parent: schema.name,
+        depth: 0,
+        useCode: true,
+      });
+    }
+    for (const key of collectRowNames(schema.rows)) {
+      items.push({
+        name: key,
+        url: `${url}#${schema.slug}--${key}`,
+        section: "API Schemas",
+        path: `${schema.name} / ${key}`,
+        parent: schema.name,
+        context: schema.name,
+        depth: 1,
+        useCode: true,
+      });
+    }
+  }
+
+  // Editable Regions page keys are authored in MDX (not the schema data),
+  // so regex-scrape <comp.OptionsRow label="..."> to add them to the filter.
+  // Each row's rendered HTML has an id matching the label, so anchor links
+  // jump straight to the row.
+  try {
+    const mdxSrc = Deno.readTextFileSync(
+      "developer/reference/editable-regions/index.mdx",
+    );
+    const labels = [
+      ...mdxSrc.matchAll(/<comp\.OptionsRow\s+label="([^"]+)"/g),
+    ].map((m) => m[1]);
+    for (const label of labels) {
+      items.push({
+        name: label,
+        url: `${basePath}/developer-reference/editable-regions/#${label}`,
+        section: "Editable Regions",
+        path: label,
+        parent: label,
+        depth: 0,
+        useCode: true,
+      });
+    }
+  } catch { /* file missing — skip */ }
+
+  // Permissions page keys come from _data/permissions.json (rendered by the
+  // PermissionsTree component). Walk the nested `children` tree and surface
+  // every permission key. The rendered page has an id matching each key.
+  try {
+    const permsSrc = Deno.readTextFileSync(
+      "_data/permissions.json",
+    );
+    // deno-lint-ignore no-explicit-any
+    const perms = JSON.parse(permsSrc) as Record<string, any>;
+    const collect = (node: Record<string, unknown>) => {
+      for (const [key, val] of Object.entries(node)) {
+        items.push({
+          name: key,
+          url:
+            `${basePath}/developer-reference/permissions/#${encodeURIComponent(key)}`,
+          section: "Permissions",
+          path: key,
+          parent: key,
+          depth: 0,
+          useCode: true,
+        });
+        // deno-lint-ignore no-explicit-any
+        const v = val as any;
+        if (v && typeof v === "object" && v.children) {
+          collect(v.children);
+        }
+      }
+    };
+    collect(perms);
+  } catch { /* file missing — skip */ }
+
+  const payload = `window.__refNavItems = ${JSON.stringify(items)};`;
+  const outPath = "assets/js/reference-nav-data.js";
+  // Only write if the content changed, to avoid triggering unnecessary rebuilds
+  // during watch mode.
+  let existing = "";
+  try {
+    existing = Deno.readTextFileSync(outPath);
+  } catch { /* first build */ }
+  if (existing !== payload) {
+    Deno.writeTextFileSync(outPath, payload);
+  }
+}
 
 // Caches for expensive operations (persist across incremental builds)
 const renderTextOnlyCache = new Map<string, string>();
@@ -285,6 +590,7 @@ site.use(mdx());
 site.use(esbuild());
 site.use(sass());
 site.add("/assets/js/site.js");
+site.add("/assets/js/reference-nav-data.js");
 site.add("/assets/css/site.scss");
 
 // Append the /documentation/ prefix to all links
@@ -640,10 +946,28 @@ site.process([".html"], function processHTMLPages(pages) {
     page.document.querySelectorAll<HTMLElement>(`.c-data-reference__header`)
       .forEach(
         (el) => {
-          const keyEl = el.querySelector<HTMLElement>(".c-data-reference__key");
-          const text = keyEl?.innerText || keyEl?.textContent || "";
-          const slug = fixIdCollisions(text);
-          appendAnchorHeader(el, slug);
+          // Respect an id set upstream (e.g. by ApiSchema's namespaced ids on
+          // API pages): register the existing slug with the collision tracker
+          // and just add the visible anchor link + class. Elements without an
+          // id fall back to slugifying the key text with auto-suffixing.
+          const existingId = el.getAttribute("id");
+          let slug: string;
+          if (existingId) {
+            collisions[existingId] = true;
+            slug = existingId;
+            el.classList.add("c-anchor-header");
+            const link = createLink(page, "#", `#${slug}`);
+            link.classList.add("c-anchor-header__link");
+            link.setAttribute("data-pagefind-ignore", "true");
+            el.appendChild(link);
+          } else {
+            const keyEl = el.querySelector<HTMLElement>(
+              ".c-data-reference__key",
+            );
+            const text = keyEl?.innerText || keyEl?.textContent || "";
+            slug = fixIdCollisions(text);
+            appendAnchorHeader(el, slug);
+          }
         },
       );
 

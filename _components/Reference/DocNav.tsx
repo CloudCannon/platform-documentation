@@ -283,10 +283,275 @@ export default function DocNav(
   return (
     <comp.Nav.NavWrapper>
       {/* <comp.Nav.ScrollGradient position="top" /> */}
-      <comp.Nav.NavHeading title="Developer Reference" />
+      <div
+        className="t-docs-nav__filter-scope"
+        x-data={`{
+          filter: '',
+          items: [],
+          hash: '',
+          init() {
+            this.items = globalThis.__refNavItems || [];
+            this.hash = globalThis.location?.hash || '';
+            try { this.filter = sessionStorage.getItem('cc:ref-filter') || ''; } catch {}
+            this.$watch('filter', (v) => {
+              try {
+                if (v) sessionStorage.setItem('cc:ref-filter', v);
+                else sessionStorage.removeItem('cc:ref-filter');
+              } catch {}
+            });
+            globalThis.addEventListener('hashchange', () => {
+              this.hash = globalThis.location.hash || '';
+            });
+            this.$nextTick(() => {
+              const active = this.$el.querySelector(
+                '.t-docs-nav__filter-results [aria-current=page]'
+              );
+              if (!active) return;
+              const scroller = this.$el.closest('.t-docs-nav');
+              if (!scroller) return;
+              const sRect = scroller.getBoundingClientRect();
+              const aRect = active.getBoundingClientRect();
+              const offset = aRect.top - sRect.top + scroller.scrollTop;
+              scroller.scrollTop = offset - scroller.clientHeight / 2 + aRect.height / 2;
+            });
+          },
+          get filtered() {
+            const q = this.filter.trim().toLowerCase();
+            if (!q) return [];
+            return this.items.filter((i) =>
+              i.name.toLowerCase().includes(q) ||
+              (i.keywords && i.keywords.includes(q))
+            );
+          },
+          get currentUrl() {
+            const p = globalThis.location?.pathname || '';
+            const trimmed = p.endsWith('/') ? p.slice(0, -1) : p;
+            return trimmed + this.hash;
+          },
+          get filteredSections() {
+            const SECTION_ORDER = [
+              'API',
+              'API Schemas',
+              'Visual Editor API',
+              'CLI',
+              'SDK',
+              'Configuration File',
+              'Routing File',
+              'Initial Site Settings File',
+              'Editable Regions',
+              'Permissions',
+              'JSON Schemas',
+              'TypeScript Types',
+              'Developer Reference',
+            ];
+            const rank = (name) => {
+              const i = SECTION_ORDER.indexOf(name);
+              return i === -1 ? SECTION_ORDER.length : i;
+            };
+            const currentUrl = this.currentUrl;
+            const sectionMap = new Map();
+            for (const item of this.filtered) {
+              let section = sectionMap.get(item.section);
+              if (!section) {
+                section = { name: item.section, parentMap: new Map() };
+                sectionMap.set(item.section, section);
+              }
+              let parent = section.parentMap.get(item.parent);
+              if (!parent) {
+                parent = {
+                  name: item.parent,
+                  useCode: item.parentUseCode !== undefined ? item.parentUseCode : item.useCode,
+                  items: [],
+                };
+                section.parentMap.set(item.parent, parent);
+              }
+              parent.items.push(item);
+            }
+            const sectionTotal = (s) => {
+              let n = 0;
+              for (const p of s.parentMap.values()) n += p.items.length;
+              return n;
+            };
+            return Array.from(sectionMap.values())
+              .sort((a, b) => sectionTotal(b) - sectionTotal(a) || rank(a.name) - rank(b.name) || a.name.localeCompare(b.name))
+              .map((section) => ({
+                name: section.name,
+                parents: Array.from(section.parentMap.values())
+                  .sort((a, b) => b.items.length - a.items.length || a.name.localeCompare(b.name))
+                  .map((parent) => {
+                    const items = parent.items
+                      .map((item) => ({
+                        ...item,
+                        display: item.name.startsWith(parent.name + ' ')
+                          ? item.name.slice(parent.name.length + 1)
+                          : item.name,
+                        isCurrent: (() => {
+                          const parts = item.url.split('#');
+                          const path = parts[0];
+                          const trimmed = path.endsWith('/') ? path.slice(0, -1) : path;
+                          const normalized = parts.length > 1 ? trimmed + '#' + parts[1] : trimmed;
+                          return normalized === currentUrl;
+                        })(),
+                      }));
+                    // Collapse a single-item group whose sole item echoes the
+                    // parent name into a flat link — searching e.g. "site:*"
+                    // in Permissions would otherwise force a click into every
+                    // "1 match" accordion just to reveal the same text as the
+                    // link inside.
+                    const flatSingle = items.length === 1 && items[0].name === parent.name;
+                    return {
+                      name: parent.name,
+                      useCode: parent.useCode,
+                      hasCurrent: items.some((i) => i.isCurrent),
+                      flatSingle,
+                      items,
+                    };
+                  }),
+              }));
+          },
+        }`}
+      >
+        <comp.Nav.NavHeading title="Developer Reference" />
+
+        <div className="t-docs-nav__filter">
+          <div className="t-docs-nav__filter-input-wrap">
+            <span className="t-docs-nav__filter-icon" aria-hidden="true">
+              <svg viewBox="0 0 20 20" width="20" height="20" fill="currentColor">
+                <path d="M12.755 11.255H11.965l-.28-.27a6.501 6.501 0 10-.7.7l.27.28v.79L16.255 17.745l1.49-1.49-4.99-4.99zM6.755 11.255a4.5 4.5 0 110-9 4.5 4.5 0 010 9z" />
+              </svg>
+            </span>
+            <input
+              type="search"
+              className="t-docs-nav__filter-input"
+              placeholder="Find a key"
+              x-model="filter"
+              aria-label="Filter reference keys"
+            />
+            <button
+              type="button"
+              className="t-docs-nav__filter-clear"
+              x-show="filter"
+              x-on:click="filter = ''"
+              aria-label="Clear filter"
+            >
+              <svg viewBox="0 0 20 20" width="14" height="14" fill="currentColor" aria-hidden="true">
+                <path d="M14.348 5.652a1 1 0 010 1.414L11.414 10l2.934 2.934a1 1 0 11-1.414 1.414L10 11.414l-2.934 2.934a1 1 0 01-1.414-1.414L8.586 10 5.652 7.066a1 1 0 011.414-1.414L10 8.586l2.934-2.934a1 1 0 011.414 0z" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        {/* Filtered results — visible when filter has any non-whitespace input */}
+        <div
+          className="t-docs-nav__filter-results"
+          x-show="filter.trim()"
+          x-cloak
+        >
+          <div x-show="filtered.length > 0">
+            <template
+              x-for="section in filteredSections"
+              x-bind:key="section.name"
+            >
+              <div className="t-docs-nav__filter-section">
+                <h4
+                  className="t-docs-nav__filter-section-heading"
+                  x-text="section.name"
+                ></h4>
+                <template
+                  x-for="parent in section.parents"
+                  x-bind:key="parent.name"
+                >
+                  <div className="t-docs-nav__filter-group">
+                    <template x-if="parent.flatSingle">
+                      <a
+                        x-bind:href="parent.items[0].url"
+                        x-bind:aria-current="parent.items[0].isCurrent ? 'page' : null"
+                        x-bind:class="'t-docs-nav__filter-group-heading t-docs-nav__filter-group-heading--flat' + (parent.items[0].isCurrent ? ' active' : '')"
+                      >
+                        <span className="t-docs-nav__filter-group-name">
+                          <code
+                            x-show="parent.useCode"
+                            className="code-no-box"
+                            x-text="parent.name"
+                          ></code>
+                          <span x-show="!parent.useCode" x-text="parent.name"></span>
+                        </span>
+                      </a>
+                    </template>
+                    <template x-if="!parent.flatSingle">
+                      <details x-bind:open="parent.hasCurrent">
+                        <summary className="t-docs-nav__filter-group-heading">
+                          <svg
+                            aria-hidden="true"
+                            className="t-docs-nav__filter-group-chevron"
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                          >
+                            <path d="M10 6 8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6-6-6z" />
+                          </svg>
+                          <span className="t-docs-nav__filter-group-name">
+                            <code
+                              x-show="parent.useCode"
+                              className="code-no-box"
+                              x-text="parent.name"
+                            ></code>
+                            <span x-show="!parent.useCode" x-text="parent.name"></span>
+                          </span>
+                          <span
+                            className="t-docs-nav__filter-group-count"
+                            x-text="parent.items.length + (parent.items.length === 1 ? ' match' : ' matches')"
+                          ></span>
+                        </summary>
+                        <ol className="t-docs-nav__sub-list">
+                          <template
+                            x-for="item in parent.items"
+                            x-bind:key="item.url"
+                          >
+                            <li x-bind:class="item.isCurrent ? 'active' : ''">
+                              <a
+                                x-bind:href="item.url"
+                                x-bind:aria-current="item.isCurrent ? 'page' : null"
+                                className="t-docs-nav__sub-list__article t-docs-nav__filter-row"
+                              >
+                                <code
+                                  x-show="item.useCode"
+                                  className="code-no-box t-docs-nav__filter-path"
+                                  x-text="item.display"
+                                ></code>
+                                <span
+                                  x-show="!item.useCode"
+                                  className="t-docs-nav__filter-path"
+                                  x-text="item.display"
+                                ></span>
+                                <span
+                                  x-show="item.context"
+                                  className="t-docs-nav__filter-context"
+                                  x-text="item.context"
+                                ></span>
+                              </a>
+                            </li>
+                          </template>
+                        </ol>
+                      </details>
+                    </template>
+                  </div>
+                </template>
+              </div>
+            </template>
+          </div>
+          <p
+            className="t-docs-nav__filter-empty"
+            x-show="filtered.length === 0"
+          >
+            No matches for <strong x-text="filter"></strong>
+          </p>
+        </div>
 
       <ol
         className="t-docs-nav__main-list"
+        x-show="!filter.trim()"
         x-init={`
           new ResizeObserver((entries) => {
             height = $refs.navParent.getBoundingClientRect().height;
@@ -315,6 +580,7 @@ export default function DocNav(
             .map(renderSection),
         ])}
       </ol>
+      </div>
       {/* <comp.Nav.ScrollGradient position="bottom" /> */}
     </comp.Nav.NavWrapper>
   );
