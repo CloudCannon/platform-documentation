@@ -8,6 +8,21 @@
   position: relative;
   padding: 0 16px 0 0;
   box-shadow: var(--side-nav-shadow);
+
+  // Decorative icon wrappers (aria-hidden spans around inlined SVG icons).
+  // Behave like inline-flex boxes so the SVG sits on the flex row cleanly.
+  span[aria-hidden="true"] {
+    display: inline-flex;
+    align-items: center;
+  }
+
+  // Group headings — semantic <h3> for screen readers, but visually flat
+  // (browser default h3 sizing/margins would be too loud in the nav).
+  &__group__label {
+    margin: 0;
+    font-size: inherit;
+    font-weight: inherit;
+  }
   background: var(--background);
   color: var(--text);
   width: 100%;
@@ -100,6 +115,7 @@
     }
 
     &__item {
+      font-size: var(--font-size-base);
       gap: 8px;
       display: flex;
       flex-direction: column;
@@ -167,7 +183,7 @@
         }
 
         &[open] > summary {
-          & > .t-docs-nav__main-list__item__heading + svg {
+          & > .t-docs-nav__main-list__item__heading + span > svg {
             transform: rotate(90deg);
           }
         }
@@ -175,19 +191,22 @@
         &.is-active > summary {
           & > * {
             color: var(--selected-blue);
+          }
+          & svg {
             fill: var(--selected-blue);
           }
         }
       }
 
-      &__heading-group {
+      &__heading-group,
+      &__heading-group.t-docs-nav__sub-list__article {
         cursor: pointer;
         border-radius: 4px;
         border: var(--border-width) solid transparent;
         padding: 6px 2px !important;
         display: flex;
         gap: var(--grid-size);
-        align-items: flex-start;
+        align-items: center;
         width: 100%;
 
         &:focus-visible{
@@ -202,11 +221,13 @@
         &.is-active {
           & > * {
             color: var(--selected-blue);
+          }
+          & svg {
             fill: var(--selected-blue);
           }
         }
 
-        &.nav-open > .t-docs-nav__main-list__item__heading + svg {
+        &.nav-open > .t-docs-nav__main-list__item__heading + span > svg {
           transform: rotate(90deg);
         }
       }
@@ -220,9 +241,12 @@
         margin: 0 auto 0 0;
         text-decoration: none;
 
-        & + svg {
+        & + span {
           flex-shrink: 0;
-          width: 16px;
+
+          & > svg {
+            width: 16px;
+          }
         }
       }
 
@@ -262,7 +286,7 @@
 
     & details.is-active {
       color: var(--selected-blue);
-      & > .t-docs-nav__sub-list__heading > svg {
+      & > .t-docs-nav__sub-list__heading > span > svg {
         fill: var(--selected-blue);
       }
     }
@@ -277,7 +301,7 @@
       gap: 8px;
       font-weight: var(--font-weight-bold);
 
-      & > .t-docs-nav__sub-list__heading > svg {
+      & > .t-docs-nav__sub-list__heading > span > svg {
         transform: rotate(90deg);
       }
     }
