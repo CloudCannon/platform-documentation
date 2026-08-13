@@ -44,18 +44,6 @@ export default function Footer({ footernav, helpers }: FooterProps) {
   return (
     <footer className="l-footer">
       <div className="l-footer__inner">
-        <a
-          href="https://cloudcannon.com"
-          className="l-footer__emblem"
-          aria-label="Go to cloudcannon.com"
-        >
-          <img
-            src="/assets/img/cc-docs-logo.svg"
-            className="l-footer__logo"
-            alt="Go to cloudcannon.com"
-            inline="true"
-          />
-        </a>
         <div className="l-footer__links">
           {links.map((column, colIndex) => (
             <ul key={colIndex}>
