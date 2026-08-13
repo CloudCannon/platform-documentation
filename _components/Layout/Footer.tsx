@@ -15,7 +15,7 @@ interface SocialLink {
   logo: string;
 }
 
-interface FooterNav {
+export interface FooterNav {
   links?: FooterColumn[];
   informational_links?: FooterLink[];
   social_links?: SocialLink[];

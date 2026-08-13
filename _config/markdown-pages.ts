@@ -23,6 +23,12 @@ import {
   type SectionId,
 } from "../_components/Reference/helpers.ts";
 import type { DocEntry } from "../_types.d.ts";
+import {
+  type ApiResource,
+  resourceToMarkdown,
+  type SchemaDoc,
+  schemaDocToMarkdown,
+} from "../developer/reference/api/_shared/openapi.ts";
 
 type ToMarkdownFn = (
   props: Record<string, unknown>,
@@ -479,6 +485,26 @@ function serializeRefItem(
     lines.push("", doc.description);
   }
 
+  // VE API methods list their parameters as child entries (positional params and
+  // expanded option fields), mirroring the structured rows on the HTML pages.
+  if (section === "type.VisualEditorAPI" && doc.type !== "object") {
+    const params = Object.entries(doc.properties || {});
+    if (params.length > 0) {
+      lines.push("", "**Parameters:**", "");
+      for (const [key, ref] of params) {
+        const p = resolveRef(ref, section);
+        if (!p) continue;
+        const req = p.required ? " (Required)" : "";
+        const pdesc = p.description
+          ? ` — ${p.description.replace(/\s+/g, " ").trim()}`
+          : "";
+        lines.push(
+          `- \`${getShortKey(key)}\` (${typeToText(p, section)})${req}${pdesc}`,
+        );
+      }
+    }
+  }
+
   if (doc.default !== undefined) {
     lines.push("", `**Default:** \`${String(doc.default)}\``);
   }
@@ -508,8 +534,12 @@ function serializeProperties(entry: DocEntry, section: SectionId): string {
   const hasProperties = entry.properties && Object.keys(entry.properties).length > 0;
 
   if (entry.type === "object" || hasProperties) {
-    const properties = Object.entries(entry.properties || {})
-      .sort(([a], [b]) => a.replace(/^_+/, "").localeCompare(b.replace(/^_+/, "")));
+    const properties = Object.entries(entry.properties || {});
+    if (section !== "type.VisualEditorAPI") {
+      properties.sort(([a], [b]) =>
+        a.replace(/^_+/, "").localeCompare(b.replace(/^_+/, ""))
+      );
+    }
     const additionalProps = entry.additionalProperties || [];
     let additionalValues: DocEntry[] = [];
 
@@ -725,11 +755,18 @@ export default function markdownPages() {
               .trim();
           } catch { /* intro text is optional */ }
 
+          // Match the page URL to its reference section. This defaults to
+          // type.Configuration, so EVERY new reference-home section must be
+          // added here — otherwise its .md silently inherits the Configuration
+          // File's properties (the HTML page would look fine; only the markdown
+          // export would be wrong). Add a branch whenever you add a section.
           let section: SectionId = "type.Configuration";
           if (url.includes("routing-file")) {
             section = "type.Routing";
           } else if (url.includes("initial-site-settings-file")) {
             section = "type.InitialSiteSettings";
+          } else if (url.includes("visual-editor-api")) {
+            section = "type.VisualEditorAPI";
           }
 
           const sectionDocs = (globalThis as Record<string, unknown>).DOCS as
@@ -740,14 +777,35 @@ export default function markdownPages() {
             (doc: DocEntry) => doc.gid === section || doc.url === "/",
           );
 
+          // The Visual Editor API landing is a thin section container with no
+          // properties of its own (its methods live on the API object page), so
+          // skip the root-properties dump to avoid emitting a stray title.
           let refBody = "";
-          if (rootEntry) {
+          if (rootEntry && section !== "type.VisualEditorAPI") {
             refBody = docEntryToMarkdown(rootEntry, section, url)
               .replace(/\n{3,}/g, "\n\n")
               .trim();
           }
 
           body = [introBody, refBody].filter(Boolean).join("\n\n");
+          writtenRef++;
+        } else if (layout === "layouts/api-reference.tsx") {
+          // API reference pages generated from the OpenAPI spec
+          const resource = page.data.resource as ApiResource | undefined;
+          if (!resource) {
+            noSource++;
+            continue;
+          }
+          body = resourceToMarkdown(resource);
+          writtenRef++;
+        } else if (layout === "layouts/api-schema.tsx") {
+          // API schema pages generated from the OpenAPI spec
+          const schema = page.data.schema as SchemaDoc | undefined;
+          if (!schema) {
+            noSource++;
+            continue;
+          }
+          body = schemaDocToMarkdown(schema);
           writtenRef++;
         } else {
           // MDX-sourced pages

@@ -32,10 +32,12 @@ function SubNav({ block, url, pageUuid, search, helpers }: SubNavProps) {
               >
                 <summary className="t-docs-nav__sub-list__heading">
                   {item.name}
-                  <img
-                    src={helpers.icon("chevron_right:outlined", "material")}
-                    inline="true"
-                  />
+                  <span aria-hidden="true">
+                    <img
+                      src={helpers.icon("chevron_right:outlined", "material")}
+                      inline="true"
+                    />
+                  </span>
                 </summary>
                 <SubNav
                   block={item}
@@ -129,10 +131,12 @@ export default function DocNav(
                 ? "page"
                 : undefined}
             >
-              <img
-                src={helpers.icon("home:outlined", "material")}
-                inline="true"
-              />
+              <span aria-hidden="true">
+                <img
+                  src={helpers.icon("home:outlined", "material")}
+                  inline="true"
+                />
+              </span>
               <span className="t-docs-nav__main-list__item__heading">
                 {indexPage.attrs?.details?.title || indexPage.title || "Home"}
               </span>
@@ -158,21 +162,25 @@ export default function DocNav(
                     }`}
                   >
                     {block.icon && (
-                      <img
-                        src={helpers.icon(`${block.icon}:outlined`, "material")}
-                        inline="true"
-                      />
+                      <span aria-hidden="true">
+                        <img
+                          src={helpers.icon(`${block.icon}:outlined`, "material")}
+                          inline="true"
+                        />
+                      </span>
                     )}
                     <span className="t-docs-nav__main-list__item__heading">
                       {block.heading}
                     </span>
-                    <img
-                      src={helpers.icon(
-                        "arrow_forward_ios:outlined",
-                        "material",
-                      )}
-                      inline="true"
-                    />
+                    <span aria-hidden="true">
+                      <img
+                        src={helpers.icon(
+                          "arrow_forward_ios:outlined",
+                          "material",
+                        )}
+                        inline="true"
+                      />
+                    </span>
                   </summary>
                 )}
                 <SubNav

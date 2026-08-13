@@ -7,8 +7,8 @@ Machine-readable style rules for AI agents and automated linters. These rules ar
 **For agents making updates to this file:** Also update the corresponding section in `STYLE_GUIDE.mdx` with the prose explanation and examples. Update the revision history in both files: `last_updated` and `style_guide_version` in the YAML block below, and the `Last Updated` and `Version` fields and the revision history table (Section 4) in `STYLE_GUIDE.mdx`.
 
 ```yaml
-style_guide_version: "2.45"
-last_updated: "2026-08-04"
+style_guide_version: "2.46"
+last_updated: "2026-08-11"
 
 documentation_architecture:
   single_source_of_truth:
@@ -103,10 +103,13 @@ terminology:
     - "Schema"
     - "Structure"
     - "Configuration File"
+    - "Dataset"
     - "Visual Editor"
     - "Content Editor"
     - "Data Editor"
     - "Source Editor"
+    - "Data Panel"
+    - "API Object"  # the Visual Editor API object from useVersion(); generic plural "API objects" stays lowercase
     - "Collection Browser"
     - "File Browser"
     - "Sites Browser"
@@ -141,6 +144,12 @@ prohibited_phrases:
   - "easy"
   - "obviously"
   - "clearly"
+  - "powerful"
+  - "seamless"
+  - "seamlessly"
+  - "effortless"
+  - "robust"
+  - "intuitive"
 
 voice_and_tense:
   voice: "active"
@@ -171,6 +180,25 @@ voice_and_tense:
       - "The Connector detects all data-rosey-tagged elements and injects the locale switcher interface."
       - "It then connects each tagged element to its corresponding entry in the locale JSON."
     note: "Reserve internal process descriptions ('the system detects… injects… connects…') for 'How it works' subsections or reference documentation."
+  describe_dont_sell:
+    rule: "Describe what a feature or API does, plainly and accurately. Do not use marketing or value-laden language, and never claim a capability the product does not have."
+    reference: "STYLE_GUIDE.mdx §1.1.9"
+    avoid_marketing_words:
+      - "powerful"
+      - "seamless"
+      - "effortless"
+      - "robust"
+      - "intuitive"
+      - "blazing-fast"
+      - "smart"
+      - "useful"
+    correct:
+      - "Pass an Input configuration to control where the file is uploaded and which asset sources are offered."
+      - "Resolves to undefined if the file does not exist."
+    incorrect:
+      - "Pass an Input configuration to control the upload destination, filename, and allowed types."
+      - "Gracefully handles any missing file."
+    overstatement_is_a_factual_error: "Most damaging in reference and developer documentation, where readers act on the exact claim. Document only what the implementation does; trace each claim to code, configuration, or observed UI behavior before writing it."
   first_person_plural_we_exceptions:
     - article_path: "/documentation/developer-articles/what-is-the-visual-editor-api/"
       note: "Company dogfoods public Visual Editor API (see prose §2.2.5 Exception 1)"
@@ -243,7 +271,12 @@ documentation_types:
   # - Guides (learning-oriented, like "tutorials")
   # - Glossary (reference)
   # - Changelogs (informational, not part of traditional Diátaxis)
-  
+
+  filename_matches_title:
+    rule: "An article's filename (which sets its URL slug) must be the slugified version of its details.title: lowercase, hyphens for spaces, no special characters. Title and slug must always stay in sync."
+    on_rename: "If you change a title, rename the file to match in the same change, update every link and related_articles entry pointing to it, and add a redirect in .cloudcannon/routing.json if the old URL has shipped to main."
+    exception: "Changelogs use a date-prefixed descriptive slug (MM-DD_descriptive-title.mdx), not the title."
+
   changelog:
     diataxis_category: "informational"
     purpose: "Document product changes and updates over time"
@@ -457,6 +490,7 @@ documentation_types:
           - "Content Editor"
           - "Data Editor"
           - "Source Editor"
+          - "Data Panel"
           - "App Sidebar"
           - "Site Header"
           - "Site Navigation"
@@ -470,6 +504,8 @@ documentation_types:
           - "Organization"
           - "Project"
           - "Collection"
+          - "Dataset"
+          - "Team Member"
           - "Permission Group"
           - "Permission"
           - "Scope"
@@ -480,6 +516,7 @@ documentation_types:
           - "Schema"
           - "Structure"
           - "Configuration File"
+          - "API Object"
           - "Pull Request"
           - "Git Provider"
         features:
@@ -729,7 +766,7 @@ components:
       - "type"
     use_for:
       - "Illustrations and diagrams"
-      - "Images that are not screenshots of the CloudCannon interface"
+      - "Screenshots that are not of the CloudCannon app — external services or live Site pages in a plain browser"
       - "External screenshots (assets/external_screenshots/)"
     never_use_for:
       - "Screenshots of the CloudCannon app (use comp.DocShot instead)"
@@ -805,15 +842,17 @@ components:
     inline_code_example: "<comp.Annotation number=\"1\">\n\nTranslates the `alt` attribute using the key `hero.image-alt`.\n\n</comp.Annotation>"
     note: "Used with both MultiCodeBlock and CodeBlock components"
   
-  datareference:
-    usage: "List API options, configuration keys, or properties with their types and descriptions. Being phased out for schema-sourced keys — use referencedatatable instead."
+  optionstable:
+    usage: "List hand-authored API options, method parameters, or configuration keys that are not sourced from the CloudCannon schema, with their types and descriptions. For schema-sourced keys, use referencedatatable instead."
     required_attributes:
-      - "label (on each DataReferenceRow)"
-      - "type_markdown (on each DataReferenceRow)"
-    syntax: "<comp.DataReference>\n  <comp.DataReferenceRow label=\"option_name\" type_markdown=\"String\">\n    Description.\n  </comp.DataReferenceRow>\n</comp.DataReference>"
+      - "label (on each OptionsRow)"
+      - "type_markdown (on each OptionsRow)"
+    optional_attributes:
+      - "required (on each OptionsRow; boolean, renders a red Required pill next to the label)"
+    syntax: "<comp.OptionsTable>\n  <comp.OptionsRow label=\"option_name\" type_markdown=\"`string`\">\n    Description.\n  </comp.OptionsRow>\n</comp.OptionsTable>"
     rules:
       - "Use instead of markdown pipe tables for all reference content"
-      - "type_markdown accepts String, Boolean, Object, Array, or other type names"
+      - "type_markdown accepts string, boolean, Object, Array, or other type names"
       - "Inner content of each row supports markdown"
       - "Do not use for CloudCannon configuration keys covered by the schema — use referencedatatable instead"
     never_use_markdown_tables: true
@@ -834,7 +873,7 @@ components:
       - "Article tables are intentionally curated — it is acceptable to omit keys; the reference section is the exhaustive source"
       - "Do not include deprecated keys — they are documented in the reference section with the deprecation notice and recommended alternative"
       - "When a parent key links to a reference page that fully documents its children, prefer listing only the parent"
-      - "Do not mix comp.DataReference and comp.ReferenceDataTable in the same table"
+      - "Do not mix comp.OptionsTable and comp.ReferenceDataTable in the same table"
 
   glossaryterm:
     usage: "Inline glossary tooltip for terms with a glossary entry"
@@ -842,7 +881,7 @@ components:
       - "term"
     syntax: "<comp.GlossaryTerm term=\"/user/glossary/[letter]/[term].yml\">Display Text</comp.GlossaryTerm>"
     rules:
-      - "Use on first mention of a term in an article only"
+      - "Use on first mention of a term in an article's body prose only"
       - "Term must have a corresponding YML file in user/glossary/"
       - "Replaces markdown links on first use — do not combine with markdown links"
       - "Subsequent mentions: use italics ONLY if the term is on the italicization_rules list (e.g. *Organization*, *Hosting Bandwidth*, *Overage*). A general concept that has a glossary entry but is NOT an italicised CloudCannon term stays in plain text after the first-mention comp.GlossaryTerm."
@@ -851,7 +890,7 @@ components:
 
 validation_rules:
   check_for:
-    - "markdown_tables_used_instead_of_datareference"
+    - "markdown_tables_used_instead_of_optionstable"
     - "passive_voice"
     - "missing_alt_text"
     - "broken_internal_links"

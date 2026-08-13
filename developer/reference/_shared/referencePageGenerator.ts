@@ -21,7 +21,9 @@ export function createReferencePageGenerator(
 ): () => Generator<PageData> {
   return function* (): Generator<PageData> {
     if (Deno.env.get("SKIP_REFERENCE")) {
-      console.log(`  SKIP_REFERENCE set: skipping generated ${section} reference pages`);
+      console.log(
+        `  SKIP_REFERENCE set: skipping generated ${section} reference pages`,
+      );
       return;
     }
     const sectionDocs = DOCS[section] ?? {};

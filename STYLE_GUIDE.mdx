@@ -1,7 +1,7 @@
 # CloudCannon Documentation Style Guide
 
-**Last Updated:** August 4, 2026  
-**Version:** 2.45
+**Last Updated:** August 11, 2026  
+**Version:** 2.46
 
 This style guide establishes writing standards for all CloudCannon documentation. It combines patterns from our existing documentation with industry best practices from Microsoft Writing Style Guide, Google Developer Documentation Style Guide, and Write the Docs community standards.
 
@@ -182,6 +182,24 @@ Reserve internal process descriptions ("the system detects… injects… connect
 
 This rule applies only to explanation articles (`details.category: Explanation`) and "What is…" pages within guides (filename pattern `what-is-*.mdx`). It does not apply to instruction articles, reference docs, or "How it works" sections within any article type.
 
+#### 1.1.9 Describe, don't sell — no overstatement or marketing language
+
+Describe what a feature or API does, accurately and plainly. Don't characterise it with marketing or value-laden language, and never claim a capability the product doesn't have.
+
+- ✅ **Good:** "The *Visual Editor API* reads and writes content, listens for changes, and builds custom editing interfaces."
+- ❌ **Avoid:** "The powerful *Visual Editor API* makes building seamless, effortless integrations easy." (marketing language; characterises rather than describes)
+
+Avoid hype and editorializing words — *powerful, seamless, effortless, robust, intuitive, blazing-fast, smart, simply, just, easy, easily, useful*. State the behavior and stop. (See also the prohibited words in §1.2 and the machine-readable `prohibited_phrases` list.)
+
+**Overstating a capability is a factual error, not a stylistic one — and it is most damaging in reference and developer documentation, where readers act on the exact claim.** Document only what the implementation actually does:
+
+- ✅ **Good:** "Pass an Input configuration to control where the file is uploaded and which asset sources are offered."
+- ❌ **Avoid:** "Pass an Input configuration to control the upload destination, filename, and allowed types." (claims filename and type control the API doesn't provide)
+- ✅ **Good:** "Resolves to `undefined` if the file does not exist."
+- ❌ **Avoid:** "Gracefully handles any missing file." (vague, characterising, and unverifiable)
+
+When in doubt, trace the claim to its source — code, configuration, or observed UI behavior — and write only what you can verify.
+
 ---
 
 ### 1.2 Grammar and Mechanics
@@ -223,7 +241,10 @@ This rule applies only to explanation articles (`details.category: Explanation`)
   - **Schema**
   - **Structure**
   - **Configuration File**
+  - **Dataset** (the CloudCannon concept — structured data configured under `data_config`; not a generic "data set", see [1.3.4](#134-dataset-vs-data-set))
   - **Visual Editor**, **Content Editor**, **Data Editor**, **Source Editor**
+  - **Data Panel** (the editing panel in the *Visual Editor*)
+  - **API Object** (the *Visual Editor API* object returned by `useVersion()`; the generic plural "API objects" stays lowercase)
   - **Collection Browser**, **File Browser**, **Sites Browser**, **Organizations Browser**
   - **Site Navigation**, **Site Header**, **App Sidebar**, **Section Navigation**, **Trial Countdown**
   - **Git Provider**
@@ -407,7 +428,7 @@ Use "editor" only when referring to an editing interface, and only when it is im
 - ❌ **Avoid:** "Editors can resolve stale translations in the *Visual Editor*."
 - ✅ **Good:** "Translators can resolve stale translations in the *Visual Editor*."
 - ❌ **Avoid:** "After an editor updates the heading…"
-- ✅ **Good:** "After a team member updates the heading…"
+- ✅ **Good:** "After a *Team Member* updates the heading…"
 
 Established compounds such as *Visual Editor API*, `inEditorMode`, or **editor-only** (meaning "only in the preview, not on the live *Site*") are acceptable when the surrounding sentence already names the environment.
 
@@ -544,7 +565,7 @@ Use bold for headings, labels, or important callouts within Notice components.
 **Term Names in Bulleted Definition Lists:**
 - ✅ **Good:**
 ```markdown
-* **User** — The team member who wants to access CloudCannon.
+* **User** — The *Team Member* who wants to access CloudCannon.
 * **Identity Provider** — The cloud software that will authenticate the user's identity.
 * **Service Provider** — The cloud application a user wants to log in to (i.e., CloudCannon).
 ```
@@ -592,6 +613,14 @@ Do not use arrow characters (→, ←, ↑, ↓, ⇒, etc.) in documentation pro
   - HTML elements: `<div>`, `<img>`
   - CSS classes: `.c-docs-image`
   - Command-line commands: `deno task serve`
+
+**Method references**
+- In **body prose**, write a method as `*.method()`. The `*` stands in for whatever object the method is called on — the receiver is a variable the reader names themselves, so don't bake an example variable (like `api`) into body prose. Name the receiver in words where it matters ("Call `*.collection()` on the *API Object*").
+- This matches the established notation across the developer API docs (`*.data.get()`, `*.items()`, `*.addEventListener()`).
+- ✅ **Good (body):** "Call `*.files()` for an array of every file," "the `*.isAPIDataset()` type guard," "await `*.items()` on the returned *Collection*."
+- ❌ **Avoid (body):** "Call `api.files()`…" — this bakes the example variable `api` into prose.
+- In **annotations**, mirror the annotated code instead: use the concrete receiver shown in that code block (`api.files()`, `posts.items()`, `file.data.set()`), not `*.`. An annotation explains one specific line, so it should match that line's variable.
+- In **code blocks**, use a concrete receiver (`api.files()`, `posts.items()`, `file.data.get()`); code needs a real variable.
 
 **Code Blocks: Use Components**
 
@@ -1054,7 +1083,7 @@ Use for illustrations, diagrams, and external screenshots only. Do not use it fo
 
 **When to use DocsImage:**
 - Illustrations, diagrams, or conceptual graphics
-- Images that are not screenshots of the CloudCannon interface
+- Screenshots that are not of the CloudCannon app — for example, an external service or a live *Site* page viewed in a plain browser
 
 **When NOT to use DocsImage:**
 - Screenshots of the CloudCannon app (use `<comp.DocShot>` instead)
@@ -1109,7 +1138,7 @@ Use to wrap terms that have a corresponding glossary entry. This component rende
 - Inner text — The display text for the term
 
 **When to Use:**
-- On the **first mention** of a term in an article, if that term has a glossary YML file in `user/glossary/`
+- On the **first mention** of a term in an article's **body prose**, if that term has a glossary YML file in `user/glossary/`
 - Only for terms that have a corresponding glossary entry — don't use this component without one
 
 **When NOT to Use:**
@@ -1145,10 +1174,10 @@ Use to list hand-authored API options, method parameters, or configuration keys 
 
 ```mdx
 <comp.OptionsTable>
-  <comp.OptionsRow label="option_name" type_markdown="String">
+  <comp.OptionsRow label="option_name" type_markdown="`string`">
     Description of what this option does.
   </comp.OptionsRow>
-  <comp.OptionsRow label="another_option" type_markdown="Boolean">
+  <comp.OptionsRow label="another_option" type_markdown="`boolean`">
     Description of what this option does.
   </comp.OptionsRow>
 </comp.OptionsTable>
@@ -1156,7 +1185,8 @@ Use to list hand-authored API options, method parameters, or configuration keys 
 
 **Attributes (`comp.OptionsRow`):**
 - `label` — The option or key name
-- `type_markdown` — The value type, rendered as inline code (e.g. `String`, `Boolean`, `Object`, `Array`)
+- `type_markdown` — The value type, rendered as inline code (e.g. `string`, `boolean`, `Object`, `Array`)
+- `required` — Optional boolean; when true, renders a red *Required* pill next to the label
 - Inner content — Description of the option; supports markdown
 
 **When to Use:**
@@ -1253,6 +1283,8 @@ The *App Sidebar* contains links to top-level pages (*Home*, *Sites*, *Projects*
 ---
 
 ## 2. Documentation Type-Specific Rules
+
+**Filenames must match titles.** Every article's filename (which sets its URL slug) must be the slugified version of its `details.title`: lowercase, hyphens instead of spaces, no special characters. The two must always stay in sync — if you rename an article, rename the file to match the new title in the same change, update any links and `related_articles` pointing to it, and, if the old URL has shipped to `main`, add a redirect in `.cloudcannon/routing.json`. Changelogs are the only exception (see §2.1.1): their filename is a date-prefixed descriptive slug, not the title.
 
 ### 2.1 Changelogs
 
@@ -2186,6 +2218,7 @@ When you update a rule here, update the corresponding rule in `STYLE_GUIDE_AGENT
 ## 4. Revision History
 
 | Version | Date | Changes |
+| 2.46 | 2026-08-11 | OptionsTable (§1.5.6): consolidated the DataReference/DataReferenceRow components into OptionsTable/OptionsRow. The DataReference components were removed and the editor snippet now inserts OptionsTable markup. References to DataReference in earlier revision rows describe the removed components (merged from `main`) |
 | 2.45 | 2026-08-04 | Terminology (§1.2.2 Subscription Plans, UI labels exempt): refreshed the UI-label examples after the app standardized its plan labels. The formerly lowercase *Review your billing plan* button and *Update your plan* page were renamed in-app to the capitalized *Review your Subscription Plan* button and *Update your Subscription Plan* page; the app's plan labels are now consistently capitalized *Subscription Plan* forms (alongside the *Your Subscription Plan* page and *Plan resources* label). The "match the app verbatim" rule is unchanged. Updated `terminology.plan_capitalization.ui_labels_exempt` in `STYLE_GUIDE_AGENTS.md` (removed the stale `lowercase_in_app` list) |
 | 2.44 | 2026-07-30 | Formatting (§1.4.1 UI Elements): codified the "name the control type" rule — when instructing an interaction, name the control's type after the italicized label (*button*, *link*, *icon*, *tab*, *dropdown*, *field*, etc.); never a bare "Click *X*". Previously only implied by examples ("Click the *Save* button"). Added `formatting_rules.ui_element_formatting.name_control_type` and `interaction_missing_control_type` to `validation_rules.check_for` in `STYLE_GUIDE_AGENTS.md` |
 | 2.43 | 2026-07-30 | Instructions (§2.3.4 Describe Outcomes): made the DocShot/screenshot ordering explicit — the outcome sentence goes immediately after the numbered list, and any `<comp.DocShot>` or screenshot belongs after the outcome sentence, not between the steps and the outcome. Encoded the rule in `STYLE_GUIDE_AGENTS.md` as `documentation_types.instructions.numbered_steps.outcome_then_media` and added `docshot_before_outcome_sentence` to `validation_rules.check_for` |

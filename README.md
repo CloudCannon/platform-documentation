@@ -15,7 +15,7 @@ The documentation is organized into clear sections so you can find what you need
 * **User Glossary** (`user/glossary/`) — Definitions of key terms used across the platform.
 * **Developer Articles** (`developer/articles/`) — In-depth explanations for developers integrating with CloudCannon.
 * **Developer Guides** (`developer/guides/`) — Hands-on walkthroughs for developer workflows.
-* **Developer Reference** (`developer/reference/`) — Technical reference material for configuration and APIs.
+* **Developer Reference** (`developer/reference/`) — Technical reference material, split into Site configuration (config files you add to your repo) and Platform (the CLI, SDK, API, and Permissions).
 * **Changelog** (`changelogs/`) — Release notes organized by year.
 
 Content follows a modified [Diátaxis framework](https://diataxis.fr/) — separating explanations, instructions, guides, and reference material so readers always land in the right place.
