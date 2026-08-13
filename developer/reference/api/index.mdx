@@ -5,20 +5,22 @@ layout: layouts/reference-home.tsx
 details:
   title: API
 ---
-The CloudCannon API lets you manage your organizations, projects, sites, builds, and more programmatically. This reference is generated from the CloudCannon OpenAPI specification and covers every available endpoint, grouped by resource.
+The CloudCannon <comp.GlossaryTerm term="/user/glossary/a/api.yml">API</comp.GlossaryTerm> lets you manage your <comp.GlossaryTerm term="/user/glossary/o/organization.yml">Organizations</comp.GlossaryTerm>, <comp.GlossaryTerm term="/user/glossary/p/project.yml">Projects</comp.GlossaryTerm>, <comp.GlossaryTerm term="/user/glossary/s/site.yml">Sites</comp.GlossaryTerm>, <comp.GlossaryTerm term="/user/glossary/b/build.yml">Builds</comp.GlossaryTerm>, and more programmatically. This reference is generated from the CloudCannon OpenAPI specification and covers every available endpoint, grouped by resource.
 
-<comp.Notice info_type="info">
-  The API is versioned under the `/api/v0/` path. While it is on a `v0` version, endpoints and fields may change.
+<comp.Notice info_type="important">
+  The API is versioned under the `/api/v0/` path. While it is on a `v0` version, endpoints and fields may change. Deprecated endpoints are marked in this reference.
+  
+  If CloudCannon changes an endpoint you use, you will receive an email alert. However, we recommend using the [SDK](/documentation/developer-reference/sdk/), which we update to match changes to the API.
 </comp.Notice>
 
 ## Working with the API
 
-The easiest way to work with the CloudCannon API is through one of our official tools. They handle authentication, request signing, and pagination for you, so reach for these before calling the HTTP endpoints directly:
+We recommend working with the CloudCannon API is through one of our official tools, as they handle authentication, request signing, and pagination for you:
 
-- [CloudCannon CLI](/documentation/developer-reference/cli/) — manage your organizations, sites, builds, files, and form submissions from the terminal.
+- [CloudCannon CLI](/documentation/developer-reference/cli/) — manage your *Organizations*, *Sites*, *Builds*, files, and form submissions from the terminal.
 - [TypeScript SDK](/documentation/developer-reference/sdk/) — a typed client with a sub-client for each resource and built-in pagination, sorting, and filtering.
 
-If you need direct access — for another language, or a use case the tools don't cover — the rest of this reference documents the underlying HTTP API.
+However, if you need direct access, such as for another language or a use case the tools don't cover, this reference documents the underlying HTTP API.
 
 ## OpenAPI specification
 
@@ -30,7 +32,19 @@ https://app.cloudcannon.com/api/v0/openapi.json
 ```
 </comp.CodeBlock>
 
-Point your tooling at this URL to generate API clients, explore endpoints in a tool like Postman or Insomnia, or give an AI agent the complete, structured definition of every endpoint, parameter, and response in one request.
+Point your tooling at this URL to generate API clients, explore endpoints in a tool like <a href="https://www.postman.com/" target="_blank" rel="noopener noreferrer">Postman</a> or <a href="https://insomnia.rest/" target="_blank" rel="noopener noreferrer">Insomnia</a>, or give an AI agent the complete, structured definition of every endpoint, parameter, and response in one request.
+
+Download the specification to a file with `curl`:
+
+<comp.CodeBlock language="bash" source="Terminal">
+```bash
+curl https://app.cloudcannon.com/api/v0/openapi.json -o openapi.json
+```
+</comp.CodeBlock>
+
+<comp.Notice info_type="info">
+  Downloading the specification gives an AI agent or code generator the entire API in a single file, instead of reading this reference page by page.
+</comp.Notice>
 
 ## Base URL
 
@@ -46,16 +60,12 @@ https://app.cloudcannon.com/api/v0
 
 Every request must be authenticated. The CloudCannon API supports two types of credentials:
 
-- **API keys** — scoped to an organization. Best for server-to-server integrations, and the method this reference documents.
-- **User access keys** — scoped to an individual user. Created and used by the CloudCannon CLI to act on that user's behalf.
+- **<comp.GlossaryTerm term="/user/glossary/a/api-key.yml">API Keys</comp.GlossaryTerm>** — scoped to an *Organization*. Best for server-to-server integrations, and the method this reference documents.
+- **<comp.GlossaryTerm term="/user/glossary/a/access-key.yml">Access Keys</comp.GlossaryTerm>** — scoped to an individual user. Created and used by the CloudCannon CLI to act on that user's behalf.
 
-<comp.Notice info_type="info">
-  These are not the same as a [bearer token](/documentation/developer-articles/generate-a-bearer-token/), which controls access to content on a hosted Site and is not used to authenticate the CloudCannon API.
-</comp.Notice>
+### API Keys
 
-### API keys
-
-An API key authenticates as an organization and grants access to that organization's resources. Generate one from your organization's *API Keys* settings, then pass it in the `X-API-KEY` header on every request:
+An *API Key* authenticates as an *Organization* and grants access to that *Organization's* resources, limited to the permissions granted to the key when it was created. A request for an action the key doesn't have permission for returns `403 Forbidden`. To create an *API Key*, please read our documentation on [creating an API key](/documentation/developer-articles/create-an-api-key/), then pass it in the `X-API-KEY` header on every request:
 
 <comp.CodeBlock language="bash" source="Terminal">
 ```bash
@@ -64,11 +74,19 @@ curl https://app.cloudcannon.com/api/v0/orgs \
 ```
 </comp.CodeBlock>
 
-### User access keys
+Keep your *API Key* on your server. It grants access to your *Organization*, so never expose it in client-side code or commit it to source control.
 
-A user access key authenticates as an individual user, with that user's permissions across the organizations they belong to. Access keys are created when you authenticate the CloudCannon CLI by running `cloudcannon login`, and can be managed or revoked from *Account Settings → Access Keys*. Requests made with an access key are cryptographically signed; the CLI and SDK handle this for you.
+Many endpoints are scoped to an *Organization* and include its *Organization UUID* in the path. Your *Organization UUID* appears alongside your keys on the *API Keys* page.
 
-For direct HTTP access we recommend using an API key. If you need to sign access-key requests in another language, see the [`signRequest` method in the SDK](https://github.com/CloudCannon/sdk/blob/main/index.ts) for a reference implementation of the signing scheme.
+### Access Keys
+
+<comp.Notice info_type="info">
+  You can only make an *Access Key* for your own account. *Access Keys* should never be shared.
+</comp.Notice>
+
+An *Access Key* authenticates as an individual account, with their *Permissions* across all the *Organizations* they belong to. You can create an *Access Key* yourself on the *Access Keys* page under *Account Settings*, or let the CloudCannon CLI create one for you when you run `cloudcannon login`. You can [manage or revoke](/documentation/developer-articles/create-an-access-key/) your keys from the same page. Requests made with an *Access Key* are cryptographically signed; the CLI and SDK handle this for you.
+
+For direct HTTP access we recommend using an *API Key*. If you need to sign *Access Key* requests in another language, see the <a href="https://github.com/CloudCannon/sdk/blob/main/index.ts" target="_blank" rel="noopener noreferrer">signRequest method in the SDK</a> for a reference implementation of the signing scheme.
 
 Requests without valid credentials return a `401 Unauthorized` response.
 
@@ -82,6 +100,10 @@ curl "https://app.cloudcannon.com/api/v0/orgs/<org_uuid>/sites?page=2&items=50" 
   -H "X-API-KEY: <your-api-key>"
 ```
 </comp.CodeBlock>
+
+## Rate limiting
+
+Requests to the API are rate limited by IP address. Requests over the limit receive a `429 Too Many Requests` response — back off and retry when you get one. Because the limit is per IP address, requests that share an IP (for example, several keys running from the same CI server) count against the same limit.
 
 ## Endpoints
 

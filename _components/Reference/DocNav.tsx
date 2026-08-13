@@ -133,8 +133,19 @@ export default function DocNav(
       .replace(/^\/documentation/, "")
       .replace(/\/$/, "");
     const isExactMatch = normalizedUrl === normalizedBasePath;
+    // A section with items is active on its own home page OR on any of its
+    // item pages. Checking startsWith(basePath) alone falsely marks parent
+    // sections active when the URL is really under a sibling section that
+    // happens to nest under the same prefix (e.g. /api/schemas/ sits under
+    // /api/, but Schemas is its own top-level section).
     const isActive = sec.items.length > 0
-      ? currentUrl.startsWith(normalizedBasePath)
+      ? isExactMatch || sec.items.some((item) => {
+        const itemPath = item.url
+          .replace(/^\/documentation/, "")
+          .replace(/\/$/, "");
+        return currentUrl === itemPath ||
+          currentUrl.startsWith(itemPath + "/");
+      })
       : isExactMatch;
 
     // Simple link (no items) vs expandable section (has items)
