@@ -23,7 +23,7 @@ author_notes:
   docshots: Not applicable
 ---
 <comp.Notice info_type="important">
-  The *Visual Editor API* is designed for experienced CloudCannon developers. If you need help with custom integrations or your CloudCannon setup in general, please contact our friendly [support team](/support/).
+  The *Visual Editor API* is designed for experienced CloudCannon developers. If you need help with custom integrations or your CloudCannon setup in general, please contact our friendly <a href="https://cloudcannon.com/support/">support team</a>.
 </comp.Notice>
 
 CloudCannon's <comp.GlossaryTerm term="/user/glossary/v/visual-editor-api.yml">Visual Editor API</comp.GlossaryTerm> exposes files, <comp.GlossaryTerm term="/user/glossary/c/collection.yml">Collections</comp.GlossaryTerm>, and <comp.GlossaryTerm term="/user/glossary/d/dataset.yml">Datasets</comp.GlossaryTerm> so you can build custom integrations in the <comp.GlossaryTerm term="/user/glossary/v/visual-editor.yml">Visual Editor</comp.GlossaryTerm>. This article collects common patterns you can adapt when building those integrations.
@@ -32,7 +32,7 @@ This article assumes you know how to [initialize the Visual Editor API](/documen
 
 ## Get the *API Object*
 
-Each pattern below assumes you have a v1 <comp.GlossaryTerm term="/user/glossary/a/api-object.yml">API Object</comp.GlossaryTerm> available as `api`. The following shows one way to obtain it. For a full explanation, please read our documentation on [initializing the Visual Editor API](/documentation/developer-articles/initialize-the-visual-editor-api/).
+Each pattern below assumes you have a v1 <comp.GlossaryTerm term="/user/glossary/a/api-object.yml">API Object</comp.GlossaryTerm> available as `api`. The following shows one way to obtain it.
 
 <comp.CodeBlock language="javascript" source="script.js">
 ```
@@ -180,7 +180,7 @@ api.addEventListener('change', refresh);
 
 ## Read the file that changed
 
-`change` events on the *API Object* and on a *Collection* or *Dataset* include `event.detail.sourcePath`, the path of the file that changed, and `event.detail.isNew`, which is `true` for newly created files. Use `sourcePath` to load the file that changed and read its data. File level events fire for a single, known file, so they do not include `sourcePath`.
+`change` events on the *API Object* and on a *Collection* or *Dataset* include `event.detail.sourcePath`, the path of the file that changed, and `event.detail.isNew`, which is `true` for newly created files. Use `sourcePath` to load the file that changed and read its data. File level events carry the same `detail` fields, but a file level listener already targets one known file, so you can read that file directly instead of using `sourcePath`.
 
 <comp.CodeBlock language="javascript" source="script.js">
 ```
@@ -237,6 +237,6 @@ file.addEventListener('change', async (event) => { /*2*/
   Create a `file` variable to access the file currently open in the *Visual Editor*.
 </comp.Annotation>
 <comp.Annotation number="2">
-  File level events fire for one known file, so they do not include `event.detail.sourcePath`. Because you already have the `file` reference, read its data directly with `file.data.get()`.
+  A file level listener already targets one known file, so you don't need `event.detail.sourcePath`. Because you already have the `file` reference, read its data directly with `file.data.get()`.
 </comp.Annotation>
 </comp.CodeBlock>
