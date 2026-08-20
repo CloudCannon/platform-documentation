@@ -399,14 +399,22 @@
 }
 
 .term-definition {
-  position: absolute;
-  z-index: 2000;
-  width: 400px;
+  // Anchor positioning ties the tooltip to the term it describes: it stays
+  // pinned as the page scrolls, and position-try-fallbacks flips the
+  // placement when the primary side would overflow the viewport.
+  // z-index is deliberately below the sticky nav header (z-index: 20 in
+  // layout.scss) so the nav always stays on top when scrolling.
+  position: fixed;
+  position-area: bottom span-right;
+  position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
+  margin: 6px 0 0;
+  inset: unset;
+  width: min(400px, calc(100vw - 32px));
+  z-index: 15;
   background: var(--color-purple-200);
   padding: 12px 16px 16px;
   color: var(--color-carbon);
   border-radius: 8px;
-  left: 0;
   line-height: var(--line-height-small);
   font-size: var(--font-size-small);
   border: 1px solid var(--color-purple-600);
@@ -419,10 +427,49 @@
 
   & h3 {
     margin-top: 0 !important;
+    // Leave room for the close button so a long term name doesn't run
+    // underneath it.
+    padding-right: 32px;
     font-style: italic;
   }
 
   & p:last-of-type {
     margin-bottom: 0;
+  }
+
+  &__close {
+    // Sits on the eyebrow line — top: 8 + button center at 8 + 16 = 24px
+    // aligns with the eyebrow text baseline for a tidy visual anchor.
+    // Interactive size is 32×32 for pointer legibility, and box-sizing plus
+    // a padding-driven hit area gives a 40×40 tap target without inflating
+    // the visible pill.
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: content-box;
+    width: 24px;
+    height: 24px;
+    padding: 4px;
+    background: none;
+    border: none;
+    border-radius: 4px;
+    color: var(--color-purple);
+    cursor: pointer;
+
+    & svg { fill: currentColor; }
+
+    &:hover,
+    &:focus-visible {
+      background: var(--color-purple-400);
+      color: var(--color-cloud);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--color-purple-600);
+      outline-offset: 1px;
+    }
   }
 }
