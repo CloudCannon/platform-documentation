@@ -39,8 +39,9 @@ Deno doesn't have a separate dependency-install step; the first run will downloa
 | `check-links` | `deno task check-links` | Check for broken internal links |
 | `check-images` | `deno task check-images` | Check for broken images (local, DocShot, and external) |
 | `serve:local-docshots` | `deno task serve:local-docshots` | Symlink local docshots + serve with `DOCSHOTS_LOCAL=1` * |
+| `serve:fast:local-docshots` | `deno task serve:fast:local-docshots` | Same as `serve:local-docshots`, but skips the reference section (`SKIP_REFERENCE=1`) for a faster build * |
 
-\* The `serve:local-docshots` task creates a symlink to `../app/app/assets/e2e/screenshots`. This only works if you have the [app](https://github.com/CloudCannon/app) repo cloned as a sibling directory. The app repo is a private repository only available to CloudCannon employees.
+\* These tasks create a symlink to `../app/app/assets/e2e/screenshots`. This only works if you have the [app](https://github.com/CloudCannon/app) repo cloned as a sibling directory. The app repo is a private repository only available to CloudCannon employees.
 
 ## 🔍 Development with Search
 
