@@ -1,0 +1,168 @@
+---
+_schema: default
+_uuid: 3c74c1af-44d1-45ea-b3ff-c10228d90029
+_created_at: '2026-03-12 02:49:17 +0000'
+details:
+  title: Write data back
+  order: 6
+  image: >-
+    https://cc-dam.imgix.net/documentation/images/guides/getting-started/guide-thumbnails/CloudCannon-Getting-Started-Thumbnail-Universal.png
+  description: >-
+    Finish the submit flow by reading the gallery array and appending the new
+    doodle with addArrayItem.
+  start_nav_group: null
+  related_articles: null
+author_notes:
+  docshots: Added!
+---
+Using the same `submit()` function, we need to add the new doodle to the gallery by writing the path to the uploaded image to the array in `/src/data/doodles.json`. This file is already referenced by our previous work: `const file = cloudcannonApi.file('/src/data/doodles.json');`.
+
+<comp.CodeBlock language="json" source="src/data/doodles.json">
+```
+{
+    "doodles": [
+        {
+            "src": "/favicon.png",
+            "caption": "COOL S"
+        },
+        {
+            "src": "/doodles/doodle-1.png",
+            "caption": "kat"
+        }
+    ]
+}
+```
+</comp.CodeBlock>
+
+The Doodle Gallery integration can read the `doodles` array, then append a new item to it. Each item holds the uploaded image path and the caption a <comp.GlossaryTerm term="/user/glossary/t/team-member.yml">Team Member</comp.GlossaryTerm> typed.
+
+<comp.CodeBlock language="typescript" source="src/components/doodle.tsx">
+```
+  const doodles = await file.data.get({ slug: 'doodles' }); /*1*/
+  if (typeof doodles !== 'object' || typeof doodles.length !== 'number') {
+    throw new Error('The data file is incorrectly formatted.');
+  }
+
+  await file.data.addArrayItem({ /*2*/
+    slug: 'doodles',
+    index: doodles.length, /*3*/
+    value: { src: uploadedPath, caption }, /*4*/
+  });
+}
+```
+<comp.Annotation number="1">
+  Read the current `doodles` array from the data file with `file.data.get()`, passing the `slug` of the field we want.
+</comp.Annotation>
+<comp.Annotation number="2">
+  Add a new item to that array with `file.data.addArrayItem()`.
+</comp.Annotation>
+<comp.Annotation number="3">
+  Append to the end by using the current array length as the index.
+</comp.Annotation>
+<comp.Annotation number="4">
+  The new item carries the uploaded image path and the caption, matching the shape of the other doodles in the file.
+</comp.Annotation>
+</comp.CodeBlock>
+
+The integration uses `file()` with a path, rather than `currentFile()`, because we're writing to a specific data file instead of the page open in the <comp.GlossaryTerm term="/user/glossary/v/visual-editor.yml">Visual Editor</comp.GlossaryTerm>.
+
+The `submit()` function is now complete, and its final job is to release the file lock on `doodles.json`. If your integration never releases the lock, other *Team Members* stay locked out until they take the lock back manually.
+
+The Doodle Gallery wraps the steps from the previous two pages in a `try`/`catch`/`finally` and calls `releaseLock()` in the `finally` block. A `finally` block runs no matter how `submit()` exits, so the lock is released whether the write succeeds or throws partway through. The `file` reference sits outside the `try` so the `finally` block can still reach it on any exit path.
+
+The same `submit()` function also keeps the *Team Member* informed. Claiming the lock, uploading the image, and writing the data each run asynchronously and take a moment, so without feedback a *Team Member* can't tell whether their doodle is saving, stuck, or failed. `submit()` updates a status message before each step, surfaces any error in the `catch`, and tells the *Team Member* what to do next on success. The component renders this message in a live region (`<p role="alert">`), so it updates as the function runs.
+
+<comp.CodeBlock language="typescript" source="src/components/doodle.tsx">
+```
+async function submit() {
+  const file = cloudcannonApi.file('/src/data/doodles.json'); /*1*/
+  setCurrentStateMessage('Your doodle is being saved to the site...'); /*2*/
+
+  try {
+    setCurrentStateMessage('Claiming file lock...'); /*3*/
+    // Claim the lock, upload the image, and write the data,
+    // updating the message before each step.
+  } catch (error) {
+    const reason = error instanceof Error ? `: ${error.message}` : ''; /*4*/
+    setCurrentStateMessage(`Something went wrong${reason}`);
+    return;
+  } finally {
+    file.releaseLock(); /*5*/
+  }
+
+  setCurrentStateMessage(
+    'Ready! Click "Save" in the top-right, select all the files and confirm. Your doodle will appear on the site shortly after.',
+  ); /*6*/
+}
+```
+<comp.Annotation number="1">
+  Declare the `file` reference before the `try` block so the `finally` block can release its lock, regardless of where the code inside `try` exits.
+</comp.Annotation>
+<comp.Annotation number="2">
+  Set a message as soon as `submit()` starts, so the *Team Member* gets immediate feedback when they click *Add to the gallery*.
+</comp.Annotation>
+<comp.Annotation number="3">
+  Update the message before each asynchronous step (claiming the lock, uploading the image, and writing the data) so the *Team Member* can follow what the integration is doing.
+</comp.Annotation>
+<comp.Annotation number="4">
+  Surface the error in the `catch` block instead of failing silently. `error.message` gives the *Team Member* the specific reason, such as another *Team Member* holding the file lock.
+</comp.Annotation>
+<comp.Annotation number="5">
+  Release the lock in the `finally` block so it runs even when the code above throws. This frees the lock on every exit path, so a failed write never leaves another *Team Member* stranded with a read-only file.
+</comp.Annotation>
+<comp.Annotation number="6">
+  On success, tell the *Team Member* what to do next. The write marks the file as having unsaved changes but doesn't commit it. They still need to *Save* the *Site* for the doodle to go live.
+</comp.Annotation>
+</comp.CodeBlock>
+
+As `submit()` runs, each status message appears in the live region in turn: when the *Team Member* clicks *Add to the gallery*, again while the image uploads, and once more on success to tell them what to do next.
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Visual-Editor-Doodle-Controls-Uploading" alt="A screenshot of the Doodle Gallery controls showing the status message 'Uploading to CloudCannon' while the buttons stay disabled." title="The status message while the image uploads" type="ui-snippet"/>
+
+The new doodle now appears in any open <comp.GlossaryTerm term="/user/glossary/d/data-editor.yml">Data Editor</comp.GlossaryTerm> and is written to `doodles.json`, ready to commit when a *Team Member* saves the <comp.GlossaryTerm term="/user/glossary/s/site.yml">Site</comp.GlossaryTerm>. Because the gallery page renders straight from that data file, the new doodle shows up on the live webpage after the next <comp.GlossaryTerm term="/user/glossary/b/build.yml">Build</comp.GlossaryTerm>.
+
+The same `src/pages/index.astro` page we set up earlier renders that gallery. It reads the `doodles` array and maps each item to an image, using the same `src` and `caption` fields that `submit()` writes, so every new doodle appears automatically.
+
+<comp.CodeBlock language="astro" source="src/pages/index.astro">
+```
+---
+import { doodles } from '../data/doodles.json'; /*1*/
+
+const colors = ['pink', 'cyan', 'yellow', 'blue', 'lime'];
+---
+
+{doodles.length ? ( /*2*/
+  <section class="wall">
+    <div class="wall-head">
+      <h2>Gallery</h2>
+    </div>
+    <div class="bento gallery">
+      {doodles.map(({ src, caption }, index) => ( /*3*/
+        <figure
+          class="tile"
+          style={{ '--accent': `var(--${colors[index % colors.length]})` }}
+        >
+          <div class="tile-img">
+            <img src={src} alt={null} width="300" height="300" />
+          </div>
+          <figcaption class="tile-cap">{caption}</figcaption>
+        </figure>
+      ))}
+    </div>
+  </section>
+) : undefined}
+```
+<comp.Annotation number="1">
+  Import the same `doodles` array your integration writes to. CloudCannon rebuilds the page from this file, so it always reflects the latest data.
+</comp.Annotation>
+<comp.Annotation number="2">
+  Only render the gallery section once at least one doodle exists.
+</comp.Annotation>
+<comp.Annotation number="3">
+  Map over the array, reading the `src` and `caption` fields that `addArrayItem()` wrote. The shape matches on both ends: the integration writes it, and the page reads it.
+</comp.Annotation>
+</comp.CodeBlock>
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Visual-Editor-Doodle-Gallery" alt="A screenshot of the Doodle Gallery section showing two submitted doodles, each with a caption, rendered from the data file." title="Submitted doodles in the gallery" type="screenshot"/>
+
+In the next step of this guide, we'll point you to the full <comp.GlossaryTerm term="/user/glossary/v/visual-editor-api.yml">Visual Editor API</comp.GlossaryTerm> reference and some ideas for other integrations to build.

@@ -1,10 +1,10 @@
 import type { DocEntry } from "../../../_types.d.ts";
-
-// Section ID type for reference navigation
-export type SectionId =
-  | "type.Configuration"
-  | "type.Routing"
-  | "type.InitialSiteSettings";
+import type { SectionId } from "../../../_components/Reference/helpers.ts";
+import {
+  CLI_BASE_PATH,
+  CliCommandDocumentation,
+  cliCommandUrl,
+} from "./command-line-interface.ts";
 
 // Precompiled reference navigation item
 export interface RefNavItem {
@@ -20,6 +20,7 @@ export interface RefNavSection {
   heading: string;
   icon: string;
   basePath: string;
+  homeLabel?: string;
   items: RefNavItem[];
 }
 
@@ -39,7 +40,7 @@ function getNavDisplayName(
 // Build precompiled reference navigation items for a section
 function buildRefNavItems(
   docs: DocEntry[],
-  sectionId: SectionId,
+  sectionId: string,
 ): RefNavItem[] {
   const properties = docs.find((doc) => doc.gid === sectionId)?.properties ||
     {};
@@ -69,6 +70,24 @@ function buildRefNavItems(
     );
 }
 
+export function buildCliRefNav(
+  cliDocs: CliCommandDocumentation,
+): RefNavSection {
+  return {
+    id: "cli",
+    heading: "CLI",
+    icon: "terminal",
+    basePath: CLI_BASE_PATH,
+    homeLabel: "Overview",
+    items: (cliDocs.subCommands ?? []).map((command) => ({
+      url: cliCommandUrl(command),
+      name: command.name,
+      useCode: true,
+      gid: command.fullName,
+    })),
+  };
+}
+
 /**
  * Build precompiled reference navigation sections from documentation entries.
  */
@@ -76,6 +95,7 @@ export function buildRefNav(
   configDocs: DocEntry[],
   routingDocs: DocEntry[],
   initialSiteSettingsDocs: DocEntry[],
+  veapiDocs: DocEntry[],
 ): RefNavSection[] {
   return [
     {
@@ -101,6 +121,13 @@ export function buildRefNav(
         initialSiteSettingsDocs,
         "type.InitialSiteSettings",
       ),
+    },
+    {
+      id: "type.VisualEditorAPI",
+      heading: "Visual Editor API",
+      icon: "code",
+      basePath: "/developer-reference/visual-editor-api/",
+      items: buildRefNavItems(veapiDocs, "type.VisualEditorAPI.objects"),
     },
   ];
 }

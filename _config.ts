@@ -55,19 +55,34 @@ import strip from "strip-markdown";
 
 import { parseChangelogFilename } from "./parseChangelogFilename.ts";
 import type { ContentNavItem, DocEntry } from "./_types.d.ts";
-import { buildRefNav } from "./developer/reference/_shared/buildRefNav.ts";
+import {
+  buildCliRefNav,
+  buildRefNav,
+} from "./developer/reference/_shared/buildRefNav.ts";
+import {
+  API_BASE_PATH,
+  API_SCHEMAS_BASE_PATH,
+  getApiResources,
+} from "./developer/reference/api/_shared/openapi.ts";
+import { buildVeapiDocs, VEAPI_SECTION } from "./_lib/veapi-docs.ts";
 
 import documentation from "@cloudcannon/configuration-types/dist/documentation.json" with {
   type: "json",
 };
 import llmsTxt from "./_config/llms-text.ts";
 import markdownPages from "./_config/markdown-pages.ts";
+import { cliDocs } from "./developer/reference/_shared/command-line-interface.ts";
 
 // Type the documentation as nested sections (section -> gid -> entry)
 const typedDocs = documentation as unknown as Record<
   string,
   Record<string, DocEntry>
 >;
+
+// Parse the Visual Editor API TypeScript declarations (JSDoc -> DocEntry) at
+// build time and merge them in as their own section, so the reference section
+// and article tables render from the same source and stay in sync.
+typedDocs[VEAPI_SECTION] = await buildVeapiDocs();
 
 // Store nested documentation structure for section-aware lookups
 globalThis.DOCS = typedDocs;
@@ -81,6 +96,9 @@ const initialSiteSettingsDocs: DocEntry[] = Object.values(
 );
 const configDocs: DocEntry[] = Object.values(
   typedDocs["type.Configuration"] ?? {},
+);
+const veapiDocs: DocEntry[] = Object.values(
+  typedDocs[VEAPI_SECTION] ?? {},
 );
 
 // Caches for expensive operations (persist across incremental builds)
@@ -116,12 +134,39 @@ const site = lume({
 });
 
 // Build precompiled reference navigation
-const refNavSections = buildRefNav(
-  configDocs,
-  routingDocs,
-  initialSiteSettingsDocs,
-);
-site.data("ref_nav", refNavSections);
+const refNavSections = [
+  ...buildRefNav(
+    configDocs,
+    routingDocs,
+    initialSiteSettingsDocs,
+    veapiDocs,
+  ),
+  buildCliRefNav(cliDocs),
+];
+
+// API reference navigation section (generated from the OpenAPI spec)
+const apiNavSection = {
+  id: "type.Api",
+  heading: "API",
+  icon: "api",
+  basePath: API_BASE_PATH,
+  items: getApiResources().map((resource) => ({
+    url: `${API_BASE_PATH}${resource.slug}/`,
+    name: resource.title,
+    gid: `api.${resource.slug}`,
+  })),
+};
+
+// Schemas index (a single nav link; the index page lists every schema)
+const apiSchemasNavSection = {
+  id: "type.ApiSchemas",
+  heading: "Schemas",
+  icon: "data_object",
+  basePath: API_SCHEMAS_BASE_PATH,
+  items: [] as { url: string; name: string; gid: string }[],
+};
+
+site.data("ref_nav", [...refNavSections, apiNavSection, apiSchemasNavSection]);
 
 // Log the server URL when it starts (currently suppressed by LUME_LOGS=critical)
 site.addEventListener("afterStartServer", () => {

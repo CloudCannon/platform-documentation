@@ -8,6 +8,21 @@
   position: relative;
   padding: 0 16px 0 0;
   box-shadow: var(--side-nav-shadow);
+
+  // Decorative icon wrappers (aria-hidden spans around inlined SVG icons).
+  // Behave like inline-flex boxes so the SVG sits on the flex row cleanly.
+  span[aria-hidden="true"] {
+    display: inline-flex;
+    align-items: center;
+  }
+
+  // Group headings — semantic <h3> for screen readers, but visually flat
+  // (browser default h3 sizing/margins would be too loud in the nav).
+  &__group__label {
+    margin: 0;
+    font-size: inherit;
+    font-weight: inherit;
+  }
   background: var(--background);
   color: var(--text);
   width: 100%;
@@ -50,6 +65,20 @@
     }
   }
 
+  // Top-level group heading, e.g. "Site configuration" / "Platform"
+  &__group {
+    list-style-type: none;
+    margin-top: 30px;
+    padding: 0 0 4px;
+    font-weight: bold;
+
+    &__label {
+      display: block;
+      padding: 4px 2px;
+      color: var(--text);
+    }
+  }
+
   &__main-list {
     list-style-type: none;
     padding: 0;
@@ -86,15 +115,20 @@
     }
 
     &__item {
+      font-size: var(--font-size-base);
       gap: 8px;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: flex-start;
-      padding: 10px 0;
-      border-bottom: 2px solid var(--button-border);
+      padding: var(--grid-size) 0;
 
       &.guide, &.glossary-nav {
+        border-bottom: none;
+      }
+
+      // The item directly before a group heading shouldn't show a divider.
+      &:has(+ #{$c}__group) {
         border-bottom: none;
       }
 
@@ -149,7 +183,7 @@
         }
 
         &[open] > summary {
-          & > .t-docs-nav__main-list__item__heading + svg {
+          & > .t-docs-nav__main-list__item__heading + span > svg {
             transform: rotate(90deg);
           }
         }
@@ -157,19 +191,22 @@
         &.is-active > summary {
           & > * {
             color: var(--selected-blue);
+          }
+          & svg {
             fill: var(--selected-blue);
           }
         }
       }
 
-      &__heading-group {
+      &__heading-group,
+      &__heading-group.t-docs-nav__sub-list__article {
         cursor: pointer;
         border-radius: 4px;
         border: var(--border-width) solid transparent;
         padding: 6px 2px !important;
         display: flex;
         gap: var(--grid-size);
-        align-items: flex-start;
+        align-items: center;
         width: 100%;
 
         &:focus-visible{
@@ -184,11 +221,13 @@
         &.is-active {
           & > * {
             color: var(--selected-blue);
+          }
+          & svg {
             fill: var(--selected-blue);
           }
         }
 
-        &.nav-open > .t-docs-nav__main-list__item__heading + svg {
+        &.nav-open > .t-docs-nav__main-list__item__heading + span > svg {
           transform: rotate(90deg);
         }
       }
@@ -202,9 +241,12 @@
         margin: 0 auto 0 0;
         text-decoration: none;
 
-        & + svg {
+        & + span {
           flex-shrink: 0;
-          width: 16px;
+
+          & > svg {
+            width: 16px;
+          }
         }
       }
 
@@ -221,7 +263,6 @@
   }
 
   &__sub-list {
-    width: 100%;
     margin: 0;
     padding: 0;
     list-style-type: none;
@@ -229,6 +270,10 @@
     display: flex;
     gap: 8px;
     flex-direction: column;
+    border-left: 2px solid #eee;
+    padding-left: 10px;
+    margin-left: 15px;
+    box-sizing: border-box;
 
     & & {
       font-size: var(--font-size-small);
@@ -241,7 +286,7 @@
 
     & details.is-active {
       color: var(--selected-blue);
-      & > .t-docs-nav__sub-list__heading > svg {
+      & > .t-docs-nav__sub-list__heading > span > svg {
         fill: var(--selected-blue);
       }
     }
@@ -256,7 +301,7 @@
       gap: 8px;
       font-weight: var(--font-weight-bold);
 
-      & > .t-docs-nav__sub-list__heading > svg {
+      & > .t-docs-nav__sub-list__heading > span > svg {
         transform: rotate(90deg);
       }
     }
@@ -286,6 +331,7 @@
         transform: rotate(0deg);
         width: 20px;
         height: 20px;
+        flex: 0 0 20px;
       }
     }
 
@@ -313,6 +359,7 @@
       code {
         overflow: hidden;
         text-overflow: ellipsis;
+        white-space: nowrap;
       }
 
       &[aria-current="page"] {
@@ -426,6 +473,8 @@
   .t-docs-nav__main-list__item.guide > ol.t-docs-nav__sub-list {
     padding: 0;
     gap: 0;
+    margin: 0;
+    border-left: 0;
   }
 
   &__base {
