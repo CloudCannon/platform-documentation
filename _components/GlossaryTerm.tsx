@@ -31,9 +31,12 @@ export default function GlossaryTerm(
           this.closeT = setTimeout(() => { this.show = false; }, 100);
         },
         closeNow() {
+          const fromInside = this.$refs.tooltip &&
+            this.$refs.tooltip.contains(document.activeElement);
           this.cancelOpen();
           this.cancelClose();
           this.show = false;
+          if (fromInside) { this.$nextTick(() => this.$el.focus()); }
         },
         cancelOpen() { clearTimeout(this.openT); this.openT = null; },
         cancelClose() { clearTimeout(this.closeT); this.closeT = null; },
@@ -45,8 +48,12 @@ export default function GlossaryTerm(
         },
       }"
       x-bind:style="'anchor-name: ' + aName"
+      x-bind:aria-describedby="aName.slice(2)"
       x-on:mouseenter="open"
       x-on:mouseleave="close"
+      x-on:focus="open"
+      x-on:blur="close"
+      tabindex="0"
       {...{
         "x-on:keydown.escape.window": "closeNow",
         "x-on:click.window": "onDocClick",
@@ -64,9 +71,12 @@ export default function GlossaryTerm(
           x-show="show"
           x-transition
           x-ref="tooltip"
+          x-bind:id="aName.slice(2)"
           x-bind:style="'position-anchor: ' + aName"
           x-on:mouseenter="cancelClose"
           x-on:mouseleave="close"
+          x-on:focusin="cancelClose"
+          x-on:focusout="close"
           class="term-definition"
           role="tooltip"
         >
