@@ -591,8 +591,13 @@ site.process([".html"], function processHTMLPages(pages) {
     toc.classList.add("l-toc__list");
 
     let hasItems = false;
-    let selector =
-      `main h1:not(.exclude-from-toc), main h2:not(.exclude-from-toc)`;
+    // Select every candidate heading, including those marked
+    // exclude-from-toc — those still deserve an anchor link so the URL can
+    // deep-link to them; the "skip TOC" check happens inside the loop.
+    // data-skip-anchor is the opposite escape hatch (keep TOC, drop the
+    // hover-# link), applied to headings that already have their own link
+    // treatment.
+    let selector = `main h1, main h2`;
 
     if (!tocContainer) {
       tocContainer = page.document?.querySelectorAll(`.l-toc-changelog-list`)
@@ -614,17 +619,26 @@ site.process([".html"], function processHTMLPages(pages) {
     }
 
     page.document.querySelectorAll<HTMLElement>(selector).forEach((el) => {
-      if (el.hasAttribute("data-skip-anchor")) return;
-
       const text = el.innerText || el.textContent || "";
       const slugPrefix = el.getAttribute("id") || slugify(text);
       if (!slugPrefix) {
         return;
       }
       const slug = fixIdCollisions(slugPrefix);
-      appendAnchorHeader(el, slug);
 
-      if (tocContainer) {
+      const skipAnchor = el.hasAttribute("data-skip-anchor");
+      const skipToc = el.classList.contains("exclude-from-toc");
+
+      if (skipAnchor) {
+        // Ensure the heading still carries a stable id so the TOC (or
+        // other in-page links) can reference it even when the visible #
+        // link is suppressed.
+        el.setAttribute("id", slug);
+      } else {
+        appendAnchorHeader(el, slug);
+      }
+
+      if (!skipToc && tocContainer) {
         hasItems = true;
         const li = page.document!.createElement("li");
         li.setAttribute(
