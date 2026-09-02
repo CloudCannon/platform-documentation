@@ -7,8 +7,8 @@ Machine-readable style rules for AI agents and automated linters. These rules ar
 **For agents making updates to this file:** Also update the corresponding section in `STYLE_GUIDE.mdx` with the prose explanation and examples. Update the revision history in both files: `last_updated` and `style_guide_version` in the YAML block below, and the `Last Updated` and `Version` fields and the revision history table (Section 4) in `STYLE_GUIDE.mdx`.
 
 ```yaml
-style_guide_version: "2.46"
-last_updated: "2026-08-11"
+style_guide_version: "2.47"
+last_updated: "2026-08-28"
 
 documentation_architecture:
   single_source_of_truth:
@@ -118,10 +118,12 @@ terminology:
     - "Site Header"
     - "App Sidebar"
     - "Trial Countdown"
+    - "Git Provider"
+    - "Git Repository"
   
   preferred_terms:
-    "Git repository": ["repo", "git repo"]
-    "Git provider": ["source provider", "git host"]
+    "Git Repository": ["repo", "git repo", "Git repository"]
+    "Git Provider": ["source provider", "git host", "Git provider"]
     "Site files": ["source files"]
     "Configuration File": ["config file"]
     "front matter": ["frontmatter", "Front Matter"]
