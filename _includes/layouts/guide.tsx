@@ -55,7 +55,7 @@ export default function GuideLayout(props: Props, helpers: Helpers) {
   return (
     <div className="l-page"
       data-pagefind-body
-      data-pagefind-weight="30"
+      data-pagefind-weight="6"
       data-pagefind-filter="site:Guides"
       data-pagefind-meta="site:Guides">
       <comp.Layout.PagefindCategoryMeta category={getPagefindContentType(url)} />

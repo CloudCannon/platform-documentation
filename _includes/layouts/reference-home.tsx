@@ -68,7 +68,7 @@ export default function ReferenceHomeLayout(
       className="l-page"
       x-init="showmobilenav = true"
       data-pagefind-body
-      data-pagefind-weight="0.1"
+      data-pagefind-weight="1"
       data-pagefind-filter="site:Reference"
       data-pagefind-meta="site:Reference"
     >
