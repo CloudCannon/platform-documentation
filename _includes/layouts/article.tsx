@@ -49,7 +49,7 @@ export default function ArticleLayout(props: Props, helpers: Helpers) {
   return (
     <div className="l-page" x-init="showmobilenav = true"
         data-pagefind-body
-        data-pagefind-weight={author_notes?.custom_search_weight || 50}
+        data-pagefind-weight={author_notes?.custom_search_weight || 10}
         data-pagefind-filter="site:Articles"
         data-pagefind-meta="site:Articles"
       >
