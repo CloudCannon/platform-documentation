@@ -7,8 +7,8 @@ Machine-readable style rules for AI agents and automated linters. These rules ar
 **For agents making updates to this file:** Also update the corresponding section in `STYLE_GUIDE.mdx` with the prose explanation and examples. Update the revision history in both files: `last_updated` and `style_guide_version` in the YAML block below, and the `Last Updated` and `Version` fields and the revision history table (Section 4) in `STYLE_GUIDE.mdx`.
 
 ```yaml
-style_guide_version: "2.47"
-last_updated: "2026-08-28"
+style_guide_version: "2.48"
+last_updated: "2026-09-04"
 
 documentation_architecture:
   single_source_of_truth:
@@ -202,10 +202,11 @@ voice_and_tense:
       - "Gracefully handles any missing file."
     overstatement_is_a_factual_error: "Most damaging in reference and developer documentation, where readers act on the exact claim. Document only what the implementation does; trace each claim to code, configuration, or observed UI behavior before writing it."
   first_person_plural_we_exceptions:
-    - article_path: "/documentation/developer-articles/what-is-the-visual-editor-api/"
-      note: "Company dogfoods public Visual Editor API (see prose §2.2.5 Exception 1)"
-    - filename_pattern: "introduction-to-*.mdx"
-      note: "Section-introduction articles may use editorial scaffolding such as 'we cover:' or 'Let's briefly introduce these topics.' Keep to one or two sentences per intro; body must still use 'you' for reader actions (see prose §2.2.5 Exception 2)"
+    articles:
+      - article_path: "/documentation/developer-articles/what-is-the-visual-editor-api/"
+        note: "Company dogfoods public Visual Editor API (see prose §2.2.5 Exception 1)"
+      - filename_pattern: "introduction-to-*.mdx"
+        note: "Section-introduction articles may use editorial scaffolding such as 'we cover:' or 'Let's briefly introduce these topics.' Keep to one or two sentences per intro; body must still use 'you' for reader actions (see prose §2.2.5 Exception 2)"
     guide_transition_sentences: "'we'll' is permitted in the closing transition sentence of guide pages (e.g. 'In the next step of this guide, we'll...')"
 
 formatting_rules:
@@ -311,14 +312,20 @@ documentation_types:
     purpose: "Help users understand concepts, features, context, and best practices"
     filename_patterns:
       concept_definition: "what-is-*.mdx"
+      mechanism_question: "how-do-*.mdx | how-does-*.mdx"
       context_benefits: "why-*.mdx"
       best_practices: "best-practice-*.mdx | best-practices-*.mdx"
       section_introduction: "introduction-to-*.mdx"
     title_patterns:
       concept_definition: "What is|What are"
+      mechanism_question: "How do|How does"
       context_benefits: "Why [action/feature]"
       best_practices: "Best practice for|Best practices for"
       section_introduction: "Introduction to"
+    mechanism_question_vs_instructions:
+      rule: "An interrogative title starting 'How do' or 'How does' and ending in a question mark is an Explanation article — it asks how something works. The Instructions pattern 'How to [action]' is task-oriented and takes no question mark. Mirrors STYLE_GUIDE.mdx §2.2.3 and §2.3.3."
+      explanation: ["How do Partners access their Client Organizations?", "How does billing work in the Partner Program?"]
+      instructions: ["How to publish a Site"]
     required_front_matter:
       - "_schema: default"
       - "_uuid: [auto-generated UUID]"
@@ -343,6 +350,11 @@ documentation_types:
         - "Opening definition"
         - "Context and purpose"
         - "Features and functionality"
+        - "Related information"
+      mechanism_question:
+        - "Opening answer to the title question"
+        - "How it works"
+        - "Variations and limits (optional)"
         - "Related information"
       context_benefits:
         - "Introduction"
@@ -689,6 +701,7 @@ link_formats:
     rephrase_by_title_type:
       action_verb_title: "Rephrase the action-verb (imperative) title as a lowercase gerund phrase, whether the article is categorized Instructions or Explanation. 'Rename your Organization' -> [renaming your Organization]; 'Review and merge a Pull Request' -> [reviewing and merging a Pull Request]; the Explanation article 'Share a Site with Site Sharing' -> [sharing a Site with Site Sharing]"
       explanation_what_title: "'What is/are X?' -> [what X is] / [what X are] — lowercase 'what', verb moved to the end"
+      explanation_how_title: "'How do/does X <verb>?' -> [how X <verbs>] — lowercase 'how', drop the auxiliary do/does, conjugate the verb to agree with the subject ('How do Partners access their Client Organizations?' -> [how Partners access their Client Organizations]; 'How does billing work in the Partner Program?' -> [how billing works in the Partner Program])"
       explanation_why_title: "'Why <verb> X?' -> [why to <verb> X]"
     inline_noun_reference_exception: "When the link is a courtesy hover-to-learn-more on a noun already in the sentence (not a cross-link pointer), use that noun as the link text, capitalized per the CloudCannon term (e.g. [Testing Domain]), not a rephrased title."
     position_decides_not_termhood: "Grammatical position, not whether the target is a CloudCannon term, decides bare-vs-rephrased. A term-named article is still rephrased when it sits in the cross-link frame ([what Custom Permission Groups are], [sharing a Site with Site Sharing] — NOT [Custom Permission Groups] or [Site Sharing]). Use the bare term only when it's the actual noun of the surrounding sentence (e.g. 'anyone in the [Default Permission Groups] can publish')."
@@ -732,17 +745,17 @@ components:
       pricing_and_permissions_order: "When an article genuinely needs both a pricing and a permissions notice (it gates on both plan and permission), place the pricing notice first, immediately followed by the permissions notice, before any other content. Pricing comes first because plan availability is the more fundamental gate — a reader on the wrong plan does not need the permission requirements. Mirrors STYLE_GUIDE.mdx §1.5.1."
       destructive_action_notice_stack: "For a destructive or irreversible action (e.g. deleting an Organization or Site), stack a permissions notice first (who can perform the action), immediately followed by an important notice stating the irreversibility and what is lost, before any other content. The irreversibility warning is a load-bearing caveat the reader must see before acting, so two notices at the top is expected here, not overuse. Mirrors STYLE_GUIDE.mdx §1.5.1."
     pricing_notice_content:
-      single_feature_form: "**This feature is available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise Plan</a>.** OR ***Feature Name* is available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise Plan</a>.**"
+      single_feature_form: '**This feature is available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise Plan</a>.** OR ***Feature Name* is available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise Plan</a>.**'
       overview_article_form: "Name the gated sub-features the article actually discusses; do not list the full set of gated features under the parent"
       examples:
         correct:
-          - "**This feature is available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise Plan</a>.**"
-          - "***Deploy Previews* are available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise Plan</a>.**"
-          - "***Projects* are available on all Plans. *Site* branching and *Publishing Workflows* are available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise Plan</a>.**"
-          - "**The *Pull Requests* tab and *Deploy Previews* settings are available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise Plan</a>. Other parts of the *Project Browser* are available on all Plans.**"
+          - '**This feature is available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise Plan</a>.**'
+          - '***Deploy Previews* are available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise Plan</a>.**'
+          - '***Projects* are available on all Plans. *Site* branching and *Publishing Workflows* are available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise Plan</a>.**'
+          - '**The *Pull Requests* tab and *Deploy Previews* settings are available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise Plan</a>. Other parts of the *Project Browser* are available on all Plans.**'
         incorrect:
-          - "**Some features are only available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise Plan</a>.**"  # vague — doesn't say which features
-          - "**This feature is available on our** [**Team or Enterprise Plan**](https://cloudcannon.com/pricing/)**.**"  # over-wrapped bold/link splits; also: non-doc links must be HTML anchors, not markdown
+          - '**Some features are only available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise Plan</a>.**'  # vague — doesn't say which features
+          - '**This feature is available on our** [**Team or Enterprise Plan**](https://cloudcannon.com/pricing/)**.**'  # over-wrapped bold/link splits; also: non-doc links must be HTML anchors, not markdown
     general_rules:
       - "Prefer one notice at the start of an article (permissions, pricing, or important — never info). Two exceptions where stacking at the top is expected: (1) an article gating on both plan and permission stacks pricing then permissions (see pricing_and_permissions_order); (2) a destructive/irreversible action stacks the permissions notice then an important irreversibility notice (see destructive_action_notice_stack)."
       - "Keep notice text concise"
