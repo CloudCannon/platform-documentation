@@ -7,7 +7,7 @@ Machine-readable style rules for AI agents and automated linters. These rules ar
 **For agents making updates to this file:** Also update the corresponding section in `STYLE_GUIDE.mdx` with the prose explanation and examples. Update the revision history in both files: `last_updated` and `style_guide_version` in the YAML block below, and the `Last Updated` and `Version` fields and the revision history table (Section 4) in `STYLE_GUIDE.mdx`.
 
 ```yaml
-style_guide_version: "2.50"
+style_guide_version: "2.52"
 last_updated: "2026-09-08"
 
 documentation_architecture:
@@ -116,7 +116,9 @@ terminology:
     - "Organizations Browser"
     - "Filter Bar"
     - "Card"
+    - "Context Menu"
     - "Site Navigation"
+    - "Section Navigation"
     - "Site Header"
     - "App Sidebar"
     - "Trial Countdown"
@@ -510,6 +512,7 @@ documentation_types:
           - "App Sidebar"
           - "Site Header"
           - "Site Navigation"
+          - "Section Navigation"
           - "Trial Countdown"   # the days-remaining trial indicator in the App Sidebar
           - "Collection Browser"
           - "File Browser"
@@ -517,6 +520,7 @@ documentation_types:
           - "Organizations Browser"
           - "Filter Bar"   # the filter element above a list; the button inside it is Add Filter
           - "Card"         # the repeated item block used throughout the app: browsers, lists, and inside inputs
+          - "Context Menu" # the menu a control opens in place; written as "the *Context Menu*", never prefixed with its heading
         core_concepts:
           - "Site"
           - "Organization"
@@ -618,6 +622,20 @@ documentation_types:
           incorrect:
             - "Members of the Owners and Developers [Default Permission Groups]"
         note: "Applies inside permissions notices. Body prose discussing groups as a category can stay plain."
+
+      specific_group_names_in_body_prose:
+        rule: "When body prose names a specific Permission Group, put the group name and 'Permission Group' in ONE italic span: *Owners Permission Group*, *Billing Permission Group*, *Partner Permission Group*. Use the plural where the app's group name is plural (Owners, Editors, Technical Editors). Never split into two spans, and never singularise a plural group name."
+        add_default_when: "Insert 'Default' only when the default-vs-custom distinction is doing work in the sentence, normally a comparison with *Custom Permission Groups*: *Owners Default Permission Group*."
+        shorthand: "'*Owners* group' is acceptable in running prose after the full name has been used."
+        scope_note: "Does not change group_names_in_permissions_notices, which governs the notice pattern *Owners* [Default Permission Groups](...)."
+        examples:
+          correct:
+            - "Members of the *Owners Permission Group* in your *Partner Organization* see every client."
+            - "Only members of the *Owners Default Permission Group* can view, create, and delete *API Keys*. You can grant each of these actions to a *Custom Permission Group*."  # comparison, so Default earns its place
+          incorrect:
+            - "Members of the *Owners* *Permission Group*…"        # two spans
+            - "Members of the *Owner Permission Group*…"           # singular; the group is named Owners
+            - "CloudCannon adds you to the *Owners Default Permission Group*."  # nothing contrasted; drop Default
 
     cross_reference_rules:
       italicize_cloudcannon_terms: true
