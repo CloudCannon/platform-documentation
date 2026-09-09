@@ -7,8 +7,8 @@ Machine-readable style rules for AI agents and automated linters. These rules ar
 **For agents making updates to this file:** Also update the corresponding section in `STYLE_GUIDE.mdx` with the prose explanation and examples. Update the revision history in both files: `last_updated` and `style_guide_version` in the YAML block below, and the `Last Updated` and `Version` fields and the revision history table (Section 4) in `STYLE_GUIDE.mdx`.
 
 ```yaml
-style_guide_version: "2.52"
-last_updated: "2026-09-08"
+style_guide_version: "2.54"
+last_updated: "2026-09-09"
 
 documentation_architecture:
   single_source_of_truth:
@@ -260,6 +260,16 @@ formatting_rules:
       incorrect:
         - "Click *Apply Coupon*."
       exception: "When the descriptor is part of the literal label (e.g. the *Project Settings* tab), the whole name is the label; do not add a second descriptor."
+    interpolated_labels:
+      rule: "When a control builds its label from a value (the plan, Project, or Team Member it acts on), put the variable part in square brackets inside the italics: *Delete [Project Name]*, *View as [Team Member Name]*, *Select [Plan Name]*. The control-type descriptor stays plain and outside the italics. Never quote only the fixed part of the label, never hardcode one variant, and do not talk around it with a generic phrase — the bracketed placeholder carries the label shape the reader matches against the screen. Mirrors STYLE_GUIDE.mdx §1.4.1 (Labels That Include a Variable)."
+      correct:
+        - "Click the *Delete [Project Name]* button."
+        - "Select the *View as [Team Member Name]* option."
+        - "Click the *Select [Plan Name]* button under the *Subscription Plan* you want."
+      incorrect:
+        - "Click the *Select* button."            # partial quote; the button reads "Select Standard"
+        - "Click the *Select Standard* button."   # hardcodes one variant
+        - "Click the button for the plan you want."  # talks around the label
   
   concept_capitalization:
     rule: "Capitalize when referring to CloudCannon-specific concept"
@@ -556,6 +566,7 @@ documentation_types:
           - "Add-On"
           - "Overage"
           - "Billing Period"
+          - "Free Trial"
         all_input_types: true
       
       do_not_italicize:
@@ -945,6 +956,7 @@ validation_rules:
     - "incorrect_capitalization"
     - "non_italicized_ui_elements"
     - "interaction_missing_control_type (a bare 'Click *X*' with no control-type descriptor like button/link/icon/tab/field)"
+    - "partial_ui_label_quote (an italicised label quoting only the fixed part of an interpolated control label, e.g. *Select* for a button that reads 'Select Standard'; use the bracketed placeholder form *Select [Plan Name]*)"
     - "bold_used_for_emphasis (bold outside Notice headings and **Term** — definition lists; use *italics* for UI/terms, Notice components for emphasis)"
     - "glossary_links_wrong_format"
     - "changelog_fixes_present_tense"
