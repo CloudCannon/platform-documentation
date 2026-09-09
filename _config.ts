@@ -205,25 +205,6 @@ site.ignore((path) =>
   path.startsWith("/user/glossary/") && path.endsWith(".yml")
 );
 
-// Detect dev mode (serve command uses -s flag)
-const isDevMode = Deno.args.includes("-s") || Deno.args.includes("--serve");
-
-// In dev mode, only load recent changelogs for faster builds
-if (isDevMode) {
-  site.ignore(
-    "changelogs/2015",
-    "changelogs/2016",
-    "changelogs/2017",
-    "changelogs/2018",
-    "changelogs/2019",
-    "changelogs/2020",
-    "changelogs/2021",
-    "changelogs/2022",
-    "changelogs/2023",
-  );
-  console.log("  Dev mode: Loading only recent changelogs (2024-2025)");
-}
-
 // Creates an excerpt for all changelogs saved in description.
 site.preprocess([".md", ".mdx"], function processExcerpt(pages) {
   pages.forEach((page) => {

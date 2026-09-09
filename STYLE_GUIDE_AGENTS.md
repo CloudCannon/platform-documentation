@@ -7,8 +7,8 @@ Machine-readable style rules for AI agents and automated linters. These rules ar
 **For agents making updates to this file:** Also update the corresponding section in `STYLE_GUIDE.mdx` with the prose explanation and examples. Update the revision history in both files: `last_updated` and `style_guide_version` in the YAML block below, and the `Last Updated` and `Version` fields and the revision history table (Section 4) in `STYLE_GUIDE.mdx`.
 
 ```yaml
-style_guide_version: "2.46"
-last_updated: "2026-08-11"
+style_guide_version: "2.54"
+last_updated: "2026-09-09"
 
 documentation_architecture:
   single_source_of_truth:
@@ -114,14 +114,20 @@ terminology:
     - "File Browser"
     - "Sites Browser"
     - "Organizations Browser"
+    - "Filter Bar"
+    - "Card"
+    - "Context Menu"
     - "Site Navigation"
+    - "Section Navigation"
     - "Site Header"
     - "App Sidebar"
     - "Trial Countdown"
+    - "Git Provider"
+    - "Git Repository"
   
   preferred_terms:
-    "Git repository": ["repo", "git repo"]
-    "Git provider": ["source provider", "git host"]
+    "Git Repository": ["repo", "git repo", "Git repository"]
+    "Git Provider": ["source provider", "git host", "Git provider"]
     "Site files": ["source files"]
     "Configuration File": ["config file"]
     "front matter": ["frontmatter", "Front Matter"]
@@ -200,10 +206,11 @@ voice_and_tense:
       - "Gracefully handles any missing file."
     overstatement_is_a_factual_error: "Most damaging in reference and developer documentation, where readers act on the exact claim. Document only what the implementation does; trace each claim to code, configuration, or observed UI behavior before writing it."
   first_person_plural_we_exceptions:
-    - article_path: "/documentation/developer-articles/what-is-the-visual-editor-api/"
-      note: "Company dogfoods public Visual Editor API (see prose §2.2.5 Exception 1)"
-    - filename_pattern: "introduction-to-*.mdx"
-      note: "Section-introduction articles may use editorial scaffolding such as 'we cover:' or 'Let's briefly introduce these topics.' Keep to one or two sentences per intro; body must still use 'you' for reader actions (see prose §2.2.5 Exception 2)"
+    articles:
+      - article_path: "/documentation/developer-articles/what-is-the-visual-editor-api/"
+        note: "Company dogfoods public Visual Editor API (see prose §2.2.5 Exception 1)"
+      - filename_pattern: "introduction-to-*.mdx"
+        note: "Section-introduction articles may use editorial scaffolding such as 'we cover:' or 'Let's briefly introduce these topics.' Keep to one or two sentences per intro; body must still use 'you' for reader actions (see prose §2.2.5 Exception 2)"
     guide_transition_sentences: "'we'll' is permitted in the closing transition sentence of guide pages (e.g. 'In the next step of this guide, we'll...')"
 
 formatting_rules:
@@ -253,6 +260,16 @@ formatting_rules:
       incorrect:
         - "Click *Apply Coupon*."
       exception: "When the descriptor is part of the literal label (e.g. the *Project Settings* tab), the whole name is the label; do not add a second descriptor."
+    interpolated_labels:
+      rule: "When a control builds its label from a value (the plan, Project, or Team Member it acts on), put the variable part in square brackets inside the italics: *Delete [Project Name]*, *View as [Team Member Name]*, *Select [Plan Name]*. The control-type descriptor stays plain and outside the italics. Never quote only the fixed part of the label, never hardcode one variant, and do not talk around it with a generic phrase — the bracketed placeholder carries the label shape the reader matches against the screen. Mirrors STYLE_GUIDE.mdx §1.4.1 (Labels That Include a Variable)."
+      correct:
+        - "Click the *Delete [Project Name]* button."
+        - "Select the *View as [Team Member Name]* option."
+        - "Click the *Select [Plan Name]* button under the *Subscription Plan* you want."
+      incorrect:
+        - "Click the *Select* button."            # partial quote; the button reads "Select Standard"
+        - "Click the *Select Standard* button."   # hardcodes one variant
+        - "Click the button for the plan you want."  # talks around the label
   
   concept_capitalization:
     rule: "Capitalize when referring to CloudCannon-specific concept"
@@ -309,14 +326,20 @@ documentation_types:
     purpose: "Help users understand concepts, features, context, and best practices"
     filename_patterns:
       concept_definition: "what-is-*.mdx"
+      mechanism_question: "how-do-*.mdx | how-does-*.mdx"
       context_benefits: "why-*.mdx"
       best_practices: "best-practice-*.mdx | best-practices-*.mdx"
       section_introduction: "introduction-to-*.mdx"
     title_patterns:
       concept_definition: "What is|What are"
+      mechanism_question: "How do|How does"
       context_benefits: "Why [action/feature]"
       best_practices: "Best practice for|Best practices for"
       section_introduction: "Introduction to"
+    mechanism_question_vs_instructions:
+      rule: "An interrogative title starting 'How do' or 'How does' and ending in a question mark is an Explanation article — it asks how something works. The Instructions pattern 'How to [action]' is task-oriented and takes no question mark. Mirrors STYLE_GUIDE.mdx §2.2.3 and §2.3.3."
+      explanation: ["How do Partners access their Client Organizations?", "How does billing work in the Partner Program?"]
+      instructions: ["How to publish a Site"]
     required_front_matter:
       - "_schema: default"
       - "_uuid: [auto-generated UUID]"
@@ -341,6 +364,11 @@ documentation_types:
         - "Opening definition"
         - "Context and purpose"
         - "Features and functionality"
+        - "Related information"
+      mechanism_question:
+        - "Opening answer to the title question"
+        - "How it works"
+        - "Variations and limits (optional)"
         - "Related information"
       context_benefits:
         - "Introduction"
@@ -494,11 +522,15 @@ documentation_types:
           - "App Sidebar"
           - "Site Header"
           - "Site Navigation"
+          - "Section Navigation"
           - "Trial Countdown"   # the days-remaining trial indicator in the App Sidebar
           - "Collection Browser"
           - "File Browser"
           - "Sites Browser"
           - "Organizations Browser"
+          - "Filter Bar"   # the filter element above a list; the button inside it is Add Filter
+          - "Card"         # the repeated item block used throughout the app: browsers, lists, and inside inputs
+          - "Context Menu" # the menu a control opens in place; written as "the *Context Menu*", never prefixed with its heading
         core_concepts:
           - "Site"
           - "Organization"
@@ -534,6 +566,7 @@ documentation_types:
           - "Add-On"
           - "Overage"
           - "Billing Period"
+          - "Free Trial"
         all_input_types: true
       
       do_not_italicize:
@@ -559,6 +592,12 @@ documentation_types:
           - "permission — ONLY the being-allowed sense, 'permission to [do something]' (you have permission to publish; give someone permission to edit)"
           - "scope — generic sense only (out of scope; the scope of the project)"
           - "exception — generic sense only (the exception is `site-branch`; with the exception of)"
+
+      unlabelled_containers_are_still_terms:
+        rule: "A UI element does not need a visible label in the app to be a CloudCannon term. Containers such as the Filter Bar, a Card, or the App Sidebar are named by the documentation even though the app renders no such string — the app labels the controls INSIDE them (Add Filter, Save). Never conclude a term is invented because it cannot be found in app source, and never rename a container to match a button it contains. Verify a container's name against existing documentation usage, not a source search. Mirrors STYLE_GUIDE.mdx §1.4.1."
+        examples:
+          - "*Filter Bar* is the element; *Add Filter* is the button inside it"
+          - "*Card* is the element; the app labels no string 'Card' in a list view"
 
       compound_nouns_with_concepts:
         rule: "When a CloudCannon concept is followed by a generic descriptor (page, tab, section, view, link, button), italicise only the concept, not the descriptor"
@@ -594,6 +633,20 @@ documentation_types:
           incorrect:
             - "Members of the Owners and Developers [Default Permission Groups]"
         note: "Applies inside permissions notices. Body prose discussing groups as a category can stay plain."
+
+      specific_group_names_in_body_prose:
+        rule: "When body prose names a specific Permission Group, put the group name and 'Permission Group' in ONE italic span: *Owners Permission Group*, *Billing Permission Group*, *Partner Permission Group*. Use the plural where the app's group name is plural (Owners, Editors, Technical Editors). Never split into two spans, and never singularise a plural group name."
+        add_default_when: "Insert 'Default' only when the default-vs-custom distinction is doing work in the sentence, normally a comparison with *Custom Permission Groups*: *Owners Default Permission Group*."
+        shorthand: "'*Owners* group' is acceptable in running prose after the full name has been used."
+        scope_note: "Does not change group_names_in_permissions_notices, which governs the notice pattern *Owners* [Default Permission Groups](...)."
+        examples:
+          correct:
+            - "Members of the *Owners Permission Group* in your *Partner Organization* see every client."
+            - "Only members of the *Owners Default Permission Group* can view, create, and delete *API Keys*. You can grant each of these actions to a *Custom Permission Group*."  # comparison, so Default earns its place
+          incorrect:
+            - "Members of the *Owners* *Permission Group*…"        # two spans
+            - "Members of the *Owner Permission Group*…"           # singular; the group is named Owners
+            - "CloudCannon adds you to the *Owners Default Permission Group*."  # nothing contrasted; drop Default
 
     cross_reference_rules:
       italicize_cloudcannon_terms: true
@@ -687,6 +740,7 @@ link_formats:
     rephrase_by_title_type:
       action_verb_title: "Rephrase the action-verb (imperative) title as a lowercase gerund phrase, whether the article is categorized Instructions or Explanation. 'Rename your Organization' -> [renaming your Organization]; 'Review and merge a Pull Request' -> [reviewing and merging a Pull Request]; the Explanation article 'Share a Site with Site Sharing' -> [sharing a Site with Site Sharing]"
       explanation_what_title: "'What is/are X?' -> [what X is] / [what X are] — lowercase 'what', verb moved to the end"
+      explanation_how_title: "'How do/does X <verb>?' -> [how X <verbs>] — lowercase 'how', drop the auxiliary do/does, conjugate the verb to agree with the subject ('How do Partners access their Client Organizations?' -> [how Partners access their Client Organizations]; 'How does billing work in the Partner Program?' -> [how billing works in the Partner Program])"
       explanation_why_title: "'Why <verb> X?' -> [why to <verb> X]"
     inline_noun_reference_exception: "When the link is a courtesy hover-to-learn-more on a noun already in the sentence (not a cross-link pointer), use that noun as the link text, capitalized per the CloudCannon term (e.g. [Testing Domain]), not a rephrased title."
     position_decides_not_termhood: "Grammatical position, not whether the target is a CloudCannon term, decides bare-vs-rephrased. A term-named article is still rephrased when it sits in the cross-link frame ([what Custom Permission Groups are], [sharing a Site with Site Sharing] — NOT [Custom Permission Groups] or [Site Sharing]). Use the bare term only when it's the actual noun of the surrounding sentence (e.g. 'anyone in the [Default Permission Groups] can publish')."
@@ -726,21 +780,23 @@ components:
       info: "Inline, close to relevant content. Must not be the first element in an article."
       important: "Can be first if the information affects the entire article; otherwise inline."
       permissions: "Must be at the top of the article, immediately after front matter, before any body content. Always start with bold 'Permissions required' heading. When a pricing notice is also present, the pricing notice comes first and the permissions notice immediately follows it (see pricing_and_permissions_order)."
-      pricing: "Can be first if the entire feature is plan-specific; otherwise inline. When both a pricing and a permissions notice are present, the pricing notice comes first (see pricing_and_permissions_order)."
+      pricing: "Can be first if the entire feature is gated; otherwise inline. When both a pricing and a permissions notice are present, the pricing notice comes first (see pricing_and_permissions_order)."
       pricing_and_permissions_order: "When an article genuinely needs both a pricing and a permissions notice (it gates on both plan and permission), place the pricing notice first, immediately followed by the permissions notice, before any other content. Pricing comes first because plan availability is the more fundamental gate — a reader on the wrong plan does not need the permission requirements. Mirrors STYLE_GUIDE.mdx §1.5.1."
       destructive_action_notice_stack: "For a destructive or irreversible action (e.g. deleting an Organization or Site), stack a permissions notice first (who can perform the action), immediately followed by an important notice stating the irreversibility and what is lost, before any other content. The irreversibility warning is a load-bearing caveat the reader must see before acting, so two notices at the top is expected here, not overuse. Mirrors STYLE_GUIDE.mdx §1.5.1."
     pricing_notice_content:
-      single_feature_form: "**This feature is available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise Plan</a>.** OR ***Feature Name* is available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise Plan</a>.**"
+      scope: "The pricing notice answers 'can I use this?', not only 'which plan is this on'. Use it for any access gate: a Subscription Plan tier, a private Beta the reader must request access to, or a programme they must belong to. Reserve `important` for caveats about using a feature the reader already has. Mirrors STYLE_GUIDE.mdx §1.5.1."
+      non_plan_gate_form: "State the gate and how to get through it. Private Beta: '**This feature is available through a private Beta.**' followed by what it covers and a support contact. If access is granted per account rather than per Organization, say so."
+      single_feature_form: '**This feature is available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise Plan</a>.** OR ***Feature Name* is available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise Plan</a>.**'
       overview_article_form: "Name the gated sub-features the article actually discusses; do not list the full set of gated features under the parent"
       examples:
         correct:
-          - "**This feature is available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise Plan</a>.**"
-          - "***Deploy Previews* are available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise Plan</a>.**"
-          - "***Projects* are available on all Plans. *Site* branching and *Publishing Workflows* are available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise Plan</a>.**"
-          - "**The *Pull Requests* tab and *Deploy Previews* settings are available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise Plan</a>. Other parts of the *Project Browser* are available on all Plans.**"
+          - '**This feature is available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise Plan</a>.**'
+          - '***Deploy Previews* are available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise Plan</a>.**'
+          - '***Projects* are available on all Plans. *Site* branching and *Publishing Workflows* are available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise Plan</a>.**'
+          - '**The *Pull Requests* tab and *Deploy Previews* settings are available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise Plan</a>. Other parts of the *Project Browser* are available on all Plans.**'
         incorrect:
-          - "**Some features are only available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise Plan</a>.**"  # vague — doesn't say which features
-          - "**This feature is available on our** [**Team or Enterprise Plan**](https://cloudcannon.com/pricing/)**.**"  # over-wrapped bold/link splits; also: non-doc links must be HTML anchors, not markdown
+          - '**Some features are only available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise Plan</a>.**'  # vague — doesn't say which features
+          - '**This feature is available on our** [**Team or Enterprise Plan**](https://cloudcannon.com/pricing/)**.**'  # over-wrapped bold/link splits; also: non-doc links must be HTML anchors, not markdown
     general_rules:
       - "Prefer one notice at the start of an article (permissions, pricing, or important — never info). Two exceptions where stacking at the top is expected: (1) an article gating on both plan and permission stacks pricing then permissions (see pricing_and_permissions_order); (2) a destructive/irreversible action stacks the permissions notice then an important irreversibility notice (see destructive_action_notice_stack)."
       - "Keep notice text concise"
@@ -900,6 +956,7 @@ validation_rules:
     - "incorrect_capitalization"
     - "non_italicized_ui_elements"
     - "interaction_missing_control_type (a bare 'Click *X*' with no control-type descriptor like button/link/icon/tab/field)"
+    - "partial_ui_label_quote (an italicised label quoting only the fixed part of an interpolated control label, e.g. *Select* for a button that reads 'Select Standard'; use the bracketed placeholder form *Select [Plan Name]*)"
     - "bold_used_for_emphasis (bold outside Notice headings and **Term** — definition lists; use *italics* for UI/terms, Notice components for emphasis)"
     - "glossary_links_wrong_format"
     - "changelog_fixes_present_tense"

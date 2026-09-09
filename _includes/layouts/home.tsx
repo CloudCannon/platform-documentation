@@ -41,6 +41,7 @@ interface Props {
   hero_title: string;
   user_docs?: DocSection;
   developer_docs?: DocSection;
+  partner_docs?: DocSection;
   changelog?: LinkSection;
   community?: CommunitySection;
   beta?: BetaSection;
@@ -53,6 +54,7 @@ export default function HomeLayout(props: Props, helpers: Helpers) {
     hero_title,
     user_docs,
     developer_docs,
+    partner_docs,
     changelog,
     community,
     beta,
@@ -137,17 +139,18 @@ export default function HomeLayout(props: Props, helpers: Helpers) {
         {/* Developer Documentation Card */}
         {developer_docs && renderDocCard(developer_docs, "developer_docs")}
 
+        {/* Partner Documentation Card */}
+        {partner_docs && renderDocCard(partner_docs, "partner_docs", false)}
+
         {/* Changelog Card */}
         {changelog && (
-          <div style={{ "grid-column": "span 2" }}>
-            <comp.Card.Card
-              href={changelog.url}
-              title={changelog.heading}
-              description={changelog.description}
-              showArrow
-              helpers={helpers}
-            />
-          </div>
+          <comp.Card.Card
+            href={changelog.url}
+            title={changelog.heading}
+            description={changelog.description}
+            showArrow
+            helpers={helpers}
+          />
         )}
       </div>
 
