@@ -7,8 +7,8 @@ Machine-readable style rules for AI agents and automated linters. These rules ar
 **For agents making updates to this file:** Also update the corresponding section in `STYLE_GUIDE.mdx` with the prose explanation and examples. Update the revision history in both files: `last_updated` and `style_guide_version` in the YAML block below, and the `Last Updated` and `Version` fields and the revision history table (Section 4) in `STYLE_GUIDE.mdx`.
 
 ```yaml
-style_guide_version: "2.54"
-last_updated: "2026-09-09"
+style_guide_version: "2.63"
+last_updated: "2026-09-10"
 
 documentation_architecture:
   single_source_of_truth:
@@ -17,6 +17,29 @@ documentation_architecture:
     similarity_ok: "Similar content across pages covering DIFFERENT topics is accurate, not duplication (e.g. Snippets pages, where each snippet type behaves similarly but has its own home)."
     avoid: "The SAME behavior or appearance documented in full on two pages, even when both are accurate — dilutes search and will drift. Consolidate to one authoritative page; others defer with a short summary and a link."
     always_cross_link: true
+    split_on_the_readers_question:
+      rule: "A page covers ONE question. A title naming a subject area, a settings screen, or two unlike things is a bundle; content answering a different question moves to the page that owns that question, however topically adjacent. A shared location in the app is NOT a reason to share a page. Mirrors STYLE_GUIDE.mdx architecture section."
+      worked_examples:
+        - "Partner access and permissions (subject-area bundle, 6 sections) -> How do Partners access their Client Organizations? (3 sections); auditing compressed to one sentence, removing access moved to hand-over-or-detach, the client's view moved to the client-audience article"
+        - "Merging and Pull Requests (action bundled with a concept) -> Review and merge a Pull Request; the concept keeps What is a Pull Request?"
+        - "Enable pull request features (keyed to a settings screen) -> Configure Deploy Previews + Turn on optional Project tabs"
+    combine_when_one_decision:
+      rule: "Options the reader must compare belong on one page, and that page needs the section neither half could carry alone (a 'How to choose' or equivalent). Two pages each describing one half of a choice leave the choice undocumented."
+      worked_example: "Structure Sites across Organizations and Projects + Structure your clients' Sites -> Best practices for structuring client Sites, which gained '## How to choose'"
+    conjunction_titles:
+      rule: "A conjunction in a title is a signal to check, not a fault. It is correct when the two things are decided together."
+      legitimate_classes:
+        paired_routes: ["Hand over or detach a Client Organization", "Join or leave an Organization", "Enable or disable a flag"]
+        one_mechanism_two_faces: ["What are Add-Ons and Overages?", "What are Partner Points and Rewards?"]
+        one_artifact_two_forms: ["Download invoices and receipts", "Edit your Project name and description"]
+      split_instead_when: "The conjunction joins different KINDS of thing: an action with a concept, or a screen with its contents."
+    deferring_is_routing:
+      rule: "A page that defers keeps only the sentence its own question needs, and its pointer names what the reader will find at the target. Never keep the full procedure on both the deferring and the owning page."
+      correct: "For how to give your client control of a Client Organization, and what detaching changes, please read our documentation on [handing over or detaching a Client Organization](...)."
+      incorrect: "For more information on these processes, please read our documentation on [handing over or detaching a Client Organization](...)."
+    split_by_audience:
+      rule: "When two audiences need the same event framed differently, give each its own page with its own title, and have the MANAGING audience's page point to the other. One direction only. See documentation_types.explanation.action_shaped.structure for the pointer section."
+      worked_example: "partner/articles/hand-over-or-detach-a-client-organization.mdx points to user/articles/take-over-your-organization-from-a-partner.mdx, not the reverse"
     tie_breaker: "When pages disagree, accuracy wins, not recency. App behavior and STYLE_GUIDE.mdx are the ultimate tie-breakers; fix toward them."
 
 terminology:
@@ -49,7 +72,8 @@ terminology:
   plan_capitalization:
     rule: "Plan names are capitalized AND italicized. The product noun 'Plan' must never appear bare — a tier name or the word 'Subscription' must immediately precede it every time. Write '*[Tier] Plan*' (*Standard Plan*, *Team Plan*, *Enterprise Plan*, *Free Plan*) or '*Subscription Plan*' (plural *Subscription Plans*). Rephrase every former head-noun, state-descriptor, and attributive use to carry 'Subscription'."
     italicize_and_capitalize:
-      - "Named tiers: *Standard Plan*, *Team Plan*, *Enterprise Plan*, *Free Plan*"
+      - "Named tiers: *Standard Plan*, *Team Plan*, *Enterprise Plan*, *Free Plan*, *Lite Plan*"
+      - "*Lite Plan* is offered only to Partner Program members for their Client Organizations; document it in partner/ only"
       - "Generic product noun: *Subscription Plan*, *Subscription Plans*"
     never_bare_plan:
       rule: "'Plan' as the product noun never stands with only an article, possessive, or adjective in front of it, and never modifies another noun on its own. Rephrase so a tier name or 'Subscription' immediately precedes 'Plan'."
@@ -114,6 +138,12 @@ terminology:
     - "File Browser"
     - "Sites Browser"
     - "Organizations Browser"
+    - "Client Organizations Browser"
+    - "Site Dashboard"
+    - "Organization Home"
+    - "Editing Interface"
+    - "Editing Interface Header"
+    - "Editable Region"
     - "Filter Bar"
     - "Card"
     - "Context Menu"
@@ -124,6 +154,15 @@ terminology:
     - "Trial Countdown"
     - "Git Provider"
     - "Git Repository"
+    - "Subscription"        # an Organization's billing relationship with CloudCannon
+    - "Subscription Plan"
+    - "Client Organization"
+    - "Partner Organization"
+    - "Partner Program"
+    - "Partner Points"
+    - "Form"
+    - "Inbox"
+    - "Inbox Target"
   
   preferred_terms:
     "Git Repository": ["repo", "git repo", "Git repository"]
@@ -215,6 +254,15 @@ voice_and_tense:
 
 formatting_rules:
   oxford_comma: true
+  latin_abbreviations:
+    rule: "Write e.g. and i.e. with a following comma, and use them only inside parentheses. In running prose, write 'for example'. Mirrors STYLE_GUIDE.mdx §1.2.1."
+    correct: ["(e.g., `jetstream.com`, `www.jetstream.com`)", "for example, a 4 MB webpage"]
+    incorrect: ["(e.g. `jetstream.com`)", "e.g., in running prose without parentheses"]
+  list_item_punctuation:
+    complete_sentences: "Take a period"
+    fragments: "No period. Fragments following a colon lead-in also start lowercase."
+    correct: "'Have ready:' followed by 'your *Organization* name'"
+    incorrect: "'Have ready:' followed by 'Your *Organization* name.'"
   sentence_case_headings: true
   ui_elements_italicized: true   # body text only; see headings_no_italics
   code_inline_backticks: true
@@ -243,6 +291,7 @@ formatting_rules:
     exceptions:
       - "Guide introduction pages (index.mdx): minimal emoji permitted in the welcome opening"
       - "Guide more-resources pages (more-resources.mdx): minimal emoji permitted in the congratulatory opening sentence"
+      - "guide_eyebrow in a guide's _data.yml: a single trailing emoji permitted (e.g. \"Billing 💳\", \"Welcome! 👋\")"
     limits: "Maximum one emoji per page, only in the permitted locations above"
     never_in: ["body content", "instruction steps", "reference material", "changelogs", "glossary entries", "explanation articles"]
 
@@ -330,12 +379,27 @@ documentation_types:
       context_benefits: "why-*.mdx"
       best_practices: "best-practice-*.mdx | best-practices-*.mdx"
       section_introduction: "introduction-to-*.mdx"
+      action_shaped: "slugified imperative title (e.g. hand-over-or-detach-a-client-organization.mdx)"
+      section_index: "index.mdx"
     title_patterns:
       concept_definition: "What is|What are"
       mechanism_question: "How do|How does"
       context_benefits: "Why [action/feature]"
       best_practices: "Best practice for|Best practices for"
       section_introduction: "Introduction to"
+      action_shaped: "[Imperative verb] ..., no question mark"
+      reference_shaped: "bare noun phrase (e.g. 'The File Browser', 'General Flags')"
+      section_index: "About [Section Name]"
+    action_shaped:
+      rule: "An imperative title with no question mark is an Explanation article when it explains an event or relationship the reader takes part in, rather than walking them through one procedure. Understanding-oriented: it covers what the routes are, what each changes, and what the reader cannot do. An Instructions article would instead give numbered steps for one route. Cross-links use the gerund rephrase (see cross_link_pointer). Mirrors STYLE_GUIDE.mdx §2.2.3."
+      examples: ["Hand over or detach a Client Organization", "Take over your Organization from a partner", "Share a Site with Site Sharing", "Understand your CloudCannon invoice"]
+      structure:
+        - "Framing opening (1-2 paragraphs): name the thing and the routes covered; say which routes are independent and in what order they normally happen"
+        - "One ## per route or action, named as the action: what it changes, what it leaves untouched, who can do it"
+        - "Cross-audience pointer (optional, last ##): when the same event is documented for the other side of the relationship, link there. One direction only, from the managing audience to the affected audience"
+        - "Related Information: inline prose, not a standalone section"
+    gerund_titles:
+      rule: "Gerund titles are prohibited for Instruction articles and should be avoided for Explanation articles; prefer the action-shaped or 'What is...?' form. The ban applies to TITLES ONLY: ## headings may use gerunds ('Inviting other Partner Organization members', 'Earning Partner Points'). Mirrors STYLE_GUIDE.mdx §2.2.3."
     mechanism_question_vs_instructions:
       rule: "An interrogative title starting 'How do' or 'How does' and ending in a question mark is an Explanation article — it asks how something works. The Instructions pattern 'How to [action]' is task-oriented and takes no question mark. Mirrors STYLE_GUIDE.mdx §2.2.3 and §2.3.3."
       explanation: ["How do Partners access their Client Organizations?", "How does billing work in the Partner Program?"]
@@ -356,9 +420,13 @@ documentation_types:
       "Not applicable": "The article does not need any CloudCannon app screenshots (e.g. it only has diagrams, code examples, or no images). Do not use this when a screenshot is warranted but missing — that is 'Needs docshots'."
     related_articles_structure:
       max_items: 3
-      _type: ["developer_articles", "user_articles", "developer_guides", "user_guides"]
+      _type: ["developer_articles", "user_articles", "partner_articles", "developer_guides", "user_guides"]
       item: "[UUID of related article]"
       guide_link_rule: "When linking to a guide, include only one page from that guide (normally the index). Do not list multiple pages from the same guide as separate items."
+    section_introduction_topic_sections:
+      rule: "Use ## topic sections only when a topic group holds MORE THAN ONE article. Where each topic is a single article, drop the topic sections and let the topic-summary list carry the links directly, one bullet per article: [Article title](/path/) then an em dash then a one-sentence description. A heading, an explanatory paragraph, and a 'For a more in-depth explanation' lead-in wrapped around a single link is scaffolding, not structure. Mirrors STYLE_GUIDE.mdx §2.2.4."
+      measured_threshold: "Every intro article keeping the sectioned form carries 1.7 to 8.5 links per ## section. The two flattened on 2026-09-09 had exactly one link per topic."
+      flat_examples: ["partner/articles/introduction-to-client-organizations.mdx", "partner/articles/introduction-to-the-partner-program.mdx"]
     structure_varies_by_type:
       concept_definition:
         - "Opening definition"
@@ -405,6 +473,14 @@ documentation_types:
       - "author_notes.docshots: [Added! | Needs docshots | Not applicable]"
     index_title: "Introduction"
     note: "Guides use nested 'details' structure like articles"
+    data_yml_fields:
+      required: ["_schema: guide_data", "_uuid", "guide_title", "guide_summary", "guide_icon", "guide_icon_invert_for_dark_mode", "initial_section_heading"]
+      featured_card_optional:
+        guide_eyebrow: "Short label above the title on a featured guide card; the one place an emoji is permitted in guide metadata (e.g. \"Billing 💳\")"
+        guide_cta_text: "The card's button text, written as an imperative (e.g. \"Set up your subscription\")"
+        guide_image: "The card's thumbnail, separate from guide_icon"
+        guide_priority: "Orders featured cards; leave empty for the default order"
+      note: "_schema must be guide_data, not default, because using default breaks the guide. Mirrors STYLE_GUIDE.mdx §2.4.1a."
     description_length:
       target_characters: 125
       note: "Aim for ~125 characters; fits on a single line in guide listing cards without truncation"
@@ -421,8 +497,9 @@ documentation_types:
       preferred_pattern: "Inline forward references only: embed the link naturally in surrounding prose (e.g. 'We'll discuss this further [later in this guide](/documentation/...)')"
       also_avoid: "Standalone 'For more information, see...' sentences at the end of a page when the target is within the same guide"
       transition_sentence:
-        rule: "End every guide page (except the index and more-resources pages) with a brief unlinked transition sentence previewing the next step"
+        rule: "End every guide page (except more-resources pages) with a brief unlinked transition sentence previewing the next step"
         pattern: "In the next step of this guide, we'll [describe what the next page covers]."
+        index_pattern: "On the introduction (index.mdx): In the first step of this guide, we'll [describe what the first page covers]."
         note: "This is distinct from a closing CTA — it does not link to the next page, it simply signals what's coming. 'we'll' is permitted in this sentence as part of the collaborative guide voice."
         examples:
           - "In the next step of this guide, we'll install Rosey and set it up on your Site from scratch."
@@ -439,6 +516,12 @@ documentation_types:
       heading_examples:
         correct: ["Go further with Rosey", "CloudCannon configuration"]
         incorrect: ["Rosey", "CloudCannon"]
+      user_guide_variant:
+        rule: "The required_elements above are the developer-guide shape. In user/guides/, the support routes go at the END, not under the opening, and the further reading is two levels deep. Mirrors STYLE_GUIDE.mdx §2.4.8."
+        structure:
+          - "Congratulatory opening + accomplishment recap: 'Congratulations! 🎉 You have finished the [Guide Title] guide.' then 'By following each step in this guide, you have...'"
+          - "## [Section] articles (e.g. 'User articles') is the one place a ## heading names a documentation section rather than a reader outcome; contextual ### subheadings beneath it carry that job, each with a one-sentence prose intro and a bullet list"
+          - "## Next steps (last section): one sentence on where the reader stands, then a bullet list of help routes (this guide and the articles above, an Owner who can grant missing access, the support team, the CloudCannon Community), closing with a short sign-off such as 'You're all set!'"
   
   instructions:
     diataxis_category: "task-oriented"
@@ -461,7 +544,7 @@ documentation_types:
       - "author_notes.docshots: [Added! | Needs docshots | Not applicable]"
     related_articles_structure:
       max_items: 3
-      _type: ["developer_articles", "user_articles", "developer_guides", "user_guides"]
+      _type: ["developer_articles", "user_articles", "partner_articles", "developer_guides", "user_guides"]
       item: "[UUID of related article]"
       guide_link_rule: "When linking to a guide, include only one page from that guide (normally the index). Do not list multiple pages from the same guide as separate items."
     step_format: "numbered_list"
@@ -472,6 +555,9 @@ documentation_types:
       rule: "When a task depends on prior setup or a separate action, state it as a prerequisite BEFORE the ordered list — in the intro prose, a 'Before you...' section, or the pattern 'Before we begin, this article assumes...'. Never encode a prerequisite as a numbered step; steps are actions within THIS task. Link to the prerequisite instructions."
       example: "Before we begin, this article assumes you have already configured your Collections."
       mirrors: "STYLE_GUIDE.mdx §2.3.4 item 2 (Prerequisites)"
+    alternative_methods:
+      rule: "Use a ## subheading per method only when each is a full procedure. A second entry point that needs no steps of its own stays inline as one sentence after the main procedure, with no heading. Mirrors STYLE_GUIDE.mdx §2.3.5."
+      inline_example: "Alternatively, you can also create a *Client Organization* from your *Organization Home* page, by clicking the *Create a Client* icon on the *Clients* card."
     numbered_steps:
       content: "imperative_actions_only"
       explanations: "prose_before_list | prose_after_list | prose_between_two_complete_lists"
@@ -518,6 +604,11 @@ documentation_types:
           - "Content Editor"
           - "Data Editor"
           - "Source Editor"
+          - "Editing Interface"        # the four editing surfaces as a group
+          - "Editing Interface Header" # the bar at the top of each
+          - "Editable Region"
+          - "Site Dashboard"
+          - "Organization Home"
           - "Data Panel"
           - "App Sidebar"
           - "Site Header"
@@ -528,12 +619,17 @@ documentation_types:
           - "File Browser"
           - "Sites Browser"
           - "Organizations Browser"
+          - "Client Organizations Browser"
           - "Filter Bar"   # the filter element above a list; the button inside it is Add Filter
           - "Card"         # the repeated item block used throughout the app: browsers, lists, and inside inputs
           - "Context Menu" # the menu a control opens in place; written as "the *Context Menu*", never prefixed with its heading
         core_concepts:
           - "Site"
           - "Organization"
+          - "Client Organization"
+          - "Partner Organization"
+          - "Subscription"
+          - "Subscription Plan"
           - "Project"
           - "Collection"
           - "Dataset"
@@ -544,7 +640,6 @@ documentation_types:
           - "Exception"
           - "Resource"
           - "Base Domain"
-          - "Team Member"
           - "Schema"
           - "Structure"
           - "Configuration File"
@@ -567,6 +662,11 @@ documentation_types:
           - "Overage"
           - "Billing Period"
           - "Free Trial"
+          - "Partner Program"
+          - "Partner Points"
+          - "Form"
+          - "Inbox"
+          - "Inbox Target"
         all_input_types: true
       
       do_not_italicize:
@@ -592,6 +692,26 @@ documentation_types:
           - "permission — ONLY the being-allowed sense, 'permission to [do something]' (you have permission to publish; give someone permission to edit)"
           - "scope — generic sense only (out of scope; the scope of the project)"
           - "exception — generic sense only (the exception is `site-branch`; with the exception of)"
+
+      form_generic_vs_concept:
+        rule: "Italicise *Form* when it names the CloudCannon feature (the *Forms* page, a *Form* reaching an *Inbox*). Leave 'form' plain for the HTML element or the thing a visitor fills in ('add an HTML form to a page', 'the fields on your form', 'a form submission'). Mirrors the concept_vs_action split. See STYLE_GUIDE.mdx §1.4.1."
+
+      app_lowercases_inbox_in_labels:
+        rule: "The concept is *Inbox* / *Inbox Target*, but several app controls lowercase it. Reproduce a control's casing exactly (UI labels always match the app) and keep the concept capitalised in the surrounding prose. Mirrors STYLE_GUIDE.mdx §1.4.1."
+        app_labels: ["*Set default inbox*", "*Unset default inbox for site*", "*Delete inbox from site*", "*Create inbox*", "*Add target*", "*Connected inboxes (1 of 10)*"]
+        correct: "Click the *Set default inbox* option to make this *Inbox* the default."
+        incorrect: "Click the *Set default Inbox* option."
+
+      partner_role_vs_concept:
+        rule: "Italicise *Partner* only where it names the CloudCannon role or group (*Partner Permission Group*; a *Partner* acting in a *Client Organization*). Leave 'partner' and 'agency' plain where they name the company in the relationship. *Partner Program*, *Partner Organization*, *Partner Points*, and *Client Organization* are always italicised. Mirrors STYLE_GUIDE.mdx §1.4.1."
+        italic_when_concept: ["*Partner Permission Group*", "*Partner Program*", "*Partner Organization*", "*Partner Points*", "*Client Organization*"]
+        plain_when_role: ["ask your partner first", "the agency that set up your Organization", "your client's agency"]
+
+      adjacent_italic_spans:
+        rule: "Two italic spans in a row are correct when they name two different things: *Partner Organization's* *Owners Permission Group*, the *Client Organization's* *Team* page. The two-span form is wrong only when it splits a SINGLE name (*Owners* *Permission Group*); see specific_group_names_in_body_prose. Mirrors STYLE_GUIDE.mdx §1.4.1."
+
+      guide_titles_not_italicised:
+        rule: "A guide's own title is plain in prose: 'the Subscribe to CloudCannon guide', not 'the *Subscribe to CloudCannon* guide'. Guide titles are page names, not UI elements. Mirrors STYLE_GUIDE.mdx §1.4.1."
 
       unlabelled_containers_are_still_terms:
         rule: "A UI element does not need a visible label in the app to be a CloudCannon term. Containers such as the Filter Bar, a Card, or the App Sidebar are named by the documentation even though the app renders no such string — the app labels the controls INSIDE them (Add Filter, Save). Never conclude a term is invented because it cannot be found in app source, and never rename a container to match a button it contains. Verify a container's name against existing documentation usage, not a source search. Mirrors STYLE_GUIDE.mdx §1.4.1."
@@ -690,11 +810,18 @@ documentation_types:
 
 link_formats:
   internal_articles:
-    pattern: "/documentation/[user|developer]-articles/[slug]/"
+    pattern: "/documentation/[user|developer|partner]-articles/[slug]/"
     syntax: "[Link text](/documentation/...)"
     examples:
       - "/documentation/user-articles/what-is-a-collection/"
       - "/documentation/developer-articles/configure-your-collections/"
+      - "/documentation/partner-articles/what-is-a-client-organization/"
+
+  heading_anchors:
+    rule: "Append the slugified heading as an anchor when the reader needs one section rather than the whole article. The link text rephrases the HEADING, not the article title, in the same lowercase descriptive form as any other cross-link. The anchor must match the slugified heading exactly, because a renamed heading breaks the link silently. Mirrors STYLE_GUIDE.mdx §1.4.4."
+    examples:
+      - "[leaving a Permission Group](/documentation/user-articles/manage-my-permissions/#leave-a-permission-group)"
+      - "[Owners Permission Group](/documentation/user-articles/what-are-default-permission-groups/#owners)"
   
   internal_guides:
     user_pattern: "/documentation/user-guides/[guide-name]/[page-slug]/"
@@ -737,6 +864,10 @@ link_formats:
   cross_link_pointer:
     rule: "When pointing readers to another article inline, use the sentence frame 'please read our documentation on [descriptive phrase]'. The link text is a lowercase descriptive rephrase of the target article's title — NEVER the verbatim title-cased article name, which duplicates the Pagefind result title."
     rephrase_form_by_title_shape: "Choose the rephrase form from the title's grammatical shape, NOT its Diátaxis category. An action-verb (imperative) title takes the gerund rephrase even when the article is categorized Explanation."
+    navigational_lists_use_the_title:
+      rule: "The rephrase rules below apply to the cross-link pointer frame in PROSE only. A navigational list of further reading (section introduction articles, guide more-resources pages, any list indexing pages) uses the article title VERBATIM as link text, followed by an em dash and a one-sentence description, so the reader can see which page they are being sent to. Mirrors STYLE_GUIDE.mdx §1.4.4."
+      correct_list_entry: "[What is a Client Organization?](/documentation/partner-articles/what-is-a-client-organization/) then an em dash then 'Learn how a Client Organization keeps a client's team and billing separate from your own.'"
+      correct_prose: "please read our documentation on [what a Client Organization is](...)"
     rephrase_by_title_type:
       action_verb_title: "Rephrase the action-verb (imperative) title as a lowercase gerund phrase, whether the article is categorized Instructions or Explanation. 'Rename your Organization' -> [renaming your Organization]; 'Review and merge a Pull Request' -> [reviewing and merging a Pull Request]; the Explanation article 'Share a Site with Site Sharing' -> [sharing a Site with Site Sharing]"
       explanation_what_title: "'What is/are X?' -> [what X is] / [what X are] — lowercase 'what', verb moved to the end"
@@ -781,6 +912,8 @@ components:
       important: "Can be first if the information affects the entire article; otherwise inline."
       permissions: "Must be at the top of the article, immediately after front matter, before any body content. Always start with bold 'Permissions required' heading. When a pricing notice is also present, the pricing notice comes first and the permissions notice immediately follows it (see pricing_and_permissions_order)."
       pricing: "Can be first if the entire feature is gated; otherwise inline. When both a pricing and a permissions notice are present, the pricing notice comes first (see pricing_and_permissions_order)."
+      section_scoped_gate: "A gate scoped to ONE option or section belongs immediately under that heading, not at the top. When an article compares several approaches and only one is gated, or a single section covers a gated capability, hoisting the notice would overstate the gate as covering the article's whole subject, which pricing_notice_content's 'identify the gated feature' rule exists to prevent. A gate on the article's subject still goes at the top. Mirrors STYLE_GUIDE.mdx §1.5.1."
+      guides_carry_no_permissions_notice: "Guide pages never use a permissions notice. State the access a guide requires as a prerequisite bullet on its index.mdx, and mention a step's specific requirement in an inline info notice where it applies. The permissions notice is an article pattern. Mirrors STYLE_GUIDE.mdx §1.5.1."
       pricing_and_permissions_order: "When an article genuinely needs both a pricing and a permissions notice (it gates on both plan and permission), place the pricing notice first, immediately followed by the permissions notice, before any other content. Pricing comes first because plan availability is the more fundamental gate — a reader on the wrong plan does not need the permission requirements. Mirrors STYLE_GUIDE.mdx §1.5.1."
       destructive_action_notice_stack: "For a destructive or irreversible action (e.g. deleting an Organization or Site), stack a permissions notice first (who can perform the action), immediately followed by an important notice stating the irreversibility and what is lost, before any other content. The irreversibility warning is a load-bearing caveat the reader must see before acting, so two notices at the top is expected here, not overuse. Mirrors STYLE_GUIDE.mdx §1.5.1."
     pricing_notice_content:
@@ -812,6 +945,15 @@ components:
       screenshot: "Full viewport screenshots showing the entire CloudCannon interface"
       ui-snippet: "Cropped screenshots of specific UI elements like inputs, buttons, dropdowns, or modals"
     naming: "Hyphenated names describing the page and state (e.g., Site-Settings-Syncing-Connected)"
+    alt_frame:
+      rule: "Open alt text with 'A screenshot of the [surface]', then say what it shows. Use 'A screenshot of a...' for one instance of a repeated thing, and 'A closeup of the...' for a tight crop. Mirrors STYLE_GUIDE.mdx §1.5.2."
+      example: 'alt="A screenshot of the Invoices page in CloudCannon, showing a list of past invoices grouped by year."'
+    title_frame:
+      rule: "Titles take the form 'The [name] [control type]': 'The Site Dashboard', 'The Add SSL Certificate modal', 'The Payment details section'. Sentence case for the surrounding words."
+    terms_in_attributes:
+      rule: "Capitalize CloudCannon terms inside alt and title, and never italicise them, since attributes render as plain text and asterisks would be literal. Applies to DocShot, DocsImage, DocsVideo, and Mermaid. Mirrors STYLE_GUIDE.mdx §1.5.2."
+      correct: ['title="The Trial Countdown in the App Sidebar"']
+      incorrect: ['title="The trial countdown in the App Sidebar"', 'alt="...the context menu..."', 'title="The *Site Dashboard*"']
 
   docsimage:
     usage: "Illustrations, diagrams, conceptual graphics, and external screenshots only. Never for CloudCannon app images — those use comp.DocShot."
@@ -830,6 +972,7 @@ components:
       - "Structural diagrams expressible in Mermaid syntax — flowcharts, sequence diagrams, decision trees (use comp.Mermaid instead)"
 
   mermaid:
+    alt_frame: "Open Mermaid alt text with 'A diagram shows', the diagram counterpart to the DocShot alt frame. Mirrors STYLE_GUIDE.mdx §1.5.5."
     usage: "Structural diagrams whose source can be expressed in Mermaid syntax — flowcharts, sequence diagrams, decision trees, simple architecture sketches. Rendered in the reader's browser at page load via mermaid.js."
     required_attributes:
       - "chart (Mermaid source as a template literal)"
@@ -953,6 +1096,21 @@ validation_rules:
     - "markdown_syntax_used_for_external_links"
     - "inconsistent_terminology"
     - "missing_oxford_commas"
+    - "vague_defer_pointer (a cross-link pointer that does not say what is at the target, e.g. 'for more information on these processes')"
+    - "duplicated_procedure (the same procedure documented in full on both the deferring page and the owning page)"
+    - "intro_section_wrapping_single_link (a ## topic section in a section introduction article whose bullet list holds only one article link)"
+    - "navigational_list_entry_rephrased (a further-reading list entry whose link text rephrases the article title instead of using it verbatim)"
+    - "latin_abbreviation_missing_comma (e.g. or i.e. without a following comma, or used outside parentheses)"
+    - "list_fragment_capitalised_or_punctuated (a fragment after a colon lead-in starting with a capital or ending in a period)"
+    - "unlisted_term_lowercase (Subscription, Editable Region, Editing Interface, Site Dashboard, Organization Home, Client Organization, Partner Organization, Partner Program, Partner Points written plain in body prose)"
+    - "partner_role_over_italicised (*Partner* or *partner* italicised where it names the company rather than the CloudCannon role or group)"
+    - "guide_title_italicised (a guide's own title wrapped in asterisks in prose)"
+    - "docshot_alt_missing_frame (alt text not opening with 'A screenshot of the/a' or 'A closeup of the'; Mermaid alt not opening with 'A diagram shows')"
+    - "term_lowercase_in_attribute (a listed CloudCannon term lowercased inside alt or title)"
+    - "term_italicised_in_attribute (asterisks inside an alt or title value)"
+    - "permissions_notice_in_guide_page (a guide page carrying info_type=\"permissions\")"
+    - "article_scope_gate_notice_buried (a pricing or permissions notice for a gate on the article's subject placed mid-article)"
+    - "partner_articles_type_missing (a related_articles entry pointing at partner/articles with a non-partner_articles _type)"
     - "incorrect_capitalization"
     - "non_italicized_ui_elements"
     - "interaction_missing_control_type (a bare 'Click *X*' with no control-type descriptor like button/link/icon/tab/field)"

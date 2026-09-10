@@ -1,0 +1,76 @@
+---
+_schema: default
+_uuid: 65c9ab75-7540-45f7-8007-d075223c7c58
+_created_at: '2026-09-10 00:00:00 +0000'
+details:
+  title: Set a default Inbox for your Site
+  description: Learn how to set the default Inbox for a Site on CloudCannon.
+  image: >-
+    https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+  category:
+    - Instructions
+  related_articles:
+    - _type: developer_articles
+      item: 6b8caff2-557e-431b-ae95-3244e11f4f79
+    - _type: developer_articles
+      item: 449653a8-9ba8-4ea5-91b3-a373c930dc86
+author_notes:
+  docshots: Added!
+---
+<comp.Notice info_type="permissions">
+  **Permissions required**
+
+  Members of the *Owners* and *Developers* [Default Permission Groups](/documentation/user-articles/what-are-default-permission-groups/), or [Custom Permission Groups](/documentation/developer-articles/what-are-custom-permission-groups/) with the `site:settings:form:write` permission, can set the default *Inbox* for a *Site*.
+</comp.Notice>
+
+When a POST request reaches your *Site* without an `inbox_key` input, CloudCannon sends it to the default <comp.GlossaryTerm term="/user/glossary/i/inbox.yml">Inbox</comp.GlossaryTerm>. Each *Site* can have one default *Inbox*, and setting a new one replaces the existing default.
+
+<comp.Notice info_type="important">
+  CloudCannon does not recommend setting a default *Inbox*. A default *Inbox* captures **every** POST request to your *Site*, not only the requests from forms you built. Name an *Inbox* explicitly with an `inbox_key` input on each form instead.
+</comp.Notice>
+
+## Why CloudCannon does not recommend a default Inbox
+
+CloudCannon handles POST requests to every path on your *Site*, not only the paths where you put a form. When a request arrives, CloudCannon looks for an `inbox_key` input to decide which *Inbox* should receive it. Without that input and without a default *Inbox*, the request fails with an error, and the visitor sees a page reading *This form is not working*.
+
+Setting a default *Inbox* removes that check for the whole *Site*. Every POST request is now accepted and stored, whatever path it was sent to and whether or not you meant it as a form submission.
+
+That has three practical consequences.
+
+**Your *Inbox* fills with requests you did not send.** Automated scanners and spam bots POST to websites constantly, usually to paths that do not exist. Because CloudCannon accepts POST requests to any path, a default *Inbox* has no way to tell those requests apart from a genuine contact form, so it stores them alongside your real submissions.
+
+**Junk requests consume your submission limit.** Each *Inbox* accepts a limited number of submissions per period, and every stored request counts against that limit regardless of where it came from. A *Site* receiving steady automated traffic can exhaust its limit on requests no visitor ever made, and CloudCannon will then record the genuine submissions that follow as errored. For more information, please read our documentation on [how Inbox limits work](/documentation/developer-articles/how-do-inbox-limits-work/).
+
+**You lose track of which form a submission came from.** Every unnamed request lands in the same *Inbox*, so a *Site* with a contact form, a newsletter signup, and a feedback form pools all three together. Giving each form its own `inbox_key` keeps them in separate *Inboxes*, each with its own targets and its own limit.
+
+Adding an `inbox_key` input to a form is a single line of markup, and it works the same way whether your *Site* has one *Inbox* or several. For more information, please read our documentation on [connecting your Site to an Inbox](/documentation/developer-articles/connect-your-site-to-an-inbox/).
+
+## Set the default Inbox
+
+If you accept those trade-offs, you can set a default *Inbox* for your *Site*.
+
+To set the default *Inbox* for your *Site*:
+
+1. Navigate to the *Forms* page under *Site Settings*.
+2. Open the *Context Menu* for the *Inbox* you want to make the default.
+3. Click the *Set default inbox* option.
+4. Confirm your choice in the *Set default inbox for site* modal.
+
+CloudCannon will send any submission that arrives without an `inbox_key` input to that *Inbox*.
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Site-Settings-Forms-Set-Default-Inbox-Modal" alt="A screenshot of the Set default inbox for site modal warns that setting a default Inbox is not recommended because every POST request is stored, and shows Cancel and Confirm buttons." title="The Set default inbox for site modal" type="screenshot" />
+
+## Unset the default Inbox
+
+Once an *Inbox* is the default, the same option reads *Unset default inbox*. Unsetting the default is the recommended end state, provided every form on your *Site* names its *Inbox*.
+
+To unset the default *Inbox* for your *Site*:
+
+1. Navigate to the *Forms* page under *Site Settings*.
+2. Open the *Context Menu* for the default *Inbox*.
+3. Select the *Unset default inbox* option.
+4. Confirm your choice in the *Unset default inbox for site* modal.
+
+Your *Site* will no longer have a default *Inbox*, so any POST request that arrives without an `inbox_key` input will fail and show the visitor an error page. Add that input to every form on your *Site* before you unset the default *Inbox*, or those forms will stop recording submissions.
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Site-Settings-Forms-Unset-Default-Inbox-Modal" alt="A screenshot of the Unset default inbox for site modal warns that unsetting the default Inbox prevents forms submitted without the form key from being processed." title="The Unset default inbox for site modal" type="screenshot" />

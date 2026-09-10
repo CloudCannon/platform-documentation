@@ -1,0 +1,124 @@
+---
+_schema: default
+_uuid: 28b9a68d-a851-4d6e-bc6b-ebe65cb14160
+_created_at: '2022-02-17 02:45:00 +0000'
+details:
+  title: Reduce spam with a CAPTCHA
+  description: >-
+    Add a CAPTCHA to your forms with reCAPTCHA, hCaptcha, or Turnstile to
+    reduce the spam submissions your Inbox receives.
+  image: >-
+    https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+  category:
+    - Instructions
+  related_articles:
+    - _type: developer_articles
+      item: 6b8caff2-557e-431b-ae95-3244e11f4f79
+    - _type: user_articles
+      item: d7ba8e63-8dbe-4a39-8e34-c3b8362df2d8
+    - _type: developer_articles
+      item: 449653a8-9ba8-4ea5-91b3-a373c930dc86
+author_notes:
+  docshots: Needs docshots
+---
+<comp.Notice info_type="permissions">
+  **Permissions required**
+
+  Members of the *Owners* and *Developers* [Default Permission Groups](/documentation/user-articles/what-are-default-permission-groups/), or [Custom Permission Groups](/documentation/developer-articles/what-are-custom-permission-groups/) with the `org:settings:inbox:write` permission, can configure a CAPTCHA provider for an *Inbox*.
+</comp.Notice>
+
+A CAPTCHA embeds a challenge in your form that a visitor has to pass before CloudCannon accepts their submission. CloudCannon supports three providers, and you choose one per <comp.GlossaryTerm term="/user/glossary/i/inbox.yml">Inbox</comp.GlossaryTerm>:
+
+* **reCAPTCHA** from Google, which offers a checkbox challenge (v2) and a scored, invisible check (v3).
+* **hCaptcha**, a privacy-focused alternative with a checkbox challenge.
+* **Cloudflare Turnstile**, which usually verifies a visitor with no challenge at all.
+
+Adding a CAPTCHA takes three steps in different places: get a key pair from the provider, add that key pair to your *Inbox*, then add the provider's widget to your form. All three are required, because CloudCannon rejects a submission that has no valid CAPTCHA response once you require one.
+
+## Get your CAPTCHA keys
+
+Every provider issues a **site key**, which goes in your form, and a **secret key**, which goes in CloudCannon.
+
+* For reCAPTCHA, register your site in the <a href="https://www.google.com/recaptcha/admin" target="_blank" rel="noopener noreferrer">reCAPTCHA admin console</a>. Choose v2 or v3 here, because the two are not interchangeable.
+* For hCaptcha, add your site in the <a href="https://dashboard.hcaptcha.com/sites" target="_blank" rel="noopener noreferrer">hCaptcha dashboard</a>.
+* For Turnstile, add your site in the <a href="https://dash.cloudflare.com/?to=/:account/turnstile" target="_blank" rel="noopener noreferrer">Cloudflare Turnstile dashboard</a>.
+
+## Add the keys to your Inbox
+
+To configure a CAPTCHA provider for an *Inbox*:
+
+1. Navigate to the *Forms* page under *Org Settings*.
+2. Select the *Inbox* you want to protect, or create a new one.
+3. Select your provider from the captcha provider options.
+4. Enter your site key as the captcha site key, and your secret key as the captcha secret key.
+5. Save your *Inbox*.
+
+CloudCannon will start checking submissions to that *Inbox* against your provider.
+
+You also have to require the CAPTCHA on each *Site* linked to the *Inbox*, using the *Require CAPTCHA* option on the *Forms* page under *Site Settings*. For more information, please read our documentation on [connecting your Site to an Inbox](/documentation/developer-articles/connect-your-site-to-an-inbox/).
+
+## Add the widget to your form
+
+Add the provider's widget to every form that submits to the *Inbox*, following the provider's own instructions:
+
+* <a href="https://developers.google.com/recaptcha/intro" target="_blank" rel="noopener noreferrer">reCAPTCHA documentation</a>
+* <a href="https://docs.hcaptcha.com/#add-the-hcaptcha-widget-to-your-webpage" target="_blank" rel="noopener noreferrer">hCaptcha documentation</a>
+* <a href="https://developers.cloudflare.com/turnstile/get-started/" target="_blank" rel="noopener noreferrer">Turnstile documentation</a>
+
+A submission that fails validation returns a 401 error page to the visitor.
+
+<comp.DocsImage path="assets/external_screenshots/hosting-forms-401-error.png" alt="A screenshot of the error page a visitor sees shows a 401 response after a form submission failed CAPTCHA validation." title="The failed submission error page" type="screenshot"/>
+
+## Add reCAPTCHA v3 to a form
+
+reCAPTCHA v3 scores visitors in the background rather than showing a challenge, so it never adds an input to your form on its own. Your form has to request a token and add it as an input named `g-recaptcha-response` before submitting. reCAPTCHA v2, hCaptcha, and Turnstile all add their own input, so they need no extra JavaScript.
+
+Include the reCAPTCHA script with your site key, then override the submit event to fetch a token, append it, and resubmit.
+
+<comp.CodeBlock language="html" source="contact.html">
+```
+<form method="post" id="my-form" action="/contact-success">
+  <label for="email_address">Email Address</label>
+  <input id="email_address" type="text" name="email">
+
+  <label for="message">Message</label>
+  <textarea id="message" name="message"></textarea>
+
+  <input type="hidden" name="inbox_key" value="your-inbox-key">
+  <input type="text" name="_gotcha" style="display: none;">
+
+  <input type="submit" value="Send Message">
+</form>
+
+<script src="https://www.google.com/recaptcha/api.js?render=SITE_KEY"></script>
+<script>
+  var tokenCreated = false;
+  var requesting = false;
+  var formEl = document.getElementById('my-form');
+
+  formEl.addEventListener('submit', function (event) {
+    if (tokenCreated || requesting) {
+      return;
+    }
+
+    event.preventDefault();
+    requesting = true;
+
+    grecaptcha.ready(function () {
+      grecaptcha.execute('SITE_KEY', { action: 'submit' }).then(function (token) {
+        var input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'g-recaptcha-response';
+        input.value = token;
+        formEl.appendChild(input);
+
+        tokenCreated = true;
+        formEl.submit();
+      });
+    });
+  });
+</script>
+```
+</comp.CodeBlock>
+
+CloudCannon also accepts the `_gotcha` honeypot field on any form, which catches untargeted spam without a CAPTCHA. For more information, please read our documentation on [connecting your Site to an Inbox](/documentation/developer-articles/connect-your-site-to-an-inbox/).
