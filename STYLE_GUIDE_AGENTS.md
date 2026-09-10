@@ -7,8 +7,8 @@ Machine-readable style rules for AI agents and automated linters. These rules ar
 **For agents making updates to this file:** Also update the corresponding section in `STYLE_GUIDE.mdx` with the prose explanation and examples. Update the revision history in both files: `last_updated` and `style_guide_version` in the YAML block below, and the `Last Updated` and `Version` fields and the revision history table (Section 4) in `STYLE_GUIDE.mdx`.
 
 ```yaml
-style_guide_version: "2.54"
-last_updated: "2026-09-09"
+style_guide_version: "2.57"
+last_updated: "2026-09-10"
 
 documentation_architecture:
   single_source_of_truth:
@@ -124,6 +124,7 @@ terminology:
     - "Trial Countdown"
     - "Git Provider"
     - "Git Repository"
+    - "Access Review"
   
   preferred_terms:
     "Git Repository": ["repo", "git repo", "Git repository"]
@@ -567,6 +568,7 @@ documentation_types:
           - "Overage"
           - "Billing Period"
           - "Free Trial"
+          - "Access Review"
         all_input_types: true
       
       do_not_italicize:
@@ -639,6 +641,13 @@ documentation_types:
         add_default_when: "Insert 'Default' only when the default-vs-custom distinction is doing work in the sentence, normally a comparison with *Custom Permission Groups*: *Owners Default Permission Group*."
         shorthand: "'*Owners* group' is acceptable in running prose after the full name has been used."
         scope_note: "Does not change group_names_in_permissions_notices, which governs the notice pattern *Owners* [Default Permission Groups](...)."
+        partner_group_in_permissions_notices:
+          rule: "An action gated on Organisation#user_owner? is available to the *Owners* group AND the *Partner* group, because the policy matches creation_type ['owner', 'partner']. Name both in one clause using the multi-group notice pattern. The notice is that clause plus, where it applies, the Custom Permission Group sentence — nothing else."
+          form: "Members of the *Owners* and *Partner* [Default Permission Groups](/documentation/user-articles/what-are-default-permission-groups/) can [action]. [Custom Permission Groups](/documentation/developer-articles/what-are-custom-permission-groups/) cannot be granted this permission."
+          partner_is_a_default_group: "Include 'Default' in the link text. *Partner* is a Default Permission Group — auto-created rather than custom — even though it is not one of the five every Organization has."
+          custom_group_clause: "The second sentence is conditional: include it only when no permission string exists for the action, so the gate cannot be granted à la carte. Verify against the permission registry before claiming it. Write it exactly as in the form — plural 'Custom Permission Groups', the whole phrase as the link text, 'cannot be granted this permission'."
+          client_organization_scope: "The *Partner Permission Group* exists only in a Client Organization. Do not state that inside the notice; the notice names who can act, not where the group comes from. Where a reader needs the qualifier, put it in body prose."
+          never: "Do not omit *Partner* from an owner-gated action on the assumption that Owners covers it. Do not singularise 'Custom Permission Groups', and do not write the clause as 'no Custom Permission Group can be granted this action'."
         examples:
           correct:
             - "Members of the *Owners Permission Group* in your *Partner Organization* see every client."
