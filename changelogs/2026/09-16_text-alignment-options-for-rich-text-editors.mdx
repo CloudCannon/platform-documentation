@@ -3,24 +3,23 @@ _schema: default
 title: Text alignment options for Rich Text Editors
 date: 2026-09-16T16:06:44+12:00
 ---
-This release added an `align` option for *Rich Text Editors*, rebuilt the *Inbox*, *Form*, and
-*Target* setup screens, and clarified the copy for manually scheduled builds.
+This release added an `align` option for *Rich Text Editors*, rebuilt the *Inbox*, *Form*, and *Target* setup screens, and clarified the copy for manually scheduled builds.
 
-It also addressed several issues, including those affecting asset filtering for Cloudinary and
-Bynder DAMs, SSO enforcement, cache clearing for *Sites* on a subpath, and *Visual Editor* previews.
+It also addressed several issues, including those affecting alignment controls in *Rich Text Editors*, input validation, *Subscription* banners, asset filtering for Cloudinary and Bynder DAMs, SSO enforcement, and cache clearing for *Sites* on a subpath.
 
 ## Features & Improvements
 
-* Added the `align` option to *Rich Text Editors*, allowing you to align blocks of text without
-  configuring a class name for each alignment. CloudCannon saves alignment as a `text-align` style by default.
+* Added the `align` option to *Rich Text Editors*, allowing you to align blocks of text without configuring a class name for each alignment. CloudCannon saves alignment as a `text-align` style by default.
   * The `align.left`, `align.center`, `align.right`, and `align.justify` keys each enable a control in the toolbar.
   * The `align.default` key sets the alignment blocks of text have when no alignment is set, which allows a default other than left. Selecting that alignment in the toolbar removes any existing alignment.
   * The `align.classes` key sets a class name for each alignment instead of a `text-align` style. The styles for these classes need to be listed in your `styles` file to take effect outside of the input.
   * Alignment applies to list items as well as other blocks of text.
+  * Existing HTML content keeps its inline `text-align` styles when it loads into a *Rich Text Editor*.
   * Deprecated the `left`, `center`, `right`, and `justify` keys in favor of `align`. Existing configuration using these keys continues to work.
 
 <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
 ``````````
+
 _inputs:
   description:
     type: markdown
@@ -41,7 +40,8 @@ _inputs:
         classes:
           left: text-start
           center: text-center
-      right: text-end
+          right: text-end
+
 ``````````
 </comp.MultiCodeBlock>
 
@@ -51,15 +51,17 @@ _inputs:
 
 ## Fixes
 
-* Fixed an issue where filtering assets in some DAMs returned every asset, rather than only the assets matching your search term.
+* Fixed an issue where the *Left align* control in a *Rich Text Editor* could only remove existing alignment, rather than explicitly aligning a block of text to the left.
+* Fixed an issue where selecting all the text in a *Rich Text Editor* and then changing the alignment left the icon on the alignment control showing the previous alignment.
+* Fixed an issue where the tooltip on the alignment control in a *Rich Text Editor* read *Justify*, rather than describing the control.
+* Fixed an issue where leaving a *Number* or *Range Input* empty triggered the `min` and `max` validation errors, even when `required` was not set.
+* Fixed an issue where the banner announcing a canceled *Subscription* stayed on screen after you reactivated that *Subscription*, until you refreshed the page.
+* Fixed an issue where filtering assets in a Cloudinary or Bynder DAM returned every asset, rather than only the assets matching your search term.
 * Fixed an issue where removing the SAML configuration from your *Organization* did not clear the SSO requirement, so *Team Members* were still required to log in with SSO.
-* Fixed an issue where updating or deleting a *Site* served from a subpath did not clear the cache for the *Site* above it.
+* Fixed an issue where updating or deleting a *Site* served from a subpath did not clear the cache for the *Site* above it, so that *Site* continued to serve outdated content.
 * Fixed an issue where `file_config` entries ignored `_inputs_from_glob`, `_structures_from_glob`, and other `_from_glob` keys.
-* Fixed an issue where scrolling the *Inboxes* dropdown on the *Forms* page would duplicate the *New inbox* option.
+* Fixed an issue where scrolling the list of *Inboxes* when connecting one to your *Site* added a duplicate *New inbox* option.
 * Fixed an issue where the *Visual Editor* preview sometimes showed outdated content for *Editable Regions*.
 * Fixed an issue where *Mark as not spam* did not move a form submission out of *Spam* if CloudCannon had automatically marked it as spam.
 * Fixed an issue where verifying an email *Target* with an expired link showed a decoding error, rather than sending you a new verification email.
 * Updated dependencies to patch security vulnerabilities.
-
-```
-```
