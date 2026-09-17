@@ -157,3 +157,70 @@ Alternatively, you can configure options directly on the element with a JSON val
 </p>
 ```
 </comp.CodeBlock>
+
+## Text alignment
+
+Text alignment controls are available in the Content Editor, block editable regions, and Rich Text inputs. To enable them, add the `align` key to your rich text editor configuration and set each alignment you want to offer to `true`.
+
+CloudCannon saves alignment as a `text-align` style on the block of text (e.g., `<p style="text-align: center;">`). Use the `default` key to name the alignment your CSS already applies. Selecting the default alignment in the WYSIWYG toolbar removes any existing alignment from the block rather than saving a style for it.
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+```
+
+_editables:
+  content:
+    align___1___:
+      default___2___: left
+      left: true
+      center: true
+      right: true
+      justify___3___: false
+
+```
+<comp.Annotation number="1">
+  The `align` key enables the *Align text* dropdown in the WYSIWYG toolbar.
+</comp.Annotation>
+<comp.Annotation number="2">
+  Text on this site is already left-aligned by its CSS, so selecting *Left align* clears the alignment instead of saving `text-align: left`.
+</comp.Annotation>
+<comp.Annotation number="3">
+  Alignments set to `false` or omitted are not available in the toolbar.
+</comp.Annotation>
+</comp.MultiCodeBlock>
+
+If your site aligns text with class names rather than inline styles, add them under the `classes` key. CloudCannon will toggle the class name for each alignment instead of saving a `text-align` style. Any alignment without a class name falls back to the `text-align` style. Define the class names in the CSS file you set with the `styles` key so that the alignment is visible in the editor.
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+```
+
+_editables:
+  content:
+    styles: /css/editor.css
+    align:
+      default: left
+      left: true
+      center: true
+      right: true
+      classes:
+        left: align-left
+        center: align-center
+        right: align-right
+
+```
+</comp.MultiCodeBlock>
+
+<comp.CodeBlock language="CSS" source="css/editor.css">
+```
+
+.align-left { text-align: left; }
+.align-center { text-align: center; }
+.align-right { text-align: right; }
+
+```
+</comp.CodeBlock>
+
+<comp.Notice info_type="info">
+  In Markdown Rich Text inputs, CloudCannon saves aligned blocks as HTML unless your Markdown engine has `attributes: true`. With attributes enabled, CloudCannon saves alignment as a Markdown attribute (e.g., `{style="text-align: center;"}` or `{.align-center}`). For more information, please read our documentation on [configuring your Markdown engine](/documentation/developer-articles/configure-your-markdown-engine/).
+</comp.Notice>
+
+The `align` key replaces the deprecated `left`, `center`, `right`, and `justify` keys, which each took a class name. Existing configuration using those keys continues to work. To migrate, move each class name under `align.classes`, set the matching alignment to `true`, and set `default` to `left`.
