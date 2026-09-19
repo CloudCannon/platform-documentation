@@ -1,0 +1,62 @@
+---
+_schema: default
+_uuid: fa72b1b7-bf1f-4d05-b6a0-f606e8b644c0
+_created_at: '2026-09-10 00:00:00 +0000'
+details:
+  title: What is an Inbox Target?
+  description: >-
+    Learn what an Inbox Target is, which types CloudCannon offers, and how a
+    target forwards your form submissions.
+  image: >-
+    https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+  category:
+    - Explanation
+  related_articles:
+    - _type: developer_articles
+      item: b7569479-48ee-45f6-b1f4-6d0b98df1fb2
+    - _type: developer_articles
+      item: 80ef6b58-6879-4358-91dd-3d0a79bb1418
+    - _type: developer_articles
+      item: b865879c-c285-48f6-ae0c-3e8ef250293e
+author_notes:
+  docshots: Needs docshots
+---
+An *Inbox Target* is a destination an <comp.GlossaryTerm term="/user/glossary/i/inbox.yml">Inbox</comp.GlossaryTerm> forwards a copy of each submission to. Targets are how a submission reaches your team without anyone opening CloudCannon, whether that means an email in an inbox or a message in a Slack channel.
+
+Forwarding is a copy, not a move. The *Inbox* keeps storing every submission it receives whether it has targets or not, so adding a target never becomes the only record of a submission.
+
+You manage an *Inbox's* targets on the *Targets* tab of that *Inbox*, on the *Forms* page under *Org Settings*. An *Inbox* can carry several targets at once, and each one receives its own copy.
+
+## Target types
+
+Every target has a type, which decides what the target asks you for and what the receiving end has to have set up first:
+
+* *Email* takes an email address. CloudCannon sends a validation link to that address, and the target stays inactive until someone clicks it.
+* *Slack* takes an incoming webhook URL from a Slack app, and posts each submission to the channel that webhook points at.
+* *Zapier* takes a Catch Hook URL, and triggers the Zap that hook belongs to.
+* *IFTTT* takes a webhook URL from the Webhooks service, and triggers the applet behind it.
+* *Make* takes a custom webhook URL, and runs the scenario that webhook starts. Make was formerly called Integromat, and existing Integromat webhooks keep working.
+* *Discord* takes an incoming webhook URL from a Discord channel, and posts each submission to that channel.
+* *Microsoft Teams* takes the URL of a Power Automate workflow, and posts each submission to the channel that workflow sends to.
+* *HubSpot* takes a *Portal ID* and a *Form GUID* rather than a URL, along with a map from your form fields to the fields the HubSpot form defines.
+* *n8n Cloud* takes the production URL of a Webhook node, and starts the workflow behind it. A self-hosted n8n instance needs a *Custom webhook* target instead.
+* *Pipedream* takes the URL of an HTTP trigger, and starts the workflow behind it.
+* *Custom webhook* takes any `http` or `https` URL on port 80 or 443, rather than a URL on a fixed host like the other types. A URL that resolves to a private or internal address will not validate.
+
+A *Custom webhook* is the only type that asks you to verify the host it posts to. Add a DNS TXT record holding your <comp.GlossaryTerm term="/user/glossary/o/organization.yml">Organization's</comp.GlossaryTerm> UUID at `_cloudcannon-challenge.` followed by the full hostname in the webhook URL, so a webhook on `https://hooks.example.com/forms` needs the record at `_cloudcannon-challenge.hooks.example.com` rather than at `_cloudcannon-challenge.example.com`. CloudCannon starts sending once it finds the record, checks again over time, and stops sending if the record disappears.
+
+For the steps to add any of these, please read our documentation on [adding a target to an Inbox](/documentation/developer-articles/add-a-target-to-an-inbox/).
+
+## Target options
+
+Two targets of the same type can still behave differently, because each target carries its own options:
+
+* Each type posts in the shape its own service expects, and a *Custom webhook* target can use any of those shapes, so an endpoint that already understands Slack messages or HubSpot form submissions can receive one.
+* Submissions CloudCannon marks as spam reach a target along with everything else by default, so you can filter them at your end, and two checkboxes hold them back when you would rather not see them. An *Email* target is the exception: it never receives spam, because forwarding spam by email would eventually get the CloudCannon sending domain blocked for every customer.
+* A file a visitor uploads reaches a target as a link rather than as the file itself, and each target decides whether opening that link needs a CloudCannon account or a <comp.GlossaryTerm term="/user/glossary/c/client-sharing.yml">Client Sharing</comp.GlossaryTerm> password.
+
+You set all of these when you add a target, and you can change them afterwards with the *Target settings* option in that target's *Context Menu*. For what each option does, please read our documentation on [adding a target to an Inbox](/documentation/developer-articles/add-a-target-to-an-inbox/).
+
+## Limits
+
+How many targets an *Inbox* can carry depends on your <comp.GlossaryTerm term="/user/glossary/s/subscription-plan.yml">Subscription Plan</comp.GlossaryTerm>. For more information, please read our documentation on [how Inbox limits work](/documentation/developer-articles/how-do-inbox-limits-work/).

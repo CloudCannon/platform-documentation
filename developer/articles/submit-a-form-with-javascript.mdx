@@ -1,0 +1,93 @@
+---
+_schema: default
+_uuid: 082bbaa3-c400-49ca-a526-ea0497ed684b
+_created_at: '2026-09-10 00:00:00 +0000'
+details:
+  title: Submit a Form with JavaScript
+  description: >-
+    Post a Form without a page reload, and fall back to the standard flow when
+    JavaScript is unavailable.
+  image: >-
+    https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+  category:
+    - Instructions
+  related_articles:
+    - _type: developer_articles
+      item: b3e7ad1a-cdce-4b9e-a477-9c174fe69a81
+    - _type: developer_articles
+      item: 28b9a68d-a851-4d6e-bc6b-ebe65cb14160
+    - _type: developer_articles
+      item: 6b8caff2-557e-431b-ae95-3244e11f4f79
+author_notes:
+  docshots: Not applicable
+---
+Submitting a <comp.GlossaryTerm term="/user/glossary/f/form.yml">Form</comp.GlossaryTerm> with JavaScript saves a page load after sending a message. Visitors without JavaScript fall back to the standard flow, where the browser posts the form and follows the `action` URL, so this is an enhancement rather than a requirement.
+
+Build and test the form the normal way first, so the fallback works before you override it. For more information, please read our documentation on [creating a Form](/documentation/developer-articles/create-a-form/).
+
+To submit a *Form* with JavaScript:
+
+1. Override the submit event on your form.
+2. Post the form data to your form's `action` URL as `application/x-www-form-urlencoded`.
+3. Update the page to tell the visitor their message was sent.
+
+Adapt this snippet for your *Site*. It reads the form data, posts it, and leaves a place to handle the response.
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+function getFormDataString(formEl) {
+  var formData = new FormData(formEl);
+  var data = [];
+
+  for (var keyValue of formData) {
+    data.push(encodeURIComponent(keyValue[0]) + "=" + encodeURIComponent(keyValue[1]));
+  }
+
+  return data.join("&");
+}
+
+var formEl = document.getElementById("contact-form");
+
+formEl.addEventListener("submit", function (e) {
+  e.preventDefault();
+
+  var request = new XMLHttpRequest();
+
+  request.addEventListener("load", function () {
+    if (request.status === 200) {
+      // Show your success message here.
+    }
+  });
+
+  request.open(formEl.method, formEl.action);
+  request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+  request.send(getFormDataString(formEl));
+});
+```
+</comp.CodeBlock>
+
+CloudCannon will record the submission as it does for a standard post, and return a 200 response rather than redirecting.
+
+<comp.Notice info_type="important">
+  This snippet posts the form as `application/x-www-form-urlencoded`, which cannot carry a file. A *Form* that accepts file uploads has to post as `multipart/form-data`, so let the browser submit it normally instead. For more information, please read our documentation on [receiving file uploads through a Form](/documentation/developer-articles/receive-file-uploads-through-a-form/).
+</comp.Notice>
+
+## With a CAPTCHA
+
+If the <comp.GlossaryTerm term="/user/glossary/i/inbox.yml">Inbox</comp.GlossaryTerm> requires a CAPTCHA, check for a response before posting, and stop the submission if the visitor has not completed the challenge yet.
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+formEl.addEventListener("submit", function (e) {
+  e.preventDefault();
+
+  if (typeof grecaptcha !== "undefined" && !grecaptcha.getResponse()) {
+    return;
+  }
+
+  // Post the form as above.
+});
+```
+</comp.CodeBlock>
+
+reCAPTCHA v3 works differently: it produces a token rather than a challenge, so your handler has to request one and add it to the form before posting. For more information, please read our documentation on [reducing spam with a CAPTCHA](/documentation/developer-articles/reduce-spam-with-a-captcha/).
