@@ -7,8 +7,8 @@ Machine-readable style rules for AI agents and automated linters. These rules ar
 **For agents making updates to this file:** Also update the corresponding section in `STYLE_GUIDE.mdx` with the prose explanation and examples. Update the revision history in both files: `last_updated` and `style_guide_version` in the YAML block below, and the `Last Updated` and `Version` fields and the revision history table (Section 4) in `STYLE_GUIDE.mdx`.
 
 ```yaml
-style_guide_version: "2.57"
-last_updated: "2026-09-10"
+style_guide_version: "2.59"
+last_updated: "2026-09-15"
 
 documentation_architecture:
   single_source_of_truth:
@@ -16,6 +16,8 @@ documentation_architecture:
     one_home: "Each behavior, feature, or screen has one home page. A general page may summarize a topic in a short paragraph and link to the specific page that covers it thoroughly — intended pattern, not duplication."
     similarity_ok: "Similar content across pages covering DIFFERENT topics is accurate, not duplication (e.g. Snippets pages, where each snippet type behaves similarly but has its own home)."
     avoid: "The SAME behavior or appearance documented in full on two pages, even when both are accurate — dilutes search and will drift. Consolidate to one authoritative page; others defer with a short summary and a link."
+    scope: "This rule governs ARTICLES, which compete with one another in search. It does NOT govern guide pages — see guides_exception and documentation_types.guide.self_contained_context."
+    guides_exception: "A guide page carries a reader through a task, so it MAY fully restate a concept an article already owns rather than linking out for the definition. Deliberate duplication, conditional on glossary terms on first mention and assumptions stated in the guide's index.mdx. Mirrors STYLE_GUIDE.mdx §2.4.6a."
     always_cross_link: true
     tie_breaker: "When pages disagree, accuracy wins, not recency. App behavior and STYLE_GUIDE.mdx are the ultimate tie-breakers; fix toward them."
 
@@ -125,6 +127,7 @@ terminology:
     - "Git Provider"
     - "Git Repository"
     - "Access Review"
+    - "Seat"
   
   preferred_terms:
     "Git Repository": ["repo", "git repo", "Git repository"]
@@ -411,6 +414,18 @@ documentation_types:
       note: "Aim for ~125 characters; fits on a single line in guide listing cards without truncation"
       no_colons: "Do not use colons (:) in description field values — they cause the Lume build to fail."
     related_articles: "Always null; guide pages are linked via the guide's own navigation, not the related articles widget"
+    self_contained_context:
+      rule: "A reader should never have to leave a guide page to understand it. Where a guide depends on a concept an article already documents, RESTATE that concept in the guide rather than linking out for the definition. This is deliberate duplication and is the exception to documentation_architecture.single_source_of_truth, which governs articles competing in search. Mirrors STYLE_GUIDE.mdx §2.4.6a."
+      established_examples:
+        - "developer/guides/getting-started-with-cloudcannon/your-organization-on-cloudcannon.mdx — 'What is an Organization?'"
+        - "user/guides/subscribe-to-cloudcannon/choose-your-subscription-plan.mdx — 'Compare Subscription Plans'"
+        - "user/guides/editing-in-cloudcannon/publishing-your-changes.mdx — 'What is a Publishing workflow?'"
+        - "developer/guides/bookshop-astro-guide/using-structures.mdx — 'What are Structures?'"
+      extent: "Restate as much as the reader needs to follow the page, and no more. A guide page is not a second home for the concept; it carries the part the task depends on, in the guide's own framing."
+      conditions:
+        glossary_terms: "Every CloudCannon concept a guide restates takes a comp.GlossaryTerm on its FIRST mention on that page. This is what keeps restatement safe — the glossary entry stays the single source, the guide supplies the framing."
+        assumptions_in_index: "Assumptions about the reader's state (what they have set up, their Subscription Plan, their access) or prior knowledge go in the guide's index.mdx prerequisites, using the 'Before we begin, this guide assumes…' pattern. A guide that restates concepts but hides its assumptions has moved the problem, not solved it."
+        link_for_depth_not_definition: "Keep the cross-link to the article, but it must offer MORE than the guide covers ('For everything an Organization contains, please read our documentation on…'), never supply something the reader needed in order to continue."
     prose_over_numbered_steps:
       rule: "Guide pages use prose paragraphs for sequential content, not numbered lists"
       rationale: "Guides are learning-oriented; prose feels collaborative and readable. Numbered steps belong in instruction articles only."
@@ -569,6 +584,7 @@ documentation_types:
           - "Billing Period"
           - "Free Trial"
           - "Access Review"
+          - "Seat"
         all_input_types: true
       
       do_not_italicize:
@@ -612,6 +628,30 @@ documentation_types:
             - "at the top of your *Project page*"
             - "click the *Publishing link* in the *Site Navigation*"
         exception: "Italicise the whole literal UI element name when the descriptor is part of the label (e.g. *Project Settings* is the actual tab label)"
+
+      seat_names_the_resource:
+        rule: "*Seat* is the unit of paid capacity a Subscription Plan includes; a Team Member is a person who occupies one. Seats are COUNTED, not measured, so unlike Hosting Bandwidth and Build Time there is no lowercase quantity form — always capitalised and italicised, like Custom Domain. Mirrors STYLE_GUIDE.mdx §1.4.1."
+        correct:
+          - "your *Subscription Plan* includes three *Seats*"
+          - "inviting a *Team Member* uses a *Seat*"
+          - "each *Site* with *Client Sharing* turned on uses a *Seat*"
+        incorrect:
+          - "*Seats* can publish"          # Seats are capacity, not people
+          - "invite a *Seat*"              # you invite a Team Member into a Seat
+          - "you have used three seats"    # no lowercase quantity form
+        prefer_over_member_count: "Where a sentence is about capacity being consumed, including by things that are not people, use Seat. 'Each Site with Client Sharing turned on counts as one Team Member' reads as a category error — the Site is not a member of anything. Write 'uses one Seat'."
+
+      bare_members_capitalization:
+        rule: "Bare 'Members' is capitalized when it names the UI or stands in for the full member term. The Members tab under Org Settings and the controls beside it take the app's capital (Add Members), matching Groups / Add new Group. In prose, capitalize Members as shorthand only where the full member term is already established in the same passage. Leave 'members' lowercase where it names membership of a Permission Group, a Group, or a Site rather than of the Organization — that sense describes a relationship, not the term. Test by substitution: if the full member term fits, capitalize. Mirrors STYLE_GUIDE.mdx §1.4.1."
+        correct:
+          - "Open the *Members* tab."
+          - "Click the *Add Members* button."
+          - "Manage your *Team Members* and *Permission Groups*. Add or remove *Members* from your *Organization*."
+          - "Permissions define what the members of this Group can do."
+        incorrect:
+          - "Open the *members* tab."           # UI label takes the app's capital
+          - "Click the *Add members* button."   # matches Add new Group
+          - "add Members to a *Permission Group*"  # Group membership is relational, stays lowercase
 
       named_resource_vs_quantity:
         rule: "Applies to the MEASURED resources (Hosting Bandwidth, Build Time): CloudCannon terms when you name the resource, but ordinary nouns when you state an amount. Italicise the named resource/feature/graph; leave the measured quantity in plain lowercase. A resource's billable-concept name and its UI-element label can differ (billed as 'Extra hosting bandwidth' -> term *Hosting Bandwidth*; the graph/tab that displays it -> label *Bandwidth*); italicise each as it appears and match the app for UI labels."
