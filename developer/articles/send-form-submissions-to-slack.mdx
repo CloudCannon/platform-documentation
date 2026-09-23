@@ -21,6 +21,10 @@ author_notes:
 ---
 You can forward the submissions an <comp.GlossaryTerm term="/user/glossary/i/inbox.yml">Inbox</comp.GlossaryTerm> receives to a Slack channel, using a Slack incoming webhook and a *Slack* target.
 
+<comp.Notice info_type="important">
+  Slack has two kinds of webhook URL, and they behave differently. An incoming webhook URL contains `/services/` and lets CloudCannon compose the message. A Workflow Builder URL contains `/triggers/` and runs a workflow you built, which composes its own message. Both are valid in the *Slack webhook URL* field. For a Workflow Builder URL, please read our documentation on [sending submissions to a Slack workflow](#send-submissions-to-a-slack-workflow) below, because the options on this page do not apply to it.
+</comp.Notice>
+
 Create the webhook in Slack first, because the *Slack webhook URL* field needs its URL.
 
 To create a Slack webhook:
@@ -46,8 +50,26 @@ A target carries more than a webhook URL. The *Links to attached files* options 
 
 ## Customize the Slack message
 
-Three options under the *Slack* heading in the *Add target* modal control how each message appears.
+Three options under the *Slack* heading in the *Add target* modal control how each message appears. All three apply to an incoming webhook only, and a Workflow Builder URL ignores them.
 
 The *Message format* dropdown decides how CloudCannon lays a submission out. *Plain text*, the default, posts one message per submission. *Rich blocks* lays each field out on its own row.
 
 Enter a name in the *Username (optional)* field to override the name the incoming webhook posts under, and an emoji name in colons, such as `:inbox_tray:`, in the *Icon emoji (optional)* field to use as the avatar on each message.
+
+## Send submissions to a Slack workflow
+
+A Workflow Builder webhook URL contains `/triggers/` and starts a workflow you built in Slack, rather than posting a message. The workflow composes its own message, so CloudCannon sends it the fields from your form instead of a formatted message, and the *Message format*, *Username (optional)* and *Icon emoji (optional)* options have nothing to act on.
+
+Slack matches what CloudCannon sends to the variables your workflow declares, by name. A field arrives only when your form field name matches a variable name exactly, and a variable that matches nothing stays empty. This is the usual reason a workflow posts a message with blanks in it.
+
+To forward submissions to a workflow:
+
+1. In Slack, open *Workflow Builder* and create a workflow that starts *From a webhook*.
+2. Add a variable for each form field you want to use, naming each one exactly as your form names that field.
+3. Add the steps you want the workflow to run, such as posting a message to a channel, and use your variables in them.
+4. Publish the workflow, then copy its webhook URL.
+5. Add a *Slack* target in CloudCannon and paste that URL into the *Slack webhook URL* field.
+
+CloudCannon will send the fields from each submission to your workflow, and your workflow decides what happens next.
+
+Workflow Builder variables hold a single value each. A form field that submits more than one value, such as a group of checkboxes sharing a name, arrives as a list and needs a text variable to hold it. A file a visitor uploaded arrives as a link to the file rather than the file itself.
