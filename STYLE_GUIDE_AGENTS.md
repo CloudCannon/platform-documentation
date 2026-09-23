@@ -7,8 +7,8 @@ Machine-readable style rules for AI agents and automated linters. These rules ar
 **For agents making updates to this file:** Also update the corresponding section in `STYLE_GUIDE.mdx` with the prose explanation and examples. Update the revision history in both files: `last_updated` and `style_guide_version` in the YAML block below, and the `Last Updated` and `Version` fields and the revision history table (Section 4) in `STYLE_GUIDE.mdx`.
 
 ```yaml
-style_guide_version: "2.59"
-last_updated: "2026-09-15"
+style_guide_version: "2.61"
+last_updated: "2026-09-22"
 
 documentation_architecture:
   single_source_of_truth:
@@ -128,6 +128,7 @@ terminology:
     - "Git Repository"
     - "Access Review"
     - "Seat"
+    - "Health Check"
   
   preferred_terms:
     "Git Repository": ["repo", "git repo", "Git repository"]
@@ -585,6 +586,7 @@ documentation_types:
           - "Free Trial"
           - "Access Review"
           - "Seat"
+          - "Health Check"
         all_input_types: true
       
       do_not_italicize:
@@ -640,6 +642,23 @@ documentation_types:
           - "invite a *Seat*"              # you invite a Team Member into a Seat
           - "you have used three seats"    # no lowercase quantity form
         prefer_over_member_count: "Where a sentence is about capacity being consumed, including by things that are not people, use Seat. 'Each Site with Client Sharing turned on counts as one Team Member' reads as a category error — the Site is not a member of anything. Write 'uses one Seat'."
+
+      health_check_names_the_check:
+        rule: "Health Check is one of CloudCannon's automated checks on an Organization — a failed build or sync, a Custom Domain that is not resolving, an expiring SSL certificate, a Free Trial ending, a Subscription needing attention, an inactive client. Italicise the named check whether singular or plural; leave 'health' plain where it describes a condition rather than the feature. Mirrors the artifact/practice split for Access Review. Mirrors STYLE_GUIDE.mdx §1.4.1."
+        correct:
+          - "a *Health Check* failed on one of your *Sites*"
+          - "your *Health Checks* are grouped by severity"
+          - "a summary of your client health"      # condition, not the feature
+          - "CloudCannon groups your *Health Checks* under *Danger*, *Warning*, *Informational*, and *Passed*"
+        incorrect:
+          - "a health check failed"                 # names the feature, so capitalise and italicise
+          - "a summary of your client *Health*"    # condition, not the feature
+        severity_groups_are_ui_labels: "The groupings a check is listed under (Danger, Warning, Informational, Passed) are UI labels — italicise them as UI elements, not as features."
+        three_forms:
+          rule: "The same word carries three forms, distinguished by what it names. Pick by referent, not by position."
+          feature: "*Health Check* — one automated check ('a *Health Check* failed on one of your *Sites*')"
+          tab_label: "*Health* — the UI label of the tab listing the checks on the Organization Home page ('open the *Health* tab')"
+          condition: "health — a condition rather than the feature, stays plain lowercase ('a summary of your client health')"
 
       bare_members_capitalization:
         rule: "Bare 'Members' is capitalized when it names the UI or stands in for the full member term. The Members tab under Org Settings and the controls beside it take the app's capital (Add Members), matching Groups / Add new Group. In prose, capitalize Members as shorthand only where the full member term is already established in the same passage. Leave 'members' lowercase where it names membership of a Permission Group, a Group, or a Site rather than of the Organization — that sense describes a relationship, not the term. Test by substitution: if the full member term fits, capitalize. Mirrors STYLE_GUIDE.mdx §1.4.1."

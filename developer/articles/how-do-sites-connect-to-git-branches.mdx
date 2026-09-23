@@ -1,0 +1,77 @@
+---
+_schema: default
+_uuid: 45b6f580-7657-4fba-8fea-aca8cf7b1490
+_created_at: 2026-09-22T00:00:00Z
+details:
+  title: How do Sites connect to Git branches?
+  description: >-
+    Learn how a CloudCannon Site connects to one branch of a Git Repository, how
+    to switch the branch a Site uses, and when to connect several Sites to the
+    same branch.
+  image: >-
+    https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+  category:
+    - Explanation
+  related_articles:
+    - _type: developer_articles
+      item: c3502c24-d666-4fa7-b340-c27333c9e7ef
+    - _type: user_articles
+      item: af5073ad-1111-41be-a319-057efe280da7
+    - _type: user_articles
+      item: c163b32b-ad46-4634-b910-25e5da550db9
+author_notes:
+  docshots: Needs docshots
+---
+<comp.Notice info_type="permissions">
+  **Permissions required**
+
+  Members of the *Owners* and *Developers* [Default Permission Groups](/documentation/user-articles/what-are-default-permission-groups/), or [Custom Permission Groups](/documentation/developer-articles/what-are-custom-permission-groups/) with the `site:settings:git:write` permission, can change the branch a *Site* connects to.
+</comp.Notice>
+
+Every <comp.GlossaryTerm term="/user/glossary/s/site.yml">Site</comp.GlossaryTerm> connected to a <comp.GlossaryTerm term="/user/glossary/g/git-repository.yml">Git Repository</comp.GlossaryTerm> reads from exactly one branch of it. That branch holds the files your team edits in CloudCannon, and CloudCannon commits their saved changes back to it. Choosing the branch is part of connecting the repository, and you can change it later without disconnecting.
+
+## Choosing a branch when you connect a repository
+
+You choose a branch on the *Syncing* page under *Site Settings*, in the same step where you pick a repository. CloudCannon offers two ways to do it.
+
+Select the *Use an existing branch* option to connect to a branch that already exists, then pick it from the *Branch* dropdown. The dropdown is searchable, which helps in a repository with a long branch list.
+
+Select the *Create a new branch* option to have CloudCannon make the branch for you. The *Source branch* dropdown sets the branch to copy from, and the *New branch name* field names the branch CloudCannon creates.
+
+If the *Branch* dropdown shows a warning instead of your branches, your *Permission Group* is missing the `org:settings:git:branch:read` permission. Listing repositories needs `org:settings:git:repository:read` in the same way.
+
+[docshot] The branch section of the Syncing page under Site Settings, showing the Use an existing branch and Create a new branch options above the Branch dropdown.
+
+For the full connection walkthrough for your <comp.GlossaryTerm term="/user/glossary/g/git-provider.yml">Git Provider</comp.GlossaryTerm>, please read our documentation on [connecting a GitHub repository as your source](/documentation/developer-articles/connecting-a-github-repository-as-your-source/), [connecting a GitLab repository as your source](/documentation/developer-articles/connecting-a-gitlab-respository-as-your-source/), or [connecting a Bitbucket repository as your source](/documentation/developer-articles/connecting-a-bitbucket-respository-as-your-source/).
+
+## Switching the branch a Site connects to
+
+A *Site* is not tied to the branch you first chose. On the *Syncing* page under *Site Settings*, click the *Switch branch* button to open the *Switch branch* modal, pick the new branch the same way you picked the first one, then click the *Switch branch* button in the modal to confirm.
+
+CloudCannon syncs the files from the new branch as soon as you confirm, so the *Site* shows the new branch's content straight away. Anything CloudCannon already deployed from the previous branch stays where it is; switching does not remove it.
+
+[docshot] The Switch branch modal, showing the branch options and the Switch branch button.
+
+<comp.Notice info_type="info">
+  Switching a branch is not the same as branching a *Site*. Switching points an existing *Site* at a different branch, and the *Site* stops reading the old one. Branching creates a new *Site* alongside the original, and is available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise plan</a>. For more information, please read our documentation on [what branching is](/documentation/user-articles/what-is-branching/).
+</comp.Notice>
+
+## Connecting several Sites to the same branch
+
+The relationship between branches and *Sites* is normally one-to-one, but nothing in CloudCannon enforces it. You can connect any number of *Sites* to the same branch of the same repository.
+
+This is worth doing when one *Git Repository* holds more than one website, an arrangement often called a monorepo. Each website lives in its own directory, and each gets its own *Site*.
+
+To tell those *Sites* apart, give each one its own <comp.GlossaryTerm term="/user/glossary/c/configuration-files.yml">Configuration File</comp.GlossaryTerm>. The *CloudCannon Configuration File path* field on the *Details* page under *Site Settings* points a *Site* at a configuration file outside the root of the repository, and the `source` key in that file scopes the *Site* to one directory. Without this, *Sites* sharing a branch are duplicates of each other. For more information, please read our documentation on [defining a custom Configuration File path](/documentation/developer-articles/define-a-custom-configuration-file-path/).
+
+## How changes reach your Sites
+
+When anything pushes to a branch, your *Git Provider* notifies CloudCannon, and CloudCannon pulls that change into every *Site* connected to that repository and branch. A developer pushing from their local environment, a merged pull request, and a *Team Member* saving in CloudCannon all take the same path.
+
+This is what makes several *Sites* on one branch behave as a group. A change saved on one of them reaches the others, because all of them are reading the branch it was committed to.
+
+If a *Site* receiving the change has unsaved changes to an affected file, CloudCannon pauses <comp.GlossaryTerm term="/user/glossary/s/syncing.yml">Syncing</comp.GlossaryTerm> on that *Site* rather than overwriting the work in progress. The *Team Member* editing it sees a *Syncing paused* warning and has to save or discard before *Syncing* resumes. For more information, please read our documentation on [why Syncing pauses](/documentation/user-articles/why-is-syncing-paused/).
+
+## Which repositories you can connect
+
+Connecting a GitHub, GitLab, or Bitbucket repository is available on every <comp.GlossaryTerm term="/user/glossary/s/subscription-plan.yml">Subscription Plan</comp.GlossaryTerm>. Self-hosted GitLab and GitHub Enterprise Server repositories are available on our <a href="https://cloudcannon.com/pricing/">Enterprise plan</a>. For more information, please read our documentation on [connecting a self-hosted GitLab repository as your source](/documentation/developer-articles/connecting-a-self-hosted-gitlab-repository-as-your-source/).
