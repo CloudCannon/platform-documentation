@@ -1,0 +1,143 @@
+---
+_schema: default
+_uuid: edf80481-d44b-486d-8fc6-62dc55b5bc6b
+_created_at: 2026-09-23T02:14:00.000Z
+details:
+  title: Swap an input's keys with a structure
+  description: >-
+    Learn how to use a structure so an object input offers different keys
+    depending on the value of a type key.
+  image: >-
+    https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+  category:
+    - Instructions
+  related_articles:
+    - _type: developer_articles
+      item: 2b3c4d5e-6f7a-8b9c-0d1e-2f3a4b5c6d7e
+    - _type: developer_articles
+      item: 0b858151-b890-4d71-a54a-8eadeee951b1
+    - _type: developer_articles
+      item: ef454c96-2478-4353-9c0d-fe8bcde73d61
+author_notes:
+  docshots: Needs docshots
+---
+An object often needs different keys depending on what it is. A background might be an image, a video, or a pattern, and each of those needs its own set of keys. You can configure a structure with one value per variation, and CloudCannon will swap the keys as a *Team Member* changes the variation.
+
+This is an alternative to [hiding or disabling an input with an expression](/documentation/developer-articles/hide-or-disable-an-input-with-an-expression/). An expression leaves every key in your file and only changes what a *Team Member* sees. A structure changes the file itself, so the keys that do not apply are removed rather than hidden.
+
+## Tell CloudCannon which structure a value uses
+
+When CloudCannon opens a file, it matches each object against the values in your structure. The `id_key` option names the key that identifies a variation. Set it to the key you use in your own data, such as `type`. If you do not set `id_key`, CloudCannon looks for a key named `_type`.
+
+With `id_key: type`, an object whose `type` is `video` matches the structure value whose `type` is also `video`. A *Team Member* changing the `type` input therefore selects a different structure value, and CloudCannon reshapes the object to match.
+
+To swap an input's keys with a structure:
+
+1. Navigate to your global configuration file and open it in the *Source Editor*.
+2. Identify the `_structures` key, or create one.
+3. Add a structure with one entry under `values` for each variation, and give every entry the same identifying key.
+4. Add `id_key` to your structure, with the name of that identifying key as the value.
+5. Add `remove_extra_inputs: true` to your structure so CloudCannon removes the keys that do not belong to the selected variation.
+6. Reference your structure from an object input under `options.structures`.
+
+CloudCannon will now offer each variation when a *Team Member* adds the object, and swap the keys when they change the identifying key.
+
+In the following example, the `background` object holds a different set of keys for each `type`.
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+```
+
+_inputs:
+  background:
+    type: object
+    options:
+      structures: _structures.background
+  type:
+    type: choice
+    options:
+      values:
+        - image
+        - video
+        - pattern
+
+_structures:
+  background:
+    id_key___1___: type
+    remove_extra_inputs___2___: true
+    reorder_inputs___3___: true
+    values:
+      - label: Image
+        value:
+          type: image
+          imageSource: ''
+          imageAlt: ''
+          mask: none
+          overlay: -0.4
+      - label: Video
+        value:
+          type: video
+          videoSource: /videos/background.mp4
+          fixed: false
+          mask: none
+          overlay: -0.4
+      - label: Pattern
+        value:
+          type: pattern
+          imageSource: ''
+          patternSize: natural
+          mask: none
+          overlay: -0.4
+
+```
+<comp.Annotation number="1">
+
+The `type` key identifies which variation an existing object already uses.
+
+</comp.Annotation>
+<comp.Annotation number="2">
+
+CloudCannon removes any key that does not belong to the selected variation.
+
+</comp.Annotation>
+<comp.Annotation number="3">
+
+CloudCannon writes the keys in the order they appear in the structure value.
+
+</comp.Annotation>
+</comp.MultiCodeBlock>
+
+A *Team Member* who changes `type` from `image` to `video` ends up with `type`, `videoSource`, `fixed`, `mask`, and `overlay`. The `imageSource` and `imageAlt` keys are gone from the file, not hidden.
+
+<comp.Notice info_type="info">
+  Defining `type` under the top-level `_inputs` key keeps this example short. You can also define it inside each structure value's own `_inputs` key, which keeps each variation self-contained.
+</comp.Notice>
+
+## Keep the values a Team Member has already entered
+
+CloudCannon keeps the value of any key the old and new variations share, rather than resetting it to the value in your structure. In the example above, a *Team Member* who sets `overlay` to `-0.2` and then switches from `image` to `video` keeps `-0.2`, even though the `Video` structure value specifies `-0.4`.
+
+Keys that only the new variation has are added with the value from your structure. Keys that only the old variation had are removed.
+
+## Choose between removing and hiding extra keys
+
+Two options control what happens to a key that is not part of the selected variation. Both default to removing nothing, so a structure leaves extra keys alone until you opt in.
+
+<comp.OptionsTable>
+  <comp.OptionsRow label="remove_extra_inputs" type_markdown="`boolean`">
+    Removes any key that is not in the selected structure value. The key and its value are deleted from your file. Defaults to `false` for structures.
+  </comp.OptionsRow>
+  <comp.OptionsRow label="hide_extra_inputs" type_markdown="`boolean`">
+    Keeps any key that is not in the selected structure value, but hides it from the editing interface. The value stays in your file and reaches your build. Defaults to `false`.
+  </comp.OptionsRow>
+  <comp.OptionsRow label="reorder_inputs" type_markdown="`boolean`">
+    Writes the keys in the order they appear in the structure value, followed by any key your file has that the structure value does not. Set it to `false` to keep the order already in your file. Defaults to `true`.
+  </comp.OptionsRow>
+</comp.OptionsTable>
+
+<comp.Notice info_type="important">
+  `remove_extra_inputs: true` applies whenever CloudCannon opens a file, not only when a *Team Member* changes the identifying key. A key that no structure value defines is removed from your file the next time someone opens and saves it. Check that every key you want to keep appears in the structure value that matches it.
+</comp.Notice>
+
+Use `hide_extra_inputs` instead when your build reads a key that a *Team Member* should not edit, since removing it would break your build.
+
+For more information on configuring structures, please read our documentation on [creating a structure](/documentation/developer-articles/create-a-structure/) and [what a structure is](/documentation/developer-articles/what-is-a-structure/).
