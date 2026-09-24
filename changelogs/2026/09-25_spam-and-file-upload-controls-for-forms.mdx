@@ -1,0 +1,54 @@
+---
+_schema: default
+title: Spam and file upload controls for Forms
+date: 2026-09-25T09:40:00+12:00
+---
+This release added spam, file upload, and attachment link controls to *Forms*, rebuilt the *Single Sign-On* and *Git Provider* pages under *Org Settings* around tabs, and added warnings for failed syncs or deploys to the *Cards* in your *Sites Browser*.
+
+It also addressed several issues, including those affecting *Site Mountings* that use another *Site*'s build output, *Git Provider* connections with a failed token refresh, and *Inbox* captcha providers.
+
+## Features & Improvements
+
+* Added *Spam protection* settings to each *Inbox Target*, allowing you to stop submissions that our spam detection flags, or that match our spam blocklist, from being sent to that target. The *Do not send submissions marked as spam* and *Do not send submissions matching our spam blocklist* options are on the *Targets* tab of an *Inbox*, under *Org Settings*.
+  * Both options are off by default for most *Targets*, so submissions marked as spam are sent.
+  * When the *Target* is an email address, both options are locked on. CloudCannon will never forward spam to an email address, because doing so would eventually get CloudCannon emails blocked by your email provider.
+* Added the *Accept file uploads* setting to the *Inbox* settings page under *Org Settings*, allowing you to reject any submission that carries a file.
+* Added *Links to attached files* settings to each *Inbox Target*, allowing you to choose whether links for files uploaded via *Form* submission open in CloudCannon or in the simplified *Client Sharing* *Site*. For more information, please read our documentation on [Client Sharing](/documentation/user-articles/what-is-client-sharing/).
+  * Users who access CloudCannon via a *Client Sharing* password can now view files from a *Form* submission. This will respect the *Site* you select, even if an *Inbox* is shared by multiple *Sites*.
+  * CloudCannon will still list *Sites* without a *Client Sharing* password set, but prevent you from selecting them.
+* Added support for Slack Workflow Builder URLs on *Slack Inbox Targets*, allowing you to start a Slack workflow with each submission instead of posting a message to a channel. CloudCannon sends the fields from each submission, and Slack matches them by name to the variables your workflow declares.
+* Added tabs to the *Git Provider* pages under *Org Settings*.
+  * The *Authentication* tab shows your connected account as a *Card*, and displays a warning if CloudCannon cannot fetch that account.
+  * The *Sites* tab lists every *Site* that syncs its files from that *Git Provider*.
+  * *GitHub Enterprise Server* and *Self-hosted GitLab* keep their server configuration on a *Settings* tab.
+  * The *Danger Zone* tab allows you to disconnect your *Git Provider*.
+* Added a *Reconnect* button to the *Git Provider* pages under *Org Settings*, allowing you to reauthorize a connected account without disconnecting it first.
+* Improved warning copy for *Git Provider* settings forms so that failures appear beside the field that caused it.
+* Added tabs to the *Single Sign-On* pages under *Org Settings* when successfully configured.
+  * The *Details* tab shows the values CloudCannon generates for your Identity Provider, and the *Settings* tab shows the values you configure.
+  * The *Danger Zone* tab allows you to turn off *Single Sign-On* for your *Team Members*.
+* Updated the setup fields on *Single Sign-On* page under *Org Settings*.
+  * The setup steps now cover adding CloudCannon to your Identity Provider, entering your Identity Provider's details, and choosing what happens for new *Team Members*.
+  * The advanced fields are listed with the rest of the form rather than hidden behind a toggle.
+* Updated the *Site Cards* in the *Sites Browser* to show warnings for failed syncs or deploys. A *Site* whose sync previously failed without a *Git Provider* error appeared to have synced normally.
+* Added a deploy row to the *Cards* in your *Sites Browser* for *Sites* that deploy their build output, showing when the *Site* last deployed, or that its last deploy failed.
+* Updated the *Body* field on a *Pull Request* to a *Markdown Input* by default, with a toolbar for bold, italic, links, formatting, blockquotes, and bulleted and numbered lists.
+* Added the full input configuration to the `_inputs` key in `pull_request_templates`, allowing you to configure the *Title* and *Body* inputs in a *Pull Request Template* the same way you configure any other input. For more information, please read our documentation on [configuring a Pull Request Template](/documentation/developer-articles/configure-a-pull-request-template/).
+* Updated the *Source Editor* to accept an autocomplete suggestion in your *Configuration File* when you press the Tab key.
+* Changed the *Inbox* and *Inbox Target* update endpoints in the CloudCannon API so that every field is optional, allowing you to send only the fields you want to change.
+* Added `allow_uploads` to the fields you can set on an *Inbox* through the CloudCannon API, and removed `monthly_quota`.
+
+## Fixes
+
+* Fixed an issue where, when *Team Members* had already authenticated by another method, signing in with Microsoft Entra through *Single Sign-On* would fail. CloudCannon now accepts a stronger authentication method than the one named in your *AuthnContext* setting, instead of requiring an exact match.
+* Fixed an issue where the *Name ID Format* field in your *Single Sign-On* settings accepted values other than email address.
+* Fixed an issue where a *Team Member* who signs in through *Single Sign-On* could not delete their account or their *Organization*, as CloudCannon would ask for a password they did not have.
+* Fixed an issue where a *Site Mounting* that uses another *Site*'s build output was rejected on the [Team Plan](https://cloudcannon.com/pricing/). Build output mounts are now accepted on any plan that includes advanced *Site Mountings*.
+* Fixed an issue where an *Inbox* accepted an unrecognized captcha provider through the CloudCannon API, which then never ran.
+* Fixed an issue where failed sync warnings on *Sites* in your *Sites Browser* would display the date of the last successful sync, so a *Site* that had been failing for days could appear to have failed moments ago.
+* Fixed an issue causing the graph on the *Publishing* tab of a *Project* to overflow.
+* Fixed an issue where, after an access token failed to refresh, CloudCannon would not automatically retry a *Git Provider* connection, so the connection went stale until someone reconnected it. CloudCannon now retries a failed refresh, waiting longer after each failure.
+* Fixed an issue where CloudCannon allowed *Team Members* who did not have write permissions to edit the content of fields on the *Git Provider* pages under *Org Settings*, but did not allow them to save those changes. The *Self-hosted GitLab* server settings are now read-only for those team members, and the *Danger Zone* tab is hidden.
+* Fixed an issue where the *GitHub Enterprise Server* and *Self-hosted GitLab* setup forms appeared editable on *Subscription Plans* that did not support those features. These pages now appear disabled with the upgrade prompt at the top of the page.
+* Fixed an issue where CloudCannon reverted a searchable dropdown field to its placeholder text after a search, instead of showing the option you had selected.
+* Updated dependencies to patch security vulnerabilities.
