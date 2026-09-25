@@ -19,44 +19,39 @@ details:
 author_notes:
   docshots: Needs docshots
 ---
-<comp.Notice info_type="permissions">
-  **Permissions required**
+CloudCannon matches an object to a [Structure](/documentation/developer-articles/what-is-a-structure/) value by comparing the object's id key with the id key in the `value` of each *Structure* value. The id key is `_type` by default, or the key you set with [`id_key`](/documentation/developer-reference/configuration-file/types/structure/id_key/). Changing the value of the id key switches the object to a different *Structure* value. If you configure the id key as a *Select Input*, *Team Members* can choose from the id key values of your *Structure* values.
 
-  Members of all [Default Permission Groups](/documentation/user-articles/what-are-default-permission-groups/), or [Custom Permission Groups](/documentation/developer-articles/what-are-custom-permission-groups/) with the `site:file:write` permission, can configure inputs in all locations in the configuration cascade. You can limit permission to specific locations in the configuration using [file globs](/documentation/developer-articles/what-are-custom-permission-groups/#specify-a-file-glob).
-</comp.Notice>
-
-CloudCannon matches an object to a [Structure](/documentation/developer-articles/what-is-a-structure/) value using the object's id key. The id key is `_type` by default, or the key you set with [`id_key`](/documentation/developer-reference/configuration-file/types/structure/id_key/). If you configure the id key as a *Select Input*, *Team Members* can change its value to switch the object to a different *Structure* value.
-
-When the id key changes, CloudCannon applies the newly matched *Structure* value to the object. Keys that both *Structure* values define keep their existing values when the value types match, keys missing from the object are added with the new *Structure* value's defaults, and the inputs in the *Data Editor* and the sidebar of the *Visual Editor* and *Content Editor* update to match.
+When the id key changes, CloudCannon applies the newly matched *Structure* value to the object. Existing keys that the new *Structure* value also defines keep their values unless the value type conflicts with the new default, keys missing from the object are added with the new *Structure* value's defaults, and the inputs in the *Data Editor* and the sidebar of the *Visual Editor* and *Content Editor* update to match.
 
 For example, a page background might be an image, a video, or a pattern. Each option needs some different keys, but all of them share settings such as the mask and overlay. With a *Select Input* on the id key, a *Team Member* can change a background from an image to a video without losing those shared settings.
 
-Before we begin, this article assumes you have already [created a Structure](/documentation/developer-articles/create-a-structure/) with multiple values and referenced it from an [Object Input](/documentation/developer-articles/configure-an-object-input/).
+Before we begin, this article assumes you have already [created a Structure](/documentation/developer-articles/create-a-structure/) with multiple values and referenced it from an [Object Input](/documentation/developer-articles/configure-an-object-input/). The example in this article defines the *Structure* directly in the `options.structures` key of the input, but the same configuration works for a *Structure* defined under `_structures`.
 
 ## Configure the id key as a Select Input
 
-The options in your *Select Input* must be the id key values from your *Structure* values, so that each option matches exactly one *Structure* value.
+The `value` of every *Structure* value must include the id key, with a string value that no other *Structure* value uses. The options in your *Select Input* must match those id key values exactly. If an option matches no *Structure* value, CloudCannon uses the *Structure* value with `default: true`, or stops applying a *Structure* to the object if there is none.
 
 Define the *Select Input* in an `_inputs` key inside each *Structure* value, next to the `label` and `value` keys. CloudCannon only applies the `_inputs` of the *Structure* value an object currently matches, so each *Structure* value needs its own copy of the input.
 
-Set `remove_extra_inputs` and `reorder_inputs` explicitly on your *Structure*. These keys control what happens to the object's existing keys when the *Structure* value changes.
+We recommend setting `remove_extra_inputs` and `reorder_inputs` explicitly on your *Structure*. These keys control how CloudCannon updates the object's existing keys to match its *Structure* value, both when a *Team Member* opens the file and when the *Structure* value changes. If you do not set them, CloudCannon reorders the object's keys and keeps keys that the *Structure* value does not define. You can also set either key on an individual *Structure* value, which overrides the setting on the *Structure*.
 
 To let *Team Members* switch an object between *Structures*:
 
-1. Navigate to the location in the configuration cascade where you define your *Structure*.
+1. Open the configuration file where you define your *Structure*, under `_structures` or in the `options.structures` key of an input.
 2. Set the `id_key` key on your *Structure* to the key that identifies each *Structure* value, or use the default `_type` key.
-3. Add an `_inputs` key to each *Structure* value, next to the `label` and `value` keys.
-4. Configure the id key under each `_inputs` key as a `choice` or `select` input, with an `options.values` list containing the id key value of every *Structure* value.
-5. Set the `remove_extra_inputs` and `reorder_inputs` keys on your *Structure* to `true` or `false`.
-6. [Save your changes](/documentation/user-articles/save-your-changes/).
+3. Make sure the `value` of each *Structure* value includes the id key with a unique string value.
+4. Add an `_inputs` key to each *Structure* value, next to the `label` and `value` keys.
+5. Configure the id key under each `_inputs` key as a `choice` or `select` input, with an `options.values` list containing the id key value of every *Structure* value. Set `options.allow_empty` to `false` so *Team Members* cannot clear the id key, and do not set `options.allow_create` on a `select` input.
+6. Set the `remove_extra_inputs` and `reorder_inputs` keys on your *Structure* to `true` or `false`.
+7. [Save your changes](/documentation/user-articles/save-your-changes/).
 
-CloudCannon will show the id key as a *Select Input* on the object. When a *Team Member* selects a different option, CloudCannon will apply the matching *Structure* value to the object.
+CloudCannon will show the id key as a *Select Input* on the object. When a *Team Member* selects a different option, CloudCannon will apply the matching *Structure* value to the object straight away, as an unsaved change.
 
 <comp.Notice info_type="important">
   Keys that begin with an underscore, including the default id key `_type`, are hidden in the *Data Editor* and the sidebar of the *Visual Editor* and *Content Editor* by default. If your id key begins with an underscore, add `hidden: false` to its input configuration so *Team Members* can see the *Select Input*. For more information, please read our reference documentation on [hiding inputs](/documentation/developer-reference/configuration-file/types/_inputs/*/hidden/).
 </comp.Notice>
 
-In the following example, a page has a `background` object in its front matter. The `background` input uses a *Structure* with three values: Video, Image, and Pattern. The *Structure* sets `id_key` to `type`, and each *Structure* value configures `type` as a `choice` input with the options `image`, `video`, and `pattern`.
+In the following example, a page has a `background` object in its front matter. The `background` input uses a *Structure* with three values: Video, Image, and Pattern. The *Structure* sets `id_key` to `type`, and each *Structure* value configures `type` as a `choice` input with the options `image`, `video`, and `pattern`, and `allow_empty` set to `false`.
 
 <comp.CodeBlock language="Markdown" source="index.md">
 ```
@@ -75,7 +70,7 @@ background:
 ```
 </comp.CodeBlock>
 
-The *Structure* sets `reorder_inputs` and `remove_extra_inputs` to `true`. After a switch, the object's keys follow the order of the new *Structure* value, and CloudCannon removes keys that the new *Structure* value does not define.
+The *Structure* sets `reorder_inputs` and `remove_extra_inputs` to `true`. When a *Team Member* opens the file, and after every switch, the object's keys follow the order of the matched *Structure* value, and CloudCannon removes keys that the *Structure* value does not define.
 
 <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
 ```
@@ -93,6 +88,7 @@ _inputs:
               type:
                 type: choice
                 options:
+                  allow_empty: false
                   values:
                     - image
                     - video
@@ -111,6 +107,7 @@ _inputs:
               type:
                 type: choice
                 options:
+                  allow_empty: false
                   values:
                     - image
                     - video
@@ -130,6 +127,7 @@ _inputs:
               type:
                 type: choice
                 options:
+                  allow_empty: false
                   values:
                     - image
                     - video
@@ -148,12 +146,12 @@ CloudCannon uses the `type` key to match the `background` object to a *Structure
 </comp.Annotation>
 <comp.Annotation number="2">
 
-Orders the object's keys to match the new *Structure* value after a switch.
+Orders the object's keys to match the matched *Structure* value.
 
 </comp.Annotation>
 <comp.Annotation number="3">
 
-Removes keys that the new *Structure* value does not define.
+Removes keys that the matched *Structure* value does not define.
 
 </comp.Annotation>
 <comp.Annotation number="4">
@@ -170,7 +168,7 @@ The id key value for this *Structure* value. It matches the `video` option in th
 
 ## What happens when the Structure changes
 
-When a *Team Member* selects a different option in the *Select Input*, CloudCannon rebuilds the object from the newly matched *Structure* value.
+When a *Team Member* selects a different option in the *Select Input*, CloudCannon merges the object's current data with the newly matched *Structure* value, using the rules below.
 
 For example, a *Team Member* adds an image to the background from the example above, adds alt text, and darkens the overlay:
 
@@ -191,7 +189,7 @@ background:
 ```
 </comp.CodeBlock>
 
-They then change the `type` input from `image` to `video`. CloudCannon applies the Video value to the object, and when the *Team Member* saves the file, the front matter looks like this:
+They then change the `type` input from `image` to `video`. CloudCannon applies the Video value to the object straight away, as an unsaved change. When the *Team Member* saves the file, the front matter looks like this:
 
 <comp.CodeBlock language="Markdown" source="index.md">
 ```
@@ -216,23 +214,23 @@ In this switch:
 * `imageSource` and `imageAlt` are removed, because the Video value does not define them and `remove_extra_inputs` is `true`.
 * The keys follow the order of the Video value, because `reorder_inputs` is `true`.
 
-CloudCannon applies the following rules on every switch:
+CloudCannon applies the following rules whenever it matches an object to a *Structure* value, including when a *Team Member* opens the file and on every switch:
 
-* A key that both *Structure* values define keeps its existing value if that value is the same type as the new *Structure* value's default for the key, or if the new default is `null` (for example, `title:` with no value). Otherwise, CloudCannon replaces the existing value with the new default. A key that already has a `null` value keeps it.
-* A key that the new *Structure* value defines, but the object does not have, is added with the new *Structure* value's default.
-* A key that the new *Structure* value does not define is removed when [`remove_extra_inputs`](/documentation/developer-reference/configuration-file/types/structure/remove_extra_inputs/) is `true`, and kept when it is `false`.
-* When [`reorder_inputs`](/documentation/developer-reference/configuration-file/types/structure/reorder_inputs/) is `true`, the new *Structure* value's keys come first, in the order the *Structure* value defines them, followed by any remaining keys. When it is `false`, existing keys keep their order and new keys are added after them.
+* A key that the object already has, and the new *Structure* value also defines, keeps its existing value if the new default for that key is `null` (for example, `title:` with no value), or if the existing value has the same basic type as the default: string, number, boolean, or object (arrays count as objects). Otherwise, CloudCannon replaces the existing value with the new default.
+* A key that already has a `null` value keeps it, unless the new default is an object.
+* If the new default for a key is an object, CloudCannon applies these rules to each key inside it instead of replacing the whole object.
+* A key that the new *Structure* value defines, but the object does not have, is added with the new *Structure* value's default. If that default is `null`, the input appears, but the key is only saved to the file once it has a value.
+* A key that the new *Structure* value does not define is removed when [`remove_extra_inputs`](/documentation/developer-reference/configuration-file/types/structure/remove_extra_inputs/) is `true`, and kept when it is `false`, which is the default.
+* When [`reorder_inputs`](/documentation/developer-reference/configuration-file/types/structure/reorder_inputs/) is `true`, which is the default, the new *Structure* value's keys come first, in the order the *Structure* value defines them, followed by any remaining keys. When it is `false`, existing keys keep their order and new keys are added after them.
 
-Setting `remove_extra_inputs` to `true` means the object only contains keys that the current *Structure* value defines. The trade-off is that a switch discards values the new *Structure* value does not define, so switching back does not restore them. In the example above, if the *Team Member* switches the background back to `image`, `imageSource` and `imageAlt` return as empty strings from the Image value's defaults, not `/images/mountains.jpg` and `Mountains at sunrise`. If you set `remove_extra_inputs` to `false`, switching back restores those values, but the object also keeps keys from every *Structure* value it has used, such as `videoSource`.
+Setting `remove_extra_inputs` to `true` means the object only contains keys that the current *Structure* value defines. The trade-off is that a switch discards values the new *Structure* value does not define, so switching back does not restore them. In the example above, if the *Team Member* switches the background back to `image`, `imageSource` and `imageAlt` return as empty strings from the Image value's defaults, not `/images/mountains.jpg` and `Mountains at sunrise`. If you set `remove_extra_inputs` to `false`, switching back restores those values, but the object also keeps keys from every *Structure* value it has used, such as `videoSource`, and CloudCannon saves them to the file.
 
-You can also set [`remove_empty_inputs`](/documentation/developer-reference/configuration-file/types/structure/remove_empty_inputs/) to `true` on your *Structure*. When CloudCannon saves the file, this removes keys with empty values (`null`, empty strings, empty arrays, and empty objects) from the top level of the object. This key only applies when the `value` of the matched *Structure* value includes the id key.
+You can also set [`remove_empty_inputs`](/documentation/developer-reference/configuration-file/types/structure/remove_empty_inputs/) to `true` on your *Structure*. When a *Team Member* switches the object to a different *Structure* value, this removes keys with empty values (`null`, empty strings, empty arrays, and empty objects) from the top level of the object. This key only applies when the `value` of the matched *Structure* value sets the id key to a non-empty value.
 
 ## Define the Select Input in each Structure value
 
-Defining the *Select Input* in the `_inputs` key of each *Structure* value keeps each *Structure* value self-contained. The input only applies to objects that match that *Structure* value. A `type` input in a top-level `_inputs` key would apply to every key named `type` in your files, not only the id key of the `background` object.
+Defining the *Select Input* in the `_inputs` key of each *Structure* value keeps each *Structure* value self-contained. The input only applies inside objects that match that *Structure* value. A `type` input in a top-level `_inputs` key would apply to every key named `type`, at any depth, in every file that configuration applies to, not only the id key of the `background` object.
 
-Because CloudCannon only applies the `_inputs` of the matched *Structure* value, each *Structure* value needs its own copy of the input. If a *Structure* value does not define the input, the id key is no longer a *Select Input* after a *Team Member* switches to that *Structure* value.
-
-If you write your configuration in YAML, you can avoid repeating the input with a YAML anchor. For example, write `_inputs: &background_type_input` in the Video value, then set `_inputs: *background_type_input` in the Image and Pattern values.
+Because CloudCannon only applies the `_inputs` of the matched *Structure* value, each *Structure* value needs its own copy of the input. If a *Structure* value does not define the input, the id key falls back to a *Text Input* after a *Team Member* switches to that *Structure* value, unless another level of the configuration cascade configures it.
 
 For more information, please read our reference documentation on the [Structure](/documentation/developer-reference/configuration-file/types/structure/) type and the keys available in a [Structure value](/documentation/developer-reference/configuration-file/types/structure/values/[*]/), including `_inputs`.
