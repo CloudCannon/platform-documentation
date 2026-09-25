@@ -20,7 +20,7 @@ author_notes:
   docshots: Needs docshots
 ---
 
-The `hidden` and `disabled` input options accept an expression as well as a boolean. An expression lets you show, hide, or disable an input based on the values of other inputs in the same file, so the editing interface changes as a *Team Member* works.
+The `hidden_if` and `disabled_if` input options take an expression. An expression lets you show, hide, or disable an input based on the values of other inputs in the same file, so the editing interface changes as a *Team Member* works.
 
 For example, a page that holds either a video or an image needs only one of the two path fields at a time. An expression on each path input hides the field that does not apply.
 
@@ -34,13 +34,29 @@ To control an input with an expression:
 2. Navigate to the location in the configuration cascade where you want to configure your input.
 3. Identify the `_inputs` key, or create one at that level of the configuration cascade.
 4. Add an input name key for the input you want to control under the `_inputs` key.
-5. Set the `hidden` or `disabled` key under your input name key to your expression.
+5. Set the `hidden_if` or `disabled_if` key under your input name key to your expression.
 
 CloudCannon will now apply your expression to all markup files that use your input name key, without needing to save your configuration. This allows you to change your expression and see the result in your inputs live.
 
 When you are happy with your expression, you must save your configuration.
 
-In the following example, the `video_path` and `image_path` inputs each appear only when the `type` input holds the matching value, and the `slug` input becomes read-only once the page is published.
+In the following example, `type` is `video`, so the `video_path` input is shown and the `image_path` input is hidden. `published` is `true`, so the `slug` input is read-only.
+
+<comp.CodeBlock language="Markdown" source="post.md">
+```
+
+---
+type: video
+video_path: /uploads/launch.mp4
+image_path:
+published: true
+slug: launch-week
+---
+
+Content goes here.
+
+```
+</comp.CodeBlock>
 
 <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
 ```
@@ -54,13 +70,13 @@ _inputs:
         - image
   video_path:
     type: url
-    hidden___1___: 'type != "video"'
+    hidden_if___1___: 'type != "video"'
   image_path:
     type: url
-    hidden: 'type != "image"'
+    hidden_if: 'type != "image"'
   slug:
     type: text
-    disabled___2___: published
+    disabled_if___2___: published
 
 ```
 <comp.Annotation number="1">
@@ -78,39 +94,82 @@ The `slug` input is visible at all times, but becomes read-only once `published`
 In YAML, quote your expression if it starts with a character YAML reserves, such as `!` or `*`, or if it contains a colon. Quoting is always safe, so quote every expression if you are unsure.
 
 <comp.Notice info_type="info">
-  A boolean value also works. `hidden: true` hides an input outright, and an input with no `hidden` or `disabled` key is visible and editable.
+  The `hidden` and `disabled` keys take a boolean. `hidden: true` hides an input outright, and an input with none of these keys is visible and editable. If you set both `hidden` and `hidden_if`, the input is hidden when either is truthy, and the same applies to `disabled` and `disabled_if`.
 </comp.Notice>
+
+## Explain why an input is disabled
+
+Set the `disabled_message` key to show a message while an input is read-only. CloudCannon shows the message with the input's comment whenever `disabled` is `true` or `disabled_if` is truthy, and hides it otherwise. The message supports the same limited Markdown as `comment`.
+
+In the following example, `published` is `true`, so the `slug` input is read-only and shows the message.
+
+<comp.CodeBlock language="Markdown" source="post.md">
+```
+
+---
+published: true
+slug: launch-week
+---
+
+Content goes here.
+
+```
+</comp.CodeBlock>
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+```
+
+_inputs:
+  slug:
+    type: text
+    disabled_if: published
+    disabled_message: Unpublish this post to change its URL.
+
+```
+</comp.MultiCodeBlock>
 
 ## Reference the value of another input
 
 A bare name in an expression refers to a sibling input, meaning an input in the same object as the input you are configuring. CloudCannon starts looking for every bare name in that object, which these instructions call the containing object.
 
-Four reserved references let you reach the input you are configuring, or values elsewhere in the file.
+Two reserved names let you reach the input you are configuring, or the top of the file.
 
 <comp.OptionsTable>
   <comp.OptionsRow label="this" type_markdown="`any`">
-    The value of the input you are configuring. `$this` is an alias.
-  </comp.OptionsRow>
-  <comp.OptionsRow label="this.$parent" type_markdown="`any`">
-    The object containing the input you are configuring. A bare name reads from this object, so `this.$parent.title` and `title` are the same value.
-  </comp.OptionsRow>
-  <comp.OptionsRow label="$parent" type_markdown="`any`">
-    The object containing the containing object, one level further up than a bare name reads. Use it to read past your input's siblings.
+    The input you are configuring. In a comparison, this is its value.
   </comp.OptionsRow>
   <comp.OptionsRow label="$" type_markdown="`any`">
-    The top level of the file, or the nearest enclosing *Structure* value when the input sits inside a *Structure*. `$root` is an alias.
+    The top level of the file, or the nearest enclosing *Structure* value when the input sits inside a *Structure*.
   </comp.OptionsRow>
 </comp.OptionsTable>
 
-You can chain `.$parent` after any value to climb a further level, so `$parent.$parent` reads two levels above the containing object.
+These names are only reserved at the start of a path. After a dot they are ordinary keys, so `hero.this` reads a key named `this` inside `hero`.
 
 An expression reads the file a *Team Member* has open. It cannot read another file, another *Site*, or anything outside that file, so you cannot hide an input based on a value that lives elsewhere.
 
-Read a nested value with a dot, such as `seo.title`, and an array item with its index, such as `authors.0`.
+Read a nested value with a dot, such as `seo.title`, and an array item with its index, such as `authors[0]`.
 
 Reading a key that does not exist gives you `null` rather than an error, so your expression keeps working while a *Team Member* fills in a file.
 
-In the following example, the `caption` and `alt_text` inputs sit inside an `image` object in your content file, so a bare name would only reach their siblings inside that object. `show_captions` and `seo.locked` sit at the top level of the file, so each input reaches them through `$`.
+In the following example, the `caption` and `alt_text` inputs sit inside an `image` object in your content file, so a bare name would only reach their siblings inside that object. `show_captions` and `seo.locked` sit at the top level of the file, so each input reaches them through `$`. With these values, `caption` is hidden and `alt_text` is read-only.
+
+<comp.CodeBlock language="Markdown" source="page.md">
+```
+
+---
+show_captions: false
+seo:
+  locked: true
+image:
+  path: /uploads/hero.jpg
+  caption:
+  alt_text: A sunrise over the harbour
+---
+
+Content goes here.
+
+```
+</comp.CodeBlock>
 
 <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
 ```
@@ -118,19 +177,51 @@ In the following example, the `caption` and `alt_text` inputs sit inside an `ima
 _inputs:
   caption:
     type: text
-    hidden: $.show_captions === false
+    hidden_if: $.show_captions === false
   alt_text:
     type: text
-    disabled: $.seo.locked
+    disabled_if: $.seo.locked
 
 ```
 </comp.MultiCodeBlock>
 
+### Climb to an enclosing object
+
+Two functions move between inputs. Both take an input as their first argument rather than a value, so `parent(this)` is the object containing the input you are configuring, not the parent of its value.
+
+<comp.OptionsTable>
+  <comp.OptionsRow label="parent(input, levels)" type_markdown="`any`">
+    The object or array `levels` above `input`. Both arguments are optional: `input` defaults to `this` and `levels` to 1, so `parent()` is the containing object, `parent(2)` is the one above that, and `parent($)` is the one containing the nearest *Structure* value.
+  </comp.OptionsRow>
+  <comp.OptionsRow label="get(input, ...keys)" type_markdown="`any`">
+    Follows a path of keys or array indexes starting at `input`. `input` is optional and defaults to the containing object, so `get("seo", "title")` is the same as `seo.title`, and `get(parent(2), "currency")` reads from two levels up.
+  </comp.OptionsRow>
+</comp.OptionsTable>
+
 ### Inputs inside an array
 
-An input inside an array item reads its siblings from that item, exactly as it would anywhere else. The array itself sits one level up, so `$parent` gives you the array and `$parent.$parent` gives you the object holding the array.
+An input inside an array item reads its siblings from that item, exactly as it would anywhere else. The item is its containing object, so `parent()` gives you the item, `parent(2)` gives you the array, and `parent(3)` gives you the object holding the array.
 
-In the following example, each tier hides its own `annual_price_suffix` input until that tier has an annual price. The `name` input climbs two levels with `$parent.$parent` to read `currency` from the object that holds the array, and becomes read-only when the currency is `NZD`.
+In the following example, each tier hides its own `annual_price_suffix` input until that tier has an annual price, so the suffix is shown for `Pro` and hidden for `Free`. The `name` input climbs three levels with `parent(3)` to read `currency` from the object that holds the array, and is read-only in both tiers because the currency is `NZD`.
+
+<comp.CodeBlock language="Markdown" source="pricing.md">
+```
+
+---
+currency: NZD
+pricing_tiers:
+  - name: Free
+    annual_price:
+    annual_price_suffix:
+  - name: Pro
+    annual_price: 120
+    annual_price_suffix: per year
+---
+
+Content goes here.
+
+```
+</comp.CodeBlock>
 
 <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
 ```
@@ -145,20 +236,20 @@ _structures:
         _inputs:
           annual_price_suffix:
             type: text
-            hidden: '!annual_price'
+            hidden_if: '!annual_price'
           name:
             type: text
-            disabled: '$parent.$parent.currency == "NZD"'
+            disabled_if: 'parent(3).currency == "NZD"'
 
 ```
 </comp.MultiCodeBlock>
 
 #### Configuration on an array item
 
-Configuration on the array item itself behaves differently. The containing object of an array item is the array, so a bare name there reads an array index rather than a key. Use `this` to read the item's own values, for example `this.name` rather than `name`.
+Configuration on the array item itself, such as `items[*]`, behaves differently. The containing object of an array item is the array, which has no keys, so a bare name there matches nothing. Use `this` to read the item's own values, for example `this.name` rather than `name`. `parent()` is the array and `parent(2)` is the object holding it, one level fewer than for an input inside the item.
 
 <comp.Notice info_type="info">
-  `$` stops at the nearest enclosing *Structure* value rather than continuing to the top level of the file. An input inside a *Structure* value cannot reach the file root with `$`, so climb with `.$parent` instead. In the example above, `$parent.$parent` reaches the object that holds the array.
+  `$` stops at the nearest enclosing *Structure* value rather than continuing to the top level of the file. An input inside a *Structure* value cannot reach the file root with `$`, so climb with `parent($)` instead. Note that this makes the Structure less portable as it depends on data outside of itself.
 </comp.Notice>
 
 ## Operators
@@ -167,7 +258,7 @@ You can use a subset of JavaScript operators in your expressions. If you know Ja
 
 <comp.OptionsTable>
   <comp.OptionsRow label="! &amp;&amp; || ??" type_markdown="`Logical`">
-    Negation, and, or, and nullish coalescing. `&&` and `||` return one of their two sides rather than a boolean, and both short-circuit.
+    Negation, and, or, and nullish coalescing. `&&` and `||` return one of their two sides rather than a boolean.
   </comp.OptionsRow>
   <comp.OptionsRow label="== != === !==" type_markdown="`Equality`">
     `==` and `!=` treat a numeric string as a number when the other side is a number, so `2 == "2"` is `true`. `===` and `!==` do not, so `2 === "2"` is `false`. No other conversion happens, so `0 == false` is `false`.
@@ -186,7 +277,7 @@ The ternary operator, bitwise operators, and the exponent operator `**` are not 
 
 ## Functions
 
-Nine functions are available. A function that receives a value of the wrong type gives `null`, except for `includes`, `starts_with`, and `ends_with`, which give `false`.
+Nine functions work on values, alongside `parent` and `get` described above. A function that receives a value of the wrong type gives `null`, except for `includes`, `starts_with`, and `ends_with`, which give `false`.
 
 <comp.OptionsTable>
   <comp.OptionsRow label="length(value)" type_markdown="`Number`">
@@ -218,7 +309,23 @@ Nine functions are available. A function that receives a value of the wrong type
   </comp.OptionsRow>
 </comp.OptionsTable>
 
-In the following example, the `summary` input stays hidden until `body` holds at least 200 characters, the `discount_code` input is read-only unless the code starts with `PROMO` in any capitalization, and the `permalink` input locks itself once it holds a value by reading `this`. `length` gives `null` for an empty input rather than zero, so `?? ""` keeps each comparison working before a *Team Member* has typed anything.
+In the following example, the `summary` input stays hidden until `body` holds at least 200 characters, the `discount_code` input is read-only unless the code starts with `PROMO` in any capitalization, and the `permalink` input locks itself once it holds a value by reading `this`. `length` gives `null` for an empty input rather than zero, so `?? ""` keeps each comparison working before a *Team Member* has typed anything. With these values, `summary` is hidden, `discount_code` is editable, and `permalink` is read-only.
+
+<comp.CodeBlock language="Markdown" source="product.md">
+```
+
+---
+body: A short draft.
+summary:
+code: promo-spring
+discount_code:
+permalink: /products/spring-jacket
+---
+
+Content goes here.
+
+```
+</comp.CodeBlock>
 
 <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
 ```
@@ -226,28 +333,40 @@ In the following example, the `summary` input stays hidden until `body` holds at
 _inputs:
   summary:
     type: textarea
-    hidden: 'length(body ?? "") < 200'
+    hidden_if: 'length(body ?? "") < 200'
   discount_code:
     type: text
-    disabled: '!starts_with(uppercase(code), "PROMO")'
+    disabled_if: '!starts_with(uppercase(code), "PROMO")'
   permalink:
     type: url
-    disabled: 'length(this ?? "") > 0'
+    disabled_if: 'length(this ?? "") > 0'
 
 ```
 </comp.MultiCodeBlock>
 
 ## Reference a key that is not a valid name
 
-A bare name works only for key names that are valid identifiers: letters, digits, underscores, and dollar signs, not starting with a digit.
+A bare name works only for key names that are valid identifiers: letters, digits, underscores, and dollar signs, not starting with a digit. In an expression, `draft-status` parses as `draft` minus `status`.
 
-CloudCannon reads a value that is a single key name, optionally negated with `!`, as a key rather than an expression. A name containing a hyphen therefore works on its own: `hidden: draft-status` and `hidden: "!draft-status"` both read the sibling input named `draft-status`.
+Reach any other key with `get`. On its own, `get("draft-status")` reads a sibling of the input you are configuring. Give it an input first to read from elsewhere, such as `get($, "draft-status")` for a key at the top level of the file. Square brackets with a quoted string work on any value too, so `$["draft-status"]` is the same as `get($, "draft-status")`.
 
-Inside a larger expression, `draft-status` parses as `draft` minus `status`, so reach the key with square brackets and quotes instead. Use `$` for a key at the top level of the file, and `this.$parent` for a sibling of the input you are configuring.
+A quoted key is always a key name, never a reserved name, so `get("this")` reads a sibling input literally named `this`.
 
-A quoted string in square brackets is always a key name, never a reserved name, so `this.$parent["$parent"]` reads a sibling input literally named `$parent`.
+In the following example, the `body` input reads `draft-status` from the top level of the file, and the `intro` input reads a sibling input with the same name. Both are hidden while `draft-status` is `incomplete`.
 
-In the following example, the `body` input reads `draft-status` from the top level of the file, and the `intro` input reads a sibling input with the same name.
+<comp.CodeBlock language="Markdown" source="post.md">
+```
+
+---
+draft-status: incomplete
+intro:
+body:
+---
+
+Content goes here.
+
+```
+</comp.CodeBlock>
 
 <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
 ```
@@ -258,7 +377,7 @@ _inputs:
     hidden: '$["draft-status"] === "incomplete"'
   intro:
     type: textarea
-    hidden: 'this.$parent["draft-status"] === "incomplete"'
+    hidden_if: 'get("draft-status") === "incomplete"'
 
 ```
 </comp.MultiCodeBlock>
@@ -269,7 +388,7 @@ An expression cannot change a value. It only controls whether an input is visibl
 
 An expression can be up to 1000 characters long and nest up to 32 levels deep. CloudCannon shows an error on the input itself when an expression exceeds either limit or cannot be parsed, so you can find and correct it.
 
-While an expression is invalid, CloudCannon falls back to the safer option for each key. An input with an invalid `hidden` expression stays visible, so no content disappears, and an input with an invalid `disabled` expression stays read-only, so no value changes by accident.
+While an expression is invalid, CloudCannon falls back to the safer option for each key. An input with an invalid `hidden_if` expression stays visible, so no content disappears, and an input with an invalid `disabled_if` expression stays read-only, so no value changes by accident.
 
 An expression changes what a *Team Member* sees, but every key stays in your file. If you want the keys that do not apply to be removed instead, please read our documentation on [swapping an input's keys with a structure](/documentation/developer-articles/swap-an-inputs-keys-with-a-structure/).
 
