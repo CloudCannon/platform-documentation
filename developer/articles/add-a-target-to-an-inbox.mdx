@@ -1,0 +1,93 @@
+---
+_schema: default
+_uuid: b7569479-48ee-45f6-b1f4-6d0b98df1fb2
+_created_at: '2026-09-10 00:00:00 +0000'
+details:
+  title: Add a target to an Inbox
+  description: >-
+    Learn how to add a target to an Inbox so CloudCannon forwards your form
+    submissions to email or an external service.
+  image: >-
+    https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+  category:
+    - Instructions
+  related_articles:
+    - _type: developer_articles
+      item: fa72b1b7-bf1f-4d05-b6a0-f606e8b644c0
+    - _type: developer_articles
+      item: 449653a8-9ba8-4ea5-91b3-a373c930dc86
+    - _type: developer_articles
+      item: b865879c-c285-48f6-ae0c-3e8ef250293e
+author_notes:
+  docshots: Needs docshots
+---
+<comp.Notice info_type="permissions">
+  **Permissions required**
+
+  Members of the *Owners* and *Developers* [Default Permission Groups](/documentation/user-articles/what-are-default-permission-groups/), or [Custom Permission Groups](/documentation/developer-articles/what-are-custom-permission-groups/) with the `org:settings:inbox:write` permission, can add a target to an *Inbox*.
+</comp.Notice>
+
+A target tells CloudCannon where to forward the submissions an <comp.GlossaryTerm term="/user/glossary/i/inbox.yml">Inbox</comp.GlossaryTerm> receives. Every target has a type, which decides what the target asks you for and what that field is called: an email address for the *Email* type, a webhook URL for most external services, or a *Portal ID* and a *Form GUID* for the *HubSpot* type. For more information, please read our documentation on [what an Inbox Target is](/documentation/developer-articles/what-is-an-inbox-target/).
+
+Adding a target does not change how your forms submit. CloudCannon keeps storing every submission in the *Inbox* and forwards a copy to each target.
+
+Before we begin, this article assumes you have already created the *Inbox* you want to forward submissions from. For more information, please read our documentation on [creating an Inbox](/documentation/developer-articles/create-an-inbox/).
+
+Set up the receiving end first, because the field the type asks for needs a value from it. For instructions per type, please read our documentation on sending form submissions to [email](/documentation/developer-articles/send-form-submissions-to-email/), [Slack](/documentation/developer-articles/send-form-submissions-to-slack/), [Zapier](/documentation/developer-articles/send-form-submissions-to-zapier/), [IFTTT](/documentation/developer-articles/send-form-submissions-to-ifttt/), [Make](/documentation/developer-articles/send-form-submissions-to-make/), [Discord](/documentation/developer-articles/send-form-submissions-to-discord/), [Microsoft Teams](/documentation/developer-articles/send-form-submissions-to-microsoft-teams/), [HubSpot](/documentation/developer-articles/send-form-submissions-to-hubspot/), [n8n](/documentation/developer-articles/send-form-submissions-to-n8n/), [Pipedream](/documentation/developer-articles/send-form-submissions-to-pipedream/), or [a custom webhook](/documentation/developer-articles/send-form-submissions-to-a-custom-webhook/).
+
+To add a target to an *Inbox*:
+
+1. Navigate to the *Forms* page under *Org Settings*.
+2. Select the *Inbox* you want to forward submissions from.
+3. Open the *Targets* tab.
+4. Click the *Add target* button.
+5. Select the target type you want in the *Choose your target type* dropdown.
+6. Enter the email address or webhook URL in the field that type asks for. For a *HubSpot* target, enter your *Portal ID* and *Form GUID*, then map each field you send to a field the HubSpot form defines.
+7. Set any options the target type offers, such as the *How CloudCannon formats each submission* dropdown on a *Custom webhook* target.
+8. Choose an option under the *Links to attached files* heading.
+9. Turn on any *Spam protection* checkboxes you want.
+10. Click the *Add target* button.
+
+CloudCannon will add the target to your *Inbox* and start forwarding new submissions to it. An *Email* target does not receive submissions until you click the validation link CloudCannon sends to that address, and a *Custom webhook* target does not receive them until CloudCannon finds the DNS record that verifies the hostname in your webhook URL. CloudCannon shows the validation instructions for either target as soon as you add it, and the *View validation instructions* option in that target's *Context Menu* opens them again later.
+
+## How CloudCannon formats each submission
+
+A target posts each submission in the shape its own service expects, so a *Slack* target posts a Slack message and a *HubSpot* target posts a form submission the HubSpot Forms API accepts. Where that shape has choices of its own, the type offers them under its own heading in the modal: a *Slack* target sets a *Message format*, a *Discord* target can send each submission as a rich embed, an *IFTTT* target names the form field that fills each of its *Value 1*, *Value 2*, and *Value 3* fields, a *Microsoft Teams* target picks a *Card format*, and a *HubSpot* target maps your form fields onto the fields its form defines.
+
+A *Custom webhook* target is the only type that chooses the format itself, because the endpoint is yours rather than a service with a shape CloudCannon already knows. The *How CloudCannon formats each submission* dropdown offers:
+
+* *Raw JSON*, the default, posts your form fields alongside the submission metadata.
+* *Form encoded* posts `application/x-www-form-urlencoded`, the way a browser posts a form.
+* *Slack message*, *Discord message*, and *Microsoft Teams card* post the shapes those services expect.
+* *IFTTT values* posts the `value1`, `value2`, and `value3` fields an IFTTT webhook reads.
+* *HubSpot form submission* posts the shape the HubSpot Forms API expects, using a field map.
+
+You can point a *Custom webhook* target at anything that already understands one of these shapes, rather than writing code at your end to read raw JSON.
+
+## Links to attached files
+
+When a submission carries a file a visitor uploaded, the target receives a link to that file rather than the file itself. Two options decide who can open the link:
+
+* *Open in CloudCannon*, the default, needs a CloudCannon account with access to this *Inbox*.
+* *Open behind a Client Sharing login* needs the <comp.GlossaryTerm term="/user/glossary/c/client-sharing.yml">Client Sharing</comp.GlossaryTerm> password for one of your <comp.GlossaryTerm term="/user/glossary/s/site.yml">Sites</comp.GlossaryTerm> instead, which suits a recipient who has no CloudCannon account.
+
+Choosing *Open behind a Client Sharing login* also asks you to pick which *Site* the links use. Only a *Site* connected to this *Inbox* with a *Client Sharing* password set can be picked, and every link uses that *Site*, even when the submission came from another *Site* on the same *Inbox*. This option needs *Client Sharing* on your <comp.GlossaryTerm term="/user/glossary/s/subscription-plan.yml">Subscription Plan</comp.GlossaryTerm>. For more information, please read our documentation on [what Client Sharing is](/documentation/user-articles/what-is-client-sharing/).
+
+Both options still appear when the *Inbox* has the *Accept file uploads* checkbox turned off, with a note above them explaining that the *Inbox* does not accept file uploads, so there is nothing to link to. You cannot select *Open behind a Client Sharing login* in that state, and CloudCannon hides the *Client Sharing site* dropdown. For more information, please read our documentation on [receiving file uploads through a Form](/documentation/developer-articles/receive-file-uploads-through-a-form/).
+
+## Spam protection
+
+CloudCannon marks some submissions as spam as they arrive. A target receives them along with everything else by default, so you can filter them at your end, and two checkboxes hold them back instead:
+
+* *Do not send submissions marked as spam* holds back anything CloudCannon's spam detection flags.
+* *Do not send submissions matching our spam blocklist* holds back anything matching CloudCannon's list of phrases, links, and domains that only ever show up in spam.
+
+The two checkboxes work independently, so a target can hold back blocklist matches while still forwarding anything the wider spam detection flagged. That combination keeps obvious spam out without quietly dropping a false positive.
+
+An *Email* target shows both checkboxes turned on, and you cannot turn them off. Forwarding spam by email would eventually get the CloudCannon sending domain blocked for every customer.
+
+When a target holds a submission back, CloudCannon records that send as failed with the reason, and names the matching entries when the blocklist is what caught it. The submission itself stays in your *Inbox*.
+
+You can change any of these options after you add a target, with the *Target settings* option in that target's *Context Menu*.
+
+The number of targets you can add to an *Inbox* depends on your *Subscription Plan*. For more information, please read our documentation on [how Inbox limits work](/documentation/developer-articles/how-do-inbox-limits-work/).
