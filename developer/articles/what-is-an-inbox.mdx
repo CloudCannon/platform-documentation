@@ -35,14 +35,14 @@ Each linked *Site* shows its *Inboxes* in the *Site Navigation*, where anyone wi
 
 A form reaches an *Inbox* by naming its key in an `inbox_key` input. When a visitor submits the form, CloudCannon accepts the POST request, records the submission against that *Inbox*, and redirects the visitor to the form's action. For more information, please read our documentation on [creating a Form](/documentation/developer-articles/create-a-form/).
 
-CloudCannon sorts each submission into a category as it arrives, so spam and failures stay separate from the submissions you want to read. CloudCannon's spam detection marks a submission as *Spam* and still stores it, and a submission that exceeds a rate limit, or that sends a CAPTCHA token CloudCannon rejects, is stored in the *Errored* category. A submission that trips the `_gotcha` honeypot, or that sends no CAPTCHA token when the *Inbox* asks for one, is refused outright and is not stored at all.
+CloudCannon sorts each submission into a category as it arrives, so spam and failures stay separate from the submissions you want to read. CloudCannon's spam detection marks a submission as *Spam* and still stores it, and a submission that exceeds a rate limit, or whose CAPTCHA token CloudCannon cannot verify with your CAPTCHA provider, is stored in the *Errored* category. A submission that trips the `_gotcha` honeypot, or that sends no CAPTCHA token from a *Site* that requires one, is refused outright and is not stored at all.
 
 ## What an Inbox does with a submission
 
 Storing the submission is the *Inbox's* main job, and it is the only one that happens by default. Everything else is opt-in:
 
 * Targets forward a copy of each submission to an email address or an external service. An *Inbox* with no targets still collects submissions normally. For more information, please read our documentation on [what an Inbox Target is](/documentation/developer-articles/what-is-an-inbox-target/).
-* A CAPTCHA provider checks each submission before the *Inbox* accepts it. For more information, please read our documentation on [reducing spam with a CAPTCHA](/documentation/developer-articles/reduce-spam-with-a-captcha/).
+* A CAPTCHA provider checks each submission from a *Site* that has *Require Captcha* on, and CloudCannon does not forward a submission that fails the check to your targets. For more information, please read our documentation on [reducing spam with a CAPTCHA](/documentation/developer-articles/reduce-spam-with-a-captcha/).
 * A submission retention period decides how long the *Inbox* keeps submissions before deleting them.
 
 An *Inbox* also accepts the files a visitor attaches to a submission, and stores them alongside its other fields, unless you turn off its *Accept file uploads* checkbox. For the markup a form needs, what the checkbox changes, and the size and count limits that apply, please read our documentation on [receiving file uploads through a Form](/documentation/developer-articles/receive-file-uploads-through-a-form/).

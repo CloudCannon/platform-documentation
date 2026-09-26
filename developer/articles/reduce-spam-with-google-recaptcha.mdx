@@ -1,0 +1,230 @@
+---
+_schema: default
+_uuid: f9d36925-cefb-4c84-b93e-768513bcd63d
+_created_at: '2026-09-26 00:00:00 +0000'
+details:
+  title: Reduce spam with Google reCAPTCHA
+  description: >-
+    Protect the forms that submit to an Inbox with Google reCAPTCHA v2, v3, or reCAPTCHA Enterprise.
+  image: >-
+    https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+  category:
+    - Instructions
+  related_articles:
+    - _type: developer_articles
+      item: 28b9a68d-a851-4d6e-bc6b-ebe65cb14160
+    - _type: developer_articles
+      item: 6b8caff2-557e-431b-ae95-3244e11f4f79
+author_notes:
+  docshots: Added!
+---
+You can protect the forms that submit to an <comp.GlossaryTerm term="/user/glossary/i/inbox.yml">Inbox</comp.GlossaryTerm> with <a href="https://developers.google.com/recaptcha/" target="_blank" rel="noopener noreferrer">Google reCAPTCHA</a>, using keys from Google. CloudCannon supports three versions of reCAPTCHA, and the kind of key you have decides which option you select in the *Captcha provider* dropdown:
+
+* reCAPTCHA v2 shows a checkbox or runs an invisible challenge. It uses the *Google reCAPTCHA* option, with a *Site key* and a *Secret key*, and CloudCannon checks that the visitor passed the challenge.
+* reCAPTCHA v3 scores visitors in the background. It uses the *Google reCAPTCHA* option, with a *Site key* and a *Secret key*, and CloudCannon checks that the token is valid and that its score is at least the *Minimum score* on your *Inbox*.
+* reCAPTCHA Enterprise uses keys in a Google Cloud project. It uses the *Google reCAPTCHA Enterprise* option, with a *Site key*, a *Google Cloud project ID*, and an *API key*, and CloudCannon checks that the token is valid and that its score is at least the *Minimum score* on your *Inbox*.
+
+The *Minimum score* is 0.5 unless you change it. Google scores each visitor from 0.0 (very likely a bot) to 1.0 (very likely a person). Lower the score if real visitors are being rejected, or raise it if spam is getting through. A reCAPTCHA v2 token has no score, so the *Minimum score* does not affect it.
+
+If you added *Google reCAPTCHA* to an *Inbox* before this option existed, its *Minimum score* is 0, so every valid token passes as it did before. Set it to 0.5, or clear it, to start checking scores.
+
+Every version sends its token in a `g-recaptcha-response` field.
+
+Adding keys to your *Inbox* is not the whole setup. CloudCannon only checks the CAPTCHA on submissions from a <comp.GlossaryTerm term="/user/glossary/s/site.yml">Site</comp.GlossaryTerm> that requires it, using the *Require Captcha* option. For the full steps to add a provider to an *Inbox*, how to require the CAPTCHA on your *Sites*, and how CloudCannon handles a submission that fails, please read our documentation on [reducing spam with a CAPTCHA](/documentation/developer-articles/reduce-spam-with-a-captcha/).
+
+## reCAPTCHA v2
+
+reCAPTCHA v2 shows a checkbox, or runs an invisible challenge, and adds its token to your form for you. Get your keys from Google first, because the *Site key* and *Secret key* fields on your *Inbox* need them.
+
+To get your reCAPTCHA v2 keys:
+
+1. Register your website in the <a href="https://www.google.com/recaptcha/admin" target="_blank" rel="noopener noreferrer">reCAPTCHA admin console</a>, and choose reCAPTCHA v2.
+2. Add every domain your form runs on.
+
+Now add reCAPTCHA v2 to your *Inbox*. Select *Google reCAPTCHA* in the *Captcha provider* dropdown and enter your keys in the *Site key* and *Secret key* fields.
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Org-Settings-Forms-Inbox-Captcha-Google-Recaptcha" alt="A screenshot of the Inbox settings shows Google reCAPTCHA chosen as the captcha provider, with a site key and a secret key entered." title="The Captcha provider settings" type="screenshot" />
+
+Load the reCAPTCHA script, and add the widget inside your form, replacing `SITE_KEY` with your site key.
+
+<comp.CodeBlock language="html" source="contact.html">
+```
+<form method="post" id="my-form" action="/contact-success">
+  <label for="email_address">Email Address</label>
+  <input id="email_address" type="text" name="email">
+
+  <label for="message">Message</label>
+  <textarea id="message" name="message"></textarea>
+
+  <input type="hidden" name="inbox_key" value="your-inbox-key">
+  <input type="text" name="_gotcha" style="display: none;">
+
+  <div class="g-recaptcha" data-sitekey="SITE_KEY"></div>
+
+  <input type="submit" value="Send Message">
+</form>
+
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+```
+</comp.CodeBlock>
+
+The widget sends its token in a `g-recaptcha-response` field, and CloudCannon will check that token on each submission from a *Site* that requires a CAPTCHA. For more widget options, please read the <a href="https://developers.google.com/recaptcha/docs/display" target="_blank" rel="noopener noreferrer">reCAPTCHA v2 documentation</a>.
+
+<comp.DocsImage path="assets/external_screenshots/hosting-forms-captcha.gif" alt="An animation shows the Google reCAPTCHA checkbox verifying a visitor." title="The reCAPTCHA checkbox" type="ui-snippet"/>
+
+## reCAPTCHA v3
+
+reCAPTCHA v3 scores visitors in the background rather than showing a challenge, so it never adds an input to your form on its own. Your form has to request a token for each submission, and add it as an input named `g-recaptcha-response` before submitting. A reCAPTCHA token works once and expires after two minutes, so the example below requests a new token each time the visitor submits.
+
+CloudCannon checks that a v3 token is valid and that its score is at least the *Minimum score* on your *Inbox*, which is 0.5 unless you change it. CloudCannon does not check the token's action, so keep domain verification on for your key.
+
+To get your reCAPTCHA v3 keys:
+
+1. Register your website in the <a href="https://www.google.com/recaptcha/admin" target="_blank" rel="noopener noreferrer">reCAPTCHA admin console</a>, and choose reCAPTCHA v3.
+2. Add every domain your form runs on.
+
+Now add reCAPTCHA v3 to your *Inbox*. Select *Google reCAPTCHA* in the *Captcha provider* dropdown and enter your keys in the *Site key* and *Secret key* fields.
+
+Add the reCAPTCHA script with your site key after your form. The second script overrides the form's submit event to fetch a token, add it to the form, and submit. Replace `SITE_KEY` with your site key in both places.
+
+<comp.CodeBlock language="html" source="contact.html">
+```
+<form method="post" id="my-form" action="/contact-success">
+  <label for="email_address">Email Address</label>
+  <input id="email_address" type="text" name="email">
+
+  <label for="message">Message</label>
+  <textarea id="message" name="message"></textarea>
+
+  <input type="hidden" name="inbox_key" value="your-inbox-key">
+  <input type="text" name="_gotcha" style="display: none;">
+
+  <input type="submit" value="Send Message">
+</form>
+
+<script src="https://www.google.com/recaptcha/api.js?render=SITE_KEY"></script>
+<script>
+  const formEl = document.getElementById('my-form');
+  let submitting = false;
+
+  window.addEventListener('pageshow', (event) => {
+    if (event.persisted) {
+      submitting = false;
+    }
+  });
+
+  formEl.addEventListener('submit', (event) => {
+    event.preventDefault();
+
+    if (submitting) {
+      return;
+    }
+
+    if (typeof grecaptcha === 'undefined') {
+      alert('Your message could not be sent. Please try again.');
+      return;
+    }
+    submitting = true;
+
+    grecaptcha.ready(() => {
+      grecaptcha
+        .execute('SITE_KEY', { action: 'submit' })
+        .then((token) => {
+          let input = formEl.querySelector('input[name="g-recaptcha-response"]');
+          if (!input) {
+            input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'g-recaptcha-response';
+            formEl.appendChild(input);
+          }
+          input.value = token;
+          formEl.submit();
+        })
+        .catch(() => {
+          submitting = false;
+          alert('Your message could not be sent. Please try again.');
+        });
+    });
+  });
+</script>
+```
+</comp.CodeBlock>
+
+CloudCannon will check the token on each submission from a *Site* that requires a CAPTCHA.
+
+## reCAPTCHA Enterprise
+
+reCAPTCHA Enterprise uses keys in a Google Cloud project. CloudCannon creates an assessment for each submission, and rejects a token that scores below the *Minimum score* on your *Inbox*, which is 0.5 unless you change it. A checkbox key may return no score, and CloudCannon then only checks that the token is valid.
+
+CloudCannon does not send an expected action with the assessment, so Google does not compare the token's action to your form, and Universal keys, which need an expected action, are not supported. Use a score-based or checkbox key, and keep domain verification on for it.
+
+Get your keys from Google Cloud first, because the *Site key*, *Google Cloud project ID*, and *API key* fields on your *Inbox* need them.
+
+To get your reCAPTCHA Enterprise keys:
+
+1. <a href="https://docs.cloud.google.com/recaptcha/docs/create-key-website" target="_blank" rel="noopener noreferrer">Create a reCAPTCHA key</a> in your Google Cloud project, and add every domain your form runs on.
+2. <a href="https://docs.cloud.google.com/docs/authentication/api-keys" target="_blank" rel="noopener noreferrer">Create an API key</a> in the same project, restricted to the reCAPTCHA Enterprise API.
+
+Now add reCAPTCHA Enterprise to your *Inbox*. Select *Google reCAPTCHA Enterprise* in the *Captcha provider* dropdown, enter the key ID in the *Site key* field, and enter your project ID and API key in the *Google Cloud project ID* and *API key* fields.
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Org-Settings-Forms-Inbox-Captcha-Google-Recaptcha-Enterprise" alt="A screenshot of the Inbox settings shows Google reCAPTCHA Enterprise chosen as the captcha provider, with a site key, Google Cloud project ID and API key entered." title="The Captcha provider settings" type="screenshot" />
+
+If you already use a reCAPTCHA key with the *Google reCAPTCHA* option, you can switch the *Inbox* to *Google reCAPTCHA Enterprise* and keep the same *Site key*. You only add the project ID and an API key.
+
+reCAPTCHA Enterprise loads `enterprise.js` instead of `api.js`, and still sends its token as `g-recaptcha-response`. For a checkbox key, load the script and add the widget inside your form, replacing `SITE_KEY` with your key ID. For more information, please read <a href="https://docs.cloud.google.com/recaptcha/docs/instrument-web-pages-with-checkbox" target="_blank" rel="noopener noreferrer">Google's documentation on checkbox keys</a>.
+
+<comp.CodeBlock language="html" source="contact.html">
+```
+<form method="post" id="my-form" action="/contact-success">
+  <label for="email_address">Email Address</label>
+  <input id="email_address" type="text" name="email">
+
+  <label for="message">Message</label>
+  <textarea id="message" name="message"></textarea>
+
+  <input type="hidden" name="inbox_key" value="your-inbox-key">
+  <input type="text" name="_gotcha" style="display: none;">
+
+  <div class="g-recaptcha" data-sitekey="SITE_KEY" data-action="submit"></div>
+
+  <input type="submit" value="Send Message">
+</form>
+
+<script src="https://www.google.com/recaptcha/enterprise.js" async defer></script>
+```
+</comp.CodeBlock>
+
+For a score-based key, use the [reCAPTCHA v3](#recaptcha-v3) example, with two changes: load `https://www.google.com/recaptcha/enterprise.js?render=SITE_KEY`, and call `grecaptcha.enterprise.ready` and `grecaptcha.enterprise.execute` in place of `grecaptcha.ready` and `grecaptcha.execute`. For more information, please read <a href="https://docs.cloud.google.com/recaptcha/docs/instrument-web-pages" target="_blank" rel="noopener noreferrer">Google's documentation on score-based keys</a>.
+
+CloudCannon will create an assessment for the token on each submission from a *Site* that requires a CAPTCHA.
+
+## Google Cloud projects and quotas
+
+Google manages reCAPTCHA keys in Google Cloud projects:
+
+* To use a key from the Google Cloud console with the *Google reCAPTCHA* option, open the key's *Integration* tab and enter its legacy secret key in the *Secret key* field.
+* reCAPTCHA includes 10,000 free assessments a month for each Google Cloud organization. Beyond that, enable billing on your Google Cloud project. Without billing, Google rejects further requests until the next month, and CloudCannon stores those submissions in the *Errored* category. For more information, please read <a href="https://docs.cloud.google.com/recaptcha/docs/billing-information" target="_blank" rel="noopener noreferrer">Google's reCAPTCHA billing documentation</a>.
+
+## Test reCAPTCHA
+
+Test your form on a separate key, or with test keys, before you add your real keys to a production *Inbox*.
+
+For reCAPTCHA v2, Google provides test keys that work on any domain. Every verification passes, and the widget shows a warning so the keys are never used in production:
+
+* *Site key*: `6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI`
+* *Secret key*: `6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe`
+
+reCAPTCHA v3 has no test keys. Create a separate v3 key for testing, and add your *Site's* <comp.GlossaryTerm term="/user/glossary/t/testing-domain.yml">Testing Domain</comp.GlossaryTerm> to it.
+
+For reCAPTCHA Enterprise, create a testing key with the Google Cloud CLI. A testing key always returns the score you set, so you can check both a passing and a failing submission. You cannot change a testing key after you create it.
+
+<comp.CodeBlock language="bash" source="Terminal">
+```
+gcloud recaptcha keys create --testing-score=1.0 --web --domains="your-site.cloudvent.net" --display-name="Always passes" --integration-type=score
+gcloud recaptcha keys create --testing-score=0.0 --web --domains="your-site.cloudvent.net" --display-name="Always fails" --integration-type=score
+```
+</comp.CodeBlock>
+
+When you add a domain to a key, enter your full *Testing Domain*, such as `your-site.cloudvent.net`, rather than `cloudvent.net`, because a domain also allows all of its subdomains.
+
+For more information, please read <a href="https://developers.google.com/recaptcha/docs/faq" target="_blank" rel="noopener noreferrer">Google's reCAPTCHA FAQ</a> and <a href="https://docs.cloud.google.com/recaptcha/docs/faq" target="_blank" rel="noopener noreferrer">the reCAPTCHA Enterprise FAQ</a>.
