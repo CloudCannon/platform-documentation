@@ -8,6 +8,8 @@ details:
     Learn how to connect a self-hosted GitLab repository as your source with
     CloudCannon.
   image: ye_olde_images/self-hosted-gitlab-selected.png
+  category:
+    - Instructions
   related_articles:
     - _type: developer_articles
       item: fad6a760-07db-4f3b-8f69-82bd66e188cb
@@ -17,99 +19,144 @@ author_notes:
   docshots: Added!
 ---
 <comp.Notice info_type="pricing">
-  <p><strong>This feature is available on our </strong><a href="https://cloudcannon.com/pricing/"><strong>Enterprise plan</strong></a><strong>.</strong></p><p>Want to chat about whether this feature is right for you? Our support team is always <a href="mailto:success@cloudcannon.com?subject=A%20question%20about%20custom%20Permission%20Groups">happy to hear from you</a>.</p>
+  **This feature is available on our <a href="https://cloudcannon.com/pricing/">Enterprise Plan</a>.**
+
+  Want to chat about whether this feature is right for you? Our support team is always <a href="mailto:success@cloudcannon.com?subject=A%20question%20about%20self-hosted%20GitLab">happy to hear from you</a>.
 </comp.Notice>
 
-Connecting to your self-hosted GitLab allows you to work on your websites locally and have the changes sync to CloudCannon. File changes made on CloudCannon also get synced back to your self-hosted GitLab repository.
+Connecting a <comp.GlossaryTerm term="/user/glossary/g/git-repository.yml">Git Repository</comp.GlossaryTerm> on your self-hosted GitLab to your <comp.GlossaryTerm term="/user/glossary/s/site.yml">Site</comp.GlossaryTerm> allows you to work on your website files locally and sync your changes to CloudCannon. CloudCannon also syncs any file changes you make in CloudCannon back to your self-hosted GitLab.
 
 <comp.Notice info_type="info">
-  To connect to a *GitLab.com* repository instead, follow the instructions listed for [GitLab](/documentation/developer-articles/connecting-a-gitlab-respository-as-your-source/).
+  To connect a *Git Repository* on GitLab.com instead, please read our documentation on [connecting a GitLab.com Git Repository as your source](/documentation/developer-articles/connecting-a-gitlab-respository-as-your-source/).
 </comp.Notice>
 
-## Connecting to an instance
+## Connect to your self-hosted instance
 
-Before syncing with a repository in your self-hosted GitLab, you need to connect CloudCannon to your self-hosted instance. You only need to do this once per account.
+Before you sync a *Git Repository* from your self-hosted GitLab, you need to connect CloudCannon to your self-hosted GitLab instance. You only need to do this once per <comp.GlossaryTerm term="/user/glossary/o/organization.yml">Organization</comp.GlossaryTerm>.
+
+The details CloudCannon needs come from an application on your GitLab server, which you can create on the *Applications* page of your GitLab *User Settings*. Set the application's *Redirect URI* to `https://app.cloudcannon.com/self_hosted_gitlab/authorize/` and select the following minimum scopes:
+
+* `api`
+* `read_user`
+* `read_repository`
+* `write_repository`
+* `openid`
+
+<comp.DocsImage path="assets/external_screenshots/files-source-syncing-gitlab-settings.png" alt="The Applications page in GitLab User Settings shows the Add new application form with the CloudCannon Redirect URI and the api, read_user, read_repository, write_repository, and openid scopes selected." title="The GitLab Applications page" type="screenshot"/>
+
+Once you've created the application, GitLab will show its *Application ID* and *Secret*. You will need both to connect CloudCannon to your instance.
 
 To connect to your self-hosted GitLab instance:
 
-1. Go to *Settings* / *Self Hosted GitLab*
-2. Enter the details for your self-hosted instance of GitLab
-3. Click **Configure Self Hosted GitLab**
+1. Navigate to the *Self-Hosted GitLab* page under the *Files* heading in your *Org Settings*.
+2. Enter the details for your self-hosted GitLab instance:
+   * *Authorize URL*: `https://HOSTNAME/oauth/authorize`
+   * *Token URL*: `https://HOSTNAME/oauth/token`
+   * *API Endpoint*: `https://HOSTNAME/api/v4`. This field is required and must include `https://`.
+   * *Key*: The *Application ID* of your GitLab application.
+   * *Secret*: The *Secret* of your GitLab application.
+3. Click the *Configure Self-hosted GitLab* button.
 
-<comp.DocShot docshot_key="CloudCannon-Documentation-Org-Self-Hosted-GitLab-Config-Form" title="The Organization Settings page for Self-hosted GitLab" alt="The Organization Settings page for Self-hosted GitLab showing the initial configuration form with fields for Authorize URL, Token URL, API Endpoint, Key, and Secret." type="screenshot" />
+CloudCannon will save your server details and show the *Authentication*, *Settings*, *Sites*, and *Danger Zone* tabs on the *Self-Hosted GitLab* page. If a field is missing or invalid, CloudCannon will show an error under that field instead.
 
-<comp.DocShot docshot_key="CloudCannon-Documentation-Org-Self-Hosted-GitLab-Authenticated" alt="A screenshot of the Organization Settings page for Self-hosted GitLab shows the configured and authenticated state with Authentication, Server, and Danger Zone tabs." title="The Self-hosted GitLab Organization Settings page after configuration" type="screenshot"/>
+<comp.DocShot docshot_key="CloudCannon-Documentation-Org-Self-Hosted-GitLab-Config-Form" alt="A screenshot of the Self-Hosted GitLab page under Org Settings shows the configuration form with the Authorize URL, Token URL, API Endpoint, Key, and Secret fields." title="The Self-hosted GitLab configuration form" type="screenshot"/>
 
-The details for this page come from the GitLab server under *User Settings / Applications*.
+<comp.DocShot docshot_key="CloudCannon-Documentation-Org-Self-Hosted-GitLab-Authenticated" alt="A screenshot of the Self-Hosted GitLab page under Org Settings shows the configured and authenticated state with the Authentication, Settings, Sites, and Danger Zone tabs." title="The Self-Hosted GitLab page after configuration" type="screenshot"/>
 
-<comp.DocsImage path="assets/external_screenshots/files-source-syncing-gitlab-settings.png" alt="Settings page from Gitlab" title="" type="screenshot"/>
+## Sync with a Git Repository
 
-The Redirect URI is <a href="https://app.cloudcannon.com/self_hosted_gitlab/authorize/" target="_blank" rel="noopener">https://app.cloudcannon.com/self\_hosted\_gitlab/authorize/</a> The minimal scopes required are:
+To connect a self-hosted GitLab *Git Repository* and start syncing files:
 
-1. api
-2. read\_user
-3. read\_repository
-4. write\_repository
-5. openid
+1. Navigate to the *Syncing* page under *Site Settings*.
+2. Select the *Self-hosted GitLab repository* option from the provider dropdown.
+3. Click the *Authorize* button.
 
-Once completed, the key and secret will be available for use in CloudCannon. The URLs should match the form placeholders.
+CloudCannon will open the *Connect to GitLab* modal, where you can choose one of two authentication methods.
 
-## Syncing with a repository
+<comp.DocShot docshot_key="CloudCannon-Documentation-Site-Settings-Syncing-Select-Self-Hosted-GitLab-No-Authorization" alt="A screenshot of the Syncing page under Site Settings shows the Self-hosted GitLab repository option selected and an Authorize button." title="The Syncing page with Self-hosted GitLab selected" type="screenshot"/>
 
-To connect a self-hosted GitLab repository and start syncing files, follow these instructions:
+### Authenticate with your GitLab account
 
-1. Go to *Site Settings* / *Syncing*
-2. Select **Self Hosted GitLab repository**
-3. Click **Authenticate**
+When you authenticate with your GitLab user account, your CloudCannon *Organization* gets access to the same *Git Repositories* on your self-hosted GitLab to which you have access.
 
-<comp.DocShot docshot_key="CloudCannon-Documentation-Site-Settings-Syncing-Select-Self-Hosted-GitLab-No-Authorization" title="The Syncing page with Self-hosted GitLab selected" alt="The Site Settings Syncing page with Self-hosted GitLab repository selected from the provider dropdown and an Authenticate button." type="screenshot" />
+To authenticate with your user account:
 
-This will open a menu where you can connect to GitLab, via one of two methods.
+1. Select the *Connect your GitLab account* option under *Authentication method* in the *Connect to GitLab* modal.
+2. Click the *Authenticate with GitLab* button. CloudCannon will redirect you to your self-hosted GitLab instance.
+3. Log in to your self-hosted GitLab account.
+4. Authorize CloudCannon to access your GitLab account.
 
-### Connecting with your user account
+GitLab will redirect you back to CloudCannon, where you can choose a *Git Repository* to connect.
 
-You can connect to GitLab by authenticating with your user account. This will give your CloudCannon organization access to the same GitLab repositories you have access to.
+<comp.DocShot docshot_key="CloudCannon-Documentation-Org-GitLab-Unauthenticated-OAuth" alt="A screenshot of the GitLab authentication options shows the Connect your GitLab account method with an Authenticate with GitLab button." title="The GitLab settings with OAuth authentication" type="screenshot"/>
 
-This redirects you to your self-hosted GitLab repository. Log in and authorize CloudCannon access to your self-hosted GitLab account, after which you will be redirected back to CloudCannon to pick a repository to connect.
+### Authenticate with a group access token
 
-<comp.DocShot docshot_key="CloudCannon-Documentation-Org-GitLab-Unauthenticated-OAuth" title="The GitLab settings with OAuth authentication" alt="The GitLab Organization Settings page showing the OAuth authentication option with an Authenticate with GitLab button." type="screenshot" />
-
-### Authenticating with a group access token
-
-Alternatively, you can create a group access token in GitLab and save that token in CloudCannon. This will give your CloudCannon organization access to all the resources scoped to your token. See GitLab's <a href="https://docs.gitlab.com/ee/user/group/settings/group_access_tokens.html" target="_blank" rel="noopener noreferrer">Group access tokens</a> documentation for how to create and configure a token.
-
-<comp.Notice info_type="important">
-  For full functionality on CloudCannon, your group access token should have (at least) the Maintainer role, and the `api`, `read_api`, `read_repository`, and `write_repository` scopes.
-</comp.Notice>
-
-Copy the token into the **Group Access Token** field. You will also need to provide the expiry date of the token. CloudCannon will send a warning email to all owners of your organization when the token is about to expire.
-
-Click **Save and authenticate** to finish.
-
-<comp.DocShot docshot_key="CloudCannon-Documentation-Org-GitLab-Unauthenticated-Token" title="The GitLab settings with token authentication" alt="The GitLab Organization Settings page showing the group access token form with fields for the token and expiry date." type="screenshot" />
-
-Once you've authenticated, you can choose a GitLab repository, and a branch to connect to the site. If you don't have an appropriate branch ready, create a new one in GitLab and refresh this page.
-
-<comp.DocShot docshot_key="CloudCannon-Documentation-Site-Settings-Syncing-Select-Self-Hosted-GitLab-Complete" title="The Syncing page with Self-hosted GitLab connected" alt="The Site Settings Syncing page showing a Self-hosted GitLab repository and branch selected." type="screenshot" />
+Alternatively, you can create a group access token in GitLab and save that token in CloudCannon. This gives your CloudCannon *Organization* access to all the resources scoped to your token. For instructions on creating and configuring a token, please read GitLab's <a href="https://docs.gitlab.com/ee/user/group/settings/group_access_tokens.html" target="_blank" rel="noopener noreferrer">group access tokens documentation</a>.
 
 <comp.Notice info_type="important">
-  Any existing files on your website will be replaced with the contents of the selected repository. Click **Backup and Sync** to continue, or exit the page to cancel the process.
+  For full functionality in CloudCannon, your group access token should have at least the Maintainer role and the `api`, `read_api`, `read_repository`, and `write_repository` scopes.
 </comp.Notice>
 
-Your self-hosted GitLab is now connected. Changes you push to the Git repository are pulled in by CloudCannon. Any changes made on CloudCannon are automatically committed and pushed.
+To authenticate with a group access token:
 
-## Configuring your GitLab connection
+1. Select the *Authenticate with a group access token* option under *Authentication method* in the *Connect to GitLab* modal.
+2. Paste your token into the *Group Access Token* field.
+3. Enter the date your token expires in the *Expiry Date* field.
+4. Click the *Save and authenticate* button.
 
-Once you've connected your GitLab server, you can configure CloudCannon to support your particular infrastructure. You can find these configuration options under the *Server* tab of your Self Hosted GitLab settings. The options you have for configuring CloudCannon are:
+CloudCannon will save your token and authenticate your self-hosted GitLab. CloudCannon will email the members of the *Owners Permission Group* in your *Organization* when the token is about to expire.
 
-* Minimum Access Level,
-* Custom Headers, and
-* Custom CA Certificate.
+<comp.DocShot docshot_key="CloudCannon-Documentation-Org-GitLab-Unauthenticated-Token" alt="A screenshot of the GitLab authentication options shows the group access token form with the Group Access Token and Expiry Date fields." title="The GitLab settings with token authentication" type="screenshot"/>
 
-<comp.DocShot docshot_key="CloudCannon-Documentation-Org-Self-Hosted-GitLab-Server-Tab" title="The Self-hosted GitLab Server tab" alt="The Self-hosted GitLab Organization Settings Server tab showing options for Minimum Access Level, Custom Headers, and Custom CA Certificate." type="screenshot" />
+### Select your Git Repository and branch
 
-The **Minimum Access Level** setting allows you to change the minimum access CloudCannon requires to a GitLab repo to connect to it. By default CloudCannon requires Maintainer access to a repo before syncing to it. Self Hosted GitLab allows custom access level permissions so a lower access level may be sufficient, depending on your setup.
+Once you've authenticated, you can choose the *Git Repository* and branch to connect to your *Site*. Under the *Branch Setup* heading, you can sync from a branch that already exists in your *Git Repository*, or have CloudCannon create a new branch from a source branch. If your *Git Repository* has no branches, CloudCannon will show a link to add one in your self-hosted GitLab.
 
-The **Custom Headers** setting allows you to configure additional headers for CloudCannon to use when connecting to your GitLab server. Custom headers are passed using Git's `http.extraHeader` configuration option and in the form `key:value`.
+<comp.Notice info_type="important">
+  When you click the *Backup and Sync* button, CloudCannon will replace any existing files on your *Site* with the contents of the selected *Git Repository*. To cancel the process, exit the page instead.
+</comp.Notice>
 
-The **Custom CA Certificate** allows you to upload a PEM encoded certificate or certificate chain for CloudCannon to trust during Git operations. The certificate is passed using Git's `http.sslCAInfo` configuration option.
+To connect your *Git Repository* and branch:
+
+1. Select your *Git Repository* from the *Repository* dropdown.
+2. Choose the *Use an existing branch* option or the *Create a new branch* option under the *Branch Setup* heading.
+3. Pick your branch from the *Branch* dropdown. If you are creating a new branch, pick the branch to copy from the *Source branch* dropdown and enter a name in the *New branch name* field.
+4. Click the *Backup and Sync* button.
+
+CloudCannon will connect your *Site* to your self-hosted GitLab *Git Repository*. CloudCannon pulls in any changes you push to your *Git Repository*, and automatically commits and pushes any changes you make in CloudCannon.
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Site-Settings-Syncing-Select-Self-Hosted-GitLab-Complete" alt="A screenshot of the Syncing page under Site Settings shows a self-hosted GitLab Git Repository and branch selected." title="The Syncing page with Self-hosted GitLab connected" type="screenshot"/>
+
+## Configure your GitLab connection
+
+Once you've connected your self-hosted GitLab server, you can configure CloudCannon to support your particular infrastructure. These options are on the *Settings* tab of the *Self-Hosted GitLab* page under *Org Settings*, below the *Server Configuration* details you entered when you connected your instance:
+
+* *Minimum Access Level*
+* *Custom Headers*
+* *Custom CA Certificate*
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Org-Self-Hosted-GitLab-Settings-Tab" alt="A screenshot of the Settings tab on the Self-Hosted GitLab page under Org Settings shows the Server Configuration details and the Minimum Access Level, Custom Headers, and Custom CA Certificate options." title="The Self-hosted GitLab Settings tab" type="screenshot"/>
+
+The *Minimum Access Level* setting allows you to change the minimum access CloudCannon requires on a GitLab *Git Repository* before it can connect. You can choose Guest, Reporter, Developer, Maintainer, or Owner. By default, CloudCannon requires Maintainer access to a *Git Repository* before syncing it. Self-hosted GitLab allows custom access level permissions, so a lower access level may be sufficient, depending on your setup.
+
+The *Custom Headers* setting allows you to configure additional headers for CloudCannon to use when connecting to your GitLab server. Click the *Add Custom Header* button to add a header. CloudCannon passes custom headers in the form `key:value` using Git's `http.extraHeader` configuration option.
+
+The *Custom CA Certificate* setting allows you to upload a PEM-encoded certificate or certificate chain for CloudCannon to trust during Git operations. CloudCannon passes the certificate using Git's `http.sslCAInfo` configuration option.
+
+Click the *Update Configuration* button to save your changes to these options.
+
+## Disconnect your self-hosted instance
+
+Disconnecting your self-hosted GitLab instance removes the server and its stored credentials from your *Organization*. CloudCannon keeps the files for any *Sites* that synced with it. You will need to enter your server details again to reconnect.
+
+You must unauthenticate your self-hosted GitLab account before you can disconnect the server. For more information, please read our documentation on [unauthenticating your Git Provider](/documentation/developer-articles/authenticate-your-git-provider/#unauthenticate-your-git-provider).
+
+To disconnect your self-hosted GitLab instance:
+
+1. Navigate to the *Self-Hosted GitLab* page under the *Files* heading in your *Org Settings*.
+2. Select the *Danger Zone* tab.
+3. Click the *Disconnect Self Hosted GitLab* button.
+4. Click the *Confirm* button.
+
+CloudCannon will remove your server details and show the configuration form on the *Self-Hosted GitLab* page.
