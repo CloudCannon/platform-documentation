@@ -58,7 +58,44 @@ export default function Tabs({ label, children }: TabsProps) {
   return (
     <div
       className="c-tabs"
-      x-data={`{ selectedTab: "${tabs?.[0] ?? "none"}" }`}
+      x-data={`{
+        selectedTab: "${tabs?.[0] ?? "none"}",
+
+        init() {
+          this.syncTabToHash();
+          globalThis.addEventListener('hashchange', () => this.syncTabToHash());
+        },
+
+        // Select the tab containing the element the URL fragment points at, so
+        // in-page links to a heading inside a hidden panel still work.
+        syncTabToHash() {
+          const hash = (globalThis.location.hash || '').slice(1);
+          if (!hash) {
+            return;
+          }
+
+          let id = hash;
+          try {
+            id = decodeURIComponent(hash);
+          } catch (_error) {
+            // Keep the raw hash if it is not valid percent-encoding
+          }
+
+          const target = document.getElementById(id);
+          const panel = target?.closest('.c-tabs__panel');
+          if (!panel || panel.closest('.c-tabs') !== this.$el) {
+            return;
+          }
+
+          const name = panel.dataset.tabName;
+          if (!name || name === this.selectedTab) {
+            return;
+          }
+
+          this.selectedTab = name;
+          this.$nextTick(() => target.scrollIntoView());
+        }
+      }`}
     >
       <div
         className="c-tabs__nav"
