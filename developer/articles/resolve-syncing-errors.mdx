@@ -5,8 +5,8 @@ _created_at: 2024-03-13T21:32:56.000Z
 details:
   title: Resolve Syncing errors
   description: >-
-    Learn how to address conflicting updates in CloudCannon so you can save your
-    changes when two sources attempt to update the same file.
+    Learn how to resolve a Syncing error by retrying, discarding your changes,
+    pushing them to a new branch, or switching branches.
   image: >-
     https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
   category:
@@ -14,61 +14,79 @@ details:
   related_articles:
     - _type: user_articles
       item: cb6c5e62-9546-4f66-839a-6a170297fe8d
-    - _type: user_articles
-      item: af5073ad-1111-41be-a319-057efe280da7
+    - _type: developer_articles
+      item: db590076-5403-40ab-ac5f-e721d7f9f477
     - _type: developer_articles
       item: a01c2606-bd15-4d5e-877f-1018cb6e2f72
 author_notes:
   docshots: Added!
 ---
-A Syncing error occurs when CloudCannon is unable to update your Site with the incoming changes even after you try to [resume Syncing](/documentation/user-articles/resume-syncing/) by saving your changes, because the incoming changes conflict with the content you tried to save.
+A Syncing error occurs when CloudCannon cannot sync your <comp.GlossaryTerm term="/user/glossary/s/site.yml">Site</comp.GlossaryTerm> with your <comp.GlossaryTerm term="/user/glossary/g/git-repository.yml">Git Repository</comp.GlossaryTerm>. For example, a recent push or pull failed, your branch or *Git Repository* no longer exists, or CloudCannon cannot authenticate with your <comp.GlossaryTerm term="/user/glossary/g/git-provider.yml">Git Provider</comp.GlossaryTerm>. You cannot save any files until you resolve the Syncing error.
 
-You cannot save unaffected files until you resolve the Syncing error and resume Syncing.
+When a Syncing error occurs, CloudCannon shows a *Sync failed* message on the *Syncing* page under *Site Settings* and on your *Site Dashboard*. The message explains the cause and lists the options that can resolve it.
 
-There are three was to resolve a Syncing error:
+If your *Site* shows a *Syncing is paused* message instead, incoming changes conflict with unsaved changes on your *Site*. For more information, please read our documentation on [resuming Syncing](/documentation/user-articles/resume-syncing/).
 
-* Create a new branch and move the changes from your CloudCannon Site to it so that the current branch can sync from your Git provider. You can then attempt to merge the changes in your local development environment.
-* Delete all changes on your CloudCannon Site and reset it using the version of your branch on your Git repository.
-* Replace all the content on your CloudCannon Site by switching to a different branch. CloudCannon will immediately sync the files from the new branch, and will not delete any content previously deployed to the old branch.
+<comp.DocShot docshot_key="CloudCannon-Documentation-Site-Settings-Syncing-Sync-Conflict" alt="A screenshot of the Syncing page under Site Settings shows a Sync failed message with options to retry, discard changes and retry, push changes to a new branch, switch branch, review syncing settings, or talk to support." title="The Syncing page with a Sync failed message" type="screenshot"/>
 
-Alternatively, you can ask your developer to resolve the Syncing error in their local development environment.
+The resolution options depend on the cause of the Syncing error:
 
-These instructions assume that [Syncing is paused](/documentation/user-articles/why-is-syncing-paused/) on your Site and you have attempted to resume Syncing by saving the changes to affected files.
+* **Retry**: Push the changes saved in CloudCannon and sync again. Use this option when the cause was temporary, such as downtime at your *Git Provider*.
+* **Discard changes and retry**: Discard the changes saved in CloudCannon that have not synced, then sync your *Site* from your *Git Repository*.
+* **Push changes to a new branch**: Move the changes from your *Site* to a new branch, and connect your *Site* to that branch. You can then merge the changes in your local development environment.
+* **Switch branch**: Connect your *Site* to a different branch and sync the files from it.
 
-<comp.DocShot docshot_key="CloudCannon-Documentation-Site-Settings-Syncing-Sync-Conflict" alt="A screenshot of the Syncing page shows resolution options for a sync conflict, including creating a new branch, resetting from the Git repository, and switching to a different branch." title="The Syncing page with resolution options" type="screenshot"/>
+The *Push changes to a new branch* and *Switch branch* options only appear when a recent push or pull failed.
 
-## Create a new branch
+<comp.Notice info_type="important">
+  The resolution buttons are disabled while your *Site* has unsaved changes, and if you do not have permission to change the *Site's* Git settings.
+</comp.Notice>
 
-To resolve a Syncing error:
+## Reconnect your Git Provider first
 
-1. Navigate to the *Syncing* page, under *Site Settings*.
-2. Under the *Syncing Error resolution options* section, click the *Push changes to a new branch* button under the *Create a new branch from CloudCannon changes* heading. CloudCannon will open the *Create a new branch* modal.
-3. Enter the name for your new branch in the *New branch name* text field.
+If the *Sync failed* message says CloudCannon could not authenticate with your *Git Provider*, retrying your *Site* will not resolve the Syncing error. CloudCannon's access to a *Git Provider* applies to your whole *Organization*, so you need to reconnect the *Git Provider* before any *Site* can sync with it. For more information, please read our documentation on [reconnecting your Git Provider](/documentation/developer-articles/reconnect-your-git-provider/).
+
+Once your *Git Provider* is reconnected, click the *Retry* button on the *Syncing* page under *Site Settings*.
+
+## Retry syncing
+
+To retry syncing your *Site*:
+
+1. Navigate to the *Syncing* page under *Site Settings*.
+2. Click the *Retry* button under the *Retry syncing to your source provider* heading in the *Sync failed* message.
+
+CloudCannon will push the changes saved in CloudCannon to your *Git Repository* and sync your *Site* again.
+
+## Discard your changes and retry
+
+To discard your changes and retry syncing:
+
+1. Navigate to the *Syncing* page under *Site Settings*.
+2. Click the *Discard changes and retry* button under the *Retry syncing to your source provider* heading in the *Sync failed* message. CloudCannon will open the *Clear and reconnect?* modal.
+3. Click the *Clear and reconnect* button.
+
+CloudCannon will save your unsynced changes as a backup, then sync your *Site* from your *Git Repository*. You can retrieve the discarded changes from the *Backups* page under *Site Settings*.
+
+## Push your changes to a new branch
+
+To push your changes to a new branch:
+
+1. Navigate to the *Syncing* page under *Site Settings*.
+2. Click the *Push changes to a new branch* button under the *Create a new branch from CloudCannon changes* heading in the *Sync failed* message. CloudCannon will open the *Create a new branch* modal.
+3. Enter a name for your new branch in the *New branch name* field.
 4. Click the *Create branch* button.
 
-CloudCannon will immediately push the changes from your CloudCannon Site to the new branch, and sync the files from on your Git repository to the current branch.
-
-## Reset your Site using the Git repository branch
-
-To resolve a Syncing error:
-
-1. Navigate to the *Syncing* page, under *Site Settings*.
-2. Under the *Syncing Error resolution options* section, click the *Reset using Git repository* button under the *Reset your Site using the Git repository branch* heading. CloudCannon will open the *Reset using Git repository* modal.
-3. Click the *Reset using Git repository* button.
-
-CloudCannon will immediately sync the version of your Site on your Git repository.
-
-<comp.DocShot docshot_key="CloudCannon-Documentation-Site-Settings-Syncing-Sync-Conflict" alt="A screenshot of the Syncing page shows an error banner with options to reconnect with local changes or discard local changes and reconnect." title="The Syncing page with a Syncing error" type="screenshot"/>
+CloudCannon will create the new branch, push the changes from your *Site* to it, and connect your *Site* to the new branch. You can then merge the new branch into your original branch in your local development environment.
 
 ## Switch to a different branch
 
-To resolve a Syncing error:
+To switch your *Site* to a different branch:
 
-1. Navigate to the *Syncing* page, under *Site Settings*.
-2. Under the *Syncing Error resolution options* section, click the *Switch branch* button under the *Switch this Site to a different branch* heading. CloudCannon will open the *Switch branch* modal.
-3. Use the *Branch* dropdown to select the branch to which you want to switch this Site.
+1. Navigate to the *Syncing* page under *Site Settings*.
+2. Click the *Switch branch* button under the *Switch this Site to a different branch* heading in the *Sync failed* message. CloudCannon will open the *Switch branch* modal.
+3. Select the branch to which you want to switch your *Site* from the *Branch* dropdown.
 4. Click the *Switch branch* button.
 
-<comp.DocShot docshot_key="CloudCannon-Documentation-Syncing-Change-Branch-Modal-Element" alt="A screenshot of the Switch branch modal shows options to use an existing branch or create a new branch, with a branch dropdown and action buttons." title="The Switch branch modal" type="ui-snippet"/>
+CloudCannon will sync the files from your chosen branch, without deleting any files previously deployed from the old branch.
 
-CloudCannon will immediately sync the files from your chosen branch, without deleting any file previously deployed to the old branch.
+<comp.DocShot docshot_key="CloudCannon-Documentation-Syncing-Change-Branch-Modal-Element" alt="A screenshot of the Switch branch modal shows options to use an existing branch or create a new branch, a Branch dropdown, and Cancel and Switch branch buttons." title="The Switch branch modal" type="ui-snippet"/>
