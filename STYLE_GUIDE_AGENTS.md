@@ -778,20 +778,24 @@ renaming_and_removing_content:
 
 components:
   notice:
-    usage: "Tips, important information, permissions, and pricing notices"
+    usage: "Tips, important information, permissions, pricing, and deprecation notices"
     types:
       - "info"
       - "important"
       - "permissions"
       - "pricing"
+      - "deprecated"
+    notice_type_not_in_markdown_export: "Notice.toMarkdown discards info_type and emits a bare blockquote, so the notice type is absent from index.md, llms.txt, and llms-full.txt. The icon div is also data-pagefind-ignore=\"all\", so the type is invisible to search. The notice wording must carry its full meaning standalone — never rely on the type to signal severity, a gate, or deprecation. Mirrors STYLE_GUIDE.mdx §1.5.1."
     syntax: "<comp.Notice info_type=\"[type]\">...</comp.Notice>"
     placement:
       info: "Inline, close to relevant content. Must not be the first element in an article."
       important: "Can be first if the information affects the entire article; otherwise inline."
+      deprecated: "Must be first in article, before any other notice or content. Applies to the whole article; do not repeat per section. When an article documents a deprecated method alongside a current one, scope the notice to the method by naming it in the status sentence. Mirrors STYLE_GUIDE.mdx §1.5.1."
       permissions: "Must be at the top of the article, immediately after front matter, before any body content. Always start with bold 'Permissions required' heading. When a pricing notice is also present, the pricing notice comes first and the permissions notice immediately follows it (see pricing_and_permissions_order)."
       pricing: "Can be first if the entire feature is gated; otherwise inline. When both a pricing and a permissions notice are present, the pricing notice comes first (see pricing_and_permissions_order)."
       pricing_and_permissions_order: "When an article genuinely needs both a pricing and a permissions notice (it gates on both plan and permission), place the pricing notice first, immediately followed by the permissions notice, before any other content. Pricing comes first because plan availability is the more fundamental gate — a reader on the wrong plan does not need the permission requirements. Mirrors STYLE_GUIDE.mdx §1.5.1."
       destructive_action_notice_stack: "For a destructive or irreversible action (e.g. deleting an Organization or Site), stack a permissions notice first (who can perform the action), immediately followed by an important notice stating the irreversibility and what is lost, before any other content. The irreversibility warning is a load-bearing caveat the reader must see before acting, so two notices at the top is expected here, not overuse. Mirrors STYLE_GUIDE.mdx §1.5.1."
+      notice_order_at_top: "When more than one top-of-article notice is present, the order is deprecated, then pricing, then permissions. Deprecation is the most fundamental gate: a reader who should not adopt a feature does not need its plan availability or permission requirements. Mirrors STYLE_GUIDE.mdx §1.5.1."
     pricing_notice_content:
       scope: "The pricing notice answers 'can I use this?', not only 'which plan is this on'. Use it for any access gate: a Subscription Plan tier, a private Beta the reader must request access to, or a programme they must belong to. Reserve `important` for caveats about using a feature the reader already has. Mirrors STYLE_GUIDE.mdx §1.5.1."
       non_plan_gate_form: "State the gate and how to get through it. Private Beta: '**This feature is available through a private Beta.**' followed by what it covers and a support contact. If access is granted per account rather than per Organization, say so."
@@ -806,8 +810,20 @@ components:
         incorrect:
           - '**Some features are only available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise Plan</a>.**'  # vague — doesn't say which features
           - '**This feature is available on our** [**Team or Enterprise Plan**](https://cloudcannon.com/pricing/)**.**'  # over-wrapped bold/link splits; also: non-doc links must be HTML anchors, not markdown
+    deprecation_notice_content:
+      scope: "The deprecated notice answers 'is this still the right thing to use?'. Use it for any feature CloudCannon has stopped developing. Distinct from `important`, which carries a caveat about a feature that is current, and from `pricing`, which answers whether the reader can access the feature at all. Mirrors STYLE_GUIDE.mdx §1.5.1."
+      cloudcannon_position: "Deprecation means the same thing across every feature and is not a per-feature judgement: the feature is maintained, critical bugs are fixed, no new features or further development are planned, and existing Sites relying on the configuration will keep working. State this position; do not hedge about support. The continuity sentence names the Sites, not the configuration: 'Existing *Sites* relying on this configuration will keep working.', never 'Existing configurations keep working.' — what the reader is asking about is whether their Site breaks."
+      form: "Three sentences, one job each. (1) Status, in bold: name the feature and state that it is deprecated. (2) What deprecation means: the maintenance position above, plus the deprecation date where known. (3) What to use instead: name the replacement and link to it, or state that there is no replacement."
+      standalone_sentences: "Each sentence must stand alone. The bold status sentence is what an AI agent quoting the page out of context is most likely to carry, and the notice type does not survive the Markdown export (see notice_type_not_in_markdown_export)."
+      examples:
+        correct:
+          - '**Visual data bindings are deprecated.**'
+          - '**Legacy forms are deprecated.** CloudCannon continues to maintain legacy forms and fix critical bugs, but they receive no new features or further development.'
+        incorrect:
+          - "This feature has been deprecated. It is highly recommended you update."  # no maintenance position, no named replacement
+          - "Since October 2025, this method of visual editing has been deprecated."  # date without the position or the replacement
     general_rules:
-      - "Prefer one notice at the start of an article (permissions, pricing, or important — never info). Two exceptions where stacking at the top is expected: (1) an article gating on both plan and permission stacks pricing then permissions (see pricing_and_permissions_order); (2) a destructive/irreversible action stacks the permissions notice then an important irreversibility notice (see destructive_action_notice_stack)."
+      - "Prefer one notice at the start of an article (deprecated, permissions, pricing, or important — never info). Two exceptions where stacking at the top is expected: (1) an article gating on both plan and permission stacks pricing then permissions (see pricing_and_permissions_order); (2) a destructive/irreversible action stacks the permissions notice then an important irreversibility notice (see destructive_action_notice_stack). When a deprecated notice is present it precedes all others (see notice_order_at_top)."
       - "Keep notice text concise"
   
   docshot:
