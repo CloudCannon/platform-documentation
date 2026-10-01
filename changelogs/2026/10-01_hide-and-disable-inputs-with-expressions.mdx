@@ -3,7 +3,7 @@ _schema: default
 title: Hide and disable Inputs with expressions
 date: 2026-10-01T14:40:00+13:00
 ---
-This release added the `hidden_if` and `disabled_if` options to input configuration, allowing you to hide or disable an *Input* based on the values of other *Inputs*. It also changed SSL certificates to generate per *Site*, added Google reCAPTCHA Enterprise as a captcha provider, and redesigned the emails CloudCannon sends.
+This release added the `hidden_if` and `disabled_if` options to input configuration, allowing you to hide or disable an *Input* based on the values of other *Inputs*. It also rebuilt CloudCannon's error pages around a shared design and gave each one an error code, changed SSL certificates to generate per *Site*, added Google reCAPTCHA Enterprise as a captcha provider, and redesigned the emails CloudCannon sends.
 
 It also addressed several issues, including those affecting GitLab webhooks, the Cloudinary asset picker, and the graph on the *Publishing* tab of a *Project*.
 
@@ -17,7 +17,7 @@ It also addressed several issues, including those affecting GitLab webhooks, the
   * `parent()` reads the object containing the *Input*, and `parent(2)` the object above that.
   * `$` reads the closest *Structure* value containing the *Input*, or the root of the file if the *Input* is not inside a *Structure*.
   * `get("my key")` reads a key whose name is not a valid identifier, such as one containing a space or a hyphen.
-  * For more information, please read our documentation on...
+  * For more information, please read our documentation on [hiding or disabling an input with an expression](/documentation/developer-articles/hide-or-disable-an-input-with-an-expression/).
 
 <comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
 ``````````
@@ -31,35 +31,32 @@ _inputs:
 ``````````
 </comp.MultiCodeBlock>
 
-* Added an *Email Preferences* page to your *Account Settings*, allowing you to request an email with a link for managing which CloudCannon emails you receive.
-* Changed SSL certificates so that each *Site* generates its own. CloudCannon previously generated a single certificate covering every *Site* that shared a *Custom Domain*, so if a *Custom Domain* name was not pointed at CloudCannon, it stopped certificate generation for all of them.
-  * SSL emails now cover one *Site* each, naming that *Site's* *Custom Domain* in the subject line. They previously named the shared *Custom Domain* and listed every *Site* using the certificate.
-* Changed the CSV export on an *Inbox* to generate in the background. CloudCannon prepares the file and then offers a *Download CSV* button, instead of holding the request open while it builds, so an *Inbox* with a large number of submissions no longer times out.
-  * A recently prepared export is offered again when you return to the export, rather than starting over.
-* Added Google reCAPTCHA Enterprise to the captcha providers you can set on an *Inbox*, alongside Google reCAPTCHA, hCaptcha, and Cloudflare Turnstile. It takes the ID of the reCAPTCHA key in your Google Cloud project, the project ID, and a Google Cloud API key restricted to the reCAPTCHA Enterprise API.
-* Added a *Minimum score* field to the captcha settings on an *Inbox* for Google reCAPTCHA and Google reCAPTCHA Enterprise, allowing you to reject submissions that score below the threshold you set. reCAPTCHA scores each visitor from 0.0 for likely bots to 1.0 for likely people, and defaults to 0.5. reCAPTCHA v2 tokens carry no score and always pass this check.
-* Added the *Tell hCaptcha which Site key to expect* setting to the captcha settings on an *Inbox*, allowing you to stop a form that uses a different *Site Key* on your hCaptcha account from submitting to that *Inbox*.
-* Added an explainer to each field in the captcha settings on an *Inbox*, describing where the value comes from in the provider's console and what CloudCannon does with it.
-* Redesigned the emails CloudCannon sends.
-* Rebuilt CloudCannon's error pages so that the pages you see in the app and error pages served on a hosted website's *Custom Domain* share one design.
+* Rebuilt CloudCannon's error pages so that the pages you see in the app and error pages served on a hosted website's *Custom Domain* or *Testing Domain* share one design.
   * Each page names the problem in plain language, such as *Your session expired*, *Access is locked*, or *CloudCannon is down for maintenance*, rather than a status number alone.
   * Each page offers only the actions that apply to it. A locked account offers *Email support* and *Log out*, a maintenance page offers *Check the status page*, and a throttled request states how long to wait before trying again.
-  * Error pages on a hosted *Custom Domains* have an *Are you the site owner?* section, linking you to the in-app location for resolving the error.
+  * Error pages on a hosted *Custom Domain* or *Testing Domain* have an *Are you the site owner?* section, linking you to the in-app location for resolving the error.
   * Each page carries an error code, a reference for the request, and the time in UTC. Quote these when you contact support.
   * Each page follows the light or dark theme of the device being viewed.
-  * For more information, please read our documentation on...
+  * For more information, please read our documentation on [what each error code means](/documentation/developer-reference/error-codes/).
+* Added an *Email Preferences* page to your *Account Settings*, allowing you to request an email with a link for managing which CloudCannon emails you receive.
+* Changed SSL certificates so that each *Site* generates its own. CloudCannon previously generated a single certificate covering every *Site* that shared a *Base Domain*, so if a *Custom Domain* name was not pointed at CloudCannon, it stopped certificate generation for all of them.
+  * SSL emails now cover one *Site* each, naming that *Site's* *Custom Domain* in the subject line. They previously named the shared *Base Domain* and listed every *Site* using the certificate.
+* Changed the CSV export on an *Inbox* to generate in the background. CloudCannon prepares the file and then offers a *Download CSV* button, instead of holding the request open while it builds, so an *Inbox* with a large number of submissions no longer times out.
+* Added Google reCAPTCHA Enterprise to the captcha providers you can set on an *Inbox*, alongside Google reCAPTCHA, hCaptcha, and Cloudflare Turnstile. It takes the ID of the reCAPTCHA key in your Google Cloud project, the project ID, and a Google Cloud API key restricted to the reCAPTCHA Enterprise API.
+* Added a *Minimum score* field to the captcha settings on an *Inbox* for Google reCAPTCHA and Google reCAPTCHA Enterprise, allowing you to reject submissions that score below the threshold you set. reCAPTCHA scores each visitor from 0.0 for likely bots to 1.0 for likely people, and defaults to 0.5. Existing reCAPTCHA are set to 0 to maintain existing behavior.
+* Added the *Tell hCaptcha which Site key to expect* setting to the captcha settings on an *Inbox*, allowing you to stop a form that uses a different *Site Key* on your hCaptcha account from submitting to that *Inbox*. New *Inboxes* will default to `true`, while existing *Inboxes* will be `false` by default for backwards compatibility.
+* Added an explainer to each field in the captcha settings on an *Inbox*, describing where the value comes from in the provider's console and what CloudCannon does with it.
+* Redesigned the emails CloudCannon sends.
 * Added a *Syncing Paused* filter to the *Filter Bar* in your *Sites Browser*, allowing you to list the *Sites* whose Syncing is paused.
-* Changed the *Failing to sync* filter in your *Sites Browser* so that a *Site* with Syncing paused is reported as paused rather than failing, matching the *Site Dashboard*.
+* Changed the *Failing to sync* filter in your *Sites Browser* so that a *Site* with Syncing paused is reported as paused rather than failing.
 * Changed the DAM connection forms under *Org Settings* to show the error your provider returned when a connection fails, instead of a generic message.
+* Updated the CloudCannon API and the *Settings* tab of your *Inbox* so that it shows whether a secret key is set, rather than returning the value of that key.
 
 ## Fixes
 
-* Reverted the change from September 25, 2026: "CloudCannon now accepts a stronger authentication method than the one named in your *AuthnContext* setting, instead of requiring an exact match."
-* Fixed an issue where CloudCannon would return a stored secret key due to captcha settings on an *Inbox*. The settings show whether a secret is set, and allow you to replace or remove it.
+* Reverted the change from September 25, 2026: "CloudCannon now accepts a stronger authentication method than the one named in your *AuthnContext* setting, instead of requiring an exact match." This caused issues with existing providers, and we will follow this revert with a configurable option.
 * Fixed an issue where CloudCannon returned an error for a GitLab webhook it does not act on, such as a merge request update that only changed labels, so GitLab could treat the webhook as failing.
 * Fixed an issue where the graph on the *Publishing* tab of a *Project* drew one chain of *Sites* as several separate trees.
 * Fixed an issue where the Cloudinary asset picker opened behind the rest of the interface.
-* Fixed an issue where CloudCannon stopped setting the next invoice date for *Organizations* that pay annually after reaching an *Organization* with no current billing period.
 * Fixed an issue where an error page could be cached and shown again later, so the reference and time it displayed could belong to an earlier request.
-* Fixed an issue where the page shown after a failed *Git Provider* installation repeated the provider's own response, instead of a generic message.
 * Updated dependencies to patch security vulnerabilities.
