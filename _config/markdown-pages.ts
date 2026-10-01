@@ -50,22 +50,32 @@ async function buildComponentRegistry(
 ): Promise<Record<string, ToMarkdownFn>> {
   const registry: Record<string, ToMarkdownFn> = {};
 
-  for await (const entry of Deno.readDir(componentsDir)) {
-    if (!entry.name.endsWith(".tsx") || entry.isDirectory) continue;
-    const name = entry.name.replace(".tsx", "");
-    try {
-      const modUrl = new URL(
-        `../_components/${entry.name}`,
-        baseUrl,
-      ).href;
-      const mod = await import(modUrl);
-      if (typeof mod.toMarkdown === "function") {
-        registry[name] = mod.toMarkdown;
+  // Nested components are referenced in MDX as comp.<Dir>.<Name>, so a file
+  // at _components/Api/ApiSchemaIndex.tsx registers as "Api.ApiSchemaIndex".
+  async function loadDir(dir: string, prefix: string) {
+    for await (const entry of Deno.readDir(dir)) {
+      if (entry.isDirectory) {
+        if (prefix === "") {
+          await loadDir(join(dir, entry.name), `${entry.name}.`);
+        }
+        continue;
       }
-    } catch (err) {
-      console.warn(`Could not import toMarkdown from ${entry.name}:`, err);
+      if (!entry.name.endsWith(".tsx")) continue;
+      const name = `${prefix}${entry.name.replace(".tsx", "")}`;
+      const relPath = `${prefix.replace(".", "/")}${entry.name}`;
+      try {
+        const modUrl = new URL(`../_components/${relPath}`, baseUrl).href;
+        const mod = await import(modUrl);
+        if (typeof mod.toMarkdown === "function") {
+          registry[name] = mod.toMarkdown;
+        }
+      } catch (err) {
+        console.warn(`Could not import toMarkdown from ${relPath}:`, err);
+      }
     }
   }
+
+  await loadDir(componentsDir, "");
 
   return registry;
 }
