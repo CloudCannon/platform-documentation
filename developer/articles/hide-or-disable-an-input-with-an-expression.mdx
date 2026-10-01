@@ -21,16 +21,17 @@ details:
 author_notes:
   docshots: Needs docshots
 ---
+<comp.Notice info_type="permissions">
+  **Permissions required**
 
-The `hidden_if` and `disabled_if` input options take an expression. An expression lets you show, hide, or disable an input based on the values of other inputs in the same file, so the editing interface changes as a *Team Member* works.
+  Members of all [Default Permission Groups](/documentation/user-articles/what-are-default-permission-groups/), or [Custom Permission Groups](/documentation/developer-articles/what-are-custom-permission-groups/) with the `site:file:write` permission, can configure inputs in all locations in the configuration cascade. You can limit permission to specific locations in the configuration using [file globs](/documentation/developer-articles/what-are-custom-permission-groups/#specify-a-file-glob).
+</comp.Notice>
 
-For example, a page that holds either a video or an image needs only one of the two path fields at a time. An expression on each path input hides the field that does not apply.
+You can show, hide, or disable an *Input* based on the values of other inputs in the same file using the `hidden_if` and `disabled_if` *Input* options. CloudCannon evaluates the expression value of these *Input* options and updates the *Editing Interface* immediately when the value changes, allowing you to create a dynamic editing experience for your *Team Members*. For example, a webpage that holds either a video or an image only needs one set of *Inputs* in the *Editing Interface*, and you could hide or disable the other set if a *Team Member* enters the file path for one.
 
-CloudCannon evaluates your expression whenever a value it reads changes, and updates the editing interface immediately.
+These instructions assume you know which *Input* you want to configure and that any other *Inputs* it relies on are in the same file. For more information, please read our documentation on [what inputs are](/documentation/user-articles/what-are-inputs/) and [using the configuration cascade](/documentation/developer-articles/using-the-configuration-cascade/).
 
-These instructions assume you know which input you want to control and where in the configuration cascade you want to configure it. For more information, please read our documentation on [what inputs are](/documentation/user-articles/what-are-inputs/) and [using the configuration cascade](/documentation/developer-articles/using-the-configuration-cascade/).
-
-To control an input with an expression:
+To hide or disable an input with an expression:
 
 1. Open your website files in your local development environment, or log in to CloudCannon and select the *Site* for which you want to configure your input.
 2. Navigate to the location in the configuration cascade where you want to configure your input.
@@ -82,21 +83,17 @@ _inputs:
 
 ```
 <comp.Annotation number="1">
-
 The `video_path` input is hidden whenever `type` holds anything other than `video`.
-
 </comp.Annotation>
 <comp.Annotation number="2">
-
 The `slug` input is visible at all times, but becomes read-only once `published` is truthy.
-
 </comp.Annotation>
 </comp.MultiCodeBlock>
 
 In YAML, quote your expression if it starts with a character YAML reserves, such as `!` or `*`, or if it contains a colon. Quoting is always safe, so quote every expression if you are unsure.
 
 <comp.Notice info_type="info">
-  The `hidden` and `disabled` keys take a boolean. `hidden: true` hides an input outright, and an input with none of these keys is visible and editable. If you set both `hidden` and `hidden_if`, the input is hidden when either is truthy, and the same applies to `disabled` and `disabled_if`.
+  The `hidden` and `disabled` keys take a boolean or the name of another key, and are unchanged by expressions. `hidden: true` hides an input outright, and `hidden: '!published'` hides it whenever the `published` input is falsy. An input with none of these keys is visible and editable, unless its key starts with an underscore, in which case CloudCannon hides it by default. If you set both `hidden` and `hidden_if`, the input is hidden when either is truthy, and the same applies to `disabled` and `disabled_if`.
 </comp.Notice>
 
 ## Explain why an input is disabled
@@ -165,7 +162,7 @@ seo:
 image:
   path: /uploads/hero.jpg
   caption:
-  alt_text: A sunrise over the harbour
+  alt_text: A sunrise over the harbor
 ---
 
 Content goes here.
@@ -376,7 +373,7 @@ Content goes here.
 _inputs:
   body:
     type: markdown
-    hidden: '$["draft-status"] === "incomplete"'
+    hidden_if: '$["draft-status"] === "incomplete"'
   intro:
     type: textarea
     hidden_if: 'get("draft-status") === "incomplete"'
