@@ -1,4 +1,4 @@
-import { parse as yamlParse, stringify as yamlStringify } from "@std/yaml";
+import { parse as yamlParse, stringify as yamlStringify } from "yaml";
 
 // Get document, or throw exception on error
 try {
@@ -9,7 +9,12 @@ try {
     `https://cc-screenshots.imgix.net/${source.source}/{docshot_key}.webp`;
   Deno.writeTextFileSync(
     "cloudcannon.config.yml",
-    yamlStringify(config, { lineWidth: -1 }),
+    yamlStringify(config, {
+      lineWidth: 0,
+      aliasDuplicateObjects: false,
+      singleQuote: true,
+      nullStr: "",
+    }),
   );
   console.log("done writing new config...");
 } catch (e) {
