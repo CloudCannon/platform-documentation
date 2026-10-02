@@ -912,12 +912,15 @@ export default function markdownPages() {
 
         const mdContent = fm.join("\n") + "\n\n" + body + "\n";
 
-        let outPath: string;
-        if (url.endsWith("/")) {
-          outPath = join(outputDir, url, "index.md");
-        } else {
-          outPath = join(outputDir, url + ".md");
-        }
+        // page.outputPath is the decoded on-disk path Lume writes the HTML to;
+        // page.data.url is percent-encoded, so paths like /[*]/ would land in
+        // a separate %5B*%5D directory if the URL were used here.
+        const outPath = join(
+          outputDir,
+          page.outputPath.endsWith("/index.html")
+            ? page.outputPath.replace(/index\.html$/, "index.md")
+            : page.outputPath + ".md",
+        );
 
         await ensureDir(dirname(outPath));
         await Deno.writeTextFile(outPath, mdContent);

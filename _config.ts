@@ -633,7 +633,20 @@ site.process([".html"], function processHTMLPages(pages) {
         (el) => {
           const keyEl = el.querySelector<HTMLElement>(".c-data-reference__key");
           const text = keyEl?.innerText || keyEl?.textContent || "";
-          const slug = fixIdCollisions(text);
+          // Keys are used verbatim as ids, but a key like "+ - * / %" is not a
+          // decodable URL fragment. Fall back to a slug for those, and skip the
+          // anchor entirely if the slug is empty. The hidden_if expression
+          // demonstrates this.
+          let idPrefix = text;
+          try {
+            decodeURIComponent(text);
+          } catch {
+            idPrefix = slugify(text);
+          }
+          if (!idPrefix) {
+            return;
+          }
+          const slug = fixIdCollisions(idPrefix);
           appendAnchorHeader(el, slug);
         },
       );
