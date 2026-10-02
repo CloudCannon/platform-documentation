@@ -13,13 +13,14 @@ import { unified } from "unified";
 import remarkParse from "remark-parse";
 import remarkMdx from "remark-mdx";
 import remarkFrontmatter from "remark-frontmatter";
-import { join, dirname } from "@std/path";
+import { dirname, join } from "@std/path";
 import { ensureDir } from "@std/fs";
+import { blue, bold, red } from "@std/fmt/colors";
 import {
-  resolveRef,
-  getRefUrl,
   getDisplayName,
+  getRefUrl,
   getShortKey,
+  resolveRef,
   type SectionId,
 } from "../_components/Reference/helpers.ts";
 import type { DocEntry } from "../_types.d.ts";
@@ -29,6 +30,9 @@ import {
   type SchemaDoc,
   schemaDocToMarkdown,
 } from "../developer/reference/api/_shared/openapi.ts";
+
+const LOG_PREFIX = blue("[markdown-pages]");
+const WARN_PREFIX = red("[markdown-pages]");
 
 type ToMarkdownFn = (
   props: Record<string, unknown>,
@@ -50,22 +54,35 @@ async function buildComponentRegistry(
 ): Promise<Record<string, ToMarkdownFn>> {
   const registry: Record<string, ToMarkdownFn> = {};
 
-  for await (const entry of Deno.readDir(componentsDir)) {
-    if (!entry.name.endsWith(".tsx") || entry.isDirectory) continue;
-    const name = entry.name.replace(".tsx", "");
-    try {
-      const modUrl = new URL(
-        `../_components/${entry.name}`,
-        baseUrl,
-      ).href;
-      const mod = await import(modUrl);
-      if (typeof mod.toMarkdown === "function") {
-        registry[name] = mod.toMarkdown;
+  // Nested components are referenced in MDX as comp.<Dir>.<Name>, so a file
+  // at _components/Api/ApiSchemaIndex.tsx registers as "Api.ApiSchemaIndex".
+  async function loadDir(dir: string, prefix: string) {
+    for await (const entry of Deno.readDir(dir)) {
+      if (entry.isDirectory) {
+        if (prefix === "") {
+          await loadDir(join(dir, entry.name), `${entry.name}.`);
+        }
+        continue;
       }
-    } catch (err) {
-      console.warn(`Could not import toMarkdown from ${entry.name}:`, err);
+      if (!entry.name.endsWith(".tsx")) continue;
+      const name = `${prefix}${entry.name.replace(".tsx", "")}`;
+      const relPath = `${prefix.replace(".", "/")}${entry.name}`;
+      try {
+        const modUrl = new URL(`../_components/${relPath}`, baseUrl).href;
+        const mod = await import(modUrl);
+        if (typeof mod.toMarkdown === "function") {
+          registry[name] = mod.toMarkdown;
+        }
+      } catch (err) {
+        console.warn(
+          `${WARN_PREFIX} could not import toMarkdown from ${bold(relPath)}:`,
+          err,
+        );
+      }
     }
   }
+
+  await loadDir(componentsDir, "");
 
   return registry;
 }
@@ -129,8 +146,10 @@ function serializeHtmlJsx(
 ): string {
   const inner = () => serializeChildren(node, registry, pageData);
   switch (tag) {
-    case "": return inner();
-    case "p": return `${inner().trim()}\n\n`;
+    case "":
+      return inner();
+    case "p":
+      return `${inner().trim()}\n\n`;
     case "strong":
     case "b": {
       const t = inner().trim();
@@ -153,14 +172,21 @@ function serializeHtmlJsx(
       if (!text) return "";
       return href && !href.startsWith("#") ? `[${text}](${href})` : text;
     }
-    case "br": return "\n";
-    case "hr": return "\n---\n\n";
-    case "h1": return `\n# ${inner().trim()}\n\n`;
-    case "h2": return `\n## ${inner().trim()}\n\n`;
-    case "h3": return `\n### ${inner().trim()}\n\n`;
-    case "h4": return `\n#### ${inner().trim()}\n\n`;
+    case "br":
+      return "\n";
+    case "hr":
+      return "\n---\n\n";
+    case "h1":
+      return `\n# ${inner().trim()}\n\n`;
+    case "h2":
+      return `\n## ${inner().trim()}\n\n`;
+    case "h3":
+      return `\n### ${inner().trim()}\n\n`;
+    case "h4":
+      return `\n#### ${inner().trim()}\n\n`;
     case "h5":
-    case "h6": return `\n##### ${inner().trim()}\n\n`;
+    case "h6":
+      return `\n##### ${inner().trim()}\n\n`;
     case "ul": {
       const items = (node.children || []).map((li: MdastNode) => {
         const content = serializeNode(li, registry, pageData).trim();
@@ -177,10 +203,12 @@ function serializeHtmlJsx(
       );
       return items.join("\n") + "\n\n";
     }
-    case "li": return inner();
+    case "li":
+      return inner();
     case "blockquote": {
       const content = inner().trim();
-      return content.split("\n").map((l: string) => `> ${l}`).join("\n") + "\n\n";
+      return content.split("\n").map((l: string) => `> ${l}`).join("\n") +
+        "\n\n";
     }
     case "pre": {
       const codeChild = (node.children || []).find(
@@ -190,7 +218,9 @@ function serializeHtmlJsx(
         const lang = codeChild.attributes?.find(
           (a: MdastNode) => a.name === "className",
         )?.value?.replace("language-", "") || "";
-        return `\`\`\`${lang}\n${serializeChildren(codeChild, registry, pageData).trim()}\n\`\`\`\n\n`;
+        return `\`\`\`${lang}\n${
+          serializeChildren(codeChild, registry, pageData).trim()
+        }\n\`\`\`\n\n`;
       }
       return `\`\`\`\n${inner().trim()}\n\`\`\`\n\n`;
     }
@@ -275,16 +305,12 @@ function serializeNode(
 
     case "list": {
       const items = node.children.map((item: MdastNode, i: number) => {
-        const prefix = node.ordered
-          ? `${(node.start || 1) + i}. `
-          : "- ";
+        const prefix = node.ordered ? `${(node.start || 1) + i}. ` : "- ";
         const content = serializeNode(item, registry, pageData);
         const indented = content
           .trim()
           .split("\n")
-          .map((line: string, li: number) =>
-            li === 0 ? line : `  ${line}`
-          )
+          .map((line: string, li: number) => li === 0 ? line : `  ${line}`)
           .join("\n");
         return `${prefix}${indented}`;
       });
@@ -349,7 +375,9 @@ function serializeNode(
       const compName = rawName.replace("comp.", "");
       const renderer = registry[compName];
       if (!renderer) {
-        console.warn(`markdown-pages: no toMarkdown for comp.${compName}`);
+        console.warn(
+          `${WARN_PREFIX} no toMarkdown for ${bold(`comp.${compName}`)}`,
+        );
         return serializeChildren(node, registry, pageData);
       }
 
@@ -360,7 +388,7 @@ function serializeNode(
         return renderer(mergedProps, childrenMd);
       } catch (err) {
         console.warn(
-          `markdown-pages: toMarkdown failed for comp.${compName}:`,
+          `${WARN_PREFIX} toMarkdown failed for ${bold(`comp.${compName}`)}:`,
           err,
         );
         return childrenMd;
@@ -389,7 +417,10 @@ function serializeNode(
 const SCHEMA_BASE_URL =
   "https://github.com/CloudCannon/configuration-types/releases/latest/download";
 
-const SECTION_SCHEMA_MAP: Record<string, { schemaFile: string; label: string }> = {
+const SECTION_SCHEMA_MAP: Record<
+  string,
+  { schemaFile: string; label: string }
+> = {
   "type.Configuration": {
     schemaFile: "cloudcannon-config.documentation.schema.json",
     label: "Configuration File",
@@ -422,7 +453,9 @@ function typeToText(
     const items = (entry.items?.map((ref) => resolveRef(ref, section)) || [])
       .filter((item): item is DocEntry => item !== null);
     if (items.length > 0) {
-      const inner = items.map((item) => typeToText(item, section, true)).join(" | ");
+      const inner = items.map((item) => typeToText(item, section, true)).join(
+        " | ",
+      );
       return `Array<${inner}>`;
     }
     return "Array";
@@ -479,7 +512,9 @@ function serializeRefItem(
     : `### \`${shortKey}\``;
 
   const lines: string[] = [heading, ""];
-  lines.push(`**Type:** ${typeToText(doc, section)}${doc.required ? " (Required)" : ""}`);
+  lines.push(
+    `**Type:** ${typeToText(doc, section)}${doc.required ? " (Required)" : ""}`,
+  );
 
   if (doc.description) {
     lines.push("", doc.description);
@@ -513,7 +548,9 @@ function serializeRefItem(
   if (enumValues.length > 0) {
     const MAX = 10;
     const shown = enumValues.slice(0, MAX).map((v) => `\`${v}\``).join(", ");
-    const more = enumValues.length > MAX ? ` and ${enumValues.length - MAX} more` : "";
+    const more = enumValues.length > MAX
+      ? ` and ${enumValues.length - MAX} more`
+      : "";
     lines.push("", `**Allowed values:** ${shown}${more}`);
   }
 
@@ -521,7 +558,12 @@ function serializeRefItem(
   if (examples.length > 0) {
     for (const example of examples) {
       if (example.description) lines.push("", example.description);
-      lines.push("", `\`\`\`${example.language || "yaml"}`, example.code!, `\`\`\``);
+      lines.push(
+        "",
+        `\`\`\`${example.language || "yaml"}`,
+        example.code!,
+        `\`\`\``,
+      );
     }
   }
 
@@ -531,7 +573,8 @@ function serializeRefItem(
 
 function serializeProperties(entry: DocEntry, section: SectionId): string {
   const lines: string[] = [];
-  const hasProperties = entry.properties && Object.keys(entry.properties).length > 0;
+  const hasProperties = entry.properties &&
+    Object.keys(entry.properties).length > 0;
 
   if (entry.type === "object" || hasProperties) {
     const properties = Object.entries(entry.properties || {});
@@ -599,7 +642,9 @@ function docEntryToMarkdown(
 
   const sectionInfo = SECTION_SCHEMA_MAP[section];
   if (sectionInfo) {
-    const sectionUrl = `/documentation/developer-reference/${sectionInfo.label.toLowerCase().replace(/ /g, "-")}/`;
+    const sectionUrl = `/documentation/developer-reference/${
+      sectionInfo.label.toLowerCase().replace(/ /g, "-")
+    }/`;
     lines.push(
       `> This entry is part of the [${sectionInfo.label}](${sectionUrl}) reference.`,
       `> JSON Schema: [${sectionInfo.schemaFile}](${SCHEMA_BASE_URL}/${sectionInfo.schemaFile})`,
@@ -612,7 +657,12 @@ function docEntryToMarkdown(
   }
 
   if (!entry.anyOf?.length) {
-    lines.push(`**Type:** ${typeToText(entry, section)}${entry.required ? " (Required)" : ""}`, "");
+    lines.push(
+      `**Type:** ${typeToText(entry, section)}${
+        entry.required ? " (Required)" : ""
+      }`,
+      "",
+    );
   }
 
   if (entry.default !== undefined) {
@@ -621,7 +671,10 @@ function docEntryToMarkdown(
 
   const enumValues = entry.enum || [];
   if (enumValues.length > 0) {
-    lines.push(`**Allowed values:** ${enumValues.map((v) => `\`${v}\``).join(", ")}`, "");
+    lines.push(
+      `**Allowed values:** ${enumValues.map((v) => `\`${v}\``).join(", ")}`,
+      "",
+    );
   }
 
   const propsSection = serializeProperties(entry, section);
@@ -629,7 +682,9 @@ function docEntryToMarkdown(
     lines.push(propsSection);
   }
 
-  const examples = (entry.documentation?.examples || []).filter((ex) => ex.code);
+  const examples = (entry.documentation?.examples || []).filter((ex) =>
+    ex.code
+  );
   if (examples.length > 0) {
     lines.push("## Examples\n");
     for (const example of examples) {
@@ -646,7 +701,9 @@ function docEntryToMarkdown(
 function deriveContentType(url: string): string {
   if (url.includes("/changelog/")) return "changelog";
   if (url.includes("/developer-reference/")) return "developer reference";
-  if (url.includes("/developer-guides/") || url.includes("/guides/")) return "developer guide";
+  if (url.includes("/developer-guides/") || url.includes("/guides/")) {
+    return "developer guide";
+  }
   if (url.includes("/user-guides/")) return "user guide";
   if (url.includes("/user-")) return "user article";
   return "developer article";
@@ -672,9 +729,8 @@ export default function markdownPages() {
         componentsDir,
         import.meta.url,
       );
-      console.log(
-        `markdown-pages: loaded ${Object.keys(registry).length} component renderers`,
-      );
+      const count = Object.keys(registry).length;
+      console.log(`${LOG_PREFIX} loaded ${count} component renderers`);
 
       const outputDir = site.options.dest;
       let writtenMdx = 0;
@@ -688,8 +744,7 @@ export default function markdownPages() {
         const url = page.data.url as string;
         if (!url) continue;
 
-        const isDoc =
-          url.startsWith("/user-") ||
+        const isDoc = url.startsWith("/user-") ||
           url.startsWith("/developer-") ||
           url.startsWith("/changelog/") ||
           url.startsWith("/guides/");
@@ -723,7 +778,9 @@ export default function markdownPages() {
 
         const contentType = deriveContentType(url);
         const date = page.data.date
-          ? new Date(page.data.date as string | Date).toISOString().split("T")[0]
+          ? new Date(page.data.date as string | Date).toISOString().split(
+            "T",
+          )[0]
           : undefined;
 
         let body: string;
@@ -824,7 +881,10 @@ export default function markdownPages() {
           try {
             tree = parser.parse(raw);
           } catch (err) {
-            console.warn(`markdown-pages: parse failed for ${srcPath}:`, err);
+            console.warn(
+              `${WARN_PREFIX} parse failed for ${bold(srcPath)}:`,
+              err,
+            );
             parseFailures++;
             continue;
           }
@@ -838,30 +898,43 @@ export default function markdownPages() {
 
         const fm: string[] = ["---"];
         fm.push(`title: ${escapeFrontmatter(title)}`);
-        if (description) fm.push(`description: ${escapeFrontmatter(description)}`);
-        fm.push(`url: ${site.url(url.replace(/\/+/g, "/").replace(/\/?$/, "/"), true)}`);
+        if (description) {
+          fm.push(`description: ${escapeFrontmatter(description)}`);
+        }
+        fm.push(
+          `url: ${
+            site.url(url.replace(/\/+/g, "/").replace(/\/?$/, "/"), true)
+          }`,
+        );
         fm.push(`content_type: ${contentType}`);
         if (date) fm.push(`last_modified: ${date}`);
         fm.push("---");
 
         const mdContent = fm.join("\n") + "\n\n" + body + "\n";
 
-        let outPath: string;
-        if (url.endsWith("/")) {
-          outPath = join(outputDir, url, "index.md");
-        } else {
-          outPath = join(outputDir, url + ".md");
-        }
+        // page.outputPath is the decoded on-disk path Lume writes the HTML to;
+        // page.data.url is percent-encoded, so paths like /[*]/ would land in
+        // a separate %5B*%5D directory if the URL were used here.
+        const outPath = join(
+          outputDir,
+          page.outputPath.endsWith("/index.html")
+            ? page.outputPath.replace(/index\.html$/, "index.md")
+            : page.outputPath + ".md",
+        );
 
         await ensureDir(dirname(outPath));
         await Deno.writeTextFile(outPath, mdContent);
       }
 
       const written = writtenMdx + writtenRef;
-      const total = written + noSource + noTitle + parseFailures + skippedListings;
+      const total = written + noSource + noTitle + parseFailures +
+        skippedListings;
+      const skipped = total - written;
       console.log(
-        `markdown-pages: wrote ${written} .md files (${writtenMdx} from MDX, ${writtenRef} from reference data) of ${total} doc pages` +
-        ` (${skippedListings} listing pages skipped, ${noSource} no source, ${noTitle} no title, ${parseFailures} parse failures)`,
+        `${LOG_PREFIX} wrote ${written} of ${total} .md files (${writtenMdx} MDX, ${writtenRef} reference)`,
+      );
+      console.log(
+        `${LOG_PREFIX} skipped ${skipped} (${skippedListings} listings, ${noSource} no source, ${noTitle} no title, ${parseFailures} parse failures)`,
       );
     });
   };

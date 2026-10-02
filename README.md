@@ -25,10 +25,9 @@ Content follows a modified [Diátaxis framework](https://diataxis.fr/) — separ
 ## 🚀 Getting started
 
 1. [Install Deno](https://docs.deno.com/runtime/getting_started/installation/) via curl, brew, or your preferred method.
-   This repo pins Deno **2.6.8** in `.dvmrc` — if you use [dvm](https://github.com/justjavac/dvm) it will pick this up automatically.
-2. Run `deno task serve` to build the site and start a local dev server.
-
-Deno doesn't have a separate dependency-install step; the first run will download and cache everything automatically.
+   This repo versions Deno in `.dvmrc` — if you use [dvm](https://github.com/justjavac/dvm) it will pick this up automatically.
+2. Run `deno install` to download the dependencies pinned in `deno.lock`.
+3. Run `deno task serve` to build the site and start a local dev server.
 
 **Available tasks:**
 
@@ -184,17 +183,18 @@ becomes:
 ## 📦 Bundling packages
 
 The esbuild flow on this website utilizes Deno rather than Node for module
-resolution, so Deno packages should be imported by URL. Node packages can be
-imported by their npm name & version, prefixed with `npm:`. See
+resolution. Add npm packages to the `imports` block in `deno.json`, pinned with
+`npm:name@version`, then import them by their bare name. See
 `_includes/scripts/alpine.js`:
 
 ```js
-import Alpine from "npm:alpinejs@latest";
-import intersect from "npm:@alpinejs/intersect@latest";
+import Alpine from "alpinejs";
+import intersect from "@alpinejs/intersect";
 ```
 
-These don't need to be added to a `package.json` anywhere, Lume/Deno will fetch
-them on first run. (This repo should never have a `package.json` in it).
+Run `deno install` after adding one so it lands in `node_modules` and
+`deno.lock`. These don't need to be added to a `package.json` anywhere. (This
+repo should never have a `package.json` in it).
 
 ---
 

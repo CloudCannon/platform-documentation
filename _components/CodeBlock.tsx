@@ -1,5 +1,5 @@
-import yaml from "js-yaml";
-import TOML from "@iarna/toml";
+import { parse as yamlParse, stringify as yamlStringify } from "yaml";
+import { stringify as tomlStringify } from "smol-toml";
 import { getLanguageLabel } from "./utils/code-util.ts";
 import type { Comp } from "../_types.d.ts";
 
@@ -55,7 +55,7 @@ const parseFromLanguage = (str: string, lang: string): unknown => {
     switch (lang.toLowerCase()) {
       case "yaml":
       case "yml":
-        return yaml.load(str);
+        return yamlParse(str);
       case "json":
         return JSON.parse(str);
       default:
@@ -76,16 +76,15 @@ const stringifyToLanguage = (obj: unknown, lang: string): string | null => {
     switch (lang.toLowerCase()) {
       case "yaml":
       case "yml":
-        return yaml.dump(obj, {
-          noRefs: true,
-          "styles": {
-            "!!null": "empty",
-          },
+        return yamlStringify(obj, {
+          aliasDuplicateObjects: false,
+          singleQuote: true,
+          nullStr: "",
         });
       case "json":
         return JSON.stringify(obj, null, 2);
       case "toml":
-        return TOML.stringify(obj as TOML.JsonMap);
+        return tomlStringify(obj as Record<string, unknown>);
       case "javascript":
         return stringifyToJavascript(obj);
       default:

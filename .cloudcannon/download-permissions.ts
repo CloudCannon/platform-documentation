@@ -1,3 +1,8 @@
+import { blue, bold, red } from "@std/fmt/colors";
+
+const LOG_PREFIX = blue("[download-permissions]");
+const ERROR_PREFIX = red("[download-permissions]");
+
 const filepath = "_data/permissions.json";
 const treeUrl = "https://app.cloudcannon.com/permissions-tree";
 
@@ -11,20 +16,23 @@ const pullPerms = async () => {
       ?.["site:details"]?.docs?.read;
     if (!site_details_read_docs?.length) {
       console.error(
-        `Permissions tree provided by CloudCannon at ${treeUrl} has changed or errored.`,
+        `${ERROR_PREFIX} permissions tree at ${bold(treeUrl)} has changed or errored`,
       );
       console.error(
-        `Expected documentation at *.children.site.children.site:details.docs.read to exist, found nothing.`,
+        `${ERROR_PREFIX} expected documentation at ${bold("*.children.site.children.site:details.docs.read")}, found nothing`,
       );
       Deno.exit(1);
     }
 
     Deno.writeTextFileSync(filepath, JSON.stringify(tree, null, 2));
+    console.log(
+      `${LOG_PREFIX} downloaded permissions tree from ${bold(treeUrl)} to ${bold(filepath)}`,
+    );
   } catch (e) {
     console.error(
-      `Failed to pull permissions tree from CloudCannon at ${treeUrl}`,
+      `${ERROR_PREFIX} failed to download permissions tree from ${bold(treeUrl)}:`,
+      e,
     );
-    console.error(e);
     Deno.exit(1);
   }
 };

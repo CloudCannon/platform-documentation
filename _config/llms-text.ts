@@ -3,6 +3,8 @@
  * Following the llms.txt specification: https://llmstxt.org/
  */
 
+import { blue, bold, red } from "@std/fmt/colors";
+
 interface DocPage {
   title: string;
   description: string;
@@ -19,6 +21,9 @@ interface Guide {
 }
 
 const GITHUB_REPO_URL = "https://github.com/CloudCannon/platform-documentation";
+
+const LOG_PREFIX = blue("[llms-text]");
+const WARN_PREFIX = red("[llms-text]");
 
 // `baseUrl` (e.g. "https://cloudcannon.com/documentation") is resolved at build
 // time from site.options.location so absolute links here match the /documentation
@@ -352,13 +357,19 @@ export default function llmsTxt() {
 </urlset>`;
         sitemapContent = sitemapContent.replace("</urlset>", llmsEntries);
         Deno.writeTextFileSync(sitemapPath, sitemapContent);
-        console.log(`Added llms.txt and llms-full.txt to sitemap.xml`);
+        console.log(
+          `${LOG_PREFIX} added ${bold("llms.txt")} and ${bold("llms-full.txt")} to ${bold("sitemap.xml")}`,
+        );
       } catch (e) {
-        console.warn(`Could not update sitemap.xml: ${e}`);
+        console.warn(`${WARN_PREFIX} could not update ${bold("sitemap.xml")}: ${e}`);
       }
 
-      console.log(`Generated llms.txt (${(llmsTxt.length / 1024).toFixed(1)} KB)`);
-      console.log(`Generated llms-full.txt (${(llmsFullTxt.length / 1024).toFixed(1)} KB)`);
+      console.log(
+        `${LOG_PREFIX} generated ${bold("llms.txt")} (${(llmsTxt.length / 1024).toFixed(1)} KB)`,
+      );
+      console.log(
+        `${LOG_PREFIX} generated ${bold("llms-full.txt")} (${(llmsFullTxt.length / 1024).toFixed(1)} KB)`,
+      );
     });
   };
 }
