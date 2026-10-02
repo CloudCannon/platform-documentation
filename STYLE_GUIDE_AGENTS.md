@@ -7,8 +7,8 @@ Machine-readable style rules for AI agents and automated linters. These rules ar
 **For agents making updates to this file:** Also update the corresponding section in `STYLE_GUIDE.mdx` with the prose explanation and examples. Update the revision history in both files: `last_updated` and `style_guide_version` in the YAML block below, and the `Last Updated` and `Version` fields and the revision history table (Section 4) in `STYLE_GUIDE.mdx`.
 
 ```yaml
-style_guide_version: "2.57"
-last_updated: "2026-09-10"
+style_guide_version: "2.65"
+last_updated: "2026-10-02"
 
 documentation_architecture:
   single_source_of_truth:
@@ -47,9 +47,9 @@ terminology:
       - "Open the *Members* page."  # Members is a tab on the Team page
 
   plan_capitalization:
-    rule: "Plan names are capitalized AND italicized. The product noun 'Plan' must never appear bare — a tier name or the word 'Subscription' must immediately precede it every time. Write '*[Tier] Plan*' (*Standard Plan*, *Team Plan*, *Enterprise Plan*, *Free Plan*) or '*Subscription Plan*' (plural *Subscription Plans*). Rephrase every former head-noun, state-descriptor, and attributive use to carry 'Subscription'."
+    rule: "Plan names are capitalized AND italicized. The product noun 'Plan' must never appear bare — a tier name or the word 'Subscription' must immediately precede it every time. Write '*[Tier] Plan*' (*Standard Plan*, *Team Plan*, *Enterprise Plan*, *Lite Plan*) or '*Subscription Plan*' (plural *Subscription Plans*). Rephrase every former head-noun, state-descriptor, and attributive use to carry 'Subscription'."
     italicize_and_capitalize:
-      - "Named tiers: *Standard Plan*, *Team Plan*, *Enterprise Plan*, *Free Plan*"
+      - "Named tiers: *Standard Plan*, *Team Plan*, *Enterprise Plan*, *Lite Plan*"
       - "Generic product noun: *Subscription Plan*, *Subscription Plans*"
     never_bare_plan:
       rule: "'Plan' as the product noun never stands with only an article, possessive, or adjective in front of it, and never modifies another noun on its own. Rephrase so a tier name or 'Subscription' immediately precedes 'Plan'."
@@ -60,6 +60,20 @@ terminology:
         - "plan pricing / plan limits / plan changes / plan details -> *Subscription Plan* pricing / *Subscription Plan* limits / *Subscription Plan* changes / *Subscription Plan* details"
     glossary_link:
       rule: "*Subscription Plan* takes a glossary link on first mention (comp.GlossaryTerm, term /user/glossary/s/subscription-plan.yml, glossary_term_name 'Subscription Plan'); subsequent mentions are italicized with no link. Named tiers are italicized but take no glossary link."
+    documentable_plans:
+      rule: "Only four plans may be named in documentation: Standard, Team, Enterprise, Lite. Never name Pro, Business, Developer, Agency, Free, or Personal — not in article bodies, plan-tier notices, glossary descriptions, or plan-comparison statements — even when a feature flag in `app` enumerates them."
+      allowed: ["Standard", "Team", "Enterprise", "Lite"]
+      never: ["Pro", "Business", "Developer", "Agency", "Free", "Personal"]
+      scope: "This rule governs PLAN NAMES only. It does not touch other terms that happen to contain these words — *Free Trial* is a separate CloudCannon feature and stays; so does the *Developers* Permission Group, which is unrelated to the deprecated Developer plan. Only suppress the word when it names a Subscription Plan tier."
+      why:
+        - "Pro, Business, Developer and Agency are deprecated and no longer offered."
+        - "Personal is the database default every Organization starts on (`organisations.plan` defaults to `cc_personal`), so it is a starting state rather than a tier anyone selects."
+        - "There is no `free` plan entry in the app at all."
+      verifying_gating:
+        rule: "Gating is expressed as feature flags rather than plan names (`has_feature?('custom-permissions')`, not a check for 'Team'). Confirm the flag first, then work out which plans carry it. Do not derive the allowed list from `plan_details.yml` flags — Lite is marked `visible: false` alongside Personal, so neither `visible: true` nor `legacy: false` selects the right set."
+        lives_in: ["config/user_config/plan_details.yml", "config/user_config/feature_categories.yml", "app/models/concerns/organisation_extensions/billing.rb"]
+      no_gate_to_document:
+        rule: "When a feature is available on every documentable plan, there is no tier gate — do not invent one, and leave generic 'change to a Subscription Plan that includes X' wording alone."
     ui_labels_exempt:
       rule: "UI labels match the app verbatim, regardless of this rule (reproduce exact casing)."
       capitalized_in_app: ["Review your Subscription Plan (button)", "Update your Subscription Plan (page)", "Your Subscription Plan (page)", "Plan resources (label)"]
@@ -116,6 +130,7 @@ terminology:
     - "Organizations Browser"
     - "Filter Bar"
     - "Card"
+    - "Error Card"
     - "Context Menu"
     - "Site Navigation"
     - "Section Navigation"
@@ -531,6 +546,7 @@ documentation_types:
           - "Organizations Browser"
           - "Filter Bar"   # the filter element above a list; the button inside it is Add Filter
           - "Card"         # the repeated item block used throughout the app: browsers, lists, and inside inputs
+          - "Error Card"   # the red card the Visual Editor renders in place of an Editable Region it cannot render; capitalized but NOT asterisked inside DocShot alt text, which is plain text
           - "Context Menu" # the menu a control opens in place; written as "the *Context Menu*", never prefixed with its heading
         core_concepts:
           - "Site"
