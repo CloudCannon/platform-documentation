@@ -98,7 +98,7 @@ Platform:
 - [CLI Reference](${refBase}/cli/index.md): Manage CloudCannon from the terminal ([view page](${refBase}/cli/))
 - [SDK Reference](${refBase}/sdk/index.md): Typed client for the CloudCannon API ([view page](${refBase}/sdk/))
 - [API Reference](${refBase}/api/index.md): Manage organizations, projects, sites, and builds over HTTP ([view page](${refBase}/api/))
-- [OpenAPI specification](https://app.cloudcannon.com/api/v0/openapi.json): Machine-readable definition of every API endpoint, parameter, and response (for use by agents, code generation, and API tools)
+- [OpenAPI specification](https://cdn.cloudcannon.com/openapi/production.json): Machine-readable definition of every API endpoint, parameter, and response (for use by agents, code generation, and API tools)
 - [Permissions Reference](${refBase}/permissions/index.md): All available permission settings ([view page](${refBase}/permissions/))`;
 }
 
