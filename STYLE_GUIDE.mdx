@@ -1,7 +1,7 @@
 # CloudCannon Documentation Style Guide
 
-**Last Updated:** October 2, 2026  
-**Version:** 2.65
+**Last Updated:** October 6, 2026  
+**Version:** 2.69
 
 This style guide establishes writing standards for all CloudCannon documentation. It combines patterns from our existing documentation with industry best practices from Microsoft Writing Style Guide, Google Developer Documentation Style Guide, and Write the Docs community standards.
 
@@ -254,6 +254,8 @@ When in doubt, trace the claim to its source — code, configuration, or observe
   - **Git Provider**
   - **Git Repository**
   - **Access Review** (the CSV export of everyone with access to an *Organization*; lowercase "access review" only when naming the audit process rather than the file)
+  - **Visual Data Previews** (the deprecated v0 *Visual Editor API* feature that sends content changes to a *Site's* own JavaScript)
+  - **Visual Data Bindings** (the deprecated `data-cms-bind` feature that marks which elements on a page correspond to which data)
 
 - Use lowercase for general usage:
   - ✅ **Good:** "A Site is a website in CloudCannon."
@@ -439,6 +441,21 @@ Use "editor" only when referring to an editing interface, and only when it is im
 - ✅ **Good:** "After a *Team Member* updates the heading…"
 
 Established compounds such as *Visual Editor API*, `inEditorMode`, or **editor-only** (meaning "only in the preview, not on the live *Site*") are acceptable when the surrounding sentence already names the environment.
+
+The same principle governs two other vague stand-ins.
+
+**"the interface"** — name the surface instead. A reader cannot act on "the interface", and an AI agent quoting the sentence out of context cannot tell which part of CloudCannon is meant.
+
+- ❌ **Avoid:** "Editor Links let you link to other sections of the interface."
+- ✅ **Good:** "Editor Links let you link to other pages in CloudCannon."
+- ✅ **Good:** "…resolved by CloudCannon in the *Data Editor* following your update."
+
+**"switcher"** — do not use it as the name of a CloudCannon UI element that already has one. The control that moves between *Organizations* or clients is the *Context Menu*; it carries the heading *Switch Organization*, or *Switch Client* inside a *Partner Organization* (see [1.4.1 Italics](#141-italics)).
+
+- ❌ **Avoid:** "Open the Organization switcher."
+- ✅ **Good:** "Open the *Context Menu* on the *Organization* *Card*."
+
+This does not ban the word. "Locale switcher" is the name of the floating control the *Rosey CloudCannon Connector* adds to the *Visual Editor*, which has no other name, and `docshot_key` values are filenames rather than prose. Use "switcher" where it names a real control, not where it stands in for one CloudCannon already names.
 
 #### 1.3.4 Settings navigation: pages, tabs, and sections
 
@@ -1145,7 +1162,21 @@ Use for UI screenshots and snippets.
 - Keep titles short and descriptive (e.g., "The Site Dashboard", "The Add SSL Certificate modal").
 - Use sentence case.
 
+**When a DocShot is warranted:**
+
+`author_notes.docshots` asks whether an article has every screenshot it needs, which depends on knowing when one is needed. A DocShot earns its place where it shows the reader something the prose cannot:
+
+- The reader must locate something whose position is not obvious from its name — a tab inside a settings page, a control inside a modal, a panel that only appears in some states.
+- The page walks through a screen or a multi-step flow.
+- The text describes what something displays or looks like, rather than only naming it.
+
+A single named control inside a numbered step does not warrant one: "Click the *Save changes* button" is complete without a screenshot. Neither do concept pages with no UI, or configuration and code reference pages.
+
+Where a screenshot is warranted but has not been captured yet, place a `[docshot]` placeholder at the point it belongs and set `author_notes.docshots` to `Needs docshots`. A placeholder marks work to do; its absence reads as a decision that no screenshot was needed.
+
 **Avoid near-duplicate docshots:**
+
+This is the opposite bound to the rule above: *When a DocShot is warranted* governs too few screenshots, this one governs too many.
 
 Do not include a docshot whose only difference from a sibling docshot is a transient or removed indicator — a loading button label, a removed notification, a cleared warning, or a similar small visual change. Each docshot should anchor a visually distinct state worth showing on its own.
 
@@ -2344,6 +2375,10 @@ When you update a rule here, update the corresponding rule in `STYLE_GUIDE_AGENT
 ## 4. Revision History
 
 | Version | Date | Changes |
+| 2.69 | 2026-10-06 | Images (§1.5.2 DocShot Component): carried **Avoid near-duplicate docshots** into `STYLE_GUIDE_AGENTS.md` as `docshot.avoid_near_duplicate_docshots`. The rule has been in the prose guide since it was written, but was never mirrored in the machine-readable file, so 2.67's `docshot.warranted.pairs_with` pointed at a key that did not exist — an agent following the cross-reference found nothing and could not apply the bound. Agents reading only `STYLE_GUIDE_AGENTS.md` had the lower bound on screenshots without the upper one. The key carries the rule, the three avoid examples (a removed *Updates available* notification, a *Publish* button reading *Publishing…*, a cleared warning *Card*), the correct contrast, and a `mirrors` pointer back to §1.5.2. Also added the reciprocal pairing sentence to the prose, which had the pairing stated in only one direction. No rule changed; this closes a sync gap between the two files |
+| 2.68 | 2026-10-06 | Terminology (§1.3.3 Do not use "editor" in isolation): added **"the interface"** and **"switcher"** as vague stand-ins, extending the existing "editor" rule to the two other words that name a CloudCannon surface without identifying it. Both were being enforced by the `/review-doc` skill's checklist without existing in either style guide file, so reviews were failing articles against an unwritten rule. **"the interface"** is now a straightforward avoid — name the surface (*Visual Editor*, *Data Editor*, *App Sidebar*, a page) or rephrase to "in CloudCannon", since a reader cannot act on "the interface" and the phrase survives an out-of-context quote carrying no fact. Documentation usage supports this: one occurrence across every article and guide (`developer/guides/unified-configuration-migration-guide/live-configuration-and-data-editing.mdx:32`). **"switcher"** is deliberately **not** a blanket ban, against the skill's wording. All 13 occurrences in the docs are legitimate: twelve name the floating locale switcher the *Rosey CloudCannon Connector* adds to the *Visual Editor*, which has no other name, and one is a `docshot_key` filename rather than prose. The rule is scoped to what 2.52 already established for the *Context Menu* — do not call a CloudCannon element a "switcher" when it has a name; the control that moves between *Organizations* or clients is the *Context Menu*, headed *Switch Organization* or *Switch Client*. Added `terminology.disambiguation.interface` and `terminology.disambiguation.switcher` in `STYLE_GUIDE_AGENTS.md`, plus `vague_interface_reference` and `switcher_naming_a_named_element` in `validation_rules.check_for` |
+| 2.67 | 2026-10-06 | Images (§1.5.2 DocShot Component): added **when a DocShot is warranted**, the test `author_notes.docshots` has always presupposed but never stated. All three `docshots_values` turn on whether the article has every screenshot it needs — `Not applicable` is explicitly wrong "when a screenshot is warranted but missing" — yet nothing defined warranted, so the flag rested on unstated judgment and the same page could honestly carry any of the three values. A DocShot is now warranted where the reader must locate something whose position is not obvious from its name (a tab inside a settings page, a control inside a modal, a conditionally visible panel), where the page walks through a screen or a multi-step flow, or where the text describes what something displays rather than only naming it. A single named control inside a numbered step does not warrant one — "Click the *Save changes* button" is complete without a screenshot — nor do concept pages with no UI, or configuration and code reference pages. Also states the placeholder rule: where a screenshot is warranted but not yet captured, a `[docshot]` placeholder goes at the point it belongs and `author_notes.docshots` becomes `Needs docshots`, because a placeholder marks work to do while its absence reads as a decision that none was needed. Added as `docshot.warranted` in `STYLE_GUIDE_AGENTS.md` and cross-referenced from `docshots_values.warranted_test`. Pairs with the existing near-duplicate rule, which bounds the opposite failure — warranted governs too few screenshots, near-duplicate governs too many |
+| 2.66 | 2026-10-06 | Terminology (§1.2.2 Capitalization / §1.4.1 Italics): added ***Visual Data Previews*** and ***Visual Data Bindings*** as CloudCannon concepts, so both are capitalized and italicized. Both name deprecated features — *Visual Data Previews* is the v0 *Visual Editor API* feature that sends content changes to a *Site's* own JavaScript; *Visual Data Bindings* is the `data-cms-bind` feature that marks which elements correspond to which data — but deprecation does not make a feature name a common noun, and the two hub articles were the only "What is/are" pages in the *Visual Editing* navigation section not capitalizing their subject, against three current siblings (*Visual Editing*, *Editable Regions*, *Visual Editor API*) that do. Titles become "What are Visual Data Previews?" and "What are Visual Data Bindings?"; slugs are unaffected, so no redirects are needed. Neither term has a glossary entry, so mentions take italics only, with no `comp.GlossaryTerm`. Capitalization carries into cross-link text per `cross_link_pointer.position_decides_not_termhood` ([what Visual Data Bindings are]), and drops in headings per `headings_no_italics`. Added to `glossary.italicization_rules.use_asterisks_for.ui_components` in `STYLE_GUIDE_AGENTS.md`. Sweep across the nine deprecated visual-editing articles is in progress and tracked per page |
 | 2.65 | 2026-10-02 | Plan scope (§1.2.2 Subscription Plans / Plan Tier Scope): corrected which plans may be named in documentation. The documentable set is now **Standard**, **Team**, **Enterprise**, and **Lite** — *Free* is removed and *Lite* added. *Free* was never a real tier (there is no `free` entry in `plan_details.yml`); the plan readers actually start on is *Personal*, which is the database default for `organisations.plan` and so a starting state rather than a tier anyone selects. Both are now named in the do-not-document list alongside the deprecated *Pro*, *Business*, *Developer*, and *Agency*. The named-tier list in §1.2.2 changes from *Free Plan* to *Lite Plan*. Closed a sync gap: the plan-scope rule existed only as prose here and had no machine-readable counterpart, so `documentable_plans` is added under `terminology.plan_capitalization` in `STYLE_GUIDE_AGENTS.md` with the allowed and never lists, the reasons, and a warning not to derive the set from `plan_details.yml` flags — *Lite* is marked `visible: false` alongside *Personal*, so neither `visible: true` nor `legacy: false` selects the right plans. Both files also carry an explicit scope limit: the rule governs plan **names** only, so *Free Trial* and the *Developers* Default Permission Group are unaffected despite containing suppressed words. Updated `plan_capitalization.rule` and `italicize_and_capitalize` in `STYLE_GUIDE_AGENTS.md` |
 | 2.64 | 2026-10-01 | Terminology (§1.2.2 Capitalization / §1.4.1 Italics): added ***Error Card*** as a CloudCannon UI component — the red card the *Visual Editor* renders in place of an *Editable Region* it cannot render. The element exists in the package as `editable-region-error-card` and was already documented across eleven Editable Regions pages, but only as lowercase "error card", so the term was unsanctioned in the same way *Health Check* was before 2.61. It qualifies under the existing ***Card*** entry added at 2.50, which covers the repeated item block wherever it appears and whose modifier-prefixed forms (*Organization Card*, *File Card*) are already house usage. Swept the 20 existing occurrences across ten pages: body prose takes *Error Card*, and **DocShot `alt` text takes a capitalized `Error Card` with no asterisks**, since alt is a plain-text attribute where markdown emphasis would render literally — the same reason italics are dropped in link text. Added to `terminology.capitalized_concepts` and `glossary.italicization_rules.use_asterisks_for.ui_components` in `STYLE_GUIDE_AGENTS.md`, with the alt-text exception noted inline |
 | 2.63 | 2026-10-01 | Notices (§1.5.1 `deprecated`): revised the continuity sentence in the deprecation position introduced at 2.62. It read "Existing configurations keep working", which answers a question about the configuration rather than the one the reader arrived with — a reader on a deprecated method wants to know whether the *Site* they already shipped is about to break, not whether an attribute still parses. The sentence is now **"Existing *Sites* relying on this configuration will keep working"**, naming the *Sites* rather than the configuration. Added the rule to §1.5.1 alongside the position statement, updated the `deprecated` example, and extended `deprecation_notice_content.cloudcannon_position` in `STYLE_GUIDE_AGENTS.md` with the required form and the retired wording. Applied to the three Visual-Editor deprecation notices retrofitted under 2.62 (`define-editable-regions-in-your-html`, `what-are-visual-data-bindings`, `editing-markdown-files-in-the-visual-editor`) |

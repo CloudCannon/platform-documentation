@@ -3,30 +3,101 @@ _schema: default
 _uuid: e2c5be5b-7905-4778-9926-c32ea458211b
 _created_at: '2021-09-15 23:13:40 +0000'
 details:
-  title: Visual data bindings with React
-  description: React allows you to add the `data-cms-bind` attribute on any DOM element
+  title: Visual Data Bindings with React
+  description: >-
+    Thread Visual Data Binding paths through a React component tree by passing
+    each component its parent's path as a prop.
   image: >-
     https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+  category:
+    - Explanation
   related_articles:
     - _type: developer_articles
-      item: 46d2a5fd-615a-4d33-be84-9d6704bf8160
+      item: 77d1c22d-19db-489a-9dbc-f4d1e37b822a
     - _type: developer_articles
-      item: 4dc27408-06fe-403e-8bb3-a439805625ea
+      item: c002f90f-7a89-43d9-b238-3955ddec4604
+    - _type: developer_articles
+      item: ceffb949-2057-4ad8-a5e9-d02898d06fc9
 author_notes:
-  docshots: Needs docshots
+  docshots: Not applicable
 ---
-React allows you to add the `data-cms-bind` attribute on any DOM element. It is recommended that these are added recursively into each object. If you are using an older version of React, you may need to forward this on differently. Please refer to the <a href="https://reactjs.org/blog/2017/09/08/dom-attributes-in-react-16.html#data-and-aria-attributes" target="_blank" rel="noopener noreferrer">React documentation</a>.
+<comp.Notice info_type="deprecated">
+  **Visual Data Bindings are deprecated.**
 
-<comp.CodeBlock language="jsx" source="heading.jsx">
+  Visual Data Bindings have been deprecated since October 2025. CloudCannon continues to maintain them and fix critical bugs, but they receive no new features or further development. Existing *Sites* relying on this configuration will keep working. For new *Sites*, we recommend [Editable Regions](/documentation/developer-articles/what-are-editable-regions/).
+</comp.Notice>
+
+React passes `data-` attributes straight through to the DOM, so adding `data-cms-bind` to an element works the same as it does in plain HTML, and CloudCannon draws the same editing overlays over it in the <comp.GlossaryTerm term="/user/glossary/v/visual-editor.yml">Visual Editor</comp.GlossaryTerm>. For the attribute's syntax, please read our documentation on [what Visual Data Bindings are](/documentation/developer-articles/what-are-visual-data-bindings/).
+
+The part React adds is threading the path. A binding names a value's full path from the root of your data, but a reusable component has no way of knowing where in that structure it has been placed. The component above it does, so pass the path down as a prop.
+
+Bindings mark up what is editable. They do not re-render your components when the data changes: for that, please read our documentation on [using Visual Data Previews with React](/documentation/developer-articles/visual-data-previews-with-react/).
+
+## Passing binding paths through components
+
+Give each component a prop holding its own path, and build child bindings from it.
+
+<comp.CodeBlock language="jsx" source="hero.jsx">
 ```
-class Heading extends React.Component {
-  render() {
-    return (
-      <h1 data-cms-bind="title">{this.props.title}</h1>
-    );
-  }
+function Hero({ path, data }) {
+  const bind = (key) => [path, key].filter(Boolean).join('.'); /*1*/
+
+  return (
+    <section>
+      <h1 data-cms-bind={bind('title')}>{data.title}</h1>
+      <p data-cms-bind={bind('subtitle')}>{data.subtitle}</p>
+    </section>
+  );
 }
 ```
+<comp.Annotation number="1">
+
+Joining with `filter(Boolean)` drops an empty path, so a component placed at the root produces `title` rather than `.title`.
+
+</comp.Annotation>
 </comp.CodeBlock>
 
-It is recommended that you pass the parent binding as a prop. This way your component can be reused in any stack. For the base case a empty string should be used as the binding. If you have an array component and a component for each array, it is recommended to skip the array binding to reduce the number of editor clicks.
+The parent passes the path it occupies, and a component rendered at the root of your data passes an empty string.
+
+<comp.CodeBlock language="jsx" source="page.jsx">
+```
+<Hero path="hero" data={page.hero} />
+<Hero path="" data={page} /> /*1*/
+```
+<comp.Annotation number="1">
+
+An empty path is a valid value to pass down, because `bind()` discards it when building child bindings.
+
+</comp.Annotation>
+</comp.CodeBlock>
+
+## Never render an empty binding
+
+An empty path is fine to pass as a prop, but it must never reach the DOM as an attribute. CloudCannon treats `data-cms-bind=""` as a binding it cannot resolve: the element still gets an overlay in the *Visual Editor*, bound to a field named `unset` that does not exist in your data.
+
+Render the attribute only when the component has a path.
+
+<comp.CodeBlock language="jsx" source="hero.jsx">
+```
+function Hero({ path, data }) {
+  const bind = (key) => [path, key].filter(Boolean).join('.');
+
+  return ( /*1*/
+    <section {...(path ? { 'data-cms-bind': path } : {})}>
+      <h1 data-cms-bind={bind('title')}>{data.title}</h1>
+    </section>
+  );
+}
+```
+<comp.Annotation number="1">
+
+Spreading a conditional object adds the attribute when `path` has a value and omits it entirely when `path` is empty.
+
+</comp.Annotation>
+</comp.CodeBlock>
+
+## Arrays
+
+Every binding you nest adds a click, because a child binding only becomes selectable once its parent is selected. Where you have an array component rendering an item component, binding both means two clicks to reach an item.
+
+Bind the items and leave the array container unbound. The items keep their reordering and removal controls, and a <comp.GlossaryTerm term="/user/glossary/t/team-member.yml">Team Member</comp.GlossaryTerm> reaches them one click sooner.

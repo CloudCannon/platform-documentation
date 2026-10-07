@@ -1,0 +1,118 @@
+---
+_schema: default
+_uuid: c002f90f-7a89-43d9-b238-3955ddec4604
+_created_at: '2021-09-15 23:13:40 +0000'
+details:
+  title: Visual Data Previews with React
+  description: >-
+    Use the CloudCannon React Connector to re-render a Next.js page as the open
+    file changes in the Visual Editor.
+  image: >-
+    https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+  category:
+    - Explanation
+  related_articles:
+    - _type: developer_articles
+      item: af6251bf-5238-46c6-8b99-74788a92fd67
+    - _type: developer_articles
+      item: 46d2a5fd-615a-4d33-be84-9d6704bf8160
+    - _type: developer_articles
+      item: 75b111c3-8905-46d4-aaf1-18ed767f7f43
+author_notes:
+  docshots: Not applicable
+---
+<comp.Notice info_type="deprecated">
+  **The v0 Visual Editor API is deprecated.**
+
+  CloudCannon continues to maintain the v0 API and fix critical bugs, but it receives no new features or further development. Existing *Sites* relying on this configuration will keep working. For new *Sites*, we recommend v1, the current version of the [Visual Editor API](/documentation/developer-articles/what-is-the-visual-editor-api/).
+</comp.Notice>
+
+The CloudCannon React Connector is a higher-order component that wraps the sequence described in our documentation on [using Visual Data Previews with vanilla JavaScript](/documentation/developer-articles/visual-data-previews-with-vanilla-javascript/). It listens for CloudCannon's events, calls `enableEvents()`, reads the latest data with `value()`, and re-renders your page component with it.
+
+The connector targets the Next.js Pages Router and the `pageProps` shape that router supplies. It has no App Router integration, so on an App Router project, write the event handling yourself: please read our documentation on [using Visual Data Previews with vanilla JavaScript](/documentation/developer-articles/visual-data-previews-with-vanilla-javascript/).
+
+This article covers the v0 <comp.GlossaryTerm term="/user/glossary/v/visual-editor-api.yml">Visual Editor API</comp.GlossaryTerm>, not v1. The `cloudcannon:load` event belongs to both: CloudCannon dispatches it on `document` for either version, and its `detail` carries the v0 object alongside `CloudCannonAPI`, the router that v1 comes from. For the current API, please read our documentation on [what the Visual Editor API is](/documentation/developer-articles/what-is-the-visual-editor-api/).
+
+For what your <comp.GlossaryTerm term="/user/glossary/s/site.yml">Site</comp.GlossaryTerm> needs before a preview will run, please read our documentation on [what Visual Data Previews are](/documentation/developer-articles/what-are-visual-data-previews/).
+
+## Installation
+
+This package targets the deprecated v0 *Visual Editor API*. For new *Sites*, please read our documentation on [initializing the Visual Editor API](/documentation/developer-articles/initialize-the-visual-editor-api/).
+
+<comp.Notice info_type="important">
+  **The React Connector lists React 17 as a dependency, not a peer dependency.**
+
+  The package declares `react: ^17.0.2` under `dependencies` and declares no peer dependencies, so installing it in a project on React 18 or later adds a second copy of React to your `node_modules` and your bundle. Check what this installs before adding it to an existing project.
+</comp.Notice>
+
+<comp.CodeBlock language="shell" source="Terminal">
+```
+npm i @cloudcannon/react-connector
+```
+</comp.CodeBlock>
+
+## Setting up the connector
+
+Wrap your Next.js app component with `CloudCannonConnect` in `pages/_app.jsx`. `CloudCannonConnect()` returns a new component class each time it runs, so memoize the result on `Component` to stop React remounting your page on every navigation.
+
+<comp.CodeBlock language="jsx" source="pages/_app.jsx">
+```
+import { useMemo } from 'react';
+import { CloudCannonConnect } from '@cloudcannon/react-connector';
+
+export default function App({ Component, pageProps }) {
+  const AppComponent = useMemo(() => CloudCannonConnect(Component), [Component]); /*1*/
+  return <AppComponent {...pageProps} />;
+}
+```
+<comp.Annotation number="1">
+
+Keying `useMemo` on `Component` keeps the generated class stable between renders.
+
+</comp.Annotation>
+</comp.CodeBlock>
+
+The connector also reads `window.CloudCannon` when your component mounts, as a fallback for mounting after `cloudcannon:load` has already fired. If other code on your page calls `useVersion('v1')`, CloudCannon reassigns that global to the v1 object, which has no `enableEvents()`, and the fallback throws. Pass `true` as the second argument, `useVersion('v1', true)`, to get the v1 object without reassigning the global. For more information, please read our documentation on [initializing the Visual Editor API](/documentation/developer-articles/initialize-the-visual-editor-api/).
+
+## Reading the data in your components
+
+The connector does not spread the latest values into your component's top-level props. It replaces `page.data`, so your page component reads its content from `props.page.data`.
+
+<comp.CodeBlock language="jsx" source="pages/index.jsx">
+```
+export default function HomePage({ page }) {
+  return <h1>{page.data.title}</h1>; /*1*/
+}
+```
+<comp.Annotation number="1">
+
+The connector replaces `page.data` with the latest values after every change. Supply `page.data` in your `pageProps` as well: the connector renders from it before CloudCannon sends anything, and falls back to an empty object when it is missing.
+
+</comp.Annotation>
+</comp.CodeBlock>
+
+## Options
+
+`CloudCannonConnect()` takes an optional second argument.
+
+<comp.OptionsTable>
+  <comp.OptionsRow label="processProps" type_markdown="`Function`">
+    Runs over the data before the connector passes it to your component as `page.data`. Receives the latest data and returns what your component should receive. Defaults to passing the data through unchanged.
+  </comp.OptionsRow>
+  <comp.OptionsRow label="valueOptions" type_markdown="`Object`">
+    Passed through to `value()` each time the connector reads the latest data.
+  </comp.OptionsRow>
+</comp.OptionsTable>
+
+<comp.CodeBlock language="jsx" source="pages/_app.jsx">
+```
+const AppComponent = useMemo(
+  () => CloudCannonConnect(Component, { processProps: (data) => data.fields }),
+  [Component]
+);
+```
+</comp.CodeBlock>
+
+## Getting help
+
+If the connector does not behave as described, <a href="https://cloudcannon.com/support/">contact support</a> with your *Site* name, the React and Next.js versions your project uses, and what you expected to happen. You can also <a href="https://github.com/CloudCannon/react-connector/issues" target="_blank" rel="noopener noreferrer">raise an issue on the GitHub repository</a>.

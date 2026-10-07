@@ -7,8 +7,8 @@ Machine-readable style rules for AI agents and automated linters. These rules ar
 **For agents making updates to this file:** Also update the corresponding section in `STYLE_GUIDE.mdx` with the prose explanation and examples. Update the revision history in both files: `last_updated` and `style_guide_version` in the YAML block below, and the `Last Updated` and `Version` fields and the revision history table (Section 4) in `STYLE_GUIDE.mdx`.
 
 ```yaml
-style_guide_version: "2.65"
-last_updated: "2026-10-02"
+style_guide_version: "2.69"
+last_updated: "2026-10-06"
 
 documentation_architecture:
   single_source_of_truth:
@@ -32,6 +32,21 @@ terminology:
         - "Visual Editor API"
         - "inEditorMode"
         - "editor-only (preview vs live Site when sentence names the environment)"
+    interface:
+      rule: "Never use 'the interface' as a stand-in for a part of CloudCannon. Name the surface — the Visual Editor, the Data Editor, the App Sidebar, a page — or rephrase to 'in CloudCannon'. A reader cannot act on 'the interface', and the phrase carries no extractable fact when a passage is quoted out of context. Same family as the editor rule above. Mirrors STYLE_GUIDE.mdx §1.3.3."
+      correct:
+        - "Editor Links let you link to other pages in CloudCannon."
+        - "…resolved by CloudCannon in the *Data Editor* following your update."
+      incorrect:
+        - "Editor Links let you link to other sections of the interface."
+    switcher:
+      rule: "Do not use 'switcher' as the name of a CloudCannon UI element that already has one. The control that moves between Organizations or clients is the *Context Menu*, headed *Switch Organization* or, inside a Partner Organization, *Switch Client*. Mirrors STYLE_GUIDE.mdx §1.3.3."
+      not_a_blanket_ban: "'Locale switcher' is the name of the floating control the Rosey CloudCannon Connector adds to the Visual Editor; it has no other name and stays. docshot_key values are filenames, not prose, and are unaffected."
+      correct:
+        - "Open the *Context Menu* on the *Organization* *Card*."
+        - "a floating locale switcher appears in the corner of the preview"
+      incorrect:
+        - "Open the Organization switcher."
   settings_navigation_hierarchy:
     rule: "Name a settings destination by its location, not its label — the same label can be a page in one area and a section in another. Verify location before choosing the noun."
     org_settings: "Org Settings contains PAGES (Details, Branding, Team, Subscription, etc.). Refer to each as a 'page': 'the Details page under Org Settings'. Never call an Org Settings destination a 'section'."
@@ -140,6 +155,8 @@ terminology:
     - "Git Provider"
     - "Git Repository"
     - "Access Review"
+    - "Visual Data Previews"  # deprecated v0 Visual Editor API feature; still a CloudCannon concept, so capitalized and italicized
+    - "Visual Data Bindings"  # deprecated data-cms-bind feature; capitalized and italicized as above
   
   preferred_terms:
     "Git Repository": ["repo", "git repo", "Git repository"]
@@ -370,6 +387,7 @@ documentation_types:
       "Added!": "Every CloudCannon app screenshot the article needs is present as a DocShot."
       "Needs docshots": "The article needs one or more CloudCannon app screenshots that do not exist yet."
       "Not applicable": "The article does not need any CloudCannon app screenshots (e.g. it only has diagrams, code examples, or no images). Do not use this when a screenshot is warranted but missing — that is 'Needs docshots'."
+      warranted_test: "Whether a screenshot is needed is defined by docshot.warranted. These three values are unanswerable without it."
     related_articles_structure:
       max_items: 3
       _type: ["developer_articles", "user_articles", "developer_guides", "user_guides"]
@@ -853,6 +871,20 @@ components:
       screenshot: "Full viewport screenshots showing the entire CloudCannon interface"
       ui-snippet: "Cropped screenshots of specific UI elements like inputs, buttons, dropdowns, or modals"
     naming: "Hyphenated names describing the page and state (e.g., Site-Settings-Syncing-Connected)"
+    warranted:
+      rule: "A DocShot earns its place where it shows what prose cannot. Required where the reader must locate something whose position is not obvious from its name (a tab inside a settings page, a control inside a modal, a conditionally visible panel), where the page walks through a screen or a multi-step flow, or where the text describes what something displays rather than only naming it."
+      not_warranted: "A single named control inside a numbered step ('Click the *Save changes* button'), a concept page with no UI, a configuration or code reference page."
+      placeholder: "Where a screenshot is warranted but not yet captured, place a [docshot] placeholder where it belongs and set author_notes.docshots to 'Needs docshots'. A placeholder marks work to do; its absence reads as a decision that no screenshot was needed."
+      pairs_with: "The inverse bound is avoid_near_duplicate_docshots — warranted governs too few, that rule governs too many."
+    avoid_near_duplicate_docshots:
+      rule: "Do not include a DocShot whose only difference from a sibling DocShot is a transient or removed indicator — a loading button label, a removed notification, a cleared warning, or a similar small visual change. Each DocShot must anchor a visually distinct state worth showing on its own."
+      avoid:
+        - "A 'before update' DocShot followed by an 'after update' DocShot whose only difference is the absence of the *Updates available* notification."
+        - "A 'before publish' DocShot followed by an 'after publish' DocShot where the only change is the *Publish* button now reading *Publishing…*."
+        - "A conflict-state DocShot followed by a success DocShot whose only difference is the cleared warning *Card*."
+      correct: "A 'before' and an 'after' DocShot that show meaningfully different UI — an empty form versus a form with results, or a list before versus after a structural change."
+      pairs_with: "The inverse bound is warranted — that rule governs too few screenshots, this one governs too many."
+      mirrors: "STYLE_GUIDE.mdx §1.5.2 (Avoid near-duplicate docshots)"
 
   docsimage:
     usage: "Illustrations, diagrams, conceptual graphics, and external screenshots only. Never for CloudCannon app images — those use comp.DocShot."
@@ -1015,6 +1047,8 @@ validation_rules:
     - "code_example_explanations_only_in_annotations"
     - "explanatory_prose_inside_numbered_instruction_steps"
     - "bare_editor_word_ambiguous_context"
+    - "vague_interface_reference (the phrase 'the interface' standing in for a named CloudCannon surface)"
+    - "switcher_naming_a_named_element (calling the Organization/client Context Menu a 'switcher'; 'locale switcher' is exempt)"
     - "guide_page_closing_cta_to_sibling_page"
     - "guide_page_related_articles_not_null"
     - "ui_elements_in_links_no_italics"
