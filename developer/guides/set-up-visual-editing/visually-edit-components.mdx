@@ -16,7 +16,7 @@ author_notes:
   docshots: Added!
 ---
 <comp.Notice info_type="info">
-  <p><comp.GlossaryTerm term="/user/glossary/c/component-editable-region.yml">Component Editable Regions</comp.GlossaryTerm> are available for Astro, Eleventy, and Hugo, and for sites built with React, Vue, or Svelte, including Next.js, Nuxt, and SvelteKit. This step of the guide uses Astro as an example. For the setup steps for your SSG, please read our documentation on <a href="/documentation/developer-articles/configure-component-editable-regions/">configuring Component Editable Regions</a>.</p><p><em>Component Editable Regions</em> are not yet available for other SSGs. Please get in touch with our friendly <a href="https://cloudcannon.com/support/">support team</a> to make a request.</p>
+  <p><comp.GlossaryTerm term="/user/glossary/c/component-editable-region.yml">Component Editable Regions</comp.GlossaryTerm> are available for Astro, Eleventy, and Hugo, and for sites built with React, Vue, or Svelte, including Next.js, Nuxt, and SvelteKit. The code examples in this step of the guide use Astro.</p><p><em>Component Editable Regions</em> are not yet available for other SSGs. Please get in touch with our friendly <a href="https://cloudcannon.com/support/">support team</a> to make a request.</p>
 </comp.Notice>
 
 Many static websites use reusable code components (a.k.a., partials) ranging from a small snippet of HTML, to UI elements like a header, profile card, or an entire page layout.
@@ -27,80 +27,227 @@ You can use the *Component Editable Regions* to re-render changes to your compon
   <p><strong>Nested text or image values</strong></p><p>To avoid <code>data-prop</code> misconfiguration errors, it is best practice to define your <em>Editable Regions</em> from the root of your file first (i.e., from parent elements to child elements). If you want to edit text or image values in a component using the Visual Editor, you should define your <em>Component Editable Region</em> on the parent element before Text and Image.</p>
 </comp.Notice>
 
-## Install the NPM package
+## Install the integration for your SSG
 
-Before you can use *Component Editable Regions*, you will need to install CloudCannon's *Editable Regions* NPM package.
+Unlike other types of *Editable Region*, *Component Editable Regions* need an integration, because CloudCannon re-renders your components in the browser rather than on a build server. Astro and Eleventy install an NPM package, Hugo installs a Hugo module, and sites built with React, Vue, or Svelte add a root component to your layout. You only need to do this once per *Site*.
 
-With your website project open in your local development environment, run the following command in your terminal:
+<comp.Tabs label="Static site generators">
+  <comp.Tab name="Astro">
+    ### Astro
 
-<comp.CodeBlock language="">
-``````````
+    Install the NPM package, then add the *Editable Regions* integration to your Astro configuration file.
 
-npm install @cloudcannon/editable-regions
+    <comp.CodeBlock language="">
+    ``````````
 
-``````````
-</comp.CodeBlock>
+    npm install @cloudcannon/editable-regions
 
-<comp.Notice info_type="info">
-  <p>React is a dependency of this package. You may need to use <code>npm i</code> to install React if your local development environment is out of date.</p>
-</comp.Notice>
+    ``````````
+    </comp.CodeBlock>
 
-For more information, you can visit CloudCannon's GitHub repository for the <a href="https://github.com/CloudCannon/editable-regions" target="_blank" rel="noopener noreferrer">Editable Regions NPM package</a>.
+    <comp.CodeBlock language="JavaScript" source="astro.config.mjs">
+    ``````````
 
-## Update Astro config file
+    import editableRegions from "@cloudcannon/editable-regions/astro-integration";
+    import { defineConfig } from "astro/config";
 
-If you use Astro, add the *Editable Regions* integration to your Astro config file:
+    export default defineConfig({
+      integrations: [editableRegions()],
+    });
 
-<comp.CodeBlock language="JavaScript" source="astro.config.mjs">
-``````````
+    ``````````
+    </comp.CodeBlock>
+  </comp.Tab>
+  <comp.Tab name="Eleventy">
+    ### Eleventy
 
-import editableRegions from "@cloudcannon/editable-regions/astro-integration";
-import { defineConfig } from "astro/config";
+    Install the NPM package, then add the *Editable Regions* plugin to your Eleventy configuration file.
 
+    <comp.CodeBlock language="">
+    ``````````
 
-export default defineConfig({
-  integrations: [editableRegions()],
-});
+    npm install @cloudcannon/editable-regions
 
-``````````
-</comp.CodeBlock>
+    ``````````
+    </comp.CodeBlock>
+
+    <comp.CodeBlock language="JavaScript" source="eleventy.config.mjs">
+    ``````````
+
+    import editableRegions from "@cloudcannon/editable-regions/eleventy";
+
+    export default function (eleventyConfig) {
+      eleventyConfig.addPlugin(editableRegions);
+
+      return {
+        dir: { input: "src", includes: "_includes", output: "_site" },
+      };
+    }
+
+    ``````````
+    </comp.CodeBlock>
+
+    After every build, the plugin writes a `register-components.js` file into your output directory. Import it from your layout, inside the `<body>` element.
+
+    <comp.CodeBlock language="HTML" source="base.liquid">
+    ``````````
+
+    <script>
+      if (window.inEditorMode) {
+        import("/register-components.js").catch((error) => {
+          console.warn("Failed to load CloudCannon component registration:", error);
+        });
+      }
+    </script>
+
+    ``````````
+    </comp.CodeBlock>
+  </comp.Tab>
+  <comp.Tab name="Hugo">
+    ### Hugo
+
+    Hugo uses a Hugo module rather than an NPM package. Install the module, add it to your Hugo configuration file, then include the *Editable Regions* partial in the `<head>` element of your base layout.
+
+    <comp.CodeBlock language="">
+    ``````````
+
+    hugo mod get github.com/CloudCannon/editable-regions
+
+    ``````````
+    </comp.CodeBlock>
+
+    <comp.CodeBlock language="TOML" source="hugo.toml">
+    ``````````
+
+    [module]
+      [[module.imports]]
+        path = "github.com/CloudCannon/editable-regions"
+        version = "<version>"
+
+    ``````````
+    </comp.CodeBlock>
+
+    <comp.CodeBlock language="HTML" source="layouts/_default/baseof.html">
+    ``````````
+
+    {{ partial "editable-regions" . }}
+
+    ``````````
+    </comp.CodeBlock>
+  </comp.Tab>
+  <comp.Tab name="JavaScript">
+    ### JavaScript frameworks
+
+    Install the NPM package, then wrap your routed page content in the `EditableRegions` component, in your root layout.
+
+    <comp.CodeBlock language="">
+    ``````````
+
+    npm install @cloudcannon/editable-regions
+
+    ``````````
+    </comp.CodeBlock>
+
+    <comp.CodeBlock language="JSX" source="app/layout.js">
+    ``````````
+
+    import { EditableRegions } from "@cloudcannon/editable-regions/react";
+
+    export default function RootLayout({ children }) {
+      return (
+        <html lang="en">
+          <body>
+            <EditableRegions tag="main">{children}</EditableRegions>
+          </body>
+        </html>
+      );
+    }
+
+    ``````````
+    </comp.CodeBlock>
+
+    Import `EditableRegions` from `@cloudcannon/editable-regions/react`, `/vue`, or `/svelte`, depending on your framework.
+  </comp.Tab>
+</comp.Tabs>
+
+Your SSG may need more than this to build in the Visual Editor. For Astro framework renderers, Eleventy's `includeWith` tag, Hugo module vendoring, and static export settings for Next.js, Nuxt, and SvelteKit, please read our documentation on [configuring Component Editable Regions](/documentation/developer-articles/configure-component-editable-regions/). You can also visit CloudCannon's GitHub repository for the <a href="https://github.com/CloudCannon/editable-regions" target="_blank" rel="noopener noreferrer">Editable Regions NPM package</a>.
 
 ## Register your components
 
-Next, you need to register your components with the NPM package. To do this, you'll need to create a registration script and include it in your layout.
+Registering a component tells CloudCannon which component a `data-component` value refers to, and that it should be bundled for client side use in the Visual Editor. Astro and the JavaScript frameworks need you to register each component by name. Eleventy and Hugo work out the name from your include and partial names, so they have no registration step.
 
-If you use `.astro` component files, even if you have React components nested in them, you will need to import `{ registerAstroComponent }` in your registration script. Here's an example for the CTA component.
+<comp.Tabs label="Static site generators">
+  <comp.Tab name="Astro">
+    ### Astro
 
-<comp.CodeBlock language="JavaScript" source="src/scripts/register-components.js">
-``````````
+    Create a registration file for your components, then import it from your layout, inside the `<body>` element.
 
-import { registerAstroComponent } from '@cloudcannon/editable-regions/astro';
-import '@cloudcannon/editable-regions/astro-react-renderer'; /*1*/
-import CTA from '../components/CTA.astro';
+    If you use `.astro` component files, even if you have React components nested in them, import `{ registerAstroComponent }` in your registration script. Here's an example for the CTA component.
 
-// Register your components
-registerAstroComponent('cta', CTA);
+    <comp.CodeBlock language="JavaScript" source="src/scripts/register-components.js">
+    ``````````
 
-``````````
-<comp.Annotation number="1">
-  This import is only necessary if you use React components nested inside your Astro components.
-</comp.Annotation>
-</comp.CodeBlock>
+    import { registerAstroComponent } from '@cloudcannon/editable-regions/astro';
+    import '@cloudcannon/editable-regions/astro-react-renderer'; /*1*/
+    import CTA from '../components/CTA.astro';
 
-If you use `.tsx` or `.jsx` component files, you will need to import `{ registerReactComponent }` in your registration script. Here's an example for the CTA component.
+    // Register your components
+    registerAstroComponent('cta', CTA);
 
-<comp.CodeBlock language="JavaScript" source="src/scripts/register-components.js">
-``````````
+    ``````````
+    <comp.Annotation number="1">
+      This import is only necessary if you use React components nested inside your Astro components.
+    </comp.Annotation>
+    </comp.CodeBlock>
 
-import { registerReactComponent } from '@cloudcannon/editable-regions/react';
-import MyComponent from './MyComponent.jsx';
+    If you use `.tsx` or `.jsx` component files, import `{ registerReactComponent }` instead.
 
-registerReactComponent('my_component', MyComponent);
+    <comp.CodeBlock language="JavaScript" source="src/scripts/register-components.js">
+    ``````````
 
-``````````
-</comp.CodeBlock>
+    import { registerReactComponent } from '@cloudcannon/editable-regions/react';
+    import MyComponent from './MyComponent.jsx';
 
-Registering your components tells CloudCannon that those components should be bundled for client side use in the Visual Editor.
+    registerReactComponent('my_component', MyComponent);
+
+    ``````````
+    </comp.CodeBlock>
+  </comp.Tab>
+  <comp.Tab name="Eleventy">
+    ### Eleventy
+
+    There is no registration step. CloudCannon resolves component names the same way your templates resolve includes, so `{% include "cta" %}` matches `data-component="cta"`.
+
+    The plugin you added in the previous step copies your includes into the registration script it writes after every build.
+  </comp.Tab>
+  <comp.Tab name="Hugo">
+    ### Hugo
+
+    There is no registration step. CloudCannon resolves component names as partial names, so `data-component="cta"` and `data-component="cta.html"` both render `layouts/partials/cta.html`.
+  </comp.Tab>
+  <comp.Tab name="JavaScript">
+    ### JavaScript frameworks
+
+    Register your components from a file that only runs in the browser, such as a client component in Next.js or a client plugin in Nuxt.
+
+    <comp.CodeBlock language="TypeScript" source="app/plugins/cloudcannon.client.ts">
+    ``````````
+
+    import { registerVueComponent } from "@cloudcannon/editable-regions/vue";
+    import CTA from "../components/CTA.vue";
+
+    export default defineNuxtPlugin(() => {
+      if (window.inEditorMode) {
+        registerVueComponent('cta', CTA);
+      }
+    });
+
+    ``````````
+    </comp.CodeBlock>
+
+    Import `registerReactComponent` from `@cloudcannon/editable-regions/react` or `registerSvelteComponent` from `@cloudcannon/editable-regions/svelte` for those frameworks.
+  </comp.Tab>
+</comp.Tabs>
 
 ## Components in layout files
 
@@ -254,9 +401,9 @@ When you click into the *Editable Region*, CloudCannon will open a data panel wi
 
 ## Common errors
 
-If you accidentally misconfigure your *Editable Regions*, CloudCannon will replace them in the Visual Editor with a red error card naming the region type and describing the problem.
+If you accidentally misconfigure your *Editable Regions*, CloudCannon will replace them in the Visual Editor with a red *Error Card* naming the region type and describing the problem.
 
-<comp.DocShot docshot_key="CloudCannon-Documentation-Visual-Editor-Component-Editable-Region-Error-Element" alt="A screenshot of an error card in the Visual Editor shows a message headed Failed to render component, followed by the reason the region could not render." title="A misconfigured Component Editable Region in the Visual Editor" type="ui-snippet"/>
+<comp.DocShot docshot_key="CloudCannon-Documentation-Visual-Editor-Component-Editable-Region-Error-Element" alt="A screenshot of an Error Card in the Visual Editor shows a message headed Failed to render component, followed by the reason the region could not render." title="A misconfigured Component Editable Region in the Visual Editor" type="ui-snippet"/>
 
 Here are a few common errors you might encounter with *Component Editable Regions*:
 
