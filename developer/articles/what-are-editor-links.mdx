@@ -1,0 +1,110 @@
+---
+_schema: default
+_uuid: 435b3fd0-0dd4-4e7e-a4b2-0d5b206f4194
+_created_at: '2021-09-15 23:13:40 +0000'
+details:
+  title: What are Editor Links?
+  description: >-
+    Editor Links are links on your previewed page that open a field, a
+    Collection, or another part of CloudCannon instead of navigating your Site.
+  image: >-
+    https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+  category:
+    - Explanation
+  related_articles:
+    - _type: developer_articles
+      item: 1b2d5441-52ed-470b-93a3-cee60f45865a
+    - _type: developer_articles
+      item: 77d1c22d-19db-489a-9dbc-f4d1e37b822a
+    - _type: developer_articles
+      item: 0448e0fa-5d7d-43d1-b482-70f2e6932f16
+author_notes:
+  docshots: Needs docshots
+---
+Editor Links are ordinary `<a>` elements whose `href` uses the `cloudcannon:` scheme. In the <comp.GlossaryTerm term="/user/glossary/v/visual-editor.yml">Visual Editor</comp.GlossaryTerm>, CloudCannon intercepts a click on one and opens the destination it names instead of navigating your *Site*. Outside the *Visual Editor*, the browser treats the scheme as unknown and the link does nothing, so Editor Links left in your built output are inert.
+
+Use them to put an edit button next to each item in a list, or to send a <comp.GlossaryTerm term="/user/glossary/t/team-member.yml">Team Member</comp.GlossaryTerm> straight to the field behind a piece of content.
+
+Editor Links use the CloudCannon link protocol. For the full syntax, please read our documentation on [what the CloudCannon link protocol is](/documentation/developer-articles/what-is-the-cloudcannon-link-protocol/).
+
+## Linking to a field in the current file
+
+Prefix the slug with `cloudcannon:#` to open the field behind a value in the file you are previewing. Name each step from the root of your data, separating objects and properties with a dot, and denoting array items with a zero-based index in square brackets.
+
+<comp.CodeBlock language="html" source="index.html">
+```
+<a href="cloudcannon:#title">Edit the title</a> <!--1-->
+
+<a href="cloudcannon:#array[1]">Edit the second array item</a> <!--2-->
+
+<a href="cloudcannon:#object.title">Edit a value inside an object</a>
+
+<a href="cloudcannon:#object.array[0].title">Edit the title of the first item in an object's array</a>
+```
+<comp.Annotation number="1">
+
+Opens a *Data Panel* over the page, positioned near the link you clicked.
+
+</comp.Annotation>
+<comp.Annotation number="2">
+
+Indexes start at 0, so `[1]` is the second item.
+
+</comp.Annotation>
+</comp.CodeBlock>
+
+[docshot]
+
+Editor Links open an existing field. To give a *Team Member* a control that adds a new array item, use a *Visual Data Binding* ending in `[+]` instead. For more information, please read our documentation on [what Visual Data Bindings are](/documentation/developer-articles/what-are-visual-data-bindings/).
+
+### Opening in the sidebar
+
+By default, an Editor Link opens a <comp.GlossaryTerm term="/user/glossary/d/data-panel.yml">Data Panel</comp.GlossaryTerm> floating over the page. Add the `data-cms-editor-link-style` attribute with a value of `sidebar` to highlight the field in the sidebar instead.
+
+<comp.CodeBlock language="html" source="index.html">
+```
+<a href="cloudcannon:#title" data-cms-editor-link-style="sidebar">Edit the title</a>
+```
+</comp.CodeBlock>
+
+[docshot]
+
+## Linking to other parts of CloudCannon
+
+Drop the `#` and name a path to open somewhere else in CloudCannon. CloudCannon resolves the path against your *Site*, so `dashboard` opens its *Site Dashboard*.
+
+To open a <comp.GlossaryTerm term="/user/glossary/c/collection.yml">Collection</comp.GlossaryTerm> or a file inside one, write `collections/` followed by the path that *Collection* reads from in your repository. CloudCannon matches that path against your *Collection* configuration and opens the *Collection* it belongs to. Use the path, not the *Collection* key that appears in the app's own URL — a key CloudCannon cannot match as a path opens the *Collection Browser* instead.
+
+<comp.CodeBlock language="html" source="index.html">
+```
+<a href="cloudcannon:collections/staff">Open the staff Collection</a>
+
+<a href="cloudcannon:collections/staff/jane-doe.md">Open a file in the staff Collection</a>
+
+<a href="cloudcannon:dashboard">Open the Site Dashboard</a>
+```
+</comp.CodeBlock>
+
+## Adding edit links to a list
+
+Putting an Editor Link inside a loop gives every item its own edit button. In Hugo:
+
+<comp.CodeBlock language="html" source="posts.html">
+```
+<ul class="blog-posts">
+  {{ range .Pages }}
+    <li class="blog-post">
+      <h3>{{ .Title }}</h3>
+      <a href="cloudcannon:collections/content/{{ .File.Path }}" class="editor-link">Edit post</a> <!--1-->
+      <p>{{ .Summary }}</p>
+      <a href="{{ .RelPermalink }}">Read more</a>
+    </li>
+  {{ end }}
+</ul>
+```
+<comp.Annotation number="1">
+
+The path has no leading slash, which is the form CloudCannon resolves against your *Site*.
+
+</comp.Annotation>
+</comp.CodeBlock>

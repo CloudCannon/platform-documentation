@@ -1,0 +1,105 @@
+---
+_schema: default
+_uuid: 0b8cf4f7-8f32-4b76-b868-446f0791bb01
+_created_at: '2026-10-08T00:00:00Z'
+details:
+  title: What is the CloudCannon link protocol?
+  description: >-
+    The CloudCannon link protocol is a URL scheme that opens a destination in
+    CloudCannon, or the field behind a value, instead of following the link.
+  image: >-
+    https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+  category:
+    - Explanation
+  related_articles:
+    - _type: developer_articles
+      item: 435b3fd0-0dd4-4e7e-a4b2-0d5b206f4194
+    - _type: developer_articles
+      item: 77d1c22d-19db-489a-9dbc-f4d1e37b822a
+    - _type: developer_articles
+      item: 0448e0fa-5d7d-43d1-b482-70f2e6932f16
+author_notes:
+  docshots: Not applicable
+---
+The CloudCannon link protocol is a URL scheme, written `cloudcannon:`, that CloudCannon recognizes in links you author. Where an ordinary link points at a page on your *Site*, a CloudCannon link opens a destination inside CloudCannon instead.
+
+You write the protocol in several places — an `<a>` element on your previewed page, a binding attribute, a comment in the <comp.GlossaryTerm term="/user/glossary/d/data-editor.yml">Data Editor</comp.GlossaryTerm> — and each place reads the same syntax. What differs is which parts of that syntax a given place supports, covered in *Where the protocol works* below.
+
+## The two forms
+
+A CloudCannon link takes one of two forms, and a single link cannot combine them.
+
+`cloudcannon:` followed by a path opens that destination in the app. CloudCannon resolves the path against the <comp.GlossaryTerm term="/user/glossary/s/site.yml">Site</comp.GlossaryTerm> you have open, so `dashboard` opens its *Site Dashboard*.
+
+`cloudcannon:` followed by `#` and a slug opens the field behind a value in the file you are editing. The `#` has to come directly after `cloudcannon:` — CloudCannon reads a link as a slug only when the `#` is the first character after the scheme, and treats anything else as a path.
+
+<comp.CodeBlock language="html" source="index.html">
+```
+<a href="cloudcannon:dashboard">Open the Site Dashboard</a> <!--1-->
+
+<a href="cloudcannon:#title">Edit the title</a> <!--2-->
+```
+<comp.Annotation number="1">
+
+A path, resolved against the open *Site*.
+
+</comp.Annotation>
+<comp.Annotation number="2">
+
+A slug, naming a value in the file you are editing.
+
+</comp.Annotation>
+</comp.CodeBlock>
+
+## Naming a value with a slug
+
+A slug names a value by its position in your data. Start at the root of the file's structure and name each step toward the value you want, separating objects and properties with a dot. Denote an array item with a zero-based index in square brackets.
+
+<comp.CodeBlock language="html" source="index.html">
+```
+<a href="cloudcannon:#title">The title of the current file</a>
+
+<a href="cloudcannon:#seo.title">The title inside the seo object</a>
+
+<a href="cloudcannon:#people[0]">The first item in an array named people</a> <!--1-->
+
+<a href="cloudcannon:#people[0].title">The title of that first item</a>
+```
+<comp.Annotation number="1">
+
+Indexes start at 0, so `[1]` is the second item.
+
+</comp.Annotation>
+</comp.CodeBlock>
+
+Where a key contains a dot, an opening bracket, or a closing bracket, escape that character with a backslash so CloudCannon treats it as part of the key rather than as a separator.
+
+<comp.CodeBlock language="html" source="index.html">
+```
+<a href="cloudcannon:#meta.og\.title">A key named og.title inside meta</a>
+```
+</comp.CodeBlock>
+
+## Naming a path
+
+A path names a destination in CloudCannon the way the app's own URLs do, relative to your *Site*. In a URL like `https://app.cloudcannon.com/123/editor#sites/456/dashboard`, the part after the *Site* ID is the path, so the link is `cloudcannon:dashboard`.
+
+Paths that begin with `collections/` are the exception, because the two places that accept them resolve them differently. See *Where the protocol works* below before writing one.
+
+## Where the protocol works
+
+Four places in CloudCannon read the protocol.
+
+* **Links on your previewed page** — an `<a>` element whose `href` uses the scheme. For more information, please read our documentation on [what Editor Links are](/documentation/developer-articles/what-are-editor-links/).
+* **Binding attributes** — `data-cms-bind` and `data-cms-editor-link` take the same syntax as an attribute value rather than an `href`. For more information, please read our documentation on [what Visual Data Bindings are](/documentation/developer-articles/what-are-visual-data-bindings/).
+* **Comments in the Data Editor** — a comment on an input, a block, or your *Site Dashboard* README can carry a CloudCannon link in its Markdown. For the README case, please read our documentation on [what the Site Dashboard README is](/documentation/developer-articles/what-is-the-site-dashboard-readme/).
+* **Add options** — `add_options` entries accept a CloudCannon link in `href`. This is a legacy form, and new configuration uses a plain relative link instead. For more information, please read our documentation on [configuring the Add button in collections](/documentation/developer-articles/configure-the-add-button-in-collections/).
+
+### What differs between places
+
+The syntax above reads the same everywhere, but four behaviors do not carry across:
+
+* **Where a field opens** — A link on your previewed page opens a <comp.GlossaryTerm term="/user/glossary/d/data-panel.yml">Data Panel</comp.GlossaryTerm> floating over the page, and the `data-cms-editor-link-style` attribute can highlight the field in the sidebar instead. A link in a comment always opens a *Data Panel*, and the attribute has no effect there.
+* **Paths beginning with `collections/`** — On your previewed page, the segment after `collections/` is the path a *Collection* reads from in your repository. In a comment, it is the *Collection* key, as the app's own URL writes it.
+* **Links to CloudCannon itself** — In a comment, `cloudcannon:!home` opens your *Organization* home and `cloudcannon:!support` opens the support widget. No other `!` path is treated specially, and the preview does not recognize either.
+* **Appending to an array** — A slug ending in `[+]` adds an item to the end of that array, and only a binding attribute supports it. As an `href`, it names a field that does not exist.

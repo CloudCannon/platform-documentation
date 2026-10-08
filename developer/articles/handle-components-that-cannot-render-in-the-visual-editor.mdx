@@ -1,0 +1,373 @@
+---
+_schema: instructions
+_uuid: 8bdcebec-51a9-493a-93f2-51c5fe8d00d3
+_created_at: 2026-09-29T01:45:23Z
+details:
+  title: Handle components that cannot render in the Visual Editor
+  image: >-
+    https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+  description: >-
+    Learn how to provide an editing fallback in Astro, Eleventy, Hugo, or a
+    JavaScript framework when a component depends on something that cannot run
+    in the Visual Editor.
+  category:
+    - Instructions
+  related_articles:
+    - _type: developer_articles
+      item: 8c7560e5-b989-41b6-ad62-2a5767e3e399
+    - _type: developer_articles
+      item: ceffb949-2057-4ad8-a5e9-d02898d06fc9
+author_notes:
+  docshots: Needs docshots
+---
+Unlike other types of *Editable Region*, re-rendering [Component Editable Regions](/documentation/developer-articles/configure-component-editable-regions/) requires CloudCannon to run your template code in the browser of whoever is editing the page. Most components need no extra configuration or code changes beyond installing the integration. However, some depend on things a browser cannot provide, such as a secret or a server-only environment variable, a Node package with no browser equivalent, or image processing that happens at build time.
+
+When CloudCannon cannot render a component, it replaces that component in the <comp.GlossaryTerm term="/user/glossary/v/visual-editor.yml">Visual Editor</comp.GlossaryTerm> with a red *Error Card* headed *Failed to render component: [Component Name]*, followed by the error message and the first few lines of the stack trace.
+
+[docshot]
+
+To handle this issue, you must give CloudCannon something simpler to render while someone is editing the page in the *Visual Editor*, leaving the original component in place for your build. The *Error Card* will name the dependency that could not run, which is what decides which method you should use: replacing what CloudCannon renders, detecting the *Visual Editor*, stubbing a dependency, or supplying missing data.
+
+Before we begin, this article assumes you have already installed the <comp.GlossaryTerm term="/user/glossary/e/editable-region.yml">Editable Regions</comp.GlossaryTerm> integration for your SSG and configured at least one *Component Editable Region*. For more information, please read our documentation on [configuring Component Editable Regions](/documentation/developer-articles/configure-component-editable-regions/).
+
+## Ways to provide a fallback
+
+The options available to you depend on your SSG. They fall into four kinds:
+
+* **Replace what CloudCannon renders** — point CloudCannon at a simpler version of your component or template, which it uses instead of the original. Available for Astro, Eleventy, Hugo, and JavaScript frameworks.
+* **Detect the Visual Editor** — check whether your code is running in CloudCannon's renderer, and render something else when it is. Available for Astro and Hugo. Sites built with JavaScript frameworks use `window.inEditorMode` instead.
+* **Stub a dependency** — name a package that cannot run in a browser, so CloudCannon replaces it with a stub. Available for Eleventy.
+* **Supply missing data** — pass values or files that CloudCannon's renderer cannot read for itself. Available for Eleventy and Hugo.
+
+Replace what CloudCannon renders when you want your team to keep editing the component's content. Detect the *Visual Editor* when the component has nothing worth editing and you only need the page to render. Stub a dependency when a single package stops CloudCannon building the browser bundle at all. Supply missing data when the component would render correctly if it could reach the data it needs.
+
+In every case, your built <comp.GlossaryTerm term="/user/glossary/s/site.yml">Site</comp.GlossaryTerm> keeps the original component, template, and data.
+
+<comp.Tabs label="Static site generators">
+  <comp.Tab name="Astro">
+    ### Astro
+
+    #### Replace the component in the Visual Editor
+
+    Register a different component under the name your templates already use.
+
+    To replace a component in the *Visual Editor*:
+
+    1. Create a simpler version of your component in your local development environment.
+    2. Register your replacement under the name your templates already use.
+    3. Save your changes and rebuild your *Site*.
+
+    <comp.CodeBlock language="JavaScript" source="src/scripts/register-components.js">
+    ``````````
+
+    import { registerAstroComponent } from '@cloudcannon/editable-regions/astro';
+    import EditorFriendlyCard from '../components/editor-friendly/Card.astro';
+
+    registerAstroComponent('card', EditorFriendlyCard); /*1*/
+
+    ``````````
+    <comp.Annotation number="1">
+      Registering `EditorFriendlyCard` under the name `card` means every *Editable Region* with `data-component="card"` uses it.
+    </comp.Annotation>
+    </comp.CodeBlock>
+
+    CloudCannon will render your replacement in the *Visual Editor*, and the original component on your live *Site*.
+
+    #### Detect the Visual Editor
+
+    The Astro integration defines a global boolean called `ENV_CLIENT`, which is `true` when your code runs in CloudCannon's renderer and `false` in a normal build.
+
+    To render a fallback when your component cannot run in the *Visual Editor*:
+
+    1. Open the component that cannot render in your local development environment.
+    2. Add a condition on `ENV_CLIENT` that returns a fallback instead of the code that cannot run.
+    3. Save your changes and rebuild your *Site*.
+
+    <comp.CodeBlock language="Astro" source="components/Weather.astro">
+    ``````````
+
+    ---
+    import WeatherWidget from "./WeatherWidget.astro";
+    ---
+
+    {ENV_CLIENT
+      ? <p>Weather is not available while editing.</p>
+      : <WeatherWidget />}
+
+    ``````````
+    </comp.CodeBlock>
+
+    CloudCannon will show your fallback in the *Visual Editor*, and render the component normally on your live *Site*.
+
+    <comp.Notice info_type="info">
+      <p>Imports from <code>astro:content</code>, <code>astro:assets</code>, and <code>astro:env</code> keep working in the <em>Visual Editor</em>, with some exceptions that need a fallback: build-time image processing, <code>inferRemoteSize()</code>, and server-only secrets are unavailable, <code>defineCollection()</code> and <code>reference()</code> cannot run inside a component, and <code>render()</code> returns your raw Markdown without your remark transformations or headings.</p>
+    </comp.Notice>
+  </comp.Tab>
+  <comp.Tab name="Eleventy">
+    ### Eleventy
+
+    #### Replace an include in the Visual Editor
+
+    CloudCannon resolves component names the same way your templates resolve includes. Use the `components` option to point a component name at a different template, which CloudCannon uses instead of the one it found.
+
+    To replace an include in the *Visual Editor*:
+
+    1. Create a simpler version of your include in your local development environment.
+    2. Map your component name to your replacement with the `components` option.
+    3. Save your changes and rebuild your *Site*.
+
+    <comp.CodeBlock language="JavaScript" source="eleventy.config.mjs">
+    ``````````
+
+    eleventyConfig.addPlugin(editableRegions, {
+      liquid: {
+        components: {
+          "author-card": "./src/_includes/editor-friendly/author-card.liquid", /*1*/
+        },
+      },
+    });
+
+    ``````````
+    <comp.Annotation number="1">
+      Names you register with `components` take precedence over the includes CloudCannon finds for itself.
+    </comp.Annotation>
+    </comp.CodeBlock>
+
+    CloudCannon will render your replacement in the *Visual Editor*, and the original include on your live *Site*.
+
+    #### Replace a helper in the Visual Editor
+
+    CloudCannon copies your filters, shortcodes, paired shortcodes, and custom tags out of your Eleventy configuration file. Any that depend on a Node package cannot be copied, so provide a browser version and register it under the same name.
+
+    To replace a helper in the *Visual Editor*:
+
+    1. Create a browser version of your filter, shortcode, paired shortcode, or tag in your local development environment.
+    2. Map its name to your browser version in the *Editable Regions* plugin options.
+    3. Save your changes and rebuild your *Site*.
+
+    <comp.CodeBlock language="JavaScript" source="img/sharpen-browser.js">
+    ``````````
+
+    export default () => "Image adjustments are not previewed while editing";
+
+    ``````````
+    </comp.CodeBlock>
+
+    <comp.CodeBlock language="JavaScript" source="eleventy.config.mjs">
+    ``````````
+
+    eleventyConfig.addPlugin(editableRegions, {
+      liquid: {
+        filters: {
+          sharpen: "./img/sharpen-browser.js", /*1*/
+        },
+      },
+    });
+
+    ``````````
+    <comp.Annotation number="1">
+      The same option is available for `shortcodes`, `pairedShortcodes`, and `tags`.
+    </comp.Annotation>
+    </comp.CodeBlock>
+
+    CloudCannon will use your browser version in the *Visual Editor*, and exclude the original from the copy it sends to the browser.
+
+    #### Stub a package
+
+    CloudCannon always stubs Node built-in modules and the Eleventy toolchain out of the browser bundle. If your configuration file uses another package that cannot run in a browser, name it with the `browserStub` option.
+
+    To stub a package out of the browser bundle:
+
+    1. Open your Eleventy configuration file in your local development environment.
+    2. Add the package name to the `browserStub` option.
+    3. Save your changes and rebuild your *Site*.
+
+    <comp.CodeBlock language="JavaScript" source="eleventy.config.mjs">
+    ``````````
+
+    eleventyConfig.addPlugin(editableRegions, {
+      liquid: {
+        browserStub: ["sharp"],
+      },
+    });
+
+    ``````````
+    </comp.CodeBlock>
+
+    CloudCannon will replace that package with a stub when it builds the browser bundle.
+
+    Stubbing stops a package from breaking the bundle, but it does not make the code that uses it work. If a filter, shortcode, or tag calls the stubbed package while CloudCannon renders your template, it will still throw. Provide a browser version for that helper as well.
+
+    #### Pass build data to the Visual Editor
+
+    Templates rendered in the *Visual Editor* cannot read the global data your build provides. Pass any values they need with the `globals` option. Values must be JSON-serializable, because CloudCannon embeds them at build time.
+
+    To pass global data to your templates in the *Visual Editor*:
+
+    1. Open your Eleventy configuration file in your local development environment.
+    2. Add the values your templates need to the `globals` option.
+    3. Save your changes and rebuild your *Site*.
+
+    <comp.CodeBlock language="JavaScript" source="eleventy.config.mjs">
+    ``````````
+
+    eleventyConfig.addPlugin(editableRegions, {
+      globals: {
+        env: { API_BASE: process.env.API_BASE },
+      },
+    });
+
+    ``````````
+    </comp.CodeBlock>
+
+    CloudCannon will expose those values to your templates in the *Visual Editor*.
+
+    <comp.Notice info_type="important">
+      <p>Values you pass with <code>globals</code> are included in the file CloudCannon sends to the browser. Do not pass secrets.</p>
+    </comp.Notice>
+  </comp.Tab>
+  <comp.Tab name="Hugo">
+    ### Hugo
+
+    #### Replace a template in the Visual Editor
+
+    Use the `templates_overrides` option to swap a template for a simpler version. The key is the path of the template CloudCannon found, and the value is the path of the replacement. Relative paths resolve against the root of your Hugo project.
+
+    To replace a template in the *Visual Editor*:
+
+    1. Create a simpler version of your template in your local development environment.
+    2. Map the path of the original template to your replacement with the `templates_overrides` option.
+    3. Save your changes and rebuild your *Site*.
+
+    <comp.CodeBlock language="TOML" source="hugo.toml">
+    ``````````
+
+    [params.editable_regions.templates_overrides]
+      "layouts/partials/card.html" = "overrides/card.html"
+
+    ``````````
+    </comp.CodeBlock>
+
+    CloudCannon will render your replacement in the *Visual Editor*, and the original template on your live *Site*.
+
+    #### Detect the Visual Editor
+
+    The Hugo module defines a site parameter called `ENV_CLIENT`, which is `true` when your code runs in CloudCannon's renderer and `false` in a normal build.
+
+    To render a fallback when your template cannot run in the *Visual Editor*:
+
+    1. Open the template that cannot render in your local development environment.
+    2. Add a condition on `site.Params.ENV_CLIENT` that outputs a fallback instead of the code that cannot run.
+    3. Save your changes and rebuild your *Site*.
+
+    <comp.CodeBlock language="HTML" source="layouts/partials/weather.html">
+    ``````````
+
+    {{ if site.Params.ENV_CLIENT }}
+      <p>Weather is not available while editing.</p>
+    {{ else }}
+      {{ partial "weather-widget" . }}
+    {{ end }}
+
+    ``````````
+    </comp.CodeBlock>
+
+    CloudCannon will show your fallback in the *Visual Editor*, and render the template normally on your live *Site*.
+
+    #### Bundle extra files
+
+    CloudCannon finds your templates, configuration files, and internationalization files automatically, and reads your content and datasets from your *Site*. Anything else your templates read is not included.
+
+    To bundle extra files for the *Visual Editor*:
+
+    1. Open your Hugo configuration file in your local development environment.
+    2. Name individual files with the `additional_paths` option, or directories and their file extensions with the `additional_dirs` option. CloudCannon walks each directory recursively.
+    3. Save your changes and rebuild your *Site*.
+
+    <comp.CodeBlock language="TOML" source="hugo.toml">
+    ``````````
+
+    [params.editable_regions]
+      additional_paths = ["lookups/pricing.json"]
+
+      [params.editable_regions.additional_dirs]
+        "lookups" = ["json", "csv"]
+
+    ``````````
+    </comp.CodeBlock>
+
+    CloudCannon will read those files when it renders your templates in the *Visual Editor*.
+
+    #### Vendor your modules
+
+    CloudCannon rebuilds your *Site* from the files bundled at build time, so module imports resolve only against files inside your project. Themes in your `themes` directory are covered automatically, but modules from Hugo's module cache are not.
+
+    To make your module templates available in the *Visual Editor*:
+
+    1. Open your website project in your local development environment.
+    2. Run the `hugo mod vendor` command in your terminal.
+    3. Save your changes and rebuild your *Site*.
+
+    <comp.CodeBlock language="shell" source="Terminal">
+    ``````````
+
+    hugo mod vendor
+
+    ``````````
+    </comp.CodeBlock>
+
+    CloudCannon will discover your vendored templates like your own, and bundle the module graph file, `_vendor/modules.txt`, so it can resolve your module imports.
+
+    Your vendored files are part of your website project, so commit the `_vendor` directory alongside your other changes.
+  </comp.Tab>
+  <comp.Tab name="JavaScript">
+    ### JavaScript frameworks
+
+    #### Replace the component in the Visual Editor
+
+    Next.js, Nuxt, SvelteKit, and single-page applications built with React, Vue, or Svelte register each component under a name, the same way Astro does. Register a different component under the name your templates already use.
+
+    To replace a component in the *Visual Editor*:
+
+    1. Create a simpler version of your component in your local development environment.
+    2. Register your replacement under the name your templates already use.
+    3. Save your changes and rebuild your *Site*.
+
+    <comp.CodeBlock language="JSX" source="app/components/CloudCannon.js">
+    ``````````
+
+    "use client";
+
+    import { useEffect } from "react";
+    import { registerReactComponent } from "@cloudcannon/editable-regions/react";
+    import EditorFriendlyCard from "./editor-friendly/Card.jsx";
+
+    export default function CloudCannon() {
+      useEffect(() => {
+        if (window.inEditorMode) {
+          registerReactComponent("card", EditorFriendlyCard); /*1*/
+        }
+      }, []);
+
+      return null;
+    }
+
+    ``````````
+    <comp.Annotation number="1">
+      Import `registerVueComponent` from `@cloudcannon/editable-regions/vue` or `registerSvelteComponent` from `@cloudcannon/editable-regions/svelte` for those frameworks.
+    </comp.Annotation>
+    </comp.CodeBlock>
+
+    CloudCannon will render your replacement in the *Visual Editor*, and the original component on your live *Site*.
+
+    #### Detect the Visual Editor
+
+    These frameworks define no `ENV_CLIENT` global. To render a fallback, check `window.inEditorMode`, which CloudCannon sets before any of your own scripts run. For more information, please read our documentation on [detecting the Visual Editor](/documentation/developer-articles/detect-the-visual-editor/).
+
+    <comp.Notice info_type="info">
+      <p>Next.js, Nuxt, and SvelteKit prerender your pages on a server at build time, so a component that reads a secret, a server-only environment variable, or a build-time API can still fail to render in the <em>Visual Editor</em>. Components in a single-page application already run in a browser on your live <em>Site</em>, so one that cannot render in the <em>Visual Editor</em> usually cannot render for your visitors either.</p>
+    </comp.Notice>
+  </comp.Tab>
+</comp.Tabs>
+
+*Component Editable Regions* are not yet available for other SSGs. If you use another SSG, you can still use every other type of *Editable Region*. Please get in touch with our friendly <a href="https://cloudcannon.com/support/">support team</a> to request support for your SSG.
