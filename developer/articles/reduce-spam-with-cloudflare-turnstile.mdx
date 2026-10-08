@@ -1,0 +1,81 @@
+---
+_schema: default
+_uuid: 56af3624-55fc-4c71-86fe-b07a72f23d82
+_created_at: '2024-10-19 02:19:33 +0000'
+details:
+  title: Reduce spam with Cloudflare Turnstile
+  description: >-
+    Protect the forms that submit to an Inbox with Cloudflare Turnstile.
+  image: >-
+    https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+  category:
+    - Instructions
+  related_articles:
+    - _type: developer_articles
+      item: 28b9a68d-a851-4d6e-bc6b-ebe65cb14160
+    - _type: developer_articles
+      item: 6b8caff2-557e-431b-ae95-3244e11f4f79
+author_notes:
+  docshots: Added!
+---
+You can protect the forms that submit to an <comp.GlossaryTerm term="/user/glossary/i/inbox.yml">Inbox</comp.GlossaryTerm> with <a href="https://developers.cloudflare.com/turnstile/" target="_blank" rel="noopener noreferrer">Cloudflare Turnstile</a>, using a site key and a secret key from Cloudflare. Turnstile runs its checks in the background, and asks some visitors to click a checkbox.
+
+Get your keys from Cloudflare first, because the *Site key* and *Secret key* fields on your *Inbox* need them.
+
+To get your Turnstile keys:
+
+1. Add a widget in the <a href="https://dash.cloudflare.com/?to=/:account/turnstile" target="_blank" rel="noopener noreferrer">Cloudflare Turnstile dashboard</a> to get a site key and a secret key.
+2. List every hostname your form runs on in the widget, including your *Site's* full <comp.GlossaryTerm term="/user/glossary/t/testing-domain.yml">Testing Domain</comp.GlossaryTerm>.
+
+Enter your full *Testing Domain*, such as `your-site.cloudvent.net`, rather than `cloudvent.net`, because a hostname also allows all of its subdomains.
+
+Now add Turnstile to your *Inbox*. Select *Cloudflare Turnstile* in the *Captcha provider* dropdown and enter your keys in the *Site key* and *Secret key* fields. For the full steps, please read our documentation on [reducing spam with a CAPTCHA](/documentation/developer-articles/reduce-spam-with-a-captcha/).
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Org-Settings-Forms-Inbox-Captcha-Cloudflare-Turnstile" alt="A screenshot of the Inbox settings shows Cloudflare Turnstile chosen as the captcha provider, with a site key and a secret key entered." title="The Captcha provider settings" type="screenshot" />
+
+Adding keys to your *Inbox* is not the whole setup. CloudCannon only checks the CAPTCHA on submissions from a *Site* that requires it, using the *Require Captcha* option. For how to require the CAPTCHA on your *Sites*, and how CloudCannon handles a submission that fails, please read our documentation on [reducing spam with a CAPTCHA](/documentation/developer-articles/reduce-spam-with-a-captcha/).
+
+## Add the Turnstile widget to your form
+
+Load the Turnstile script, and add the widget inside your form, replacing `SITE_KEY` with your site key. Leave the widget's response field name as the default.
+
+<comp.CodeBlock language="html" source="contact.html">
+```
+<form method="post" id="my-form" action="/contact-success">
+  <label for="email_address">Email Address</label>
+  <input id="email_address" type="text" name="email">
+
+  <label for="message">Message</label>
+  <textarea id="message" name="message"></textarea>
+
+  <input type="hidden" name="inbox_key" value="your-inbox-key">
+  <input type="text" name="_gotcha" style="display: none;">
+
+  <div class="cf-turnstile" data-sitekey="SITE_KEY"></div>
+
+  <input type="submit" value="Send Message">
+</form>
+
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+```
+</comp.CodeBlock>
+
+The widget sends its token in a `cf-turnstile-response` field, and CloudCannon will check that token on each submission from a *Site* that requires a CAPTCHA. For more widget options, please read the <a href="https://developers.cloudflare.com/turnstile/get-started/client-side-rendering/" target="_blank" rel="noopener noreferrer">Turnstile documentation</a>.
+
+## Test Turnstile
+
+Cloudflare provides test keys that work on any domain, including `localhost`. Use a test site key in your form and a test secret key in a test *Inbox*. A real secret key rejects the token a test site key produces.
+
+Each test site key sets how the widget behaves:
+
+* `1x00000000000000000000AA` shows a visible widget that always passes
+* `2x00000000000000000000AB` shows a visible widget that always fails
+* `3x00000000000000000000FF` forces an interactive challenge
+
+Each test secret key sets the result of verification:
+
+* `1x0000000000000000000000000000000AA` always passes
+* `2x0000000000000000000000000000000AA` always fails, and CloudCannon stores the submission in the *Errored* category
+* `3x0000000000000000000000000000000AA` fails as a reused token
+
+For more information, please read <a href="https://developers.cloudflare.com/turnstile/troubleshooting/testing/" target="_blank" rel="noopener noreferrer">Cloudflare's documentation on testing Turnstile</a>.

@@ -7,10 +7,13 @@ details:
   description: >-
     Create forms on your site and send the submissions to an email address or
     integrate with your own workflows.
-  image: /documentation/static/CloudCannonDocumentationog.jpg
+  image: >-
+    https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+  category:
+    - Explanation
   related_articles:
     - _type: developer_articles
-      item: 28b9a68d-a851-4d6e-bc6b-ebe65cb14160
+      item: adb3e78d-bddb-45df-8f90-da6ecf1bedb6
 author_notes:
   docshots: Needs docshots
 ---
@@ -71,28 +74,7 @@ If a `_hook` is defined, this field will not be used.
 ```
 </comp.CodeBlock>
 
-`_replyto` or `email` - the value used for the Reply-To header in the email. Use this to ensure clients reply to the visitor rather than a default CloudCannon address.
-
-<comp.CodeBlock language="html" source="contact.html">
-```
-<label>
-  Your Email Address
-  <input type="text" name="_replyto">
-</label>
-```
-</comp.CodeBlock>
-
-`_subject` - the subject of the email.
-
-<comp.CodeBlock language="html" source="contact.html">
-```
-<select name="_subject">
-  <option>General Enquiry</option>
-  <option>Quote Request</option>
-  <option>Support</option>
-</select>
-```
-</comp.CodeBlock>
+`_replyto` (or `email`) and `_subject` set the Reply-To header and the subject line. They behave the same way on a current *Form*, so for the markup please read our documentation on [sending form submissions to email](/documentation/developer-articles/send-form-submissions-to-email/).
 
 `_cc` - the value used for the CC header in the email. Use this to send a copy in another address (or addresses) without sending it directly. Send a copy of the email to multiple addresses by separating them with commas.
 
@@ -119,7 +101,7 @@ If a `_hook` is defined, this field will not be used.
 </comp.CodeBlock>
 
 <comp.Notice info_type="info">
-  For better spam prevention try using [Google reCAPTCHA](/documentation/developer-articles/reducing-spam-by-adding-google-recaptcha/).
+  For better spam prevention, please read our documentation on [reducing spam with a CAPTCHA](/documentation/developer-articles/reduce-spam-with-a-captcha/).
 </comp.Notice>
 
 ## Security
@@ -129,83 +111,6 @@ these fields are encrypted before being served to protect your information and p
 * `_cc`
 * `_hook`
 
-## Submitting with AJAX
-Submitting a form with JavaScript saves a page load after sending a message, providing a seamless experience. Viewers without JavaScript enabled will fall back to the normal flow.
+## Submitting with JavaScript
 
-To submit your form with JavaScript:
-
-1. Build and test your form
-2. Override the submit event on your form
-3. Change the page to notify your viewers the message was sent
-
-Start with this JavaScript snippet and adapt it for your site:
-
-<comp.CodeBlock language="javascript" source="script.js">
-```
-// Helper function to get form data in the supported format
-function getFormDataString(formEl) {
-    var formData = new FormData(formEl),
-      data = [];
-
-  for (var keyValue of formData) {
-      data.push(encodeURIComponent(keyValue[0]) + "=" + encodeURIComponent(keyValue[1]));
-  }
-
-  return data.join("&");
-}
-
-// Fetch the form element
-var formEl = document.getElementById("contact-form");
-
-// Override the submit event
-formEl.addEventListener("submit", function (e) {
-    e.preventDefault();
-
-  if (grecaptcha) {
-      var recaptchaResponse = grecaptcha.getResponse();
-    if (!recaptchaResponse) { // reCAPTCHA not clicked yet
-      return false;
-    }
-  }
-
-  var request = new XMLHttpRequest();
-
-  request.addEventListener("load", function () {
-    if (request.status === 302) { // CloudCannon redirects on success
-      // It worked
-    }
-  });
-
-  request.open(formEl.method, formEl.action);
-  request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-  request.send(getFormDataString(formEl));
-});
-```
-</comp.CodeBlock>
-
-## Using Webhooks
-Create your own workflow around form submissions.
-
-The `_hook` field allows you to supply a webhook that you control to process the form submission. The data is sent as a **POST** request with the Content Type `application/json`.
-
-We currently allow hooks from the following platforms to be used:
-
-* <a href="https://zapier.com/" target="_blank" rel="noopener noreferrer">Zapier</a> - *<a href="https://zapier.com/help/create/code-webhooks" target="_blank" rel="noopener noreferrer">Documentation</a>*
-* <a href="https://ifttt.com/" target="_blank" rel="noopener noreferrer">IFTTT</a> - *<a href="https://help.ifttt.com/hc/en-us/articles/115010230347-The-Webhooks-Service" target="_blank" rel="noopener noreferrer">Help Page</a>*
-
-If you have use cases beyond these platforms, <a href="https://cloudcannon.com/support/">send us a message</a>.
-
-#### IFTTT
-Note that IFTTT does not support custom **JSON** keys. Webhook Applets have access to the three keys `value1`, `value2` and `value3`, the quantity and naming is fixed. This means that you will have to reflect this structure in your form. For example:
-
-<comp.CodeBlock language="html" source="contact.html">
-```
-<label>Email Address</label>
-<input type="email" name="value1">
-```
-</comp.CodeBlock>
-
-Zapier does not have a limitation on the number of fields or custom keys.
-
-## Rate Limiting
-Forms hosted on CloudCannon are limited to 750 submissions per 10 days. <a href="https://cloudcannon.com/contact">Contact us</a> if you need this limit expanded.
+Submitting a legacy form with JavaScript works the same way as a current *Form*. For the snippet and the CAPTCHA handling, please read our documentation on [submitting a Form with JavaScript](/documentation/developer-articles/submit-a-form-with-javascript/).

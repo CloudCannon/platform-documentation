@@ -1,0 +1,40 @@
+---
+_schema: default
+_uuid: dcf5413f-bbb4-421a-b0ed-65a68eb78942
+_created_at: '2026-09-18 00:00:00 +0000'
+details:
+  title: Send form submissions to a custom webhook
+  description: Forward the submissions an Inbox receives to a webhook URL you host yourself.
+  image: >-
+    https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+  category:
+    - Instructions
+  related_articles:
+    - _type: developer_articles
+      item: b7569479-48ee-45f6-b1f4-6d0b98df1fb2
+    - _type: developer_articles
+      item: fa72b1b7-bf1f-4d05-b6a0-f606e8b644c0
+author_notes:
+  docshots: Needs docshots
+---
+You can forward the submissions an <comp.GlossaryTerm term="/user/glossary/i/inbox.yml">Inbox</comp.GlossaryTerm> receives to an endpoint you host yourself, using a *Custom webhook* target. *Custom webhook* is the only type with no fixed host, so the *Webhook URL* field accepts any http or https URL on port 80 or 443.
+
+It is also the only type that needs domain verification. CloudCannon sends nothing to the target until you prove you own the domain in its URL by adding a TXT record to your DNS.
+
+Add the target in CloudCannon first, because the record you need is in the validation instructions CloudCannon shows for it. Select *Custom webhook* in the *Choose your target type* dropdown and enter your URL in the *Webhook URL* field. For the full steps, please read our documentation on [adding a target to an Inbox](/documentation/developer-articles/add-a-target-to-an-inbox/).
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Org-Settings-Forms-Add-Target-Custom-Webhook-Modal" alt="A screenshot of the Add target modal shows Custom webhook chosen as the target type and a URL in the Webhook URL field." title="The Add target modal" type="screenshot" />
+
+CloudCannon asks for a TXT record named `_cloudcannon-challenge.` followed by the full hostname in your webhook URL, with your *Organization's* UUID as its content. A webhook URL of `https://hooks.example.com/forms` needs the record at `_cloudcannon-challenge.hooks.example.com`, not at `_cloudcannon-challenge.example.com`. One record verifies every *Custom webhook* target on that hostname in your *Organization*, so you only add it once per hostname.
+
+CloudCannon opens the *Validation instructions* modal as soon as you add the target, so the record you need is already on screen. The *View validation instructions* option in that target's *Context Menu* opens the same modal again later.
+
+To verify the hostname in your webhook URL:
+
+1. Add the TXT record from the *Validation instructions* modal to your DNS.
+2. Wait for your DNS change to propagate, which can take up to 48 hours.
+3. Select the *Revalidate now* option in your target's *Context Menu*.
+
+CloudCannon will check your DNS for the record, and start forwarding new submissions to your webhook once it matches. CloudCannon re-checks the record periodically after that, and stops sending to the target if the record is no longer there.
+
+CloudCannon posts each submission as raw JSON by default, and *Custom webhook* is the only type where you can choose a different payload format, such as a Slack message or form encoded values. For that setting, and the *Spam protection* and *Links to attached files* options a target can carry, please read our documentation on [adding a target to an Inbox](/documentation/developer-articles/add-a-target-to-an-inbox/).
