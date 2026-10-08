@@ -5,71 +5,125 @@ layout: layouts/reference-home.tsx
 details:
   title: JSON Schemas
 ---
-CloudCannon provides JSON Schemas for all configuration files, enabling autocomplete, validation, and inline documentation in your IDE.
+CloudCannon provides JSON Schemas for all configuration files, enabling autocomplete, validation, and inline documentation in your code editor.
 
-All schemas are registered with <a href="https://github.com/SchemaStore/schemastore" target="_blank" rel="noopener noreferrer">SchemaStore</a>, so most IDEs will automatically detect and apply them based on filename — no configuration required. Schemas are also available from the <a href="https://github.com/CloudCannon/configuration-types" target="_blank" rel="noopener noreferrer">@cloudcannon/configuration-types</a> package on GitHub.
+All schemas are registered with <a href="https://github.com/SchemaStore/schemastore" target="_blank" rel="noopener noreferrer">SchemaStore</a>. The JSON and YAML language servers in most code editors read the SchemaStore catalog and apply the matching schema based on the filename. Schemas are published as release assets of the <a href="https://github.com/CloudCannon/configuration-types" target="_blank" rel="noopener noreferrer">@cloudcannon/configuration-types</a> package on GitHub.
 
-## Available Schemas
+## Available schemas
 
-Most IDEs will automatically apply these schemas based on filename. If needed, you can explicitly specify the schema:
+All schemas are published under `https://github.com/cloudcannon/configuration-types/releases/latest/download/`.
 
-- **JSON files**: Add a `$schema` property to your configuration file
-- **YAML files**: Add a `# yaml-language-server` comment at the top of the file (requires the <a href="https://marketplace.visualstudio.com/items?itemName=redhat.vscode-yaml" target="_blank" rel="noopener noreferrer">Red Hat YAML extension</a> in VS Code/Cursor)
+### Configuration File schemas
 
-**Configuration File** (`cloudcannon.config.json` or `cloudcannon.config.yaml`):
+<comp.OptionsTable>
+  <comp.OptionsRow label="cloudcannon-config.schema.json" href="https://github.com/cloudcannon/configuration-types/releases/latest/download/cloudcannon-config.schema.json">
+    Your main *Configuration File*.
 
-<comp.CodeTabs>
-  <comp.CodeTab language="json" source="cloudcannon.config.json">
+    *Validates:* `cloudcannon.config.yml`, `cloudcannon.config.yaml`, `cloudcannon.config.json`
+  </comp.OptionsRow>
+</comp.OptionsTable>
+
+Split configuration files are matched by their extension. The extension names the kind of configuration the file holds, so a file referenced by `collections_config_from_glob` ends in `.cloudcannon.collections.yml` (for example, `posts.cloudcannon.collections.yml`). Each extension below also matches with `.yaml` or `.json` in place of `.yml`.
+
+<comp.OptionsTable>
+  <comp.OptionsRow label="cloudcannon-collections.schema.json" href="https://github.com/cloudcannon/configuration-types/releases/latest/download/cloudcannon-collections.schema.json">
+    *Collection* configuration, referenced by `collections_config_from_glob`.
+
+    *Validates:* `.cloudcannon.collections.yml`
+  </comp.OptionsRow>
+  <comp.OptionsRow label="cloudcannon-schemas.schema.json" href="https://github.com/cloudcannon/configuration-types/releases/latest/download/cloudcannon-schemas.schema.json">
+    *Schema* configuration for one *Collection*, referenced by `schemas_from_glob` inside a `collections_config` entry.
+
+    *Validates:* `.cloudcannon.schemas.yml`
+  </comp.OptionsRow>
+  <comp.OptionsRow label="cloudcannon-editables.schema.json" href="https://github.com/cloudcannon/configuration-types/releases/latest/download/cloudcannon-editables.schema.json">
+    Rich text formatting options, referenced by `_editables_from_glob`.
+
+    *Validates:* `.cloudcannon.editables.yml`
+  </comp.OptionsRow>
+  <comp.OptionsRow label="cloudcannon-inputs.schema.json" href="https://github.com/cloudcannon/configuration-types/releases/latest/download/cloudcannon-inputs.schema.json">
+    *Input* configuration, referenced by `_inputs_from_glob`.
+
+    *Validates:* `.cloudcannon.inputs.yml`
+  </comp.OptionsRow>
+  <comp.OptionsRow label="cloudcannon-snippets.schema.json" href="https://github.com/cloudcannon/configuration-types/releases/latest/download/cloudcannon-snippets.schema.json">
+    Custom Snippet configuration, referenced by `_snippets_from_glob`.
+
+    *Validates:* `.cloudcannon.snippets.yml`
+  </comp.OptionsRow>
+  <comp.OptionsRow label="cloudcannon-snippets-definitions.schema.json" href="https://github.com/cloudcannon/configuration-types/releases/latest/download/cloudcannon-snippets-definitions.schema.json">
+    Reusable values for Snippet templates, referenced by `_snippets_definitions_from_glob`.
+
+    *Validates:* `.cloudcannon.snippets-definitions.yml`
+  </comp.OptionsRow>
+  <comp.OptionsRow label="cloudcannon-snippets-imports.schema.json" href="https://github.com/cloudcannon/configuration-types/releases/latest/download/cloudcannon-snippets-imports.schema.json">
+    Snippet templates and libraries to import, referenced by `_snippets_imports_from_glob`.
+
+    *Validates:* `.cloudcannon.snippets-imports.yml`
+  </comp.OptionsRow>
+  <comp.OptionsRow label="cloudcannon-structures.schema.json" href="https://github.com/cloudcannon/configuration-types/releases/latest/download/cloudcannon-structures.schema.json">
+    *Structure* configuration, referenced by `_structures_from_glob`.
+
+    *Validates:* `.cloudcannon.structures.yml`
+  </comp.OptionsRow>
+  <comp.OptionsRow label="cloudcannon-structure-value.schema.json" href="https://github.com/cloudcannon/configuration-types/releases/latest/download/cloudcannon-structure-value.schema.json">
+    A single *Structure* value, referenced by `values_from_glob` inside a *Structure*.
+
+    *Validates:* `.cloudcannon.structure-value.yml`
+  </comp.OptionsRow>
+</comp.OptionsTable>
+
+For more information on the supporting files, please read our documentation on [splitting your Configuration File](/documentation/developer-articles/split-your-configuration-file/).
+
+### Routing and Initial Site Settings schemas
+
+<comp.OptionsTable>
+  <comp.OptionsRow label="cloudcannon-routing.schema.json" href="https://github.com/cloudcannon/configuration-types/releases/latest/download/cloudcannon-routing.schema.json">
+    Your *Routing File*.
+
+    *Validates:* `.cloudcannon/routing.json`
+  </comp.OptionsRow>
+  <comp.OptionsRow label="cloudcannon-initial-site-settings.schema.json" href="https://github.com/cloudcannon/configuration-types/releases/latest/download/cloudcannon-initial-site-settings.schema.json">
+    Your *Initial Site Settings File*.
+
+    *Validates:* `.cloudcannon/initial-site-settings.json`
+  </comp.OptionsRow>
+</comp.OptionsTable>
+
+### Non-unified configuration SSG-specific schemas
+
+For older *Sites* using the non-unified configuration format, the registered *Configuration File* schema also covers the SSG-specific legacy formats. Set the `version` key in your *Configuration File* to select which one applies:
+
+- `legacy-jekyll`
+- `legacy-hugo`
+- `legacy-eleventy`
+- `legacy-reader` (other SSGs using CloudCannon Reader)
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
 ```
-{
-  "$schema": "https://raw.githubusercontent.com/CloudCannon/configuration-types/main/cloudcannon-config.schema.json"
-}
+version: legacy-jekyll
 ```
-  </comp.CodeTab>
-  <comp.CodeTab language="yaml" source="cloudcannon.config.yaml">
-```
-# yaml-language-server: $schema=https://raw.githubusercontent.com/CloudCannon/configuration-types/main/cloudcannon-config.schema.json
-```
-  </comp.CodeTab>
-</comp.CodeTabs>
+</comp.MultiCodeBlock>
 
-**Routing File** (`.cloudcannon/routing.json`):
+When `version` is omitted or set to `latest`, the unified configuration schema applies.
 
-<comp.CodeBlock language="json" source=".cloudcannon/routing.json">
-```
-{
-  "$schema": "https://raw.githubusercontent.com/CloudCannon/configuration-types/main/dist/cloudcannon-routing.schema.json",
-  "routes": []
-}
-```
-</comp.CodeBlock>
+We recommend [migrating to Unified Configuration](/documentation/developer-guides/unified-configuration-migration-guide/) to benefit from the latest features.
 
-**Initial Site Settings File** (`.cloudcannon/initial-site-settings.json`):
+## IDE configuration
 
-<comp.CodeBlock language="json" source=".cloudcannon/initial-site-settings.json">
-```
-{
-  "$schema": "https://raw.githubusercontent.com/CloudCannon/configuration-types/main/dist/cloudcannon-initial-site-settings.schema.json",
-  "ssg": "eleventy"
-}
-```
-</comp.CodeBlock>
-
-## IDE Configuration
-
-Most modern IDEs automatically detect CloudCannon configuration files and apply the correct schema via SchemaStore integration.
+Most code editors apply the schemas automatically through their JSON and YAML language servers. If you use a custom path for your *Configuration File*, SchemaStore cannot match it by filename. Each language server has its own setting for associating a schema with a file, so you can add the mapping there instead of in the file itself.
 
 ### VS Code and Cursor
 
-**JSON files** work automatically with no setup required.
+JSON files work automatically with no setup required. YAML files require the <a href="https://marketplace.visualstudio.com/items?itemName=redhat.vscode-yaml" target="_blank" rel="noopener noreferrer">Red Hat YAML extension</a>, which also applies schemas from SchemaStore automatically once installed.
 
-**YAML files** require the <a href="https://marketplace.visualstudio.com/items?itemName=redhat.vscode-yaml" target="_blank" rel="noopener noreferrer">Red Hat YAML extension</a>. After installing, add schema associations to your `settings.json`:
+To apply the schema to a custom *Configuration File* path, add a mapping to the `json.schemas` or `yaml.schemas` setting in your `settings.json`:
 
 <comp.CodeBlock language="json" source=".vscode/settings.json">
 ```
 {
   "yaml.schemas": {
-    "https://raw.githubusercontent.com/CloudCannon/configuration-types/main/cloudcannon-config.schema.json": "cloudcannon.config.yaml"
+    "https://github.com/cloudcannon/configuration-types/releases/latest/download/cloudcannon-config.schema.json": "config/cms.yml"
   }
 }
 ```
@@ -81,11 +135,11 @@ For more information, see the <a href="https://code.visualstudio.com/docs/langua
 
 WebStorm, IntelliJ IDEA, and other JetBrains IDEs have built-in JSON and YAML schema support that works automatically via SchemaStore integration.
 
-For manual configuration, open **Settings** > **Languages & Frameworks** > **Schemas and DTDs** > **JSON Schema Mappings**. See the <a href="https://www.jetbrains.com/help/idea/json.html#ws_json_schema_add_custom" target="_blank" rel="noopener noreferrer">JetBrains JSON Schema documentation</a> for details.
+To associate a schema manually, open *JSON Schema Mappings* under *Languages & Frameworks* in the IDE settings. See the <a href="https://www.jetbrains.com/help/idea/json.html#ws_json_schema_add_custom" target="_blank" rel="noopener noreferrer">JetBrains JSON Schema documentation</a> for details.
 
 ### Sublime Text
 
-Install the <a href="https://packagecontrol.io/packages/LSP" target="_blank" rel="noopener noreferrer">LSP</a> and <a href="https://packagecontrol.io/packages/LSP-json" target="_blank" rel="noopener noreferrer">LSP-json</a> packages for JSON schema support — schemas are automatically discovered via SchemaStore. For YAML files, also install <a href="https://packagecontrol.io/packages/LSP-yaml" target="_blank" rel="noopener noreferrer">LSP-yaml</a>.
+Install the <a href="https://packagecontrol.io/packages/LSP" target="_blank" rel="noopener noreferrer">LSP</a> and <a href="https://packagecontrol.io/packages/LSP-json" target="_blank" rel="noopener noreferrer">LSP-json</a> packages for JSON schema support. Schemas are automatically discovered via SchemaStore. For YAML files, also install <a href="https://packagecontrol.io/packages/LSP-yaml" target="_blank" rel="noopener noreferrer">LSP-yaml</a>.
 
 ### Neovim
 
@@ -94,77 +148,3 @@ Use <a href="https://github.com/neovim/nvim-lspconfig" target="_blank" rel="noop
 ### Zed
 
 Zed has built-in JSON schema support that works automatically via SchemaStore. See the <a href="https://zed.dev/docs/languages/json" target="_blank" rel="noopener noreferrer">Zed JSON documentation</a> for more details.
-
-## Legacy SSG-Specific Schemas
-
-For older Sites using the non-unified configuration format, SSG-specific schemas are available. Unlike the unified schema, these are not registered with SchemaStore and must be specified manually using the `$schema` property (JSON) or `# yaml-language-server` comment (YAML).
-
-We recommend [migrating to Unified Configuration](/documentation/guides/unified-configuration-migration-guide/) to benefit from automatic schema detection and the latest features.
-
-**Jekyll**:
-
-<comp.CodeTabs>
-  <comp.CodeTab language="json" source="cloudcannon.config.json">
-```
-{
-  "$schema": "https://github.com/cloudcannon/configuration-types/releases/latest/download/cloudcannon-config.legacy-jekyll.schema.json"
-}
-```
-  </comp.CodeTab>
-  <comp.CodeTab language="yaml" source="cloudcannon.config.yaml">
-```
-# yaml-language-server: $schema=https://github.com/cloudcannon/configuration-types/releases/latest/download/cloudcannon-config.legacy-jekyll.schema.json
-```
-  </comp.CodeTab>
-</comp.CodeTabs>
-
-**Hugo**:
-
-<comp.CodeTabs>
-  <comp.CodeTab language="json" source="cloudcannon.config.json">
-```
-{
-  "$schema": "https://github.com/cloudcannon/configuration-types/releases/latest/download/cloudcannon-config.legacy-hugo.schema.json"
-}
-```
-  </comp.CodeTab>
-  <comp.CodeTab language="yaml" source="cloudcannon.config.yaml">
-```
-# yaml-language-server: $schema=https://github.com/cloudcannon/configuration-types/releases/latest/download/cloudcannon-config.legacy-hugo.schema.json
-```
-  </comp.CodeTab>
-</comp.CodeTabs>
-
-**Eleventy**:
-
-<comp.CodeTabs>
-  <comp.CodeTab language="json" source="cloudcannon.config.json">
-```
-{
-  "$schema": "https://github.com/cloudcannon/configuration-types/releases/latest/download/cloudcannon-config.legacy-eleventy.schema.json"
-}
-```
-  </comp.CodeTab>
-  <comp.CodeTab language="yaml" source="cloudcannon.config.yaml">
-```
-# yaml-language-server: $schema=https://github.com/cloudcannon/configuration-types/releases/latest/download/cloudcannon-config.legacy-eleventy.schema.json
-```
-  </comp.CodeTab>
-</comp.CodeTabs>
-
-**Other SSGs** (using CloudCannon Reader):
-
-<comp.CodeTabs>
-  <comp.CodeTab language="json" source="cloudcannon.config.json">
-```
-{
-  "$schema": "https://github.com/cloudcannon/configuration-types/releases/latest/download/cloudcannon-config.legacy-reader.schema.json"
-}
-```
-  </comp.CodeTab>
-  <comp.CodeTab language="yaml" source="cloudcannon.config.yaml">
-```
-# yaml-language-server: $schema=https://github.com/cloudcannon/configuration-types/releases/latest/download/cloudcannon-config.legacy-reader.schema.json
-```
-  </comp.CodeTab>
-</comp.CodeTabs>
