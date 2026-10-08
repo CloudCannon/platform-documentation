@@ -26,7 +26,7 @@ author_notes:
   The *Visual Editor API* is designed for experienced CloudCannon developers. If you need help with custom integrations or your CloudCannon setup in general, please contact our friendly <a href="https://cloudcannon.com/support/">support team</a>.
 </comp.Notice>
 
-CloudCannon's <comp.GlossaryTerm term="/user/glossary/v/visual-editor-api.yml">Visual Editor API</comp.GlossaryTerm> exposes each website file as an object you open from your <comp.GlossaryTerm term="/user/glossary/s/site.yml">Site</comp.GlossaryTerm> code. After you have that file reference, you can read and write structured data in <comp.GlossaryTerm term="/user/glossary/f/front-matter.yml">front matter</comp.GlossaryTerm> or data files, work with body content, read or replace raw source, read file metadata, add or remove array items or change their order, open the hosted <comp.GlossaryTerm term="/user/glossary/d/data-panel.yml">Data Panel</comp.GlossaryTerm> for a single field, and claim a file lock while you coordinate updates with other <comp.GlossaryTerm term="/user/glossary/o/organization-member.yml">Team Members</comp.GlossaryTerm> editing in the *Visual Editor*.
+CloudCannon's <comp.GlossaryTerm term="/user/glossary/v/visual-editor-api.yml">Visual Editor API</comp.GlossaryTerm> exposes each website file as an object you open from your <comp.GlossaryTerm term="/user/glossary/s/site.yml">Site</comp.GlossaryTerm> code. After you have that file reference, you can read and write structured data in <comp.GlossaryTerm term="/user/glossary/f/front-matter.yml">front matter</comp.GlossaryTerm> or data files, work with body content, read or replace raw source, read file metadata, add or remove array items or change their order, open the hosted <comp.GlossaryTerm term="/user/glossary/d/data-panel.yml">Data Panel</comp.GlossaryTerm> for a single field, and claim a file lock while you coordinate updates with other <comp.GlossaryTerm term="/user/glossary/o/organization-member.yml">Organization Members</comp.GlossaryTerm> editing in the *Visual Editor*.
 
 This article assumes you know how to [initialize the Visual Editor API](/documentation/developer-articles/initialize-the-visual-editor-api/) and [access files, Collections, and Datasets](/documentation/developer-articles/access-and-list-files-collections-and-datasets-with-the-visual-editor-api/). For a complete list of API objects and methods, please read our reference documentation on the [Visual Editor API](/documentation/developer-reference/visual-editor-api/).
 
@@ -40,7 +40,7 @@ You can read and write to your website files with the *Visual Editor API* using 
 - Use `*.metadata()` for file metadata (you cannot write to file metadata).
 
 <comp.Notice info_type="info">
-  The *Visual Editor API* has no method to save or publish. Writes such as `*.data.set()` and `*.content.set()` update the *Visual Editor* data model and mark the file as having unsaved changes. A *Team Member* using an integration made with the API must still save or publish the file as usual.
+  The *Visual Editor API* has no method to save or publish. Writes such as `*.data.set()` and `*.content.set()` update the *Visual Editor* data model and mark the file as having unsaved changes. An *Organization Member* using an integration made with the API must still save or publish the file as usual.
 </comp.Notice>
 
 ### Structured data
@@ -223,7 +223,7 @@ You can use *Data Panels* in CloudCannon's *Visual Editor* to edit the value of 
 
 By calling `*.data.edit()` and passing a `slug` option, you can open a *Data Panel* for a specific field. This is useful when you want to use CloudCannon's built-in interface for your custom integration.
 
-Optionally, pass a position object to anchor the *Data Panel* to the HTML element that triggered the action (for example, the element the *Team Member* clicked).
+Optionally, pass a position object to anchor the *Data Panel* to the HTML element that triggered the action (for example, the element the *Organization Member* clicked).
 
 <comp.CodeBlock language="javascript" source="script.js">
 ```
@@ -360,7 +360,7 @@ await file.data.moveArrayItem({ /*2*/
 
 ## Lock editing on a file
 
-Claiming a lock on a file gives your integration the editing lock for that file. Only one lock can be held at a time, so other *Team Members* working in the *Visual Editor* see the file as read-only while your integration holds it. Use `*.file()` to access the file you want to lock, call `claimLock()` before making changes, and `releaseLock()` when you are done.
+Claiming a lock on a file gives your integration the editing lock for that file. Only one lock can be held at a time, so other *Organization Members* working in the *Visual Editor* see the file as read-only while your integration holds it. Use `*.file()` to access the file you want to lock, call `claimLock()` before making changes, and `releaseLock()` when you are done.
 
 <comp.CodeBlock language="javascript" source="script.js">
 ```
@@ -376,22 +376,22 @@ if (lock && !lock.readOnly) { /*3*/
 }
 ```
 <comp.Annotation number="1">
-  Use `api.file()` to access the specific file you want to lock. File locking is most useful when your integration needs to modify a shared file that other *Team Members* might also be editing.
+  Use `api.file()` to access the specific file you want to lock. File locking is most useful when your integration needs to modify a shared file that other *Organization Members* might also be editing.
 </comp.Annotation>
 <comp.Annotation number="2">
   Call `claimLock()` to request an editing lock on `file`. It resolves to an object with a `readOnly` property, or `undefined` if the file does not exist.
 </comp.Annotation>
 <comp.Annotation number="3">
-  Only write if you actually hold the lock. The check fails in two cases: `claimLock()` resolves to `undefined` when the file does not exist, or to `{ readOnly: true }` when another *Team Member* already holds the lock. Either way, your integration skips the write.
+  Only write if you actually hold the lock. The check fails in two cases: `claimLock()` resolves to `undefined` when the file does not exist, or to `{ readOnly: true }` when another *Organization Member* already holds the lock. Either way, your integration skips the write.
 </comp.Annotation>
 <comp.Annotation number="4">
-  Release the lock in a `finally` block so it is always released, even if the write throws partway through. Otherwise other *Team Members* are left viewing the file as read-only until they take the lock back manually.
+  Release the lock in a `finally` block so it is always released, even if the write throws partway through. Otherwise other *Organization Members* are left viewing the file as read-only until they take the lock back manually.
 </comp.Annotation>
 </comp.CodeBlock>
 
-A lock is cooperative, not absolute. A *Team Member* editing in the *Visual Editor* can take the lock from your integration at any time: when they open a file that is already being edited, CloudCannon shows them a banner with a *Switch to editing* button. Clicking it hands them the lock, moves your integration to read-only, and keeps any unsaved changes. Because a held lock is not a guarantee of exclusive access, call `claimLock()` again and check `readOnly` before resuming writes to confirm your integration still holds the lock. For how this looks to a *Team Member* in the *Visual Editor*, please read our documentation on [Editing sessions and collaboration](/documentation/user-guides/editing-in-cloudcannon/editing-sessions-and-collaboration/).
+A lock is cooperative, not absolute. An *Organization Member* editing in the *Visual Editor* can take the lock from your integration at any time: when they open a file that is already being edited, CloudCannon shows them a banner with a *Switch to editing* button. Clicking it hands them the lock, moves your integration to read-only, and keeps any unsaved changes. Because a held lock is not a guarantee of exclusive access, call `claimLock()` again and check `readOnly` before resuming writes to confirm your integration still holds the lock. For how this looks to an *Organization Member* in the *Visual Editor*, please read our documentation on [Editing sessions and collaboration](/documentation/user-guides/editing-in-cloudcannon/editing-sessions-and-collaboration/).
 
-<comp.DocShot docshot_key="CloudCannon-Documentation-Content-Editor-Viewing-Mode" alt="A banner at the bottom of an editing interface reads 'Heather Scott is currently editing' alongside a Switch to editing button." title="Taking over editing from another Team Member" type="screenshot"/>
+<comp.DocShot docshot_key="CloudCannon-Documentation-Content-Editor-Viewing-Mode" alt="A banner at the bottom of an editing interface reads 'Heather Scott is currently editing' alongside a Switch to editing button." title="Taking over editing from another Organization Member" type="screenshot"/>
 
 ## Read Input configuration
 

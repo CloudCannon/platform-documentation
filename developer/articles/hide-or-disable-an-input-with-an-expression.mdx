@@ -27,7 +27,7 @@ author_notes:
   Members of all [Default Permission Groups](/documentation/user-articles/what-are-default-permission-groups/), or [Custom Permission Groups](/documentation/developer-articles/what-are-custom-permission-groups/) with the `site:file:write` permission, can configure inputs in all locations in the configuration cascade. You can limit permission to specific locations in the configuration using [file globs](/documentation/developer-articles/what-are-custom-permission-groups/#specify-a-file-glob).
 </comp.Notice>
 
-You can show, hide, or disable an *Input* based on the values of other inputs in the same file using the `hidden_if` and `disabled_if` *Input* options. CloudCannon evaluates the expression value of these *Input* options and updates the *Editing Interface* immediately when the value changes, allowing you to create a dynamic editing experience for your *Team Members*. For example, a webpage that holds either a video or an image only needs one set of *Inputs* in the *Editing Interface*, and you could hide or disable the other set if a *Team Member* enters the file path for one.
+You can show, hide, or disable an *Input* based on the values of other inputs in the same file using the `hidden_if` and `disabled_if` *Input* options. CloudCannon evaluates the expression value of these *Input* options and updates the *Editing Interface* immediately when the value changes, allowing you to create a dynamic editing experience for your *Organization Members*. For example, a webpage that holds either a video or an image only needs one set of *Inputs* in the *Editing Interface*, and you could hide or disable the other set if an *Organization Member* enters the file path for one.
 
 These instructions assume you know which *Input* you want to configure and that any other *Inputs* it relies on are in the same file. For more information, please read our documentation on [what inputs are](/documentation/user-articles/what-are-inputs/) and [using the configuration cascade](/documentation/developer-articles/using-the-configuration-cascade/).
 
@@ -144,11 +144,11 @@ Two reserved names let you reach the input you are configuring, or the top of th
 
 These names are only reserved at the start of a path. After a dot they are ordinary keys, so `hero.this` reads a key named `this` inside `hero`.
 
-An expression reads the file a *Team Member* has open. It cannot read another file, another *Site*, or anything outside that file, so you cannot hide an input based on a value that lives elsewhere.
+An expression reads the file an *Organization Member* has open. It cannot read another file, another *Site*, or anything outside that file, so you cannot hide an input based on a value that lives elsewhere.
 
 Read a nested value with a dot, such as `seo.title`, and an array item with its index, such as `authors[0]`.
 
-Reading a key that does not exist gives you `null` rather than an error, so your expression keeps working while a *Team Member* fills in a file.
+Reading a key that does not exist gives you `null` rather than an error, so your expression keeps working while an *Organization Member* fills in a file.
 
 In the following example, the `caption` and `alt_text` inputs sit inside an `image` object in your content file, so a bare name would only reach their siblings inside that object. `show_captions` and `seo.locked` sit at the top level of the file, so each input reaches them through `$`. With these values, `caption` is hidden and `alt_text` is read-only.
 
@@ -308,7 +308,7 @@ Nine functions work on values, alongside `parent` and `get` described above. A f
   </comp.OptionsRow>
 </comp.OptionsTable>
 
-In the following example, the `summary` input stays hidden until `body` holds at least 200 characters, the `discount_code` input is read-only unless the code starts with `PROMO` in any capitalization, and the `permalink` input locks itself once it holds a value by reading `this`. `length` gives `null` for an empty input rather than zero, so `?? ""` keeps each comparison working before a *Team Member* has typed anything. With these values, `summary` is hidden, `discount_code` is editable, and `permalink` is read-only.
+In the following example, the `summary` input stays hidden until `body` holds at least 200 characters, the `discount_code` input is read-only unless the code starts with `PROMO` in any capitalization, and the `permalink` input locks itself once it holds a value by reading `this`. `length` gives `null` for an empty input rather than zero, so `?? ""` keeps each comparison working before an *Organization Member* has typed anything. With these values, `summary` is hidden, `discount_code` is editable, and `permalink` is read-only.
 
 <comp.CodeBlock language="Markdown" source="product.md">
 ```
@@ -389,6 +389,6 @@ An expression can be up to 1000 characters long and nest up to 32 levels deep. C
 
 While an expression is invalid, CloudCannon falls back to the safer option for each key. An input with an invalid `hidden_if` expression stays visible, so no content disappears, and an input with an invalid `disabled_if` expression stays read-only, so no value changes by accident.
 
-An expression changes what a *Team Member* sees, but every key stays in your file. If you want the keys that do not apply to be removed instead, please read our documentation on [switching between Structures](/documentation/developer-articles/switch-between-structures/).
+An expression changes what an *Organization Member* sees, but every key stays in your file. If you want the keys that do not apply to be removed instead, please read our documentation on [switching between Structures](/documentation/developer-articles/switch-between-structures/).
 
 For the full list of configuration keys available for inputs, please read our [Inputs](/documentation/developer-reference/configuration-file/types/_inputs/) reference documentation.
