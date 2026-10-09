@@ -32,3 +32,12 @@ export default function ApiSchemaIndex(
     </div>
   );
 }
+
+export function toMarkdown(): string {
+  const lines = getApiSchemas().map((schema) => {
+    const count = schema.rows.length;
+    const noun = count === 1 ? "property" : "properties";
+    return `* [${schema.name}](${API_SCHEMAS_BASE_PATH}${schema.slug}/) — ${count} ${noun}`;
+  });
+  return lines.join("\n") + "\n\n";
+}
