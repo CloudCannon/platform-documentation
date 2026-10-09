@@ -34,7 +34,7 @@ Using the same `submit()` function, we need to add the new doodle to the gallery
 ```
 </comp.CodeBlock>
 
-The Doodle Gallery integration can read the `doodles` array, then append a new item to it. Each item holds the uploaded image path and the caption a <comp.GlossaryTerm term="/user/glossary/t/team-member.yml">Team Member</comp.GlossaryTerm> typed.
+The Doodle Gallery integration can read the `doodles` array, then append a new item to it. Each item holds the uploaded image path and the caption a <comp.GlossaryTerm term="/user/glossary/o/organization-member.yml">Organization Member</comp.GlossaryTerm> typed.
 
 <comp.CodeBlock language="typescript" source="src/components/doodle.tsx">
 ```
@@ -66,11 +66,11 @@ The Doodle Gallery integration can read the `doodles` array, then append a new i
 
 The integration uses `file()` with a path, rather than `currentFile()`, because we're writing to a specific data file instead of the page open in the <comp.GlossaryTerm term="/user/glossary/v/visual-editor.yml">Visual Editor</comp.GlossaryTerm>.
 
-The `submit()` function is now complete, and its final job is to release the file lock on `doodles.json`. If your integration never releases the lock, other *Team Members* stay locked out until they take the lock back manually.
+The `submit()` function is now complete, and its final job is to release the file lock on `doodles.json`. If your integration never releases the lock, other *Organization Members* stay locked out until they take the lock back manually.
 
 The Doodle Gallery wraps the steps from the previous two pages in a `try`/`catch`/`finally` and calls `releaseLock()` in the `finally` block. A `finally` block runs no matter how `submit()` exits, so the lock is released whether the write succeeds or throws partway through. The `file` reference sits outside the `try` so the `finally` block can still reach it on any exit path.
 
-The same `submit()` function also keeps the *Team Member* informed. Claiming the lock, uploading the image, and writing the data each run asynchronously and take a moment, so without feedback a *Team Member* can't tell whether their doodle is saving, stuck, or failed. `submit()` updates a status message before each step, surfaces any error in the `catch`, and tells the *Team Member* what to do next on success. The component renders this message in a live region (`<p role="alert">`), so it updates as the function runs.
+The same `submit()` function also keeps the *Organization Member* informed. Claiming the lock, uploading the image, and writing the data each run asynchronously and take a moment, so without feedback an *Organization Member* can't tell whether their doodle is saving, stuck, or failed. `submit()` updates a status message before each step, surfaces any error in the `catch`, and tells the *Organization Member* what to do next on success. The component renders this message in a live region (`<p role="alert">`), so it updates as the function runs.
 
 <comp.CodeBlock language="typescript" source="src/components/doodle.tsx">
 ```
@@ -99,27 +99,27 @@ async function submit() {
   Declare the `file` reference before the `try` block so the `finally` block can release its lock, regardless of where the code inside `try` exits.
 </comp.Annotation>
 <comp.Annotation number="2">
-  Set a message as soon as `submit()` starts, so the *Team Member* gets immediate feedback when they click *Add to the gallery*.
+  Set a message as soon as `submit()` starts, so the *Organization Member* gets immediate feedback when they click *Add to the gallery*.
 </comp.Annotation>
 <comp.Annotation number="3">
-  Update the message before each asynchronous step (claiming the lock, uploading the image, and writing the data) so the *Team Member* can follow what the integration is doing.
+  Update the message before each asynchronous step (claiming the lock, uploading the image, and writing the data) so the *Organization Member* can follow what the integration is doing.
 </comp.Annotation>
 <comp.Annotation number="4">
-  Surface the error in the `catch` block instead of failing silently. `error.message` gives the *Team Member* the specific reason, such as another *Team Member* holding the file lock.
+  Surface the error in the `catch` block instead of failing silently. `error.message` gives the *Organization Member* the specific reason, such as another *Organization Member* holding the file lock.
 </comp.Annotation>
 <comp.Annotation number="5">
-  Release the lock in the `finally` block so it runs even when the code above throws. This frees the lock on every exit path, so a failed write never leaves another *Team Member* stranded with a read-only file.
+  Release the lock in the `finally` block so it runs even when the code above throws. This frees the lock on every exit path, so a failed write never leaves another *Organization Member* stranded with a read-only file.
 </comp.Annotation>
 <comp.Annotation number="6">
-  On success, tell the *Team Member* what to do next. The write marks the file as having unsaved changes but doesn't commit it. They still need to *Save* the *Site* for the doodle to go live.
+  On success, tell the *Organization Member* what to do next. The write marks the file as having unsaved changes but doesn't commit it. They still need to *Save* the *Site* for the doodle to go live.
 </comp.Annotation>
 </comp.CodeBlock>
 
-As `submit()` runs, each status message appears in the live region in turn: when the *Team Member* clicks *Add to the gallery*, again while the image uploads, and once more on success to tell them what to do next.
+As `submit()` runs, each status message appears in the live region in turn: when the *Organization Member* clicks *Add to the gallery*, again while the image uploads, and once more on success to tell them what to do next.
 
 <comp.DocShot docshot_key="CloudCannon-Documentation-Visual-Editor-Doodle-Controls-Uploading" alt="A screenshot of the Doodle Gallery controls showing the status message 'Uploading to CloudCannon' while the buttons stay disabled." title="The status message while the image uploads" type="ui-snippet"/>
 
-The new doodle now appears in any open <comp.GlossaryTerm term="/user/glossary/d/data-editor.yml">Data Editor</comp.GlossaryTerm> and is written to `doodles.json`, ready to commit when a *Team Member* saves the <comp.GlossaryTerm term="/user/glossary/s/site.yml">Site</comp.GlossaryTerm>. Because the gallery page renders straight from that data file, the new doodle shows up on the live webpage after the next <comp.GlossaryTerm term="/user/glossary/b/build.yml">Build</comp.GlossaryTerm>.
+The new doodle now appears in any open <comp.GlossaryTerm term="/user/glossary/d/data-editor.yml">Data Editor</comp.GlossaryTerm> and is written to `doodles.json`, ready to commit when an *Organization Member* saves the <comp.GlossaryTerm term="/user/glossary/s/site.yml">Site</comp.GlossaryTerm>. Because the gallery page renders straight from that data file, the new doodle shows up on the live webpage after the next <comp.GlossaryTerm term="/user/glossary/b/build.yml">Build</comp.GlossaryTerm>.
 
 The same `src/pages/index.astro` page we set up earlier renders that gallery. It reads the `doodles` array and maps each item to an image, using the same `src` and `caption` fields that `submit()` writes, so every new doodle appears automatically.
 
