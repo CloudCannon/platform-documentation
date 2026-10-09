@@ -30,9 +30,9 @@ author_notes:
 
 *Visual Data Previews* are a way for your website's JavaScript to read a file's data as it changes in the <comp.GlossaryTerm term="/user/glossary/v/visual-editor.yml">Visual Editor</comp.GlossaryTerm> using the v0 <comp.GlossaryTerm term="/user/glossary/v/visual-editor-api.yml">Visual Editor API</comp.GlossaryTerm>.
 
-When you open a file in the *Visual Editor*, CloudCannon loads your webpage preview inside an iframe with its own separate `window`, and installs the v0 API on that `window` as an object named `CloudCannon`. Once your code calls `enableEvents()`, CloudCannon dispatches an event on `document` whenever the open file changes, your code reads the latest data from the `CloudCannon` object, and your page re-renders with the new values.
+When you open a file in the *Visual Editor*, CloudCannon loads your webpage preview inside an iframe with its own separate `window`, and installs the v0 API on that `window` as an object named `CloudCannon`. Once your code calls `enableEvents()`, CloudCannon dispatches an event on `document` whenever the open file changes, and the webpage preview in the *Visual Editor* re-renders with the new values with the latest data from the `CloudCannon` object.
 
-This article covers the v0 *Visual Editor API*, not v1. The `cloudcannon:load` event belongs to both: CloudCannon dispatches it on `document` for either version, and its `detail` carries the v0 object alongside `CloudCannonAPI`, the router that v1 comes from. For the current API, please read our documentation on [what the Visual Editor API is](/documentation/developer-articles/what-is-the-visual-editor-api/).
+This article covers the v0 *Visual Editor API*, not v1. Both versions use the `cloudcannon:load` event: CloudCannon dispatches it on `document` for either version, and its `detail` carries the v0 object alongside `CloudCannonAPI`, the router that v1 comes from. For the current API, please read our documentation on [what the Visual Editor API is](/documentation/developer-articles/what-is-the-visual-editor-api/).
 
 <comp.Notice info_type="info">
   **Do you need the data in your own JavaScript?**
@@ -44,7 +44,7 @@ This article covers the v0 *Visual Editor API*, not v1. The `cloudcannon:load` e
 
 ## What your Site needs
 
-The *Visual Editor* opens files, not components, so the file you want to preview needs a URL CloudCannon can load. <comp.GlossaryTerm term="/user/glossary/c/collection.yml">Collection</comp.GlossaryTerm> configuration decides whether it has one: setting `disable_url` to `true` on a *Collection* removes the output URL for its files, and on a <comp.GlossaryTerm term="/user/glossary/s/site.yml">Site</comp.GlossaryTerm> with non-unified configuration the *Collection* also needs `output` set to `true`.
+The *Visual Editor* opens files, not components, so the file you want to preview needs a URL CloudCannon can load. <comp.GlossaryTerm term="/user/glossary/c/collection.yml">Collection</comp.GlossaryTerm> configuration decides whether it has one: setting `disable_url` to `true` on a *Collection* removes the output URL for its files, and on a <comp.GlossaryTerm term="/user/glossary/s/site.yml">Site</comp.GlossaryTerm> that has not migrated to Unified Configuration the *Collection* also needs `output` set to `true`.
 
 A file with no output URL can still open in the *Visual Editor* when `new_preview_url` is set on its *Collection* or its <comp.GlossaryTerm term="/user/glossary/s/schema.yml">Schema</comp.GlossaryTerm>, because CloudCannon loads that URL instead. For more information, please read our documentation on [configuring your Collections](/documentation/developer-articles/configure-your-collections/).
 
@@ -69,8 +69,8 @@ The diagram below shows the sequence the rest of this article describes.
 
 *Visual Data Previews* use two events, both dispatched on the `document` object of your previewed page:
 
-* `cloudcannon:load` — fires once the API is ready. The `CloudCannon` object is already assigned to `window` by the time this event fires, so a script that runs late can read `window.CloudCannon` directly instead of waiting for the event.
-* `cloudcannon:update` — fires after each change to the file you have open, including changes made in the sidebar rather than on the page.
+* `cloudcannon:load` — fires as soon as the API is ready. The `CloudCannon` object is already assigned to `window` by the time this event fires, so a script that runs late can read `window.CloudCannon` directly instead of waiting for the event.
+* `cloudcannon:update` — fires after each change to the file you have open, including changes made in the sidebar rather than on the page. Edits that arrive in quick succession, such as typing, are throttled to one event every 50 milliseconds rather than one per keystroke.
 
 Both events carry a `detail` object holding `CloudCannon`, the v0 API object, and `CloudCannonAPI`, the router that serves both versions. The property is `detail`, singular: `e.details` is `undefined`.
 
