@@ -1,0 +1,92 @@
+---
+_schema: default
+_uuid: dc4df13f-b0f5-4ed0-9974-4b5597a41810
+_created_at: '2026-10-08T00:00:00Z'
+details:
+  title: What are input comments?
+  description: >-
+    Input comments are the help text CloudCannon shows beneath an input's label,
+    written in a limited set of Markdown that can link into CloudCannon.
+  image: >-
+    https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+  category:
+    - Explanation
+  related_articles:
+    - _type: user_articles
+      item: 6b736045-9e75-4fd0-8d01-fcf3796aa1e2
+    - _type: developer_articles
+      item: 0b8cf4f7-8f32-4b76-b868-446f0791bb01
+    - _type: developer_articles
+      item: fa64c62b-e687-4600-9f75-6a8a928dba69
+author_notes:
+  docshots: Added!
+---
+An input comment is the help text CloudCannon shows beneath an input's label in the <comp.GlossaryTerm term="/user/glossary/d/data-editor.yml">Data Editor</comp.GlossaryTerm>. You set it with the `comment` key in your input configuration, and your team reads it while they edit.
+
+Comments are where you explain what a field is for, what format a value should take, or where the value ends up on your <comp.GlossaryTerm term="/user/glossary/s/site.yml">Site</comp.GlossaryTerm>. For what an *Organization Member* sees in an input, please read our documentation on [what inputs are](/documentation/user-articles/what-are-inputs/).
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+```
+
+_inputs:
+  seo_description:
+    type: textarea
+    label: SEO Description
+    comment: Shown in search results, so keep it under 160 characters
+
+```
+</comp.MultiCodeBlock>
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Email-Input-With-Context" title="An email input in the Data Editor showing its comment" alt="A close up of an email input in the Data Editor shows its label, the comment rendered as subtext beneath that label, a text field, and a context dropdown." type="ui-snippet" />
+
+## Where comments appear
+
+`comment` is the most common of several keys that render the same way. Each sits in a different place in the *Data Editor*, and all of them accept the same Markdown.
+
+* **`comment`** — Beneath an input's label. This is the one you will reach for most.
+* **`disabled_message`** — Replaces the usual subtext while an input is disabled, so you can say why it cannot be edited.
+* **`context.content`** — An expandable section below the input, for longer explanation that would crowd the label. Pair it with `context.title` to label the control that opens it.
+* **A group's `comment`** — Beneath the heading of a group inside an Object input, describing the fields it collects.
+* **`entries.comment`** — Above the key field when someone adds or renames a key in a mutable Object input.
+
+Each of these is an input configuration key, so you can set it at any level of the configuration cascade. For more information, please read our documentation on [using the configuration cascade](/documentation/developer-articles/using-the-configuration-cascade/).
+
+## What you can write in a comment
+
+A comment is not plain text, but it is not full Markdown either. CloudCannon renders a limited set and strips anything outside it, so a heading or a list will not survive.
+
+You can use links, bold, italic, subscript, superscript, and inline code.
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+```
+
+_inputs:
+  api_key:
+    comment: Paste the value of `JETSTREAM_API_KEY` from your **provider dashboard**
+
+```
+</comp.MultiCodeBlock>
+
+Keep comments short. The text sits between the input's label and the input itself, so a long comment pushes the fields your team is editing further down the page. Where you need more room, use `context.content` instead, which stays collapsed until someone opens it.
+
+## Linking into CloudCannon from a comment
+
+A link in a comment can point anywhere, and it can also point back into CloudCannon using the `cloudcannon:` scheme. This is how you send an *Organization Member* from a field's help text to the file, <comp.GlossaryTerm term="/user/glossary/c/collection.yml">Collection</comp.GlossaryTerm>, or field that answers their question.
+
+CloudCannon links work in `comment`, in `disabled_message`, and in a group's `comment`. A link in `context.content` can open a destination in the app but cannot open a field, and links in `entries.comment` do nothing at all.
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+```
+
+_inputs:
+  author:
+    comment: Choose from the team listed in [your staff Collection](cloudcannon:collections/staff)
+
+```
+</comp.MultiCodeBlock>
+
+A link to a field — one written as `cloudcannon:#` followed by a slug — opens a <comp.GlossaryTerm term="/user/glossary/d/data-panel.yml">Data Panel</comp.GlossaryTerm> for that field. Unlike a link on your previewed page, it takes no style attribute, so `data-cms-editor-link-style` has no effect in a comment.
+
+Two more things behave differently here. A path beginning with `collections/` names the *Collection* key, as the app's own URL writes it. And two paths work only in a comment: `cloudcannon:!home` opens your *Organization* home, and `cloudcannon:!support` opens the support widget.
+
+For the syntax these links share with the rest of CloudCannon, please read our documentation on [what the CloudCannon link protocol is](/documentation/developer-articles/what-is-the-cloudcannon-link-protocol/).

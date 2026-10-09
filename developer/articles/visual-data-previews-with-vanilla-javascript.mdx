@@ -1,0 +1,161 @@
+---
+_schema: default
+_uuid: 46d2a5fd-615a-4d33-be84-9d6704bf8160
+_created_at: '2021-09-15 23:13:40 +0000'
+details:
+  title: Visual Data Previews with vanilla JavaScript
+  description: >-
+    Use CloudCannon's document events and the CloudCannon object to re-render
+    your page as the open file changes in the Visual Editor, and to write values
+    back from your own controls.
+  image: >-
+    https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+  category:
+    - Explanation
+  related_articles:
+    - _type: developer_articles
+      item: af6251bf-5238-46c6-8b99-74788a92fd67
+    - _type: developer_articles
+      item: c2407e1f-4ba7-41b0-a5a3-69ac86cf3c41
+    - _type: developer_articles
+      item: 75b111c3-8905-46d4-aaf1-18ed767f7f43
+author_notes:
+  docshots: Not applicable
+---
+<comp.Notice info_type="deprecated">
+  **The v0 Visual Editor API is deprecated.**
+
+  CloudCannon continues to maintain the v0 API and fix critical bugs, but it receives no new features or further development. Existing *Sites* relying on this configuration will keep working. For new *Sites*, we recommend v1, the current version of the [Visual Editor API](/documentation/developer-articles/what-is-the-visual-editor-api/).
+</comp.Notice>
+
+A live preview in vanilla JavaScript comes down to four steps: listen for `cloudcannon:load`, call `enableEvents()`, listen for `cloudcannon:update`, and read the latest data with `value()`. The sections below walk that sequence, and the separate job of writing values back into the file with `set()`. For the event model behind it, and for what your <comp.GlossaryTerm term="/user/glossary/s/site.yml">Site</comp.GlossaryTerm> needs before any of it runs, please read our documentation on [what Visual Data Previews are](/documentation/developer-articles/what-are-visual-data-previews/).
+
+This article covers the v0 <comp.GlossaryTerm term="/user/glossary/v/visual-editor-api.yml">Visual Editor API</comp.GlossaryTerm>, not v1. The `cloudcannon:load` event belongs to both: CloudCannon dispatches it on `document` for either version, and its `detail` carries the v0 object alongside `CloudCannonAPI`, the router that v1 comes from. For the current API, please read our documentation on [what the Visual Editor API is](/documentation/developer-articles/what-is-the-visual-editor-api/).
+
+## Listening for the load event
+
+Listen for `cloudcannon:load` on `document` and take the `CloudCannon` object from the event.
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+document.addEventListener('cloudcannon:load', function (e) {
+  onLoad(e.detail.CloudCannon); /*1*/
+});
+```
+<comp.Annotation number="1">
+
+Note the singular `detail`. `e.details` is `undefined`.
+
+</comp.Annotation>
+</comp.CodeBlock>
+
+A script that starts after the event has already fired would wait on a listener that never runs, so check for the v0 object on `window` as well. Test for `enableEvents` rather than the object alone: `window.CloudCannon` holds whichever version was installed last, and a `useVersion('v1')` call elsewhere on your page replaces it. For more information, please read our documentation on [initializing the Visual Editor API](/documentation/developer-articles/initialize-the-visual-editor-api/).
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+document.addEventListener('cloudcannon:load', function (e) {
+  onLoad(e.detail.CloudCannon);
+});
+
+if (window.CloudCannon?.enableEvents) { /*1*/
+  onLoad(window.CloudCannon);
+}
+```
+<comp.Annotation number="1">
+
+Covers a script that loads late, such as one imported dynamically after the page has finished loading.
+
+</comp.Annotation>
+</comp.CodeBlock>
+
+## Turning on update events
+
+Your load handler has one more job: call `enableEvents()` once, or `cloudcannon:update` never fires.
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+function onLoad(CloudCannon) {
+  CloudCannon.enableEvents();
+}
+```
+</comp.CodeBlock>
+
+With events enabled, add the update listener.
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+document.addEventListener('cloudcannon:update', function (e) {
+  render(e.detail.CloudCannon);
+});
+```
+</comp.CodeBlock>
+
+## Reading the latest data
+
+`value()` returns a promise that resolves to the file's structured data as an object, or as an array where the file's top-level value is a list. For a page with front matter, that is the front matter, and it does not return the file's body. The published types declare the return as `Promise<string>`, but `value()` resolves a parsed value rather than a JSON string.
+
+Pairing `value()` with the update event is what produces a live preview: the event tells you something changed, and `value()` tells you what the data is now.
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+async function render(CloudCannon) {
+  const data = await CloudCannon.value(); /*1*/
+  document.getElementById('title').textContent = data.title;
+}
+```
+<comp.Annotation number="1">
+
+Resolves to a parsed value, not a JSON string, even though the published types declare `Promise<string>`.
+
+</comp.Annotation>
+</comp.CodeBlock>
+
+## Writing a value back
+
+`set()` writes a value into the file you have open, which is useful for custom controls you add to the page. CloudCannon claims the editing lock for the file before applying the change, and the result behaves the same as editing that field in the <comp.GlossaryTerm term="/user/glossary/v/visual-editor.yml">Visual Editor</comp.GlossaryTerm> sidebar. If the lock cannot be claimed, the write is dropped without an error reaching your code, so do not treat a resolved call as proof the value was saved.
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+CloudCannon.set('title', 'A new title');
+```
+</comp.CodeBlock>
+
+## The complete preview loop
+
+The load handler enables events and performs the first render. The update handler re-renders. The `window.CloudCannon?.enableEvents` check covers a script that started late. You can register the update listener before or after `enableEvents()` runs, because neither the listener nor the call depends on the other having happened first.
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+async function render(CloudCannon) {
+  const data = await CloudCannon.value();
+  document.getElementById('title').textContent = data.title;
+}
+
+function onLoad(CloudCannon) {
+  CloudCannon.enableEvents(); /*1*/
+  render(CloudCannon); /*2*/
+}
+
+document.addEventListener('cloudcannon:load', (e) => onLoad(e.detail.CloudCannon));
+document.addEventListener('cloudcannon:update', (e) => render(e.detail.CloudCannon)); /*3*/
+
+if (window.CloudCannon?.enableEvents) {
+  onLoad(window.CloudCannon);
+}
+```
+<comp.Annotation number="1">
+
+Without this call, the update listener below never fires.
+
+</comp.Annotation>
+<comp.Annotation number="2">
+
+The load event does not carry content, so render once here to populate the page with the current values.
+
+</comp.Annotation>
+<comp.Annotation number="3">
+
+You can register this listener before or after `enableEvents()` runs.
+
+</comp.Annotation>
+</comp.CodeBlock>

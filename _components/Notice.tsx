@@ -1,5 +1,5 @@
 interface NoticeProps {
-  info_type: "important" | "info" | "pricing" | "permissions";
+  info_type: "important" | "info" | "pricing" | "permissions" | "deprecated";
   children: unknown;
 }
 

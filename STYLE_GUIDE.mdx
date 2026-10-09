@@ -1,7 +1,7 @@
 # CloudCannon Documentation Style Guide
 
-**Last Updated:** September 10, 2026  
-**Version:** 2.57
+**Last Updated:** October 6, 2026  
+**Version:** 2.69
 
 This style guide establishes writing standards for all CloudCannon documentation. It combines patterns from our existing documentation with industry best practices from Microsoft Writing Style Guide, Google Developer Documentation Style Guide, and Write the Docs community standards.
 
@@ -249,10 +249,13 @@ When in doubt, trace the claim to its source — code, configuration, or observe
   - **Site Navigation**, **Site Header**, **App Sidebar**, **Section Navigation**, **Trial Countdown**
   - **Filter Bar** (the filter element above a list; the button inside it is **Add Filter**)
   - **Card** (the repeated item block used throughout the app — in browsers and lists, and inside inputs)
+  - **Error Card** (the red card the *Visual Editor* renders in place of an *Editable Region* it cannot render)
   - **Context Menu** (the menu a control opens in place; refer to it as "the *Context Menu*" rather than prefixing the heading it carries)
   - **Git Provider**
   - **Git Repository**
   - **Access Review** (the CSV export of everyone with access to an *Organization*; lowercase "access review" only when naming the audit process rather than the file)
+  - **Visual Data Previews** (the deprecated v0 *Visual Editor API* feature that sends content changes to a *Site's* own JavaScript)
+  - **Visual Data Bindings** (the deprecated `data-cms-bind` feature that marks which elements on a page correspond to which data)
 
 - Use lowercase for general usage:
   - ✅ **Good:** "A Site is a website in CloudCannon."
@@ -261,7 +264,7 @@ When in doubt, trace the claim to its source — code, configuration, or observe
   - ✅ **Good:** "A collection is a group of related files."
 
 **Subscription Plans**
-- **Plan names are capitalized and italicized.** Write the named tiers as *Standard Plan*, *Team Plan*, *Enterprise Plan*, and *Free Plan*, and the generic product noun as *Subscription Plan* (plural *Subscription Plans*).
+- **Plan names are capitalized and italicized.** Write the named tiers as *Standard Plan*, *Team Plan*, *Enterprise Plan*, and *Lite Plan*, and the generic product noun as *Subscription Plan* (plural *Subscription Plans*).
 - **The product noun *Plan* never appears bare.** A tier name or the word *Subscription* must immediately precede *Plan* every time. Rephrase former head-noun, state-descriptor, and attributive uses so they carry *Subscription*:
   - "your plan", "the plan", "each plan" → *your Subscription Plan*, *the Subscription Plan*, *each Subscription Plan*
   - "change plans", "a range of plans" → *change Subscription Plans*, *a range of Subscription Plans*
@@ -404,7 +407,9 @@ Use consistent terminology throughout documentation. Refer to the same thing wit
 
 **Plan Tier Scope**
 
-Only document behavior for active plans: **Standard**, **Team**, **Enterprise** (and **Free** where applicable). Do not document behavior for the deprecated **Pro**, **Business**, **Developer**, or **Agency** plans, even if the underlying feature flag in `app` enumerates them.
+Only document behavior for **Standard**, **Team**, **Enterprise**, and **Lite**. Do not document behavior for **Pro**, **Business**, **Developer**, **Agency**, **Free**, or **Personal**, even if the underlying feature flag in `app` enumerates them. The first four are deprecated. *Personal* is excluded for a different reason: it is the database default every *Organization* starts on rather than a tier anyone selects, and there is no *Free* plan in the app at all.
+
+This rule governs plan names only. Terms that happen to contain the same words are unaffected — *Free Trial* is a separate feature and stays, as does the *Developers* [Default Permission Group](/documentation/user-articles/what-are-default-permission-groups/), which has nothing to do with the deprecated Developer plan.
 
 When stating plan gating for a feature, only name active tiers. If a feature flag lists deprecated plans alongside active ones, filter to the active ones for the plan-tier notice.
 
@@ -437,6 +442,21 @@ Use "editor" only when referring to an editing interface, and only when it is im
 
 Established compounds such as *Visual Editor API*, `inEditorMode`, or **editor-only** (meaning "only in the preview, not on the live *Site*") are acceptable when the surrounding sentence already names the environment.
 
+The same principle governs two other vague stand-ins.
+
+**"the interface"** — name the surface instead. A reader cannot act on "the interface", and an AI agent quoting the sentence out of context cannot tell which part of CloudCannon is meant.
+
+- ❌ **Avoid:** "Editor Links let you link to other sections of the interface."
+- ✅ **Good:** "Editor Links let you link to other pages in CloudCannon."
+- ✅ **Good:** "…resolved by CloudCannon in the *Data Editor* following your update."
+
+**"switcher"** — do not use it as the name of a CloudCannon UI element that already has one. The control that moves between *Organizations* or clients is the *Context Menu*; it carries the heading *Switch Organization*, or *Switch Client* inside a *Partner Organization* (see [1.4.1 Italics](#141-italics)).
+
+- ❌ **Avoid:** "Open the Organization switcher."
+- ✅ **Good:** "Open the *Context Menu* on the *Organization* *Card*."
+
+This does not ban the word. "Locale switcher" is the name of the floating control the *Rosey CloudCannon Connector* adds to the *Visual Editor*, which has no other name, and `docshot_key` values are filenames rather than prose. Use "switcher" where it names a real control, not where it stands in for one CloudCannon already names.
+
 #### 1.3.4 Settings navigation: pages, tabs, and sections
 
 CloudCannon's settings areas nest their destinations differently, and the correct noun depends on where the destination lives. Choose the word by location, not by label — the same label can be a page in one area and a section in another.
@@ -468,7 +488,7 @@ Because *Details* appears in both *Org Settings* and *Project Settings*, the sam
 Use asterisks around CloudCannon-specific features and UI elements:
 
 **DO Italicize:**
-- **UI Components:** *Visual Editor*, *Content Editor*, *Data Editor*, *Source Editor*, *Data Panel*, *App Sidebar*, *Site Header*, *Site Navigation*, *Section Navigation*, *Collection Browser*, *File Browser*, *Sites Browser*, *Organizations Browser*, *Context Menu*, *Trial Countdown*, *Filter Bar*, *Card*
+- **UI Components:** *Visual Editor*, *Content Editor*, *Data Editor*, *Source Editor*, *Data Panel*, *App Sidebar*, *Site Header*, *Site Navigation*, *Section Navigation*, *Collection Browser*, *File Browser*, *Sites Browser*, *Organizations Browser*, *Context Menu*, *Trial Countdown*, *Filter Bar*, *Card*, *Error Card*
 - **Core Concepts:** *Site*, *Organization*, *Project*, *Collection*, *Permission Group*, *Permission*, *Scope*, *Exception*, *Resource*, *Base Domain*, *Team Member*, *Schema*, *Structure*, *Configuration File*, *Pull Request*, *Git Provider* (for *Permission*, *Scope*, and *Exception*, see **Concept vs. Action** below)
 - **Features:** *Build*, *Git Repository*, *Publish Branch*, *Custom Domain*, *Testing Domain*, *Client Sharing*, *Site Sharing*, *Publishing Method*, *Publishing Workflow*, *Hosting Bandwidth*, *Build Time*, *Add-On*, *Overage*, *Billing Period*, *Free Trial*, *Access Review*
 - **All Input Types:** *Array Input*, *Boolean Input*, *Code Input*, *Color Input*, *Date Input*, *File Input*, *Number Input*, *Object Input*, *Select Input*, *Text Input*, *Rich Text*, *URL Input*
@@ -1074,9 +1094,36 @@ Avoid vague pricing notices that don't identify the gated feature:
 - ❌ `**Some features are only available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise Plan</a>.**` — leaves the reader guessing which features
 - ❌ `**This feature is available on our** [**Team or Enterprise Plan**](https://cloudcannon.com/pricing/)**.**` — over-wrapped bold/link splits (and a non-documentation link must be an HTML anchor, not markdown)
 
+**`deprecated` — A feature that still works but is no longer developed**
+
+Use `deprecated` for any feature CloudCannon has stopped developing. This notice answers "is this still the right thing to use?" — distinct from `important`, which carries a caveat about a feature that is current, and from `pricing`, which answers whether the reader can access the feature at all.
+
+CloudCannon's deprecation position is the same across features: **the feature is maintained, critical bugs are fixed, and no new features or further development are planned.** Existing *Sites* relying on this configuration will keep working. State that position rather than hedging about support.
+
+```mdx
+<comp.Notice info_type="deprecated">
+  **Visual data bindings are deprecated.**
+
+  CloudCannon continues to maintain visual data bindings and fix critical bugs, but they receive no new features or further development. Existing *Sites* relying on this configuration will keep working. For new *Sites*, we recommend [Editable Regions](/documentation/developer-articles/what-are-editable-regions/).
+</comp.Notice>
+```
+
+Three sentences, one job each:
+1. **Status.** Name the feature and state that it is deprecated, in bold. This sentence must stand alone — it is the part an AI agent quoting the page out of context is most likely to carry.
+2. **What deprecation means.** The maintenance position above, plus the deprecation date where it is known ("deprecated since October 2025"). A dated statement stays self-scoping when quoted away from the page.
+3. **What to use instead.** Name the replacement and link to it. If there is no replacement, say so rather than leaving the reader without a next step.
+
+Placement:
+- **Must be first in article** — a reader deciding whether to adopt a feature needs its status before they read how to use it
+- Applies to the whole article. A deprecated feature does not need the notice repeated per section
+- When an article documents a deprecated method alongside a current one, the notice scopes to the method rather than the article, so name the method in the status sentence
+
+**The wording carries the meaning, not the notice type.** `Notice` does not pass `info_type` through to the Markdown export, so the type is absent from `index.md`, `llms.txt`, and `llms-full.txt`, and the notice icon is excluded from search indexing. A reader or agent receiving only the notice text must still be able to tell the feature is deprecated. Never rely on the type to signal it.
+
 **General Guidelines:**
 - Keep notice text concise.
-- Prefer using only one notice at the start of an article (either permissions, pricing, or important).
+- Prefer using only one notice at the start of an article (either deprecated, permissions, pricing, or important).
+- **When a `deprecated` notice is present, it comes first.** Deprecation is the most fundamental gate: a reader who should not adopt a feature does not need its plan availability or permission requirements. The full order at the top of an article is deprecated, then pricing, then permissions.
 - If both a pricing notice and a permissions notice are genuinely needed (e.g., for an Instructions article that gates on both plan and permission), place the **pricing notice first**, followed immediately by the permissions notice, before any other content. Pricing comes first because plan availability is the more fundamental gate — readers on the wrong plan don't need to read the permission requirements.
 - **A destructive or irreversible action may stack a `permissions` notice and an `important` notice at the top.** For actions like deleting an *Organization* or *Site*, place the permissions notice first (who can perform the action), immediately followed by an `important` notice stating the irreversibility and what is lost, before any other content. This is the one case where two notices at the start is expected rather than noise: the irreversibility warning is a load-bearing caveat the reader must see before acting, so it belongs at the top for the same reason access gates do.
 - **Always place `pricing` and `permissions` notices at the top of the article**, never in section-level positions. Readers expect to see access gates up front; section-level notices add noise and obscure the canonical statement of requirements. (The `important` notice type can appear inline next to the section it applies to — see its placement guidance above.)
@@ -1115,7 +1162,21 @@ Use for UI screenshots and snippets.
 - Keep titles short and descriptive (e.g., "The Site Dashboard", "The Add SSL Certificate modal").
 - Use sentence case.
 
+**When a DocShot is warranted:**
+
+`author_notes.docshots` asks whether an article has every screenshot it needs, which depends on knowing when one is needed. A DocShot earns its place where it shows the reader something the prose cannot:
+
+- The reader must locate something whose position is not obvious from its name — a tab inside a settings page, a control inside a modal, a panel that only appears in some states.
+- The page walks through a screen or a multi-step flow.
+- The text describes what something displays or looks like, rather than only naming it.
+
+A single named control inside a numbered step does not warrant one: "Click the *Save changes* button" is complete without a screenshot. Neither do concept pages with no UI, or configuration and code reference pages.
+
+Where a screenshot is warranted but has not been captured yet, place a `[docshot]` placeholder at the point it belongs and set `author_notes.docshots` to `Needs docshots`. A placeholder marks work to do; its absence reads as a decision that no screenshot was needed.
+
 **Avoid near-duplicate docshots:**
+
+This is the opposite bound to the rule above: *When a DocShot is warranted* governs too few screenshots, this one governs too many.
 
 Do not include a docshot whose only difference from a sibling docshot is a transient or removed indicator — a loading button label, a removed notification, a cleared warning, or a similar small visual change. Each docshot should anchor a visually distinct state worth showing on its own.
 
@@ -2314,6 +2375,14 @@ When you update a rule here, update the corresponding rule in `STYLE_GUIDE_AGENT
 ## 4. Revision History
 
 | Version | Date | Changes |
+| 2.69 | 2026-10-06 | Images (§1.5.2 DocShot Component): carried **Avoid near-duplicate docshots** into `STYLE_GUIDE_AGENTS.md` as `docshot.avoid_near_duplicate_docshots`. The rule has been in the prose guide since it was written, but was never mirrored in the machine-readable file, so 2.67's `docshot.warranted.pairs_with` pointed at a key that did not exist — an agent following the cross-reference found nothing and could not apply the bound. Agents reading only `STYLE_GUIDE_AGENTS.md` had the lower bound on screenshots without the upper one. The key carries the rule, the three avoid examples (a removed *Updates available* notification, a *Publish* button reading *Publishing…*, a cleared warning *Card*), the correct contrast, and a `mirrors` pointer back to §1.5.2. Also added the reciprocal pairing sentence to the prose, which had the pairing stated in only one direction. No rule changed; this closes a sync gap between the two files |
+| 2.68 | 2026-10-06 | Terminology (§1.3.3 Do not use "editor" in isolation): added **"the interface"** and **"switcher"** as vague stand-ins, extending the existing "editor" rule to the two other words that name a CloudCannon surface without identifying it. Both were being enforced by the `/review-doc` skill's checklist without existing in either style guide file, so reviews were failing articles against an unwritten rule. **"the interface"** is now a straightforward avoid — name the surface (*Visual Editor*, *Data Editor*, *App Sidebar*, a page) or rephrase to "in CloudCannon", since a reader cannot act on "the interface" and the phrase survives an out-of-context quote carrying no fact. Documentation usage supports this: one occurrence across every article and guide (`developer/guides/unified-configuration-migration-guide/live-configuration-and-data-editing.mdx:32`). **"switcher"** is deliberately **not** a blanket ban, against the skill's wording. All 13 occurrences in the docs are legitimate: twelve name the floating locale switcher the *Rosey CloudCannon Connector* adds to the *Visual Editor*, which has no other name, and one is a `docshot_key` filename rather than prose. The rule is scoped to what 2.52 already established for the *Context Menu* — do not call a CloudCannon element a "switcher" when it has a name; the control that moves between *Organizations* or clients is the *Context Menu*, headed *Switch Organization* or *Switch Client*. Added `terminology.disambiguation.interface` and `terminology.disambiguation.switcher` in `STYLE_GUIDE_AGENTS.md`, plus `vague_interface_reference` and `switcher_naming_a_named_element` in `validation_rules.check_for` |
+| 2.67 | 2026-10-06 | Images (§1.5.2 DocShot Component): added **when a DocShot is warranted**, the test `author_notes.docshots` has always presupposed but never stated. All three `docshots_values` turn on whether the article has every screenshot it needs — `Not applicable` is explicitly wrong "when a screenshot is warranted but missing" — yet nothing defined warranted, so the flag rested on unstated judgment and the same page could honestly carry any of the three values. A DocShot is now warranted where the reader must locate something whose position is not obvious from its name (a tab inside a settings page, a control inside a modal, a conditionally visible panel), where the page walks through a screen or a multi-step flow, or where the text describes what something displays rather than only naming it. A single named control inside a numbered step does not warrant one — "Click the *Save changes* button" is complete without a screenshot — nor do concept pages with no UI, or configuration and code reference pages. Also states the placeholder rule: where a screenshot is warranted but not yet captured, a `[docshot]` placeholder goes at the point it belongs and `author_notes.docshots` becomes `Needs docshots`, because a placeholder marks work to do while its absence reads as a decision that none was needed. Added as `docshot.warranted` in `STYLE_GUIDE_AGENTS.md` and cross-referenced from `docshots_values.warranted_test`. Pairs with the existing near-duplicate rule, which bounds the opposite failure — warranted governs too few screenshots, near-duplicate governs too many |
+| 2.66 | 2026-10-06 | Terminology (§1.2.2 Capitalization / §1.4.1 Italics): added ***Visual Data Previews*** and ***Visual Data Bindings*** as CloudCannon concepts, so both are capitalized and italicized. Both name deprecated features — *Visual Data Previews* is the v0 *Visual Editor API* feature that sends content changes to a *Site's* own JavaScript; *Visual Data Bindings* is the `data-cms-bind` feature that marks which elements correspond to which data — but deprecation does not make a feature name a common noun, and the two hub articles were the only "What is/are" pages in the *Visual Editing* navigation section not capitalizing their subject, against three current siblings (*Visual Editing*, *Editable Regions*, *Visual Editor API*) that do. Titles become "What are Visual Data Previews?" and "What are Visual Data Bindings?"; slugs are unaffected, so no redirects are needed. Neither term has a glossary entry, so mentions take italics only, with no `comp.GlossaryTerm`. Capitalization carries into cross-link text per `cross_link_pointer.position_decides_not_termhood` ([what Visual Data Bindings are]), and drops in headings per `headings_no_italics`. Added to `glossary.italicization_rules.use_asterisks_for.ui_components` in `STYLE_GUIDE_AGENTS.md`. Sweep across the nine deprecated visual-editing articles is in progress and tracked per page |
+| 2.65 | 2026-10-02 | Plan scope (§1.2.2 Subscription Plans / Plan Tier Scope): corrected which plans may be named in documentation. The documentable set is now **Standard**, **Team**, **Enterprise**, and **Lite** — *Free* is removed and *Lite* added. *Free* was never a real tier (there is no `free` entry in `plan_details.yml`); the plan readers actually start on is *Personal*, which is the database default for `organisations.plan` and so a starting state rather than a tier anyone selects. Both are now named in the do-not-document list alongside the deprecated *Pro*, *Business*, *Developer*, and *Agency*. The named-tier list in §1.2.2 changes from *Free Plan* to *Lite Plan*. Closed a sync gap: the plan-scope rule existed only as prose here and had no machine-readable counterpart, so `documentable_plans` is added under `terminology.plan_capitalization` in `STYLE_GUIDE_AGENTS.md` with the allowed and never lists, the reasons, and a warning not to derive the set from `plan_details.yml` flags — *Lite* is marked `visible: false` alongside *Personal*, so neither `visible: true` nor `legacy: false` selects the right plans. Both files also carry an explicit scope limit: the rule governs plan **names** only, so *Free Trial* and the *Developers* Default Permission Group are unaffected despite containing suppressed words. Updated `plan_capitalization.rule` and `italicize_and_capitalize` in `STYLE_GUIDE_AGENTS.md` |
+| 2.64 | 2026-10-01 | Terminology (§1.2.2 Capitalization / §1.4.1 Italics): added ***Error Card*** as a CloudCannon UI component — the red card the *Visual Editor* renders in place of an *Editable Region* it cannot render. The element exists in the package as `editable-region-error-card` and was already documented across eleven Editable Regions pages, but only as lowercase "error card", so the term was unsanctioned in the same way *Health Check* was before 2.61. It qualifies under the existing ***Card*** entry added at 2.50, which covers the repeated item block wherever it appears and whose modifier-prefixed forms (*Organization Card*, *File Card*) are already house usage. Swept the 20 existing occurrences across ten pages: body prose takes *Error Card*, and **DocShot `alt` text takes a capitalized `Error Card` with no asterisks**, since alt is a plain-text attribute where markdown emphasis would render literally — the same reason italics are dropped in link text. Added to `terminology.capitalized_concepts` and `glossary.italicization_rules.use_asterisks_for.ui_components` in `STYLE_GUIDE_AGENTS.md`, with the alt-text exception noted inline |
+| 2.63 | 2026-10-01 | Notices (§1.5.1 `deprecated`): revised the continuity sentence in the deprecation position introduced at 2.62. It read "Existing configurations keep working", which answers a question about the configuration rather than the one the reader arrived with — a reader on a deprecated method wants to know whether the *Site* they already shipped is about to break, not whether an attribute still parses. The sentence is now **"Existing *Sites* relying on this configuration will keep working"**, naming the *Sites* rather than the configuration. Added the rule to §1.5.1 alongside the position statement, updated the `deprecated` example, and extended `deprecation_notice_content.cloudcannon_position` in `STYLE_GUIDE_AGENTS.md` with the required form and the retired wording. Applied to the three Visual-Editor deprecation notices retrofitted under 2.62 (`define-editable-regions-in-your-html`, `what-are-visual-data-bindings`, `editing-markdown-files-in-the-visual-editor`) |
+| 2.62 | 2026-09-25 | Notices (§1.5.1): added a fifth notice type, **`deprecated`**, for a feature that still works but is no longer developed. The semantic had no home, so 13 deprecation notices across the docs had split 8 `important` / 5 `info` with three different wordings, and none of them stated CloudCannon's actual position. Documented that position as a constant rather than a per-feature judgement: **the feature is maintained, critical bugs are fixed, no new features or further development are planned, and existing configurations keep working.** Retired the phrasing "CloudCannon cannot guarantee support for this feature", which appeared in three Visual-Editor articles and is the opposite of the commitment — it reads as *this may break*, sending readers to migrate on a false premise, when the deprecated method in question is live code with a named Toolproof suite (`e2e/toolproof/site/visual-editing/editables/legacy/class-editable/`). Specified a three-sentence form — status in bold, what deprecation means plus the date where known, then the replacement and its link — each sentence written to stand alone, because the status line is what an AI agent quoting out of context will carry. Added the rule that **the wording carries the meaning, not the notice type**: `Notice.toMarkdown` discards `info_type`, so the type is absent from `index.md`, `llms.txt`, and `llms-full.txt`, and the icon div is `data-pagefind-ignore="all"` — a notice that signals deprecation only through its type signals nothing to search or to agents. This constraint applies to every notice type, but bites hardest here, where the type name is the whole semantic. Placement is first-in-article, and a new ordering rule puts `deprecated` ahead of `pricing` and `permissions`, since a reader who should not adopt a feature does not need its plan or permission gates. Added `deprecated` to `types`, a `placement.deprecated` entry, a `deprecation_notice_content` block, and the `notice_type_not_in_markdown_export` constraint in `STYLE_GUIDE_AGENTS.md`. The `deprecated` variant of `_components/Notice.tsx` and the retrofit of the 13 existing notices are tracked separately in `.claude/plans/editable-regions-ssg-parity.plan.md` |
 | 2.57 | 2026-09-10 | Notices (§1.4.1 Italics, Group Names in Permissions Notices): revised the ***Partner*** permissions-notice form introduced at 2.56. The notice is now the multi-group clause plus, where it applies, a standalone Custom-Permission-Group sentence, and nothing else: "Members of the *Owners* and *Partner* [Default Permission Groups](…) can [action]. [Custom Permission Groups](…) cannot be granted this permission." Two changes from 2.56. First, the *Client Organization* qualifier no longer belongs in the notice — a permissions notice names who can perform the action, not where each group comes from, and the qualifier belongs in body prose where a reader needs it. Second, the Custom-Permission-Group clause is its own sentence and takes the plural, with the whole phrase as the link text; the folded singular variant ("and no [Custom Permission Group](…) can be granted this action") is superseded. Also closed a 2.56 sync gap: the rule reached `STYLE_GUIDE_AGENTS.md` but never got a prose section here, so **Naming the *Partner* Group in Permissions Notices** is added to §1.4.1 alongside the existing group-name rules. Updated `partner_group_in_permissions_notices` in `STYLE_GUIDE_AGENTS.md`, replacing its `form` and `never` keys and adding `client_organization_scope` |
 | 2.56 | 2026-09-10 | Notices (§1.5.1 `permissions`): documented how to name the ***Partner*** group in a permissions notice. An action authorised through `Organisation#user_owner?` is available to the *Owners* group **and** the *Partner* group, because the policy matches `creation_type ['owner', 'partner']` — so an owner-gated action that names only *Owners* is incomplete. Name both with the existing multi-group notice pattern (*Owners* and *Partner* [Default Permission Groups](…)), then add a following sentence scoping *Partner* to a *Client Organization*, since naming it without that qualifier sends readers in an ordinary *Organization* hunting for a group they do not have. "Default" belongs in the link text: *Partner* is auto-created rather than custom, so it is a *Default Permission Group* even though it is not one of the five every *Organization* has. The Custom-Permission-Group clause is appended only when no permission string exists for the action, verified against the permission registry. The form was already in use in `view-your-organization-as-a-team-member.mdx` but undocumented, so four other articles had drifted to a two-sentence variant or omitted *Partner* entirely. Added `partner_group_in_permissions_notices` under `specific_group_names_in_body_prose` in `STYLE_GUIDE_AGENTS.md` |
 | 2.55 | 2026-09-10 | Terminology (§1.2.2 Capitalization / §1.4.1 Italics): added ***Access Review*** as a capitalised, italicised CloudCannon feature — the CSV listing everyone with access to an *Organization*, exported from the *Members* tab on the *Team* page under *Org Settings*. Added a rule that the **bare noun "access review" stays lowercase when it names the process**: italicise the artifact (export an *Access Review*; an *Access Review* lists every membership), but leave the audit activity plain ("run an access review each quarter"). This mirrors the *Free Trial* / "trial" and resource/quantity splits, and matters more here than for most terms because "access review" is an established industry term for the practice, so the capitalisation is what distinguishes CloudCannon's file from the activity it supports. Created the `a/access-review.yml` glossary entry. Added to `terminology.capitalized_concepts` and `glossary.italicization_rules.use_asterisks_for.features` in `STYLE_GUIDE_AGENTS.md` |

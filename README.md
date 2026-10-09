@@ -26,7 +26,7 @@ Content follows a modified [Diátaxis framework](https://diataxis.fr/) — separ
 
 1. [Install Deno](https://docs.deno.com/runtime/getting_started/installation/) via curl, brew, or your preferred method.
    This repo pins Deno **2.6.8** in `.dvmrc` — if you use [dvm](https://github.com/justjavac/dvm) it will pick this up automatically.
-2. Run `deno task serve` to build the site and start a local dev server.
+2. Run `deno task serve:fast` to build the site and start a local dev server.
 
 Deno doesn't have a separate dependency-install step; the first run will download and cache everything automatically.
 
@@ -34,21 +34,38 @@ Deno doesn't have a separate dependency-install step; the first run will downloa
 
 | Task | Command | Description |
 |------|---------|-------------|
-| `serve` | `deno task serve` | Build with Pagefind + start dev server |
-| `build` | `deno task build` | Build the static site with Pagefind |
+| `serve:fast` | `deno task serve:fast` | **Start here.** Build without the generated reference pages + start dev server |
+| `serve:fast:local-docshots` | `deno task serve:fast:local-docshots` | Same as `serve:fast`, plus local docshots * |
+| `serve` | `deno task serve` | Full build with Pagefind + start dev server. Slow, and can run out of memory |
+| `serve:local-docshots` | `deno task serve:local-docshots` | Same as `serve`, plus local docshots * |
+| `build` | `deno task build` | Build the static site with Pagefind. Used by CI |
 | `check-links` | `deno task check-links` | Check for broken internal links |
 | `check-images` | `deno task check-images` | Check for broken images (local, DocShot, and external) |
-| `serve:local-docshots` | `deno task serve:local-docshots` | Symlink local docshots + serve with `DOCSHOTS_LOCAL=1` * |
-| `serve:fast:local-docshots` | `deno task serve:fast:local-docshots` | Same as `serve:local-docshots`, but skips the reference section (`SKIP_REFERENCE=1`) for a faster build * |
 
-\* These tasks create a symlink to `../app/app/assets/e2e/screenshots`. This only works if you have the [app](https://github.com/CloudCannon/app) repo cloned as a sibling directory. The app repo is a private repository only available to CloudCannon employees.
+\* These tasks create a symlink to `../app/app/assets/e2e/screenshots`, so DocShots resolve against your local screenshots instead of the published ones. This only works if you have the [app](https://github.com/CloudCannon/app) repo cloned as a sibling directory. The app repo is a private repository only available to CloudCannon employees.
+
+### Why use the fast version?
+
+The `:fast` tasks set `SKIP_REFERENCE=1`, which skips generating the automated reference pages under `/developer-reference/`. Building them is the slowest part of the build and the usual cause of out-of-memory failures.
+
+### What every serve task skips
+
+Separately from `SKIP_REFERENCE`, **any** serve task only builds changelogs from the last 6 months. This is gated on dev mode rather than on `:fast`, so `serve` and `serve:fast` behave the same way here. Older entries are still in the repo, they're just not rendered, and links to them will 404 locally.
+
+Override the window with `CHANGELOG_MONTHS`:
+
+```sh
+CHANGELOG_MONTHS=24 deno task serve:fast
+```
+
+Production builds are unaffected — `deno task build` renders every changelog back to 2015.
 
 ## 🔍 Development with Search
 
 The site uses [Pagefind](https://pagefind.app/) for search functionality. Pagefind
 is integrated into Lume via `_config.ts` and runs automatically after each build.
 
-Just run `deno task serve` and search will work automatically.
+Just run `deno task serve:fast` and search will work automatically. Note that a fast build won't index the generated reference pages, so they won't appear in local search results.
 
 ## 📁 Directory layout
 

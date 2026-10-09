@@ -81,14 +81,25 @@ Follow `STYLE_GUIDE.mdx`. The high-level rules:
 
 | Task | Command |
 |------|---------|
-| Serve | `deno task serve` |
-| Build | `deno task build` |
+| Serve | `deno task serve:fast` |
+| Serve with local docshots | `deno task serve:fast:local-docshots` |
 | Check links | `deno task check-links` |
 | Check images | `deno task check-images` |
 | Lint | `deno lint` |
 | Typecheck | `deno check --all` |
 
 Don't run any of these proactively.
+
+Always use the `:fast` serve tasks. `deno task serve` and `deno task build` also render the reference section, which runs out of memory. The `:fast` tasks set `SKIP_REFERENCE=1` and skip it. Use `serve:fast:local-docshots` when you need docshots from a local `app` checkout instead of the published ones.
+
+Two things won't be there on a serve:
+
+- **Generated reference pages** under `/developer-reference/` — skipped by `SKIP_REFERENCE=1` on the `:fast` tasks.
+- **Changelogs older than 6 months** — skipped by any serve task, fast or not. Prefix with `CHANGELOG_MONTHS=<n>` to widen the window when working on an older entry.
+
+Links into either will 404 locally.
+
+Never run `deno task build`. It's the production build and has no fast variant; if you need to verify a page renders, use `serve:fast`. If a task fails with an out-of-memory error, say so — don't retry with a larger heap.
 
 ---
 

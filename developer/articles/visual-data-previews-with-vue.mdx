@@ -1,0 +1,112 @@
+---
+_schema: default
+_uuid: 98c153a7-88a8-4532-a279-040e61083ff8
+_created_at: '2023-06-22 06:54:28 +0000'
+details:
+  title: Visual Data Previews with Vue
+  description: >-
+    Use the CloudCannon Visual Editor Connector to re-render a Nuxt or Vue
+    component as the open file changes in the Visual Editor.
+  image: >-
+    https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+  category:
+    - Explanation
+  related_articles:
+    - _type: developer_articles
+      item: af6251bf-5238-46c6-8b99-74788a92fd67
+    - _type: developer_articles
+      item: 46d2a5fd-615a-4d33-be84-9d6704bf8160
+    - _type: developer_articles
+      item: 75b111c3-8905-46d4-aaf1-18ed767f7f43
+author_notes:
+  docshots: Not applicable
+---
+<comp.Notice info_type="deprecated">
+  **The v0 Visual Editor API is deprecated.**
+
+  CloudCannon continues to maintain the v0 API and fix critical bugs, but it receives no new features or further development. Existing *Sites* relying on this configuration will keep working. For new *Sites*, we recommend v1, the current version of the [Visual Editor API](/documentation/developer-articles/what-is-the-visual-editor-api/).
+</comp.Notice>
+
+Vue re-renders a component when its reactive data changes, so a *Visual Data Preview* in Vue comes down to assigning CloudCannon's latest data to a reactive value. The CloudCannon Visual Editor Connector wraps the sequence described in our documentation on [using Visual Data Previews with vanilla JavaScript](/documentation/developer-articles/visual-data-previews-with-vanilla-javascript/): it listens for CloudCannon's events, calls `enableEvents()`, reads the latest data with `value()`, and hands it to a callback you supply.
+
+This article covers the v0 <comp.GlossaryTerm term="/user/glossary/v/visual-editor-api.yml">Visual Editor API</comp.GlossaryTerm>, not v1. The `cloudcannon:load` event belongs to both: CloudCannon dispatches it on `document` for either version, and its `detail` carries the v0 object alongside `CloudCannonAPI`, the router that v1 comes from. For the current API, please read our documentation on [what the Visual Editor API is](/documentation/developer-articles/what-is-the-visual-editor-api/).
+
+The examples below use the <a href="https://vuejs.org/guide/introduction.html#composition-api" target="_blank" rel="noopener noreferrer">Vue Composition API</a> and `<script setup>`, which needs Vue 3.2 or later. The connector itself does not depend on your Vue version: it hands your callback the latest data, and where you assign what it receives is up to your component.
+
+## What your Site needs
+
+* The component you want to preview has to render on a page CloudCannon can open. The <comp.GlossaryTerm term="/user/glossary/v/visual-editor.yml">Visual Editor</comp.GlossaryTerm> opens files, not components, and in a Nuxt project, files in the `pages/` directory are a good example of files that output to their own pages.
+* The component must read its data from a data or content file in your project, rather than holding it internally.
+* <comp.GlossaryTerm term="/user/glossary/c/collection.yml">Collection</comp.GlossaryTerm> configuration decides whether a file has a URL the *Visual Editor* can open. For what to check, please read our documentation on [what Visual Data Previews are](/documentation/developer-articles/what-are-visual-data-previews/).
+* The connector runs on the client and needs tearing down when your component goes away, which Vue's `onMounted` and `onBeforeUnmount` hooks handle.
+
+## Installation
+
+This package targets the deprecated v0 *Visual Editor API*. For a new <comp.GlossaryTerm term="/user/glossary/s/site.yml">Site</comp.GlossaryTerm>, please read our documentation on [initializing the Visual Editor API](/documentation/developer-articles/initialize-the-visual-editor-api/).
+
+<comp.CodeBlock language="shell" source="Terminal">
+```
+npm i @cloudcannon/visual-editor-connector
+```
+</comp.CodeBlock>
+
+## Connecting a component
+
+Call `onCloudCannonChanges()` when your component mounts, passing a callback. The connector runs that callback on load and after every change, handing it the file's structured data, and you assign what it receives to a reactive value. The code below goes inside your component's `<script setup>` block.
+
+<comp.CodeBlock language="javascript" source="pages/[...slug].vue">
+```
+import { onMounted, onBeforeUnmount, ref } from 'vue';
+import { onCloudCannonChanges, stopCloudCannonChanges } from '@cloudcannon/visual-editor-connector';
+
+const { page } = useContent(); /*1*/
+
+const pageData = ref(page.value); /*2*/
+
+onMounted(() => {
+  onCloudCannonChanges((latestValue) => {
+    pageData.value = latestValue; /*3*/
+  });
+});
+
+onBeforeUnmount(() => {
+  stopCloudCannonChanges(); /*4*/
+});
+```
+<comp.Annotation number="1">
+
+Replace this line with however your project fetches page data. `useContent()` comes from Nuxt Content v2's document-driven mode, which fetches the file in `content/` matching the current URL.
+
+</comp.Annotation>
+<comp.Annotation number="2">
+
+<a href="https://vuejs.org/api/reactivity-core.html#ref" target="_blank" rel="noopener noreferrer">Vue's ref function</a> creates a reactive value. Anything that reads `pageData` re-renders when it changes.
+
+</comp.Annotation>
+<comp.Annotation number="3">
+
+Assigning what the callback receives to the reactive value is what updates the preview.
+
+</comp.Annotation>
+<comp.Annotation number="4">
+
+Stops the connector listening. See the caveat below before relying on this in more than one component.
+
+</comp.Annotation>
+</comp.CodeBlock>
+
+You do not need to call `enableEvents()` yourself. `onCloudCannonChanges()` does it, and also covers the case where CloudCannon has already loaded by the time your component mounts.
+
+To cover that case, `onCloudCannonChanges()` reads `window.CloudCannon`. If other code on your page calls `useVersion('v1')`, CloudCannon reassigns that global to the v1 object, which has no `enableEvents()`, so the connector fails to start and your preview never updates. Pass `true` as the second argument, `useVersion('v1', true)`, to get the v1 object without reassigning the global. For more information, please read our documentation on [initializing the Visual Editor API](/documentation/developer-articles/initialize-the-visual-editor-api/).
+
+## Tearing down listeners
+
+`stopCloudCannonChanges()` removes every update listener registered through the package, not only the one belonging to the component that calls it. If two components each call `onCloudCannonChanges()`, the first to unmount stops updates for both.
+
+Call `onCloudCannonChanges()` in one component per page, or accept that unmounting any one of them ends previews for the rest until the page reloads.
+
+## Getting help
+
+If the connector does not behave as described, <a href="https://cloudcannon.com/support/">contact support</a> with your *Site* name, the Vue or Nuxt version your project uses, and what you expected to happen. You can also <a href="https://github.com/CloudCannon/visual-editor-connector/issues" target="_blank" rel="noopener noreferrer">raise an issue on the GitHub repository</a>.
+
+For a worked example, see the Nuxt variant of our <a href="https://cloudcannon.com/templates/sendit/">Sendit template</a>.

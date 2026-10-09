@@ -3,21 +3,101 @@ _schema: default
 _uuid: af6251bf-5238-46c6-8b99-74788a92fd67
 _created_at: '2021-09-15 23:13:40 +0000'
 details:
-  title: What are visual data previews
+  title: What are Visual Data Previews?
   description: >-
-    Live editing on CloudCannon lets your editors see exactly what they are
-    changing as they change it.
+    Visual Data Previews tell your website's JavaScript when the file open in the
+    Visual Editor changes, so your code can read the new data and re-render the
+    page.
   image: >-
     https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+  category:
+    - Explanation
   related_articles:
-    - _type: developer_articles
-      item: c002f90f-7a89-43d9-b238-3955ddec4604
     - _type: developer_articles
       item: 46d2a5fd-615a-4d33-be84-9d6704bf8160
     - _type: developer_articles
-      item: 4dc27408-06fe-403e-8bb3-a439805625ea
+      item: 75b111c3-8905-46d4-aaf1-18ed767f7f43
+    - _type: developer_articles
+      item: ceffb949-2057-4ad8-a5e9-d02898d06fc9
 author_notes:
-  docshots: Needs docshots
+  docshots: Not applicable
 ---
-CloudCannon sends events to your website when editors make changes to the front matter in the Visual Editor. Your JavaScript can capture these events and extend the functionality any way you want. Rerender your page as changes happen, or update your front matter with custom controls — CloudCannon puts the control in your hands.
+<comp.Notice info_type="deprecated">
+  **The v0 Visual Editor API is deprecated.**
 
+  CloudCannon continues to maintain the v0 API and fix critical bugs, but it receives no new features or further development. Existing *Sites* relying on this configuration will keep working. For new *Sites*, we recommend v1, the current version of the [Visual Editor API](/documentation/developer-articles/what-is-the-visual-editor-api/).
+</comp.Notice>
+
+*Visual Data Previews* are a way for your website's JavaScript to read a file's data as it changes in the <comp.GlossaryTerm term="/user/glossary/v/visual-editor.yml">Visual Editor</comp.GlossaryTerm> using the v0 <comp.GlossaryTerm term="/user/glossary/v/visual-editor-api.yml">Visual Editor API</comp.GlossaryTerm>.
+
+When you open a file in the *Visual Editor*, CloudCannon loads your webpage preview inside an iframe with its own separate `window`, and installs the v0 API on that `window` as an object named `CloudCannon`. Once your code calls `enableEvents()`, CloudCannon dispatches an event on `document` whenever the open file changes, and the webpage preview in the *Visual Editor* re-renders with the new values with the latest data from the `CloudCannon` object.
+
+This article covers the v0 *Visual Editor API*, not v1. Both versions use the `cloudcannon:load` event: CloudCannon dispatches it on `document` for either version, and its `detail` carries the v0 object alongside `CloudCannonAPI`, the router that v1 comes from. For the current API, please read our documentation on [what the Visual Editor API is](/documentation/developer-articles/what-is-the-visual-editor-api/).
+
+<comp.Notice info_type="info">
+  **Do you need the data in your own JavaScript?**
+
+  *Visual Data Previews* are for when something else on your page already owns the content: a framework component that renders from its own state, or a control you built that writes values back to the file.
+
+  Otherwise, use *Editable Regions* instead. You mark elements as editable and CloudCannon updates them in the preview directly, without your own JavaScript receiving the data. For more information, please read our documentation on [what Editable Regions are](/documentation/developer-articles/what-are-editable-regions/).
+</comp.Notice>
+
+## What your Site needs
+
+The *Visual Editor* opens files, not components, so the file you want to preview needs a URL CloudCannon can load. <comp.GlossaryTerm term="/user/glossary/c/collection.yml">Collection</comp.GlossaryTerm> configuration decides whether it has one: setting `disable_url` to `true` on a *Collection* removes the output URL for its files, and on a <comp.GlossaryTerm term="/user/glossary/s/site.yml">Site</comp.GlossaryTerm> that has not migrated to Unified Configuration the *Collection* also needs `output` set to `true`.
+
+A file with no output URL can still open in the *Visual Editor* when `new_preview_url` is set on its *Collection* or its <comp.GlossaryTerm term="/user/glossary/s/schema.yml">Schema</comp.GlossaryTerm>, because CloudCannon loads that URL instead. For more information, please read our documentation on [configuring your Collections](/documentation/developer-articles/configure-your-collections/).
+
+## The load and update events
+
+The diagram below shows the sequence the rest of this article describes.
+
+<comp.Mermaid
+  alt="A sequence diagram of a Visual Data Preview. CloudCannon dispatches cloudcannon:load to your page, your page calls enableEvents(), and when the open file changes CloudCannon dispatches cloudcannon:update. Your page then calls value(), CloudCannon returns the latest data, and your page re-renders."
+  chart={`sequenceDiagram
+    participant Page as Your page
+    participant CC as CloudCannon
+    CC->>Page: cloudcannon:load
+    Page->>CC: enableEvents()
+    Note over CC: The open file changes
+    CC->>Page: cloudcannon:update
+    Page->>CC: value()
+    CC-->>Page: The latest data
+    Note over Page: Your page re-renders
+  `}
+/>
+
+*Visual Data Previews* use two events, both dispatched on the `document` object of your previewed page:
+
+* `cloudcannon:load` — fires as soon as the API is ready. The `CloudCannon` object is already assigned to `window` by the time this event fires, so a script that runs late can read `window.CloudCannon` directly instead of waiting for the event.
+* `cloudcannon:update` — fires after each change to the file you have open, including changes made in the sidebar rather than on the page. Edits that arrive in quick succession, such as typing, are throttled to one event every 50 milliseconds rather than one per keystroke.
+
+Both events carry a `detail` object holding `CloudCannon`, the v0 API object, and `CloudCannonAPI`, the router that serves both versions. The property is `detail`, singular: `e.details` is `undefined`.
+
+## Turning on updates
+
+`cloudcannon:update` does not fire until something calls `enableEvents()` on the `CloudCannon` object. Until then, your page receives the load event and nothing else.
+
+Call `enableEvents()` once, in your `cloudcannon:load` handler.
+
+For the v1 equivalent, please read our documentation on [listening for changes with the Visual Editor API](/documentation/developer-articles/listen-for-changes-with-the-visual-editor-api/).
+
+## Reading and writing data
+
+`cloudcannon:update` tells you that something changed. Two methods on the `CloudCannon` object cover reading and writing a value.
+
+`value()` returns a promise resolving to the file's structured data. For a page with front matter, that is the front matter; it does not return the file's body. `value()` works on every *Site*: where your *Site* has migrated to Unified Configuration or has the *Enable live configuration and data reloading* flag enabled, CloudCannon reads the data live, and where it has neither, CloudCannon reads from the copy of the file it has downloaded for your editing session. For more information, please read our documentation on [the Unified Configuration flags](/documentation/developer-articles/unified-configuration-flags/).
+
+`set()` writes a value into the file you have open, which is how a control you built on the page writes back.
+
+For the v1 equivalents, please read our documentation on [reading and writing data with the Visual Editor API](/documentation/developer-articles/read-and-write-data-with-the-visual-editor-api/).
+
+## Visual Data Previews for your stack
+
+If your page is built with React, Vue, or Svelte, start from its connector article: please read our documentation on [using Visual Data Previews with React](/documentation/developer-articles/visual-data-previews-with-react/), [using Visual Data Previews with Vue](/documentation/developer-articles/visual-data-previews-with-vue/), or [using Visual Data Previews with Svelte](/documentation/developer-articles/visual-data-previews-with-svelte/). Each wraps the event handling in a package, so you do not write it yourself.
+
+For the events and the `CloudCannon` object directly, please read our documentation on [using Visual Data Previews with vanilla JavaScript](/documentation/developer-articles/visual-data-previews-with-vanilla-javascript/). The connectors wrap that same pattern, so this is also the page to read when one of them does not behave as you expect.
+
+Bookshop generates this same event handling as part of rendering your components, so you do not write it yourself: please read our documentation on [using Visual Data Previews with Bookshop](/documentation/developer-articles/visual-data-previews-with-bookshop/).
+
+To mark up which elements on your page correspond to which data, rather than to receive the data itself, please read our documentation on [what Visual Data Bindings are](/documentation/developer-articles/what-are-visual-data-bindings/).

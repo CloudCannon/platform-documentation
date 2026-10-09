@@ -8,6 +8,7 @@ export default function Tab({ name, children }: TabProps) {
     <div
       className="c-tabs__panel"
       role="tabpanel"
+      data-tab-name={name}
       x-data={`{ tabName: '${name}' }`}
       x-show="selectedTab === tabName"
       tabIndex={0}
