@@ -12,7 +12,7 @@ import {
   type PropertySignature,
   type SourceFile,
   SyntaxKind,
-} from "npm:ts-morph@23.0.0";
+} from "ts-morph";
 import type { CodeExample, DocEntry } from "../_types.d.ts";
 
 export const VEAPI_SECTION = "type.VisualEditorAPI";

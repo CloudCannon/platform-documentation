@@ -1,7 +1,6 @@
 import lume from "lume/mod.ts";
 import icons from "lume/plugins/icons.ts";
-
-import pagefind from "./_plugins/pagefind.ts";
+import pagefind from "lume/plugins/pagefind.ts";
 import date from "lume/plugins/date.ts";
 import sass from "lume/plugins/sass.ts";
 import inline from "lume/plugins/inline.ts";
@@ -15,8 +14,7 @@ import jsx from "lume/plugins/jsx.ts";
 import mdx from "lume/plugins/mdx.ts";
 
 import { slugify } from "./_components/utils/string-util.ts";
-
-import { parse as yamlParse } from "@std/yaml";
+import { parse as yamlParse } from "yaml";
 
 // Data highlights
 import "prismjs/components/prism-yaml.js";
@@ -254,11 +252,9 @@ if (Deno.env.get("DOCSHOTS_LOCAL")) {
 (site.formats.get(".md")?.engines?.[0] as any)?.engine?.disable?.("code");
 
 // Pagefind search indexing - runs automatically after each build
-// Uses local plugin (_plugins/pagefind.ts) with pagefind v1.5.0
 site.use(pagefind({
   outputPath: "/_pagefind", // Match templates, routing.json and postbuild
   ui: false, // Disable old PagefindUI
-  componentUI: true, // Enable new Component UI (v1.5+)
 }));
 
 site.use(jsx());
@@ -637,7 +633,20 @@ site.process([".html"], function processHTMLPages(pages) {
         (el) => {
           const keyEl = el.querySelector<HTMLElement>(".c-data-reference__key");
           const text = keyEl?.innerText || keyEl?.textContent || "";
-          const slug = fixIdCollisions(text);
+          // Keys are used verbatim as ids, but a key like "+ - * / %" is not a
+          // decodable URL fragment. Fall back to a slug for those, and skip the
+          // anchor entirely if the slug is empty. The hidden_if expression
+          // demonstrates this.
+          let idPrefix = text;
+          try {
+            decodeURIComponent(text);
+          } catch {
+            idPrefix = slugify(text);
+          }
+          if (!idPrefix) {
+            return;
+          }
+          const slug = fixIdCollisions(idPrefix);
           appendAnchorHeader(el, slug);
         },
       );

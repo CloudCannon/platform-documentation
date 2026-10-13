@@ -32,3 +32,12 @@ export default function ApiResourceIndex(
     </div>
   );
 }
+
+export function toMarkdown(): string {
+  const lines = getApiResources().map((resource) => {
+    const count = resource.operations.length;
+    const noun = count === 1 ? "endpoint" : "endpoints";
+    return `* [${resource.title}](${API_BASE_PATH}${resource.slug}/) — ${count} ${noun}`;
+  });
+  return lines.join("\n") + "\n\n";
+}
