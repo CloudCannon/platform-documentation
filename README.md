@@ -201,17 +201,18 @@ becomes:
 ## 📦 Bundling packages
 
 The esbuild flow on this website utilizes Deno rather than Node for module
-resolution, so Deno packages should be imported by URL. Node packages can be
-imported by their npm name & version, prefixed with `npm:`. See
+resolution. Add npm packages to the `imports` block in `deno.json`, pinned with
+`npm:name@version`, then import them by their bare name. See
 `_includes/scripts/alpine.js`:
 
 ```js
-import Alpine from "npm:alpinejs@latest";
-import intersect from "npm:@alpinejs/intersect@latest";
+import Alpine from "alpinejs";
+import intersect from "@alpinejs/intersect";
 ```
 
-These don't need to be added to a `package.json` anywhere, Lume/Deno will fetch
-them on first run. (This repo should never have a `package.json` in it).
+Run `deno install` after adding one so it lands in `node_modules` and
+`deno.lock`. These don't need to be added to a `package.json` anywhere. (This
+repo should never have a `package.json` in it).
 
 ---
 
