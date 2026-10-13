@@ -1,3 +1,7 @@
+import { blue, bold } from "@std/fmt/colors";
+
+const LOG_PREFIX = blue("[tidy-versions]");
+
 const filepath = "_data/systemversions.json";
 const versions = {
   _comment:
@@ -6,10 +10,15 @@ const versions = {
 };
 
 (function cleanHugoVersion() {
-  versions.go.hugo.list = versions.go.hugo.list.map((v) =>
+  versions.go.hugo.list = versions.go.hugo.list.map((v: string) =>
     v.replace(/^v/, "").replace(/\-[^\+]+\+extended/, "")
   );
   versions.go.hugo.default = versions.go.hugo.list[0];
 })();
 
 Deno.writeTextFileSync(filepath, JSON.stringify(versions, null, "\t"));
+console.log(
+  `${LOG_PREFIX} tidied Hugo versions in ${bold(filepath)} (default ${
+    bold(versions.go.hugo.default)
+  })`,
+);
