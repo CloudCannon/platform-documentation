@@ -1,4 +1,4 @@
-import type { Helpers } from "../_types.d.ts";
+import type { Comp, Helpers } from "../_types.d.ts";
 
 interface PermissionNode {
   docs: Record<string, string>;
@@ -16,11 +16,6 @@ interface PermissionRow {
   docs: [string, string][];
   scopes: string[];
   actions: string[];
-}
-
-interface Comp {
-  DataReference: (props: { children: unknown }) => unknown;
-  DataReferenceRow: (props: { label: string; children: unknown }) => unknown;
 }
 
 interface PermissionsTreeProps {
@@ -81,10 +76,10 @@ const formatDocs = (docs: [string, string][]) =>
 
 const formatRow = (perm: PermissionRow, comp: Comp, helpers: Helpers) => {
   return (
-    <comp.DataReferenceRow label={perm.key}>
+    <comp.OptionsRow label={perm.key}>
       <p>Available scopes: {formatScopes(perm.scopes, helpers)}</p>
       <ul>{formatDocs(perm.docs)}</ul>
-    </comp.DataReferenceRow>
+    </comp.OptionsRow>
   );
 };
 
@@ -96,9 +91,9 @@ export default function PermissionsTree(
   const rows = rowsObjects.map((r) => formatRow(r, comp, helpers));
 
   return (
-    <comp.DataReference>
+    <comp.OptionsTable>
       {rows}
-    </comp.DataReference>
+    </comp.OptionsTable>
   );
 }
 

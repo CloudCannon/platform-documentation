@@ -18,9 +18,9 @@ author_notes:
   docshots: Added!
 ---
 <comp.Notice info_type="pricing">
-  **This feature is available on our [Team and Enterprise plans](https://cloudcannon.com/pricing/).**
+  **This feature is available on our <a href="https://cloudcannon.com/pricing/">Team and Enterprise plans</a>.**
 
-  Want to chat about whether this feature is right for you? Our support team is always <a href="mailto:success@cloudcannon.com?subject=A%20question%20about%20custom%20Permission%20Groups" rel="noreferrer">happy to hear from you</a>.
+  Want to chat about whether this feature is right for you? Our support team is always <a href="mailto:success@cloudcannon.com?subject=A%20question%20about%20custom%20Permission%20Groups">happy to hear from you</a>.
 </comp.Notice>
 
 ## What are Custom Permission Groups?
@@ -34,7 +34,7 @@ Using Custom Permission Groups, you can:
 * Define file globs and exceptions for each Group for more precise permissions.
 * Add multiple permissions and exceptions at different scopes.
 
-The maximum number of Custom Permission Groups you can create will depend on your [pricing plan](https://cloudcannon.com/pricing/). For more information on Permission Groups in general, please read our documentation on [Permission Groups](/documentation/user-articles/what-are-permission-groups/).
+The maximum number of Custom Permission Groups you can create will depend on your <a href="https://cloudcannon.com/pricing/">pricing plan</a>. For more information on Permission Groups in general, please read our documentation on [Permission Groups](/documentation/user-articles/what-are-permission-groups/).
 
 ### Selecting resources
 
@@ -42,7 +42,7 @@ Custom Permission Groups use the same list of resources as [Default Groups](/doc
 
 Custom Permission Groups can have multiple permissions, each with their own scope, resources, and allowed actions. When you create a Custom Permission Group, you must select which resources you want to add and what actions you want to allow for each resource. Adding a resource to a permission will allow all members of that Group to interact with that resource.
 
-<comp.DocShot docshot_key="CloudCannon-Documentation-Org-Settings-Team-Add-Permission-Modal-Global-Scope" alt="A screenshot of the Add Permission modal shows the option to select resources and scope for a Custom Permission Group." title="The Add Permission modal" type="screenshot"/>
+<comp.DocShot docshot_key="CloudCannon-Documentation-Org-Settings-People-Add-Permission-Modal-Global-Scope" alt="A screenshot of the Add Permission modal shows the option to select resources and scope for a Custom Permission Group." title="The Add Permission modal" type="screenshot"/>
 
 CloudCannon uses a tree structure to define resources. When you select a resource for your Custom Permission Group, you can choose a broad resource heading (e.g., `site:write`), or drill down to more specific resources (e.g., `site:settings:site-mounting:write` or `site:publish:pull-requests:merge:write`). Adding more specific resources allows your Permission Group to be as fine-grained as you require.
 
@@ -50,13 +50,30 @@ Let’s walk through an example.
 
 We want to create a Permission Group where members cannot see any existing Sites in the Organization but can add new Sites, which they can then see and edit. This type of Permission Group might work well to keep teams within your Organization from accessing each other’s content. In this case, we should add the resource `site:create` but not `site:read` to our permission.
 
-The create action allows you to create new instances of a resource (in this example, Sites). When you create an instance of a resource, CloudCannon will automatically give you permission to Read and Write that instance. By choosing not to add `site:read` to this permission, existing Sites in our Organization will not appear in the CloudCannon interface.
+The create action allows you to create new instances of a resource (in this example, Sites). When you create an instance of a resource, CloudCannon automatically grants Read and Write permission for that instance to each Custom Permission Group that gave you permission to create it. All members of those Groups can then access the new instance. By choosing not to add `site:read` to this permission, existing Sites in our Organization will not appear in the CloudCannon interface.
+
+You can only grant permissions that you already hold. When you create or edit a Custom Permission Group, CloudCannon checks each permission you add against your own permissions and blocks any resource you do not hold at that scope. For example, if you have `site:read` but not `site:write`, you cannot add `site:write` to a Group. The same rule applies to file globs — you can only grant access to files you can already read or write yourself, so a file glob you add must fall within your own file access. Adding an exception is not subject to this check, as an exception only removes access. This prevents Organization Members from using Group management permissions to gain access they were never given.
+
+How CloudCannon checks a file glob you grant depends on the scope of the permission:
+
+* **Site scope** — CloudCannon compares the glob against your own file access on that Site. The grant succeeds when your access there covers the glob, whether you hold unrestricted file access or a permission glob matching the same files or more.
+* **Project or Global scope** — the grant covers every Site in the scope, including Sites created in the future, so CloudCannon applies a stricter check. Your covering access must be held at the same scope or above: a Global permission glob covers a grant at any scope, a Project permission glob covers grants on that Project, and fully unrestricted file access covers everything. Access assembled Site by Site never qualifies, no matter how many Sites it spans — to delegate your Site-level access, grant a Site-scoped permission for each Site instead.
+
+Exceptions make this check stricter. If an exception limits your file access, you cannot grant file globs for that action — even globs the exception does not touch. At Site scope, this only applies to exceptions affecting that Site; at Project or Global scope, any exception applies. Exceptions themselves can contain file globs at any scope, as they only remove access.
+
+Let’s walk through an example.
+
+We want to create a *Permission Group* that allows *Organization Members* to add new *Sites* to the *Organization* (which they can then see and edit), but does not allow them to see any existing  *Sites* in the *Organization*. This type of *Permission Group* might work well to keep teams within your *Organization* from accessing each other’s content.
+
+When we create the *Permission Group*, we can add a *Permission* that omits `site:read`, preventing *Organization Members* from seeing existing *Sites* in the *Organization*, but includes `site:create`.
+
+All create actions allow you to create new instances of a resource and then read and write to it. In this example, CloudCannon automatically grants the `site:read` and `site:write` permissions for all *Sites* created using `site:create`. CloudCannon adds these new permissions to each *Custom Permission Group* that gave you permission to create it, and all members of those *Groups* can then access and edit that *Site*.
 
 For more information, including a complete list of resources available, please read our [permissions](/documentation/developer-reference/permissions/) reference documentation.
 
 ### Permission scope
 
-The scope of a permission defines how broadly it is applied. Permissions in the [Default Permission Groups](/documentation/user-articles/what-are-default-permission-groups/) have a Global scope. Permissions for [Site Sharing](/documentation/user-articles/share-a-site-with-site-sharing/) or [Client Sharing](/documentation/user-articles/what-is-client-sharing/) Groups have a Site scope.
+The scope of a permission defines how broadly it is applied. Permissions in the [Default Permission Groups](/documentation/user-articles/what-are-default-permission-groups/) have a Global scope. Permissions for [Site Sharing](/documentation/user-articles/share-a-site-with-site-sharing/) or [Guest Access](/documentation/user-articles/what-is-guest-access/) Groups have a Site scope.
 
 With Custom Permission Groups, you can set a permission at one of five scopes: Global, Project, Site, Group, and Base Domain.
 
@@ -66,13 +83,14 @@ With Custom Permission Groups, you can set a permission at one of five scopes: G
 * **Group** — This scope encompasses a specific Group (e.g., the resource `group:member:write` with a Group scope will allow all members of the Permission Group to edit the members of a specific Group).
 * **Base Domain** — This scope encompasses a specific Base Domain (e.g., the resource `base-domain:settings:dns:write` with a Domain scope will allow all members of the Permission Group to edit DNS records for a specific domain).
 
-Custom Permission Groups can include permissions with different scopes. For example, you might want to create a Group that can approve Pull Requests for a specific Project and manage the Domain associated with one Site in that Project. This Permission Group would contain two permissions: one with a Project scope and the resource `site:publish:pull-request:merge:write`, and one with a Base Domain scope and the resource `base-domain:write`.
+*Custom Permission Groups* can include permissions with different *Scopes*. For example, you might want to create a *Group* that can approve *Pull Requests* for a specific *Project* and manage the *Custom Domain* associated with one *Site* in that *Project*. This *Permission Group* would contain two permissions: one with a *Project* scope and the resource `site:publish:pull-request:merge:write`, and one with a *Base Domain* scope and the resource `base-domain:write`.
 
+*Scopes* can also have *Exceptions*. For example, you might want a *Group* to be able to create *Sites* across your *Organization*, except for in one *Project*. An *Exception* for `site:create` scoped to a *Project*, combined with a Global scope `site:create` *Permission* can accomplish this.
 When you select Project, Site, Group, or Base Domain as a scope, CloudCannon will prompt you to select the Target of that scope.
 
 * **Target** — Which instance you want a scope to pertain to (e.g., name the specific Site or Permission Group).
 
-<comp.DocShot docshot_key="CloudCannon-Documentation-Org-Settings-Team-Add-Permission-Modal-Group-Scope" alt="A screenshot of the Add Permission modal shows that selecting the Group scope will add a Target field." title="The Add Permission modal" type="screenshot"/>
+<comp.DocShot docshot_key="CloudCannon-Documentation-Org-Settings-People-Add-Permission-Modal-Group-Scope" alt="A screenshot of the Add Permission modal shows that selecting the Group scope will add a Target field." title="The Add Permission modal" type="screenshot"/>
 
 Not all resources work with all scopes. For example, you can’t give someone the resource `project:delete:write` with a Site scope, as Sites cannot contain Projects, or `org:billing:write` with a Group scope, as you cannot control billing at the Group level. When you create a Custom Permission Group, CloudCannon will filter out the resources that don’t apply to your scope.
 
@@ -80,47 +98,66 @@ For best practices and examples, please read our documentation on [best practice
 
 ### Exceptions
 
-Exceptions allow you to set broad permissions and then remove specific permissions from a Group. For example, a team member might have permission to edit all Sites within a Project except for the Production Site.
+Exceptions allow you to set broad permissions and then remove specific permissions from a Group. For example, an Organization Member might have permission to edit all Sites within a Project except for the Production Site.
 
 You can add multiple exceptions to a Custom Permission Group. For each exception you must select a scope and a list of resources.
 
-<comp.DocShot docshot_key="CloudCannon-Documentation-Org-Settings-Team-Custom-Group-Exceptions" alt="A screenshot of the Custom Permission Group Settings tab, scrolled down to show the Add exception button." title="The Custom Permission Group Settings tab" type="screenshot"/>
+<comp.DocShot docshot_key="CloudCannon-Documentation-Org-Settings-People-Custom-Group-Exceptions" alt="A screenshot of the Custom Permission Group Settings tab, scrolled down to show the Add exception button." title="The Custom Permission Group Settings tab" type="screenshot"/>
+
+The action level of an exception determines what access it removes. Because permission to write implicitly includes permission to read, an exception at the read level removes both read and write access to its target. An exception at the write level only removes write access; members of the Group can still read the resource.
+
+<comp.Mermaid
+  alt="A flowchart showing that a read-level exception removes both read and write access, while a write-level exception removes only write access and leaves read access in place."
+  chart={`graph TD
+    R["Read-level exception<br/>e.g. site:dam:read"] -->|Removes| RR["Read access"]
+    R -->|Removes| RW["Write access"]
+    W["Write-level exception<br/>e.g. site:dam:write"] -->|Removes| WW["Write access"]
+    W -.->|Keeps| WR["Read access"]
+  `}
+/>
 
 Permission Groups are always additive. In other words, permissions or exceptions in  one Group do not negate permissions or exceptions in another. If one Group allows an action, an exception in a second Permission Group does not prevent access to that resource.
 
 Exceptions are more efficient than explicitly providing permission for many resources. Let’s walk through an example.
 
-We want to prevent a team member from editing the Production site but enable editing for all other Sites within the Project. We could explicitly give permission for all those Sites. However, each time someone adds a new Site to the Project, we would need to update the Permission Group. Using an exception, we can remove permission for a single site and set the scope of the Permission Group as “Project” to allow editing permissions for all future Sites.
+We want to prevent an Organization Member from editing the Production site but enable editing for all other Sites within the Project. We could explicitly give permission for all those Sites. However, each time someone adds a new Site to the Project, we would need to update the Permission Group. Using an exception, we can remove permission for a single site and set the scope of the Permission Group as “Project” to allow editing permissions for all future Sites.
 
 ### Specify a file glob
 
-A file glob is a pattern used to identify matching files. Files globs look similar to a file path with a mix of literal text and special characters such as `*` and `{ }`. In CloudCannon, you can specify read or write access to specific file globs in a Custom Permission Group. You can specify which collections, folders, filenames, and file extensions a team member is allowed to read or edit, allowing for fine-grain control over reading and editing site files.
+A file glob is a pattern used to identify matching files. File globs look similar to a file path with a mix of literal text and special characters such as `*` and `{ }`. In CloudCannon, you can specify read or write access to specific file globs in a Custom Permission Group. You can specify which collections, folders, filenames, and file extensions an Organization Member is allowed to read or edit, allowing for fine-grain control over reading and editing site files.
 
-A read or write action is associate with each file glob. Additionally, when you specify a file glob in a permission or an exception, this will override any `site:files:read` and `site:files:write` resources selected from the resource tree. Because specifying a file glob implicitly includes the resource for read or write, the `site:files` checkbox in the resource tree is enabled by default.
+A read or write action is associated with each file glob. A `site:file:read` or `site:file:write` permission with no file glob covers every file within its scope. Adding file globs changes this:
 
-To create a file glob, type the file path of any files you want to determine access for. For more general file paths, you can create a glob using the special characters `*` and `{ }`. The `*` character denotes any file, while `/**/` denotes any number of folder. Using the `{ }` brackets, you can specify a list of options separated by a comma.
+* A file glob in a **permission** narrows that permission to a whitelist — members can only read or write files that match one of its globs.
+* A file glob in an **exception** removes only the matching files, leaving the rest of the permission in place. A globless permission keeps its coverage of every other file.
+
+Because specifying a file glob implicitly includes the `site:file` resource for read or write, the `site:file` checkbox in the resource tree is enabled by default.
+
+As with other resources, read and write levels interact: a read-level file glob exception removes both read and write access to the matching files, while a write-level file glob exception removes only write access.
+
+To create a file glob, type the file path of any files you want to determine access for. For more general file paths, you can create a glob using special characters. The `*` character matches any file within a single folder — it does not cross folder boundaries — while `/**/` matches any number of folders. A glob ending in `/**` (equivalent to `/**/*`) matches all files within a folder and all of its subfolders. Using the `{ }` brackets, you can specify a list of options separated by a comma.
 
 For example, if we add a permission to write the file glob `/posts/**/*.{md,html}`, CloudCannon will allow members of this Permission Group to read and edit any Markdown or HTML files within any subfolders of the Collection "Posts".
 
-<comp.DocShot docshot_key="CloudCannon-Documentation-Org-Settings-Team-Add-Permission-File-Glob" alt="A screenshot of the Add Permission modal shows two fields specifying file globs, one at read level and one at write." title="The Add Permission modal" type="screenshot"/>
+<comp.DocShot docshot_key="CloudCannon-Documentation-Org-Settings-People-Add-Permission-File-Glob" alt="A screenshot of the Add Permission modal shows two fields specifying file globs, one at read level and one at write." title="The Add Permission modal" type="screenshot"/>
 
 For best practices and examples of how to use file globs, please read our documentation on [file glob best practices](/documentation/developer-articles/best-practices-for-custom-permission-groups/#file-globs).
 
 <comp.Notice info_type="info">
-  If you need assistance setting up file globs in your Organization, our [support team](https://cloudcannon.com/support/) is always happy to help.
+  If you need assistance setting up file globs in your Organization, our <a href="https://cloudcannon.com/support/">support team</a> is always happy to help.
 </comp.Notice>
 
 ## Default vs. Custom Permission Groups
 
-CloudCannon provides [Default Permission Groups](/documentation/user-articles/what-are-default-permission-groups/) on every pricing plan. The Default Permission Groups (Owner, Developer, Technical Editor, and Editor) are hierarchical, meaning that each Group also contains the permissions of all Groups below it in the hierarchy. Default Permission Groups are convenient if you have fewer team members, less complex sharing requirements, or do not want to configure Custom Permission Groups.
+CloudCannon provides [Default Permission Groups](/documentation/user-articles/what-are-default-permission-groups/) on every pricing plan. Four of the Default Permission Groups (Owner, Developer, Technical Editor, and Editor) are hierarchical, meaning that each Group also contains the permissions of all Groups below it in the hierarchy. The fifth, Billing, sits outside this hierarchy and contains a specific set of permissions for managing your CloudCannon subscription. Default Permission Groups are convenient if you have fewer Organization Members, less complex sharing requirements, or do not want to configure Custom Permission Groups.
 
 The Default Permission Groups may not be right for you if:
 
 * You want non-hierarchical Permission Groups.
-* You want to define a subset of your Sites that team members can access (e.g., a project, all sites except the production Site, or a specific Site).
+* You want to define a subset of your Sites that Organization Members can access (e.g., a project, all sites except the production Site, or a specific Site).
 * You want to define who can perform specific actions (e.g., making vs approving pull requests, reading vs editing content, branching, inbox management).
-* You want to prevent a team member from accessing existing Sites but allow them to create new Sites in your Organization, which they can edit.
-* You want to define which files within a Site a team member can edit (e.g., a collection, specific file types, or a single file).
+* You want to prevent an Organization Member from accessing existing Sites but allow them to create new Sites in your Organization, which they can edit.
+* You want to define which files within a Site an Organization Member can edit (e.g., a collection, specific file types, or a single file).
 
 Because Default Permission Groups have a Global scope, CloudCannon will give Group members the same permissions for every Site in your Organization. Additionally, you cannot edit the permissions granted by Default Permission Groups.
 
@@ -130,6 +167,6 @@ You can overcome these limitations by creating Custom Permission Groups.
 
 Using the four Global Default Permission Groups, you cannot limit access to an individual Site. You can address this problem using [Site Sharing](/documentation/user-articles/share-a-site-with-site-sharing/) or using Custom Permission Groups.
 
-Site Sharing allows you to invite a team member to view, edit, and publish content for a specific Site. Each Site has two permission groups for Site Sharing, identical to the Technical Editor and Editor Default Permission Groups except with a Site scope.
+Site Sharing allows you to invite an Organization Member to view, edit, and publish content for a specific Site. Each Site has two permission groups for Site Sharing, identical to the Technical Editor and Editor Default Permission Groups except with a Site scope.
 
-Custom Permission Groups do everything Site Sharing does and more. For [Team and Enterprise customers](https://cloudcannon.com/pricing/), we recommend using Custom Permission Groups rather than Site Sharing for finer control over your content.
+Custom Permission Groups do everything Site Sharing does and more. For <a href="https://cloudcannon.com/pricing/">Team and Enterprise customers</a>, we recommend using Custom Permission Groups rather than Site Sharing for finer control over your content.

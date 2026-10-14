@@ -1,7 +1,7 @@
-import Alpine from "https://esm.sh/alpinejs@3.14.9";
-import intersect from "https://esm.sh/@alpinejs/intersect@3.14.9";
-import focus from "https://esm.sh/@alpinejs/focus@3.14.9";
-import ScrollPadlock from "https://esm.sh/scroll-padlock@2.2.0";
+import Alpine from "alpinejs";
+import intersect from "@alpinejs/intersect";
+import focus from "@alpinejs/focus";
+import ScrollPadlock from "scroll-padlock";
 
 const scrollElement = document.body,
   LOCKED_CLASS = "t-scroll-lock";
@@ -18,7 +18,7 @@ Alpine.data("visibleNavHighlighter", () => ({
     this.$nextTick(() => {
       // Include card titles for glossary pages, standard headings for other pages
       this.headings = document.querySelectorAll(
-        "main h2:not(.glossary-letter-heading), main dt[id], main .c-data-reference__item[id], main .c-card--glossary .c-card__title[id]",
+        "main h2:not(.glossary-letter-heading):not(.c-api-operation__title), main .c-data-reference__item[id], main .c-card--glossary .c-card__title[id], main .c-api-operation[id]",
       );
       this.assignHeadingIds();
       this.onScroll();
@@ -295,6 +295,196 @@ document.addEventListener("toggle", (e) => {
     });
   }
 }, true); // Use capture phase since toggle doesn't bubble
+
+const RECENTS_KEY = "docs-pagefind-recents";
+const RECENTS_MAX = 5;
+
+function readRecents() {
+  try {
+    return JSON.parse(localStorage.getItem(RECENTS_KEY)) ?? [];
+  } catch {
+    return [];
+  }
+}
+
+function writeRecents(recents) {
+  try {
+    localStorage.setItem(RECENTS_KEY, JSON.stringify(recents));
+  } catch {
+    // Ignore quota / private mode errors.
+  }
+}
+
+Alpine.store("search", {
+  hasQuery: false,
+  hasFocus: false,
+  selectedFilter: "",
+  recents: readRecents(),
+});
+
+function isPagefindInputFocused() {
+  const active = document.activeElement;
+  return !!active && typeof active.closest === "function" &&
+    active.closest("pagefind-input") !== null;
+}
+
+function refreshSearchFocus() {
+  const store = Alpine.store("search");
+  const now = isPagefindInputFocused();
+  if (store.hasFocus !== now) store.hasFocus = now;
+}
+
+document.addEventListener("focusin", refreshSearchFocus);
+document.addEventListener("focusout", () => {
+  requestAnimationFrame(refreshSearchFocus);
+});
+
+// Multiplier applied to changelog result scores before sort. Scales the score
+// down proportionally so changelogs are deprioritised in mixed results but
+// still surface when they are the only strong match.
+const CHANGELOG_SCORE_MULTIPLIER = 0.5;
+// Only rescore the top N results. Reordering beyond this rank is invisible
+// (below the fold) and each check requires an async data() fetch, so capping
+// keeps the wrap cheap on broad queries.
+const RESCORE_TOP_N = 15;
+
+function wrapPagefindSearch(instance) {
+  const pagefind = instance?.__pagefind__;
+  if (!pagefind || pagefind.__docsRescoreWrapped) return false;
+  const origSearch = pagefind.search.bind(pagefind);
+  pagefind.search = async (term, opts) => {
+    const res = await origSearch(term, opts);
+    if (!res?.results?.length) return res;
+    const top = res.results.slice(0, RESCORE_TOP_N);
+    await Promise.all(top.map(async (r) => {
+      try {
+        const d = await r.data();
+        r._isChangelog = d?.meta?.site === "Changelog" ||
+          (d?.filters?.site || []).includes("Changelog") ||
+          /\/changelog\//.test(d?.url || "");
+      } catch {
+        r._isChangelog = false;
+      }
+    }));
+    top.sort((a, b) => {
+      const as = a.score * (a._isChangelog ? CHANGELOG_SCORE_MULTIPLIER : 1);
+      const bs = b.score * (b._isChangelog ? CHANGELOG_SCORE_MULTIPLIER : 1);
+      return bs - as;
+    });
+    res.results.splice(0, top.length, ...top);
+    return res;
+  };
+  pagefind.__docsRescoreWrapped = true;
+  return true;
+}
+
+function setupPagefindInstance(attempt = 0) {
+  const im = globalThis.PagefindComponents?.getInstanceManager?.();
+  const instance = im?.getInstance?.("default");
+  if (!instance) {
+    if (attempt < 50) setTimeout(() => setupPagefindInstance(attempt + 1), 100);
+    return;
+  }
+  globalThis.searchInstance = instance;
+  if (!wrapPagefindSearch(instance)) {
+    const retry = (a = 0) => {
+      if (wrapPagefindSearch(instance) || a >= 50) return;
+      setTimeout(() => retry(a + 1), 100);
+    };
+    retry();
+  }
+  instance.on("search", (term, filters) => {
+    const trimmed = typeof term === "string" ? term.trim() : "";
+    const store = Alpine.store("search");
+    store.hasQuery = trimmed.length > 0;
+    const sel = filters?.site;
+    store.selectedFilter = Array.isArray(sel) && sel.length ? sel[0] : "";
+    if (trimmed.length > 0) {
+      const next = [
+        trimmed,
+        ...store.recents.filter((r) => r !== trimmed),
+      ].slice(0, RECENTS_MAX);
+      store.recents = next;
+      writeRecents(next);
+    } else {
+      store.recents = readRecents();
+    }
+  });
+}
+setupPagefindInstance();
+
+Alpine.data("searchPills", () => ({
+  filters: {},
+  selected: "",
+  init() {
+    const wait = (attempt = 0) => {
+      const inst = globalThis.searchInstance;
+      if (!inst) {
+        if (attempt < 50) setTimeout(() => wait(attempt + 1), 100);
+        return;
+      }
+      inst.on("filters", (data) => {
+        // Prefer `total` — counts per category ignoring the currently applied
+        // site filter, so switching pills reflects what results you'd get.
+        // Fall back to `available` if `total` isn't populated for this index.
+        this.filters = data?.total?.site || data?.available?.site || {};
+      });
+      inst.on("search", (_term, filters) => {
+        const sel = filters?.site;
+        this.selected = Array.isArray(sel) && sel.length ? sel[0] : "";
+      });
+    };
+    wait();
+  },
+  entries() {
+    const preferred = ["Articles", "Guides", "Reference", "Changelog"];
+    const all = Object.entries(this.filters || {});
+    return all.sort((a, b) => {
+      const ai = preferred.indexOf(a[0]);
+      const bi = preferred.indexOf(b[0]);
+      if (ai === -1 && bi === -1) return a[0].localeCompare(b[0]);
+      if (ai === -1) return 1;
+      if (bi === -1) return -1;
+      return ai - bi;
+    });
+  },
+  totalCount() {
+    return Object.values(this.filters || {}).reduce((s, v) => s + (v || 0), 0);
+  },
+  setFilter(value) {
+    const inst = globalThis.searchInstance;
+    if (!inst?.triggerFilter) return;
+    this.selected = value;
+    inst.triggerFilter("site", value ? [value] : []);
+  },
+}));
+
+Alpine.data("searchRecents", () => ({
+  triggerRecent(term) {
+    // Find the pagefind-input that shares an ancestor with this recents block
+    // (so the modal's recents drive the modal's input, and the inline recents
+    // drive the inline input). Fall back to the first one in the document,
+    // then to triggerSearch as a last resort.
+    let inputEl = null;
+    let ancestor = this.$root;
+    while (ancestor && !inputEl) {
+      inputEl = ancestor.querySelector?.("pagefind-input input");
+      ancestor = ancestor.parentElement;
+    }
+    if (!inputEl) inputEl = document.querySelector("pagefind-input input");
+    if (inputEl) {
+      inputEl.value = term;
+      inputEl.dispatchEvent(new Event("input", { bubbles: true }));
+      return;
+    }
+    globalThis.searchInstance?.triggerSearch?.(term);
+  },
+  removeRecent(term) {
+    const store = Alpine.store("search");
+    store.recents = store.recents.filter((r) => r !== term);
+    writeRecents(store.recents);
+  },
+}));
 
 Alpine.magic("getRecentSearches", () => {
   return () => {

@@ -140,19 +140,6 @@ export interface PageSearch {
 }
 
 // ============================================================================
-// REFERENCE NAVIGATION TYPES
-// ============================================================================
-
-// Navigation item for reference docs (used by RefNav and DocNav)
-export interface RefNavItem {
-  gid: string;
-  url?: string;
-  documentation?: {
-    show_in_navigation?: boolean;
-  };
-}
-
-// ============================================================================
 // REFERENCE DOCUMENTATION TYPES
 // ============================================================================
 

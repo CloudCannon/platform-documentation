@@ -4,6 +4,9 @@ interface CardProps {
   comp: Comp;
   href?: string;
   title?: string;
+  // Pre-rendered HTML title (used when title needs inline markdown).
+  // Takes precedence over `title` when provided.
+  titleHtml?: string;
   description?: string;
   category?: string;
   icon?: string;
@@ -31,6 +34,7 @@ export default function Card({
   comp,
   href,
   title,
+  titleHtml,
   description,
   category,
   icon,
@@ -71,7 +75,7 @@ export default function Card({
       {label && <strong className="c-card__label">{label}</strong>}
 
       {/* Heading with optional icon */}
-      {title && (
+      {(title || titleHtml) && (
         <div className="c-card__heading">
           {icon && (
             <img
@@ -81,7 +85,14 @@ export default function Card({
               aria-hidden="true"
             />
           )}
-          <Heading className="c-card__title">{title}</Heading>
+          {titleHtml
+            ? (
+              <Heading
+                className="c-card__title"
+                dangerouslySetInnerHTML={{ __html: titleHtml }}
+              />
+            )
+            : <Heading className="c-card__title">{title}</Heading>}
         </div>
       )}
 
