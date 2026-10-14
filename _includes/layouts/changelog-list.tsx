@@ -66,7 +66,15 @@ export default async function ChangelogListLayout(
                       ? "u-margin-top-0 changelog-entry__top-heading"
                       : ""}
                   >
-                    <a href={changelog.url}>{changelog.page?.data?.title}</a>
+                    <a
+                      href={changelog.url}
+                      dangerouslySetInnerHTML={{
+                        __html: helpers.md(
+                          String(changelog.page?.data?.title || ""),
+                          true,
+                        ),
+                      }}
+                    />
                   </h2>
                   <p className="changelog-entry__date">
                     <comp.RelativeDate date={changelog.page?.data?.date || ""} />

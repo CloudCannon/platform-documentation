@@ -39,10 +39,56 @@ const SearchResultTemplate = `
 
 export default function SearchResults() {
   return (
-    <div className="t-searcher-layout">
-      <pagefind-filter-pane filter="site" label="Filters" expanded></pagefind-filter-pane>
+    <div
+      className="t-searcher-layout"
+      x-data
+      x-show="$store.search.hasQuery"
+      x-cloak
+    >
+      <div
+        className="cc-search-pills"
+        x-data="searchPills"
+        x-show="entries().length"
+        x-cloak
+        role="radiogroup"
+        aria-label="Filter by section"
+      >
+        <button
+          type="button"
+          className="cc-search-pills__pill"
+          x-bind:class="{ 'cc-search-pills__pill--active': !selected }"
+          x-bind:aria-pressed="!selected"
+          x-on:click="setFilter('')"
+        >
+          <span>All</span>
+          <span className="cc-search-pills__count" x-text="totalCount()"></span>
+        </button>
+        <template x-for="[value, count] in entries()" x-bind:key="value">
+          <button
+            type="button"
+            className="cc-search-pills__pill"
+            x-bind:class="{ 'cc-search-pills__pill--active': selected === value }"
+            x-bind:aria-pressed="selected === value"
+            x-on:click="setFilter(value)"
+          >
+            <span x-text="value"></span>
+            <span className="cc-search-pills__count" x-text="count"></span>
+          </button>
+        </template>
+      </div>
       <div className="t-searcher-results">
-        <pagefind-summary></pagefind-summary>
+        <div className="cc-search-summary">
+          <pagefind-summary></pagefind-summary>
+          <span
+            className="cc-search-summary__scope"
+            x-data
+            x-show="$store.search.hasQuery && $store.search.selectedFilter"
+            x-cloak
+          >
+            {" in "}
+            <strong x-text="$store.search.selectedFilter"></strong>
+          </span>
+        </div>
         <pagefind-results>
           <script type="text/pagefind-template" dangerouslySetInnerHTML={{ __html: SearchResultTemplate }} />
         </pagefind-results>

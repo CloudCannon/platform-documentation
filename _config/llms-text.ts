@@ -3,6 +3,8 @@
  * Following the llms.txt specification: https://llmstxt.org/
  */
 
+import { blue, bold, red } from "@std/fmt/colors";
+
 interface DocPage {
   title: string;
   description: string;
@@ -19,6 +21,9 @@ interface Guide {
 }
 
 const GITHUB_REPO_URL = "https://github.com/CloudCannon/platform-documentation";
+
+const LOG_PREFIX = blue("[llms-text]");
+const WARN_PREFIX = red("[llms-text]");
 
 // `baseUrl` (e.g. "https://cloudcannon.com/documentation") is resolved at build
 // time from site.options.location so absolute links here match the /documentation
@@ -72,21 +77,34 @@ function getDeveloperReferenceSection(baseUrl: string): string {
 Configuration types and schemas are available directly from these repositories:
 
 - [configuration-types](https://github.com/CloudCannon/configuration-types): TypeScript types and JSON Schemas for CloudCannon configuration files
-- [javascript-api](https://github.com/CloudCannon/javascript-api): TypeScript declarations for the CloudCannon JavaScript API
+- [visual-editor-api](https://github.com/CloudCannon/visual-editor-api): TypeScript declarations for the CloudCannon Visual Editor API
 
 JSON Schemas (with full descriptions, for use by LLMs and IDEs):
 - [Configuration JSON Schema](${schemaBase}/cloudcannon-config.documentation.schema.json): Full JSON Schema with descriptions for cloudcannon.config.*
 - [Routing JSON Schema](${schemaBase}/cloudcannon-routing.documentation.schema.json): JSON Schema for .cloudcannon/routing.json
 - [Initial Site Settings JSON Schema](${schemaBase}/cloudcannon-initial-site-settings.documentation.schema.json): JSON Schema for .cloudcannon/initial-site-settings.json
 
-Reference documentation:
+Reference documentation is organized into two parts: Site configuration (files you add to your repository) and Platform (tools and controls for the CloudCannon backend).
+
 - [Developer Reference Overview](${refBase}/index.md): Index of all reference documentation ([view page](${refBase}/))
+
+Site configuration:
+- [Site Configuration Overview](${refBase}/site-configuration/index.md): Files you add to your repository to configure CloudCannon ([view page](${refBase}/site-configuration/))
 - [Configuration File Reference](${refBase}/configuration-file/index.md): All keys for cloudcannon.config.* ([view page](${refBase}/configuration-file/))
 - [Initial Site Settings Reference](${refBase}/initial-site-settings-file/index.md): Settings for .cloudcannon/initial-site-settings.json ([view page](${refBase}/initial-site-settings-file/))
 - [Routing File Reference](${refBase}/routing-file/index.md): Redirects and headers for .cloudcannon/routing.json ([view page](${refBase}/routing-file/))
-- [Permissions Reference](${refBase}/permissions/index.md): All available permission settings ([view page](${refBase}/permissions/))
+- [Editable Regions Reference](${refBase}/editable-regions/index.md): Mark parts of your built HTML as editable ([view page](${refBase}/editable-regions/))
+- [Visual Editor API Reference](${refBase}/visual-editor-api/index.md): Connect your front end to the visual editor ([view page](${refBase}/visual-editor-api/))
 - [JSON Schemas](${refBase}/schemas/index.md): Schema files for IDE autocomplete and validation ([view page](${refBase}/schemas/))
-- [TypeScript Types](${refBase}/typescript/index.md): @cloudcannon/configuration-types package ([view page](${refBase}/typescript/))`;
+- [TypeScript Types](${refBase}/typescript/index.md): @cloudcannon/configuration-types package ([view page](${refBase}/typescript/))
+
+Platform:
+- [Platform Overview](${refBase}/platform/index.md): Tools and controls for working with the CloudCannon backend ([view page](${refBase}/platform/))
+- [CLI Reference](${refBase}/cli/index.md): Manage CloudCannon from the terminal ([view page](${refBase}/cli/))
+- [SDK Reference](${refBase}/sdk/index.md): Typed client for the CloudCannon API ([view page](${refBase}/sdk/))
+- [API Reference](${refBase}/api/index.md): Manage organizations, projects, sites, and builds over HTTP ([view page](${refBase}/api/))
+- [OpenAPI specification](https://cdn.cloudcannon.com/openapi/production.json): Machine-readable definition of every API endpoint, parameter, and response (for use by agents, code generation, and API tools)
+- [Permissions Reference](${refBase}/permissions/index.md): All available permission settings ([view page](${refBase}/permissions/))`;
 }
 
 interface Collections {
@@ -339,13 +357,19 @@ export default function llmsTxt() {
 </urlset>`;
         sitemapContent = sitemapContent.replace("</urlset>", llmsEntries);
         Deno.writeTextFileSync(sitemapPath, sitemapContent);
-        console.log(`Added llms.txt and llms-full.txt to sitemap.xml`);
+        console.log(
+          `${LOG_PREFIX} added ${bold("llms.txt")} and ${bold("llms-full.txt")} to ${bold("sitemap.xml")}`,
+        );
       } catch (e) {
-        console.warn(`Could not update sitemap.xml: ${e}`);
+        console.warn(`${WARN_PREFIX} could not update ${bold("sitemap.xml")}: ${e}`);
       }
 
-      console.log(`Generated llms.txt (${(llmsTxt.length / 1024).toFixed(1)} KB)`);
-      console.log(`Generated llms-full.txt (${(llmsFullTxt.length / 1024).toFixed(1)} KB)`);
+      console.log(
+        `${LOG_PREFIX} generated ${bold("llms.txt")} (${(llmsTxt.length / 1024).toFixed(1)} KB)`,
+      );
+      console.log(
+        `${LOG_PREFIX} generated ${bold("llms-full.txt")} (${(llmsFullTxt.length / 1024).toFixed(1)} KB)`,
+      );
     });
   };
 }

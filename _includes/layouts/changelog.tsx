@@ -46,9 +46,10 @@ export default function ChangelogLayout(props: Props, helpers: Helpers) {
             helpers={helpers}
           />
           <div>
-            <h1 className="l-heading changelog-entry__heading">
-              {title}
-            </h1>
+            <h1
+              className="l-heading changelog-entry__heading"
+              dangerouslySetInnerHTML={{ __html: helpers.md(title, true) }}
+            />
           </div>
           <p className="changelog-entry__date">
             <comp.RelativeDate date={date} />

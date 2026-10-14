@@ -2,18 +2,28 @@ import type { Helpers } from "../_types.d.ts";
 
 interface OptionsRowProps {
   label: string;
+  href?: string;
+  id?: string;
   type_markdown?: string;
+  required?: boolean;
   children: unknown;
 }
 
 export default function OptionsRow(
-  { label, type_markdown, children }: OptionsRowProps,
+  { label, href, id, type_markdown, required, children }: OptionsRowProps,
   helpers: Helpers,
 ) {
+  const labelCode = <code class="code-no-box">{label}</code>;
+
   return (
-    <div className="c-data-reference__item">
+    <div className="c-data-reference__item" id={id}>
       <div className="c-data-reference__header">
-        <code className="c-data-reference__key">{label}</code>
+        <span className="c-data-reference__key">
+          <strong>
+            {href ? <a href={href}>{labelCode}</a> : labelCode}
+          </strong>
+        </span>
+        {type_markdown && " "}
         {type_markdown &&
           (
             <span
@@ -23,6 +33,8 @@ export default function OptionsRow(
               }}
             />
           )}
+        {required && " "}
+        {required && <small className="pill pill--red">Required</small>}
       </div>
       <div className="c-data-reference__description">{children}</div>
     </div>
@@ -30,9 +42,10 @@ export default function OptionsRow(
 }
 
 export function toMarkdown(
-  { label, type_markdown }: OptionsRowProps,
+  { label, href, type_markdown }: OptionsRowProps,
   childrenMd: string,
 ): string {
   const type = type_markdown ? ` ${type_markdown}` : "";
-  return `**\`${label}\`**${type}\n\n${childrenMd.trim()}\n\n`;
+  const labelMd = href ? `**[\`${label}\`](${href})**` : `**\`${label}\`**`;
+  return `${labelMd}${type}\n\n${childrenMd.trim()}\n\n`;
 }

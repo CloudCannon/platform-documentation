@@ -34,6 +34,8 @@ export function getPagefindContentType(url: string): string {
   if (path.includes("/developer-articles/")) return "Developer Article";
   if (path.includes("/developer-guides/")) return "Developer Guide";
   if (path.includes("/developer-reference/")) return "Developer Reference";
+  if (path.includes("/partner-articles/")) return "Partner Article";
+  if (path.includes("/partner-guides/")) return "Partner Guide";
   if (path.includes("/changelog/")) return "Changelog";
   return "";
 }

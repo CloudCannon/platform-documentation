@@ -15,7 +15,7 @@ interface SocialLink {
   logo: string;
 }
 
-interface FooterNav {
+export interface FooterNav {
   links?: FooterColumn[];
   informational_links?: FooterLink[];
   social_links?: SocialLink[];
@@ -27,6 +27,15 @@ interface FooterProps {
   helpers: Helpers;
 }
 
+const SOCIAL_LABELS: Record<string, string> = {
+  "github": "GitHub",
+  "linkedin": "LinkedIn",
+  "bluesky": "Bluesky",
+  "youtube": "YouTube",
+  "mastodon": "Mastodon",
+  "x-twitter": "X (formerly Twitter)",
+};
+
 export default function Footer({ footernav, helpers }: FooterProps) {
   const links = footernav?.links || [];
   const informationalLinks = footernav?.informational_links || [];
@@ -35,18 +44,6 @@ export default function Footer({ footernav, helpers }: FooterProps) {
   return (
     <footer className="l-footer">
       <div className="l-footer__inner">
-        <a
-          href="https://cloudcannon.com"
-          className="l-footer__emblem"
-          aria-label="Go to cloudcannon.com"
-        >
-          <img
-            src="/assets/img/cc-docs-logo.svg"
-            className="l-footer__logo"
-            alt="Go to cloudcannon.com"
-            inline="true"
-          />
-        </a>
         <div className="l-footer__links">
           {links.map((column, colIndex) => (
             <ul key={colIndex}>
@@ -132,7 +129,11 @@ export default function Footer({ footernav, helpers }: FooterProps) {
           </div>
           <div className="l-footer__banner--links__socials">
             {socialLinks.map((link, index) => (
-              <a key={index} href={link.href}>
+              <a
+                key={index}
+                href={link.href}
+                aria-label={`CloudCannon on ${SOCIAL_LABELS[link.logo] ?? link.logo}`}
+              >
                 <img
                   src={helpers.icon(`${link.logo}:brands`, "fontawesome")}
                   inline="true"

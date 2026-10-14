@@ -20,6 +20,12 @@ export function createReferencePageGenerator(
   section: SectionId,
 ): () => Generator<PageData> {
   return function* (): Generator<PageData> {
+    if (Deno.env.get("SKIP_REFERENCE")) {
+      console.log(
+        `  SKIP_REFERENCE set: skipping generated ${section} reference pages`,
+      );
+      return;
+    }
     const sectionDocs = DOCS[section] ?? {};
     for (const entry of Object.values(sectionDocs)) {
       // Skip root entries (gid === section) - these are handled by index.mdx pages

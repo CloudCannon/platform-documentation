@@ -1,7 +1,6 @@
 import lume from "lume/mod.ts";
 import icons from "lume/plugins/icons.ts";
-
-import pagefind from "./_plugins/pagefind.ts";
+import pagefind from "lume/plugins/pagefind.ts";
 import date from "lume/plugins/date.ts";
 import sass from "lume/plugins/sass.ts";
 import inline from "lume/plugins/inline.ts";
@@ -15,8 +14,7 @@ import jsx from "lume/plugins/jsx.ts";
 import mdx from "lume/plugins/mdx.ts";
 
 import { slugify } from "./_components/utils/string-util.ts";
-
-import { parse as yamlParse } from "@std/yaml";
+import { parse as yamlParse } from "yaml";
 
 // Data highlights
 import "prismjs/components/prism-yaml.js";
@@ -55,19 +53,34 @@ import strip from "strip-markdown";
 
 import { parseChangelogFilename } from "./parseChangelogFilename.ts";
 import type { ContentNavItem, DocEntry } from "./_types.d.ts";
-import { buildRefNav } from "./developer/reference/_shared/buildRefNav.ts";
+import {
+  buildCliRefNav,
+  buildRefNav,
+} from "./developer/reference/_shared/buildRefNav.ts";
+import {
+  API_BASE_PATH,
+  API_SCHEMAS_BASE_PATH,
+  getApiResources,
+} from "./developer/reference/api/_shared/openapi.ts";
+import { buildVeapiDocs, VEAPI_SECTION } from "./_lib/veapi-docs.ts";
 
 import documentation from "@cloudcannon/configuration-types/dist/documentation.json" with {
   type: "json",
 };
 import llmsTxt from "./_config/llms-text.ts";
 import markdownPages from "./_config/markdown-pages.ts";
+import { cliDocs } from "./developer/reference/_shared/command-line-interface.ts";
 
 // Type the documentation as nested sections (section -> gid -> entry)
 const typedDocs = documentation as unknown as Record<
   string,
   Record<string, DocEntry>
 >;
+
+// Parse the Visual Editor API TypeScript declarations (JSDoc -> DocEntry) at
+// build time and merge them in as their own section, so the reference section
+// and article tables render from the same source and stay in sync.
+typedDocs[VEAPI_SECTION] = await buildVeapiDocs();
 
 // Store nested documentation structure for section-aware lookups
 globalThis.DOCS = typedDocs;
@@ -81,6 +94,9 @@ const initialSiteSettingsDocs: DocEntry[] = Object.values(
 );
 const configDocs: DocEntry[] = Object.values(
   typedDocs["type.Configuration"] ?? {},
+);
+const veapiDocs: DocEntry[] = Object.values(
+  typedDocs[VEAPI_SECTION] ?? {},
 );
 
 // Caches for expensive operations (persist across incremental builds)
@@ -116,12 +132,39 @@ const site = lume({
 });
 
 // Build precompiled reference navigation
-const refNavSections = buildRefNav(
-  configDocs,
-  routingDocs,
-  initialSiteSettingsDocs,
-);
-site.data("ref_nav", refNavSections);
+const refNavSections = [
+  ...buildRefNav(
+    configDocs,
+    routingDocs,
+    initialSiteSettingsDocs,
+    veapiDocs,
+  ),
+  buildCliRefNav(cliDocs),
+];
+
+// API reference navigation section (generated from the OpenAPI spec)
+const apiNavSection = {
+  id: "type.Api",
+  heading: "API",
+  icon: "api",
+  basePath: API_BASE_PATH,
+  items: getApiResources().map((resource) => ({
+    url: `${API_BASE_PATH}${resource.slug}/`,
+    name: resource.title,
+    gid: `api.${resource.slug}`,
+  })),
+};
+
+// Schemas index (a single nav link; the index page lists every schema)
+const apiSchemasNavSection = {
+  id: "type.ApiSchemas",
+  heading: "Schemas",
+  icon: "data_object",
+  basePath: API_SCHEMAS_BASE_PATH,
+  items: [] as { url: string; name: string; gid: string }[],
+};
+
+site.data("ref_nav", [...refNavSections, apiNavSection, apiSchemasNavSection]);
 
 // Log the server URL when it starts (currently suppressed by LUME_LOGS=critical)
 site.addEventListener("afterStartServer", () => {
@@ -159,25 +202,6 @@ site.ignore(
 site.ignore((path) =>
   path.startsWith("/user/glossary/") && path.endsWith(".yml")
 );
-
-// Detect dev mode (serve command uses -s flag)
-const isDevMode = Deno.args.includes("-s") || Deno.args.includes("--serve");
-
-// In dev mode, only load recent changelogs for faster builds
-if (isDevMode) {
-  site.ignore(
-    "changelogs/2015",
-    "changelogs/2016",
-    "changelogs/2017",
-    "changelogs/2018",
-    "changelogs/2019",
-    "changelogs/2020",
-    "changelogs/2021",
-    "changelogs/2022",
-    "changelogs/2023",
-  );
-  console.log("  Dev mode: Loading only recent changelogs (2024-2025)");
-}
 
 // Creates an excerpt for all changelogs saved in description.
 site.preprocess([".md", ".mdx"], function processExcerpt(pages) {
@@ -228,11 +252,9 @@ if (Deno.env.get("DOCSHOTS_LOCAL")) {
 (site.formats.get(".md")?.engines?.[0] as any)?.engine?.disable?.("code");
 
 // Pagefind search indexing - runs automatically after each build
-// Uses local plugin (_plugins/pagefind.ts) with pagefind v1.5.0
 site.use(pagefind({
   outputPath: "/_pagefind", // Match templates, routing.json and postbuild
   ui: false, // Disable old PagefindUI
-  componentUI: true, // Enable new Component UI (v1.5+)
 }));
 
 site.use(jsx());
@@ -381,35 +403,42 @@ const annotateCodeBlocks = (page: Lume.Page): void => {
             }
             next_el = next_el.nextSibling;
           }
-          let insert_before_el: ChildNode | null = next_newline || token;
+          if (next_newline) {
+            let insert_before_el: ChildNode | null = next_newline;
 
-          // Text nodes might span multiple lines, so we split it on newlines
-          // and re-add each as independent text nodes, so that we can add an element before
-          // the newline.
-          const insertNodeValue = (insert_before_el as Text)?.nodeValue;
-          if (insertNodeValue && /\n/.test(insertNodeValue)) {
-            const chunks = insertNodeValue
-              .split("\n")
-              .map((chunk: string) => page.document!.createTextNode(chunk));
-            for (let i = 0; i < chunks.length; i += 1) {
-              insert_before_el?.parentNode?.insertBefore(
-                chunks[i],
-                insert_before_el,
-              );
-              if (i !== chunks.length - 1) {
+            // Text nodes might span multiple lines, so we split it on newlines
+            // and re-add each as independent text nodes, so that we can add an element before
+            // the newline.
+            const insertNodeValue = (insert_before_el as Text)?.nodeValue;
+            if (insertNodeValue && /\n/.test(insertNodeValue)) {
+              const chunks = insertNodeValue
+                .split("\n")
+                .map((chunk: string) => page.document!.createTextNode(chunk));
+              for (let i = 0; i < chunks.length; i += 1) {
                 insert_before_el?.parentNode?.insertBefore(
-                  page.document!.createTextNode("\n"),
+                  chunks[i],
                   insert_before_el,
                 );
+                if (i !== chunks.length - 1) {
+                  insert_before_el?.parentNode?.insertBefore(
+                    page.document!.createTextNode("\n"),
+                    insert_before_el,
+                  );
+                }
               }
+              insert_before_el?.remove();
+              insert_before_el = chunks[0].nextSibling;
             }
-            insert_before_el?.remove();
-            insert_before_el = chunks[0].nextSibling;
+            insert_before_el?.parentNode?.insertBefore(
+              commentEl,
+              insert_before_el,
+            );
+          } else {
+            // No newline found ahead — this marker is on the last line of the
+            // code block (which has been trimmed of its trailing newline).
+            // Append the badge as the last child so it lands at end-of-line.
+            codeEl.appendChild(commentEl);
           }
-          insert_before_el?.parentNode?.insertBefore(
-            commentEl,
-            insert_before_el,
-          );
         }
 
         if (is_text) {
@@ -481,6 +510,36 @@ site.process([".html"], async function processInjectReusableContent(pages) {
 
 site.process([".html"], function processHTMLPages(pages) {
   for (const page of pages) {
+    // Bind inline `<code>` to adjacent parentheses so mobile line breaks
+    // don't strand a lone `(` on one line, the code on the next, and `)`
+    // below that. Insert U+2060 WORD JOINER (invisible, zero-width, forbids
+    // line break at its position) in the surrounding text nodes. Skip code
+    // inside <pre> blocks — those are display code and never wrap this way.
+    page.document?.querySelectorAll("code").forEach((codeEl) => {
+      const el = codeEl as unknown as HTMLElement & { parentElement?: unknown };
+      // Skip if inside a <pre> block
+      // deno-lint-ignore no-explicit-any
+      let anc: any = el;
+      while (anc) {
+        if (anc?.tagName === "PRE") return;
+        anc = anc.parentNode;
+      }
+      const prev = (codeEl as unknown as Node).previousSibling;
+      const next = (codeEl as unknown as Node).nextSibling;
+      if (prev && prev.nodeType === 3) {
+        const v = prev.nodeValue || "";
+        if (v.endsWith("(") && !v.endsWith("(⁠")) {
+          prev.nodeValue = v + "⁠";
+        }
+      }
+      if (next && next.nodeType === 3) {
+        const v = next.nodeValue || "";
+        if (v.startsWith(")") && !v.startsWith("⁠)")) {
+          next.nodeValue = "⁠" + v;
+        }
+      }
+    });
+
     const collisions: Record<string, boolean> = {};
 
     const fixIdCollisions = (slugPrefix: string): string => {
@@ -509,8 +568,13 @@ site.process([".html"], function processHTMLPages(pages) {
     toc.classList.add("l-toc__list");
 
     let hasItems = false;
-    let selector =
-      `main h1:not(.exclude-from-toc), main h2:not(.exclude-from-toc)`;
+    // Select every candidate heading, including those marked
+    // exclude-from-toc — those still deserve an anchor link so the URL can
+    // deep-link to them; the "skip TOC" check happens inside the loop.
+    // data-skip-anchor is the opposite escape hatch (keep TOC, drop the
+    // hover-# link), applied to headings that already have their own link
+    // treatment.
+    let selector = `main h1, main h2`;
 
     if (!tocContainer) {
       tocContainer = page.document?.querySelectorAll(`.l-toc-changelog-list`)
@@ -532,17 +596,26 @@ site.process([".html"], function processHTMLPages(pages) {
     }
 
     page.document.querySelectorAll<HTMLElement>(selector).forEach((el) => {
-      if (el.hasAttribute("data-skip-anchor")) return;
-
       const text = el.innerText || el.textContent || "";
       const slugPrefix = el.getAttribute("id") || slugify(text);
       if (!slugPrefix) {
         return;
       }
       const slug = fixIdCollisions(slugPrefix);
-      appendAnchorHeader(el, slug);
 
-      if (tocContainer) {
+      const skipAnchor = el.hasAttribute("data-skip-anchor");
+      const skipToc = el.classList.contains("exclude-from-toc");
+
+      if (skipAnchor) {
+        // Ensure the heading still carries a stable id so the TOC (or
+        // other in-page links) can reference it even when the visible #
+        // link is suppressed.
+        el.setAttribute("id", slug);
+      } else {
+        appendAnchorHeader(el, slug);
+      }
+
+      if (!skipToc && tocContainer) {
         hasItems = true;
         const li = page.document!.createElement("li");
         li.setAttribute(
@@ -560,7 +633,20 @@ site.process([".html"], function processHTMLPages(pages) {
         (el) => {
           const keyEl = el.querySelector<HTMLElement>(".c-data-reference__key");
           const text = keyEl?.innerText || keyEl?.textContent || "";
-          const slug = fixIdCollisions(text);
+          // Keys are used verbatim as ids, but a key like "+ - * / %" is not a
+          // decodable URL fragment. Fall back to a slug for those, and skip the
+          // anchor entirely if the slug is empty. The hidden_if expression
+          // demonstrates this.
+          let idPrefix = text;
+          try {
+            decodeURIComponent(text);
+          } catch {
+            idPrefix = slugify(text);
+          }
+          if (!idPrefix) {
+            return;
+          }
+          const slug = fixIdCollisions(idPrefix);
           appendAnchorHeader(el, slug);
         },
       );

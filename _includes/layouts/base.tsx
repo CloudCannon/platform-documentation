@@ -1,3 +1,4 @@
+import { type FooterNav } from "../../_components/Layout/Footer.tsx";
 import type {
   Comp,
   Details,
@@ -5,7 +6,10 @@ import type {
   Helpers,
 } from "../../_types.d.ts";
 
-interface FooterNav {
+interface Meta {
+  title?: string;
+  subtitle?: string;
+  description?: string;
   [key: string]: unknown;
 }
 
@@ -21,6 +25,8 @@ interface Props {
   explicit_canonical?: string;
   headingnav?: HeaderNavigation;
   footernav?: FooterNav;
+  guide_title?: string;
+  meta?: Meta;
   hubspot_id?: string;
   ga_id?: string;
   ga_verify?: string;
@@ -41,13 +47,30 @@ export default function BaseLayout(props: Props, helpers: Helpers) {
     explicit_canonical,
     headingnav,
     footernav,
+    guide_title,
+    meta,
     hubspot_id,
     ga_id,
     ga_verify,
   } = props;
 
-  const pageTitle_ = title || details?.title || "";
-  const pageDescription = description || details?.description || "";
+  // Strip inline markdown emphasis (italic/bold) from titles so the browser
+  // tab, og:title, and twitter:title show clean text — the on-page heading
+  // still renders the markdown normally.
+  const stripInlineMarkdown = (s: string) =>
+    s
+      .replace(/\*\*([^*]+)\*\*/g, "$1") // **bold**
+      .replace(/__([^_]+)__/g, "$1") // __bold__
+      .replace(/\*([^*]+)\*/g, "$1") // *italic*
+      .replace(/_([^_]+)_/g, "$1"); // _italic_
+
+  const rawPageTitle = title ||
+    (guide_title && details?.title
+      ? `${details.title} — ${guide_title}`
+      : details?.title) || "";
+  const pageTitle_ = stripInlineMarkdown(rawPageTitle);
+  const pageDescription = description || details?.description ||
+    meta?.description || "";
   const pageTitle = omit_trailing_title
     ? pageTitle_
     : `${pageTitle_} | CloudCannon Documentation`;
@@ -211,14 +234,18 @@ export default function BaseLayout(props: Props, helpers: Helpers) {
                   }
                 };
                 const PAN_STEP = 40;
+                // Wrap each icon URL with helpers.url() so the basePath
+                // (/documentation) is prepended. basePath() only rewrites
+                // src/href in HTML attributes, not JS strings inside script
+                // tags — without this, all these SVGs 404.
                 const ICON_URLS = ${JSON.stringify({
-                  "pan-up": helpers.icon("keyboard_arrow_up:outlined", "material"),
-                  "pan-down": helpers.icon("keyboard_arrow_down:outlined", "material"),
-                  "pan-left": helpers.icon("keyboard_arrow_left:outlined", "material"),
-                  "pan-right": helpers.icon("keyboard_arrow_right:outlined", "material"),
-                  "zoom-in": helpers.icon("zoom_in:outlined", "material"),
-                  "zoom-out": helpers.icon("zoom_out:outlined", "material"),
-                  "reset": helpers.icon("crop_free:outlined", "material"),
+                  "pan-up": helpers.url(helpers.icon("keyboard_arrow_up:outlined", "material")),
+                  "pan-down": helpers.url(helpers.icon("keyboard_arrow_down:outlined", "material")),
+                  "pan-left": helpers.url(helpers.icon("keyboard_arrow_left:outlined", "material")),
+                  "pan-right": helpers.url(helpers.icon("keyboard_arrow_right:outlined", "material")),
+                  "zoom-in": helpers.url(helpers.icon("zoom_in:outlined", "material")),
+                  "zoom-out": helpers.url(helpers.icon("zoom_out:outlined", "material")),
+                  "reset": helpers.url(helpers.icon("crop_free:outlined", "material")),
                 })};
                 const ACTIONS = [
                   ['pan-up',    'Pan up'],

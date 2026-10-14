@@ -1,0 +1,89 @@
+---
+_schema: default
+_uuid: 10e2fa0c-95ba-4692-b7be-777c1cdaadf6
+_created_at: '2026-06-26 00:00:00 +0000'
+details:
+  title: Resolve SSL certificate errors
+  description: >-
+    Learn how to diagnose and fix SSL certificates that fail to generate or stay
+    pending validation on CloudCannon.
+  image: >-
+    https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+  category:
+    - Instructions
+  related_articles:
+    - _type: developer_articles
+      item: 79cd09be-23e5-4925-87b1-7d57532caa2c
+    - _type: developer_articles
+      item: d81ab242-41d6-4266-ba54-673a999a8788
+    - _type: developer_articles
+      item: d927f075-234f-4c73-aebb-645da21754cd
+author_notes:
+  docshots: Not applicable
+---
+<comp.Notice info_type="important">
+  Managing your SSL certificate on CloudCannon requires you to host your <comp.GlossaryTerm term="/user/glossary/s/site.yml">Site</comp.GlossaryTerm> through CloudCannon. If you are hosting your *Site* through an external service, please review their documentation on SSL certification.
+</comp.Notice>
+
+CloudCannon generates a free [auto-generated SSL certificate](/documentation/developer-articles/add-an-auto-generated-ssl-certificate/) for your *Site* through ZeroSSL and Cloudflare. Most certificates generate within a few minutes, but a certificate can stay pending validation or fail to generate when your domain is not configured correctly.
+
+Most SSL certificate errors come down to <comp.GlossaryTerm term="/user/glossary/d/dns.yml">DNS</comp.GlossaryTerm> configuration: the certificate authority must confirm that your domain points at CloudCannon before it can issue a certificate.
+
+## Check your SSL certificate status
+
+CloudCannon shows the status of your certificate on the *Domain* page, under the *Subdomains* heading.
+
+To check your SSL certificate status:
+
+1. Navigate to the <comp.GlossaryTerm term="/user/glossary/d/domains-browser.yml">Domains Browser</comp.GlossaryTerm> by clicking *Domains* in the *App Sidebar*.
+2. Identify the domain you want to check and click on the *Domain* card. CloudCannon will open the *Domain* page for this <comp.GlossaryTerm term="/user/glossary/c/custom-domain.yml">Custom Domain</comp.GlossaryTerm>.
+3. Under the *Subdomains* heading, click the card for the subdomain you want to check.
+4. Review the status message under the *SSL* heading.
+
+The status message describes one of three states:
+
+* **Secure** — CloudCannon has issued your certificate and your *Site* is served over HTTPS. No action is required.
+* **Pending validation** — CloudCannon is waiting to confirm that your domain points at CloudCannon. This usually resolves on its own once your DNS records are correct and have propagated.
+* **Failed to generate** — CloudCannon could not issue a certificate. The status message lists the specific errors and shows a *Try again* button.
+
+## Resolve a certificate stuck on validation
+
+A certificate stays in the pending validation state until the certificate authority can confirm your domain points at CloudCannon. Once your DNS records are correct, validation usually completes within a few minutes. However, if you have just added a *Custom Domain* or changed your DNS records, the certificate stays pending until those records propagate, which can take up to 24 hours.
+
+To resolve a certificate stuck on validation:
+
+1. Confirm your domain points at CloudCannon. If you use an [external DNS provider](/documentation/developer-articles/configure-external-dns/), check that you have added the two A Records and the CNAME Record that CloudCannon provides.
+2. If your certificate uses TXT record validation, add the two [TXT records](/documentation/developer-articles/add-an-auto-generated-ssl-certificate/#add-txt-dns-records) shown under the *SSL* heading to your DNS provider.
+3. Wait for your DNS records to propagate. New or changed DNS records can take up to 24 hours to propagate from your DNS provider.
+
+Once your records propagate, CloudCannon validates your domain and issues the certificate automatically.
+
+## Resolve a certificate that failed to generate
+
+When a certificate fails to generate, CloudCannon displays the message "[Site name] failed to generate a certificate!" along with the specific errors returned by the certificate authority.
+
+To resolve a certificate that failed to generate:
+
+1. Read the error messages under the *SSL* heading to identify the cause.
+2. Correct your DNS configuration based on the cause. See [Common causes of SSL certificate errors](#common-causes-of-ssl-certificate-errors) below.
+3. Click the *Try again* button to retry certificate generation.
+
+CloudCannon will attempt to generate the certificate again. If the certificate fails to generate after you have corrected your DNS configuration, contact our [support team](https://cloudcannon.com/support/).
+
+## Common causes of SSL certificate errors
+
+* **Missing or incorrect DNS records** — Your domain must point at CloudCannon. For an [external DNS provider](/documentation/developer-articles/configure-external-dns/), CloudCannon requires two A Records and a CNAME Record. For [CloudCannon DNS](/documentation/developer-articles/configure-cloudcannon-dns/), CloudCannon manages these records for you.
+* **Missing TXT validation records** — If you use an external DNS provider with an auto-generated certificate, you must add the [TXT records](/documentation/developer-articles/add-an-auto-generated-ssl-certificate/#add-txt-dns-records) CloudCannon provides so it can verify you own the domain.
+* **DNS records have not propagated** — Newly added or changed DNS records can take up to 24 hours to take effect.
+* **A CAA record blocks the certificate authority** — A CAA record is a DNS record that restricts which certificate authorities are allowed to issue certificates for your domain. If your domain has a CAA record that does not include the authorities CloudCannon uses, certificate generation fails. To fix this, either remove the CAA record or update it to allow CloudCannon's certificate authorities. If you are unsure which authorities to allow, contact our [support team](https://cloudcannon.com/support/).
+* **Cloudflare Proxy is enabled** — If you use Cloudflare as your DNS provider with its Proxy feature (Orange Cloud) enabled, your domain cannot connect directly to CloudCannon, which can prevent certificate validation. For more information, please read our documentation on [configuring Cloudflare Proxy](/documentation/developer-articles/configure-external-dns/#configure-cloudflare-proxy).
+
+## Contact support
+
+If your certificate still fails to generate after you have corrected your DNS configuration and waited for your records to propagate, contact our friendly [support team](https://cloudcannon.com/support/). To help us resolve your issue quickly, include the following details:
+
+* The name of the affected *Site*.
+* The domain name you are trying to secure.
+* The exact error message shown under the *SSL* heading.
+* Your DNS provider, and whether you use CloudCannon DNS or an external provider.
+* When you added the *Custom Domain* or last changed your DNS records.

@@ -15,7 +15,7 @@ The documentation is organized into clear sections so you can find what you need
 * **User Glossary** (`user/glossary/`) — Definitions of key terms used across the platform.
 * **Developer Articles** (`developer/articles/`) — In-depth explanations for developers integrating with CloudCannon.
 * **Developer Guides** (`developer/guides/`) — Hands-on walkthroughs for developer workflows.
-* **Developer Reference** (`developer/reference/`) — Technical reference material for configuration and APIs.
+* **Developer Reference** (`developer/reference/`) — Technical reference material, split into Site configuration (config files you add to your repo) and Platform (the CLI, SDK, API, and Permissions).
 * **Changelog** (`changelogs/`) — Release notes organized by year.
 
 Content follows a modified [Diátaxis framework](https://diataxis.fr/) — separating explanations, instructions, guides, and reference material so readers always land in the right place.
@@ -25,10 +25,9 @@ Content follows a modified [Diátaxis framework](https://diataxis.fr/) — separ
 ## 🚀 Getting started
 
 1. [Install Deno](https://docs.deno.com/runtime/getting_started/installation/) via curl, brew, or your preferred method.
-   This repo pins Deno **2.6.8** in `.dvmrc` — if you use [dvm](https://github.com/justjavac/dvm) it will pick this up automatically.
-2. Run `deno task serve` to build the site and start a local dev server.
-
-Deno doesn't have a separate dependency-install step; the first run will download and cache everything automatically.
+   This repo versions Deno in `.dvmrc` — if you use [dvm](https://github.com/justjavac/dvm) it will pick this up automatically.
+2. Run `deno install` to download the dependencies pinned in `deno.lock`.
+3. Run `deno task serve` to build the site and start a local dev server.
 
 **Available tasks:**
 
@@ -39,8 +38,9 @@ Deno doesn't have a separate dependency-install step; the first run will downloa
 | `check-links` | `deno task check-links` | Check for broken internal links |
 | `check-images` | `deno task check-images` | Check for broken images (local, DocShot, and external) |
 | `serve:local-docshots` | `deno task serve:local-docshots` | Symlink local docshots + serve with `DOCSHOTS_LOCAL=1` * |
+| `serve:fast:local-docshots` | `deno task serve:fast:local-docshots` | Same as `serve:local-docshots`, but skips the reference section (`SKIP_REFERENCE=1`) for a faster build * |
 
-\* The `serve:local-docshots` task creates a symlink to `../app/app/assets/e2e/screenshots`. This only works if you have the [app](https://github.com/CloudCannon/app) repo cloned as a sibling directory. The app repo is a private repository only available to CloudCannon employees.
+\* These tasks create a symlink to `../app/app/assets/e2e/screenshots`. This only works if you have the [app](https://github.com/CloudCannon/app) repo cloned as a sibling directory. The app repo is a private repository only available to CloudCannon employees.
 
 ## 🔍 Development with Search
 
@@ -183,17 +183,18 @@ becomes:
 ## 📦 Bundling packages
 
 The esbuild flow on this website utilizes Deno rather than Node for module
-resolution, so Deno packages should be imported by URL. Node packages can be
-imported by their npm name & version, prefixed with `npm:`. See
+resolution. Add npm packages to the `imports` block in `deno.json`, pinned with
+`npm:name@version`, then import them by their bare name. See
 `_includes/scripts/alpine.js`:
 
 ```js
-import Alpine from "npm:alpinejs@latest";
-import intersect from "npm:@alpinejs/intersect@latest";
+import Alpine from "alpinejs";
+import intersect from "@alpinejs/intersect";
 ```
 
-These don't need to be added to a `package.json` anywhere, Lume/Deno will fetch
-them on first run. (This repo should never have a `package.json` in it).
+Run `deno install` after adding one so it lands in `node_modules` and
+`deno.lock`. These don't need to be added to a `package.json` anywhere. (This
+repo should never have a `package.json` in it).
 
 ---
 
