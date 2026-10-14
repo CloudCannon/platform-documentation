@@ -5,8 +5,8 @@ _created_at: '2021-09-15 23:13:40 +0000'
 details:
   title: Add an auto-generated SSL certificate
   description: >-
-    Learn how to enable an auto-generated SSL certificate for your site, update
-    DNS records, and redirect HTTP links to HTTPS.
+    Learn how to let CloudCannon issue and renew the SSL certificate for a
+    subdomain, get HTTPS ready before you move DNS, and redirect HTTP to HTTPS.
   image: >-
     https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
   category:
@@ -17,71 +17,161 @@ details:
     - _type: developer_articles
       item: 79cd09be-23e5-4925-87b1-7d57532caa2c
     - _type: developer_articles
-      item: 6b2315f7-78a9-4536-baa2-9446ddfa0246
+      item: 10e2fa0c-95ba-4692-b7be-777c1cdaadf6
 author_notes:
   docshots: Added!
 ---
-<comp.Notice info_type="important">
-  Managing your SSL certificate on CloudCannon requires you to host your <comp.GlossaryTerm term="/user/glossary/s/site.yml">Site</comp.GlossaryTerm> through CloudCannon. If you are hosting your *Site* through an external service, please review their documentation on SSL certification.
+<comp.Notice info_type="permissions">
+  **Permissions required**
+
+  Members of the *Owners* and *Developers* [Default Permission Groups](/documentation/user-articles/what-are-default-permission-groups/), or [Custom Permission Groups](/documentation/developer-articles/what-are-custom-permission-groups/) with the `base-domain:settings:details:write` permission, can change the HTTPS settings of a subdomain.
 </comp.Notice>
 
-By default, CloudCannon will automatically generate an SSL certificate for all *Sites* hosted on CloudCannon through ZeroSSL and Cloudflare. This can be a wildcard SSL certificate or a single-domain SSL certificate. These certificates renew every 90 days automatically, so your *Site* is never insecure.
+Managing your SSL certificate on CloudCannon requires you to host your <comp.GlossaryTerm term="/user/glossary/s/site.yml">Site</comp.GlossaryTerm> through CloudCannon. If an external service hosts your *Site*, please review its documentation on SSL certificates.
 
-* **Wildcard SSL certificate** — A certificate that protects a single domain and all its subdomains (e.g., example.com and its subdomains blog.example.com, support.example.com, app.example.com, etc.).
-* **Single-domain SSL certificate** — A certificate that protects a single domain. This is useful if you only have one CloudCannon *Site*, which is hosted on a subdomain.
+By default, CloudCannon issues an SSL certificate for each subdomain you host on CloudCannon, and renews it automatically, so your *Site* keeps a valid certificate. On *CloudCannon Hosting* and *Cloudflare Proxy*, Cloudflare issues the certificate that visitors see. CloudCannon also issues a certificate from ZeroSSL for its origin servers, which visitors see on *Single Origin*, and on your *Base Domain* when your domain uses external DNS.
 
-<comp.Notice info_type="info">
-  Wildcard SSL certificates are not available for [Sites hosted on a subdomain](/documentation/developer-articles/add-a-custom-domain-to-your-site/). If you have a CloudCannon *Site* hosted on your base domain, add a wildcard SSL certificate to that *Site*.
-</comp.Notice>
+The certificate belongs to the subdomain, so it covers every *Site* on that subdomain. The *HTTPS* section of the subdomain page shows whether HTTPS is on, what CloudCannon is waiting for, and what to do if something needs your attention. You can also redirect visitors who open the HTTP address of your website to the HTTPS address.
 
-After adding an auto-generated SSL certificate, CloudCannon serves your *Site* over HTTPS. You can also redirect any users trying to access your website through the HTTP URL to the correct HTTPS URL.
+Before we begin, this article assumes you have [added a Custom Domain](/documentation/developer-articles/add-a-custom-domain-to-your-site/) to your *Site*, or [added a subdomain](/documentation/developer-articles/manage-the-subdomains-on-your-custom-domain/#add-a-subdomain) to your <comp.GlossaryTerm term="/user/glossary/c/custom-domain.yml">Custom Domain</comp.GlossaryTerm>.
 
-Before you add an SSL certificate to your *Site*, you must [add a Custom Domain](/documentation/developer-articles/add-a-custom-domain-to-your-site/) to your <comp.GlossaryTerm term="/user/glossary/o/organization.yml">Organization</comp.GlossaryTerm>.
+To use an auto-generated SSL certificate on a subdomain:
 
-<comp.Notice info_type="info">
-  If you have recently added your <comp.GlossaryTerm term="/user/glossary/c/custom-domain.yml">Custom Domain</comp.GlossaryTerm> to your *Site*, CloudCannon may need a few minutes to fetch your domain details before you can add an SSL certificate. If this process takes more than a few minutes, please contact our friendly <a href="https://cloudcannon.com/support/">support team</a>.
-</comp.Notice>
+1. Click the *Domains* button in the *App Sidebar*. CloudCannon will open the <comp.GlossaryTerm term="/user/glossary/d/domains-browser.yml">Domains Browser</comp.GlossaryTerm>.
+2. Select the domain to which you want to add a certificate. CloudCannon will open the *Summary* tab of the *Domain* page.
+3. Open the *Subdomains* tab, then select the subdomain to which you want to add the certificate. CloudCannon will open the page for that subdomain.
+4. Click the *Configure* button in the *HTTPS* section. CloudCannon will open the *HTTPS for [Subdomain]* modal.
+5. Select the *Let CloudCannon issue and renew it* option under *SSL certificate*.
+6. (Optional.) Tick the *Redirect http:// visitors to https://* checkbox under *HTTP*.
+7. Click the *Save HTTPS* button.
 
-To add an auto-generated SSL certificate to your *Site*:
+CloudCannon will request an SSL certificate for the subdomain once its DNS points at CloudCannon. Once the certificate is issued, the *HTTPS* section shows *HTTPS is on* and the date by which CloudCannon renews it.
 
-1. Navigate to the *Domains Browser* by clicking *Domains* in the *App Sidebar*.
-2. Select the domain to which you want to add a certificate.
-3. Under the *Subdomains* heading, click the card for the subdomain to which you want to add the certificate.
-4. Click the *Configure* button under the *SSL* heading. CloudCannon will open the *Configure SSL* modal.
-5. Select a version number from the *Minimum TLS Version* dropdown.
-6. Select the *DNS Text Record* option from the *Validation Method* dropdown.
-7. (Optional) If you are adding an SSL certificate to a *Site* hosted on your base domain, ensure the *Generate a wildcard certificate to enable SSL on \*example.com* checkbox is ticked. This option is not available for *Sites* hosted on a subdomain.
-8. Click the *Update SSL* button.
+<comp.DocShot docshot_key="CloudCannon-Documentation-Subdomain-Page-HTTPS-Modal" alt="A screenshot of the HTTPS for blog.example.com modal shows the Let CloudCannon issue and renew it option selected and labeled Recommended, the Use an SSL certificate you upload option, the Redirect http:// visitors to https:// checkbox under HTTP, and the Save HTTPS button." title="The HTTPS modal" type="screenshot" />
 
-CloudCannon will add an auto-generated SSL certificate to your domain.
+New subdomains use an auto-generated certificate by default, so you only need these steps to switch back from an uploaded certificate, or to change the HTTP redirect. You can also open the *HTTPS* section from the *Custom Domain* page under *Site Settings*.
 
-<comp.DocShot docshot_key="CloudCannon-Documentation-Configure-SSL-Auto-Generated-Modal-Element" alt="A screenshot of the SSL settings modal shows fields for Minimum TLS Version, Validation Method, and a wildcard certificate checkbox." title="The Configure SSL modal" type="ui-snippet" />
+## What the HTTPS section shows
 
-To switch between a wildcard SSL certificate and a single domain SSL, untick the *Generate a wildcard certificate to enable SSL on \*example.com* checkbox and click the *Update SSL* button.
+The *HTTPS* section of the subdomain page explains the status of the certificate:
 
-## Add TXT DNS records
+* **Waiting for DNS**: The subdomain's DNS record doesn't point at CloudCannon yet. HTTPS turns on by itself once it does, so there is nothing to do here. On *Cloudflare Proxy*, the section shows *Waiting for your proxied record* instead.
+* **Turning HTTPS on**: The subdomain points at CloudCannon, and CloudCannon is requesting the certificate. This usually takes a few minutes.
+* **HTTPS is on**: The certificate is active. The section shows the date by which CloudCannon renews it, and whether visitors who open the http:// address land on https://.
 
-<comp.Notice info_type="info">
-  This step is only required if you are using an [external DNS provider](/documentation/developer-articles/configure-external-dns/) and a CloudCannon auto-generated SSL certificate.
-</comp.Notice>
+Until HTTPS is on, visitors who open the https:// address see a security warning in their browser. If you are moving a live website to CloudCannon, you can [get HTTPS ready before you switch DNS](#get-https-ready-before-you-switch-dns), so your visitors never see that warning.
 
-[TXT record validation](/documentation/developer-articles/what-is-an-ssl-certificate/#validation-method) is a method of authenticating ownership of your domain, so unauthorized individuals cannot add an SSL certificate to your domain.
+If a certificate fails to issue or renew, the *HTTPS* section says why, and what to do next. For more information, please read our documentation on [resolving SSL certificate errors](/documentation/developer-articles/resolve-ssl-certificate-errors/).
 
-<comp.GlossaryTerm term="/user/glossary/d/dns.yml">DNS</comp.GlossaryTerm> TXT Records demonstrate control over a domain, as only authorized individuals should be able to update the records stored by your DNS provider. If you are using [CloudCannon DNS](/documentation/developer-articles/configure-cloudcannon-dns/), you do not need to add a TXT record, as CloudCannon will handle validation for you. If you are using an [external DNS provider](/documentation/developer-articles/configure-external-dns/), you will need to add the two TXT records provided by CloudCannon to your DNS provider.
+If a subdomain on *CloudCannon Hosting* or *Cloudflare Proxy* doesn't point at CloudCannon within seven days of being set up, Cloudflare gives up on it, and CloudCannon sets the subdomain up again. The *HTTPS* section says when CloudCannon set the subdomain up again.
 
-To use TXT record validation through an external DNS provider:
+<comp.DocShot docshot_key="CloudCannon-Documentation-Subdomain-Page-HTTPS-Waiting-For-DNS" alt="A screenshot of the HTTPS section for careers.example.com shows Waiting for DNS, a note that HTTPS turns on by itself once the subdomain points at CloudCannon, and the Get HTTPS ready before you switch DNS button." title="The HTTPS section while waiting for DNS" type="screenshot" />
 
-1. Navigate to the *Domains Browser* by clicking *Domains* in the *App Sidebar*.
-2. Select the domain for which you want to add TXT records.
-3. Under the *Subdomains* heading, click the card for the subdomain to which the SSL certificate applies.
-4. Copy the two TXT records provided by CloudCannon.
-5. Log in to your third-party DNS provider.
-6. Add two TXT records to your DNS provider.
+## How CloudCannon validates your certificate
 
-CloudCannon will validate your SSL certificate once the new DNS records propagate from your DNS provider. This could take up to 24 hours.
+Before a certificate authority issues a certificate, it checks that you control the subdomain, so that nobody else can get a certificate for your domain. How CloudCannon validates a certificate depends on the subdomain's hosting, and on whether it is your *Base Domain*:
 
-<comp.DocShot docshot_key="CloudCannon-Documentation-Custom-Domain-Subdomain-SSL-Pending" alt="A screenshot of the Custom Domain subdomain page shows the SSL status is pending." title="The subdomain page with pending SSL" type="screenshot" />
+* **CloudCannon Hosting or Cloudflare Proxy**: Cloudflare validates the certificate over HTTP once the subdomain's DNS points at CloudCannon. CloudCannon answers the check itself, so you don't need to add any records.
+* **Single Origin**: CloudCannon answers the certificate authority's challenge at `/.well-known/acme-challenge/` on the subdomain once its DNS points at the CloudCannon origin. You don't need to add any records.
+* **Your Base Domain**: On *CloudCannon Hosting* or *Cloudflare Proxy*, your *Base Domain* (e.g., example.com) also gets a wildcard certificate, which covers subdomains you haven't set up yet (e.g., \*.example.com), so visitors to them reach your [fallback redirect](/documentation/developer-articles/update-the-fallback-redirect-for-your-custom-domain/) over HTTPS. On external DNS, visitors only reach those subdomains if you also add a wildcard DNS record (e.g., \*.example.com) at your DNS provider, which the *DNS* tab lists under *Optional: catch unknown subdomains*. Cloudflare only validates wildcard certificates with TXT records. On CloudCannon DNS, CloudCannon adds the TXT records for you. On external DNS, you add them at your DNS provider. For more information, please read the section on [renewing the wildcard certificate on external DNS](#renew-the-wildcard-certificate-on-external-dns).
+
+When your domain uses external DNS and your *Base Domain* is on *CloudCannon Hosting*, the *HTTPS* section of the subdomain page for your *Base Domain* has an *Other subdomains* block, which shows the state of the wildcard certificate:
+
+* **Setting up**: CloudCannon is requesting the first wildcard certificate. Until it is issued, the *DNS* tab lists the TXT records it needs under *Wildcard certificate records*.
+* **HTTPS on**: The wildcard certificate is active. The block shows when it renews, and whether the renewal needs two TXT records or happens by itself.
+* **Action needed before [Date]**: A renewal needs new TXT records at your DNS provider. For more information, please read the section on [renewing the wildcard certificate on external DNS](#renew-the-wildcard-certificate-on-external-dns).
+* **No HTTPS**: The wildcard certificate was not renewed in time, so visitors to a subdomain you haven't set up see a security warning or an error page from Cloudflare.
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Subdomain-Page-HTTPS-Apex-External" alt="A screenshot of the HTTPS section for example.com on external DNS shows HTTPS is on with the next renewal date, and the Other subdomains block with HTTPS on, explaining that visitors to a subdomain that isn't set up reach the fallback over HTTPS, and that the certificate needs two TXT records before each renewal." title="The HTTPS section for a Base Domain on external DNS" type="screenshot" />
+
+## Get HTTPS ready before you switch DNS
+
+When a subdomain is already live somewhere else, moving its DNS record to CloudCannon before CloudCannon has its certificate leaves a short gap where visitors see a security warning. For a subdomain on *CloudCannon Hosting* or *Cloudflare Proxy*, other than your *Base Domain*, on a domain that uses external DNS, you can validate the certificate with TXT records at your current DNS provider instead. CloudCannon issues the certificate while your DNS still points at the old host, so the move has no downtime.
+
+To get HTTPS ready before you switch DNS:
+
+1. Navigate to the page for the subdomain.
+2. Click the *Get HTTPS ready before you switch DNS* button in the *HTTPS* section. CloudCannon will show the two TXT records to add.
+3. Add each record at your current DNS provider, using the *Name*, *Type*, and *Value* shown. Click the *Copy* button next to a name or value to copy it.
+4. Wait until both records show *Found*.
+
+CloudCannon will turn HTTPS on once Cloudflare finds both records, and you can then move the subdomain's DNS record to CloudCannon with no downtime. The first record confirms that you own the subdomain (its name starts with `_cf-custom-hostname`), and the second issues the certificate (its name starts with `_acme-challenge`). You can remove both records once HTTPS is on.
+
+If Cloudflare is still preparing the records, the section shows *Preparing records* until they are ready. CloudCannon checks for them at least once a day, and again each time you open the subdomain page, at most once an hour.
+
+Your current DNS provider is the service whose nameservers your domain uses, which is often your domain registrar. The *DNS* tab of the *Domain* page lists the nameservers CloudCannon found. Some DNS providers add your domain to the name of a record for you. If yours does, enter only the part of the name before your domain (e.g., `_acme-challenge.careers` for `_acme-challenge.careers.example.com`).
+
+You can still move DNS before the records are found. HTTPS catches up after a short gap. To go back to HTTP validation, click the *Cancel* button next to *Checked hourly*. If CloudCannon doesn't find the records within two weeks, it goes back to HTTP validation by itself.
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Subdomain-Page-HTTPS-Pre-Validation-Not-Found" alt="A screenshot of the HTTPS section for careers.example.com shows the Getting HTTPS ready before you switch DNS notice, a table with the two TXT records to add at the current DNS provider, each with Copy buttons and a Not found yet status, a Checked hourly note, and the Cancel button." title="The HTTPS section with TXT records to add" type="screenshot" />
+
+### Issue the certificate before you switch a proxied record
+
+On *Cloudflare Proxy*, your own Cloudflare account proxies the subdomain (the orange cloud in Cloudflare's DNS settings), so Cloudflare confirms that you own the subdomain from your proxied record itself, and only the certificate needs a TXT record.
+
+To issue the certificate before you switch a proxied record:
+
+1. Navigate to the page for the subdomain.
+2. Click the *Issue the SSL certificate before you switch* button in the *HTTPS* section.
+3. Add the TXT record CloudCannon shows to the DNS records of your domain in your Cloudflare account.
+
+CloudCannon will issue the certificate before your proxied record changes, so HTTPS is on as soon as you switch. For more information, please read our documentation on [configuring Cloudflare Proxy](/documentation/developer-articles/configure-external-dns/#configure-cloudflare-proxy).
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Subdomain-Page-Cloudflare-Pending" alt="A screenshot of the subdomain page for app.example.com on Cloudflare Proxy shows the HTTPS section with Waiting for your proxied record, and the Issuing the SSL certificate before you switch block with the TXT record to add in the Cloudflare zone and a Not found yet status." title="The HTTPS section for a subdomain on Cloudflare Proxy" type="screenshot" />
+
+### Move a subdomain from another platform that uses Cloudflare
+
+Some website platforms (e.g., Webflow) also serve your domain through Cloudflare. If the subdomain is still set up on that platform when you point your DNS at CloudCannon, Cloudflare can keep sending its visitors to the old platform, or show them an error page from Cloudflare, until CloudCannon's certificate for the subdomain is active.
+
+These instructions are for a subdomain on *CloudCannon Hosting* whose domain uses external DNS. Before you begin, add the subdomain on CloudCannon using the exact name visitors use (e.g., www.example.com), and leave its DNS pointing at the old platform for now.
+
+To move a subdomain from another platform that uses Cloudflare:
+
+1. Navigate to the page for the subdomain.
+2. Click the *Get HTTPS ready before you switch DNS* button in the *HTTPS* section. CloudCannon will show the two TXT records to add.
+3. Add both records at your current DNS provider, including the record that confirms you own the subdomain.
+4. Wait until the *HTTPS* section shows *HTTPS is on*.
+5. Change the DNS record for the subdomain at your DNS provider to the record listed under *Needs* in the *DNS* section.
+
+CloudCannon will serve the subdomain once your DNS change spreads, with no certificate warning. You can then remove the subdomain from the old platform, and remove the TXT records.
+
+Add each subdomain that visitors use as its own subdomain on CloudCannon, even if it only redirects. Cloudflare prefers the old platform's setup for an exact subdomain over the wildcard certificate that covers subdomains you haven't set up on CloudCannon. The *Get HTTPS ready before you switch DNS* button isn't available for your *Base Domain*. For more information, please read Cloudflare's documentation on <a href="https://developers.cloudflare.com/cloudflare-for-platforms/cloudflare-for-saas/domain-support/hostname-validation/#migrate-a-hostname-from-another-saas-provider" target="_blank" rel="noopener noreferrer">migrating a hostname from another provider</a>.
+
+## Renew the wildcard certificate on external DNS
+
+If your domain uses external DNS, each renewal of the wildcard certificate for your *Base Domain* needs new TXT records at your DNS provider, unless you [let Cloudflare renew it on its own](#let-cloudflare-renew-the-wildcard-certificate-on-its-own).
+
+When Cloudflare starts a renewal, the *Other subdomains* block in the *HTTPS* section of the subdomain page for your *Base Domain* shows *Action needed before [Date]*, with the two TXT records to add. CloudCannon also emails the records to everyone who can edit the settings of your *Base Domain* (the `base-domain:settings:details:write` permission), with the subject *Action required: [Base Domain] certificate is expiring*. If that email arrives more than 10 days before the certificate expires, and the records are still missing six days before it expires, CloudCannon sends a second email with the subject *Second warning: [Base Domain] certificate is expiring*.
+
+To renew the wildcard certificate:
+
+1. Navigate to the subdomain page for your *Base Domain*.
+2. Add the two TXT records listed under *Other subdomains* in the *HTTPS* section at your DNS provider. Click the *Copy* button next to each name and value to copy it. If your DNS provider adds your domain to record names for you, enter only the part of the name before your domain.
+3. Click the *Check now* button.
+
+CloudCannon will check for the records, and show *Found* next to each record it finds. Once Cloudflare finds both records, it renews the certificate.
+
+If the records are not in place the day before the certificate expires, Cloudflare does not renew the wildcard certificate. Your *Base Domain* and the subdomains you have set up keep their own certificates, but visitors to a subdomain you haven't set up see a security warning or an error page from Cloudflare, and the *Other subdomains* block shows *No HTTPS*. To give those visitors HTTPS again, add each subdomain they use as its own subdomain, as a redirect subdomain if it should send them elsewhere, or contact our <a href="https://cloudcannon.com/support/">support team</a>.
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Subdomain-Page-HTTPS-Wildcard-Renewal" alt="A screenshot of the HTTPS section for example.com shows the Other subdomains block with Action needed before a date, the CNAME record that lets Cloudflare renew the certificate on its own, the two TXT records to add before each renewal with Found and Not found yet statuses, and the Check now button." title="The HTTPS section while the wildcard certificate renews" type="screenshot" />
+
+### Let Cloudflare renew the wildcard certificate on its own
+
+Instead of adding new TXT records at each renewal, you can add one CNAME record that lets Cloudflare validate each renewal itself. While a renewal needs TXT records, the *Other subdomains* block shows this record under *Prefer to do this once?*, and the renewal email includes it. Its name is `_acme-challenge.[Base Domain]`, and it points at an address on `dcv.cloudflare.com` that is specific to your domain.
+
+A name can't have a CNAME record and TXT records at the same time, so remove the TXT records before you add the CNAME record.
+
+To let Cloudflare renew the wildcard certificate on its own:
+
+1. Remove the TXT records for `_acme-challenge.[Base Domain]` at your DNS provider.
+2. Add the CNAME record shown under *Prefer to do this once?* at your DNS provider.
+
+Once CloudCannon finds the CNAME record, it will show that the certificate renews by itself in the *Other subdomains* block, and stop emailing you about renewals.
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Subdomain-Page-HTTPS-Wildcard-Delegated" alt="A screenshot of the HTTPS section for example.com shows HTTPS is on, and the Other subdomains block with HTTPS on, explaining that the certificate renews by itself through the CNAME record you added and showing the next renewal date." title="The HTTPS section once Cloudflare renews the wildcard certificate on its own" type="screenshot" />
 
 ## Redirect HTTP to HTTPS
 
-Once your SSL certificate is enabled, users can visit your *Site* on the more secure [HTTPS](/documentation/developer-articles/what-is-an-ssl-certificate/#http-vs-https) URL. CloudCannon will redirect any users who request the <comp.GlossaryTerm term="/user/glossary/h/http.yml">HTTP</comp.GlossaryTerm> URL. For more information on redirects, please read our documentation on [configuring HTTP redirects](/documentation/developer-articles/configure-http-redirects/).
+Once HTTPS is on, visitors can open your *Site* at the more secure [HTTPS](/documentation/developer-articles/what-is-an-ssl-certificate/#http-vs-https) address. When you tick the *Redirect http:// visitors to https://* checkbox in the *HTTPS for [Subdomain]* modal, CloudCannon redirects anyone who opens the <comp.GlossaryTerm term="/user/glossary/h/http.yml">HTTP</comp.GlossaryTerm> address on the subdomain, for every *Site* on it. The *HTTPS* section says whether visitors who open http:// land on https:// or stay on HTTP.
+
+Redirect subdomains always send visitors to HTTPS, so the checkbox is always ticked for them. For more information on redirects, please read our documentation on [configuring HTTP redirects](/documentation/developer-articles/configure-http-redirects/).

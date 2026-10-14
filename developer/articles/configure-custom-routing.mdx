@@ -18,12 +18,12 @@ author_notes:
   docshots: Needs docshots
 ---
 <comp.Notice info_type="important">
-  This feature is only available for Sites [hosted through CloudCannon](/documentation/user-articles/what-is-web-hosting/#hosting-on-cloud-cannon). If you host your Site externally, or use CloudCannon in [Headless Mode](/documentation/developer-articles/what-is-headless-mode/), this feature will not work.
+  This feature is only available for Sites [hosted through CloudCannon](/documentation/user-articles/what-is-web-hosting/#hosting-on-cloudcannon). If you host your Site externally, or use CloudCannon in [Headless Mode](/documentation/developer-articles/what-is-headless-mode/), this feature will not work.
 </comp.Notice>
 
 Custom routing allows you to control which content is delivered to your visitors when they enter a URL in their internet browser. You can create custom routing by creating a `routing.json` file in your `.cloudcannon` folder. When a visitor requests your webpage, CloudCannon will also load the `routing.json` file to extend the default routing behavior.
 
-Your custom routing file can specify [redirects](/documentation/developer-articles/configure-custom-routing/#custom-redirects) and [headers](/documentation/developer-articles/configure-custom-routing/#custom-headers) using JSON data.
+Your custom routing file can specify [redirects](/documentation/developer-articles/configure-custom-routing/#custom-routes) and [headers](/documentation/developer-articles/configure-custom-routing/#custom-headers) using JSON data.
 
 * **Custom redirect** — an instruction to redirect a visitor from one URL to another.
 * **Custom header** — additional information passed between the web server and the client (e.g., visitor's browser).
@@ -127,6 +127,37 @@ Here are a few examples:
 </comp.CodeBlock>
 
 For more a complete list of configuration keys available for custom routing, please read our [routing reference documentation](/documentation/developer-reference/routing-file/).
+
+### Redirect to another domain
+
+A route can redirect visitors to a page on another domain. Enter the full URL, including `https://`, in the `to` key, and use a 301, 302, 307, or 308 status code. You can't use a proxy code (200, 404, or 410) with another domain, because a proxy route serves a file from your own *Site*.
+
+For example, this routing file sends every page of the *Site* to the same path on example.com, and sends one old page to a new address:
+
+<comp.CodeBlock language="json" source=".cloudcannon/routing.json">
+```
+
+{
+  "routes": [
+    {
+      "from": "/about-us/",
+      "to": "https://example.com/company/",
+      "status": 301
+    },
+    {
+      "from": "/(.*)",
+      "to": "https://example.com/$1",
+      "status": 301
+    }
+  ]
+}
+
+```
+</comp.CodeBlock>
+
+CloudCannon uses the first matching route, so put specific routes before the catch-all route.
+
+Routes in `routing.json` only run for a subdomain that serves a *Site*. To redirect a whole domain to another domain, you don't need a *Site* at all: add a redirect subdomain instead. Redirect subdomains do not count toward the number of <comp.GlossaryTerm term="/user/glossary/c/custom-domain.yml">Custom Domains</comp.GlossaryTerm> in your <comp.GlossaryTerm term="/user/glossary/s/subscription-plan.yml">Subscription Plan</comp.GlossaryTerm>. For more information, please read our documentation on [managing redirect subdomains](/documentation/developer-articles/manage-redirect-subdomains/#redirect-a-whole-domain-to-another-domain).
 
 ### Generating redirects
 
