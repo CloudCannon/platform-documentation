@@ -30,23 +30,21 @@ author_notes:
 
 *Visual Data Previews* are a way for your website's JavaScript to read a file's data as it changes in the <comp.GlossaryTerm term="/user/glossary/v/visual-editor.yml">Visual Editor</comp.GlossaryTerm> using the v0 <comp.GlossaryTerm term="/user/glossary/v/visual-editor-api.yml">Visual Editor API</comp.GlossaryTerm>.
 
-When you open a file in the *Visual Editor*, CloudCannon loads your webpage preview inside an iframe with its own separate `window`, and installs the v0 API on that `window` as an object named `CloudCannon`. Once your code calls `enableEvents()`, CloudCannon dispatches an event on `document` whenever the open file changes, and the webpage preview in the *Visual Editor* re-renders with the new values with the latest data from the `CloudCannon` object.
-
-This article covers the v0 *Visual Editor API*, not v1. Both versions use the `cloudcannon:load` event: CloudCannon dispatches it on `document` for either version, and its `detail` carries the v0 object alongside `CloudCannonAPI`, the router that v1 comes from. For the current API, please read our documentation on [what the Visual Editor API is](/documentation/developer-articles/what-is-the-visual-editor-api/).
+When you open a file in the *Visual Editor*, CloudCannon loads your webpage preview inside an iframe with its own separate `window`, and installs the v0 API on that `window` as an object named `CloudCannon`. Once your code calls `enableEvents()`, CloudCannon dispatches an event on `document` whenever the open file changes, and the webpage preview in the *Visual Editor* re-renders with the new values from the `CloudCannon` object.
 
 <comp.Notice info_type="info">
-  **Do you need the data in your own JavaScript?**
+  **You may not need Visual Data Previews.**
 
-  *Visual Data Previews* are for when something else on your page already owns the content: a framework component that renders from its own state, or a control you built that writes values back to the file.
+  *Visual Data Previews* hand updated data to your website's JavaScript and leave the redrawing to you. Use them when a component renders your content from its own state, or when you have built a control that writes values back to the file.
 
-  Otherwise, use *Editable Regions* instead. You mark elements as editable and CloudCannon updates them in the preview directly, without your own JavaScript receiving the data. For more information, please read our documentation on [what Editable Regions are](/documentation/developer-articles/what-are-editable-regions/).
+  With *Editable Regions*, you can add HTML attributes to an element you already render. CloudCannon updates that element on your webpage preview, no JavaScript required. For more information, please read our documentation on [what Editable Regions are](/documentation/developer-articles/what-are-editable-regions/).
 </comp.Notice>
 
-## What your Site needs
+When you open a file in the *Visual Editor*, CloudCannon matches the source file to an output file from your most recent successful build. The output file becomes the webpage preview. If CloudCannon doesn't automatically find the correct output file, you can correct it by adding the `url` to each *Collection*. For more information, please read our documentation on [what an output file is](/documentation/developer-articles/what-is-an-output-file/).
 
-The *Visual Editor* opens files, not components, so the file you want to preview needs a URL CloudCannon can load. <comp.GlossaryTerm term="/user/glossary/c/collection.yml">Collection</comp.GlossaryTerm> configuration decides whether it has one: setting `disable_url` to `true` on a *Collection* removes the output URL for its files, and on a <comp.GlossaryTerm term="/user/glossary/s/site.yml">Site</comp.GlossaryTerm> that has not migrated to Unified Configuration the *Collection* also needs `output` set to `true`.
-
-A file with no output URL can still open in the *Visual Editor* when `new_preview_url` is set on its *Collection* or its <comp.GlossaryTerm term="/user/glossary/s/schema.yml">Schema</comp.GlossaryTerm>, because CloudCannon loads that URL instead. For more information, please read our documentation on [configuring your Collections](/documentation/developer-articles/configure-your-collections/).
+<comp.Notice info_type="info">
+  You cannot open an individual component in the *Visual Editor*. Instead, add the component to a page and open that file in the *Visual Editor*.
+</comp.Notice>
 
 ## The load and update events
 
