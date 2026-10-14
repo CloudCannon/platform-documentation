@@ -22,11 +22,11 @@ author_notes:
 ---
 Unlike other types of *Editable Region*, re-rendering [Component Editable Regions](/documentation/developer-articles/configure-component-editable-regions/) requires CloudCannon to run your template code in the browser of whoever is editing the page. Most components need no extra configuration or code changes beyond installing the integration. However, some depend on things a browser cannot provide, such as a secret or a server-only environment variable, a Node package with no browser equivalent, or image processing that happens at build time.
 
-When CloudCannon cannot render a component, it replaces that component in the <comp.GlossaryTerm term="/user/glossary/v/visual-editor.yml">Visual Editor</comp.GlossaryTerm> with a red *Error Card* headed *Failed to render component: [Component Name]*, followed by the error message and the first few lines of the stack trace.
+When CloudCannon cannot render a component, it replaces that component in the <comp.GlossaryTerm term="/user/glossary/v/visual-editor.yml">Visual Editor</comp.GlossaryTerm> with a red *Error Card* with the heading *Failed to render component: [Component Name]*, followed by the error message and the first few lines of the stack trace.
 
 <comp.DocShot docshot_key="CloudCannon-Documentation-Visual-Editor-Component-Render-Failure-Card" alt="A screenshot of the Visual Editor shows a red Error Card headed Failed to render component: weather, followed by the error message and four lines of the stack trace." title="The Error Card shown in place of a component that cannot render" type="ui-snippet"/>
 
-To handle this issue, you must give CloudCannon something simpler to render while someone is editing the page in the *Visual Editor*, leaving the original component in place for your build. The *Error Card* will name the dependency that could not run, which is what decides which method you should use: replacing what CloudCannon renders, detecting the *Visual Editor*, stubbing a dependency, or supplying missing data.
+To handle this issue, you must give CloudCannon something simpler to render while someone is editing the page in the *Visual Editor*, without affecting what appears on the live webpage after you build. The *Error Card* will name the dependency that could not run, which is what decides which method you should use: replacing what CloudCannon renders, detecting the *Visual Editor*, stubbing a dependency, or supplying missing data.
 
 Before we begin, this article assumes you have already installed the <comp.GlossaryTerm term="/user/glossary/e/editable-region.yml">Editable Regions</comp.GlossaryTerm> integration for your SSG and configured at least one *Component Editable Region*. For more information, please read our documentation on [configuring Component Editable Regions](/documentation/developer-articles/configure-component-editable-regions/).
 
@@ -34,12 +34,10 @@ Before we begin, this article assumes you have already installed the <comp.Gloss
 
 The options available to you depend on your SSG. They fall into four kinds:
 
-* **Replace what CloudCannon renders** — point CloudCannon at a simpler version of your component or template, which it uses instead of the original. Available for Astro, Eleventy, Hugo, and JavaScript frameworks.
-* **Detect the Visual Editor** — check whether your code is running in CloudCannon's renderer, and render something else when it is. Available for Astro and Hugo. Sites built with JavaScript frameworks use `window.inEditorMode` instead.
-* **Stub a dependency** — name a package that cannot run in a browser, so CloudCannon replaces it with a stub. Available for Eleventy.
-* **Supply missing data** — pass values or files that CloudCannon's renderer cannot read for itself. Available for Eleventy and Hugo.
-
-Replace what CloudCannon renders when you want your team to keep editing the component's content. Detect the *Visual Editor* when the component has nothing worth editing and you only need the page to render. Stub a dependency when a single package stops CloudCannon building the browser bundle at all. Supply missing data when the component would render correctly if it could reach the data it needs.
+* **Replace what CloudCannon renders** — point CloudCannon at a simpler version of your component or template, which it uses instead of the original. Use this when you want your team to keep editing the component's content. Available for Astro, Eleventy, Hugo, and JavaScript frameworks.
+* **Detect the Visual Editor** — check whether your code is running in CloudCannon's renderer, and render something else when it is. Use this when the component has nothing worth editing and you only need the page to render. Available for Astro and Hugo. Sites built with JavaScript frameworks use `window.inEditorMode` instead.
+* **Stub a dependency** — name a package that cannot run in a browser, so CloudCannon replaces it with a stub. Use this when a single package stops CloudCannon building the browser bundle at all. Available for Eleventy.
+* **Supply missing data** — pass values or files that CloudCannon's renderer cannot read for itself. Use this when the component would render correctly if it could reach the data it needs. Available for Eleventy and Hugo.
 
 In every case, your built <comp.GlossaryTerm term="/user/glossary/s/site.yml">Site</comp.GlossaryTerm> keeps the original component, template, and data.
 
