@@ -25,7 +25,6 @@ Content follows a modified [Diátaxis framework](https://diataxis.fr/) — separ
 ## 🚀 Getting started
 
 1. [Install Deno](https://docs.deno.com/runtime/getting_started/installation/) via curl, brew, or your preferred method.
-   This repo pins Deno **2.6.8** in `.dvmrc` — if you use [dvm](https://github.com/justjavac/dvm) it will pick this up automatically.
 2. Run `deno task serve:fast` to build the site and start a local dev server.
 
 Deno doesn't have a separate dependency-install step; the first run will download and cache everything automatically.
