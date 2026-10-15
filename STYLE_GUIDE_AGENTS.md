@@ -7,8 +7,8 @@ Machine-readable style rules for AI agents and automated linters. These rules ar
 **For agents making updates to this file:** Also update the corresponding section in `STYLE_GUIDE.mdx` with the prose explanation and examples. Update the revision history in both files: `last_updated` and `style_guide_version` in the YAML block below, and the `Last Updated` and `Version` fields and the revision history table (Section 4) in `STYLE_GUIDE.mdx`.
 
 ```yaml
-style_guide_version: "2.69"
-last_updated: "2026-10-06"
+style_guide_version: "2.70"
+last_updated: "2026-10-15"
 
 documentation_architecture:
   single_source_of_truth:
@@ -826,24 +826,30 @@ components:
       important: "Can be first if the information affects the entire article; otherwise inline."
       deprecated: "Must be first in article, before any other notice or content. Applies to the whole article; do not repeat per section. When an article documents a deprecated method alongside a current one, scope the notice to the method by naming it in the status sentence. Mirrors STYLE_GUIDE.mdx §1.5.1."
       permissions: "Must be at the top of the article, immediately after front matter, before any body content. Always start with bold 'Permissions required' heading. When a pricing notice is also present, the pricing notice comes first and the permissions notice immediately follows it (see pricing_and_permissions_order)."
-      pricing: "Can be first if the entire feature is gated; otherwise inline. When both a pricing and a permissions notice are present, the pricing notice comes first (see pricing_and_permissions_order)."
+      pricing: "Can be first if the entire feature is gated; otherwise inline. A Subscription Plan gate always starts with the bold 'Subscription Plan required' heading (see pricing_notice_content.plan_gate_heading). When both a pricing and a permissions notice are present, the pricing notice comes first (see pricing_and_permissions_order)."
       pricing_and_permissions_order: "When an article genuinely needs both a pricing and a permissions notice (it gates on both plan and permission), place the pricing notice first, immediately followed by the permissions notice, before any other content. Pricing comes first because plan availability is the more fundamental gate — a reader on the wrong plan does not need the permission requirements. Mirrors STYLE_GUIDE.mdx §1.5.1."
       destructive_action_notice_stack: "For a destructive or irreversible action (e.g. deleting an Organization or Site), stack a permissions notice first (who can perform the action), immediately followed by an important notice stating the irreversibility and what is lost, before any other content. The irreversibility warning is a load-bearing caveat the reader must see before acting, so two notices at the top is expected here, not overuse. Mirrors STYLE_GUIDE.mdx §1.5.1."
       notice_order_at_top: "When more than one top-of-article notice is present, the order is deprecated, then pricing, then permissions. Deprecation is the most fundamental gate: a reader who should not adopt a feature does not need its plan availability or permission requirements. Mirrors STYLE_GUIDE.mdx §1.5.1."
     pricing_notice_content:
       scope: "The pricing notice answers 'can I use this?', not only 'which plan is this on'. Use it for any access gate: a Subscription Plan tier, a private Beta the reader must request access to, or a programme they must belong to. Reserve `important` for caveats about using a feature the reader already has. Mirrors STYLE_GUIDE.mdx §1.5.1."
-      non_plan_gate_form: "State the gate and how to get through it. Private Beta: '**This feature is available through a private Beta.**' followed by what it covers and a support contact. If access is granted per account rather than per Organization, say so."
-      single_feature_form: '**This feature is available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise Plan</a>.** OR ***Feature Name* is available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise Plan</a>.**'
+      non_plan_gate_form: "State the gate and how to get through it. Private Beta: '**This feature is available through a private Beta.**' followed by what it covers and a support contact. If access is granted per account rather than per Organization, say so. Non-plan gates do not take the plan_gate_heading."
+      plan_gate_heading:
+        rule: "A Subscription Plan pricing notice has two parts: the bold heading '**Subscription Plan required**', a blank line, then a plain (not bold) sentence stating the gate. Mirrors the 'Permissions required' heading on permissions notices. Only the heading is bold (bold_usage). The heading text is not italicized, matching headings_no_italics. Mirrors STYLE_GUIDE.mdx §1.5.1."
+        syntax: "<comp.Notice info_type=\"pricing\">\n  **Subscription Plan required**\n\n  This feature is available on our <a href=\"https://cloudcannon.com/pricing/\">Team or Enterprise Plan</a>.\n</comp.Notice>"
+      single_feature_form: 'This feature is available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise Plan</a>. OR *Feature Name* is available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise Plan</a>. (The sentence after the plan_gate_heading.)'
+      multiple_gates_form: "When different parts of a feature are gated on different plans, state each gate in its own sentence."
       overview_article_form: "Name the gated sub-features the article actually discusses; do not list the full set of gated features under the parent"
       examples:
-        correct:
-          - '**This feature is available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise Plan</a>.**'
-          - '***Deploy Previews* are available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise Plan</a>.**'
-          - '***Projects* are available on all Plans. *Site* branching and *Publishing Workflows* are available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise Plan</a>.**'
-          - '**The *Pull Requests* tab and *Deploy Previews* settings are available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise Plan</a>. Other parts of the *Project Browser* are available on all Plans.**'
+        correct:  # the sentence that follows the plan_gate_heading
+          - 'This feature is available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise Plan</a>.'
+          - '*Deploy Previews* are available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise Plan</a>.'
+          - 'Connecting a DAM is available on our <a href="https://cloudcannon.com/pricing/">Standard, Team, or Enterprise Plan</a>. Linking more than one DAM to a *Site* is available on our <a href="https://cloudcannon.com/pricing/">Enterprise Plan</a>.'
+          - '*Projects* are available on all *Subscription Plans*. *Site* branching and *Publishing Workflows* are available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise Plan</a>.'
+          - 'The *Pull Requests* tab and *Deploy Previews* settings are available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise Plan</a>. Other parts of the *Project Browser* are available on all *Subscription Plans*.'
         incorrect:
-          - '**Some features are only available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise Plan</a>.**'  # vague — doesn't say which features
-          - '**This feature is available on our** [**Team or Enterprise Plan**](https://cloudcannon.com/pricing/)**.**'  # over-wrapped bold/link splits; also: non-doc links must be HTML anchors, not markdown
+          - 'Some features are only available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise Plan</a>.'  # vague — doesn't say which features
+          - 'This feature is available on our [Team or Enterprise Plan](https://cloudcannon.com/pricing/).'  # non-doc links must be HTML anchors, not markdown
+          - '**This feature is available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise Plan</a>.**'  # earlier single-bold-sentence form with no heading; add the plan_gate_heading and unbold the sentence
     deprecation_notice_content:
       scope: "The deprecated notice answers 'is this still the right thing to use?'. Use it for any feature CloudCannon has stopped developing. Distinct from `important`, which carries a caveat about a feature that is current, and from `pricing`, which answers whether the reader can access the feature at all. Mirrors STYLE_GUIDE.mdx §1.5.1."
       cloudcannon_position: "Deprecation means the same thing across every feature and is not a per-feature judgement: the feature is maintained, critical bugs are fixed, no new features or further development are planned, and existing Sites relying on the configuration will keep working. State this position; do not hedge about support. The continuity sentence names the Sites, not the configuration: 'Existing *Sites* relying on this configuration will keep working.', never 'Existing configurations keep working.' — what the reader is asking about is whether their Site breaks."
@@ -1057,6 +1063,7 @@ validation_rules:
     - "system_focused_feature_description_in_explanation (in explanation articles and 'What is...' guide pages, prefer experiential language — what the user sees and can do — over internal mechanics descriptions)"
     - "vague_shorthand_references (e.g. 'This step covers both' without spelling out the referents)"
     - "settings_destination_wrong_noun (Org Settings destinations called 'sections' instead of 'pages'; Project Settings destinations called 'pages' instead of 'sections'; Team's Members/Groups tabs mislabeled as pages or sections)"
+    - "pricing_notice_missing_plan_heading (a Subscription Plan pricing notice without the bold 'Subscription Plan required' heading, or with the gate sentence still in bold)"
   
   ignore:
     - "Passive voice in: changelog features, technical descriptions"
