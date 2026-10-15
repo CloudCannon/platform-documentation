@@ -1,0 +1,57 @@
+---
+_schema: default
+_uuid: 88bb0036-bd2a-4189-97ce-a560c85ab319
+_created_at: '2026-09-18 00:00:00 +0000'
+details:
+  title: Send form submissions to HubSpot
+  description: Forward the submissions an Inbox receives to a HubSpot form.
+  image: >-
+    https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+  category:
+    - Instructions
+  related_articles:
+    - _type: developer_articles
+      item: b7569479-48ee-45f6-b1f4-6d0b98df1fb2
+    - _type: developer_articles
+      item: fa72b1b7-bf1f-4d05-b6a0-f606e8b644c0
+author_notes:
+  docshots: Needs docshots
+---
+You can forward the submissions an <comp.GlossaryTerm term="/user/glossary/i/inbox.yml">Inbox</comp.GlossaryTerm> receives to a HubSpot form, using a *HubSpot* target.
+
+A *HubSpot* target does not take a webhook URL. CloudCannon builds the endpoint it posts to from your HubSpot *Portal ID* and *Form GUID*, so find both in HubSpot first.
+
+To find your *Portal ID* and *Form GUID*:
+
+1. In HubSpot, open your *Settings*, then select *Account Defaults* under *Account Management*.
+2. Copy the account ID listed on that page, which is your *Portal ID*.
+3. Open the form that will receive your submissions in the HubSpot form editor.
+4. Copy the GUID from the form editor URL, or from the embed code HubSpot gives you for that form.
+
+You now have both of the values a *HubSpot* target needs.
+
+Now add the target in CloudCannon. Select *HubSpot* in the *Choose your target type* dropdown, then enter your values in the *Portal ID* and *Form GUID* fields. For the full steps, and for the *Spam protection* and *Links to attached files* options every target carries, please read our documentation on [adding a target to an Inbox](/documentation/developer-articles/add-a-target-to-an-inbox/).
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Org-Settings-Forms-Add-Target-HubSpot-Modal" alt="A screenshot of the Add target modal shows HubSpot chosen as the target type, with the Portal ID, Form GUID, and HubSpot field map fields filled in." title="The Add target modal" type="screenshot" />
+
+CloudCannon will post each new submission to that HubSpot form, in the shape the HubSpot Forms API expects.
+
+## Map your form fields to HubSpot fields
+
+HubSpot rejects a submission that carries a field its form does not define, so a *HubSpot* target sends only the fields you map. Each row under the *HubSpot field map* heading pairs one field on your form with the HubSpot field it fills. At least one pair is required, and CloudCannon will not save the target without one.
+
+A row is two empty boxes side by side, with no labels above them. The left box reads *HubSpot field name* until you type in it, and the right box reads *Your form field name*.
+
+To map a field:
+
+1. Type the name of the HubSpot field into the left box in the row.
+2. Type the name of the matching field on your form into the right box.
+3. Click the *Add field* button to start another row, then repeat for every field you want to send.
+
+CloudCannon will send the fields you map and leave every other field out of the submission it posts. Your *Inbox* still stores every field, including the ones you do not map, so an unmapped field is missing from HubSpot rather than lost.
+
+If HubSpot starts rejecting your submissions, check that each HubSpot field name still matches a field the form defines, and that every field HubSpot requires has a pair in the map.
+
+## Send extra context with each submission
+
+Turn on the *Send the page the form was submitted from* checkbox under the *HubSpot context* heading to include the page URI and name with each submission, so HubSpot can attribute it.

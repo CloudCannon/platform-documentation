@@ -1,0 +1,75 @@
+---
+_schema: default
+_uuid: 580afa32-9a35-48b3-a739-de7780f29a86
+_created_at: '2022-03-01 03:40:54 +0000'
+details:
+  title: Send form submissions to Slack
+  description: Forward the submissions an Inbox receives to a Slack channel.
+  image: >-
+    https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+  category:
+    - Instructions
+  related_articles:
+    - _type: developer_articles
+      item: b7569479-48ee-45f6-b1f4-6d0b98df1fb2
+    - _type: developer_articles
+      item: fa72b1b7-bf1f-4d05-b6a0-f606e8b644c0
+    - _type: developer_articles
+      item: 449653a8-9ba8-4ea5-91b3-a373c930dc86
+author_notes:
+  docshots: Added!
+---
+You can forward the submissions an <comp.GlossaryTerm term="/user/glossary/i/inbox.yml">Inbox</comp.GlossaryTerm> receives to a Slack channel, using a Slack incoming webhook and a *Slack* target.
+
+<comp.Notice info_type="important">
+  Slack has two kinds of webhook URL, and they behave differently. An incoming webhook URL contains `/services/` and lets CloudCannon compose the message. A Workflow Builder URL contains `/triggers/` and runs a workflow you built, which composes its own message. Both are valid in the *Slack webhook URL* field. For a Workflow Builder URL, please read our documentation on [sending submissions to a Slack workflow](#send-submissions-to-a-slack-workflow) below, because the options on this page do not apply to it.
+</comp.Notice>
+
+Create the webhook in Slack first, because the *Slack webhook URL* field needs its URL.
+
+To create a Slack webhook:
+
+1. In the Slack API console, click the *Create an app* button and select the *From Scratch* option.
+2. Name your app, select your Slack workspace, then click the *Create App* button.
+3. Under the *Add features and functionality* heading, click *Incoming Webhooks*.
+4. Turn the *Activate Incoming Webhooks* toggle on, then click the *Add New Webhook to Workspace* button.
+5. Select the Slack channel you want to forward submissions to, then click the *Allow* button.
+6. Copy the webhook URL. You can find it again from the *Incoming Webhooks* menu in the Slack sidebar.
+
+Slack will post anything sent to that webhook URL into the channel you selected.
+
+<comp.DocsImage path="assets/external_screenshots/api-slack-com-apps-webhooks.png" alt="A screenshot of the Slack API console shows the Incoming Webhooks page with a webhook URL for a channel." title="The Slack Incoming Webhooks console" type="screenshot" />
+
+Now add the target in CloudCannon. Select *Slack* in the *Choose your target type* dropdown and paste the webhook URL into the *Slack webhook URL* field. For the full steps, please read our documentation on [adding a target to an Inbox](/documentation/developer-articles/add-a-target-to-an-inbox/).
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Org-Settings-Forms-Add-Target-Slack-Modal" alt="A screenshot of the Add target modal shows Slack chosen as the target type and a webhook URL in the Slack webhook URL field." title="The Add target modal" type="screenshot" />
+
+CloudCannon will forward each new submission to that Slack channel. For the payload Slack accepts, please read the <a href="https://api.slack.com/reference/messaging/payload" target="_blank" rel="noopener noreferrer">Slack message payload reference</a>.
+
+A target carries more than a webhook URL. The *Links to attached files* options decide how a recipient opens a file a visitor attached to a submission, and the *Spam protection* checkboxes decide which submissions CloudCannon holds back. For more information, please read our documentation on [adding a target to an Inbox](/documentation/developer-articles/add-a-target-to-an-inbox/).
+
+## Customize the Slack message
+
+Three options under the *Slack* heading in the *Add target* modal control how each message appears. All three apply to an incoming webhook only, and a Workflow Builder URL ignores them.
+
+The *Message format* dropdown decides how CloudCannon lays a submission out. *Plain text*, the default, posts one message per submission. *Rich blocks* lays each field out on its own row.
+
+Enter a name in the *Username (optional)* field to override the name the incoming webhook posts under, and an emoji name in colons, such as `:inbox_tray:`, in the *Icon emoji (optional)* field to use as the avatar on each message.
+
+## Send submissions to a Slack workflow
+
+A Workflow Builder webhook URL contains `/triggers/` and starts a workflow you built in Slack, rather than posting a message. The workflow composes its own message, so CloudCannon sends it the fields from your form instead of a formatted message, and the *Message format*, *Username (optional)* and *Icon emoji (optional)* options have nothing to act on.
+
+Slack matches what CloudCannon sends to the variables your workflow declares, by name. A field arrives only when your form field name matches a variable name exactly, and a variable that matches nothing stays empty. This is the usual reason a workflow posts a message with blanks in it.
+
+To forward submissions to a workflow:
+
+1. In Slack, open *Workflow Builder* and create a workflow that starts *From a webhook*.
+2. Add a variable for each form field you want to use, naming each one exactly as your form names that field.
+3. Add the steps you want the workflow to run, such as posting a message to a channel, and use your variables in them.
+4. Publish the workflow, then copy its webhook URL.
+5. Add a *Slack* target in CloudCannon and paste that URL into the *Slack webhook URL* field.
+
+CloudCannon will send the fields from each submission to your workflow, and your workflow decides what happens next.
+
+Workflow Builder variables hold a single value each. A form field that submits more than one value, such as a group of checkboxes sharing a name, arrives as a list and needs a text variable to hold it. A file a visitor uploaded arrives as a link to the file rather than the file itself.

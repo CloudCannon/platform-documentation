@@ -1,0 +1,122 @@
+---
+_schema: default
+_uuid: 2055c4ad-c99a-49d9-b505-fc9900192775
+_created_at: '2026-09-18 00:00:00 +0000'
+details:
+  title: Set up an Inbox with an agent
+  description: >-
+    Learn how to point an AI coding agent at a form in your Site and have it set
+    up an Inbox with the CloudCannon CLI.
+  image: >-
+    https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+  category:
+    - Instructions
+  related_articles:
+    - _type: developer_articles
+      item: b7569479-48ee-45f6-b1f4-6d0b98df1fb2
+    - _type: developer_articles
+      item: fa72b1b7-bf1f-4d05-b6a0-f606e8b644c0
+author_notes:
+  docshots: Not applicable
+---
+<comp.Notice info_type="permissions">
+  **Permissions required**
+
+  Members of the *Owners* and *Developers* [Default Permission Groups](/documentation/user-articles/what-are-default-permission-groups/), or [Custom Permission Groups](/documentation/developer-articles/what-are-custom-permission-groups/) with the `org:settings:inbox:write` and `site:settings:form:write` permissions, can set up an *Inbox* from the command line.
+</comp.Notice>
+
+An AI coding agent working in your project can set up an <comp.GlossaryTerm term="/user/glossary/i/inbox.yml">Inbox</comp.GlossaryTerm> for a form on your <comp.GlossaryTerm term="/user/glossary/s/site.yml">Site</comp.GlossaryTerm> without either of you opening the CloudCannon app. The CloudCannon CLI creates the *Inbox*, links it to your *Site*, and adds the targets that forward each submission, so one agent can do the whole setup and edit your form markup in the same pass.
+
+Every command that returns a record prints JSON to standard output, which is what makes this flow suit an agent. The agent creates an *Inbox*, reads the `key` out of the result, writes that key into the `inbox_key` input in the form you already have, and carries on to the next command, with nothing copied by hand between the app and your code editor.
+
+In practice the request is one sentence, along the lines of "set up a CloudCannon *Inbox* for the contact form on this *Site*, and forward its submissions to sales@jetstream.com". The agent reads your existing markup, chooses a key that describes the form, runs the commands below, and writes the key back into the markup.
+
+Two steps stay with a person. An *Email* target forwards nothing until someone opens the validation link CloudCannon emails to that address, and a *Custom webhook* target forwards nothing until CloudCannon finds a DNS record on the hostname in your webhook URL. An agent can create both and check them again afterwards, but it cannot open the link or add the record for you.
+
+Before we begin, this article assumes your *Site* is hosted on CloudCannon and has a form on one of its pages. For installation instructions, please read our [Command Line Interface](/documentation/developer-reference/cli/) reference documentation.
+
+## Give your agent a credential
+
+The `orgs` and `inboxes` commands reach CloudCannon through the <comp.GlossaryTerm term="/user/glossary/a/api.yml">API</comp.GlossaryTerm>, so they need a credential. Running `cloudcannon login` yourself signs in the machine your agent uses, which suits an agent running alongside you.
+
+An agent running unattended is better served by an <comp.GlossaryTerm term="/user/glossary/a/api-key.yml">API Key</comp.GlossaryTerm> or an <comp.GlossaryTerm term="/user/glossary/a/access-key.yml">Access Key</comp.GlossaryTerm> in an environment variable, which keeps the credential out of your prompts and out of your <comp.GlossaryTerm term="/user/glossary/g/git-repository.yml">Git Repository</comp.GlossaryTerm>. For the environment variable each credential uses, please read our documentation on [authenticating the CLI](/documentation/developer-reference/cli/#authentication).
+
+## Set up the Inbox
+
+An *Inbox* belongs to your <comp.GlossaryTerm term="/user/glossary/o/organization.yml">Organization</comp.GlossaryTerm> rather than to one *Site*, so creating it and connecting a *Site* to it are two commands. Each command takes your *Organization*, *Inbox*, or *Site* by name, ID, or UUID, and takes a *Site* by its domain and an *Inbox* by its key as well, so an agent can name what it created rather than tracking UUIDs.
+
+To set up an *Inbox* for a form on your *Site*:
+
+1. Create the *Inbox* on your *Organization* with `cloudcannon orgs inboxes create`.
+2. Read the `key` field from the JSON that command prints.
+3. Add a hidden `inbox_key` input to your form, with that key as its value.
+4. Link the *Inbox* to the *Site* that serves the form with `cloudcannon inboxes connect`.
+5. Add a target for each place you want a copy of every submission, with `cloudcannon inboxes targets add`.
+
+CloudCannon will store every submission from that form in the *Inbox*, and forward a copy to each target you added.
+
+<comp.CodeBlock language="shell" source="Terminal">
+```
+cloudcannon orgs inboxes create --org jetstream --name "Contact form" --key contact
+cloudcannon inboxes connect --inbox contact --site jetstream.com
+cloudcannon inboxes targets add --inbox contact --type email --target sales@jetstream.com
+```
+</comp.CodeBlock>
+
+The create command prints the new *Inbox*, including the key your form needs. Passing `--key` is optional: leave it out and the CLI builds the key from the name, so `--name "Contact form"` becomes `contact-form`. To read that key back later, run `cloudcannon inboxes get --inbox contact`, which is also how an agent picks up an *Inbox* someone else created.
+
+The connect command also takes a `--default` flag, which makes this *Inbox* the one that receives any submission arriving without an `inbox_key` input. For why CloudCannon does not recommend it, please read our documentation on [setting a default Inbox for your Site](/documentation/developer-articles/set-a-default-inbox-for-your-site/).
+
+## Point your form at the Inbox
+
+A form reaches an *Inbox* by naming that *Inbox's* key in an `inbox_key` input. Nothing else in the markup is CloudCannon-specific, so the agent's edit is one hidden input in the form it has already read.
+
+<comp.CodeBlock language="html" source="contact.html">
+```
+<input type="hidden" name="inbox_key" value="contact">
+```
+</comp.CodeBlock>
+
+For the rest of the fields CloudCannon recognizes, including the `_gotcha` honeypot, please read our documentation on [creating a Form](/documentation/developer-articles/create-a-form/).
+
+## Add the targets
+
+A target tells CloudCannon where to forward a copy of each submission. The `--type` option sets what kind of target it is, and `--target` carries the destination: an email address for the `email` type, or a webhook URL for most external services. A `hubspot` target takes `--portal-id` and `--form-guid` instead, with `--field-map` to map each field you send onto a field the HubSpot form defines.
+
+The options a type offers in the app are flags here. `--payload-format` sets the shape CloudCannon posts, which a `webhook` target, shown as *Custom webhook* in the app, can set to any of them, and `--block-spam` and `--block-spam-list` hold back the submissions CloudCannon marks as spam. For what each type expects at the receiving end, please read our documentation on [adding a target to an Inbox](/documentation/developer-articles/add-a-target-to-an-inbox/).
+
+<comp.CodeBlock language="shell" source="Terminal">
+```
+cloudcannon inboxes targets add --inbox contact --type slack --target https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXX
+cloudcannon inboxes targets list --inbox contact
+```
+</comp.CodeBlock>
+
+The list command prints every target on the *Inbox* with its UUID, and the commands that change one target take that UUID rather than the *Inbox*. You can narrow the list with `--filter key=value`, using a target's own fields, so `--filter target_type=email` returns only the email targets.
+
+## Finish the steps that need a person
+
+Two target types wait on something outside the CLI:
+
+* an *Email* target, which receives nothing until someone opens the validation link CloudCannon emails to that address
+* a *Custom webhook* target, which receives nothing until CloudCannon finds a DNS TXT record holding your *Organization's* UUID at `_cloudcannon-challenge.` followed by the full hostname in the webhook URL, so a target on `https://hooks.example.com/forms` needs the record at `_cloudcannon-challenge.hooks.example.com` rather than at `_cloudcannon-challenge.example.com`
+
+The CLI does not leave an agent to work this out. Whenever a target comes back unvalidated, `cloudcannon inboxes targets add`, `cloudcannon inboxes targets update`, and `cloudcannon inboxes targets revalidate` print what is still outstanding, and for a webhook target that includes the exact record name and the value to put in it, so the agent can hand you the record to add.
+
+Once you have opened the email or added the DNS record, the agent can ask CloudCannon to check again:
+
+<comp.CodeBlock language="shell" source="Terminal">
+```
+cloudcannon inboxes targets revalidate --target-uuid 4f5a2c31-9d7e-4a6b-bb02-7c1f0a3e5d84
+```
+</comp.CodeBlock>
+
+## Change an Inbox or a target later
+
+The `cloudcannon inboxes update` command changes every *Inbox* setting an agent can reach: `--name` and `--key`, `--allow-uploads` or `--no-allow-uploads`, how many days CloudCannon keeps submissions with `--keep-form-hook-days`, and the CAPTCHA provider with `--captcha-type`, `--captcha-key`, and `--captcha-secret`, or `--no-captcha` to turn it off again. `--captcha-type` accepts `google` for reCAPTCHA, `hcaptcha`, or `turnstile`. Only the flags you pass are changed. Adding a CAPTCHA provider makes each linked *Site* with *Require Captcha* on reject submissions that arrive without a CAPTCHA response, so have your agent add the provider's widget to your form before it sets the provider. A new key means every form naming the old one stops reaching the *Inbox*, so have your agent update your markup in the same pass.
+
+The `cloudcannon inboxes targets update` command changes a target's destination with `--target`, and its options with the same flags that added it. Changing the destination starts validation again, so an *Email* target waits on another validation link and a *Custom webhook* target waits on its DNS record. Passing `--field-map` again replaces the whole map rather than adding to it.
+
+A target's type is fixed once it exists, so to send submissions to a different kind of service, remove the target with `cloudcannon inboxes targets remove --target-uuid <uuid> --force` and add a new one. Disconnecting a *Site* from an *Inbox* takes `cloudcannon inboxes disconnect --inbox contact --site jetstream.com --force`, and deleting a whole *Inbox*, along with its submissions and targets, takes `cloudcannon inboxes delete --inbox contact --force`.
+
+Reading the submissions an *Inbox* has collected stays in the CLI as well, with `cloudcannon inboxes submissions list --inbox contact`. For more information about where an *Inbox* can forward submissions, please read our documentation on [what an Inbox Target is](/documentation/developer-articles/what-is-an-inbox-target/).

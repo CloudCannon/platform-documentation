@@ -1,0 +1,77 @@
+---
+_schema: default
+_uuid: b3e7ad1a-cdce-4b9e-a477-9c174fe69a81
+_created_at: '2026-09-10 00:00:00 +0000'
+details:
+  title: Create a Form
+  description: >-
+    Add an HTML form to your Site and point it at an Inbox with the inbox_key
+    input.
+  image: >-
+    https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+  category:
+    - Instructions
+  related_articles:
+    - _type: developer_articles
+      item: 6b8caff2-557e-431b-ae95-3244e11f4f79
+    - _type: developer_articles
+      item: a9cf030b-60a8-4060-bd99-05665fe98b5e
+    - _type: developer_articles
+      item: 082bbaa3-c400-49ca-a526-ea0497ed684b
+author_notes:
+  docshots: Not applicable
+---
+A <comp.GlossaryTerm term="/user/glossary/f/form.yml">Form</comp.GlossaryTerm> on your <comp.GlossaryTerm term="/user/glossary/s/site.yml">Site</comp.GlossaryTerm> is ordinary HTML. It becomes a CloudCannon *Form* by posting to your *Site* and naming an <comp.GlossaryTerm term="/user/glossary/i/inbox.yml">Inbox</comp.GlossaryTerm> in an `inbox_key` input.
+
+Link the *Inbox* to your *Site* before you build the form, because the form needs that *Inbox's* key. For more information, please read our documentation on [connecting your Site to an Inbox](/documentation/developer-articles/connect-your-site-to-an-inbox/).
+
+To create a *Form*:
+
+1. Add an HTML form to a page.
+2. Set the `method` attribute to `post`.
+3. Set the `action` attribute to the URL you want to redirect the visitor to after they submit the form.
+4. Add an input with the name `inbox_key`, and set its `value` attribute to the key you gave your *Inbox*.
+5. Add form fields with `name` attributes to collect data from visitors.
+
+<comp.CodeBlock language="html" source="contact.html">
+```
+<form method="post" action="/success.html">
+  <label>Email Address</label>
+  <input type="text" name="email">
+
+  <label>Name</label>
+  <input type="text" name="name">
+
+  <label>Message</label>
+  <textarea name="message"></textarea>
+
+  <label>Urgent</label>
+  <input type="checkbox" name="urgent">
+
+  <input type="hidden" name="inbox_key" value="your-inbox-key">
+  <input type="text" name="_gotcha" style="display: none;">
+
+  <input type="submit" value="Send Message">
+</form>
+```
+</comp.CodeBlock>
+
+CloudCannon will record each submission against the *Inbox* named in `inbox_key` and redirect the visitor to your `action` URL.
+
+Always name an *Inbox* with the `inbox_key` input. A *Site* can instead nominate a default *Inbox* that receives any POST request arriving without that input, but CloudCannon does not recommend it, because CloudCannon accepts POST requests to every path on your *Site*. For more information, please read our documentation on [setting a default Inbox for your Site](/documentation/developer-articles/set-a-default-inbox-for-your-site/).
+
+## The `_gotcha` honeypot
+
+Any CloudCannon *Form* can use the `_gotcha` field to catch untargeted spam. CloudCannon does **not** accept a submission if this field has a value, so hide it with CSS to prevent visitors from filling it out.
+
+<comp.CodeBlock language="html" source="contact.html">
+```
+<input type="text" name="_gotcha" style="display: none;">
+```
+</comp.CodeBlock>
+
+For stronger spam prevention, please read our documentation on [reducing spam with a CAPTCHA](/documentation/developer-articles/reduce-spam-with-a-captcha/). A CAPTCHA also needs its provider's widget in your form markup.
+
+## Next steps
+
+To receive file uploads through this form, please read our documentation on [receiving file uploads through a Form](/documentation/developer-articles/receive-file-uploads-through-a-form/). To submit it without a page reload, please read our documentation on [submitting a Form with JavaScript](/documentation/developer-articles/submit-a-form-with-javascript/).

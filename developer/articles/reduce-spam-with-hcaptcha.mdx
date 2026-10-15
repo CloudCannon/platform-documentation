@@ -1,0 +1,78 @@
+---
+_schema: default
+_uuid: a668e5c8-78d3-407a-88cf-c677638b2e98
+_created_at: '2022-02-18 02:19:33 +0000'
+details:
+  title: Reduce spam with hCaptcha
+  description: >-
+    Protect the forms that submit to an Inbox with an hCaptcha checkbox challenge.
+  image: >-
+    https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+  category:
+    - Instructions
+  related_articles:
+    - _type: developer_articles
+      item: 28b9a68d-a851-4d6e-bc6b-ebe65cb14160
+    - _type: developer_articles
+      item: 6b8caff2-557e-431b-ae95-3244e11f4f79
+author_notes:
+  docshots: Added!
+---
+You can protect the forms that submit to an <comp.GlossaryTerm term="/user/glossary/i/inbox.yml">Inbox</comp.GlossaryTerm> with an <a href="https://www.hcaptcha.com/" target="_blank" rel="noopener noreferrer">hCaptcha</a> checkbox challenge, using a site key and a secret key from hCaptcha.
+
+Get your keys from hCaptcha first, because the *Site key* and *Secret key* fields on your *Inbox* need them. Your hCaptcha secret key applies to every site on your hCaptcha account, and generating a new one replaces it everywhere, so use your existing secret key if you have one.
+
+To get your hCaptcha keys:
+
+1. Add your site in the <a href="https://dashboard.hcaptcha.com/sites" target="_blank" rel="noopener noreferrer">hCaptcha dashboard</a> to get a site key.
+2. Copy your secret key from *Settings* in the hCaptcha dashboard.
+
+If you turn on hCaptcha's domain allowlist, add every domain your form runs on, including your *Site's* full <comp.GlossaryTerm term="/user/glossary/t/testing-domain.yml">Testing Domain</comp.GlossaryTerm>, such as `your-site.cloudvent.net`.
+
+Now add hCaptcha to your *Inbox*. Select *hCaptcha* in the *Captcha provider* dropdown and enter your keys in the *Site key* and *Secret key* fields. For the full steps, please read our documentation on [reducing spam with a CAPTCHA](/documentation/developer-articles/reduce-spam-with-a-captcha/).
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Org-Settings-Forms-Inbox-Captcha-Hcaptcha" alt="A screenshot of the Inbox settings shows hCaptcha chosen as the captcha provider, with a site key and a secret key entered." title="The Captcha provider settings" type="screenshot" />
+
+Leave *Tell hCaptcha which site key to expect* on. Your secret key covers every site on your hCaptcha account, so without it hCaptcha accepts a token from a form on any of those sites. With it on, hCaptcha rejects a token from a form that uses a different site key, which means the *Site key* on your *Inbox* has to be the one your form uses.
+
+If you added hCaptcha to an *Inbox* before this option existed, it is off, and CloudCannon shows a warning in the *Inbox* settings. Check that the *Site key* matches your form, then turn it on.
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Org-Settings-Forms-Inbox-Captcha-Hcaptcha-Sitekey-Off" alt="A screenshot of the hCaptcha settings shows the site key option turned off, with a warning that hCaptcha accepts a token from any site key on the account." title="The hCaptcha site key warning" type="screenshot" />
+
+Adding keys to your *Inbox* is not the whole setup. CloudCannon only checks the CAPTCHA on submissions from a *Site* that requires it, using the *Require Captcha* option. For how to require the CAPTCHA on your *Sites*, and how CloudCannon handles a submission that fails, please read our documentation on [reducing spam with a CAPTCHA](/documentation/developer-articles/reduce-spam-with-a-captcha/).
+
+## Add the hCaptcha widget to your form
+
+Load the hCaptcha script, and add the widget inside your form, replacing `SITE_KEY` with your site key.
+
+<comp.CodeBlock language="html" source="contact.html">
+```
+<form method="post" id="my-form" action="/contact-success">
+  <label for="email_address">Email Address</label>
+  <input id="email_address" type="text" name="email">
+
+  <label for="message">Message</label>
+  <textarea id="message" name="message"></textarea>
+
+  <input type="hidden" name="inbox_key" value="your-inbox-key">
+  <input type="text" name="_gotcha" style="display: none;">
+
+  <div class="h-captcha" data-sitekey="SITE_KEY"></div>
+
+  <input type="submit" value="Send Message">
+</form>
+
+<script src="https://js.hcaptcha.com/1/api.js" async defer></script>
+```
+</comp.CodeBlock>
+
+The widget sends its token in an `h-captcha-response` field, and CloudCannon will check that token on each submission from a *Site* that requires a CAPTCHA. For more widget options, please read the <a href="https://docs.hcaptcha.com/#add-the-hcaptcha-widget-to-your-webpage" target="_blank" rel="noopener noreferrer">hCaptcha documentation</a>.
+
+## Test hCaptcha
+
+hCaptcha provides test keys that never show a challenge and always pass verification:
+
+* *Site key*: `10000000-ffff-ffff-ffff-000000000001`
+* *Secret key*: `0x0000000000000000000000000000000000000000`
+
+Use them in a test *Inbox* to check your form before you add your real keys. hCaptcha does not accept `localhost` or `127.0.0.1` as a hostname, so test on your *Site's* *Testing Domain*. For more information, please read <a href="https://docs.hcaptcha.com/#integration-testing-test-keys" target="_blank" rel="noopener noreferrer">hCaptcha's documentation on test keys</a>.

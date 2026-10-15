@@ -1,0 +1,50 @@
+---
+_schema: default
+_uuid: 5b79dc61-2a83-4e93-85d9-f85dcdd5532f
+_created_at: '2026-09-18 00:00:00 +0000'
+details:
+  title: Send form submissions to Microsoft Teams
+  description: Forward the submissions an Inbox receives to a Microsoft Teams channel.
+  image: >-
+    https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+  category:
+    - Instructions
+  related_articles:
+    - _type: developer_articles
+      item: b7569479-48ee-45f6-b1f4-6d0b98df1fb2
+    - _type: developer_articles
+      item: fa72b1b7-bf1f-4d05-b6a0-f606e8b644c0
+author_notes:
+  docshots: Needs docshots
+---
+You can forward the submissions an <comp.GlossaryTerm term="/user/glossary/i/inbox.yml">Inbox</comp.GlossaryTerm> receives to a Microsoft Teams channel, using a Power Automate workflow and a *Microsoft Teams* target.
+
+Create the workflow in Teams first, because the *Microsoft Teams webhook URL* field needs its URL. The workflow decides which channel receives your submissions.
+
+To create a Microsoft Teams workflow:
+
+1. In Microsoft Teams, open the *Workflows* app.
+2. Find the *Post to a channel when a webhook request is received* template, then select it.
+3. Check the connection Teams lists for your account, then click the *Next* button.
+4. Select the team and the channel that will receive your submissions, then click the *Add workflow* button.
+5. Copy the workflow URL, then click the *Done* button.
+
+Teams will create the workflow and give you a URL on a `logic.azure.com` or `api.powerautomate.com` host.
+
+Now add the target in CloudCannon. Select *Microsoft Teams* in the *Choose your target type* dropdown and paste the workflow URL into the *Microsoft Teams webhook URL* field. For the full steps, and for the *Spam protection* and *Links to attached files* options every target carries, please read our documentation on [adding a target to an Inbox](/documentation/developer-articles/add-a-target-to-an-inbox/).
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Org-Settings-Forms-Add-Target-Teams-Modal" alt="A screenshot of the Add target modal shows Microsoft Teams chosen as the target type and a Power Automate workflow URL in the Microsoft Teams webhook URL field." title="The Add target modal" type="screenshot" />
+
+CloudCannon will post each new submission to the channel the workflow points at, as an Adaptive Card.
+
+## Choose the card format
+
+The *Card format* dropdown under the *Microsoft Teams* heading in the *Add target* modal decides which kind of card CloudCannon sends.
+
+*Adaptive card* is the default, and is the format a workflow created in the *Workflows* app expects. Select *Message card (legacy connectors)* instead if you are still posting to an Office 365 connector, which accepts the older message card format.
+
+## Long submissions
+
+Teams rejects a message over 28 KB, so CloudCannon truncates a submission that would not fit inside one card. It sends as many fields as the card has room for, in the order your form lists them, then names how many fields it left out, so a recipient can tell a truncated submission from a short one.
+
+Your *Inbox* still stores every field of every submission, including the ones that did not fit in the card.
