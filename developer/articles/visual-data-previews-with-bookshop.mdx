@@ -3,20 +3,69 @@ _schema: default
 _uuid: 11701ac1-7a46-4cc2-8ae6-3ffd11087d35
 _created_at: '2021-09-15 23:13:40 +0000'
 details:
-  title: Visual data previews with Bookshop
+  title: Visual Data Previews with Bookshop
   description: >-
-    Preview live changes to static websites using CloudCannon's Bookshop
-    framework
+    Bookshop adds Visual Data Bindings to your components and re-renders them in
+    the Visual Editor as their data changes.
   image: >-
     https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+  category:
+    - Explanation
   related_articles:
     - _type: developer_articles
-      item: 46d2a5fd-615a-4d33-be84-9d6704bf8160
+      item: af6251bf-5238-46c6-8b99-74788a92fd67
     - _type: developer_articles
-      item: 4dc27408-06fe-403e-8bb3-a439805625ea
+      item: 77d1c22d-19db-489a-9dbc-f4d1e37b822a
+    - _type: developer_articles
+      item: ceffb949-2057-4ad8-a5e9-d02898d06fc9
 author_notes:
-  docshots: Needs docshots
+  docshots: Not applicable
 ---
-Bookshop defines a convention for building self-contained components in the templating languages supported by common static site generators. Using these conventions, Bookshop provides developer tooling that empowers you to integrate these components with your stack, build and browse UI components locally, and provide rich live editing experiences for your editors.
+<comp.Notice info_type="important">
+  **For new *Sites*, we recommend *Editable Regions*.**
 
-Bookshop provides the ability for your editors to preview changes live while editing your page in CloudCannon. Read <a href="https://github.com/CloudCannon/bookshop/blob/main/guides/live-editing.adoc" target="_blank" rel="noopener noreferrer">the Bookshop live editing documentation to setup</a>.
+  Bookshop continues to work, and *Sites* already built with it are unaffected. There is no need to migrate an existing *Site*, and this guide remains accurate for the one you are building.
+
+  With *Editable Regions*, an *Organization Member* can edit content directly on the page: typing into the text they can see, uploading an image in place, or adding and reordering array items. *Editable Regions* cover text, images, rich text, arrays, and components, and you add one by putting HTML attributes on an element you already render. If you are starting a new *Site*, please read our documentation on [what Editable Regions are](/documentation/developer-articles/what-are-editable-regions/) before following this guide.
+</comp.Notice>
+
+<a href="https://github.com/CloudCannon/bookshop" target="_blank" rel="noopener noreferrer">Bookshop</a> is a component library system for static site generators. You write each component once, as a template plus a configuration file describing its fields, and Bookshop makes it available to your templates and to CloudCannon.
+
+When a <comp.GlossaryTerm term="/user/glossary/s/site.yml">Site</comp.GlossaryTerm> using Bookshop is open in the <comp.GlossaryTerm term="/user/glossary/v/visual-editor.yml">Visual Editor</comp.GlossaryTerm>, Bookshop re-renders your components in the browser as their data changes, so the component on the page updates as its values are edited.
+
+## What Bookshop sets up for you
+
+Bookshop adds `data-cms-bind` attributes to the elements it renders, so you do not write *Visual Data Bindings* by hand. *Visual Data Bindings* are deprecated, and the bindings Bookshop generates are the same mechanism: CloudCannon maintains them and fixes critical bugs, but they receive no new features or further development. CloudCannon draws its editing overlays over those elements the same way it does for bindings you add yourself. For what those overlays do, please read our documentation on [what Visual Data Bindings are](/documentation/developer-articles/what-are-visual-data-bindings/).
+
+Bookshop also handles the re-rendering itself, so you do not write the event-listening code described in our documentation on [what Visual Data Previews are](/documentation/developer-articles/what-are-visual-data-previews/).
+
+## Setting up Bookshop
+
+Bookshop's setup is documented in its own repository, with a complete guide for each static site generator it supports:
+
+* <a href="https://github.com/CloudCannon/bookshop/blob/main/guides/jekyll.adoc" target="_blank" rel="noopener noreferrer">Bookshop with Jekyll</a>
+* <a href="https://github.com/CloudCannon/bookshop/blob/main/guides/eleventy.adoc" target="_blank" rel="noopener noreferrer">Bookshop with Eleventy</a>
+* <a href="https://github.com/CloudCannon/bookshop/blob/main/guides/hugo.adoc" target="_blank" rel="noopener noreferrer">Bookshop with Hugo</a>
+* <a href="https://github.com/CloudCannon/bookshop/blob/main/guides/sveltekit.adoc" target="_blank" rel="noopener noreferrer">Bookshop with SvelteKit</a>
+
+Each guide covers installing Bookshop, writing components, and connecting them to CloudCannon.
+
+## Using the Visual Editor API alongside Bookshop
+
+Bookshop re-renders your components whether or not CloudCannon is present. It decides separately whether to add *Visual Data Bindings* to what it renders, by checking for `refreshInterface` on `window.CloudCannon`.
+
+If your own integration code replaces that global, Bookshop keeps rendering but stops adding the bindings, so the editing overlays disappear from your components. The v1 *API Object* has no `refreshInterface`, so assigning it to `window.CloudCannon` is enough to turn the bindings off.
+
+When you call `useVersion()` to get a v1 *API Object*, pass `true` as the second argument. CloudCannon then returns the object without assigning it to `window.CloudCannon`, leaving Bookshop's check intact.
+
+<comp.CodeBlock language="javascript" source="script.js">
+```
+const api = window.CloudCannonAPI.useVersion('v1', true);
+```
+</comp.CodeBlock>
+
+For more information, please read our documentation on [initializing the Visual Editor API](/documentation/developer-articles/initialize-the-visual-editor-api/).
+
+## Getting help
+
+If Bookshop's live rendering does not behave as described, <a href="https://cloudcannon.com/support/">contact support</a> with your *Site* name, the static site generator and Bookshop version your project uses, and what you expected to happen. You can also <a href="https://github.com/CloudCannon/bookshop/issues" target="_blank" rel="noopener noreferrer">raise an issue on the GitHub repository</a>.
