@@ -1,4 +1,4 @@
-import { parse as yamlParse } from "@std/yaml";
+import { parse as yamlParse } from "yaml";
 import { join } from "@std/path";
 import type { Comp, GlossaryEntry, Helpers } from "../../_types.d.ts";
 
