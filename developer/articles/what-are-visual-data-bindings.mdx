@@ -3,12 +3,15 @@ _schema: default
 _uuid: 77d1c22d-19db-489a-9dbc-f4d1e37b822a
 _created_at: '2021-09-15 23:13:40 +0000'
 details:
-  title: What are visual data bindings
+  title: What are Visual Data Bindings?
   description: >-
-    Make your elements in the Visual Editor interact with their data in
-    CloudCannon
+    Visual Data Bindings mark which elements on your page correspond to which
+    data, so CloudCannon can draw editing controls over them in the Visual
+    Editor.
   image: >-
     https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+  category:
+    - Explanation
   related_articles:
     - _type: developer_articles
       item: 99607ddf-d647-4753-b742-e4547a0486ba
@@ -17,53 +20,83 @@ details:
     - _type: developer_articles
       item: af6251bf-5238-46c6-8b99-74788a92fd67
 author_notes:
-  docshots: Needs docshots
+  docshots: Added!
 ---
-<comp.Notice info_type="important">
-  Since October 2025, this method of visual editing has been deprecated. CloudCannon cannot guarantee support for this feature. Please consider using [Editable Regions](/documentation/developer-articles/what-are-editable-regions/) or Bookshop.
+<comp.Notice info_type="deprecated">
+  **Visual Data Bindings are deprecated.**
+
+  Visual Data Bindings have been deprecated since October 2025. CloudCannon continues to maintain them and fix critical bugs, but they receive no new features or further development. Existing *Sites* relying on this configuration will keep working. For new *Sites*, we recommend [Editable Regions](/documentation/developer-articles/what-are-editable-regions/).
 </comp.Notice>
 
-Visual data bindings are a way to tell CloudCannon what elements correlate to what data. With this information CloudCannon can generate inline controls for editing directly onto the page. Editors can simply click what they want to edit, and change, remove, move, clone and add items directly. This, paired with visual data previews, means they can see what changes as they change it.
+*Visual Data Bindings* tell CloudCannon which element on your page corresponds to which piece of data. You add an HTML attribute naming the data, and that element becomes editable in the <comp.GlossaryTerm term="/user/glossary/v/visual-editor.yml">Visual Editor</comp.GlossaryTerm>.
 
-Data bindings tell CloudCannon to add overlays to the Visual Editor. These overlays are absolutely positioned on the page. Once clicked, the overlay is selected and the controls become available. These controls are dependent on the type of data that is bound. Edit, for example, will always be available. Clicking off the selected area will unselect the current element.
+<comp.DocShot docshot_key="CloudCannon-Documentation-Visual-Editor-Data-Binding-Controls" alt="A screenshot of the Visual Editor shows a bound component outlined in green, with a control menu in the top right offering Edit, Move Up, Move Down, and Remove, and an add control sitting on the outline above it." title="A selected Visual Data Binding" type="ui-snippet"/>
 
-Elements that have data bindings can contain elements with data bindings. In this case, the child data bindings are only available to click once the parent is selected. This helps to keep the interface clean and reduce confusion.
+<comp.Notice info_type="info">
+  *Visual Data Bindings* cannot re-render the value once you change the data behind them. For that, please read our documentation on [what Visual Data Previews are](/documentation/developer-articles/what-are-visual-data-previews/).
+</comp.Notice>
 
-## Adding a data binding
+In the *Visual Editor*, CloudCannon positions a clickable overlay absolutely over each bound element. Clicking the overlay reveals controls for editing, reordering, and removing the value behind it, and clicking off the overlay clears the selection.
 
-Data bindings are added by adding the `data-cms-bind` attribute to any element. The value of this attribute is the slug of object/key you want to edit. Starting from the base of your structure, name each item as a step towards your desired object. Each object or property is separated by a dot. An array item is denoted by an open square bracket, an integer starting from 0, followed by a closing square bracket (`[index]`). For example:
+Which controls appear depends on the binding:
 
-* `#title` Targets the title of the current page
-* `#seo.title` Targets the title within the seo object
-* `#people[0]` Targets the first array item in an array named people.
-* `#people[0].title` Targets the title of the first array item within an array named people.
+* *Edit* — the default control for a bound value.
+* *Details* — replaces *Edit* when you are viewing a file you cannot edit.
+* *Add* — replaces *Edit* when the binding ends in the `[+]` suffix. A binding with that suffix shows no control at all when you cannot edit the file.
+
+A binding that targets an array item gets these controls alongside *Edit*:
+
+* *Move Up*, *Move Down*, *Move Left*, *Move Right* — CloudCannon shows the pair matching how the items are laid out on the page. *Move Up* and *Move Left* are unavailable on the first item, and *Move Down* and *Move Right* are unavailable on the last.
+* *Remove* — removes the item. Clicking it reveals a second *Remove* button, and the removal only happens when you click that one. *Remove* is unavailable on the only item in an array.
+
+Selecting an array item also reveals an add control above and below it. Clicking either one opens a <comp.GlossaryTerm term="/user/glossary/c/context-menu.yml">Context Menu</comp.GlossaryTerm> with two options:
+
+* *Add new* — adds an empty item in that position.
+* *Duplicate* — copies the item you clicked from into that position.
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Visual-Editor-Data-Binding-Add-Menu" alt="A screenshot of the Visual Editor shows the Context Menu opened from an array item's add control, offering Add new and Duplicate." title="The Context Menu on an add control" type="ui-snippet"/>
+
+A bound element can contain other bound elements. A child binding only becomes clickable once you select its parent, which keeps the page from filling with overlapping overlays. Items in the same array are an exception: selecting one array item leaves its siblings clickable, so you can move along a list without reselecting the parent each time.
+
+## Add a data binding
+
+Add the `data-cms-bind` attribute to any element, with a value naming the data you want to edit. Start from the root of your data and name each step toward the value, separating objects and properties with a dot. Denote an array item with a zero-based index in square brackets.
+
+* `#title` targets the title of the current page.
+* `#seo.title` targets the title inside the `seo` object.
+* `#people[0]` targets the first item in an array named `people`.
+* `#people[0].title` targets the title of the first item in that array.
+
+The leading `#` is optional for a binding that targets a single value. CloudCannon strips it, so `title` and `#title` resolve to the same value.
+
+Keep the `#` on array items. CloudCannon finds an item's siblings by matching the `#`-prefixed attribute, so an item bound without it behaves as though it has no siblings: *Move Down* and *Move Right* stay unavailable, and *Remove* is unavailable on the first item.
 
 <comp.CodeBlock language="html" source="index.html">
 ```
-
 <h1 data-cms-bind="#title">Edit the title</h1>
-
 ```
 </comp.CodeBlock>
 
-## Working with arrays
+### Append to an array
 
-Data bindings on arrays give a few extra controls:
+A binding ending in `[+]` renders a single *Add* button instead of *Edit*. Clicking it appends a new item to the end of that array, without opening the *Context Menu*.
 
-1. Add/Clone above and below
-2. Move up/down and left/right depending on their relative position from their siblings
-3. Remove with a double click confirm
-
-## Working with z-indexes
-
-Data binding overlays can sometimes get in the way of important navigation elements. By default, overlays are positioned between a 9000 and 9010 z-index. The lower bound of this range can be configured with the `--editor-panel-zindex` CSS variable. If your navigation is at 100 z-index, we recommend using a 90 z-index. In this example, you can use the following code snippet:
-
-<comp.CodeBlock language="css" source="index.html">
+<comp.CodeBlock language="html" source="index.html">
 ```
+<button data-cms-bind="#people[+]">Add a person</button>
+```
+</comp.CodeBlock>
 
+## Control overlay stacking
+
+Binding overlays can cover navigation elements and other high-stacking parts of your page. CloudCannon positions them from a base `z-index` of 9000, placing selection states and controls in the few levels above it.
+
+Set the `--editor-panel-zindex` CSS variable to move that base. If your navigation sits at a `z-index` of 100, a base of 90 puts the overlays behind it.
+
+<comp.CodeBlock language="css" source="styles.css">
+```
 :root {
   --editor-panel-zindex: 90;
 }
-
 ```
 </comp.CodeBlock>

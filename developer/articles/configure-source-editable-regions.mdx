@@ -20,10 +20,10 @@ author_notes:
   docshots: Added!
 ---
 <comp.Notice info_type="permissions">
-  <p><strong>Permissions required</strong></p><p>Members of the Owners, Developers, and Technical Editors <a href="/documentation/user-articles/what-are-default-permission-groups/">Default Permission Groups</a>, or <a href="/documentation/developer-articles/what-are-custom-permission-groups/">Custom Permission Groups</a> with the <code>site:source-editor:write</code> permission, can add <em>Editable Regions</em> to files using the Source Editor in CloudCannon.</p>
+  <p><strong>Permissions required</strong></p><p>Members of the <em>Owners</em>, <em>Developers</em>, <em>Technical Editors</em>, and <em>Partner</em> <a href="/documentation/user-articles/what-are-default-permission-groups/">Default Permission Groups</a>, or <a href="/documentation/developer-articles/what-are-custom-permission-groups/">Custom Permission Groups</a> with the <code>site:source-editor:write</code> permission, can add <em>Editable Regions</em> to files using the <em>Source Editor</em> in CloudCannon.</p>
 </comp.Notice>
 
-Source *Editable Regions* are one type of [Editable Region](/documentation/developer-articles/what-are-editable-regions/) you can add to your layout and HTML-like files to enable visual editing. Source *Editable Regions* allow you to edit rich text stored in HTML.
+<comp.GlossaryTerm term="/user/glossary/s/source-editable-region.yml">Source Editable Regions</comp.GlossaryTerm> are one type of [Editable Region](/documentation/developer-articles/what-are-editable-regions/) you can add to your layout and HTML-like files to enable visual editing. *Source Editable Regions* allow you to edit rich text stored in HTML.
 
 <comp.Notice info_type="info">
   <p>To avoid misconfiguration issues where CloudCannon cannot find the data property you want to edit, always add <em>Editable Regions</em> to values closest to the root of the file first (i.e., work from parent elements towards child elements).</p>
@@ -31,26 +31,32 @@ Source *Editable Regions* are one type of [Editable Region](/documentation/devel
 
 These instructions assume you have configured your [build settings](/documentation/developer-articles/configure-your-first-build/) and are comfortable editing HTML layouts, either in CloudCannon's [Source Editor](/documentation/user-articles/what-is-the-source-editor/) or your local development environment.
 
-To configure Source *Editable Regions* in the [Visual Editor](/documentation/user-articles/what-is-the-visual-editor/):
+To configure *Source Editable Regions* in the [Visual Editor](/documentation/user-articles/what-is-the-visual-editor/):
 
-1. Identify the file to which you want to add a Source *Editable Regions*. We recommend any HTML files that contain templating that is populated by content files at build time.
-2. Open the file in CloudCannon's Source Editor or your local development environment.
-3. Identify the HTML tag that contains your templating and add the HTML attribute `data-editable="source"` . If no DOM element is available, you can wrap the templating in the `<editable-source>` web component.
-4. Add the `data-path=""` HTML attribute to the same DOM element, or to the `<editable-source>` web component. The value of `data-path` should be the path the to file you want to edit.
+1. Identify the file to which you want to add a *Source Editable Region*. We recommend standalone HTML-like files with hard-coded content, such as a Home or About page.
+2. Open the file in CloudCannon's *Source Editor* or your local development environment.
+3. Identify the HTML tag that contains your hard-coded content and add the HTML attribute `data-editable="source"`. If no DOM element is available, you can wrap the content in the `<editable-source>` web component.
+4. Add the `data-path=""` HTML attribute to the same DOM element, or to the `<editable-source>` web component. The value of `data-path` should be the path to the file you want to edit, which must be the file that contains this element (e.g., `/src/pages/index.astro`). The leading slash is optional.
 5. Add the `data-key=""` HTML attribute to the same DOM element, or to the `<editable-source>` web component. The value of `data-key` should be a unique identifier for that section of your file (e.g., main, header, article).
-6. Save the change to your *Site*. CloudCannon will automatically rebuild your *Site*.
+6. Save your changes and rebuild your *Site*.
 
-When you open the file in the Visual Editor, CloudCannon will show a yellow *Editable Region* box. CloudCannon will also show a WYSIWYG toolbar for formatting your content when you click into text inside the *Editable Region* and a Snippet for all images inside the region.
+When you open the file in the *Visual Editor*, CloudCannon will show a yellow *Editable Region* box. CloudCannon will also show a WYSIWYG toolbar for formatting your content when you click into text inside the *Editable Region*. When the region uses block formatting, images inside the region are part of the rich text, so you can select and edit them in the rich text editor.
+
+<comp.Notice info_type="info">
+  <p>Use <em>Source Editable Regions</em> for content written directly in your HTML. A <em>Source Editable Region</em> rewrites the HTML between its tags when you edit it, so templating inside the region (e.g., <code>{title}</code>) would be replaced with plain text. For values populated from front matter or data files, use <comp.GlossaryTerm term="/user/glossary/t/text-editable-region.yml">Text Editable Regions</comp.GlossaryTerm> instead.</p>
+</comp.Notice>
+
+The `data-type` HTML attribute controls which formatting options the WYSIWYG toolbar shows. For more information, please read our documentation on [configuring Text Editable Regions](/documentation/developer-articles/configure-text-editable-regions/#wysiwyg-toolbar-formatting-options).
 
 <comp.DocShot docshot_key="CloudCannon-Documentation-Visual-Editor-Source-Editable-Region" alt="A screenshot of the Visual Editor shows yellow Editable Region boxes around the rich text content on the Home webpage." title="Source Editable Region in the Visual Editor" type="screenshot"/>
 
 <comp.Notice info_type="important">
-  <p>Do not nest Text or Image <em>Editable Regions</em> inside Source <em>Editable Regions</em>.</p>
+  <p>Do not nest any other <em>Editable Regions</em>, such as <em>Text</em> or <comp.GlossaryTerm term="/user/glossary/i/image-editable-region.yml">Image Editable Regions</comp.GlossaryTerm>, inside a <em>Source Editable Region</em>.</p>
 </comp.Notice>
 
 ## Examples
 
-Here are a few examples of different Text *Editable Regions*:
+Here is an example of a *Source Editable Region*. The `<main>` element on the Home page contains hard-coded HTML, so we add `data-editable="source"`, a `data-path` pointing at the file itself, and a unique `data-key`.
 
 <comp.CodeBlock language="Astro" source="index.astro">
 ``````````
@@ -77,17 +83,22 @@ Here are a few examples of different Text *Editable Regions*:
 
 ``````````
 <comp.Annotation number="1">
-  The `data-editable` attribute defines what kind of data this element contains, the `data-path` attribute defines the path to the file we want to edit, and the `data-key` attribute defines the unique identifier for this region if there are multiple regions in the file. In this case, we want a Source *Editable Region*, so the value of `data-editable` is `source`, we want to edit the `/src/pages/index.astro` file, and the unique key is `main`.
+
+  The `data-editable` attribute defines what kind of data this element contains, the `data-path` attribute defines the path to the file we want to edit, and the `data-key` attribute defines the unique identifier for this region if there are multiple regions in the file. In this case, we want a *Source Editable Region*, so the value of `data-editable` is `source`, we want to edit the `/src/pages/index.astro` file, and the unique key is `main`.
+
 </comp.Annotation>
 </comp.CodeBlock>
 
-## Misconfigured Source *Editable Regions*
+## Misconfigured Source Editable Regions
 
-CloudCannon will display an orange warning box in the Visual Editor if your Source *Editable Regions* is misconfigured.
+If your *Source Editable Region* is misconfigured, CloudCannon will replace it in the *Visual Editor* with a red *Error Card* headed *Failed to render source editable region*, followed by a message describing the problem.
 
-Source *Editable Regions* are misconfigured if:
+<comp.DocShot docshot_key="CloudCannon-Documentation-Visual-Editor-Source-Editable-Region-Error-Element" alt="A screenshot of an Error Card in the Visual Editor shows a message headed Failed to render source editable region, explaining that the data-key HTML attribute is missing." title="A misconfigured Source Editable Region in the Visual Editor" type="ui-snippet"/>
+
+*Source Editable Regions* are misconfigured if:
 
 * You did not define the `data-path` HTML attribute.
 * You did not define the `data-key` HTML attribute.
 * The file path defined by `data-path` does not exist.
-* There are *Editable Regions* with the same `data-key` value. This value should be unique.
+* The file defined by `data-path` does not contain an element with the same `data-key` value.
+* There is more than one element with the same `data-key` value in the file defined by `data-path`. This value must be unique within the file.
