@@ -1,0 +1,43 @@
+---
+_schema: default
+title: Component Editable Regions for more SSGs
+date: 2026-10-15T15:32:00+13:00
+---
+This release added *Component Editable Regions* for Eleventy, Hugo, Vue, and Svelte, and for *Sites* built with React, Vue, or Svelte, including Next.js, Nuxt, and SvelteKit. It also added custom input configuration for *Source Editable Regions*.
+
+It also addressed several issues, including those affecting *Editable Regions*, adding domains, SSL certificates, images in rich text editors, *Git Provider* connections, the *Move up a folder* action, and files incorrectly marked as new.
+
+## Features & Improvements
+
+* *Editable Regions* now supports the following SSGs and frameworks, allowing you to re-render components in the *Visual Editor* as you edit. For more information, please read our documentation on [visually editing components](/documentation/developer-guides/set-up-visual-editing/visually-edit-components/).
+  * Eleventy, for *Sites* that use Liquid components.
+  * Hugo. Hugo *Sites* install a Hugo module rather than an NPM package, and CloudCannon renders your Hugo partials as components.
+  * Vue and Svelte, including Vue and Svelte components inside Astro components.
+  * Next.js, Nuxt, SvelteKit, and other *Sites* built with React, Vue, or Svelte. These *Sites* use the `EditableRegions` component at the root of the component tree, which coordinates *Editable Regions* with your framework's hydration.
+* Updated the *Add Editable Regions to your files* step of the *Set up Visual Editing* guide on the *Site Dashboard*. The *Component Editable Regions* section shows setup instructions for your *Site's* static site generator. For other static site generators, the section explains how to request support.
+* Added the `data-input` and `data-input-config` attributes to *Source Editable Regions*, allowing you to configure the *Input* for a *Source Editable Region* by *Input* name or with inline JSON.
+* Added `_dynamic` as a value for `data-editable`, allowing you to attach *Editable Regions* to an element with your own scripts. CloudCannon detects these elements as *Editable Regions* but does not set them up automatically. The `window.editableRegions` object and the `editable-regions:load` event support this.
+* Improved load time in the *Visual Editor* for Eleventy *Sites* with large *Collections*. CloudCannon only fetches a *Collection* when a component uses it, so `{{ collections | json }}` now renders an empty object for each *Collection*.
+* Changed the `render` function for `astro:content` in *Component Editable Regions* to return the frontmatter of a *Collection* entry as `remarkPluginFrontmatter`, rather than an empty object.
+* Changed the minimum Node version for the `@cloudcannon/editable-regions` NPM package to 20.19.
+
+## Fixes
+
+* Fixed an issue where React components inside Astro components did not render correctly in some cases.
+* Fixed an issue where slot contents were not passed through Astro components in some cases.
+* Fixed an issue where nested *Editable Regions* with absolute data paths could load before their parent *Editable Region*.
+* Fixed an issue where text did not re-render correctly in some *Editable Regions*.
+* Fixed an issue where clicking an *Image Editable Region* did nothing if its *Input* configuration was still loading.
+* Fixed an issue where the *Data Panel* for an *Image Editable Region* did not update if the image element was removed from the page.
+* Fixed an issue where *Text Editable Regions* did not correctly escape *Snippets* in code blocks in MDX files.
+* Fixed an issue where selecting a *Git Repository* showed only an error if CloudCannon's access to your *Git Provider* account had been revoked. CloudCannon now explains the problem below the repository field and shows a *Reconnect* button if you have permission to reconnect your *Git Provider*.
+* Fixed an issue where the *Move up a folder* action was missing for many files in a subfolder.
+* Fixed an issue where an existing file with unsaved changes could show a *New* tag instead of *Edited*, and where a deleted file could be treated as a new file.
+* Fixed an issue where clicking outside the documentation modal, or on parts of it, opened the documentation in a new browser tab.
+* Fixed an issue where a small square appeared after an image in a rich text editor in Chrome and Safari.
+* Fixed an issue where the text cursor was hard to place before or after an image or *Snippet* on its own line in a rich text editor. The image or *Snippet* now makes room for the cursor on the side you are typing.
+* Fixed an issue where adding a domain that was already connected to your *Organization* showed a confusing error. CloudCannon now opens the existing domain, and the error for a domain connected to another *Organization* says so.
+* Fixed an issue where a domain entered with a trailing dot, such as `example.com.`, was treated as a different domain.
+* Fixed an issue where SSL for a subdomain using external DNS was never set up or stayed on initializing. CloudCannon now retries these automatically.
+* Fixed an issue where no error message appeared when an SSL certificate failed to generate because of a CAA record. The error message now explains that a CAA record on your domain or its parent domain must allow sectigo.com, or be removed.
+* Updated dependencies to patch security vulnerabilities.
