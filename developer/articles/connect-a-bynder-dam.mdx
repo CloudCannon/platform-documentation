@@ -1,0 +1,215 @@
+---
+_schema: default
+_uuid: 8a0e2e7e-e666-49aa-baa3-f9ba95b266ad
+_created_at: 2026-10-15T00:00:00Z
+details:
+  title: Connect a Bynder DAM
+  description: >-
+    Connect your Bynder portal to CloudCannon so Organization Members can browse and
+    upload Bynder assets on your Sites.
+  image: >-
+    https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+  category:
+    - Instructions
+  related_articles:
+    - _type: developer_articles
+      item: d92df734-5838-4320-baac-420fff90903f
+    - _type: developer_articles
+      item: 854167d6-19c7-4a7e-8fd0-23496020eef7
+    - _type: user_articles
+      item: baf62ead-3d47-402d-a2c9-e87a47545679
+author_notes:
+  docshots: Needs docshots
+---
+
+<comp.Notice info_type="pricing">
+  **Subscription Plan required**
+
+  Connecting a DAM is available on our <a href="https://cloudcannon.com/pricing/">Standard, Team, or Enterprise Plan</a>. Linking more than one DAM to a *Site* is available on our <a href="https://cloudcannon.com/pricing/">Enterprise Plan</a>.
+</comp.Notice>
+
+<comp.Notice info_type="permissions">
+  **Permissions required**
+
+  Members of the *Owners* and *Developers* [Default Permission Groups](/documentation/user-articles/what-are-default-permission-groups/), or [Custom Permission Groups](/documentation/developer-articles/what-are-custom-permission-groups/) with the `org:settings:dam:write` permission, can authenticate a DAM for an *Organization*. Members of the same *Default Permission Groups*, or *Custom Permission Groups* with the `site:settings:dam:write` and `org:settings:dam:read` permissions, can link a DAM to a *Site* and change its options for that *Site*.
+</comp.Notice>
+
+Bynder is one of several <comp.GlossaryTerm term="/user/glossary/d/dam.yml">DAM</comp.GlossaryTerm> (Digital Asset Manager) integrations offered by CloudCannon. When you connect your Bynder portal to CloudCannon, <comp.GlossaryTerm term="/user/glossary/o/organization-member.yml">Organization Members</comp.GlossaryTerm> can browse your Bynder assets and upload new ones when they edit <comp.GlossaryTerm term="/user/glossary/s/site.yml">Sites</comp.GlossaryTerm> linked to that DAM.
+
+To connect a Bynder DAM, you create an <comp.GlossaryTerm term="/user/glossary/o/oauth.yml">OAuth</comp.GlossaryTerm> application in your Bynder portal, authenticate Bynder as a DAM on your <comp.GlossaryTerm term="/user/glossary/o/organization.yml">Organization</comp.GlossaryTerm>, and link the DAM to each *Site* that needs it. You can link one Bynder DAM to any number of *Sites*.
+
+This article covers connecting a new Bynder DAM. To change the details of a DAM you have already connected, please read our documentation on [managing your connected DAMs](/documentation/developer-articles/managing-your-connected-dams/).
+
+## Choose a style of asset browser
+
+Choose how *Organization Members* will browse your Bynder assets in CloudCannon. You select this option when you authenticate Bynder in CloudCannon.
+
+* **CloudCannon asset browser** — *Organization Members* browse and upload Bynder assets in the same file browser CloudCannon uses for other DAMs, and can search assets by keyword. New Bynder DAMs use this option by default. Choose this option if you want Bynder assets to work the same way as assets from your other DAMs.
+* **Bynder widget** — *Organization Members* browse your assets in Bynder's Universal Compact View, which has Bynder's search. *Organization Members* must use the *Upload a new file* or *Upload a new image* option on an input to upload files, because the Bynder widget does not include an option to upload directly from the asset browser. Choose this option if your team already works in Bynder and wants to search assets the way they do there.
+
+With either option, CloudCannon connects to Bynder using the OAuth application you create below, so *Organization Members* do not need their own Bynder accounts. You can change the style of asset browser at any time, and after you authenticate the DAM.
+
+## Create an OAuth application in Bynder
+
+To create an OAuth application, your Bynder account needs the *Manage portal settings* and *Manage OAuth apps* permissions in Bynder. Bynder recommends creating a dedicated Bynder user to assign to integrations like CloudCannon. The application also needs a <comp.GlossaryTerm term="/user/glossary/c/cors.yml">CORS</comp.GlossaryTerm> entry for CloudCannon, so that browsers can send requests to Bynder from CloudCannon.
+
+<comp.Notice info_type="info">
+  Bynder does not let you change an application's scopes after you create it, so to change the scopes later, you will need to create a new application. For more information on managing OAuth applications, please read Bynder's guide to <a href="https://support.bynder.com/hc/en-us/articles/360013875180" target="_blank" rel="noopener noreferrer">creating and managing OAuth apps</a>.
+</comp.Notice>
+
+To create an OAuth application for CloudCannon:
+
+1. In your Bynder portal, open *Settings*, then *Advanced Settings*, then *Portal settings*.
+2. Click the *OAuth Apps* link in the sidebar.
+3. Click the *Register new application* button. Bynder will open the form for a new OAuth application.
+4. Enter a name, such as "CloudCannon", in the *Application name* field.
+5. Enter the remaining details in the *Homepage URL* and *Application description* fields.
+6. Select *CloudCannon* from the *Integration* dropdown. If CloudCannon is not listed, select *Other* and enter "CloudCannon" as the integration name.
+7. Select *Client Credentials* from the *Select grant type* dropdown. Bynder will show the *Assigned user* field.
+8. Search for and select a Bynder user in the *Assigned user* field. Choose a user who can access the assets and brands you want available in CloudCannon.
+9. Enter `https://app.cloudcannon.com` in the *Set HTTP access control (CORS)* field and press Enter.
+10. Select the `asset:read` and `asset:write` checkboxes under *Select scopes*.
+11. Click the *Register application* button.
+
+Bynder will show the Client ID and Client Secret for your new application. Copy both, along with your Bynder portal URL (for example, `https://your-company.bynder.com`). You need all three to authenticate Bynder in CloudCannon. Bynder only shows the Client Secret once, after you register the application. If you lose it, you can regenerate it in Bynder, but the old secret stops working, so you will also need to update it in CloudCannon.
+
+CloudCannon uses the assigned user's access for every request it makes to Bynder. If *Organization Members* cannot see an asset in CloudCannon, check that the assigned user can access it in Bynder.
+
+### Find your Brand ID (optional)
+
+By default, CloudCannon uploads new assets to your Bynder account's primary brand. To upload to a specific brand or sub-brand instead, you need its Brand ID. You can look up Brand IDs through the Bynder API.
+
+First, request an access token with your Client ID and Client Secret. Replace the portal URL and credentials with your own:
+
+<comp.CodeBlock language="shell" source="Shell">
+```
+curl -X POST https://your-company.bynder.com/v6/authentication/oauth2/token \
+  -d grant_type=client_credentials \
+  -d client_id=YOUR_CLIENT_ID \
+  -d client_secret=YOUR_CLIENT_SECRET \
+  -d scope="asset:read asset:write"
+```
+</comp.CodeBlock>
+
+The response contains an `access_token`. Use it to request the list of brands in your portal:
+
+<comp.CodeBlock language="shell" source="Shell">
+```
+curl https://your-company.bynder.com/api/v4/brands/ \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+```
+</comp.CodeBlock>
+
+The response lists each brand with an `id` and a `name`. Each brand's sub-brands are listed under its `subBrands` key, each with its own `id` and `name`. Copy the `id` of the brand or sub-brand you want CloudCannon to upload to. You will enter it in the *Default Brand ID* field when you authenticate Bynder.
+
+## Authenticate Bynder in CloudCannon
+
+Before you start, make sure you have the Client ID, Client Secret, and portal URL from your Bynder OAuth application.
+
+To authenticate Bynder as a DAM on your *Organization*:
+
+1. Navigate to the *Assets* page under <comp.GlossaryTerm term="/user/glossary/o/org-settings.yml">Org Settings</comp.GlossaryTerm>.
+2. Click the *Authenticate a new DAM* button. CloudCannon will open the *Authenticate new DAM* page.
+3. Select *Bynder* from the *DAM provider* dropdown. CloudCannon will show the fields for a Bynder DAM.
+4. Enter a name to identify the DAM in the *Name* field.
+5. Enter your Bynder portal URL in the *Portal URL* field.
+6. Enter your Client ID in the *Client ID* field.
+7. Enter your Client Secret in the *Client Secret* field.
+8. Expand the *Advanced options* section. CloudCannon will show the *Asset browser* options and the optional fields.
+9. Select the *Use CloudCannon asset browser* or *Use Bynder widget* radio button, to match the asset browser you chose.
+10. Click the *Authenticate* button.
+
+CloudCannon will check your credentials with Bynder, add the DAM to your *Organization*, and open the page for your new DAM.
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-DAM-Bynder-Settings" title="The Authenticate new DAM page for Bynder" alt="A screenshot of the Authenticate new DAM page under Org Settings shows the Name and Portal URL fields, the Client ID and Client Secret fields under OAuth keys, and the collapsed Advanced options section." type="screenshot" />
+
+The *Advanced options* section also contains these optional fields:
+
+* **Default Brand ID** — The Brand ID CloudCannon uploads new assets to. Leave it blank to upload to your Bynder account's primary brand.
+* **Custom Delivery Hostname** — A base URL CloudCannon adds to the start of asset paths when it builds public URLs. Leave it blank to use your portal URL.
+* **Maximum size for uploaded files (bytes)** — The largest file, in bytes, that *Organization Members* can upload to this DAM.
+
+You can also authenticate Bynder from a *Site*. On the *Assets* page under *Site Settings*, select the *New DAM* option from the *Select your DAM* dropdown. CloudCannon will open the *New DAM* modal, which has the same fields as the *Authenticate new DAM* page. To authenticate from a *Site*, your <comp.GlossaryTerm term="/user/glossary/p/permission-group.yml">Permission Group</comp.GlossaryTerm> also needs the `site:settings:dam:write` permission.
+
+## Link your Bynder DAM to a Site
+
+Each *Site* can link one DAM, or up to 100 DAMs on the <comp.GlossaryTerm term="/user/glossary/e/enterprise-plan.yml">Enterprise Plan</comp.GlossaryTerm>.
+
+To link your Bynder DAM to a *Site*:
+
+1. Navigate to the *Assets* page under *Site Settings* for the *Site*.
+2. Select your Bynder DAM from the *Select your DAM* dropdown under *Link DAM*. CloudCannon will show the options for using the DAM on this *Site*.
+3. Click the *Link DAM* button.
+
+CloudCannon will add the DAM to the *Connected DAMs* list for the *Site*. *Organization Members* can now browse and upload Bynder assets on this *Site*.
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Site-Settings-Assets-Page" title="The Site Settings Assets page" alt="A screenshot of the Assets page under Site Settings shows the Connected DAMs list and the Link DAM section with the Select your DAM dropdown." type="screenshot" />
+
+## Configure your Bynder DAM for a Site
+
+A Bynder DAM has two options for each *Site* it is linked to. You can set them when you link the DAM, or change them later.
+
+* **Uploads Locked** — Prevents *Organization Members* from uploading to the DAM from this *Site*. They can still browse and select existing assets.
+* **Reference Key** — A key you can use in the `allowed_sources` option to choose which inputs offer this DAM. For more information, please read our documentation on [managing your connected DAMs](/documentation/developer-articles/managing-your-connected-dams/).
+
+To change the options for a linked Bynder DAM:
+
+1. Navigate to the *Assets* page under *Site Settings* for the *Site*.
+2. Click the three-dot icon on the <comp.GlossaryTerm term="/user/glossary/c/card.yml">Card</comp.GlossaryTerm> for your Bynder DAM. CloudCannon will open the <comp.GlossaryTerm term="/user/glossary/c/context-menu.yml">Context Menu</comp.GlossaryTerm>.
+3. Select *Settings* from the *Context Menu*. CloudCannon will open the *Update site DAM* modal.
+4. Change the *Uploads Locked* checkbox or the *Reference Key* field.
+5. Click the *Update* button.
+
+CloudCannon will save the options for this *Site*.
+
+## How uploads to your Bynder DAM work
+
+Bynder stores assets differently from file-based DAMs:
+
+* Bynder DAMs have no folders, so the *Extra prefix* option is not available for them in *Site Settings*.
+* CloudCannon refers to each Bynder asset by its Bynder asset ID rather than by a filename.
+
+When *Organization Members* upload a file to a Bynder DAM, CloudCannon:
+
+* Saves it as a new Bynder asset, named after the uploaded file, in the brand set by *Default Brand ID*.
+* Creates a new asset each time, without checking for an existing asset with the same name.
+* Waits for Bynder to process the upload. If Bynder has not finished after about 60 seconds, the upload fails.
+* Finishes the upload even if you leave the page while Bynder is processing it.
+
+## Choose a version of a Bynder asset
+
+Bynder keeps several versions of each asset, such as the full-size original and smaller resized versions. CloudCannon opens the *Choose a version* picker so you can choose which version to use:
+
+* After you upload a file to a Bynder DAM from a <comp.GlossaryTerm term="/user/glossary/f/file-input.yml">File Input</comp.GlossaryTerm>, a *Rich Text Input*, or the <comp.GlossaryTerm term="/user/glossary/v/visual-editor.yml">Visual Editor</comp.GlossaryTerm>.
+* When you select an existing Bynder asset in a *File Input*. If the asset has only one version, CloudCannon uses that version without opening the picker.
+
+The picker opens whether the DAM uses the CloudCannon asset browser or the Bynder widget. If you close the picker without choosing a version, CloudCannon does not add the asset to your content.
+
+## Troubleshoot your Bynder DAM connection
+
+If CloudCannon cannot connect to Bynder, it shows an error message. Which messages you can see depends on whether you are authenticating the DAM or browsing and uploading assets.
+
+### Errors when you authenticate Bynder
+
+When you click the *Authenticate* button on the *Authenticate new DAM* page, CloudCannon connects to Bynder with your Client ID and Client Secret. If Bynder rejects the connection, the error appears on the page and starts with `bynder:`.
+
+* **Invalid credentials** — Bynder rejected the Client ID or Client Secret. Copy both again from your Bynder OAuth application, and check that the application uses the *Client Credentials* grant type.
+* **Forbidden** — Bynder refused the request. Check that your OAuth application has the `asset:read` and `asset:write` scopes, and that the assigned user can access your assets and brands. If the error continues, contact CloudCannon support.
+
+CloudCannon also checks the *Portal URL* field before it connects. If the address is not valid, an error appears under the field.
+
+* **Is not an allowed host** — CloudCannon cannot connect to the address in the *Portal URL* field. Check that the field contains your Bynder portal URL, starting with `https://`.
+
+### Errors when you browse or upload assets
+
+When *Organization Members* browse or upload assets on a *Site* linked to a Bynder DAM, they can see these errors:
+
+* **Invalid credentials** or **Forbidden** — Bynder rejected or refused the request. Check that the Client ID and Client Secret saved for the DAM match your Bynder OAuth application, that the application has the `asset:read` and `asset:write` scopes, and that the assigned user can access your assets and brands.
+* **Bynder is unavailable** — Bynder is temporarily unavailable. Try again later.
+* **Timed out waiting for Bynder to process the upload** — Bynder did not finish processing an upload within about 60 seconds. Upload the file again.
+
+If uploads to Bynder fail, or the Bynder widget shows an error or does not load your assets, check that your Bynder OAuth application has `https://app.cloudcannon.com` in its *Set HTTP access control (CORS)* field.
+
+### Contact support
+
+If you still cannot connect, <a href="https://cloudcannon.com/support/">contact CloudCannon support</a>. Include your *Organization* name, the name of the DAM, your Bynder portal URL, the exact error message, and when it happened. Do not send your Client Secret.

@@ -7,8 +7,8 @@ Machine-readable style rules for AI agents and automated linters. These rules ar
 **For agents making updates to this file:** Also update the corresponding section in `STYLE_GUIDE.mdx` with the prose explanation and examples. Update the revision history in both files: `last_updated` and `style_guide_version` in the YAML block below, and the `Last Updated` and `Version` fields and the revision history table (Section 4) in `STYLE_GUIDE.mdx`.
 
 ```yaml
-style_guide_version: "2.62"
-last_updated: "2026-09-25"
+style_guide_version: "2.70"
+last_updated: "2026-10-15"
 
 documentation_architecture:
   single_source_of_truth:
@@ -34,6 +34,21 @@ terminology:
         - "Visual Editor API"
         - "inEditorMode"
         - "editor-only (preview vs live Site when sentence names the environment)"
+    interface:
+      rule: "Never use 'the interface' as a stand-in for a part of CloudCannon. Name the surface — the Visual Editor, the Data Editor, the App Sidebar, a page — or rephrase to 'in CloudCannon'. A reader cannot act on 'the interface', and the phrase carries no extractable fact when a passage is quoted out of context. Same family as the editor rule above. Mirrors STYLE_GUIDE.mdx §1.3.3."
+      correct:
+        - "Editor Links let you link to other pages in CloudCannon."
+        - "…resolved by CloudCannon in the *Data Editor* following your update."
+      incorrect:
+        - "Editor Links let you link to other sections of the interface."
+    switcher:
+      rule: "Do not use 'switcher' as the name of a CloudCannon UI element that already has one. The control that moves between Organizations or clients is the *Context Menu*, headed *Switch Organization* or, inside a Partner Organization, *Switch Client*. Mirrors STYLE_GUIDE.mdx §1.3.3."
+      not_a_blanket_ban: "'Locale switcher' is the name of the floating control the Rosey CloudCannon Connector adds to the Visual Editor; it has no other name and stays. docshot_key values are filenames, not prose, and are unaffected."
+      correct:
+        - "Open the *Context Menu* on the *Organization* *Card*."
+        - "a floating locale switcher appears in the corner of the preview"
+      incorrect:
+        - "Open the Organization switcher."
   settings_navigation_hierarchy:
     rule: "Name a settings destination by its location, not its label — the same label can be a page in one area and a section in another. Verify location before choosing the noun."
     org_settings: "Org Settings contains PAGES (Details, Branding, Team, Subscription, etc.). Refer to each as a 'page': 'the Details page under Org Settings'. Never call an Org Settings destination a 'section'."
@@ -49,9 +64,9 @@ terminology:
       - "Open the *Members* page."  # Members is a tab on the Team page
 
   plan_capitalization:
-    rule: "Plan names are capitalized AND italicized. The product noun 'Plan' must never appear bare — a tier name or the word 'Subscription' must immediately precede it every time. Write '*[Tier] Plan*' (*Standard Plan*, *Team Plan*, *Enterprise Plan*, *Free Plan*) or '*Subscription Plan*' (plural *Subscription Plans*). Rephrase every former head-noun, state-descriptor, and attributive use to carry 'Subscription'."
+    rule: "Plan names are capitalized AND italicized. The product noun 'Plan' must never appear bare — a tier name or the word 'Subscription' must immediately precede it every time. Write '*[Tier] Plan*' (*Standard Plan*, *Team Plan*, *Enterprise Plan*, *Lite Plan*) or '*Subscription Plan*' (plural *Subscription Plans*). Rephrase every former head-noun, state-descriptor, and attributive use to carry 'Subscription'."
     italicize_and_capitalize:
-      - "Named tiers: *Standard Plan*, *Team Plan*, *Enterprise Plan*, *Free Plan*"
+      - "Named tiers: *Standard Plan*, *Team Plan*, *Enterprise Plan*, *Lite Plan*"
       - "Generic product noun: *Subscription Plan*, *Subscription Plans*"
     never_bare_plan:
       rule: "'Plan' as the product noun never stands with only an article, possessive, or adjective in front of it, and never modifies another noun on its own. Rephrase so a tier name or 'Subscription' immediately precedes 'Plan'."
@@ -62,6 +77,20 @@ terminology:
         - "plan pricing / plan limits / plan changes / plan details -> *Subscription Plan* pricing / *Subscription Plan* limits / *Subscription Plan* changes / *Subscription Plan* details"
     glossary_link:
       rule: "*Subscription Plan* takes a glossary link on first mention (comp.GlossaryTerm, term /user/glossary/s/subscription-plan.yml, glossary_term_name 'Subscription Plan'); subsequent mentions are italicized with no link. Named tiers are italicized but take no glossary link."
+    documentable_plans:
+      rule: "Only four plans may be named in documentation: Standard, Team, Enterprise, Lite. Never name Pro, Business, Developer, Agency, Free, or Personal — not in article bodies, plan-tier notices, glossary descriptions, or plan-comparison statements — even when a feature flag in `app` enumerates them."
+      allowed: ["Standard", "Team", "Enterprise", "Lite"]
+      never: ["Pro", "Business", "Developer", "Agency", "Free", "Personal"]
+      scope: "This rule governs PLAN NAMES only. It does not touch other terms that happen to contain these words — *Free Trial* is a separate CloudCannon feature and stays; so does the *Developers* Permission Group, which is unrelated to the deprecated Developer plan. Only suppress the word when it names a Subscription Plan tier."
+      why:
+        - "Pro, Business, Developer and Agency are deprecated and no longer offered."
+        - "Personal is the database default every Organization starts on (`organisations.plan` defaults to `cc_personal`), so it is a starting state rather than a tier anyone selects."
+        - "There is no `free` plan entry in the app at all."
+      verifying_gating:
+        rule: "Gating is expressed as feature flags rather than plan names (`has_feature?('custom-permissions')`, not a check for 'Team'). Confirm the flag first, then work out which plans carry it. Do not derive the allowed list from `plan_details.yml` flags — Lite is marked `visible: false` alongside Personal, so neither `visible: true` nor `legacy: false` selects the right set."
+        lives_in: ["config/user_config/plan_details.yml", "config/user_config/feature_categories.yml", "app/models/concerns/organisation_extensions/billing.rb"]
+      no_gate_to_document:
+        rule: "When a feature is available on every documentable plan, there is no tier gate — do not invent one, and leave generic 'change to a Subscription Plan that includes X' wording alone."
     ui_labels_exempt:
       rule: "UI labels match the app verbatim, regardless of this rule (reproduce exact casing)."
       capitalized_in_app: ["Review your Subscription Plan (button)", "Update your Subscription Plan (page)", "Your Subscription Plan (page)", "Plan resources (label)"]
@@ -118,6 +147,7 @@ terminology:
     - "Organizations Browser"
     - "Filter Bar"
     - "Card"
+    - "Error Card"
     - "Context Menu"
     - "Site Navigation"
     - "Section Navigation"
@@ -129,6 +159,8 @@ terminology:
     - "Access Review"
     - "Seat"
     - "Health Check"
+    - "Visual Data Previews"  # deprecated v0 Visual Editor API feature; still a CloudCannon concept, so capitalized and italicized
+    - "Visual Data Bindings"  # deprecated data-cms-bind feature; capitalized and italicized as above
   
   preferred_terms:
     "Git Repository": ["repo", "git repo", "Git repository"]
@@ -359,6 +391,7 @@ documentation_types:
       "Added!": "Every CloudCannon app screenshot the article needs is present as a DocShot."
       "Needs docshots": "The article needs one or more CloudCannon app screenshots that do not exist yet."
       "Not applicable": "The article does not need any CloudCannon app screenshots (e.g. it only has diagrams, code examples, or no images). Do not use this when a screenshot is warranted but missing — that is 'Needs docshots'."
+      warranted_test: "Whether a screenshot is needed is defined by docshot.warranted. These three values are unanswerable without it."
     related_articles_structure:
       max_items: 3
       _type: ["developer_articles", "user_articles", "developer_guides", "user_guides"]
@@ -547,6 +580,7 @@ documentation_types:
           - "Organizations Browser"
           - "Filter Bar"   # the filter element above a list; the button inside it is Add Filter
           - "Card"         # the repeated item block used throughout the app: browsers, lists, and inside inputs
+          - "Error Card"   # the red card the Visual Editor renders in place of an Editable Region it cannot render; capitalized but NOT asterisked inside DocShot alt text, which is plain text
           - "Context Menu" # the menu a control opens in place; written as "the *Context Menu*", never prefixed with its heading
         core_concepts:
           - "Site"
@@ -849,29 +883,36 @@ components:
     placement:
       info: "Inline, close to relevant content. Must not be the first element in an article."
       important: "Can be first if the information affects the entire article; otherwise inline."
-      permissions: "Must be at the top of the article, immediately after front matter, before any body content. Always start with bold 'Permissions required' heading. When a pricing notice is also present, the pricing notice comes first and the permissions notice immediately follows it (see pricing_and_permissions_order)."
-      pricing: "Can be first if the entire feature is gated; otherwise inline. When both a pricing and a permissions notice are present, the pricing notice comes first (see pricing_and_permissions_order)."
       deprecated: "Must be first in article, before any other notice or content. Applies to the whole article; do not repeat per section. When an article documents a deprecated method alongside a current one, scope the notice to the method by naming it in the status sentence. Mirrors STYLE_GUIDE.mdx §1.5.1."
+      permissions: "Must be at the top of the article, immediately after front matter, before any body content. Always start with bold 'Permissions required' heading. When a pricing notice is also present, the pricing notice comes first and the permissions notice immediately follows it (see pricing_and_permissions_order)."
+      pricing: "Can be first if the entire feature is gated; otherwise inline. A Subscription Plan gate always starts with the bold 'Subscription Plan required' heading (see pricing_notice_content.plan_gate_heading). When both a pricing and a permissions notice are present, the pricing notice comes first (see pricing_and_permissions_order)."
       pricing_and_permissions_order: "When an article genuinely needs both a pricing and a permissions notice (it gates on both plan and permission), place the pricing notice first, immediately followed by the permissions notice, before any other content. Pricing comes first because plan availability is the more fundamental gate — a reader on the wrong plan does not need the permission requirements. Mirrors STYLE_GUIDE.mdx §1.5.1."
       notice_order_at_top: "When more than one top-of-article notice is present, the order is deprecated, then pricing, then permissions. Deprecation is the most fundamental gate: a reader who should not adopt a feature does not need its plan availability or permission requirements. Mirrors STYLE_GUIDE.mdx §1.5.1."
       destructive_action_notice_stack: "For a destructive or irreversible action (e.g. deleting an Organization or Site), stack a permissions notice first (who can perform the action), immediately followed by an important notice stating the irreversibility and what is lost, before any other content. The irreversibility warning is a load-bearing caveat the reader must see before acting, so two notices at the top is expected here, not overuse. Mirrors STYLE_GUIDE.mdx §1.5.1."
+      notice_order_at_top: "When more than one top-of-article notice is present, the order is deprecated, then pricing, then permissions. Deprecation is the most fundamental gate: a reader who should not adopt a feature does not need its plan availability or permission requirements. Mirrors STYLE_GUIDE.mdx §1.5.1."
     pricing_notice_content:
       scope: "The pricing notice answers 'can I use this?', not only 'which plan is this on'. Use it for any access gate: a Subscription Plan tier, a private Beta the reader must request access to, or a programme they must belong to. Reserve `important` for caveats about using a feature the reader already has. Mirrors STYLE_GUIDE.mdx §1.5.1."
-      non_plan_gate_form: "State the gate and how to get through it. Private Beta: '**This feature is available through a private Beta.**' followed by what it covers and a support contact. If access is granted per account rather than per Organization, say so."
-      single_feature_form: '**This feature is available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise Plan</a>.** OR ***Feature Name* is available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise Plan</a>.**'
+      non_plan_gate_form: "State the gate and how to get through it. Private Beta: '**This feature is available through a private Beta.**' followed by what it covers and a support contact. If access is granted per account rather than per Organization, say so. Non-plan gates do not take the plan_gate_heading."
+      plan_gate_heading:
+        rule: "A Subscription Plan pricing notice has two parts: the bold heading '**Subscription Plan required**', a blank line, then a plain (not bold) sentence stating the gate. Mirrors the 'Permissions required' heading on permissions notices. Only the heading is bold (bold_usage). The heading text is not italicized, matching headings_no_italics. Mirrors STYLE_GUIDE.mdx §1.5.1."
+        syntax: "<comp.Notice info_type=\"pricing\">\n  **Subscription Plan required**\n\n  This feature is available on our <a href=\"https://cloudcannon.com/pricing/\">Team or Enterprise Plan</a>.\n</comp.Notice>"
+      single_feature_form: 'This feature is available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise Plan</a>. OR *Feature Name* is available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise Plan</a>. (The sentence after the plan_gate_heading.)'
+      multiple_gates_form: "When different parts of a feature are gated on different plans, state each gate in its own sentence."
       overview_article_form: "Name the gated sub-features the article actually discusses; do not list the full set of gated features under the parent"
       examples:
-        correct:
-          - '**This feature is available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise Plan</a>.**'
-          - '***Deploy Previews* are available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise Plan</a>.**'
-          - '***Projects* are available on all Plans. *Site* branching and *Publishing Workflows* are available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise Plan</a>.**'
-          - '**The *Pull Requests* tab and *Deploy Previews* settings are available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise Plan</a>. Other parts of the *Project Browser* are available on all Plans.**'
+        correct:  # the sentence that follows the plan_gate_heading
+          - 'This feature is available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise Plan</a>.'
+          - '*Deploy Previews* are available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise Plan</a>.'
+          - 'Connecting a DAM is available on our <a href="https://cloudcannon.com/pricing/">Standard, Team, or Enterprise Plan</a>. Linking more than one DAM to a *Site* is available on our <a href="https://cloudcannon.com/pricing/">Enterprise Plan</a>.'
+          - '*Projects* are available on all *Subscription Plans*. *Site* branching and *Publishing Workflows* are available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise Plan</a>.'
+          - 'The *Pull Requests* tab and *Deploy Previews* settings are available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise Plan</a>. Other parts of the *Project Browser* are available on all *Subscription Plans*.'
         incorrect:
-          - '**Some features are only available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise Plan</a>.**'  # vague — doesn't say which features
-          - '**This feature is available on our** [**Team or Enterprise Plan**](https://cloudcannon.com/pricing/)**.**'  # over-wrapped bold/link splits; also: non-doc links must be HTML anchors, not markdown
+          - 'Some features are only available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise Plan</a>.'  # vague — doesn't say which features
+          - 'This feature is available on our [Team or Enterprise Plan](https://cloudcannon.com/pricing/).'  # non-doc links must be HTML anchors, not markdown
+          - '**This feature is available on our <a href="https://cloudcannon.com/pricing/">Team or Enterprise Plan</a>.**'  # earlier single-bold-sentence form with no heading; add the plan_gate_heading and unbold the sentence
     deprecation_notice_content:
       scope: "The deprecated notice answers 'is this still the right thing to use?'. Use it for any feature CloudCannon has stopped developing. Distinct from `important`, which carries a caveat about a feature that is current, and from `pricing`, which answers whether the reader can access the feature at all. Mirrors STYLE_GUIDE.mdx §1.5.1."
-      cloudcannon_position: "Deprecation means the same thing across every feature and is not a per-feature judgement: the feature is maintained, critical bugs are fixed, no new features or further development are planned, and existing configurations keep working. State this position; do not hedge about support."
+      cloudcannon_position: "Deprecation means the same thing across every feature and is not a per-feature judgement: the feature is maintained, critical bugs are fixed, no new features or further development are planned, and existing Sites relying on the configuration will keep working. State this position; do not hedge about support. The continuity sentence names the Sites, not the configuration: 'Existing *Sites* relying on this configuration will keep working.', never 'Existing configurations keep working.' — what the reader is asking about is whether their Site breaks."
       form: "Three sentences, one job each. (1) Status, in bold: name the feature and state that it is deprecated. (2) What deprecation means: the maintenance position above, plus the deprecation date where known. (3) What to use instead: name the replacement and link to it, or state that there is no replacement."
       standalone_sentences: "Each sentence must stand alone. The bold status sentence is what an AI agent quoting the page out of context is most likely to carry, and the notice type does not survive the Markdown export (see notice_type_not_in_markdown_export)."
       examples:
@@ -879,7 +920,6 @@ components:
           - '**Visual data bindings are deprecated.**'
           - '**Legacy forms are deprecated.** CloudCannon continues to maintain legacy forms and fix critical bugs, but they receive no new features or further development.'
         incorrect:
-          - "CloudCannon cannot guarantee support for this feature."  # reads as 'this may break'; contradicts the maintenance commitment
           - "This feature has been deprecated. It is highly recommended you update."  # no maintenance position, no named replacement
           - "Since October 2025, this method of visual editing has been deprecated."  # date without the position or the replacement
     general_rules:
@@ -897,6 +937,20 @@ components:
       screenshot: "Full viewport screenshots showing the entire CloudCannon interface"
       ui-snippet: "Cropped screenshots of specific UI elements like inputs, buttons, dropdowns, or modals"
     naming: "Hyphenated names describing the page and state (e.g., Site-Settings-Syncing-Connected)"
+    warranted:
+      rule: "A DocShot earns its place where it shows what prose cannot. Required where the reader must locate something whose position is not obvious from its name (a tab inside a settings page, a control inside a modal, a conditionally visible panel), where the page walks through a screen or a multi-step flow, or where the text describes what something displays rather than only naming it."
+      not_warranted: "A single named control inside a numbered step ('Click the *Save changes* button'), a concept page with no UI, a configuration or code reference page."
+      placeholder: "Where a screenshot is warranted but not yet captured, place a [docshot] placeholder where it belongs and set author_notes.docshots to 'Needs docshots'. A placeholder marks work to do; its absence reads as a decision that no screenshot was needed."
+      pairs_with: "The inverse bound is avoid_near_duplicate_docshots — warranted governs too few, that rule governs too many."
+    avoid_near_duplicate_docshots:
+      rule: "Do not include a DocShot whose only difference from a sibling DocShot is a transient or removed indicator — a loading button label, a removed notification, a cleared warning, or a similar small visual change. Each DocShot must anchor a visually distinct state worth showing on its own."
+      avoid:
+        - "A 'before update' DocShot followed by an 'after update' DocShot whose only difference is the absence of the *Updates available* notification."
+        - "A 'before publish' DocShot followed by an 'after publish' DocShot where the only change is the *Publish* button now reading *Publishing…*."
+        - "A conflict-state DocShot followed by a success DocShot whose only difference is the cleared warning *Card*."
+      correct: "A 'before' and an 'after' DocShot that show meaningfully different UI — an empty form versus a form with results, or a list before versus after a structural change."
+      pairs_with: "The inverse bound is warranted — that rule governs too few screenshots, this one governs too many."
+      mirrors: "STYLE_GUIDE.mdx §1.5.2 (Avoid near-duplicate docshots)"
 
   docsimage:
     usage: "Illustrations, diagrams, conceptual graphics, and external screenshots only. Never for CloudCannon app images — those use comp.DocShot."
@@ -1059,6 +1113,8 @@ validation_rules:
     - "code_example_explanations_only_in_annotations"
     - "explanatory_prose_inside_numbered_instruction_steps"
     - "bare_editor_word_ambiguous_context"
+    - "vague_interface_reference (the phrase 'the interface' standing in for a named CloudCannon surface)"
+    - "switcher_naming_a_named_element (calling the Organization/client Context Menu a 'switcher'; 'locale switcher' is exempt)"
     - "guide_page_closing_cta_to_sibling_page"
     - "guide_page_related_articles_not_null"
     - "ui_elements_in_links_no_italics"
@@ -1067,6 +1123,7 @@ validation_rules:
     - "system_focused_feature_description_in_explanation (in explanation articles and 'What is...' guide pages, prefer experiential language — what the user sees and can do — over internal mechanics descriptions)"
     - "vague_shorthand_references (e.g. 'This step covers both' without spelling out the referents)"
     - "settings_destination_wrong_noun (Org Settings destinations called 'sections' instead of 'pages'; Project Settings destinations called 'pages' instead of 'sections'; Team's Members/Groups tabs mislabeled as pages or sections)"
+    - "pricing_notice_missing_plan_heading (a Subscription Plan pricing notice without the bold 'Subscription Plan required' heading, or with the gate sentence still in bold)"
   
   ignore:
     - "Passive voice in: changelog features, technical descriptions"

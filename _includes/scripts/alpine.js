@@ -1,7 +1,7 @@
-import Alpine from "https://esm.sh/alpinejs@3.14.9";
-import intersect from "https://esm.sh/@alpinejs/intersect@3.14.9";
-import focus from "https://esm.sh/@alpinejs/focus@3.14.9";
-import ScrollPadlock from "https://esm.sh/scroll-padlock@2.2.0";
+import Alpine from "alpinejs";
+import intersect from "@alpinejs/intersect";
+import focus from "@alpinejs/focus";
+import ScrollPadlock from "scroll-padlock";
 
 const scrollElement = document.body,
   LOCKED_CLASS = "t-scroll-lock";

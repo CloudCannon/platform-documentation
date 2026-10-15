@@ -101,6 +101,14 @@ export default function DocNav(
       "Permissions",
     ),
   );
+  register(
+    pageSection(
+      "/developer-reference/error-codes/",
+      "error-codes",
+      "error",
+      "Error Codes",
+    ),
+  );
 
   // Two top-level groups, each with a home page and an ordered set of sections.
   const groups: NavGroup[] = [
@@ -120,7 +128,14 @@ export default function DocNav(
     {
       label: "Platform",
       homeUrl: "/developer-reference/platform/",
-      sectionIds: ["cli", "sdk", "type.Api", "type.ApiSchemas", "permissions"],
+      sectionIds: [
+        "cli",
+        "sdk",
+        "type.Api",
+        "type.ApiSchemas",
+        "permissions",
+        "error-codes",
+      ],
     },
   ];
 

@@ -1,6 +1,6 @@
 // Load popover polyfill for browsers that don't support it natively
 if (!("popover" in HTMLElement.prototype)) {
-  import("https://esm.sh/@oddbird/popover-polyfill@0.6.1");
+  import("@oddbird/popover-polyfill");
 }
 
 import "../../_includes/scripts/alpine.js";
