@@ -7,7 +7,7 @@ Machine-readable style rules for AI agents and automated linters. These rules ar
 **For agents making updates to this file:** Also update the corresponding section in `STYLE_GUIDE.mdx` with the prose explanation and examples. Update the revision history in both files: `last_updated` and `style_guide_version` in the YAML block below, and the `Last Updated` and `Version` fields and the revision history table (Section 4) in `STYLE_GUIDE.mdx`.
 
 ```yaml
-style_guide_version: "2.72"
+style_guide_version: "2.73"
 last_updated: "2026-10-16"
 
 documentation_architecture:
@@ -20,6 +20,8 @@ documentation_architecture:
     guides_exception: "A guide page carries a reader through a task, so it MAY fully restate a concept an article already owns rather than linking out for the definition. Deliberate duplication, conditional on glossary terms on first mention and assumptions stated in the guide's index.mdx. Mirrors STYLE_GUIDE.mdx §2.4.6a."
     always_cross_link: true
     tie_breaker: "When pages disagree, accuracy wins, not recency. App behavior and STYLE_GUIDE.mdx are the ultimate tie-breakers; fix toward them."
+  assumed_app_state:
+    unified_configuration: "The documentation assumes every Organization uses unified configuration. Describe the app with unified configuration on; do not mention the *Use Unified Configuration* checkbox or UI that appears only without it. Docs-wide, so do not restate it in a guide's index.mdx prerequisites or an article's 'Before we begin' sentence, and do not report its absence as a review finding. Mirrors STYLE_GUIDE.mdx §1.7.2."
 
 terminology:
   disambiguation:
