@@ -9,12 +9,16 @@ CloudCannon does not use PHP anywhere in its platform, so the PHP vulnerabilitie
 
 In response to the certificate compromise, this release patched all CloudCannon services to reject the compromised certificates. The compromised certificates affect software across the whole internet, not just CloudCannon, and many tools only distrust them after a manual update. This is a great time to update your own systems: your operating system, your web browser, any installed applications and packages, and your programming toolchains.
 
-It also addressed several issues, including those affecting snippets and images in rich text editors, custom domain SSL statuses, derived file paths, and *Inbox* permissions.
+It also addressed several issues, including those affecting *Inbox* permissions, SSL certificates, file tags, and snippets in rich text editors.
 
 ## Fixes
 
-* Fixed an issue where a snippet or image at the end of a paragraph collapsed the lines of that paragraph in rich text editors.
+* Changed Organization-level *Inbox* permissions to cover every *Inbox* in your *Organization*, allowing you to view, resend, and delete form submissions without also needing *Inbox* permissions on each *Site*.
+* Changed the path of a new file to update whenever its data changes, instead of only when the save modal is open.
+* Fixed an issue where a temporary error from our SSL provider during SSL certificate setup was shown as a permanent error. CloudCannon now retries automatically, and only shows an error if the domain is rejected.
+* Fixed an issue where SSL certificate setup could request a second certificate for a domain that already had one, leaving SSL stuck on pending.
+* Fixed an issue where SSL certificate checks could repeat continuously, delaying other background tasks such as domain and nameserver checks.
 * Fixed an issue where a custom domain whose DNS moved during certificate validation did not show an error or a way to retry, and removed a misleading "SSL setup may have stalled" error that could appear during normal certificate setup.
-* Fixed an issue where a new file with a folder in its create path only moved into that folder once you opened the save dialog; file paths with data placeholders now update as you edit content.
-* Fixed an issue where members with organization-level *Inbox* permissions could not resend or delete form submissions without also having site-level *Inbox* permissions.
+* Fixed an issue where a file with unsaved changes could lose its *Edited* tag.
+* Fixed an issue where a snippet or image at the end of a paragraph collapsed the lines of that paragraph in rich text editors.
 * Updated all CloudCannon services to reject the eight compromised eMudhra intermediate certificate authority certificates.
