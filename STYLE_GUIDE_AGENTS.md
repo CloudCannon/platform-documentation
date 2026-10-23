@@ -7,8 +7,8 @@ Machine-readable style rules for AI agents and automated linters. These rules ar
 **For agents making updates to this file:** Also update the corresponding section in `STYLE_GUIDE.mdx` with the prose explanation and examples. Update the revision history in both files: `last_updated` and `style_guide_version` in the YAML block below, and the `Last Updated` and `Version` fields and the revision history table (Section 4) in `STYLE_GUIDE.mdx`.
 
 ```yaml
-style_guide_version: "2.70"
-last_updated: "2026-10-15"
+style_guide_version: "2.73"
+last_updated: "2026-10-16"
 
 documentation_architecture:
   single_source_of_truth:
@@ -16,8 +16,12 @@ documentation_architecture:
     one_home: "Each behavior, feature, or screen has one home page. A general page may summarize a topic in a short paragraph and link to the specific page that covers it thoroughly — intended pattern, not duplication."
     similarity_ok: "Similar content across pages covering DIFFERENT topics is accurate, not duplication (e.g. Snippets pages, where each snippet type behaves similarly but has its own home)."
     avoid: "The SAME behavior or appearance documented in full on two pages, even when both are accurate — dilutes search and will drift. Consolidate to one authoritative page; others defer with a short summary and a link."
+    scope: "This rule governs ARTICLES, which compete with one another in search. It does NOT govern guide pages — see guides_exception and documentation_types.guide.self_contained_context."
+    guides_exception: "A guide page carries a reader through a task, so it MAY fully restate a concept an article already owns rather than linking out for the definition. Deliberate duplication, conditional on glossary terms on first mention and assumptions stated in the guide's index.mdx. Mirrors STYLE_GUIDE.mdx §2.4.6a."
     always_cross_link: true
     tie_breaker: "When pages disagree, accuracy wins, not recency. App behavior and STYLE_GUIDE.mdx are the ultimate tie-breakers; fix toward them."
+  assumed_app_state:
+    unified_configuration: "The documentation assumes every Organization uses unified configuration. Describe the app with unified configuration on; do not mention the *Use Unified Configuration* checkbox or UI that appears only without it. Docs-wide, so do not restate it in a guide's index.mdx prerequisites or an article's 'Before we begin' sentence, and do not report its absence as a review finding. Mirrors STYLE_GUIDE.mdx §1.7.2."
 
 terminology:
   disambiguation:
@@ -27,7 +31,7 @@ terminology:
         - "Visual Editor, Content Editor, Data Editor, Source Editor (UI names per italics rules)"
         - "code editor, IDE, or named product (e.g. VS Code) for where developers write code"
         - "rich text editor, WYSIWYG editor, or name the host UI"
-      for_people: "Use a specific role term: team member, translator, content author. Never 'editor' or 'editors'."
+      for_people: "Use a specific role term: Organization Member, translator, content author. Never 'editor' or 'editors'."
       compounds_allowed_when_context_clear:
         - "Visual Editor API"
         - "inEditorMode"
@@ -49,17 +53,17 @@ terminology:
         - "Open the Organization switcher."
   settings_navigation_hierarchy:
     rule: "Name a settings destination by its location, not its label — the same label can be a page in one area and a section in another. Verify location before choosing the noun."
-    org_settings: "Org Settings contains PAGES (Details, Branding, Team, Subscription, etc.). Refer to each as a 'page': 'the Details page under Org Settings'. Never call an Org Settings destination a 'section'."
-    team_page: "The Team page (a page under Org Settings) contains TABS: Members and Groups. Refer to these as 'tabs': 'the Members tab'. Members and Groups are not pages."
+    org_settings: "Org Settings contains PAGES (Details, Branding, People, Subscription, etc.). Refer to each as a 'page': 'the Details page under Org Settings'. Never call an Org Settings destination a 'section'."
+    people_page: "The People page (a page under Org Settings, formerly the Team page) contains TABS: Members, Groups, and Guests. The Guests tab appears only with the org:settings:details:read permission. Refer to these as 'tabs': 'the Members tab'. Members, Groups, and Guests are not pages."
     project_settings: "The Project Settings tab (in the Project view) contains SECTIONS (Details, Repository, Branch Defaults, Deploy Previews, etc.). Refer to each as a 'section': 'the Repository section'."
     collision_note: "Details exists in both Org Settings (a page) and Project Settings (a section) — the correct noun depends on which area the doc is describing."
     correct:
       - "Navigate to the *Details* page under *Org Settings*."
-      - "Open the *Members* tab on the *Team* page."
+      - "Open the *Members* tab on the *People* page."
       - "In the *Project Settings* tab, open the *Repository* section."
     incorrect:
       - "Navigate to the *Details* section in *Org Settings*."  # it is a page, not a section
-      - "Open the *Members* page."  # Members is a tab on the Team page
+      - "Open the *Members* page."  # Members is a tab on the People page
 
   plan_capitalization:
     rule: "Plan names are capitalized AND italicized. The product noun 'Plan' must never appear bare — a tier name or the word 'Subscription' must immediately precede it every time. Write '*[Tier] Plan*' (*Standard Plan*, *Team Plan*, *Enterprise Plan*, *Lite Plan*) or '*Subscription Plan*' (plural *Subscription Plans*). Rephrase every former head-noun, state-descriptor, and attributive use to carry 'Subscription'."
@@ -74,7 +78,7 @@ terminology:
         - "current plan / paid plan / new plan / legacy plan -> *current Subscription Plan* / *paid Subscription Plan* / *new Subscription Plan* / *legacy Subscription Plan*"
         - "plan pricing / plan limits / plan changes / plan details -> *Subscription Plan* pricing / *Subscription Plan* limits / *Subscription Plan* changes / *Subscription Plan* details"
     glossary_link:
-      rule: "*Subscription Plan* takes a glossary link on first mention (comp.GlossaryTerm, term /user/glossary/s/subscription-plan.yml, glossary_term_name 'Subscription Plan'); subsequent mentions are italicized with no link. Named tiers are italicized but take no glossary link."
+      rule: "*Subscription Plan* takes a glossary link on first mention (comp.GlossaryTerm, term /user/glossary/s/subscription-plan.yml, glossary_term_name 'Subscription Plan'); subsequent mentions are italicized with no link. Each named tier also takes a glossary link on its first mention, using its own entry (l/lite-plan.yml, s/standard-plan.yml, t/team-plan.yml, e/enterprise-plan.yml); link each tier separately."
     documentable_plans:
       rule: "Only four plans may be named in documentation: Standard, Team, Enterprise, Lite. Never name Pro, Business, Developer, Agency, Free, or Personal — not in article bodies, plan-tier notices, glossary descriptions, or plan-comparison statements — even when a feature flag in `app` enumerates them."
       allowed: ["Standard", "Team", "Enterprise", "Lite"]
@@ -122,7 +126,7 @@ terminology:
     - "Site"
     - "Organization"
     - "Collection"
-    - "Team Member"
+    - "Organization Member"
     - "Permission Group"
     - "Permission"
     - "Scope"
@@ -155,6 +159,8 @@ terminology:
     - "Git Provider"
     - "Git Repository"
     - "Access Review"
+    - "Seat"
+    - "Health Check"
     - "Visual Data Previews"  # deprecated v0 Visual Editor API feature; still a CloudCannon concept, so capitalized and italicized
     - "Visual Data Bindings"  # deprecated data-cms-bind feature; capitalized and italicized as above
   
@@ -174,6 +180,9 @@ terminology:
     "modal": ["dialog", "popup", "popover"]
     "filename": ["file name"]
     "insecure": ["unsecure"]
+    "Organization Member": ["Team Member", "team member"]  # the app renamed the term
+    "Guest Access": ["Client Sharing"]  # the app renamed the feature
+    "People page": ["Team page"]  # the Org Settings page the app renamed
 
 prohibited_phrases:
   - "click here"
@@ -265,7 +274,7 @@ formatting_rules:
     rule: "Use bold only for headings/labels inside Notice components and for term names in bulleted definition lists (**Term** — definition). Never use bold for emphasis, UI elements, button or menu names, or inline term definitions. Use italics for UI elements and terms, and Notice components for emphasis. Mirrors STYLE_GUIDE.mdx §1.4.2."
     use_for:
       - "Headings, labels, or callouts inside Notice components"
-      - "Term names in bulleted definition lists, followed by an em dash and the definition (e.g. * **User** — The team member who wants to access CloudCannon.)"
+      - "Term names in bulleted definition lists, followed by an em dash and the definition (e.g. * **User** — The Organization Member who wants to access CloudCannon.)"
     do_not_use_for:
       - "Emphasis (use a Notice component instead)"
       - "UI elements, button names, or menu options (use *italics*)"
@@ -294,10 +303,10 @@ formatting_rules:
         - "Click *Apply Coupon*."
       exception: "When the descriptor is part of the literal label (e.g. the *Project Settings* tab), the whole name is the label; do not add a second descriptor."
     interpolated_labels:
-      rule: "When a control builds its label from a value (the plan, Project, or Team Member it acts on), put the variable part in square brackets inside the italics: *Delete [Project Name]*, *View as [Team Member Name]*, *Select [Plan Name]*. The control-type descriptor stays plain and outside the italics. Never quote only the fixed part of the label, never hardcode one variant, and do not talk around it with a generic phrase — the bracketed placeholder carries the label shape the reader matches against the screen. Mirrors STYLE_GUIDE.mdx §1.4.1 (Labels That Include a Variable)."
+      rule: "When a control builds its label from a value (the plan, Project, or Organization Member it acts on), put the variable part in square brackets inside the italics: *Delete [Project Name]*, *View as [Organization Member Name]*, *Select [Plan Name]*. The control-type descriptor stays plain and outside the italics. Never quote only the fixed part of the label, never hardcode one variant, and do not talk around it with a generic phrase — the bracketed placeholder carries the label shape the reader matches against the screen. Mirrors STYLE_GUIDE.mdx §1.4.1 (Labels That Include a Variable)."
       correct:
         - "Click the *Delete [Project Name]* button."
-        - "Select the *View as [Team Member Name]* option."
+        - "Select the *View as [Organization Member Name]* option."
         - "Click the *Select [Plan Name]* button under the *Subscription Plan* you want."
       incorrect:
         - "Click the *Select* button."            # partial quote; the button reads "Select Standard"
@@ -444,6 +453,18 @@ documentation_types:
       note: "Aim for ~125 characters; fits on a single line in guide listing cards without truncation"
       no_colons: "Do not use colons (:) in description field values — they cause the Lume build to fail."
     related_articles: "Always null; guide pages are linked via the guide's own navigation, not the related articles widget"
+    self_contained_context:
+      rule: "A reader should never have to leave a guide page to understand it. Where a guide depends on a concept an article already documents, RESTATE that concept in the guide rather than linking out for the definition. This is deliberate duplication and is the exception to documentation_architecture.single_source_of_truth, which governs articles competing in search. Mirrors STYLE_GUIDE.mdx §2.4.6a."
+      established_examples:
+        - "developer/guides/getting-started-with-cloudcannon/your-organization-on-cloudcannon.mdx — 'What is an Organization?'"
+        - "user/guides/subscribe-to-cloudcannon/choose-your-subscription-plan.mdx — 'Compare Subscription Plans'"
+        - "user/guides/editing-in-cloudcannon/publishing-your-changes.mdx — 'What is a Publishing workflow?'"
+        - "developer/guides/bookshop-astro-guide/using-structures.mdx — 'What are Structures?'"
+      extent: "Restate as much as the reader needs to follow the page, and no more. A guide page is not a second home for the concept; it carries the part the task depends on, in the guide's own framing."
+      conditions:
+        glossary_terms: "Every CloudCannon concept a guide restates takes a comp.GlossaryTerm on its FIRST mention on that page. This is what keeps restatement safe — the glossary entry stays the single source, the guide supplies the framing."
+        assumptions_in_index: "Assumptions about the reader's state (what they have set up, their Subscription Plan, their access) or prior knowledge go in the guide's index.mdx prerequisites, using the 'Before we begin, this guide assumes…' pattern. A guide that restates concepts but hides its assumptions has moved the problem, not solved it."
+        link_for_depth_not_definition: "Keep the cross-link to the article, but it must offer MORE than the guide covers ('For everything an Organization contains, please read our documentation on…'), never supply something the reader needed in order to continue."
     prose_over_numbered_steps:
       rule: "Guide pages use prose paragraphs for sequential content, not numbered lists"
       rationale: "Guides are learning-oriented; prose feels collaborative and readable. Numbered steps belong in instruction articles only."
@@ -572,14 +593,13 @@ documentation_types:
           - "Project"
           - "Collection"
           - "Dataset"
-          - "Team Member"
+          - "Organization Member"
           - "Permission Group"
           - "Permission"
           - "Scope"
           - "Exception"
           - "Resource"
           - "Base Domain"
-          - "Team Member"
           - "Schema"
           - "Structure"
           - "Configuration File"
@@ -592,7 +612,7 @@ documentation_types:
           - "Publish Branch"
           - "Custom Domain"
           - "Testing Domain"
-          - "Client Sharing"
+          - "Guest Access"
           - "Site Sharing"
           - "Publishing Method"
           - "Publishing Workflow"
@@ -603,6 +623,8 @@ documentation_types:
           - "Billing Period"
           - "Free Trial"
           - "Access Review"
+          - "Seat"
+          - "Health Check"
         all_input_types: true
       
       do_not_italicize:
@@ -646,6 +668,47 @@ documentation_types:
             - "at the top of your *Project page*"
             - "click the *Publishing link* in the *Site Navigation*"
         exception: "Italicise the whole literal UI element name when the descriptor is part of the label (e.g. *Project Settings* is the actual tab label)"
+
+      seat_names_the_resource:
+        rule: "*Seat* is the unit of paid capacity a Subscription Plan includes; an Organization Member is a person who occupies one. Seats are COUNTED, not measured, so unlike Hosting Bandwidth and Build Time there is no lowercase quantity form — always capitalised and italicised, like Custom Domain. Mirrors STYLE_GUIDE.mdx §1.4.1."
+        correct:
+          - "your *Subscription Plan* includes three *Seats*"
+          - "inviting an *Organization Member* uses a *Seat*"
+          - "each *Site* with *Guest Access* turned on uses a *Seat*"
+        incorrect:
+          - "*Seats* can publish"          # Seats are capacity, not people
+          - "invite a *Seat*"              # you invite an Organization Member into a Seat
+          - "you have used three seats"    # no lowercase quantity form
+        prefer_over_member_count: "Where a sentence is about capacity being consumed, including by things that are not people, use Seat. 'Each Site with Guest Access turned on counts as one Organization Member' reads as a category error — the Site is not a member of anything. Write 'uses one Seat'."
+
+      health_check_names_the_check:
+        rule: "Health Check is one of CloudCannon's automated checks on an Organization — a failed build or sync, a Custom Domain that is not resolving, an expiring SSL certificate, a Free Trial ending, a Subscription needing attention, an inactive client. Italicise the named check whether singular or plural; leave 'health' plain where it describes a condition rather than the feature. Mirrors the artifact/practice split for Access Review. Mirrors STYLE_GUIDE.mdx §1.4.1."
+        correct:
+          - "a *Health Check* failed on one of your *Sites*"
+          - "your *Health Checks* are grouped by severity"
+          - "a summary of your client health"      # condition, not the feature
+          - "CloudCannon groups your *Health Checks* under *Danger*, *Warning*, *Informational*, and *Passed*"
+        incorrect:
+          - "a health check failed"                 # names the feature, so capitalise and italicise
+          - "a summary of your client *Health*"    # condition, not the feature
+        severity_groups_are_ui_labels: "The groupings a check is listed under (Danger, Warning, Informational, Passed) are UI labels — italicise them as UI elements, not as features."
+        three_forms:
+          rule: "The same word carries three forms, distinguished by what it names. Pick by referent, not by position."
+          feature: "*Health Check* — one automated check ('a *Health Check* failed on one of your *Sites*')"
+          tab_label: "*Health* — the UI label of the tab listing the checks on the Organization Home page ('open the *Health* tab')"
+          condition: "health — a condition rather than the feature, stays plain lowercase ('a summary of your client health')"
+
+      bare_members_capitalization:
+        rule: "Bare 'Members' is capitalized when it names the UI or stands in for the full member term. The Members tab under Org Settings and the controls beside it take the app's capital (Add Members), matching Groups / Add new Group. In prose, capitalize Members as shorthand only where the full member term is already established in the same passage. Leave 'members' lowercase where it names membership of a Permission Group, a Group, or a Site rather than of the Organization — that sense describes a relationship, not the term. Test by substitution: if the full member term fits, capitalize. Mirrors STYLE_GUIDE.mdx §1.4.1."
+        correct:
+          - "Open the *Members* tab."
+          - "Click the *Add Members* button."
+          - "Manage your *Organization Members* and *Permission Groups*. Add or remove *Members* from your *Organization*."
+          - "Permissions define what the members of this Group can do."
+        incorrect:
+          - "Open the *members* tab."           # UI label takes the app's capital
+          - "Click the *Add members* button."   # matches Add new Group
+          - "add Members to a *Permission Group*"  # Group membership is relational, stays lowercase
 
       named_resource_vs_quantity:
         rule: "Applies to the MEASURED resources (Hosting Bandwidth, Build Time): CloudCannon terms when you name the resource, but ordinary nouns when you state an amount. Italicise the named resource/feature/graph; leave the measured quantity in plain lowercase. A resource's billable-concept name and its UI-element label can differ (billed as 'Extra hosting bandwidth' -> term *Hosting Bandwidth*; the graph/tab that displays it -> label *Bandwidth*); italicise each as it appears and match the app for UI labels."
@@ -698,11 +761,11 @@ documentation_types:
       examples:
         correct:
           - "Once you group your files into *Collections*, they appear in the *Site Navigation* for easy access."
-          - "*Team Members* are invited to your *Organization* to collaborate on *Sites*."
-          - "Each *Team Member* has permissions assigned through *Permission Groups*."
+          - "*Organization Members* are invited to your *Organization* to collaborate on *Sites*."
+          - "Each *Organization Member* has permissions assigned through *Permission Groups*."
         incorrect:
           - "Collections appear in the Site Navigation."  # Should italicize CloudCannon terms
-          - "Each team member belongs to at least one Permission Group."  # Should italicize *Team Member* and *Permission Group*
+          - "Each Organization Member belongs to at least one Permission Group."  # Should italicize *Organization Member* and *Permission Group*
     
     link_format:
       pattern: "/documentation/[user|developer]-articles/[slug]/"
@@ -772,7 +835,7 @@ link_formats:
       - '<a href="https://gohugo.io/content-management/multilingual/" target="_blank" rel="noopener">built-in multilingual support</a>'  # third-party link missing noreferrer
 
   ui_elements_in_links:
-    rule: "Drop italics when a UI element or Core Concept term (e.g. *Team Member*, *Site*) is used as link text"
+    rule: "Drop italics when a UI element or Core Concept term (e.g. *Organization Member*, *Site*) is used as link text"
     reason: "Link formatting (underline/color) already provides visual distinction; combining italics and links creates visual clutter"
     correct: "[Data Editor](/documentation/articles/what-is-the-data-editor/)"
     incorrect: "[*Data Editor*](/documentation/articles/what-is-the-data-editor/)"
@@ -828,6 +891,7 @@ components:
       permissions: "Must be at the top of the article, immediately after front matter, before any body content. Always start with bold 'Permissions required' heading. When a pricing notice is also present, the pricing notice comes first and the permissions notice immediately follows it (see pricing_and_permissions_order)."
       pricing: "Can be first if the entire feature is gated; otherwise inline. A Subscription Plan gate always starts with the bold 'Subscription Plan required' heading (see pricing_notice_content.plan_gate_heading). When both a pricing and a permissions notice are present, the pricing notice comes first (see pricing_and_permissions_order)."
       pricing_and_permissions_order: "When an article genuinely needs both a pricing and a permissions notice (it gates on both plan and permission), place the pricing notice first, immediately followed by the permissions notice, before any other content. Pricing comes first because plan availability is the more fundamental gate — a reader on the wrong plan does not need the permission requirements. Mirrors STYLE_GUIDE.mdx §1.5.1."
+      notice_order_at_top: "When more than one top-of-article notice is present, the order is deprecated, then pricing, then permissions. Deprecation is the most fundamental gate: a reader who should not adopt a feature does not need its plan availability or permission requirements. Mirrors STYLE_GUIDE.mdx §1.5.1."
       destructive_action_notice_stack: "For a destructive or irreversible action (e.g. deleting an Organization or Site), stack a permissions notice first (who can perform the action), immediately followed by an important notice stating the irreversibility and what is lost, before any other content. The irreversibility warning is a load-bearing caveat the reader must see before acting, so two notices at the top is expected here, not overuse. Mirrors STYLE_GUIDE.mdx §1.5.1."
       notice_order_at_top: "When more than one top-of-article notice is present, the order is deprecated, then pricing, then permissions. Deprecation is the most fundamental gate: a reader who should not adopt a feature does not need its plan availability or permission requirements. Mirrors STYLE_GUIDE.mdx §1.5.1."
     pricing_notice_content:
@@ -1062,7 +1126,7 @@ validation_rules:
     - "impersonal_action_sentences (e.g. 'X fixes this' instead of 'You can fix this by X')"
     - "system_focused_feature_description_in_explanation (in explanation articles and 'What is...' guide pages, prefer experiential language — what the user sees and can do — over internal mechanics descriptions)"
     - "vague_shorthand_references (e.g. 'This step covers both' without spelling out the referents)"
-    - "settings_destination_wrong_noun (Org Settings destinations called 'sections' instead of 'pages'; Project Settings destinations called 'pages' instead of 'sections'; Team's Members/Groups tabs mislabeled as pages or sections)"
+    - "settings_destination_wrong_noun (Org Settings destinations called 'sections' instead of 'pages'; Project Settings destinations called 'pages' instead of 'sections'; the People page's Members/Groups/Guests tabs mislabeled as pages or sections)"
     - "pricing_notice_missing_plan_heading (a Subscription Plan pricing notice without the bold 'Subscription Plan required' heading, or with the gate sentence still in bold)"
   
   ignore:
