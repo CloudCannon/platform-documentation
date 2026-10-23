@@ -5,8 +5,8 @@ _created_at: '2026-06-26 00:00:00 +0000'
 details:
   title: Resolve SSL certificate errors
   description: >-
-    Learn how to diagnose and fix SSL certificates that fail to generate or stay
-    pending validation on CloudCannon.
+    Learn what each HTTPS status on the subdomain page means, how to find why a
+    certificate failed, and how to fix DNS, CAA, and Cloudflare problems.
   image: >-
     https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
   category:
@@ -19,71 +19,136 @@ details:
     - _type: developer_articles
       item: d927f075-234f-4c73-aebb-645da21754cd
 author_notes:
-  docshots: Not applicable
+  docshots: Added!
 ---
-<comp.Notice info_type="important">
-  Managing your SSL certificate on CloudCannon requires you to host your <comp.GlossaryTerm term="/user/glossary/s/site.yml">Site</comp.GlossaryTerm> through CloudCannon. If you are hosting your *Site* through an external service, please review their documentation on SSL certification.
+<comp.Notice info_type="permissions">
+  **Permissions required**
+
+  Members of the *Owners* and *Developers* [Default Permission Groups](/documentation/user-articles/what-are-default-permission-groups/), or [Custom Permission Groups](/documentation/developer-articles/what-are-custom-permission-groups/) with the `base-domain:settings:details:write` permission, can change the HTTPS settings of a subdomain and retry its SSL certificate.
 </comp.Notice>
 
-CloudCannon generates a free [auto-generated SSL certificate](/documentation/developer-articles/add-an-auto-generated-ssl-certificate/) for your *Site* through ZeroSSL and Cloudflare. Most certificates generate within a few minutes, but a certificate can stay pending validation or fail to generate when your domain is not configured correctly.
+Managing your SSL certificate on CloudCannon requires you to host your <comp.GlossaryTerm term="/user/glossary/s/site.yml">Site</comp.GlossaryTerm> through CloudCannon. If an external service hosts your *Site*, please review its documentation on SSL certificates.
 
-Most SSL certificate errors come down to <comp.GlossaryTerm term="/user/glossary/d/dns.yml">DNS</comp.GlossaryTerm> configuration: the certificate authority must confirm that your domain points at CloudCannon before it can issue a certificate.
+CloudCannon issues a free [auto-generated SSL certificate](/documentation/developer-articles/add-an-auto-generated-ssl-certificate/) for each subdomain you host on CloudCannon. Most certificates issue within a few minutes of the subdomain's DNS pointing at CloudCannon, but a certificate can stay waiting, or fail to issue or renew, when the subdomain's DNS isn't set up correctly.
+
+Most SSL certificate errors come down to <comp.GlossaryTerm term="/user/glossary/d/dns.yml">DNS</comp.GlossaryTerm>: the certificate authority must confirm that your subdomain points at CloudCannon before it can issue a certificate.
+
+CloudCannon emails everyone who can edit the settings of the *Base Domain* (the `base-domain:settings:details:write` permission) when a certificate has failed to issue 23 times, with the subject *[Action Required] [Subdomain] is failing to generate an SSL certificate*, and again once the certificate is issued, with the subject *[Subdomain] has a new SSL certificate*.
 
 ## Check your SSL certificate status
 
-CloudCannon shows the status of your certificate on the *Domain* page, under the *Subdomains* heading.
+The *HTTPS* section of the subdomain page explains the state of the certificate, and the *HTTPS* column of the *Subdomains* tab shows a short status for every subdomain. The *Summary* tab of the *Domain* page also names the subdomains with certificate problems. Click the *Show them* button to see those subdomains on the *Subdomains* tab.
+
+The *HTTPS* section shows one of these headings:
+
+* **Waiting for DNS**: The subdomain's DNS record doesn't point at CloudCannon yet. HTTPS turns on by itself once it does. On *Cloudflare Proxy*, the heading is *Waiting for your proxied record* until an attempt to issue the certificate fails. If an attempt to issue the certificate has already failed, the section shows which attempt failed, why, and when CloudCannon tries again.
+* **Turning HTTPS on**: CloudCannon is requesting the certificate. This usually takes a few minutes. If an attempt has already failed for a reason other than DNS, the section shows which attempt failed, why, and when CloudCannon tries again.
+* **HTTPS is on**: The certificate is active, and the section shows the date by which CloudCannon renews it. For an uploaded certificate, it shows the date until which the certificate is valid instead. If an attempt to renew the certificate CloudCannon keeps for its origin servers has failed, a note says so. Visitors are not affected.
+* **Renewing the SSL certificate**: CloudCannon is renewing the certificate, or a renewal attempt failed and CloudCannon is trying again. The current certificate is valid until the date shown, so visitors are not affected. If an attempt failed, the section says why, and when CloudCannon tries again or that it has stopped.
+* **The SSL certificate expires in [Number] days**: Renewal is failing, and the current certificate expires within seven days. Fix the problem before the date shown, or visitors see a security warning.
+* **The SSL certificate expired**: Visitors who open https:// see a security warning. The section says what brings HTTPS back: a successful renewal attempt, the subdomain pointing at CloudCannon again, clicking the *Retry now* button, or uploading a new certificate.
+* **HTTPS could not be turned on**: CloudCannon stopped after 40 failed attempts. Fix the problem, then click the *Retry now* button.
+* **HTTPS setup timed out**: Cloudflare's request for the certificate timed out. Check that the *DNS* section shows *Connected*, then click the *Retry now* button.
+* **[Subdomain] stopped pointing at CloudCannon**: Cloudflare found that the subdomain's DNS record no longer points at CloudCannon, so HTTPS is off until it does. Change the record at your DNS provider back to the record shown in the *DNS* section, then click the *Retry now* button.
+* **Cloudflare is blocking [Subdomain]**: A zone hold on your *Base Domain* in another Cloudflare account blocks HTTPS for the subdomain. A zone hold is a Cloudflare setting that stops any other Cloudflare account, including CloudCannon's, from serving the domain. Release the zone hold in that account, then click the *Retry now* button. If you don't have access to that account, contact our <a href="https://cloudcannon.com/support/">support team</a>.
+* **CloudCannon could not apply the HTTPS settings**: Cloudflare rejected the HTTPS settings, for example because an uploaded certificate has expired. Click the *Retry now* button, or click the *Configure* button and choose another certificate.
+* **HTTPS is off**: The subdomain is set to use an uploaded certificate, but none is selected. Click the *Configure* button, then choose a certificate or let CloudCannon issue one.
+* **Setting HTTPS up again** and **Updating the SSL certificate**: CloudCannon is changing the certificate. This usually takes a few minutes, and there is nothing to do.
+
+Until HTTPS is on, visitors who open the https:// address of the subdomain see a security warning in their browser.
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Subdomain-Page-HTTPS-Renewing" alt="A screenshot of the HTTPS section for blog.example.com shows Renewing the SSL certificate, a note that the current certificate is valid until a date so visitors are not affected, a note that attempt 2 failed because the subdomain does not point at CloudCannon and CloudCannon tries again in six hours, and the Retry now and See the last error buttons." title="The HTTPS section with a failing renewal" type="screenshot"/>
 
 To check your SSL certificate status:
 
-1. Navigate to the <comp.GlossaryTerm term="/user/glossary/d/domains-browser.yml">Domains Browser</comp.GlossaryTerm> by clicking *Domains* in the *App Sidebar*.
-2. Identify the domain you want to check and click on the *Domain* card. CloudCannon will open the *Domain* page for this <comp.GlossaryTerm term="/user/glossary/c/custom-domain.yml">Custom Domain</comp.GlossaryTerm>.
-3. Under the *Subdomains* heading, click the card for the subdomain you want to check.
-4. Review the status message under the *SSL* heading.
+1. Click the *Domains* button in the *App Sidebar*. CloudCannon will open the <comp.GlossaryTerm term="/user/glossary/d/domains-browser.yml">Domains Browser</comp.GlossaryTerm>.
+2. Identify the domain you want to check and click the *Card* for the domain. CloudCannon will open the *Summary* tab of the *Domain* page for this <comp.GlossaryTerm term="/user/glossary/c/custom-domain.yml">Custom Domain</comp.GlossaryTerm>.
+3. Open the *Subdomains* tab, then select the subdomain you want to check. CloudCannon will open the page for that subdomain.
+4. Review the status in the *HTTPS* section.
+5. (Optional.) Click the *See the last error* button to open the *HTTPS problem on [Subdomain]* modal.
 
-The status message describes one of three states:
+CloudCannon will show the current state of the certificate, and the modal explains the latest failure.
 
-* **Secure** — CloudCannon has issued your certificate and your *Site* is served over HTTPS. No action is required.
-* **Pending validation** — CloudCannon is waiting to confirm that your domain points at CloudCannon. This usually resolves on its own once your DNS records are correct and have propagated.
-* **Failed to generate** — CloudCannon could not issue a certificate. The status message lists the specific errors and shows a *Try again* button.
+The *HTTPS problem on [Subdomain]* modal shows which attempt failed (e.g., *Attempt 2 of 40*), when it failed, when the next automatic attempt is, and the error code to include if you contact support, with a *Copy* button. Below those details, it explains what went wrong and what to change. When the problem is DNS, the *View DNS checks* link opens the history of CloudCannon's DNS checks for the subdomain. Click the *Retry now* button in the modal to try again immediately.
 
-## Resolve a certificate stuck on validation
+<comp.DocShot docshot_key="CloudCannon-Documentation-Subdomain-Page-Certificate-Error-Modal" alt="A screenshot of the HTTPS problem on www.example.com modal shows Attempt 2 of 40, when the attempt failed, the next automatic attempt, the error code with a Copy button, an explanation that CloudCannon could not reach the subdomain with a View DNS checks link, and the Close and Retry now buttons." title="The HTTPS problem modal" type="screenshot"/>
 
-A certificate stays in the pending validation state until the certificate authority can confirm your domain points at CloudCannon. Once your DNS records are correct, validation usually completes within a few minutes. However, if you have just added a *Custom Domain* or changed your DNS records, the certificate stays pending until those records propagate, which can take up to 24 hours.
+## Check your DNS
 
-To resolve a certificate stuck on validation:
+The *DNS* section of the subdomain page says whether the subdomain points at CloudCannon, and shows the record it *Needs*, the records CloudCannon *Found*, and its *Status*: *Connected*, *Not pointing at CloudCannon*, *No DNS record*, or *Not checked yet*. Click the *Check now* button to run a new check, or the *History* button to see earlier checks, including the address the subdomain resolved to and whether a test request reached CloudCannon. You can check the DNS for each subdomain at most once a minute. If CloudCannon couldn't complete the latest check, the section says so and keeps the last known status.
 
-1. Confirm your domain points at CloudCannon. If you use an [external DNS provider](/documentation/developer-articles/configure-external-dns/), check that you have added the two A Records and the CNAME Record that CloudCannon provides.
-2. If your certificate uses TXT record validation, add the two [TXT records](/documentation/developer-articles/add-an-auto-generated-ssl-certificate/#add-txt-dns-records) shown under the *SSL* heading to your DNS provider.
-3. Wait for your DNS records to propagate. New or changed DNS records can take up to 24 hours to propagate from your DNS provider.
+To check your domain's DNS from outside CloudCannon, you can use a public tool such as <a href="https://dnsviz.net/" target="_blank" rel="noopener noreferrer">DNSViz</a>. Enter the subdomain to see which nameservers answer for it, the records they return, and any DNSSEC errors. DNSViz shows errors in red.
 
-Once your records propagate, CloudCannon validates your domain and issues the certificate automatically.
+The *Hosting* section shows how visitors reach the subdomain as a diagram. Click a connection in the diagram to see whether it works, what CloudCannon found, and what to change. For more information, please read our documentation on [checking the DNS for a subdomain](/documentation/developer-articles/manage-the-subdomains-on-your-custom-domain/#check-the-dns-for-a-subdomain).
 
-## Resolve a certificate that failed to generate
+## Resolve a certificate that is waiting for DNS
 
-When a certificate fails to generate, CloudCannon displays the message "[Site name] failed to generate a certificate!" along with the specific errors returned by the certificate authority.
+A certificate stays waiting until the certificate authority can confirm that your subdomain points at CloudCannon. Once the DNS record is correct, the certificate usually issues within a few minutes. If you added a *Custom Domain* or changed a DNS record a short time ago, the certificate stays waiting until the record spreads. Most DNS providers publish new records within an hour, and some take up to 48 hours.
 
-To resolve a certificate that failed to generate:
+To resolve a certificate that is waiting for DNS:
 
-1. Read the error messages under the *SSL* heading to identify the cause.
-2. Correct your DNS configuration based on the cause. See [Common causes of SSL certificate errors](#common-causes-of-ssl-certificate-errors) below.
-3. Click the *Try again* button to retry certificate generation.
+1. Check that the *DNS* section of the subdomain page shows *Connected*. If you use an [external DNS provider](/documentation/developer-articles/configure-external-dns/), add the record listed under *Needs* at your DNS provider. On [CloudCannon DNS](/documentation/developer-articles/configure-cloudcannon-dns/), click the *Fix* button.
+2. Add any TXT records listed in the *HTTPS* section at your DNS provider.
+3. Wait for your DNS records to spread.
 
-CloudCannon will attempt to generate the certificate again. If the certificate fails to generate after you have corrected your DNS configuration, contact our [support team](https://cloudcannon.com/support/).
+CloudCannon will validate the subdomain and issue the certificate once it finds the record.
+
+For more information, please read our documentation on [getting HTTPS ready before you switch DNS](/documentation/developer-articles/add-an-auto-generated-ssl-certificate/#get-https-ready-before-you-switch-dns) and [renewing the wildcard certificate on external DNS](/documentation/developer-articles/add-an-auto-generated-ssl-certificate/#renew-the-wildcard-certificate-on-external-dns).
+
+## Resolve a certificate that failed to issue
+
+When an attempt to issue or renew a certificate fails, CloudCannon shows the reason in the *HTTPS* section and tries again later, up to 40 times.
+
+To resolve a certificate that failed to issue:
+
+1. Click the *See the last error* button in the *HTTPS* section to identify the cause.
+2. Correct your DNS configuration based on the cause.
+3. Click the *Retry now* button to try again without waiting for the next attempt.
+
+CloudCannon will attempt to issue the certificate again. If the certificate still fails after you have corrected your DNS configuration, contact our <a href="https://cloudcannon.com/support/">support team</a>.
+
+For more information, please read the section on [common causes of SSL certificate errors](#common-causes-of-ssl-certificate-errors).
+
+### What the last error means
+
+The *HTTPS problem on [Subdomain]* modal shows one of these explanations:
+
+* **CloudCannon could not reach [Subdomain], so it did not request an SSL certificate**: The subdomain's DNS doesn't point at CloudCannon yet. Check the record in the *DNS* section, and any proxy or CDN in front of the subdomain.
+* **The certificate authority could not confirm that CloudCannon serves [Subdomain]**: The certificate authority's check did not reach CloudCannon. Check that the DNS record for the subdomain points at CloudCannon, and that no proxy or firewall in front of it blocks the check. A DNSSEC error can also cause this.
+* **A CAA record on [Subdomain] or a parent domain does not allow CloudCannon's certificate authority to issue SSL certificates**: Add a CAA record that allows `sectigo.com` and the certificate authorities Cloudflare uses, or remove the CAA records. For more information, please read the section on [common causes of SSL certificate errors](#common-causes-of-ssl-certificate-errors).
+* **[Subdomain] is not a valid domain name for an SSL certificate**: Check that the subdomain is spelled correctly.
+* **The certificate authority did not accept the request for an SSL certificate**: The rejection is usually temporary, and the next attempt often succeeds.
+* **The previous request for an SSL certificate expired before it finished**: CloudCannon starts a new request automatically.
+* **The SSL certificate was issued, but it did not finish installing**: CloudCannon tries again automatically, and the next attempt usually succeeds.
+* **A temporary problem at CloudCannon interrupted the request for an SSL certificate**: CloudCannon tries again automatically, and the next attempt usually succeeds. If the error keeps appearing, contact support.
+* **The request for an SSL certificate failed with an error CloudCannon does not recognize**: Contact support with the error code shown in the modal.
 
 ## Common causes of SSL certificate errors
 
-* **Missing or incorrect DNS records** — Your domain must point at CloudCannon. For an [external DNS provider](/documentation/developer-articles/configure-external-dns/), CloudCannon requires two A Records and a CNAME Record. For [CloudCannon DNS](/documentation/developer-articles/configure-cloudcannon-dns/), CloudCannon manages these records for you.
-* **Missing TXT validation records** — If you use an external DNS provider with an auto-generated certificate, you must add the [TXT records](/documentation/developer-articles/add-an-auto-generated-ssl-certificate/#add-txt-dns-records) CloudCannon provides so it can verify you own the domain.
-* **DNS records have not propagated** — Newly added or changed DNS records can take up to 24 hours to take effect.
-* **A CAA record blocks the certificate authority** — A CAA record is a DNS record that restricts which certificate authorities are allowed to issue certificates for your domain. If your domain has a CAA record that does not include the authorities CloudCannon uses, certificate generation fails. To fix this, either remove the CAA record or update it to allow CloudCannon's certificate authorities. If you are unsure which authorities to allow, contact our [support team](https://cloudcannon.com/support/).
-* **Cloudflare Proxy is enabled** — If you use Cloudflare as your DNS provider with its Proxy feature (Orange Cloud) enabled, your domain cannot connect directly to CloudCannon, which can prevent certificate validation. For more information, please read our documentation on [configuring Cloudflare Proxy](/documentation/developer-articles/configure-external-dns/#configure-cloudflare-proxy).
+* **Missing or incorrect DNS records**: Your subdomain must point at CloudCannon. For an [external DNS provider](/documentation/developer-articles/configure-external-dns/), add the record CloudCannon shows for the subdomain's hosting option. On [CloudCannon DNS](/documentation/developer-articles/configure-cloudcannon-dns/), CloudCannon manages these records for you, and the *Fix* button repairs a record that points somewhere else.
+* **Missing TXT records**: If you use an external DNS provider and the *HTTPS* section lists TXT records, you must add them at your DNS provider. The wildcard certificate for your *Base Domain* needs new TXT records at each renewal, unless you add the CNAME record that lets Cloudflare renew it on its own. For more information, please read our documentation on [renewing the wildcard certificate on external DNS](/documentation/developer-articles/add-an-auto-generated-ssl-certificate/#renew-the-wildcard-certificate-on-external-dns).
+* **DNS records have not spread yet**: Newly added or changed DNS records usually take effect within an hour, and can take up to 48 hours with some DNS providers.
+* **A CAA record blocks the certificate authority**: A CAA record is a DNS record that restricts which certificate authorities are allowed to issue certificates for your domain. A CAA record on your *Base Domain* also applies to its subdomains. If your domain has CAA records that don't include the authorities CloudCannon uses, CloudCannon doesn't request a certificate from ZeroSSL, and the *HTTPS problem on [Subdomain]* modal says that a CAA record does not allow CloudCannon's certificate authority. CloudCannon checks the CAA records on the subdomain first, then on each parent domain, and uses the closest ones it finds. To fix this, remove your CAA records, or add CAA records that allow `sectigo.com` (for certificates from ZeroSSL), and `letsencrypt.org`, `pki.goog`, and `ssl.com` (for certificates from Cloudflare). A CAA record that allows one authority looks like `0 issue "sectigo.com"`, and you add one record for each authority. For more information, please read Cloudflare's documentation on <a href="https://developers.cloudflare.com/ssl/reference/certificate-authorities/#caa-records" target="_blank" rel="noopener noreferrer">CAA records for its certificate authorities</a>.
+* **DNSSEC is misconfigured**: If DNSSEC is turned on for your domain at your registrar, but your DNS provider doesn't sign your records with matching keys, resolvers and certificate authorities reject your DNS answers. A DNSSEC mismatch often happens after you change DNS provider without removing or updating the DS record at your registrar, which is the record that links your domain to your DNS provider's DNSSEC keys. Check your domain with <a href="https://dnsviz.net/" target="_blank" rel="noopener noreferrer">DNSViz</a>. If it shows DNSSEC errors, turn DNSSEC off at your registrar, or update the DS record to match your DNS provider. CloudCannon DNS doesn't support DNSSEC, so turn DNSSEC off at your registrar before you switch to CloudCannon DNS.
+* **Another platform still has the subdomain**: If you are moving the subdomain from another platform that also serves websites through Cloudflare (e.g., Webflow), Cloudflare can keep sending visitors to that platform until the certificate on CloudCannon is active. For more information, please read our documentation on [moving a subdomain from another platform that uses Cloudflare](/documentation/developer-articles/add-an-auto-generated-ssl-certificate/#move-a-subdomain-from-another-platform-that-uses-cloudflare).
+* **The hosting option does not match your proxy**: If your own Cloudflare zone proxies the subdomain, or another provider proxies it to CloudCannon, set the subdomain's hosting to *Cloudflare Proxy* or *Single Origin*. For more information, please read our documentation on [configuring Cloudflare Proxy](/documentation/developer-articles/configure-external-dns/#configure-cloudflare-proxy).
+* **A zone hold in another Cloudflare account**: If your *Base Domain* is in another Cloudflare account with a zone hold, such as an account that belonged to a previous agency or platform, Cloudflare blocks CloudCannon from serving its subdomains, and the *HTTPS* section shows *Cloudflare is blocking [Subdomain]*. Release the zone hold in that account, then click the *Retry now* button. If you don't have access to that account, contact our <a href="https://cloudcannon.com/support/">support team</a>.
+
+## Resolve an error page from Cloudflare
+
+CloudCannon serves your *Sites* through Cloudflare, so a problem with a subdomain's DNS or certificate can show visitors an error page from Cloudflare instead of your *Site* or your fallback redirect. The most common causes are:
+
+* **The subdomain isn't set up on CloudCannon, and your domain uses external DNS**: Visitors to a subdomain you haven't added, such as www.example.com, rely on the wildcard certificate for your *Base Domain*, which needs TXT records at your DNS provider at every renewal. Add the subdomain on CloudCannon instead, as a redirect subdomain if it should send visitors elsewhere. For more information, please read our documentation on [SSL certificates on external DNS](/documentation/developer-articles/what-is-an-ssl-certificate/#ssl-certificates-on-external-dns).
+* **Your own Cloudflare zone proxies the subdomain**: Set the subdomain's hosting to *Cloudflare Proxy*, and point the record at `orange-cloud.cloudcannon.com`. For more information, please read our documentation on [configuring Cloudflare Proxy](/documentation/developer-articles/configure-external-dns/#configure-cloudflare-proxy).
+* **Another platform that uses Cloudflare still has the subdomain**: For more information, please read our documentation on [moving a subdomain from another platform that uses Cloudflare](/documentation/developer-articles/add-an-auto-generated-ssl-certificate/#move-a-subdomain-from-another-platform-that-uses-cloudflare).
 
 ## Contact support
 
-If your certificate still fails to generate after you have corrected your DNS configuration and waited for your records to propagate, contact our friendly [support team](https://cloudcannon.com/support/). To help us resolve your issue quickly, include the following details:
+If your certificate still fails after you have corrected your DNS configuration and waited for your records to spread, contact our friendly <a href="https://cloudcannon.com/support/">support team</a>. Include the following details so the support team can resolve your issue quickly:
 
-* The name of the affected *Site*.
-* The domain name you are trying to secure.
-* The exact error message shown under the *SSL* heading.
-* Your DNS provider, and whether you use CloudCannon DNS or an external provider.
-* When you added the *Custom Domain* or last changed your DNS records.
+* The name of the affected *Site*
+* The subdomain you are trying to secure
+* The error code from the *HTTPS problem on [Subdomain]* modal, or a screenshot of the error page from Cloudflare, including its error code
+* Your DNS provider, and whether you use CloudCannon DNS or an external provider
+* The hosting option for the subdomain
+* When you added the *Custom Domain* or last changed your DNS records
