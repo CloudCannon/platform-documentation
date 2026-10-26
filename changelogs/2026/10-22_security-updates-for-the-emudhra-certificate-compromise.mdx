@@ -1,0 +1,24 @@
+---
+_schema: default
+title: Security updates for the eMudhra certificate compromise
+date: 2026-10-22T16:39:27+13:00
+---
+Two major security incidents came to light this week. Security researchers discovered that the private keys for [eight intermediate certificate authority certificates operated by eMudhra](https://thehackernews.com/2026/10/eight-emudhra-ca-keys-compromised.html) were compromised, allowing an attacker to impersonate almost any website to software that still trusts those certificates. Separately, the PHP project disclosed [two critical remote code execution vulnerabilities](https://www.cisa.gov/news-events/alerts/2026/10/21/critical-vulnerabilities-php-require-immediate-patching) (CVE-2026-109618 and CVE-2026-109619) affecting every web server running PHP 5.4 or later.
+
+CloudCannon does not use PHP anywhere in its platform, so the PHP vulnerabilities do not affect CloudCannon or your Sites. However, PHP powers WordPress, so if you run WordPress sites outside of CloudCannon, we strongly recommend updating the PHP runtime on those servers to a patched version (8.5.12, 8.4.27, 8.3.36, or 8.2.35) as soon as possible. Attackers are already exploiting these vulnerabilities, and updating WordPress itself is not enough: the vulnerable code is in PHP, not WordPress, so the fix has to come from your hosting provider or server. If moving a site off WordPress sounds easier than updating it, reach out to our support team: we may be able to help you migrate it quickly to an Astro website.
+
+In response to the certificate compromise, this release patched all CloudCannon services to reject the compromised certificates. The compromised certificates affect software across the whole internet, not just CloudCannon, and many tools only distrust them after a manual update. This is a great time to update your own systems: your operating system, your web browser, any installed applications and packages, and your programming toolchains.
+
+It also addressed several issues, including those affecting *Inbox* permissions, SSL certificates, file tags, and snippets in rich text editors.
+
+## Fixes
+
+* Changed Organization-level *Inbox* permissions to cover every *Inbox* in your *Organization*, allowing you to view, resend, and delete form submissions without also needing *Inbox* permissions on each *Site*.
+* Changed the path of a new file to update whenever its data changes, instead of only when the save modal is open.
+* Fixed an issue where a temporary error from our SSL provider during SSL certificate setup was shown as a permanent error. CloudCannon now retries automatically, and only shows an error if the domain is rejected.
+* Fixed an issue where SSL certificate setup could request a second certificate for a domain that already had one, leaving SSL stuck on pending.
+* Fixed an issue where SSL certificate checks could repeat continuously, delaying other background tasks such as domain and nameserver checks.
+* Fixed an issue where a custom domain whose DNS moved during certificate validation did not show an error or a way to retry, and removed a misleading "SSL setup may have stalled" error that could appear during normal certificate setup.
+* Fixed an issue where a file with unsaved changes could lose its *Edited* tag.
+* Fixed an issue where a snippet or image at the end of a paragraph collapsed the lines of that paragraph in rich text editors.
+* Updated all CloudCannon services to reject the eight compromised eMudhra intermediate certificate authority certificates.
