@@ -6,7 +6,8 @@ details:
   title: What is the Domain page?
   description: >-
     Learn what the Domain page shows for your Custom Domain, including the
-    Summary tab and where to manage subdomains, DNS, and domain settings.
+    Summary tab, where to manage subdomains, DNS, and domain settings, and
+    which emails CloudCannon sends about your domain.
   image: >-
     https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
   category:
@@ -118,3 +119,22 @@ The *Domain Settings* tab has three sections:
 * **Details** — The *Base Domain* and its DNS provider. Select the other DNS provider to see what happens when you switch, then click the *Switch to CloudCannon DNS* or *Switch to External DNS* button. For more information, please read our documentation on [configuring CloudCannon DNS](/documentation/developer-articles/configure-cloudcannon-dns/) and [configuring external DNS](/documentation/developer-articles/configure-external-dns/).
 * **TLS** — The minimum TLS version for your *Custom Domain*. For more information, please read our documentation on [increasing the minimum TLS version for your domains](/documentation/developer-articles/increase-the-minimum-tls-version-for-your-domains/).
 * **Danger** — Disconnect the *Custom Domain* from your *Organization*. For more information, please read our documentation on [disconnecting a Custom Domain from your Organization](/documentation/developer-articles/disconnect-a-custom-domain-from-your-organization/).
+
+## Domain emails
+
+CloudCannon emails people in your *Organization* when something about your *Custom Domain* changes or needs action. Who receives each email depends on their permissions for the *Custom Domain* or the *Organization*. Each subject links to the section that describes the email and what to do next.
+
+| Subject | When CloudCannon sends it | Who receives it |
+| --- | --- | --- |
+| [[Organization]: [Name] added [Base Domain]](/documentation/developer-articles/connect-a-custom-domain-to-your-organization/#organization-name-added-base-domain) | Someone connects a *Custom Domain* to your *Organization*. | Everyone with `base-domain:details:read`, except the person who connected it |
+| [[Base Domain] is live on CloudCannon DNS](/documentation/developer-articles/configure-cloudcannon-dns/#base-domain-is-live-on-cloudcannon-dns) | The nameservers of your domain point at CloudCannon. | Everyone with `base-domain:settings:details:write` |
+| [CloudCannon has not detected [Base Domain]'s new nameservers yet](/documentation/developer-articles/configure-cloudcannon-dns/#cloudcannon-has-not-detected-base-domain-s-new-nameservers-yet) | CloudCannon still can't see your new nameservers after 48 hours. | Everyone with `base-domain:settings:details:write` |
+| [[Base Domain]'s nameservers changed](/documentation/developer-articles/configure-cloudcannon-dns/#base-domain-s-nameservers-changed) | The nameservers of a live domain change away from CloudCannon. | Everyone with `base-domain:settings:details:write` |
+| [[Subdomain] is live](/documentation/developer-articles/configure-external-dns/#subdomain-is-live) | CloudCannon finds the DNS record for a subdomain on external DNS and issues its certificate. | Everyone with `base-domain:settings:details:write` |
+| [[Subdomain] still is not pointing at CloudCannon](/documentation/developer-articles/configure-external-dns/#subdomain-still-is-not-pointing-at-cloudcannon) | CloudCannon still can't find the DNS record for a subdomain after 48 hours. | Everyone with `base-domain:settings:details:write` |
+| [[Subdomain]'s DNS record changed](/documentation/developer-articles/configure-external-dns/#subdomain-s-dns-record-changed) | The DNS record of a live subdomain stops pointing at CloudCannon. | Everyone with `base-domain:settings:details:write` |
+| [[Action Required] [Subdomain] is failing to generate an SSL certificate](/documentation/developer-articles/resolve-ssl-certificate-errors/#action-required-subdomain-is-failing-to-generate-an-ssl-certificate) | A certificate keeps failing to issue for a subdomain whose DNS is connected. | Everyone with `base-domain:settings:details:write` |
+| [[Subdomain] has a new SSL certificate](/documentation/developer-articles/resolve-ssl-certificate-errors/#subdomain-has-a-new-ssl-certificate) | A certificate issues after CloudCannon sent the failing email for it. | Everyone with `base-domain:settings:details:write` |
+| [Action required: [Base Domain] certificate is expiring](/documentation/developer-articles/add-an-auto-generated-ssl-certificate/#action-required-base-domain-certificate-is-expiring) | A renewal of the wildcard certificate for a domain on external DNS needs TXT records. | Everyone with `base-domain:settings:details:write` |
+| [You have added an extra custom domain to [Organization]](/documentation/user-articles/what-are-add-ons-and-overages/#you-have-added-an-extra-custom-domain-to-organization) | A subdomain starts serving a *Site* and takes your *Organization* past the *Custom Domains* in your *Subscription Plan*. | Everyone with `org:billing:read` |
+| [You have removed an extra custom domain from [Organization]](/documentation/user-articles/what-are-add-ons-and-overages/#you-have-removed-an-extra-custom-domain-from-organization) | A subdomain stops serving a *Site* while your *Organization* is over the *Custom Domains* in your *Subscription Plan*. | Everyone with `org:billing:read` |
