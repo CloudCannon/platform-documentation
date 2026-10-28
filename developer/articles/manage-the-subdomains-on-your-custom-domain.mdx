@@ -40,7 +40,7 @@ The *Subdomains* tab of the *Domain* page lists every subdomain on your *Custom 
 * **Subdomain** — The address of the subdomain, with the *Sites* it serves, the domain it redirects to, or *No site yet. Visitors get the fallback* below it. If the subdomain is your fallback and has no *Site*, it shows *No site yet. Visitors get a not found page* instead. CloudCannon labels the subdomain that is your fallback redirect with *Fallback*.
 * **Hosting** — How visitors reach the subdomain: *CloudCannon Hosting*, *Cloudflare Proxy*, or *Single Origin*.
 * **HTTPS** — The status of the subdomain's certificate, such as *Active*, *Issuing*, *Renewing*, *Expiring*, *Expired*, or *Failed*. Hover over a status to see more detail, and open the subdomain page for the full explanation.
-* **DNS** — Whether the subdomain's record points at CloudCannon: *Connected*, *Not pointing at CloudCannon*, *No DNS record*, *Not checked yet*, or *Waiting for DNS* while CloudCannon looks for the record of a subdomain you added or marked as updated in the last 48 hours.
+* **DNS** — Whether the subdomain's record points at CloudCannon: *Connected*, *Not pointing at CloudCannon*, *No DNS record*, *Not checked yet*, or *Waiting for DNS* while CloudCannon looks for the record of a subdomain that, in the last 48 hours, you added, changed the hosting of, or marked as updated, or whose domain changed DNS provider.
 
 To view the subdomains on your *Custom Domain*:
 
@@ -54,7 +54,7 @@ CloudCannon will open the subdomain page, which shows the *Sites* on the subdoma
 
 Each subdomain in the list also has a *Context Menu*, with options to open the subdomain page, configure its hosting or HTTPS, check its DNS now or view its check history, use it as the fallback, change it to a redirect or to serve a *Site*, change the target of a redirect, and delete it.
 
-<comp.DocShot docshot_key="CloudCannon-Documentation-Subdomain-Page-Site" alt="A screenshot of the subdomain page for example.com shows the Sites section with two Sites at different paths and the Add site button, and the Hosting section with a diagram of how visitors reach the subdomain." title="The subdomain page" type="screenshot"/>
+<comp.DocShot docshot_key="CloudCannon-Documentation-Subdomain-Page-Site" alt="A screenshot of the subdomain page for example.com shows the Sites section with the Add site button and a Card for each of two Sites, Marketing site at / and Documentation at /docs/, each with its Git Repository and branch, build and sync status, and Context Menu, and the Hosting section with a diagram of visitors reaching the CloudCannon origin." title="The subdomain page" type="screenshot"/>
 
 <comp.DocShot docshot_key="CloudCannon-Documentation-Domains-Network-Tab" alt="A screenshot of the Subdomains tab on the Domain page shows the Name sort dropdown, the Add Filter button, the list of subdomains with Subdomain, Hosting, HTTPS, and DNS columns, and the Fallback section." title="The Subdomains tab on the Domain page" type="screenshot"/>
 
@@ -182,7 +182,9 @@ If you remove the last *Site* on a subdomain, CloudCannon asks what happens to t
 
 If other subdomains redirect to the subdomain you are emptying, CloudCannon lists them and deletes them too, unless you uncheck the *Delete this redirect too* or *Delete these redirects too* checkbox. The checkbox appears when you leave the subdomain set up or delete it, and only covers redirects on domains whose settings you can edit. CloudCannon notes the destination of visitors to the redirects that stay.
 
-If you redirect the subdomain, enter its new destination in the *Send visitors to* field. If the destination itself redirects, CloudCannon warns that visitors are redirected twice, and suggests sending them to the final destination instead. CloudCannon refuses a destination that would send visitors in a loop, or back to the subdomain itself.
+If you leave the subdomain set up, CloudCannon sends its visitors to your fallback redirect. If your fallback sends visitors back to this subdomain, directly or through other redirects, CloudCannon refuses to leave it set up, because visitors would go round in a loop. This can happen when your fallback is one of the redirects that point at the subdomain, and you uncheck the checkbox to keep it. The modal says what to do instead, for example *Visitors would go round in a loop: blog.example.com -> news.example.com -> blog.example.com. Delete the redirect on news.example.com, or redirect or delete blog.example.com instead.*
+
+If you redirect the subdomain, enter its new destination in the *Send visitors to* field. If the destination itself redirects, CloudCannon warns that visitors are redirected twice, and suggests sending them to the final destination instead. CloudCannon refuses a destination that would send visitors in a loop, a destination that is the subdomain itself (*[Subdomain] cannot redirect to itself.*), and a destination on one of your *Custom Domains* that isn't a subdomain yet (*[Destination] is not set up yet. Add it as a subdomain first.*).
 
 To remove a *Site* from a subdomain:
 
@@ -240,7 +242,7 @@ The *DNS* section of the subdomain page says whether the subdomain points at Clo
 * **Not pointing at CloudCannon** — A record for the subdomain points somewhere else.
 * **No DNS record** — CloudCannon found no record for the subdomain.
 * **Not checked yet** — CloudCannon hasn't checked the subdomain yet.
-* **Waiting for DNS** — You added the subdomain or marked its record as updated in the last 48 hours, and CloudCannon is still looking for the record. After 48 hours, the status shows what CloudCannon found, while it keeps checking hourly for up to seven days.
+* **Waiting for DNS** — You added the subdomain or marked its record as updated in the last 48 hours, and CloudCannon is still looking for the record. The 48 hours also start again when you change the subdomain's hosting or your domain's DNS provider. After 48 hours, the status shows what CloudCannon found. CloudCannon checks daily, and hourly for up to seven days after you mark the record as updated.
 * **Waiting for nameservers** — On CloudCannon DNS, the nameservers of your domain don't point at CloudCannon DNS yet. The record answers once they do.
 
 If the subdomain isn't connected, the sentence above the record says what to do:

@@ -69,7 +69,7 @@ Each subdomain needs its own records at your DNS provider. The records depend on
 
 When you add your *Base Domain*, CloudCannon also adds www.example.com as a redirect to it, and www.example.com needs its own CNAME record. Adding example.com on *CloudCannon Hosting* therefore shows three records: two A records for example.com and a CNAME record for www.example.com.
 
-On *CloudCannon Hosting* and *Cloudflare Proxy*, your *Base Domain* also has a wildcard certificate, which gives subdomains you haven't set up yet a certificate, so their visitors reach your fallback over HTTPS. On *External DNS*, this certificate is validated with TXT records you add at your DNS provider, and it needs new TXT records each time it renews.
+On *CloudCannon Hosting* and *Cloudflare Proxy*, your *Base Domain* also has a wildcard certificate, which gives subdomains you haven't set up yet a certificate, so their visitors reach your fallback over HTTPS. On *External DNS*, this certificate is validated with TXT records you add at your DNS provider, and it needs new TXT records each time it renews, unless you add a CNAME record named `_acme-challenge.[Base Domain]` once. With that CNAME record, the certificate renews by itself.
 
 ## Follow the setup guide
 
@@ -90,9 +90,13 @@ To add the records:
 
 CloudCannon will check every hour for up to seven days after you click the *I've updated it* button. For the first 48 hours, the record shows *Waiting for DNS*, with the time you marked the record as updated in place of the button. After that, it shows the status CloudCannon found, while CloudCannon keeps checking. There's no need to keep the page open. Once CloudCannon finds the records and issues the certificate, it emails you that the subdomain is live. If the *Summary* tab is open at the time, the setup guide shows that the subdomain is live, with a *Visit [Subdomain]* button and a *Dismiss* button.
 
+<comp.DocShot docshot_key="CloudCannon-Documentation-Domain-Overview-Setup-Guide-External-Waiting" alt="A screenshot of the setup guide on the Summary tab shows Nice work! We're looking for the records for example.org and www.example.org, with Propagating... in progress and a Show the records button." title="The setup guide while CloudCannon looks for the records" type="screenshot" />
+
 Whenever the wildcard certificate for your *Base Domain* needs validating, including when it is first issued and each time it renews, the *DNS* tab also lists the TXT records for that certificate under *Wildcard certificate records*. Add them the same way.
 
-<comp.DocShot docshot_key="CloudCannon-Documentation-Domain-Overview-Setup-Guide-External-Waiting" alt="A screenshot of the setup guide on the Summary tab shows Nice work! We're looking for the records for example.org and www.example.org, with Propagating... in progress and a Show the records button." title="The setup guide while CloudCannon looks for the records" type="screenshot" />
+Below the *Wildcard certificate records* table, the *DNS* tab offers a CNAME record instead: *Add this CNAME record once and the certificate renews by itself, without TXT records. Remove any TXT records with the same name first.* The record points `_acme-challenge.[Base Domain]` (e.g., `_acme-challenge.example.com`) at an address ending in `.dcv.cloudflare.com`, which starts with your *Base Domain*. The *DNS* tab shows the exact value, with a *Copy* button for the name and the value. If you add it, you don't need to add TXT records for later renewals.
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Domain-DNS-External-Wildcard-Renewal-Delegation" alt="A screenshot of the DNS tab for a domain on external DNS shows two TXT records for *.example.com under Wildcard certificate records, each with No DNS record and an I've updated it button, and below them the offer to add a CNAME record named _acme-challenge.example.com once so the certificate renews by itself." title="The wildcard certificate records on the DNS tab" type="screenshot" />
 
 If CloudCannon still can't find a record 48 hours after you clicked the *I've updated it* button, the setup guide shows that CloudCannon can't find the records, and the *DNS* tab shows a notice for the subdomain with what usually fixes it:
 
@@ -110,7 +114,7 @@ On *External DNS*, the *DNS* tab shows the nameservers CloudCannon found for you
 * **Not pointing at CloudCannon** — A record for the subdomain points somewhere else.
 * **No DNS record** — CloudCannon found no record for the subdomain.
 * **Not checked yet** — CloudCannon hasn't checked the subdomain yet.
-* **Waiting for DNS** — You added the subdomain or marked its record as updated in the last 48 hours, and CloudCannon is still looking for the record.
+* **Waiting for DNS** — In the last 48 hours, you added the subdomain, changed its hosting, changed your DNS provider, or marked its record as updated, and CloudCannon is still looking for the record.
 
 For a subdomain that isn't connected, the *Status* column also shows the *I've updated it* button, or when you marked the record as updated.
 
@@ -120,13 +124,17 @@ Above the table, the *DNS* tab shows a notice for each subdomain that still isn'
 
 Below the table, the *Optional wildcard record* section shows a wildcard CNAME record for your domain (e.g., \*.example.com pointing at `sites.cloudcannon.com`). Without a wildcard record, a subdomain you haven't added doesn't resolve. With one, its visitors reach your fallback, or a not found page if your fallback has no *Site*. Records you add for specific subdomains always take priority over the wildcard.
 
+Below the wildcard record, a notice explains how the wildcard certificate for your *Base Domain* renews. Until you add the CNAME record that renews it by itself, the notice offers that record, with a *Copy* button for its name and value. Once CloudCannon finds the record, the notice says that the certificate *renews by itself through the CNAME record you added*.
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Domain-DNS-External-Wildcard-Delegation-Offer" alt="A screenshot of the DNS tab for a domain on external DNS shows the Optional wildcard record section, and a notice that the wildcard certificate for example.com needs new TXT records each time it renews, with the offer to add a CNAME record named _acme-challenge.example.com once so the certificate renews by itself." title="The wildcard certificate notice on the DNS tab" type="screenshot" />
+
 The *DNS* section of each subdomain page shows the same record for that one subdomain, with the same *Copy* and *I've updated it* buttons. Any TXT records for its certificate are in its *HTTPS* section.
 
 <comp.DocShot docshot_key="CloudCannon-Documentation-Subdomain-Page-DNS-External-Records" alt="A screenshot of the DNS section on a subdomain page shows that the record for www.example.com points somewhere else, with the CNAME record it needs, the A record found, the Not pointing at CloudCannon status, and the I've updated it button." title="The DNS section on a subdomain page" type="screenshot" />
 
 ## How often CloudCannon checks your records
 
-CloudCannon checks the records of each subdomain daily, and every hour for up to seven days after you click the *I've updated it* button.
+CloudCannon checks the records of each subdomain daily, and every hour for up to seven days after you click the *I've updated it* button. Adding a subdomain, or changing its hosting, doesn't start hourly checks, so click the *I've updated it* button once you have added the record.
 
 To check a subdomain immediately, click the *Check now* button in the *DNS* section of its subdomain page. You can check each subdomain at most once a minute. If CloudCannon couldn't complete the latest check, the section says when the check failed, and keeps the last known status.
 
@@ -140,11 +148,13 @@ CloudCannon sends this email when it finds the record for a subdomain you marked
 
 <comp.DocShot docshot_key="CloudCannon-Documentation-Mailer-Subdomain-Live" alt="A screenshot of the subdomain live email shows the headline careers.example.com is live!, a tracker with every step done, the DNS record CloudCannon found, and the Visit careers.example.com button." title="The subdomain live email" type="screenshot"/>
 
-### [Subdomain] still is not pointing at CloudCannon
+### [Subdomain] is still not pointing at CloudCannon
 
-CloudCannon sends this email when it still can't find the record 48 hours after you clicked the *I've updated it* button, or 48 hours after you added the subdomain if you didn't click it. The email shows the record the subdomain needs, what CloudCannon found, and what usually fixes it. CloudCannon sends this email once each time you click the *I've updated it* button.
+CloudCannon sends this email when it still can't find the record more than 48 hours after you clicked the *I've updated it* button. If you didn't click it, CloudCannon counts the 48 hours from when you added the subdomain, or from the last time you changed its hosting or your DNS provider, whichever is later. Changing the hosting or the DNS provider starts the 48 hours again. CloudCannon only sends the email within seven days of that starting point, and only once for each starting point.
 
-<comp.DocShot docshot_key="CloudCannon-Documentation-Mailer-Subdomain-Dns-Stuck" alt="A screenshot of the record still missing email shows the headline careers.example.com still is not pointing at CloudCannon, a tracker at Not found yet, the record the subdomain needs, what usually fixes it, and the Check the record button." title="The record still missing email" type="screenshot"/>
+The email starts *It has been more than 48 hours since [...]*, then shows the record the subdomain needs, what CloudCannon found, and what usually fixes it, with a *Check the record* button that opens the subdomain page.
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Mailer-Subdomain-Dns-Stuck" alt="A screenshot of the record still missing email shows the headline careers.example.com is still not pointing at CloudCannon, a tracker at Not found yet, the record the subdomain needs, what usually fixes it, and the Check the record button." title="The record still missing email" type="screenshot"/>
 
 ### [Subdomain]'s DNS record changed
 
@@ -154,7 +164,7 @@ CloudCannon sends this email when the record of a live subdomain stops pointing 
 
 ## Renew the wildcard certificate
 
-The wildcard certificate for your *Base Domain* needs new TXT records at your DNS provider each time it renews. Before it expires, CloudCannon emails everyone who can edit the settings of your *Base Domain* the new TXT records, and the *HTTPS* section of the subdomain page for your *Base Domain* shows them under *Other subdomains* with the date to add them by. You can instead add one CNAME record that lets Cloudflare renew the certificate on its own. For more information, please read our documentation on [renewing the wildcard certificate on external DNS](/documentation/developer-articles/add-an-auto-generated-ssl-certificate/#renew-the-wildcard-certificate-on-external-dns).
+The wildcard certificate for your *Base Domain* needs new TXT records at your DNS provider each time it renews, unless you add a CNAME record once. Before it expires, CloudCannon emails everyone who can edit the settings of your *Base Domain* the new TXT records, and the *HTTPS* section of the subdomain page for your *Base Domain* shows them under *Other subdomains* with the date to add them by, along with the CNAME record under *Prefer to do this once?*. You can add the CNAME record at any time, not only during a renewal: while HTTPS is on and the record is missing, CloudCannon offers it under *Other subdomains* in the *HTTPS* section, and on the *DNS* tab. Once you add it, the certificate renews by itself, and you don't need to add TXT records again. For more information, please read our documentation on [renewing the wildcard certificate on external DNS](/documentation/developer-articles/add-an-auto-generated-ssl-certificate/#renew-the-wildcard-certificate-on-external-dns).
 
 ## Choose how visitors reach a subdomain
 

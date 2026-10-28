@@ -73,16 +73,16 @@ Before a certificate authority issues a certificate, it checks that you control 
 
 * **CloudCannon Hosting or Cloudflare Proxy** — Cloudflare validates the certificate over HTTP once the subdomain's DNS points at CloudCannon. CloudCannon answers the check itself, so you don't need to add any records.
 * **Single Origin** — CloudCannon answers the certificate authority's challenge at `/.well-known/acme-challenge/` on the subdomain once its DNS points at the CloudCannon origin. You don't need to add any records.
-* **Your Base Domain** — On *CloudCannon Hosting* or *Cloudflare Proxy*, your *Base Domain* (e.g., example.com) also gets a wildcard certificate, which covers subdomains you haven't set up yet (e.g., \*.example.com), so visitors to them reach your [fallback redirect](/documentation/developer-articles/update-the-fallback-redirect-for-your-custom-domain/) over HTTPS. On external DNS, visitors only reach those subdomains if you also add a wildcard DNS record (e.g., \*.example.com) at your DNS provider, which the *DNS* tab lists under *Optional wildcard record*. Cloudflare only validates wildcard certificates with TXT records. On CloudCannon DNS, CloudCannon adds the TXT records for you. On external DNS, you add them at your DNS provider. For more information, please read the section on [renewing the wildcard certificate on external DNS](#renew-the-wildcard-certificate-on-external-dns).
+* **Your Base Domain** — On *CloudCannon Hosting* or *Cloudflare Proxy*, your *Base Domain* (e.g., example.com) also gets a wildcard certificate, which covers subdomains you haven't set up yet (e.g., \*.example.com), so visitors to them reach your [fallback redirect](/documentation/developer-articles/update-the-fallback-redirect-for-your-custom-domain/) over HTTPS. On external DNS, visitors only reach those subdomains if you also add a wildcard DNS record (e.g., \*.example.com) at your DNS provider, which the *DNS* tab lists under *Optional wildcard record*. Cloudflare only validates wildcard certificates with TXT records. On CloudCannon DNS, CloudCannon adds the TXT records for you. On external DNS, you add them at your DNS provider before each renewal, unless you add a CNAME record once that lets Cloudflare renew the certificate on its own. On *CloudCannon Hosting* with external DNS, visitors to your *Base Domain* itself reach CloudCannon's origin servers, which use their own certificate, validated over HTTP, so these records only affect the subdomains you haven't set up. For more information, please read the section on [renewing the wildcard certificate on external DNS](#renew-the-wildcard-certificate-on-external-dns).
 
 When your domain uses external DNS and your *Base Domain* is on *CloudCannon Hosting*, the *HTTPS* section of the subdomain page for your *Base Domain* has an *Other subdomains* block, which shows the state of the wildcard certificate:
 
-* **Setting up** — CloudCannon is requesting the first wildcard certificate. Until it is issued, the *DNS* tab lists the TXT records it needs under *Wildcard certificate records*.
-* **HTTPS on** — The wildcard certificate is active. The block shows when it renews, and whether the renewal needs two TXT records or happens by itself.
+* **Setting up** — CloudCannon is requesting the first wildcard certificate. Until it is issued, the *DNS* tab lists the TXT records it needs under *Wildcard certificate records*, followed by the CNAME record that lets Cloudflare renew the certificate on its own.
+* **HTTPS on** — The wildcard certificate is active. The block shows when it renews. Until CloudCannon finds the CNAME record that lets Cloudflare renew the certificate on its own, the block shows that record to add, and each renewal needs two TXT records. Once CloudCannon finds it, the block shows that the certificate renews by itself. For more information, please read the section on [letting Cloudflare renew the wildcard certificate on its own](#let-cloudflare-renew-the-wildcard-certificate-on-its-own).
 * **Action needed before [Date]** — A renewal needs new TXT records at your DNS provider. For more information, please read the section on [renewing the wildcard certificate on external DNS](#renew-the-wildcard-certificate-on-external-dns).
 * **No HTTPS** — The wildcard certificate was not renewed in time, so visitors to a subdomain you haven't set up see a security warning or an error page from Cloudflare.
 
-<comp.DocShot docshot_key="CloudCannon-Documentation-Subdomain-Page-HTTPS-Apex-External" alt="A screenshot of the HTTPS section for example.com on external DNS shows HTTPS is on with the next renewal date, and the Other subdomains block with HTTPS on, explaining that visitors to a subdomain that isn't set up reach the fallback over HTTPS, and that the certificate needs two TXT records before each renewal." title="The HTTPS section for a Base Domain on external DNS" type="screenshot" />
+<comp.DocShot docshot_key="CloudCannon-Documentation-Subdomain-Page-HTTPS-Wildcard-Delegation-Offer" alt="A screenshot of the HTTPS section for example.com on external DNS shows HTTPS is on with the next renewal date, and the Other subdomains block with HTTPS on, explaining that visitors to a subdomain that isn't set up reach the fallback over HTTPS and that the certificate needs two TXT records before each renewal, followed by the CNAME record to add once so that the certificate renews by itself." title="The HTTPS section for a Base Domain on external DNS" type="screenshot" />
 
 ## Get HTTPS ready before you switch DNS
 
@@ -101,9 +101,9 @@ If Cloudflare is still preparing the records, the section shows *Preparing recor
 
 Your current DNS provider is the service whose nameservers your domain uses, which is often your domain registrar. The *DNS* tab of the *Domain* page lists the nameservers CloudCannon found. Some DNS providers add your domain to the name of a record for you. If yours does, enter only the part of the name before your domain (e.g., `_acme-challenge.careers` for `_acme-challenge.careers.example.com`).
 
-You can still move DNS before the records are found. HTTPS catches up after a short gap. To go back to HTTP validation, click the *Cancel* button next to *Checked hourly*. If CloudCannon doesn't find the records within two weeks, it goes back to HTTP validation by itself.
+You can still move DNS before the records are found. HTTPS catches up after a short gap. To go back to HTTP validation, click the *Cancel* button next to the *Checked daily, and when you open this page* note. If CloudCannon doesn't find the records within two weeks, it goes back to HTTP validation by itself.
 
-<comp.DocShot docshot_key="CloudCannon-Documentation-Subdomain-Page-HTTPS-Pre-Validation-Not-Found" alt="A screenshot of the HTTPS section for careers.example.com shows the Getting HTTPS ready before you switch DNS notice, a table with the two TXT records to add at the current DNS provider, each with Copy buttons and a Not found yet status, a Checked hourly note, and the Cancel button." title="The HTTPS section with TXT records to add" type="screenshot" />
+<comp.DocShot docshot_key="CloudCannon-Documentation-Subdomain-Page-HTTPS-Pre-Validation-Not-Found" alt="A screenshot of the HTTPS section for careers.example.com shows the Getting HTTPS ready before you switch DNS notice, a table with the two TXT records to add at the current DNS provider, each with Copy buttons and a Not found yet status, a note that CloudCannon checks daily and when you open the page, and the Cancel button." title="The HTTPS section with TXT records to add" type="screenshot" />
 
 ### Issue the certificate before you switch a proxied record
 
@@ -163,16 +163,20 @@ CloudCannon sends this email to everyone who can edit the settings of your *Base
 
 ### Let Cloudflare renew the wildcard certificate on its own
 
-Instead of adding new TXT records at each renewal, you can add one CNAME record that lets Cloudflare validate each renewal itself. While a renewal needs TXT records, the *Other subdomains* block shows this record under *Prefer to do this once?*, and the renewal email includes it. Its name is `_acme-challenge.[Base Domain]`, and it points at an address on `dcv.cloudflare.com` that is specific to your domain.
+Instead of adding new TXT records at each renewal, you can add one CNAME record that lets Cloudflare validate each renewal itself. Its name is `_acme-challenge.[Base Domain]`, and it points at an address on `dcv.cloudflare.com` that is specific to your domain. You can add it at any time, not only during a renewal. Until CloudCannon finds the record, it shows the record to add in these places:
+
+* The *Other subdomains* block in the *HTTPS* section of the subdomain page for your *Base Domain*, while the wildcard certificate has HTTPS on, and under *Prefer to do this once?* while a renewal needs TXT records.
+* The *DNS* tab of the *Domain* page, next to the details of the wildcard certificate.
+* The renewal email.
 
 A name can't have a CNAME record and TXT records at the same time, so remove the TXT records before you add the CNAME record.
 
 To let Cloudflare renew the wildcard certificate on its own:
 
 1. Remove the TXT records for `_acme-challenge.[Base Domain]` at your DNS provider.
-2. Add the CNAME record shown under *Prefer to do this once?* at your DNS provider.
+2. Add the CNAME record CloudCannon shows at your DNS provider, using the *Name*, *Type*, and *Value* shown.
 
-Once CloudCannon finds the CNAME record, it will show that the certificate renews by itself in the *Other subdomains* block, and stop emailing you about renewals.
+Once CloudCannon finds the CNAME record, it will show that the certificate renews by itself in the *Other subdomains* block and on the *DNS* tab, and stop emailing you about renewals.
 
 <comp.DocShot docshot_key="CloudCannon-Documentation-Subdomain-Page-HTTPS-Wildcard-Delegated" alt="A screenshot of the HTTPS section for example.com shows HTTPS is on, and the Other subdomains block with HTTPS on, explaining that the certificate renews by itself through the CNAME record you added and showing the next renewal date." title="The HTTPS section once Cloudflare renews the wildcard certificate on its own" type="screenshot" />
 
