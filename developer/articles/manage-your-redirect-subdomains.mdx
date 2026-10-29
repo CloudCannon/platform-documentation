@@ -1,0 +1,159 @@
+---
+_schema: default
+_uuid: 0c1841c4-89f6-48e5-b8e5-8bdbf1fdc69d
+_created_at: '2026-10-07 00:00:00 +0000'
+details:
+  title: Manage your Redirect Subdomains
+  description: >-
+    Learn how to add a Subdomain that redirects to another domain, change
+    where it goes, change it to serve a Site, and delete it.
+  image: >-
+    https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+  category:
+    - Instructions
+  related_articles:
+    - _type: developer_articles
+      item: 5804dd03-210e-48cc-a02f-1b29f439ce0e
+    - _type: developer_articles
+      item: fbb7360a-b08e-4386-a457-7e9e1d42f885
+    - _type: developer_articles
+      item: b60ac003-4477-4b6d-a0b7-20468888c0bc
+author_notes:
+  docshots: Added!
+---
+<comp.Notice info_type="permissions">
+  **Permissions required**
+
+  Members of the *Owners*, *Developers*, and *Partner* [Default Permission Groups](/documentation/user-articles/what-are-default-permission-groups/), or [Custom Permission Groups](/documentation/developer-articles/what-are-custom-permission-groups/) with the `base-domain:settings:details:write` permission, can add, change, and delete *Redirect Subdomains*.
+</comp.Notice>
+
+A <comp.GlossaryTerm term="/user/glossary/r/redirect-subdomain.yml">Redirect Subdomain</comp.GlossaryTerm> sends every visitor to another domain. The redirect keeps the path and query string, so a visitor to `www.example.com/pricing?ref=ad` arrives at `example.com/pricing?ref=ad`. Redirects send visitors to the target over HTTPS when the target has an SSL certificate.
+
+You can redirect to another <comp.GlossaryTerm term="/user/glossary/s/subdomain.yml">Subdomain</comp.GlossaryTerm> on your <comp.GlossaryTerm term="/user/glossary/c/custom-domain.yml">Custom Domain</comp.GlossaryTerm> or to any other domain, including a domain you have moved away from (e.g., an old brand name that now redirects to your new domain). If the destination is on a *Custom Domain* connected to your <comp.GlossaryTerm term="/user/glossary/o/organization.yml">Organization</comp.GlossaryTerm>, it must already be a *Subdomain* there. For example, to redirect to `shop.example.com` when `example.com` is connected to your *Organization*, add `shop.example.com` as a *Subdomain* first. Destinations on domains that aren't connected to your *Organization* have no such requirement. *Redirect Subdomains* do not count toward the number of *Custom Domains* in your <comp.GlossaryTerm term="/user/glossary/s/subscription-plan.yml">Subscription Plan</comp.GlossaryTerm>.
+
+CloudCannon shows the redirect as it will work, such as `301 www.example.com/* -> example.com/$1`.
+
+You can redirect to a *Subdomain* that is itself a redirect, everywhere you enter a destination. CloudCannon warns you when you do, because visitors are redirected twice, and suggests sending them to the final destination to skip a step. CloudCannon refuses three kinds of destination, and shows why below the *Send visitors to* field. It refuses the *Subdomain* itself, for example *www.example.com cannot redirect to itself.* It refuses a subdomain that isn't set up yet on one of the *Custom Domains* connected to your *Organization*, for example *shop.example.com is not set up yet. Add it as a subdomain first.* And it refuses any change that would send visitors in a loop, such as two *Subdomains* that redirect to each other, for example *Visitors would go round in a loop: a.example.com -> b.example.com -> a.example.com. Choose another domain.*
+
+When you add the <comp.GlossaryTerm term="/user/glossary/b/base-domain.yml">Base Domain</comp.GlossaryTerm> (e.g., `example.com`) as a *Site Subdomain*, or change it from a redirect to serve *Sites*, CloudCannon also adds `www.example.com` as a redirect to it, unless `www.example.com` already exists. Adding `www.example.com` as a *Site Subdomain* adds `example.com` as a redirect in the same way. For more information, please read our documentation on [adding a Subdomain to your Custom Domain](/documentation/developer-articles/add-a-subdomain-to-your-custom-domain/).
+
+For more information on how *Subdomains* work, please read our documentation on [what a Subdomain is](/documentation/developer-articles/what-is-a-subdomain/).
+
+Each *Subdomain* has its own page, which you open by clicking the *Subdomain* in the list on the *Subdomains* tab of your <comp.GlossaryTerm term="/user/glossary/d/domain-page.yml">Domain page</comp.GlossaryTerm>. You can also find the *Change target*, *Serve a site instead*, *Change to redirect*, and *Delete subdomain* options in the <comp.GlossaryTerm term="/user/glossary/c/context-menu.yml">Context Menu</comp.GlossaryTerm> for each *Subdomain* on the *Subdomains* tab.
+
+Before we begin, this article assumes you have [connected a Custom Domain to your Organization](/documentation/developer-articles/connect-a-custom-domain-to-your-organization/).
+
+## Redirect status codes
+
+Each *Redirect Subdomain* has its own status code, which you choose in the *Status code* dropdown when you add or change the redirect. New *Redirect Subdomains* use *301 Permanent*, including the redirect CloudCannon adds for `www.example.com` when you add `example.com`.
+
+* **301 Permanent** — Search engines move to the target. Browsers can change a form POST to a GET.
+* **302 Temporary** — Search engines keep the original address. Browsers can change a form POST to a GET.
+* **307 Temporary, keeps the method** — Search engines keep the original address. Browsers repeat the same method, such as a form POST.
+* **308 Permanent, keeps the method** — Search engines move to the target. Browsers repeat the same method, such as a form POST.
+
+Search engines treat a permanent redirect (301 or 308) as a permanent move. If you might later serve a *Site* on the *Subdomain*, or swap which of `example.com` and `www.example.com` redirects to the other, choose a temporary redirect (302 or 307) until you are sure.
+
+The status code of your <comp.GlossaryTerm term="/user/glossary/f/fallback-redirect.yml">fallback redirect</comp.GlossaryTerm> is a separate setting. For more information, please read our documentation on [updating the fallback redirect for your Custom Domain](/documentation/developer-articles/update-the-fallback-redirect-for-your-custom-domain/).
+
+## Add a Redirect Subdomain
+
+To add a *Redirect Subdomain*, please read our documentation on [adding a Subdomain to your Custom Domain](/documentation/developer-articles/add-a-subdomain-to-your-custom-domain/).
+
+## Redirect a whole domain to another domain
+
+To send every visitor on one domain to another domain (e.g., from an old brand name, `old-example.com`, to `example.com`), you don't need a second *Site*. Add *Redirect Subdomains* on the old domain instead. Before you begin, [connect the old domain to your Organization](/documentation/developer-articles/connect-a-custom-domain-to-your-organization/). If the new domain is also connected to your *Organization*, the destination you redirect to (e.g., `example.com`) must already be a *Subdomain* on it, or CloudCannon refuses the redirect with *example.com is not set up yet. Add it as a subdomain first.*
+
+Each of the first two steps below adds a *Redirect Subdomain*. For the full steps, please read our documentation on [adding a Redirect Subdomain](/documentation/developer-articles/add-a-subdomain-to-your-custom-domain/#add-a-redirect-subdomain).
+
+To redirect a whole domain to another domain:
+
+1. Add a *Redirect Subdomain* on the old domain with the *Subdomain* field left empty.
+2. Enter the new domain (e.g., `example.com`) in the *Send visitors to* field.
+3. Add a second *Redirect Subdomain* on the old domain for `www`, with the same destination.
+4. Point the DNS for both *Subdomains* at CloudCannon. On external DNS, add the records listed on the *DNS* tab of the old domain's *Domain* page.
+
+CloudCannon will redirect visitors to `old-example.com` and `www.old-example.com` to the same path on `example.com`. On CloudCannon DNS, CloudCannon adds the DNS records for you. CloudCannon only adds `www` automatically when you add the *Base Domain* as a *Site Subdomain* or change it to serve *Sites*, not when you add it as a redirect, so add the `www` redirect yourself.
+
+To redirect only some paths to another domain, or to send each old path to a different new path, use a `routing.json` file on the *Site* that serves the old domain instead. For more information, please read our documentation on [configuring custom routing](/documentation/developer-articles/configure-custom-routing/#redirect-to-another-domain).
+
+## Change where a redirect goes
+
+You can change the destination of a *Redirect Subdomain*, its status code, or both. Browsers that have already followed a redirect may keep using the old target for up to an hour after you change it.
+
+To change where a *Redirect Subdomain* sends visitors:
+
+1. Navigate to the page for the *Redirect Subdomain*.
+2. Click the *Change target* button. CloudCannon will open the *Change where [Subdomain] goes* modal.
+3. Enter the new domain in the *Send visitors to* field.
+4. (Optional.) Select a different status code from the *Status code* dropdown.
+5. Click the *Save redirect* button.
+
+CloudCannon will redirect visitors to the new domain with the status code you selected.
+
+The *Redirect* section of the *Subdomain* page shows the redirect as a tree: the *Subdomain* with a description of its status code (e.g., *301 permanent redirect, keeping the path and query string.*), then the destination and, if the destination is on the same *Custom Domain*, the *Sites* it serves or the domain to which it redirects.
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Subdomain-Page-Redirect" alt="A screenshot of the Subdomain page for www.example.com shows the Redirect section with the Change target button and a tree from www.example.com, described as a 301 permanent redirect, to its destination, example.com, and the Sites it serves, above the Hosting and HTTPS sections." title="The Subdomain page for a redirect" type="screenshot"/>
+
+## Change a Subdomain that serves Sites to a redirect
+
+Changing a *Subdomain* that serves *Sites* to a redirect also requires the `site:settings:hosting:write` permission for each of those *Sites*.
+
+When you change a *Subdomain* that serves *Sites* into a redirect:
+
+* The *Sites* on the *Subdomain* lose their *Custom Domain*. Each *Site* keeps its [Testing Domain](/documentation/user-articles/what-is-a-testing-domain/).
+* Any redirects on the same *Custom Domain* that pointed at the *Subdomain* now point at the new target.
+
+If you redirect a *Subdomain* to another *Subdomain* that already redirects back to it, the two *Subdomains* swap. For example, if `www.example.com` redirects to `example.com` and you redirect `example.com` to `www.example.com`, `www.example.com` takes the *Sites* from `example.com` at the same paths. If `example.com` was your fallback redirect, `www.example.com` also becomes the fallback.
+
+To change a *Subdomain* that serves *Sites* to a redirect:
+
+1. Navigate to the page for the *Subdomain*.
+2. Click the *Change to redirect* button next to *Redirect instead* in the *Danger zone* section. CloudCannon will open the *Change [Subdomain] to a redirect* modal.
+3. Enter the domain to which you want to send visitors in the *Send visitors to* field.
+4. (Optional.) Select a status code from the *Status code* dropdown.
+5. Click the *Change to redirect* button.
+
+CloudCannon will redirect every visitor on the *Subdomain* to the domain you entered.
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Subdomain-Page-Change-To-Redirect-Modal" alt="A screenshot of the Change example.com to a redirect modal shows www.example.com in the Send visitors to field, the redirect 301 example.com/* to www.example.com/$1, and a note that www.example.com takes over the sites of example.com and becomes the fallback." title="The Change to a redirect modal" type="screenshot"/>
+
+You can also change your *Site's* *Subdomain* to a redirect from the *Custom Domain* page under *Site Settings*, using the *Change to redirect* button next to *Redirect instead* in the *Danger zone* section.
+
+## Change a redirect to serve a Site
+
+Changing a *Redirect Subdomain* to serve a *Site* also requires the `site:settings:hosting:write` permission for that *Site*.
+
+When you change a *Redirect Subdomain* to serve a *Site*, the *Subdomain* stops redirecting. Its hosting and certificate stay as they are.
+
+Once the *Subdomain* serves a *Site*, it counts toward the number of *Custom Domains* in your *Subscription Plan*. If serving a *Site* takes your *Organization* over that number, CloudCannon will ask you to confirm the extra cost first. For more information, please read our documentation on [what Add-Ons and Overages are](/documentation/user-articles/what-are-add-ons-and-overages/).
+
+In a *Client Organization* on its extended six-month *Free Trial*, serving a *Site* on a *Subdomain* that had no *Sites* shortens the trial so that it ends five days later, whether or not the *Client Organization* is still within the limits of its *Subscription Plan*. CloudCannon asks you to confirm before it shortens the trial. For more information, please read our documentation on [how billing works in the Partner Program](/documentation/partner-articles/how-does-billing-work-in-the-partner-program/).
+
+To change a *Redirect Subdomain* to serve a *Site*:
+
+1. Navigate to the page for the *Redirect Subdomain*.
+2. Click the *Change to site* button next to *Serve a site instead* in the *Danger zone* section. CloudCannon will open the *Serve a site on [Subdomain]* modal.
+3. (Optional.) Select the *Site* you want to serve from the *Site to serve* dropdown. Leave this field empty to set up the *Subdomain* with no *Site* yet.
+4. (Optional.) Enter a path in the *Path (optional)* field to serve the *Site* under that path, so other *Sites* can share the *Subdomain*.
+5. Click the *Change to site* button.
+
+CloudCannon will stop redirecting the *Subdomain* and serve the *Site* you selected. If you did not select a *Site*, CloudCannon will send visitors to your [fallback redirect](/documentation/developer-articles/update-the-fallback-redirect-for-your-custom-domain/) until you add one.
+
+If the *Site* you select is the last *Site* on another *Subdomain*, the modal also asks what happens to that *Subdomain*. For more information, please read our documentation on [moving a Site from another Subdomain](/documentation/developer-articles/manage-the-sites-on-a-subdomain/#move-a-site-from-another-subdomain).
+
+## Delete a Redirect Subdomain
+
+When you delete a *Redirect Subdomain*, CloudCannon stops redirecting it and removes its certificate. Visitors to the deleted *Subdomain* go to your fallback redirect.
+
+To delete a *Redirect Subdomain*:
+
+1. Navigate to the page for the *Redirect Subdomain*.
+2. Click the *Delete subdomain* button in the *Danger zone* section. CloudCannon will open the *Delete [Subdomain]?* modal.
+3. (Optional.) If other *Subdomains* redirect to this one, uncheck the *Delete this redirect too* or *Delete these redirects too* checkbox to keep them.
+4. Type the *Subdomain* in the *Type [Subdomain] to confirm* field.
+5. Click the *Delete subdomain* button.
+
+CloudCannon will delete the *Redirect Subdomain*.
+
+For more information on deleting *Subdomains* that serve *Sites*, please read our documentation on [managing the Sites on a Subdomain](/documentation/developer-articles/manage-the-sites-on-a-subdomain/#delete-a-subdomain).

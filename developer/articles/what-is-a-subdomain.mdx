@@ -1,0 +1,135 @@
+---
+_schema: default
+_uuid: 774ad898-8294-4e96-80b1-a7e79355aba6
+_created_at: 2026-10-28T00:00:00Z
+details:
+  title: What is a Subdomain?
+  description: >-
+    Learn how Subdomains work on CloudCannon, including Subdomain types, Sites
+    at subpaths, the fallback redirect, hosting options, HTTPS, and who can
+    change a Subdomain.
+  image: >-
+    https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+  category:
+    - Explanation
+  related_articles:
+    - _type: developer_articles
+      item: 5804dd03-210e-48cc-a02f-1b29f439ce0e
+    - _type: developer_articles
+      item: fbb7360a-b08e-4386-a457-7e9e1d42f885
+    - _type: developer_articles
+      item: 0c1841c4-89f6-48e5-b8e5-8bdbf1fdc69d
+author_notes:
+  docshots: Added!
+---
+A <comp.GlossaryTerm term="/user/glossary/s/subdomain.yml">Subdomain</comp.GlossaryTerm> is a name in front of your <comp.GlossaryTerm term="/user/glossary/b/base-domain.yml">Base Domain</comp.GlossaryTerm>, for example the `www` in `www.example.com` or `docs` in `docs.example.com`. In CloudCannon, every address you host on a <comp.GlossaryTerm term="/user/glossary/c/custom-domain.yml">Custom Domain</comp.GlossaryTerm> is a *Subdomain*, including the *Base Domain* itself (i.e., `example.com` is an empty *Subdomain*).
+
+<comp.DocsImage path="assets/diagrams/CloudCannon-Documentation-URL-Structure-Diagram.png" alt="A diagram of a URL shows labels for protocol, subdomain, domain, top-level domain, subdirectory, slug, and path." title="The parts of a URL" type="ui-snippet" />
+
+After you [connect a Custom Domain to your Organization](/documentation/developer-articles/connect-a-custom-domain-to-your-organization/), you can [add a Subdomain to your Custom Domain](/documentation/developer-articles/add-a-subdomain-to-your-custom-domain/) and choose whether each one serves one or more <comp.GlossaryTerm term="/user/glossary/s/site.yml">Sites</comp.GlossaryTerm>, or redirects visitors to another domain. Each *Subdomain* has its own hosting, HTTPS, and DNS settings, which apply to every *Site* it serves. You can also configure a <comp.GlossaryTerm term="/user/glossary/f/fallback-redirect.yml">fallback redirect</comp.GlossaryTerm> for visitors to subdomains you haven't set up (e.g., `typo.example.com`) and to *Site Subdomains* with no *Site* yet.
+
+CloudCannon lists all the *Subdomains* on your *Custom Domain* on the *Subdomains* tab of its <comp.GlossaryTerm term="/user/glossary/d/domain-page.yml">Domain page</comp.GlossaryTerm>. For more information, please read our documentation on [what the Domain page is](/documentation/developer-articles/what-is-the-domain-page/).
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Domains-Network-Tab" alt="A screenshot of the Subdomains tab on the Domain page shows the list of Subdomains with Subdomain, Hosting, HTTPS, and DNS columns, and the Fallback section." title="The Subdomains tab on the Domain page" type="screenshot"/>
+
+This article covers the *Subdomains* on a *Custom Domain*. For the *Custom Domain* itself, including who owns it and its DNS provider, please read our documentation on [what a Custom Domain is](/documentation/developer-articles/what-is-a-custom-domain/).
+
+## Why use a Subdomain?
+
+*Subdomains* let you give each area of your website its own address on one *Custom Domain*. You might use a *Subdomain* to:
+
+* Serve a separate *Site* for each area. Each *Site* can use its own <comp.GlossaryTerm term="/user/glossary/g/git-repository.yml">Git Repository</comp.GlossaryTerm>, or several *Sites* can share one *Git Repository*, each with its own build settings and configured to show different content.
+* Give an area its own hosting option or <comp.GlossaryTerm term="/user/glossary/s/ssl-certificate.yml">SSL certificate</comp.GlossaryTerm>, such as putting one *Subdomain* behind your own Cloudflare account.
+* Send an old or alternative address, such as `www.example.com`, to your main *Site* with a redirect.
+
+You can also serve several *Sites* on one *Subdomain*, each at its own <comp.GlossaryTerm term="/user/glossary/s/subpath.yml">subpath</comp.GlossaryTerm> (e.g., `/docs/` in `example.com/docs/`). To choose between them:
+
+* **Subdomain** — Has its own hosting, HTTPS, and DNS settings. On <comp.GlossaryTerm term="/user/glossary/e/external-dns.yml">external DNS</comp.GlossaryTerm>, it needs its own DNS record. Each *Subdomain* that serves *Sites* counts toward the number of *Custom Domains* in your <comp.GlossaryTerm term="/user/glossary/s/subscription-plan.yml">Subscription Plan</comp.GlossaryTerm>.
+* **Subpath** — Shares the hosting, HTTPS, and DNS settings of its *Subdomain*, and doesn't count as another *Custom Domain*.
+
+For more information, please read our documentation on [managing the Sites on a Subdomain](/documentation/developer-articles/manage-the-sites-on-a-subdomain/) and [adding a Custom Domain to your Site](/documentation/developer-articles/add-a-custom-domain-to-your-site/).
+
+## Subdomain types
+
+When you add a *Subdomain* to your *Custom Domain*, you must select its *Type*. The *Type* decides what the *Subdomain* does:
+
+* **Site** — The *Subdomain* serves one or more *Sites*, each at its own subpath.
+* **Redirect** — The *Subdomain* sends every visitor to another domain.
+
+You can switch your *Subdomain* *Type* at any time. For more information, please read our documentation on [adding a Subdomain to your Custom Domain](/documentation/developer-articles/add-a-subdomain-to-your-custom-domain/) and [managing your Redirect Subdomains](/documentation/developer-articles/manage-your-redirect-subdomains/).
+
+### Site Subdomains
+
+A *Site Subdomain* serves built files to website visitors from one or more CloudCannon *Sites*. CloudCannon <comp.GlossaryTerm term="/user/glossary/b/build.yml">builds</comp.GlossaryTerm> your *Site* each time it <comp.GlossaryTerm term="/user/glossary/s/syncing.yml">syncs</comp.GlossaryTerm> a change from your *Git Repository*, including the changes you save in CloudCannon, and when you start a build yourself, such as with the *Rebuild* button. For more information, please read our documentation on [what a Site build is](/documentation/developer-articles/what-is-a-site-build/).
+
+To build and serve *Site* files on a *Subdomain*, that *Site* must be in *Hosted Mode*. This is the default setting for *Sites* in CloudCannon, but you can configure the *Site Building Mode* on the *Details* page under *Site Settings*. For more information, please read our documentation on [what Site Building Mode is](/documentation/developer-articles/what-is-site-building-mode/) and [enabling Headless Mode](/documentation/developer-articles/enable-headless-mode/).
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Site-Settings-Details" alt="A screenshot of the Details page under Site Settings shows the Site Name field and the Site Building Mode options, with Hosted Mode selected and Headless Mode below it." title="The Details page under Site Settings" type="screenshot"/>
+
+You can serve several *Sites* on one *Subdomain*, each at its own subpath. For example, `example.com` can serve a marketing *Site* at `/` and a documentation *Site* at `/docs/`:
+
+* A visit to `example.com/docs/setup/` goes to the documentation *Site*, because CloudCannon serves the *Site* with the longest subpath that matches the request.
+* A visit to `example.com/about/` goes to the marketing *Site*, the only *Site* whose subpath matches.
+* If `example.com` had no *Site* at `/`, a visit to a path that doesn't match any *Site*, such as `example.com/about/`, would show a not found page.
+
+A *Site* at a subpath needs to build its files into a folder that matches the subpath (e.g., a `docs` folder for `/docs/`). For more information, please read our documentation on [adding a Custom Domain to your Site](/documentation/developer-articles/add-a-custom-domain-to-your-site/) and [managing the Sites on a Subdomain](/documentation/developer-articles/manage-the-sites-on-a-subdomain/).
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Subdomain-Page-Site" alt="A screenshot of the Subdomain page for example.com shows the Sites section with the Add site button and a Card for each of two Sites, Marketing site at / and Documentation at /docs/, each with its Git Repository and branch, build and sync status, and Context Menu, and the Hosting section with a diagram of visitors reaching the CloudCannon origin." title="The Subdomain page" type="screenshot"/>
+
+A *Subdomain* belongs to your *Custom Domain*, not to any *Site*, so removing a *Site* doesn't remove its *Subdomain*. When you remove the last *Site* from a *Subdomain*, CloudCannon asks whether to leave the *Subdomain* set up with no *Site*, turn it into a redirect, or delete it. A *Subdomain* with no *Site* keeps its hosting and certificate, and CloudCannon sends its visitors to your fallback redirect until you add a *Site*. For more information, please read our documentation on [managing the Sites on a Subdomain](/documentation/developer-articles/manage-the-sites-on-a-subdomain/) and [removing a Custom Domain from your Site](/documentation/developer-articles/remove-a-custom-domain-from-your-site/).
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Subdomain-Page-Remove-Last-Site-Leave-Modal" alt="A screenshot of the Remove blog.example.com from Engineering blog? modal shows the Leave it set up, Redirect, and Delete it options, with Leave it set up selected and a Delete this redirect too checkbox for news.example.com, which redirects here." title="The Remove modal" type="screenshot"/>
+
+### Redirect Subdomains
+
+A <comp.GlossaryTerm term="/user/glossary/r/redirect-subdomain.yml">Redirect Subdomain</comp.GlossaryTerm> sends every visitor to another domain, keeping the path and query string. For example, if `www.example.com` redirects to `example.com`, a visit to `www.example.com/about/` goes to `example.com/about/`. The destination can be a *Subdomain* on your *Custom Domain* or any other domain. Each *Redirect Subdomain* also has its own status code, which is *301 Permanent* unless you choose another.
+
+Redirects send visitors to the destination over HTTPS when the destination has an SSL certificate. A *Redirect Subdomain* still needs DNS records that point at CloudCannon, and its own SSL certificate, but it doesn't count toward the number of *Custom Domains* in your *Subscription Plan*. CloudCannon won't save a redirect that points at its own *Subdomain* or sends visitors around in a loop.
+
+You change the destination and status code with the *Change target* button on the *Subdomain* page. For more information, please read our documentation on [managing your Redirect Subdomains](/documentation/developer-articles/manage-your-redirect-subdomains/).
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Subdomain-Page-Redirect" alt="A screenshot of the Subdomain page for www.example.com shows the Redirect section with the Change target button and a tree from www.example.com, described as a 301 permanent redirect, to its destination, example.com, and the Sites it serves, above the Hosting and HTTPS sections." title="The Subdomain page for a Redirect Subdomain" type="screenshot"/>
+
+<comp.Notice info_type="info">
+  When you add a plain *Base Domain* (e.g., `example.com`) as a *Site Subdomain*, CloudCannon also adds `www.example.com` as a redirect to it, unless `www.example.com` already exists. Adding `www.example.com` as a *Site Subdomain* adds `example.com` as a redirect in the same way. This happens whether or not you choose a *Site* yet, whether you add the *Subdomain* from the *Domain* page or from *Site Settings*, and when you change a *Redirect Subdomain* to serve *Sites*. CloudCannon doesn't add the pair when you add a *Redirect Subdomain*.
+</comp.Notice>
+
+## The fallback redirect
+
+Subdomains you haven't set up (e.g., a misspelled subdomain), and *Site Subdomains* with no *Site* yet, send visitors to your fallback redirect. On external DNS, visitors only reach a subdomain that isn't set up if you add a wildcard DNS record at your DNS provider. Your fallback redirect can be any *Subdomain* on your *Custom Domain*, including a *Redirect Subdomain*. If your fallback redirect is a *Site Subdomain* with no *Site* yet, its visitors see a not found page until you add one.
+
+For example, suppose you have one *Site* on `example.com` and another *Site* on `docs.example.com`, and `example.com` is your fallback redirect. CloudCannon sends anyone trying to access an unconfigured subdomain (e.g., `app.example.com`) to `example.com`.
+
+The fallback redirect uses a *307 Temporary, keeps the method* status code by default, because a temporary redirect stops search engines from treating an unconfigured subdomain as moved. You can choose any of the status codes that *Redirect Subdomains* use, which are described in our documentation on [managing your Redirect Subdomains](/documentation/developer-articles/manage-your-redirect-subdomains/). You change the fallback redirect and its status code with the *Change fallback* button in the *Fallback* section of the *Subdomains* tab.
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Domains-Network-Tab-Fallback-Element" alt="A screenshot of the Fallback section on the Subdomains tab shows the Change fallback button and a 307 temporary redirect that sends visitors from any unconfigured subdomain of example.com to example.com." title="The Fallback section" type="screenshot"/>
+
+For more information, please read our documentation on [updating the fallback redirect for your Custom Domain](/documentation/developer-articles/update-the-fallback-redirect-for-your-custom-domain/). For the wildcard DNS record, please read our documentation on [configuring external DNS](/documentation/developer-articles/configure-external-dns/).
+
+## Hosting, HTTPS, and DNS
+
+Hosting, HTTPS, and DNS belong to the *Subdomain*, not to each *Site*, so they apply to every *Site* on the *Subdomain*. Each has its own section on the *Subdomain* page. For more information, please read our documentation on [configuring a Subdomain's hosting, HTTPS, and DNS](/documentation/developer-articles/configure-a-subdomains-hosting-https-and-dns/).
+
+### Hosting
+
+You can choose one of three hosting options for each *Subdomain*: <comp.GlossaryTerm term="/user/glossary/c/cloudcannon-hosting.yml">CloudCannon Hosting</comp.GlossaryTerm>, <comp.GlossaryTerm term="/user/glossary/c/cloudflare-proxy.yml">Cloudflare Proxy</comp.GlossaryTerm>, or <comp.GlossaryTerm term="/user/glossary/s/single-origin.yml">Single Origin</comp.GlossaryTerm>. To choose between them:
+
+* **CloudCannon Hosting** — CloudCannon serves your *Site* from its global network, so pages load quickly everywhere. This is the default and recommended option, and suits most *Subdomains*. If your *Custom Domain* uses external DNS, your *Base Domain* (e.g., `example.com`) can't use a CNAME record, so it uses two A records instead. Visitors to your *Base Domain* reach CloudCannon's origin servers directly rather than through the global network, and your *Site* works the same way.
+* **Cloudflare Proxy** — Your own Cloudflare account proxies the *Subdomain* to CloudCannon. Choose this if your DNS is on Cloudflare and you want to keep Cloudflare in front of your *Site*. Cloudflare may serve cached pages, so your *Site* won't show updates until you clear your Cloudflare cache.
+* **Single Origin** — Visitors reach CloudCannon's origin servers directly, without going through CloudCannon's global network. Choose this if you run your own proxy or firewall in front of CloudCannon. Your *Base Domain* uses two A records, and other *Subdomains* use a CNAME record. CloudCannon can only validate the certificate once DNS points at CloudCannon.
+
+The hosting option decides which DNS records the *Subdomain* needs, so changing it can mean updating your records. For more information, please read our documentation on [how hosting works on CloudCannon](/documentation/developer-articles/how-does-hosting-work-on-cloudcannon/) and [configuring external DNS](/documentation/developer-articles/configure-external-dns/).
+
+### HTTPS
+
+Each *Subdomain* gets its own SSL certificate, which covers every *Site* on that *Subdomain*. Subdomains you haven't set up yet are covered by the domain's <comp.GlossaryTerm term="/user/glossary/w/wildcard-certificate.yml">wildcard certificate</comp.GlossaryTerm> instead, which covers one level of subdomain (e.g., `typo.example.com`, but not `a.typo.example.com`). On external DNS, the wildcard certificate needs records at your DNS provider to be issued and renewed, and without them HTTPS stops working for subdomains you haven't set up. For more information, please read our documentation on [what an SSL certificate is](/documentation/developer-articles/what-is-an-ssl-certificate/), [adding an auto-generated SSL certificate](/documentation/developer-articles/add-an-auto-generated-ssl-certificate/), [renewing the wildcard certificate on external DNS](/documentation/developer-articles/add-an-auto-generated-ssl-certificate/#renew-the-wildcard-certificate-on-external-dns), and [adding a custom SSL certificate](/documentation/developer-articles/add-a-custom-ssl-certificate/).
+
+### DNS
+
+Each *Subdomain* needs a DNS record that points at CloudCannon. On <comp.GlossaryTerm term="/user/glossary/c/cloudcannon-dns.yml">CloudCannon DNS</comp.GlossaryTerm>, the wildcard record CloudCannon adds for your *Base Domain* covers every *Subdomain* one level below it (e.g., `docs.example.com`) on *CloudCannon Hosting*, unless you add a record for a *Subdomain* that points somewhere else. A *Subdomain* on *Cloudflare Proxy* or *Single Origin*, or one nested more than one level deep (e.g., `api.docs.example.com`), needs its own record. On external DNS, you add a record for each *Subdomain* at your DNS provider. For more information, please read our documentation on [configuring CloudCannon DNS](/documentation/developer-articles/configure-cloudcannon-dns/) and [configuring external DNS](/documentation/developer-articles/configure-external-dns/).
+
+## Who can change a Subdomain
+
+Changing a *Subdomain's* hosting, HTTPS, or redirect, or your fallback redirect, requires permission to edit the settings of the *Base Domain* (the `base-domain:settings:details:write` permission). Adding, swapping, or removing a *Site* on a *Subdomain*, or changing the subpath at which it is served, requires that permission and the `site:settings:hosting:write` permission for the *Site*, from the *Subdomain* page and the *Custom Domain* page under *Site Settings* alike. Deleting a *Subdomain* that serves *Sites*, or changing it to a redirect, also requires the `site:settings:hosting:write` permission for each of those *Sites*.
+
+Members of the *Owners* and *Developers* [Default Permission Groups](/documentation/user-articles/what-are-default-permission-groups/), and of the *Partner* group in a <comp.GlossaryTerm term="/user/glossary/c/client-organization.yml">Client Organization</comp.GlossaryTerm>, hold both permissions. On the *Team Plan* or *Enterprise Plan*, you can also grant them to a [Custom Permission Group](/documentation/developer-articles/what-are-custom-permission-groups/). If you don't have permission, the buttons and *Context Menu* options for these changes are disabled on the *Subdomain* page. Hover over a disabled option in a *Site's* *Context Menu* to see which permission you're missing. To get access, ask a member of the *Owners* group in your <comp.GlossaryTerm term="/user/glossary/o/organization.yml">Organization</comp.GlossaryTerm>.
