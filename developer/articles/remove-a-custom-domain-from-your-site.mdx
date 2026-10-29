@@ -19,15 +19,15 @@ details:
     - _type: developer_articles
       item: 26e8a313-a992-4d96-99f1-02eeb9e9f00d
 author_notes:
-  docshots: Needs docshots
+  docshots: Added!
 ---
 <comp.Notice info_type="permissions">
   **Permissions required**
 
-  Members of the *Owners* and *Developers* [Default Permission Groups](/documentation/user-articles/what-are-default-permission-groups/), or [Custom Permission Groups](/documentation/developer-articles/what-are-custom-permission-groups/) with the `site:settings:hosting:write` permission for the *Site* and the `base-domain:settings:details:write` permission for the *Base Domain*, can remove a *Custom Domain* from a *Site*.
+  Members of the *Owners*, *Developers*, and *Partner* [Default Permission Groups](/documentation/user-articles/what-are-default-permission-groups/), or [Custom Permission Groups](/documentation/developer-articles/what-are-custom-permission-groups/) with the `site:settings:hosting:write` and `base-domain:settings:details:write` permissions, can remove a *Custom Domain* from a *Site*.
 </comp.Notice>
 
-A <comp.GlossaryTerm term="/user/glossary/c/custom-domain.yml">Custom Domain</comp.GlossaryTerm> is a unique address used to identify a website (e.g., <a href="https://cloudcannon.com/">cloudcannon.com</a>). You can connect a *Custom Domain* to your CloudCannon *Organization* and add it to a *Site* to host your website content on that domain.
+A <comp.GlossaryTerm term="/user/glossary/c/custom-domain.yml">Custom Domain</comp.GlossaryTerm> is a domain you own and connect to your CloudCannon <comp.GlossaryTerm term="/user/glossary/o/organization.yml">Organization</comp.GlossaryTerm>, so visitors reach your <comp.GlossaryTerm term="/user/glossary/s/site.yml">Site</comp.GlossaryTerm> at your own address (e.g., <a href="https://cloudcannon.com/">cloudcannon.com</a>). You can connect a *Custom Domain* to your CloudCannon *Organization* and add it to a *Site* to host your website content on that domain.
 
 You may want to remove a *Custom Domain* from a CloudCannon *Site* to change the domain hosting your content, move a *Custom Domain* to a different CloudCannon *Site*, or to [disconnect a Custom Domain from your Organization](/documentation/developer-articles/disconnect-a-custom-domain-from-your-organization/).
 
@@ -35,7 +35,19 @@ You may want to remove a *Custom Domain* from a CloudCannon *Site* to change the
   Removing a *Custom Domain* from your *Site* stops visitors from seeing your *Site* on that domain. Your *Site* keeps its [Testing Domain](/documentation/user-articles/what-is-a-testing-domain/).
 </comp.Notice>
 
-If your *Site* is the last *Site* on its subdomain, CloudCannon asks whether to leave the subdomain set up with no *Site*, turn it into a redirect, or delete it. Leaving the subdomain set up keeps its hosting and certificate, which suits a temporary take-down. If you leave the subdomain set up or delete it, CloudCannon also deletes any redirects that point at the subdomain, unless you uncheck the checkbox for them. If you turn it into a redirect, those redirects send visitors to the new destination instead. If you redirect the subdomain, CloudCannon refuses a destination that would send visitors in a loop, the subdomain itself, or a destination on one of your *Custom Domains* that isn't a subdomain yet. If you leave the subdomain set up and your fallback sends visitors back to it, CloudCannon refuses that too, because visitors would go round in a loop, and suggests deleting the redirect or choosing *Redirect* or *Delete it* instead. If you delete the subdomain and it was your fallback, another subdomain becomes the fallback. You can choose which one under *Fallback* on the *Subdomains* tab of the *Domain* page. For more information on each option, please read our documentation on [managing your Site Subdomains](/documentation/developer-articles/manage-the-sites-on-a-subdomain/#remove-a-site-from-a-subdomain).
+If you want to keep sending visitors somewhere, you can change the <comp.GlossaryTerm term="/user/glossary/s/subdomain.yml">Subdomain</comp.GlossaryTerm> into a redirect instead, with the *Change to redirect* button next to *Redirect instead* in the *Danger zone* section of the *Custom Domain* page. For more information, please read our documentation on [managing your Redirect Subdomains](/documentation/developer-articles/manage-your-redirect-subdomains/#change-a-subdomain-that-serves-sites-to-a-redirect).
+
+If your *Site* is the last *Site* on its *Subdomain*, CloudCannon asks what happens to the *Subdomain*:
+
+* **Leave it set up** — The *Subdomain* stays set up with no *Site*. Its hosting and certificate stay connected, so you can add a *Site* back without waiting for DNS or a new certificate. Until then, CloudCannon sends visitors to your <comp.GlossaryTerm term="/user/glossary/f/fallback-redirect.yml">fallback redirect</comp.GlossaryTerm>, or shows a not found page if the *Subdomain* is the fallback. This is the default. Choose this option to take your website down temporarily.
+* **Redirect** — The *Subdomain* becomes a *301 Permanent* redirect that sends every visitor to another domain, keeping the path and query string.
+* **Delete it** — CloudCannon deletes the *Subdomain* and its certificate, and sends its visitors to your fallback redirect. If the *Subdomain* was your fallback, another *Subdomain* becomes the fallback. You can choose which one under *Fallback* on the *Summary* tab of the *Domain* page.
+
+If other *Subdomains* redirect to the *Subdomain* you are emptying, CloudCannon lists them and deletes them too when you leave the *Subdomain* set up or delete it, unless you uncheck the *Delete this redirect too*, *Delete these redirects too*, or *Delete [Subdomains] too* checkbox. If you leave the *Subdomain* set up and your fallback sends visitors back to it, CloudCannon refuses, because visitors would go around in a loop, and suggests deleting the redirect or choosing *Redirect* or *Delete it* instead.
+
+If you redirect the *Subdomain*, the <comp.GlossaryTerm term="/user/glossary/r/redirect-subdomain.yml">Redirect Subdomains</comp.GlossaryTerm> on the same <comp.GlossaryTerm term="/user/glossary/b/base-domain.yml">Base Domain</comp.GlossaryTerm> that pointed at it send visitors to the new destination instead. Redirects on your other domains keep pointing at the *Subdomain*. CloudCannon refuses a destination that would send visitors in a loop, the *Subdomain* itself, or a destination on one of your *Custom Domains* that isn't a *Subdomain* yet.
+
+For more information on each option, please read our documentation on [removing a Site from a Subdomain](/documentation/developer-articles/manage-the-sites-on-a-subdomain/#remove-a-site-from-a-subdomain).
 
 Before we begin, this article assumes you have [connected a Custom Domain to your Organization](/documentation/developer-articles/connect-a-custom-domain-to-your-organization/) and [added a Custom Domain to your Site](/documentation/developer-articles/add-a-custom-domain-to-your-site/).
 
@@ -43,16 +55,18 @@ The *Remove custom domain* button is disabled unless you can both change the hos
 
 To remove a *Custom Domain* from your *Site*:
 
-1. Click the *Sites* link in the *App Sidebar*. CloudCannon will open the *Sites Browser*.
-2. Identify the *Site* from which you want to remove a *Custom Domain* and click the *Card* for the *Site*. CloudCannon will open the *Dashboard* for that *Site*.
-3. Navigate to the *Custom Domain* page under *Site Settings*.
-4. Click the *Remove custom domain* button in the *Danger zone* section. CloudCannon will open the *Remove [Subdomain] from [Site Name]?* modal.
-5. If your *Site* is the last *Site* on the subdomain, select the *Leave it set up*, *Redirect*, or *Delete it* option. If you select *Redirect*, enter the domain to which you want to send visitors in the *Send visitors to* field.
-6. (Optional.) If you selected *Leave it set up* or *Delete it*, uncheck the *Delete this redirect too* or *Delete these redirects too* checkbox to keep the subdomains that redirect to this one.
-7. Click the *Remove from [Subdomain]* button. If your *Site* is the last *Site* on the subdomain, click the *Remove domain*, *Remove and redirect*, or *Remove and delete* button instead.
+1. Log in to CloudCannon.
+2. Select the *Organization* with the *Site* you want to remove a *Custom Domain* from.
+3. Click the *Sites* link in the <comp.GlossaryTerm term="/user/glossary/a/app-sidebar.yml">App Sidebar</comp.GlossaryTerm>. CloudCannon will open the <comp.GlossaryTerm term="/user/glossary/s/sites-browser.yml">Sites Browser</comp.GlossaryTerm>.
+4. Click the <comp.GlossaryTerm term="/user/glossary/c/card.yml">Card</comp.GlossaryTerm> for the *Site* you want to remove a *Custom Domain* from. CloudCannon will open the *Dashboard* for that *Site*.
+5. Navigate to the *Custom Domain* page under *Site Settings*. CloudCannon will open the *Custom Domain* page.
+6. Click the *Remove custom domain* button in the *Danger zone* section. CloudCannon will open the *Remove [Subdomain] from [Site Name]?* modal.
+7. If your *Site* is the last *Site* on the *Subdomain*, select the *Leave it set up*, *Redirect*, or *Delete it* option. If you select *Redirect*, enter the domain to which you want to send visitors in the *Send visitors to* field.
+8. (Optional.) If you selected *Leave it set up* or *Delete it*, uncheck the *Delete this redirect too*, *Delete these redirects too*, or *Delete [Subdomains] too* checkbox to keep the *Subdomains* that redirect to this one.
+9. Click the *Remove from [Subdomain]* button. If your *Site* is the last *Site* on the *Subdomain*, click the *Remove domain*, *Remove and redirect*, or *Remove and delete* button instead.
 
-CloudCannon will immediately stop hosting your *Site* on the *Custom Domain*.
+CloudCannon will immediately stop hosting your *Site* on the *Custom Domain* and show the form for adding a *Custom Domain* on the *Custom Domain* page. Unless you deleted the *Subdomain*, CloudCannon also shows *[Subdomain] has been removed from [Site Name]*.
 
 <comp.DocShot docshot_key="CloudCannon-Documentation-Site-Settings-Custom-Domain-Remove-Confirm" alt="A screenshot of the Remove example.com from Sendit? modal on the Custom Domain page shows the Leave it set up, Redirect, and Delete it options, and the Cancel and Remove domain buttons." title="The Remove modal" type="screenshot"/>
 
-You can also remove a *Site* from the subdomain page, which you can open from the *Subdomains* tab of your *Domain* page.
+You can also remove a *Site* from the *Subdomain* page, which you can open from the *Subdomains* tab of your *Domain* page. Click the <comp.GlossaryTerm term="/user/glossary/c/context-menu.yml">Context Menu</comp.GlossaryTerm> for the *Site* and select the *Remove from [Subdomain]* option.
