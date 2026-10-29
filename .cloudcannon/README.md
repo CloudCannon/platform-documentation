@@ -14,7 +14,11 @@ The documentation is organized into clear sections so you can find what you need
 * **Developer Articles** (`developer/articles/`) — In-depth explanations for developers integrating with CloudCannon.
 * **Developer Guides** (`developer/guides/`) — Hands-on walkthroughs for developer workflows.
 * **Developer Reference** (`developer/reference/`) — Technical reference material, split into Site configuration (config files you add to your repo) and Platform (the CLI, SDK, API, and Permissions).
+* **Partner Articles** (`partner/articles/`) — Explanations and instructions for agencies in the Partner Program, covering Client Organizations, billing, and Partner Points.
+* **Partner Guides** (`partner/guides/`) — Step-by-step walkthroughs for setting up and running an agency in the Partner Program.
 * **Changelog** (`changelogs/`) — Release notes organized by year.
+* **Pages** (`index.mdx`, `404/`) — Standalone pages, including the documentation homepage, error pages, and beta feature information.
+* **Data** (`_data/`) — Site data files, including navigation menus, the permissions list, supported SSGs, and the DocShot registry.
 
 Content follows a modified [Diátaxis framework](https://diataxis.fr/) — separating explanations, instructions, guides, and reference material so readers always land in the right place.
 
