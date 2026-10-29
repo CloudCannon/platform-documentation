@@ -47,13 +47,13 @@ Keeping contributions consistent makes the docs better for everyone. 🙏
 
 ## 🔗 Important Resources
 
-\| Resource \| Link \|
-\|----------\|------\|
-\| 🌐 Live documentation \| [cloudcannon.com/documentation](https://cloudcannon.com/documentation/) \|
-\| 💬 Community forum \| [community.cloudcannon.com](https://community.cloudcannon.com/) \|
-\| 📝 Documentation feedback \| [Documentation Feedback forum](https://community.cloudcannon.com/c/documentation-feedback/) \|
-\| 🆘 Support \| [cloudcannon.com/support](https://cloudcannon.com/support/) \|
-\| 🐙 GitHub repository \| [CloudCannon/platform-documentation](https://github.com/CloudCannon/platform-documentation) \|
+| Resource | Link |
+|----------|------|
+| 🌐 Live documentation | [cloudcannon.com/documentation](https://cloudcannon.com/documentation/) |
+| 💬 Community forum | [community.cloudcannon.com](https://community.cloudcannon.com/) |
+| 📝 Documentation feedback | [Documentation Feedback forum](https://community.cloudcannon.com/c/documentation-feedback/) |
+| 🆘 Support | [cloudcannon.com/support](https://cloudcannon.com/support/) |
+| 🐙 GitHub repository | [CloudCannon/platform-documentation](https://github.com/CloudCannon/platform-documentation) |
 
 ---
 
