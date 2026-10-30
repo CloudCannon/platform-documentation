@@ -24,29 +24,47 @@ author_notes:
 <comp.Notice info_type="permissions">
   **Permissions required**
 
-  Members of the *Owners* [Default Permission Groups](/documentation/user-articles/what-are-default-permission-groups/), or [Custom Permission Groups](/documentation/developer-articles/what-are-custom-permission-groups/) with the `base-domain:delete:write` permission, can disconnect Custom Domains from an Organization.
+  Members of the *Owners*, *Developers*, and *Partner* [Default Permission Groups](/documentation/user-articles/what-are-default-permission-groups/), or [Custom Permission Groups](/documentation/developer-articles/what-are-custom-permission-groups/) with the `base-domain:delete:write` permission, can disconnect *Custom Domains* from an *Organization*.
 </comp.Notice>
 
-A Custom Domain is a unique address used to identify a website (e.g., <a href="https://cloudcannon.com/">cloudcannon.com</a>). If you have [connected a Custom Domain to your Organization](/documentation/developer-articles/connect-a-custom-domain-to-your-organization/) and [added the Custom Domain to your Site](/documentation/developer-articles/add-a-custom-domain-to-your-site/), CloudCannon will host your website content at that web address.
-
-Disconnecting a Custom Domain from your Organization will allow you to add the domain to a different CloudCannon Organization.
-
-<comp.Notice info_type="info">
-  Disconnecting a Custom Domain from your CloudCannon Organization does not delete your domain, or affect any of the settings managed by your Domain Registrar.
+<comp.Notice info_type="important">
+  You cannot undo disconnecting a *Custom Domain*. If your *Custom Domain* uses CloudCannon DNS, disconnecting it also deletes every DNS record for the domain, including your mail records. Before you disconnect, move your domain's nameservers to another DNS provider and add the records you need there.
 </comp.Notice>
 
-To protect you from accidentally taking your website down by disconnecting your Custom Domain, CloudCannon prevents you from disconnecting the domain from your Organization until you have removed it from all CloudCannon Sites.
+A <comp.GlossaryTerm term="/user/glossary/c/custom-domain.yml">Custom Domain</comp.GlossaryTerm> is a domain you own and connect to your CloudCannon <comp.GlossaryTerm term="/user/glossary/o/organization.yml">Organization</comp.GlossaryTerm>, so visitors reach your <comp.GlossaryTerm term="/user/glossary/s/site.yml">Site</comp.GlossaryTerm> at your own address (e.g., <a href="https://cloudcannon.com/">cloudcannon.com</a>). If you have [connected a Custom Domain to your Organization](/documentation/developer-articles/connect-a-custom-domain-to-your-organization/) and [added the Custom Domain to your Site](/documentation/developer-articles/add-a-custom-domain-to-your-site/), CloudCannon will host your website content at that web address.
 
-These instructions assume you have already [removed the Custom Domain from all CloudCannon Sites](/documentation/developer-articles/remove-a-custom-domain-from-your-site/).
+Disconnecting a *Custom Domain* from your *Organization* will allow you to add the domain to a different CloudCannon *Organization*. Disconnecting doesn't change your registration at your <comp.GlossaryTerm term="/user/glossary/d/domain-registrar.yml">domain registrar</comp.GlossaryTerm>.
 
-To disconnect a Custom Domain from your Organization:
+To protect you from accidentally taking your website down by disconnecting your *Custom Domain*, CloudCannon prevents you from disconnecting the domain from your *Organization* while:
 
-1. Log in to CloudCannon and select the Organization from which you want to disconnect the Custom Domain.
-2. Click the *Domains* button in the *App Sidebar*. CloudCannon will open the *Domains Browser*.
-3. Identify the domain you want to disconnect and click on the *Domain* card. CloudCannon will open the *Domain* page for this Custom Domain.
-4. Navigate to the *Danger* section under the *Domain Settings* tab.
-5. Click the *Disconnect Domain* button, and click again to confirm.
+* Any *Site* still uses the domain (e.g., *1 site still uses it.*).
+* Any <comp.GlossaryTerm term="/user/glossary/r/redirect-subdomain.yml">Redirect Subdomain</comp.GlossaryTerm> on the domain sends visitors to another domain (e.g., *promo.example.com redirects elsewhere.*).
+* Any *Redirect Subdomain* on another domain in your *Organization* sends visitors to this domain (e.g., *shop.example.net redirects here from other domains.*).
+* Any *Redirect Subdomain* on a domain you can't view sends visitors to this domain (e.g., *1 redirect on domains you cannot view points here.*).
 
-CloudCannon will disconnect the Custom Domain from your Organization.
+The *Danger* section lists each reason, and the *Disconnect [Base Domain]* button stays disabled until you resolve them all.
 
-<comp.DocShot docshot_key="CloudCannon-Documentation-Domain-Domain-Settings-Tab-Danger" alt="A screenshot of the Domain Settings tab on the Domain page shows the Disconnect Domain button and a warning notification." title="The Domain page Domain Settings tab" type="screenshot"/>
+When you disconnect the domain, CloudCannon also removes the <comp.GlossaryTerm term="/user/glossary/s/subdomain.yml">Subdomains</comp.GlossaryTerm> that have no *Site*, and the *Redirect Subdomains* that send visitors to the domain itself or to another *Subdomain* on it. The *Danger* section lists these *Subdomains* under *Disconnecting also removes:* before you disconnect, or shows *Nothing else is removed with [Base Domain].*
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Domain-Settings-Danger-Blocked-By-Incoming-Redirect" alt="A screenshot of the Danger section on the Domain Settings tab shows that disconnecting cannot be undone, a notice that shop.example.net redirects here from other domains, careers.example.com and jobs.example.com listed under Disconnecting also removes, and the disabled Disconnect example.com button." title="The Danger section with a blocker" type="screenshot"/>
+
+Once you disconnect the domain, another CloudCannon account can connect it. If the domain uses <comp.GlossaryTerm term="/user/glossary/c/cloudcannon-dns.yml">CloudCannon DNS</comp.GlossaryTerm>, its nameservers change the next time it is connected.
+
+The *Danger* section only appears on the *Domain Settings* tab if you have the `base-domain:delete:write` permission. If you can't see it, ask someone in your *Organization* who has that permission.
+
+Before we begin, this article assumes you have already [removed the Custom Domain from all CloudCannon Sites](/documentation/developer-articles/remove-a-custom-domain-from-your-site/) and [deleted any Redirect Subdomains](/documentation/developer-articles/manage-your-redirect-subdomains/#delete-a-redirect-subdomain) that send visitors to another domain, or to this domain from another domain.
+
+To disconnect a *Custom Domain* from your *Organization*:
+
+1. Log in to CloudCannon.
+2. Select the *Organization* from which you want to disconnect the *Custom Domain*.
+3. Click the *Domains* link in the <comp.GlossaryTerm term="/user/glossary/a/app-sidebar.yml">App Sidebar</comp.GlossaryTerm>. CloudCannon will open the <comp.GlossaryTerm term="/user/glossary/d/domains-browser.yml">Domains Browser</comp.GlossaryTerm>.
+4. Click the <comp.GlossaryTerm term="/user/glossary/c/card.yml">Card</comp.GlossaryTerm> for the domain you want to disconnect. CloudCannon will open the *Summary* tab of the *Domain* page for this *Custom Domain*.
+5. Click the *Domain Settings* tab. CloudCannon will open the *Details* section.
+6. Click the *Danger* link in the side navigation. CloudCannon will open the *Danger* section.
+7. Click the *Disconnect [Base Domain]* button. CloudCannon will open the *Disconnect [Base Domain]?* modal.
+8. Click the *Disconnect [Base Domain]* button in the modal to confirm.
+
+CloudCannon will disconnect the *Custom Domain* from your *Organization*, show *[Base Domain] has been disconnected*, and return you to the *Domains Browser*.
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Domain-Domain-Settings-Tab-Danger" alt="A screenshot of the Danger section on the Domain Settings tab shows a warning that disconnecting cannot be undone, a notice that 1 site still uses it with a link to remove it from that site, a note that nothing else is removed with example.com, and the disabled Disconnect example.com button." title="The Danger section on the Domain Settings tab" type="screenshot"/>

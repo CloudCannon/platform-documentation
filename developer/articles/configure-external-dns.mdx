@@ -1,10 +1,12 @@
 ---
 _schema: default
 _uuid: d927f075-234f-4c73-aebb-645da21754cd
-_created_at: '2021-09-15 23:13:40 +0000'
+_created_at: 2021-09-15T23:13:40Z
 details:
   title: Configure external DNS
-  description: Use your own DNS servers.
+  description: >-
+    Learn how to manage the DNS records for your Custom Domain with an external
+    DNS provider and point each subdomain at CloudCannon.
   image: >-
     https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
   category:
@@ -19,101 +21,256 @@ details:
 author_notes:
   docshots: Added!
 ---
-External DNS allows you to host your Site on CloudCannon but manage your [DNS records](/documentation/developer-articles/what-is-dns/#what-are-dns-records) elsewhere. You can set up external DNS through a different provider (e.g., Cloudflare) or your own servers.
+<comp.Notice info_type="permissions">
+  **Permissions required**
 
-Before configuring your Site's DNS, you must [add a Custom Domain](/documentation/developer-articles/add-a-custom-domain-to-your-site/).
+  Members of the *Owners*, *Developers*, and *Partner* [Default Permission Groups](/documentation/user-articles/what-are-default-permission-groups/), or [Custom Permission Groups](/documentation/developer-articles/what-are-custom-permission-groups/) with the `base-domain:settings:dns:read` and `base-domain:settings:dns:write` permissions, can view and change the DNS of a *Base Domain*. Changing how a *Subdomain* is hosted, and checking or updating the status of its DNS record, requires the `base-domain:settings:details:write` permission.
+</comp.Notice>
+
+<comp.GlossaryTerm term="/user/glossary/e/external-dns.yml">External DNS</comp.GlossaryTerm> allows you to host your <comp.GlossaryTerm term="/user/glossary/s/site.yml">Site</comp.GlossaryTerm> on CloudCannon but manage your [DNS records](/documentation/developer-articles/what-is-dns/#what-are-dns-records) elsewhere. You can set up external DNS through a different provider (e.g., Cloudflare) or your own servers. You add the records CloudCannon needs at that provider, and CloudCannon checks that they point at CloudCannon.
+
+Before we begin, this article assumes you have [connected a Custom Domain to your Organization](/documentation/developer-articles/connect-a-custom-domain-to-your-organization/).
 
 <comp.Notice info_type="important">
-  If you are using Cloudflare as your DNS provider, you will need to configure your DNS records differently. For more information, please read the section on [configuring Cloudflare proxy](/documentation/developer-articles/configure-external-dns/#configure-cloudflare-proxy).
+  If you use Cloudflare as your DNS provider and set a record's proxy status to *Proxied*, you need to configure your DNS records differently. For more information, please read the section on [configuring Cloudflare Proxy](/documentation/developer-articles/configure-external-dns/#configure-cloudflare-proxy).
 </comp.Notice>
 
 ## Enable external DNS
 
-By default, CloudCannon will enable CloudCannon DNS for your Site.
-
-Edit the settings on the *Domain Settings* page to switch to external DNS for a site hosted on CloudCannon.
+You can choose *External DNS* when you connect a <comp.GlossaryTerm term="/user/glossary/c/custom-domain.yml">Custom Domain</comp.GlossaryTerm>, or switch an existing domain to external DNS on the *Details* section of the *Domain Settings* tab.
 
 <comp.Notice info_type="important">
   Updating your DNS provider can cause downtime for anything connected to your domain, such as your website or custom email address. Please make sure you have a copy of your existing DNS records before you change providers.
 
-  If you need help updating your DNS, please contact our friendly <a href="https://cloudcannon.com/support/">support team</a>.
+  If you need help updating your DNS, please contact our friendly <a href="https://cloudcannon.com/support/">support team</a>. Include the *Custom Domain*, your current and new DNS providers, and a copy of your existing DNS records.
 </comp.Notice>
 
-To switch to External DNS:
+Records in the CloudCannon DNS zone for your domain stop working once you switch, so add them at your new provider before you change your nameservers.
 
-1. Navigate to the *Domain browser* by clicking the globe icon in your *App Navigation*.
-2. Select the domain for which you want to configure DNS.
-3. Under the *Domain Settings* tab, open the *DNS* section.
-4. Select the *External DNS* option in the *DNS Provider* dropdown.
-5. Click the *Update DNS Provider* button.
+To switch to external DNS:
 
-You can now manage your DNS records through an external provider.
+1. Log in to CloudCannon.
+2. Select the *Organization* your *Custom Domain* is connected to.
+3. Click the *Domains* link in the <comp.GlossaryTerm term="/user/glossary/a/app-sidebar.yml">App Sidebar</comp.GlossaryTerm>. CloudCannon will open the <comp.GlossaryTerm term="/user/glossary/d/domains-browser.yml">Domains Browser</comp.GlossaryTerm>.
+4. Select the domain for which you want to configure DNS by clicking the <comp.GlossaryTerm term="/user/glossary/c/card.yml">Card</comp.GlossaryTerm> for the domain. CloudCannon will open the *Summary* tab of the *Domain* page.
+5. Click the *Domain Settings* tab. CloudCannon will open the *Details* section.
+6. Under *DNS provider*, select the *External DNS* option. CloudCannon will label the provider you are switching from *(current)*, and warn that records in its DNS zone stop being used once you switch.
+7. Click the *Switch to External DNS* button.
 
-<comp.DocShot docshot_key="CloudCannon-Documentation-Domain-Settings-External-DNS" alt="A screenshot of the Domain Settings page shows the DNS Provider dropdown is set to External DNS." title="The Domain Settings page" type="screenshot" />
+CloudCannon will switch your domain to external DNS. Each *Subdomain* that doesn't point at CloudCannon yet shows *Waiting for DNS* for the next 48 hours, while CloudCannon keeps checking its records daily.
 
-### Load balancing on external DNS
+<comp.DocShot docshot_key="CloudCannon-Documentation-Domain-Settings-External-DNS" alt="A screenshot of the Details section on the Domain Settings tab shows External DNS selected, CloudCannon DNS marked (current), a warning that records in the CloudCannon DNS zone stop being used once you switch, and the Switch to External DNS button." title="The Details section on the Domain Settings tab" type="screenshot" />
 
-Load balancing is a method of distributing incoming traffic requests across multiple servers, providing redundancy in case one or more servers are offline. This reduces the potential downtime risk for your Site.
+## The records each Subdomain needs
 
-If you use an external DNS provider, CloudCannon will not be able to dynamically load balance incoming traffic to your Site. We recommend using CloudCannon DNS, particularly for Sites on your base domain, or investigating if your third-party DNS service provides load balancing.
+Each <comp.GlossaryTerm term="/user/glossary/s/subdomain.yml">Subdomain</comp.GlossaryTerm> needs its own records at your DNS provider. The records depend on how visitors reach the *Subdomain*, through <comp.GlossaryTerm term="/user/glossary/c/cloudcannon-hosting.yml">CloudCannon Hosting</comp.GlossaryTerm>, <comp.GlossaryTerm term="/user/glossary/c/cloudflare-proxy.yml">Cloudflare Proxy</comp.GlossaryTerm>, or <comp.GlossaryTerm term="/user/glossary/s/single-origin.yml">Single Origin</comp.GlossaryTerm>:
 
-### CloudCannon DNS records
+* **CloudCannon Hosting** — A CNAME record pointing at `sites.cloudcannon.com`. Your <comp.GlossaryTerm term="/user/glossary/b/base-domain.yml">Base Domain</comp.GlossaryTerm> (e.g., example.com) needs two A records instead, pointing at `52.8.178.132` and `184.169.135.34`.
+* **Cloudflare Proxy** — A CNAME record pointing at `orange-cloud.cloudcannon.com`, proxied in your Cloudflare zone.
+* **Single Origin** — A CNAME record pointing at `orange-cloud.cloudcannon.com`. Your *Base Domain* needs two A records instead, pointing at `52.8.178.132` and `184.169.135.34`.
 
-When you enable external DNS for a Site hosted on CloudCannon, CloudCannon will ask you to add three DNS records to your DNS provider: two A Records and a CNAME Record.
+When you add your *Base Domain* as a new *Subdomain*, CloudCannon also adds www.example.com as a redirect to it, unless www.example.com already exists, and www.example.com needs its own CNAME record. Adding example.com on *CloudCannon Hosting* therefore shows three records: two A records for example.com and a CNAME record for www.example.com.
 
-The two A Records specify the IP addresses of the appropriate CloudCannon hosting servers for the your base domain. The CNAME Record will direct queries for any subdomains to CloudCannon's hosting servers.
+Your *Base Domain* also has a <comp.GlossaryTerm term="/user/glossary/w/wildcard-certificate.yml">wildcard certificate</comp.GlossaryTerm>, which gives subdomains you haven't set up yet a certificate, so their visitors reach your fallback over HTTPS. On external DNS, this certificate is validated with TXT records you add at your DNS provider, and it needs new TXT records each time it renews, unless you add a CNAME record named `_acme-challenge.[Base Domain]` once. With that CNAME record, the certificate renews by itself.
 
-<comp.Notice info_type="important">
-  If you use a Cloudflare, setting up a CNAME Record for your base domain while using external DNS will result in a 1001 DNS Error.
-</comp.Notice>
+## Follow the setup guide
+
+When you connect a domain on external DNS or add a *Subdomain*, a setup guide at the top of the *Summary* tab of your *Domain* page shows how far along setup is. It covers the *Subdomains* that don't point at CloudCannon yet, or are still waiting for their certificate, and that you added in the last seven days or marked as updated. The guide names those *Subdomains*, shows three steps (*Add the records*, *Propagation*, and *[Subdomain] goes live*), and has a *Show the records* button that opens the *DNS* tab, where you add the records. If you don't have the `base-domain:settings:dns:read` permission, the button opens the *Subdomain* page instead, or the *Subdomains* tab filtered to the *Subdomains* that need attention when more than one is waiting.
+
+The *Custom Domain* page under *Site Settings* shows the same guide for the *Subdomain* that hosts your *Site*, and notes that the *Site* stays on its *Testing Domain* until the *Subdomain* goes live. On that page, the *Show the record* button scrolls to the *DNS* section, which lists the record the *Subdomain* needs.
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Domain-Overview-Setup-Guide-External-Records" alt="A screenshot of the setup guide on the Summary tab shows Add the DNS records for example.org and www.example.org, with Add the records in progress and a Show the records button." title="The setup guide while you add the records" type="screenshot" />
+
+## Add the records
+
+The *Required records* table on the *DNS* tab lists the records each *Subdomain* needs in its *Needs* column. For a TXT record, the *Needs* column shows the record's *Name* below its value, with its own *Copy* button. If the *Subdomain* uses *Cloudflare Proxy*, add the record in your Cloudflare zone with the proxy status set to *Proxied*.
+
+To add the records:
+
+1. Log in to CloudCannon.
+2. Select the *Organization* your *Custom Domain* is connected to.
+3. Click the *Domains* link in the *App Sidebar*. CloudCannon will open the *Domains Browser*.
+4. Select the domain for which you want to add records by clicking the *Card* for the domain. CloudCannon will open the *Summary* tab of the *Domain* page.
+5. Click the *DNS* tab. CloudCannon will open the *DNS* tab, with the *Required records* table.
+6. Log in to your third-party DNS provider.
+7. Click the *Copy* icon next to a value in the *Needs* column. CloudCannon will copy the value.
+8. Add the record at your DNS provider with the value you copied. Repeat steps 7 and 8 for each value in the *Needs* column.
+9. Remove any other A, AAAA, or CNAME records with the same name at your DNS provider.
+10. Click the *I've updated it* button in the *Status* column for each record you added.
+
+CloudCannon will check every hour for up to seven days after you click the *I've updated it* button. For those seven days, the *Status* column shows when you marked the record as updated in place of the button. For the first 48 hours, the record shows *Waiting for DNS*. After that, it shows the status CloudCannon found, while CloudCannon keeps checking. There's no need to keep the page open. Once CloudCannon finds the records and issues the certificate, it emails you that the *Subdomain* is live. If the *Summary* tab is open at the time, the setup guide shows that the *Subdomain* is live, with a *Visit [Subdomain]* button and a *Dismiss* button.
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Domain-Overview-Setup-Guide-External-Waiting" alt="A screenshot of the setup guide on the Summary tab shows Looking for the records for example.org and www.example.org, with Propagation in progress and a Show the records button." title="The setup guide while CloudCannon looks for the records" type="screenshot" />
+
+Whenever the wildcard certificate for your *Base Domain* needs validating, including when it is first issued and each time it renews, the *DNS* tab also lists the TXT records for that certificate under *Wildcard certificate records*. For the first certificate, the heading reads *Wildcard certificate records (optional)*: the wildcard certificate only covers subdomains you haven't set up, so the setup guide doesn't ask for these records. Add them the same way if you want them.
+
+Below the *Wildcard certificate records* table, the *Automatic renewal record (optional)* table offers a CNAME record instead: *Add this CNAME record once and the certificate renews by itself, without TXT records. Remove any TXT records with the same name first.* The record points `_acme-challenge.[Base Domain]` (e.g., `_acme-challenge.example.com`) at an address ending in `.dcv.cloudflare.com`, which starts with your *Base Domain*. The *DNS* tab shows the exact value, with a *Copy* icon for the name and the value. If you add it, you don't need to add TXT records for later renewals.
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Domain-DNS-External-Wildcard-Renewal-Delegation" alt="A screenshot of the DNS tab for a domain on external DNS shows two TXT records for *.example.com under Wildcard certificate records, each with No DNS record and an I've updated it button, and below them the Automatic renewal record (optional) table with the CNAME record named _acme-challenge.example.com, its Copy icons, and the Optional status." title="The wildcard certificate records on the DNS tab" type="screenshot" />
+
+If CloudCannon still can't find a record 48 hours after you clicked the *I've updated it* button, the setup guide shows that CloudCannon can't find the records, and the *DNS* tab shows a notice for the *Subdomain* with what usually fixes it:
+
+* Check that the record is saved at your DNS provider, not only entered.
+* Some DNS providers add the domain for you, so the name might need to be the subdomain part on its own.
+* Remove any other A, AAAA, or CNAME records with the same name.
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Domain-Overview-Setup-Guide-External-Stuck" alt="A screenshot of the setup guide on the Summary tab shows CloudCannon cannot find the records for example.org and www.example.org, marked as updated 2 days ago, with Not found yet and a Show the records button." title="The setup guide when CloudCannon can't find the records" type="screenshot" />
+
+## Review the records on the DNS tab
+
+On external DNS, the *DNS* tab starts with the *External DNS nameservers* section. It has a *How do I configure external DNS?* link, and, if you can view the settings of your *Base Domain*, a *change the DNS Provider* link. Its table lists your *Base Domain* with the nameservers CloudCannon found and the status *Not CloudCannon DNS*.
+
+The *Required records* table lists each *Subdomain* whose record doesn't point at CloudCannon yet, with *Subdomain*, *Needs*, *Found*, and *Status* columns. Once every *Subdomain* points at CloudCannon, a notice takes the place of the table, headed *[Subdomain] points at CloudCannon* for one *Subdomain*, *Both subdomains point at CloudCannon* for two, or *All [Number] subdomains point at CloudCannon* for more. Each *Subdomain's* status, in this table and in the *DNS* section of its *Subdomain* page, is one of:
+
+* **Connected** — The *Subdomain* reaches CloudCannon.
+* **Not pointing at CloudCannon** — A record for the *Subdomain* points somewhere else.
+* **No DNS record** — CloudCannon found no record for the *Subdomain*.
+* **Not checked yet** — CloudCannon hasn't checked the *Subdomain* yet.
+* **Waiting for DNS** — In the last 48 hours, you added the *Subdomain*, changed its hosting, changed your DNS provider, or marked its record as updated, and CloudCannon is still looking for the record.
+
+For a *Subdomain* that isn't connected, the *Status* column also shows the *I've updated it* button, or, for seven days after you click it, when you marked the record as updated.
+
+Above the table, one warning notice names each *Subdomain* that still isn't pointing at CloudCannon 48 hours after you marked it as updated, with what usually fixes it, and each *Subdomain* whose record changed after it was live.
+
+Each table on the *DNS* tab has a footer that says how often CloudCannon checks and when it last checked, with a *Check now* button that checks every record in the table again. For record tables, the footer reads *CloudCannon checks daily, and hourly for up to seven days after you update a record.* The footer of the *External DNS nameservers* table also has a *View nameserver check history* icon, which opens the *Nameserver checks for [Base Domain]* modal.
+
+When you click a *Copy* icon, the icon changes to a tick and *Copied!* appears next to it.
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Domain-DNS-External" alt="A screenshot of the DNS tab for a domain on external DNS shows the External DNS nameservers section with a How do I configure external DNS? link, a change the DNS Provider link, and a table with the two nameservers found for example.com marked Not CloudCannon DNS, then a footer with the View nameserver check history icon and the Check now button, and a warning that blog.example.com is still not pointing at CloudCannon and that the DNS record of www.example.com changed." title="The DNS tab for a domain on external DNS" type="screenshot" />
+
+The *Wildcard record (optional)* table shows a wildcard CNAME record for your domain (e.g., \*.example.com pointing at `sites.cloudcannon.com`). Without a wildcard record, a subdomain you haven't added doesn't resolve. With one, its visitors reach your fallback. Records you add for specific *Subdomains* always take priority over the wildcard.
+
+Once you have added the wildcard record at your DNS provider, click the *I've updated it* button in its row. The status changes to *Waiting for DNS*, and CloudCannon checks for the record every hour for up to seven days by looking up a subdomain name that doesn't exist on your domain. Once CloudCannon finds the record, the status changes to *Connected*. CloudCannon also checks the wildcard record each time it checks your nameservers.
+
+When the *DNS* tab isn't listing TXT records for the wildcard certificate, the *Wildcard certificate* notice below the wildcard record shows the state of that certificate, which covers subdomains you haven't set up: *Setting up*, *HTTPS on*, or *No HTTPS*. While HTTPS is on, the notice shows the date by which the certificate renews, or that it *renews by itself through the CNAME record you added*. If your *Base Domain* is one of your *Subdomains* on CloudCannon, the notice has a *View HTTPS for [Base Domain]* link to its *HTTPS* section.
+
+Until you add the CNAME record that renews the wildcard certificate by itself, the *Automatic renewal record (optional)* table lists that record, below the *Wildcard certificate* notice or below the *Wildcard certificate records* table, with the same columns as the other record tables, a *Copy* icon for its name and value, and the status *Optional*. Once CloudCannon finds the record, the table goes away.
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Domain-DNS-External-Wildcard-Delegation-Offer" alt="A screenshot of the DNS tab for a domain on external DNS shows the Wildcard record (optional) table with the CNAME record for *.example.com, the Optional status, and the I've updated it button, the Wildcard certificate notice marked HTTPS on with its renewal date and a View HTTPS for example.com link, and the Automatic renewal record (optional) table with the CNAME record named _acme-challenge.example.com." title="The wildcard record and the wildcard certificate notice on the DNS tab" type="screenshot" />
+
+The *DNS* section of each *Subdomain* page shows the same record for that one *Subdomain*, with the same *Copy* icon and *I've updated it* button. Its footer has a *View DNS check history* icon, which opens the *DNS checks for [Subdomain]* modal, and a *Check now* button. The TXT records for getting HTTPS ready before you switch DNS, or for the certificate of a *Subdomain* on *Cloudflare Proxy*, are in the *HTTPS* section of the *Subdomain* page. For your *Base Domain*, the TXT records for a wildcard certificate renewal are on the *DNS* tab, and the *DNS* section links to them.
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Subdomain-Page-DNS-External-Records" alt="A screenshot of the DNS section on a subdomain page shows that the record for www.example.com points somewhere else, with the CNAME record it needs and its Copy icon, the A record found, the Not pointing at CloudCannon status, the I've updated it button, and a footer with when CloudCannon last checked, the View DNS check history icon, and the Check now button." title="The DNS section on a subdomain page" type="screenshot" />
+
+## How often CloudCannon checks your records
+
+CloudCannon checks the records of each *Subdomain* daily, and every hour for up to seven days after you click the *I've updated it* button. Adding a *Subdomain*, or changing its hosting, doesn't start hourly checks, so click the *I've updated it* button once you have added the record.
+
+To check a *Subdomain* immediately, click the *Check now* button in the footer of the *DNS* section of its *Subdomain* page. To check every *Subdomain* listed in the *Required records* table, click the *Check now* button in the footer of that table. You can check each *Subdomain* at most once a minute: for a minute after a check, the *Check now* button is disabled, with the tooltip *Checked less than a minute ago. You can check again in a minute.* Checking the records of *Subdomains* needs the `base-domain:settings:details:write` permission. Without it, the *Check now* button in a record table is disabled, with the tooltip *Checking needs permission to edit the settings of [Base Domain].* If CloudCannon couldn't complete the latest check, the footer says when the check failed, and the table keeps the last known status.
+
+## Subdomain emails
+
+CloudCannon emails everyone who can edit the settings of your *Base Domain* (the `base-domain:settings:details:write` permission) about the DNS record of each *Subdomain*.
+
+### [Subdomain] is live
+
+CloudCannon sends this email when it finds the record for a *Subdomain* you marked as updated and issues its certificate. The email shows the DNS record and the *Site* or redirect now live on the *Subdomain*, with a *Visit [Subdomain]* button.
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Mailer-Subdomain-Live" alt="A screenshot of the subdomain live email shows the headline careers.example.com is live!, a tracker with every step done, the DNS record CloudCannon found, and the Visit careers.example.com button." title="The subdomain live email" type="screenshot"/>
+
+### [Subdomain] is still not pointing at CloudCannon
+
+CloudCannon sends this email when it still can't find the record more than 48 hours after you clicked the *I've updated it* button. If you didn't click it, CloudCannon counts the 48 hours from when you added the *Subdomain*, or from the last time you changed its hosting or your DNS provider, whichever is later. Changing the hosting or the DNS provider starts the 48 hours again. CloudCannon only sends the email within seven days of that starting point, and only once for each starting point.
+
+The email starts *It has been more than 48 hours since [...]*, then shows the record the *Subdomain* needs, what CloudCannon found, and what usually fixes it, with a *Check the record* button that opens the *Subdomain* page.
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Mailer-Subdomain-Dns-Stuck" alt="A screenshot of the record still missing email shows the headline careers.example.com is still not pointing at CloudCannon, a tracker at Not found yet, the record the subdomain needs, what usually fixes it, and the Check the record button." title="The record still missing email" type="screenshot"/>
+
+### [Subdomain]'s DNS record changed
+
+CloudCannon sends this email when the record of a live *Subdomain* stops pointing at CloudCannon. The email shows what the record points at now, with a *Review [Subdomain]* button that opens the *Subdomain* page. Change the record back at your DNS provider, or, if you moved the *Subdomain* on purpose, remove it from CloudCannon.
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Mailer-Subdomain-Dns-Changed" alt="A screenshot of the DNS record changed email shows that the record for careers.example.com points somewhere else, the record it needs, and the record CloudCannon found." title="The DNS record changed email" type="screenshot"/>
+
+## Renew the wildcard certificate
+
+The wildcard certificate for your *Base Domain* needs new TXT records at your DNS provider each time it renews, unless you add a CNAME record once. The first wildcard certificate is optional, because your *Base Domain* and the *Subdomains* you have set up have their own certificates. Once you have one, renew it on time, or visitors to subdomains you haven't set up see a security warning. Before it expires, CloudCannon emails everyone who can edit the settings of your *Base Domain* the new TXT records, and the *DNS* tab lists them under *Wildcard certificate records*, along with the CNAME record. You can add the CNAME record at any time, not only during a renewal: while the record is missing, the *DNS* tab offers it, and the *Other subdomains* block in the *HTTPS* section of the *Subdomain* page for your *Base Domain* links to it. Once you add it, the certificate renews by itself, and you don't need to add TXT records again. For more information, please read our documentation on [renewing the wildcard certificate on external DNS](/documentation/developer-articles/add-an-auto-generated-ssl-certificate/#renew-the-wildcard-certificate-on-external-dns).
+
+## Choose how visitors reach a Subdomain
+
+Each *Subdomain* on your *Custom Domain* has its own hosting option, which applies to every *Site* on that *Subdomain*. You can choose one of three options:
+
+* **CloudCannon Hosting** — CloudCannon's global CDN serves the *Subdomain*. This is the default and recommended option. Your *Base Domain* can't point at the CDN on external DNS, so its A records point straight at CloudCannon's origin instead.
+* **Cloudflare Proxy** — Your own Cloudflare zone proxies the *Subdomain* to CloudCannon's origin.
+* **Single Origin** — DNS points straight at CloudCannon's origin, or through your own proxy.
+
+For more information on *Subdomains*, please read our documentation on [what a subdomain is](/documentation/developer-articles/what-is-a-subdomain/).
 
 ## Configure Cloudflare Proxy
 
-CloudCannon hosting uses Cloudflare. If you are using Cloudflare as your DNS provider and have Cloudflare's Proxy feature enabled for your DNS records, you will not be able to proxy directly to the normal CloudCannon CNAME (i.e., sites.cloudcannon.com).
+CloudCannon hosting uses Cloudflare. If you use Cloudflare as your DNS provider and a record's proxy status is *Proxied*, you can't proxy directly to the normal CloudCannon CNAME (i.e., `sites.cloudcannon.com`).
 
-To resolve this issue, you can either turn off Orange Cloud or set up Cloudflare Proxy with CloudCannon Origin and add a CNAME record to your DNS provider.
+To resolve this issue, you can either set the record's proxy status to *DNS only*, or set the *Subdomain's* hosting to *Cloudflare Proxy* and add a CNAME record to your DNS provider.
 
-To set up Cloudflare Proxy with CloudCannon Origin:
+The *Hosting for [Subdomain]* modal labels the saved option *Current*, shows the DNS record the selected option needs, and warns you if the record has to change.
 
-1. Navigate to the *Custom Domain* page under *Site Settings*.
-2. Under the *Setup* tab, select the *Cloudflare Proxy with CloudCannon Origin* option in the *Hosting Setup* dropdown.
-3. Click the *Switch to Cloudflare Proxy with CloudCannon Origin* to confirm.
+To set a *Subdomain's* hosting to *Cloudflare Proxy*:
 
-<comp.DocShot docshot_key="CloudCannon-Documentation-Custom-Domain-Orange-Cloud" alt="A screenshot of the Custom Domain page shows the Cloudflare Proxy with CloudCannon Origin option in the Hosting Setup dropdown." title="The Custom Domain page" type="screenshot" />
+1. Log in to CloudCannon.
+2. Select the *Organization* your *Custom Domain* is connected to.
+3. Click the *Domains* link in the *App Sidebar*. CloudCannon will open the *Domains Browser*.
+4. Select the domain for which you want to configure hosting by clicking the *Card* for the domain. CloudCannon will open the *Summary* tab of the *Domain* page.
+5. Click the *Subdomains* tab. CloudCannon will list the *Subdomains* on your *Custom Domain*.
+6. Click the *Card* for the *Subdomain*. CloudCannon will open the page for that *Subdomain*.
+7. Click the *Configure* button in the *Hosting* section. CloudCannon will open the *Hosting for [Subdomain]* modal.
+8. Select the *Cloudflare Proxy* option under *Hosting*. CloudCannon will show the DNS record the *Subdomain* needs.
+9. Click the *Save hosting* button.
+
+CloudCannon will expect your Cloudflare zone to proxy visitors to the CloudCannon origin.
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Custom-Domain-Orange-Cloud" alt="A screenshot of the Hosting for example.com modal shows the CloudCannon Hosting, Cloudflare Proxy, and Single Origin options, with Cloudflare Proxy selected and the CNAME record it needs, and the Save hosting button." title="The Hosting modal" type="screenshot" />
 
 To add a CNAME record:
 
-1. Log in to Cloudflare and navigate to your DNS settings.
-2. Add a CNAME record pointing to your Domain Name (e.g., example.com) at *orange-cloud.cloudcannon.com*.
+1. Log in to Cloudflare.
+2. Navigate to the DNS records for your domain.
+3. Add a CNAME record pointing your *Subdomain* (e.g., docs.example.com) at `orange-cloud.cloudcannon.com`, with the proxy status set to *Proxied*.
+4. Set Cloudflare's SSL/TLS encryption mode to *Full (strict)*.
+5. Click the *I've updated it* button in the *DNS* section of the *Subdomain* page.
+
+Cloudflare will confirm that you own the *Subdomain* from the proxied record, and issue its certificate. To issue the certificate before you change your proxied record, click the *Issue the SSL certificate before you switch* button in the *HTTPS* section. For more information, please read our documentation on [issuing the certificate before you switch a proxied record](/documentation/developer-articles/add-an-auto-generated-ssl-certificate/#issue-the-certificate-before-you-switch-a-proxied-record).
 
 <comp.Notice info_type="important">
-  Your Site might be cached externally if you use Cloudflare Proxy. In this case, your Site won't show any updates until you manually clear your cache.
+  If you use *Cloudflare Proxy*, Cloudflare might cache your *Site*. In that case, your *Site* won't show any updates until you clear your Cloudflare cache.
 </comp.Notice>
 
 ## Single Origin
 
 <comp.Notice info_type="important">
-  We do not recommend this option unless you have specific set up requirements. For assistance setting up your DNS, please contact our friendly <a href="https://cloudcannon.com/support/">support team</a>.
+  CloudCannon does not recommend *Single Origin* unless you have specific setup requirements. For assistance setting up your DNS, please contact our friendly <a href="https://cloudcannon.com/support/">support team</a>. Include the *Custom Domain*, the *Subdomain*, your DNS provider and any proxy in front of CloudCannon, and the records shown under *Needs* and *Found* in the *DNS* section of the *Subdomain* page.
 </comp.Notice>
 
-In some cases, you may need to configure your DNS records to point directly at CloudCannon's host origin rather than *sites.cloudcannon.com*. This bypasses the normal benefits of hosting on CloudCannon:
+In some cases, you may need to configure your DNS records to point directly at CloudCannon's host origin rather than `sites.cloudcannon.com`, for example when another provider proxies your *Subdomain*. *Single Origin* skips these features of *CloudCannon Hosting*:
 
-* The ability for CloudCannon to auto-generate a wildcard SSL certificate for your domain and its subdomains.
-* Faster DNS lookup speed due to a globally distributed edge caching network.
+* CloudCannon's global network, which serves your pages from locations around the world, so they load quickly everywhere.
+* Certificate validation before your DNS points at CloudCannon. With *Single Origin*, CloudCannon can only validate your certificate once your DNS points at the CloudCannon origin.
 
-Most commonly, you might use this setup if you need to point your base domain at CloudCannon while also using an external DNS.
+To point your DNS straight at the CloudCannon origin, set the *Subdomain's* hosting to *Single Origin* and add DNS records to your DNS provider.
 
-To achieve this, you can set up Single Origin hosting and add DNS records to your DNS provider.
+To set a *Subdomain's* hosting to *Single Origin*:
 
-To set up Single Origin hosting:
+1. Log in to CloudCannon.
+2. Select the *Organization* your *Custom Domain* is connected to.
+3. Click the *Domains* link in the *App Sidebar*. CloudCannon will open the *Domains Browser*.
+4. Select the domain for which you want to configure hosting by clicking the *Card* for the domain. CloudCannon will open the *Summary* tab of the *Domain* page.
+5. Click the *Subdomains* tab. CloudCannon will list the *Subdomains* on your *Custom Domain*.
+6. Click the *Card* for the *Subdomain*. CloudCannon will open the page for that *Subdomain*.
+7. Click the *Configure* button in the *Hosting* section. CloudCannon will open the *Hosting for [Subdomain]* modal.
+8. Select the *Single Origin* option under *Hosting*. CloudCannon will show the DNS record the *Subdomain* needs.
+9. Click the *Save hosting* button.
 
-1. Navigate to the *Custom Domain* page under *Site Settings*.
-2. Under the *Setup* tab, select the *Single Origin* option in the *Hosting Setup* dropdown.
-3. Click the *Switch to Single Origin* to confirm.
+CloudCannon will expect your DNS to point straight at the CloudCannon origin.
 
-<comp.DocShot docshot_key="CloudCannon-Documentation-Custom-Domain-Single-Origin" alt="A screenshot of the Custom Domain page shows the Single Origin option in the Hosting Setup dropdown." title="The Custom Domain page" type="screenshot" />
+<comp.DocShot docshot_key="CloudCannon-Documentation-Custom-Domain-Single-Origin" alt="A screenshot of the Hosting for example.com modal shows the CloudCannon Hosting, Cloudflare Proxy, and Single Origin options, with Single Origin selected and the DNS records it needs, and the Save hosting button." title="The Hosting modal" type="screenshot" />
 
-To add a DNS records:
+The *DNS* section of the *Subdomain* page lists the records under *Needs*. For a *Subdomain*, this is a CNAME record pointing at `orange-cloud.cloudcannon.com`. For your *Base Domain*, it is two A records instead.
+
+To add the DNS records:
 
 1. Log in to your third-party DNS provider.
-2. Add the CNAME record displayed on the *Setup* tab of the *Custom Domain* page. If your DNS provider does not allow CNAME records on a base domain, add the two A records instead.
+2. Add the records listed under *Needs* in the *DNS* section of the *Subdomain* page.
+3. Click the *I've updated it* button in the *DNS* section.
+
+CloudCannon will show the *Subdomain* as *Connected* in the *DNS* section once your DNS points at the CloudCannon origin, and will answer the certificate challenge for the *Subdomain* itself.
+
+If your own proxy sits in front of CloudCannon, have it connect to CloudCannon over HTTPS, keep the visitor's hostname in the `Host` header, and pass requests to `/.well-known/acme-challenge/` through to CloudCannon, so the certificate authority can reach the challenge. If your proxy connects over HTTP and the *Subdomain* has *Redirect http:// visitors to https://* ticked, CloudCannon answers every request with a redirect to HTTPS, which can send visitors in a redirect loop.

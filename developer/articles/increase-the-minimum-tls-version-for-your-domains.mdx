@@ -1,12 +1,12 @@
 ---
 _schema: default
 _uuid: 44cab659-69fe-4bc6-87d6-dc1a1eea005f
-_created_at: '2026-06-26 00:00:00 +0000'
+_created_at: 2026-06-26T00:00:00Z
 details:
   title: Increase the minimum TLS version for your domains
   description: >-
-    Learn how to increase the minimum TLS version across every domain on your
-    base domain from the Domain Settings page.
+    Learn how to set the minimum TLS version for your Custom Domain and check
+    which subdomains meet it.
   image: >-
     https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
   category:
@@ -24,31 +24,58 @@ author_notes:
 <comp.Notice info_type="permissions">
   **Permissions required**
 
-  Members of the *Owners* or *Developers* [Default Permission Groups](/documentation/user-articles/what-are-default-permission-groups/), or [Custom Permission Groups](/documentation/developer-articles/what-are-custom-permission-groups/) with the `base-domain:settings:details:write` permission, can set the minimum TLS version for a base domain.
+  Members of the *Owners*, *Developers*, and *Partner* [Default Permission Groups](/documentation/user-articles/what-are-default-permission-groups/), or [Custom Permission Groups](/documentation/developer-articles/what-are-custom-permission-groups/) with the `base-domain:settings:details:write` permission, can set the minimum TLS version for a *Base Domain* and its *Subdomains*.
 </comp.Notice>
 
-You can set a single minimum TLS version that applies to every domain on your base domain, rather than configuring it on each subdomain individually with an [auto-generated SSL certificate](/documentation/developer-articles/add-an-auto-generated-ssl-certificate/). This is useful when you host several *Sites* on one base domain and want a consistent security baseline across all of them. On CloudCannon, the minimum TLS version is either 1.2 by default, or 1.3. For more about the minimum TLS version and how to choose between 1.2 and 1.3, please read our documentation on [SSL certificates](/documentation/developer-articles/what-is-an-ssl-certificate/#tls-version).
+You set the minimum TLS version once for your <comp.GlossaryTerm term="/user/glossary/c/custom-domain.yml">Custom Domain</comp.GlossaryTerm>, and CloudCannon shows which of its <comp.GlossaryTerm term="/user/glossary/s/subdomain.yml">Subdomains</comp.GlossaryTerm> meet it. On CloudCannon, the minimum TLS version is either 1.2 by default, or 1.3. For more about the minimum TLS version and how to choose between 1.2 and 1.3, please read our documentation on [what an SSL certificate is](/documentation/developer-articles/what-is-an-ssl-certificate/#tls-version).
 
-<comp.Notice info_type="info">
-  The minimum TLS version applies to domains on your base domain that CloudCannon serves through Cloudflare, whether they use an [auto-generated SSL certificate](/documentation/developer-articles/add-an-auto-generated-ssl-certificate/) or a [custom SSL certificate](/documentation/developer-articles/add-a-custom-ssl-certificate/). CloudCannon enforces the minimum TLS version separately from the certificate itself, and domains not served through Cloudflare are not affected.
-</comp.Notice>
+New *Subdomains* start at the minimum TLS version for your *Custom Domain*. When you raise the minimum for your *Custom Domain*, CloudCannon also raises every *Subdomain* below it, and the <comp.GlossaryTerm term="/user/glossary/w/wildcard-certificate.yml">wildcard certificate</comp.GlossaryTerm> that covers subdomains you haven't set up. *Subdomains* update shortly after you save.
 
-When you change the minimum TLS version, CloudCannon lists the domains on your base domain that do not yet meet it, then raises those domains to your selected version when you confirm. Domains that already meet or exceed your selected minimum are left unchanged. If you want to return to a lower TLS version, you must do so manually for each subdomain via the [Configure SSL modal](/documentation/developer-articles/add-an-auto-generated-ssl-certificate/).
+When you lower the minimum for your *Custom Domain*, *Subdomains* keep their own minimum TLS version unless you check the *Also lower [Number] subdomains to TLS [Version]* checkbox. With the checkbox checked, CloudCannon lowers every *Subdomain* above the new minimum, and the wildcard certificate, to the new minimum. Without it, only new *Subdomains* start at the lower version.
 
-To increase the minimum TLS version for your domains:
+CloudCannon saves the minimum TLS version on every *Subdomain*. CloudCannon's Cloudflare network applies it to *Subdomains* on <comp.GlossaryTerm term="/user/glossary/c/cloudcannon-hosting.yml">CloudCannon Hosting</comp.GlossaryTerm> and <comp.GlossaryTerm term="/user/glossary/c/cloudflare-proxy.yml">Cloudflare Proxy</comp.GlossaryTerm>. <comp.GlossaryTerm term="/user/glossary/s/single-origin.yml">Single Origin</comp.GlossaryTerm> *Subdomains* count toward the check below like any other *Subdomain*.
 
-1. Log in to CloudCannon and select the Organization that contains your base domain.
-2. Click the *Domains* button in the *App Sidebar*. CloudCannon will open the <comp.GlossaryTerm term="/user/glossary/d/domains-browser.yml">Domains Browser</comp.GlossaryTerm>.
-3. Identify the domain you want to update and click on the *Domain* card. CloudCannon will open the *Domain* page for this <comp.GlossaryTerm term="/user/glossary/c/custom-domain.yml">Custom Domain</comp.GlossaryTerm>.
-4. Navigate to the *TLS* section under the *Domain Settings* tab.
-5. Select a version number from the *Minimum TLS version* dropdown.
-6. Review the list of domains that CloudCannon will update to your selected minimum TLS version.
-7. Click the *Update minimum TLS* button.
+## Check which Subdomains meet your minimum TLS version
 
-CloudCannon will set the minimum TLS version across the listed domains on your base domain.
+The *Minimum TLS* <comp.GlossaryTerm term="/user/glossary/c/card.yml">Card</comp.GlossaryTerm> on the *Summary* tab of the <comp.GlossaryTerm term="/user/glossary/d/domain-page.yml">Domain page</comp.GlossaryTerm> shows the minimum TLS version for your *Custom Domain*, the lowest version any *Subdomain* accepts. Below the version, the *Card* confirms that all *Subdomains* meet it, or names the *Subdomains* that are below it.
 
-<comp.DocShot docshot_key="CloudCannon-Documentation-Domains-Settings-TLS" alt="A screenshot of the TLS section on the Domain Settings tab shows the minimum TLS version set to 1.3 and a list of domains that will be updated to meet it." title="The Domain page TLS section" type="screenshot"/>
+The *TLS* section under the *Domain Settings* tab sets the minimum TLS version for your *Custom Domain*, and shows the same check in more detail. When you select a new version from the *Minimum TLS version* dropdown, CloudCannon lists the *Subdomains* that change to that version under *These subdomains change to TLS [Version]* (or *This subdomain changes to TLS [Version]* for one), with each *Subdomain's* own minimum TLS version. Click the *Card* for a *Subdomain* in the list to open its page. If every *Subdomain* already meets the version you select, the section says *All subdomains meet TLS [Version].* instead. After you save, until the change reaches them shortly after, the section lists the *Subdomains* still below the new minimum under *[Number] subdomains are below TLS [Version]*.
 
-<comp.Notice info_type="info">
-  When all domains on your base domain already use your selected minimum TLS version, CloudCannon displays a message confirming there are no domains to update, and the *Update minimum TLS* button is disabled.
-</comp.Notice>
+## Set the minimum TLS version for your Custom Domain
+
+To set the minimum TLS version for your *Custom Domain*:
+
+1. Log in to CloudCannon.
+2. Select the <comp.GlossaryTerm term="/user/glossary/o/organization.yml">Organization</comp.GlossaryTerm> your *Custom Domain* is connected to.
+3. Click the *Domains* link in the <comp.GlossaryTerm term="/user/glossary/a/app-sidebar.yml">App Sidebar</comp.GlossaryTerm>. CloudCannon will open the <comp.GlossaryTerm term="/user/glossary/d/domains-browser.yml">Domains Browser</comp.GlossaryTerm>.
+4. Click the *Card* for the domain you want to update. CloudCannon will open the *Summary* tab of the *Domain* page for this *Custom Domain*.
+5. Click the *View TLS settings* link below the *Minimum TLS* *Card*. CloudCannon will open the *TLS* section under the *Domain Settings* tab.
+6. Select a version number from the *Minimum TLS version* dropdown. CloudCannon will list the *Subdomains* that change to that version.
+7. (Optional.) If you are lowering the minimum, check the *Also lower [Number] subdomains to TLS [Version]* checkbox.
+8. Click the *Update minimum TLS* button.
+
+CloudCannon will save the minimum TLS version for your *Custom Domain*, raise the *Subdomains* below it, and show *The minimum TLS version for [Base Domain] is now [Version].*
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Domains-Settings-TLS" alt="A screenshot of the TLS section on the Domain Settings tab shows that it sets the lowest TLS version any subdomain of example.com accepts, the Minimum TLS version dropdown set to 1.3, four subdomains under These subdomains change to TLS 1.3 with the minimum TLS version of each, and the Update minimum TLS button." title="The TLS section on the Domain Settings tab" type="screenshot"/>
+
+## Raise the minimum TLS version for one Subdomain
+
+You can give one *Subdomain* a higher minimum TLS version than the rest of your *Custom Domain*, such as 1.3 for a *Subdomain* that handles sign-ins while the others stay on 1.2. A *Subdomain's* minimum can't be lower than the minimum for its *Custom Domain*, so the *Minimum TLS version* dropdown only offers versions at or above it.
+
+On the *Subdomain* page for your *Base Domain* (e.g., example.com), the minimum you choose also applies to subdomains you haven't set up, which the wildcard certificate covers.
+
+To set the minimum TLS version for one *Subdomain*:
+
+1. Log in to CloudCannon.
+2. Select the *Organization* your *Custom Domain* is connected to.
+3. Click the *Domains* link in the *App Sidebar*. CloudCannon will open the *Domains Browser*.
+4. Click the *Card* for the domain that has the *Subdomain*. CloudCannon will open the *Summary* tab of the *Domain* page.
+5. Click the *Subdomains* tab. CloudCannon will open the list of *Subdomains*.
+6. Click the *Card* for the *Subdomain*. CloudCannon will open the page for that *Subdomain*.
+7. Click the *Configure* button in the *HTTPS* section. CloudCannon will open the *HTTPS for [Subdomain]* modal.
+8. Select a version from the *Minimum TLS version* dropdown under *HTTP*.
+9. Click the *Save HTTPS* button.
+
+CloudCannon will save the minimum TLS version for the *Subdomain* and apply it shortly after.
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Subdomain-Page-HTTPS-Modal-Min-TLS" alt="A screenshot of the HTTPS for blog.example.com modal shows the SSL certificate options with Let CloudCannon issue and renew it selected, and, under HTTP, the Redirect http:// visitors to https:// checkbox and the Minimum TLS version dropdown set to TLS 1.3, with the Save HTTPS button." title="The minimum TLS version in the HTTPS modal" type="screenshot"/>

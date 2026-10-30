@@ -13,45 +13,56 @@ details:
     - Instructions
   related_articles:
     - _type: developer_articles
-      item: 5804dd03-210e-48cc-a02f-1b29f439ce0e
+      item: 774ad898-8294-4e96-80b1-a7e79355aba6
     - _type: developer_articles
       item: 6b2315f7-78a9-4536-baa2-9446ddfa0246
     - _type: developer_articles
-      item: af57cd28-38ef-49f0-9673-8809ee7299c0
+      item: fbb7360a-b08e-4386-a457-7e9e1d42f885
 author_notes:
   docshots: Added!
 ---
 <comp.Notice info_type="permissions">
   **Permissions required**
 
-  Members of the *Developers* and *Owners* [Default Permission Groups](/documentation/user-articles/what-are-default-permission-groups/), or [Custom Permission Groups](/documentation/developer-articles/what-are-custom-permission-groups/) with the `base-domain:settings:details:write` permission, can update the fallback redirect for a Custom Domain.
+  Members of the *Owners*, *Developers*, and *Partner* [Default Permission Groups](/documentation/user-articles/what-are-default-permission-groups/), or [Custom Permission Groups](/documentation/developer-articles/what-are-custom-permission-groups/) with the `base-domain:settings:details:write` permission, can update the fallback redirect for a *Custom Domain*.
 </comp.Notice>
 
-A Custom Domain is a unique address used to identify a website (e.g., <a href="https://cloudcannon.com" target="_blank" rel="noopener">cloudcannon.com</a>). If you have <a href="/documentation/developer-articles/connect-a-custom-domain-to-your-organization/">connected a Custom Domain to your Organization</a>, you can host your Site on a subdomain by [adding a Custom Domain to your Site](/documentation/developer-articles/add-a-custom-domain-to-your-site/). CloudCannon will use the fallback redirect domain for any subdomains you do not add to a CloudCannon Site.
+The <comp.GlossaryTerm term="/user/glossary/f/fallback-redirect.yml">fallback redirect</comp.GlossaryTerm> is the <comp.GlossaryTerm term="/user/glossary/s/subdomain.yml">Subdomain</comp.GlossaryTerm> to which CloudCannon sends visitors when they visit a subdomain on your <comp.GlossaryTerm term="/user/glossary/c/custom-domain.yml">Custom Domain</comp.GlossaryTerm> that is not set up, or a *Subdomain* with no <comp.GlossaryTerm term="/user/glossary/s/site.yml">Site</comp.GlossaryTerm> yet. If the fallback itself has no *Site*, its visitors see a not found page. For more information, please read our documentation on [what a Subdomain is](/documentation/developer-articles/what-is-a-subdomain/).
 
-* **Fallback redirect** — The domain to which CloudCannon will redirect visitors when they attempt to access an unconfigured subdomain.
+The fallback redirect prevents your visitors from encountering errors if they enter an incorrect subdomain in their browser (e.g., `typo.example.com`). The fallback can be any *Subdomain* on your *Custom Domain*, including a <comp.GlossaryTerm term="/user/glossary/r/redirect-subdomain.yml">Redirect Subdomain</comp.GlossaryTerm>. The wildcard certificate for your <comp.GlossaryTerm term="/user/glossary/b/base-domain.yml">Base Domain</comp.GlossaryTerm> covers subdomains that are not set up, so visitors reach your fallback redirect over HTTPS. On <comp.GlossaryTerm term="/user/glossary/e/external-dns.yml">external DNS</comp.GlossaryTerm>, the wildcard certificate needs records at your DNS provider to be issued and renewed, and without them HTTPS stops working for subdomains you haven't set up. For more information, please read our documentation on [adding an auto-generated SSL certificate](/documentation/developer-articles/add-an-auto-generated-ssl-certificate/#how-cloudcannon-validates-your-certificate) and [renewing the wildcard certificate on external DNS](/documentation/developer-articles/add-an-auto-generated-ssl-certificate/#renew-the-wildcard-certificate-on-external-dns).
 
-The fallback redirect prevents your visitors from encountering 404 errors if they enter an incorrect domain name in their Internet browser. By default, CloudCannon will use your base domain as your fallback redirect (e.g., \*.example.com will redirect to example.com).
+The *Fallback* section on the *Subdomains* tab of the *Domain* page for your *Custom Domain* names your current fallback and shows the redirect as a tree from `*.example.com`, with a description of its status code, to your fallback. CloudCannon labels the fallback *Subdomain* with *Fallback* in the list of *Subdomains*. The *Summary* tab also names your current fallback.
 
-You can configure which domain or subdomain is your fallback redirect on the *Network* tab of your Custom Domain's *Domain* page. To select a Custom Domain as your fallback redirect, you must add that domain to a CloudCannon Site.
+The fallback redirect uses a *307 Temporary, keeps the method* status code by default, so search engines don't treat a subdomain that isn't set up as moved for good. You can choose *301 Permanent*, *302 Temporary*, *307 Temporary, keeps the method*, or *308 Permanent, keeps the method* in the *Change fallback* modal. Search engines treat a permanent redirect as a permanent move, so if you might later set up one of those subdomains, keep a temporary status code.
 
-These instructions assume you have connected the Custom Domain to your Organization and added the domain you want to use as your fallback redirect to a Site.
+If visitors use a particular subdomain, such as `www.example.com`, add it as a *Redirect Subdomain* rather than relying on the fallback. Each *Redirect Subdomain* has its own certificate and status code, and works on external DNS without the wildcard certificate. For more information, please read our documentation on [managing your Redirect Subdomains](/documentation/developer-articles/manage-your-redirect-subdomains/).
 
-To configure your fallback redirect:
-
-1. Log in to CloudCannon and select the Organization with the Custom Domain you want to update.
-2. Click the *Domains* button in the *App Sidebar*. CloudCannon will open the *Domains Browser*.
-3. Identify the domain you want to update and click on the *Domain* card. CloudCannon will open the *Domain* page for this Custom Domain.
-4. On the *Network* tab, click the *Update fallback redirect* button under the *Fallback redirect* heading. CloudCannon will open the *Update your fallback redirect* modal.
-5. Select the subdomain you want to use as your fallback redirect using the *Subdomain* dropdown.
-6. Click the *Update fallback redirect* button.
-
-CloudCannon will update you fallback redirect.
-
-<comp.DocShot docshot_key="CloudCannon-Documentation-Domains-Network-Tab" alt="A screenshot of the Network tab on the Domain page shows the fallback redirect section and Update fallback redirect button." title="The Domain page Network tab" type="screenshot"/>
-
-<comp.DocShot docshot_key="CloudCannon-Documentation-Domains-Network-Tab-Fallback-Redirect-Modal" alt="A screenshot of the Update your fallback redirect modal on the Network tab shows a Subdomain dropdown for selecting a new fallback redirect." title="The Domain page Network tab" type="screenshot"/>
+If your *Custom Domain* uses an external DNS provider, visitors only reach your fallback from a subdomain that isn't set up if you add a wildcard record (e.g., `*.example.com`) at your DNS provider. The *DNS* tab shows this record in the *Wildcard record (optional)* table, where you click the *I've updated it* button once you have added it, and CloudCannon shows *Connected* once it finds the record. For more information, please read our documentation on [configuring external DNS](/documentation/developer-articles/configure-external-dns/#review-the-records-on-the-dns-tab).
 
 <comp.Notice info_type="important">
-  If you have configured your [DNS](/documentation/developer-articles/what-is-dns/) to point a specific domain at a service outside of CloudCannon, CloudCannon will not be able to redirect that domain to your main domain.
+  If you have configured your [DNS](/documentation/developer-articles/what-is-dns/) to point a specific subdomain at a service outside of CloudCannon, CloudCannon can't send visitors to that subdomain to your fallback redirect.
 </comp.Notice>
+
+If you delete the *Subdomain* that is your fallback, another *Subdomain* becomes the fallback. You can choose which one under *Fallback* on the *Summary* tab.
+
+Before we begin, this article assumes you have [connected the Custom Domain to your Organization](/documentation/developer-articles/connect-a-custom-domain-to-your-organization/) and added the *Subdomain* you want to use as your fallback redirect.
+
+To update your fallback redirect:
+
+1. Log in to CloudCannon.
+2. Select the <comp.GlossaryTerm term="/user/glossary/o/organization.yml">Organization</comp.GlossaryTerm> with the *Custom Domain* you want to update.
+3. Click the *Domains* link in the <comp.GlossaryTerm term="/user/glossary/a/app-sidebar.yml">App Sidebar</comp.GlossaryTerm>. CloudCannon will open the <comp.GlossaryTerm term="/user/glossary/d/domains-browser.yml">Domains Browser</comp.GlossaryTerm>.
+4. Click the <comp.GlossaryTerm term="/user/glossary/c/card.yml">Card</comp.GlossaryTerm> for the domain you want to update. CloudCannon will open the *Summary* tab of the *Domain* page for this *Custom Domain*.
+5. Click the *Subdomains* tab. CloudCannon will open the list of *Subdomains* on your *Custom Domain*.
+6. Click the *Change fallback* button in the *Fallback* section. CloudCannon will open the *Change fallback* modal.
+7. Select the *Subdomain* you want to use as your fallback redirect from the *Fallback subdomain* dropdown.
+8. (Optional.) Select a status code from the *Status code* dropdown.
+9. Click the *Save fallback* button.
+
+CloudCannon will update your fallback redirect.
+
+You can also click the *Change fallback* button on the *Summary* tab of the *Domain* page to open the *Change fallback* modal, or select the *Use as fallback* option in a *Subdomain's* <comp.GlossaryTerm term="/user/glossary/c/context-menu.yml">Context Menu</comp.GlossaryTerm> on the *Subdomains* tab, which opens the *Change the fallback?* modal.
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Domains-Network-Tab" alt="A screenshot of the Subdomains tab on the Domain page shows the list of Subdomains with example.com labeled Fallback, and the Fallback section with the Change fallback button and the redirect from *.example.com to example.com." title="The Subdomains tab on the Domain page" type="screenshot"/>
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Domains-Network-Tab-Fallback-Redirect-Modal" alt="A screenshot of the Change fallback modal shows the Fallback subdomain dropdown for selecting a new fallback redirect, the Status code dropdown set to 307 Temporary, keeps the method, and the Save fallback button." title="The Change fallback modal" type="screenshot"/>

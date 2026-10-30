@@ -1,0 +1,119 @@
+---
+_schema: default
+_uuid: 94808c28-bbc5-40e9-83d5-63ca8d7194de
+_created_at: 2026-10-29T00:00:00Z
+details:
+  title: Configure a Subdomain's hosting, HTTPS, and DNS
+  description: >-
+    Learn how to open the page for a Subdomain, change how visitors reach it,
+    change how it gets its SSL certificate, and check its DNS.
+  image: >-
+    https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+  category:
+    - Instructions
+  related_articles:
+    - _type: developer_articles
+      item: 774ad898-8294-4e96-80b1-a7e79355aba6
+    - _type: developer_articles
+      item: 3d078d52-f9e8-4031-8a3a-020e4b831836
+    - _type: developer_articles
+      item: 65fbeba4-ea00-410c-84cc-ef701f24ac0a
+author_notes:
+  docshots: Added!
+---
+<comp.Notice info_type="permissions">
+  **Permissions required**
+
+  Members of the *Owners*, *Developers*, and *Partner* [Default Permission Groups](/documentation/user-articles/what-are-default-permission-groups/), or [Custom Permission Groups](/documentation/developer-articles/what-are-custom-permission-groups/) with the `base-domain:settings:details:write` permission, can change a *Subdomain's* hosting and HTTPS settings and check its DNS.
+</comp.Notice>
+
+Every <comp.GlossaryTerm term="/user/glossary/s/subdomain.yml">Subdomain</comp.GlossaryTerm> on your <comp.GlossaryTerm term="/user/glossary/c/custom-domain.yml">Custom Domain</comp.GlossaryTerm> has its own hosting, HTTPS, and DNS settings, whether it serves <comp.GlossaryTerm term="/user/glossary/s/site.yml">Sites</comp.GlossaryTerm> or redirects visitors to another domain. The settings belong to the *Subdomain*, not to each *Site*, so any change applies to every *Site* on the *Subdomain*. For more information on the hosting options and when to choose each one, please read our documentation on [what a Subdomain is](/documentation/developer-articles/what-is-a-subdomain/).
+
+Before we begin, this article assumes you have [added a Subdomain to your Custom Domain](/documentation/developer-articles/add-a-subdomain-to-your-custom-domain/).
+
+## Open the page for a Subdomain
+
+Each *Subdomain* has its own page, with a *Hosting*, *HTTPS*, and *DNS* section.
+
+To open the page for a *Subdomain*:
+
+1. Log in to CloudCannon.
+2. Select the <comp.GlossaryTerm term="/user/glossary/o/organization.yml">Organization</comp.GlossaryTerm> your *Custom Domain* is connected to.
+3. Click the *Domains* link in the <comp.GlossaryTerm term="/user/glossary/a/app-sidebar.yml">App Sidebar</comp.GlossaryTerm>. CloudCannon will open the <comp.GlossaryTerm term="/user/glossary/d/domains-browser.yml">Domains Browser</comp.GlossaryTerm>.
+4. Click the <comp.GlossaryTerm term="/user/glossary/c/card.yml">Card</comp.GlossaryTerm> for the domain you want to configure. CloudCannon will open the *Summary* tab of the <comp.GlossaryTerm term="/user/glossary/d/domain-page.yml">Domain page</comp.GlossaryTerm>.
+5. Click the *Subdomains* tab. CloudCannon will open the list of *Subdomains* on your *Custom Domain*.
+6. Click the *Card* for the *Subdomain* in the list.
+
+CloudCannon will open the page for the *Subdomain*.
+
+You can also reach the same settings from the <comp.GlossaryTerm term="/user/glossary/c/context-menu.yml">Context Menu</comp.GlossaryTerm> of each *Subdomain* in the list, which has the *Configure hosting*, *Configure HTTPS*, *Check DNS now*, and *View check history* options. In the same menu, the *Open subdomain page* option opens these settings, and the *Visit subdomain* option opens the *Subdomain* itself in a new browser tab. For a *Subdomain* that serves a *Site*, the *Custom Domain* page under *Site Settings* for that *Site* also shows the page for the *Subdomain*, under the *Subdomain settings* heading.
+
+## Change the hosting option for a Subdomain
+
+Every new *Subdomain* starts on <comp.GlossaryTerm term="/user/glossary/c/cloudcannon-hosting.yml">CloudCannon Hosting</comp.GlossaryTerm>. You can switch it to <comp.GlossaryTerm term="/user/glossary/c/cloudflare-proxy.yml">Cloudflare Proxy</comp.GlossaryTerm> or <comp.GlossaryTerm term="/user/glossary/s/single-origin.yml">Single Origin</comp.GlossaryTerm>. *Cloudflare Proxy* isn't available while your domain uses <comp.GlossaryTerm term="/user/glossary/c/cloudcannon-dns.yml">CloudCannon DNS</comp.GlossaryTerm>, so the *Hosting for [Subdomain]* modal doesn't offer it there.
+
+The hosting option decides which DNS record the *Subdomain* needs. On <comp.GlossaryTerm term="/user/glossary/e/external-dns.yml">external DNS</comp.GlossaryTerm>, changing the hosting option can mean updating the record at your DNS provider. On *CloudCannon DNS*, once your domain's nameservers point at CloudCannon DNS, CloudCannon updates the record for you when you save.
+
+To change the hosting option for a *Subdomain*:
+
+1. Navigate to the page for the *Subdomain*.
+2. Click the *Configure* button in the *Hosting* section. CloudCannon will open the *Hosting for [Subdomain]* modal.
+3. Select the hosting option you want. CloudCannon will show the DNS record the option needs, and say whether the record changes.
+4. Click the *Save hosting* button.
+
+CloudCannon will change how visitors reach the *Subdomain*. On external DNS, if the record has to change, update it at your DNS provider. For the records each hosting option needs, and for setting up *Cloudflare Proxy*, please read our documentation on [configuring external DNS](/documentation/developer-articles/configure-external-dns/).
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Subdomain-Page-Hosting-Modal-Change" alt="A screenshot of the Hosting for blog.example.com modal shows the CloudCannon Hosting, Cloudflare Proxy, and Single Origin options, with Single Origin selected and the CNAME record it needs, a warning that the DNS record for blog.example.com changes, and the Save hosting button." title="The Hosting modal" type="screenshot"/>
+
+### The hosting diagram
+
+The *Hosting* section shows how visitors reach the *Subdomain* as a diagram. The diagram depends on the hosting option:
+
+* **CloudCannon Hosting** — *Visitors*, the *CloudCannon CDN*, and the *CloudCannon Origin*.
+* **Cloudflare Proxy** — *Visitors*, *Your Cloudflare*, and the *CloudCannon Origin*.
+* **Single Origin** — *Visitors* and the *CloudCannon Origin*. Your <comp.GlossaryTerm term="/user/glossary/b/base-domain.yml">Base Domain</comp.GlossaryTerm> on external DNS uses this diagram too, because its A records point straight at the *CloudCannon Origin*.
+
+Each connection in the diagram is labeled with its state, such as *Reaching CloudCannon*, *Not reaching CloudCannon*, *Waiting for DNS to update*, *Not checked yet*, or *Connected securely*. A green line means the connection works, and a red line with an exclamation mark shows where visitors stop reaching CloudCannon. Click a connection to see what CloudCannon found, including the DNS records, the result of its test request, and when it last checked, along with what to change if the connection isn't working. The *View the DNS record* button (*View the DNS records* when there is more than one) scrolls to the *DNS* section, the *Configure hosting* button opens the *Hosting for [Subdomain]* modal, the *Check DNS now* button runs a new check, and the *View check history* button opens the history of checks. For a minute after a check, the *Check DNS now* button is disabled, with the tooltip *Checked less than a minute ago. You can check again in a minute.* Press Escape or click the *Close details* icon to close the details.
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Subdomain-Page-Empty" alt="A screenshot of the Subdomain page for careers.example.com shows the Sites section with No site on careers.example.com and the Add site button, and the Hosting section with a diagram of Visitors reaching CloudCannon through the CloudCannon CDN, which is connected securely to the CloudCannon Origin." title="The hosting diagram for CloudCannon Hosting" type="screenshot"/>
+
+## Change how a Subdomain gets its certificate
+
+Each *Subdomain* has its own <comp.GlossaryTerm term="/user/glossary/s/ssl-certificate.yml">SSL certificate</comp.GlossaryTerm>. The *Configure* button in the *HTTPS* section opens the *HTTPS for [Subdomain]* modal. Under *SSL certificate*, you choose *Let CloudCannon issue and renew it*, which is recommended, or *Use an SSL certificate you upload*. With the second option, you select the certificate in the *Uploaded SSL certificate* dropdown below the options. Under *HTTP*, you choose whether to redirect http:// visitors to https://, and the minimum TLS version the *Subdomain* accepts in the *Minimum TLS version* dropdown.
+
+The *HTTPS* section also explains the state of the certificate, and what to do if it needs attention.
+
+For instructions, please read our documentation on [adding an auto-generated SSL certificate](/documentation/developer-articles/add-an-auto-generated-ssl-certificate/), [adding a custom SSL certificate](/documentation/developer-articles/add-a-custom-ssl-certificate/), [increasing the minimum TLS version for your domains](/documentation/developer-articles/increase-the-minimum-tls-version-for-your-domains/), and [resolving SSL certificate errors](/documentation/developer-articles/resolve-ssl-certificate-errors/).
+
+## Check the DNS for a Subdomain
+
+The *DNS* section of the *Subdomain* page says whether the *Subdomain* points at CloudCannon, and shows a table with the record the *Subdomain* *Needs*, the records CloudCannon *Found*, and the *Status* of the record. The footer of the table says how often CloudCannon checks and when it last checked, with the *View DNS check history* icon and the *Check now* button. The status is one of:
+
+* **Connected** — The *Subdomain* reaches CloudCannon.
+* **Not pointing at CloudCannon** — A record for the *Subdomain* points somewhere else.
+* **No DNS record** — CloudCannon found no record for the *Subdomain*.
+* **Not checked yet** — CloudCannon hasn't checked the *Subdomain* yet.
+* **Waiting for DNS** — You added the *Subdomain* or marked its record as updated in the last 48 hours, and CloudCannon is still looking for the record. The 48 hours also start again when you change the *Subdomain's* hosting or your domain's DNS provider. After 48 hours, the status shows what CloudCannon found. CloudCannon checks daily, and hourly for up to seven days after you mark the record as updated.
+* **Waiting for nameservers** — On *CloudCannon DNS*, the nameservers of your domain don't point at CloudCannon DNS yet. The record answers once they do.
+
+If the *Subdomain* isn't connected, the sentence above the record says what to do:
+
+* **CloudCannon DNS** — Click the *Fix* button, and CloudCannon replaces or removes the records that stop the *Subdomain* from reaching CloudCannon. Fixing the record also requires the `base-domain:settings:dns:write` permission. Without it, the *Fix* button is disabled, and hovering over it shows which permission you need. For more information, please read our documentation on [fixing the DNS record for a Subdomain](/documentation/developer-articles/configure-cloudcannon-dns/#fix-the-dns-record-for-a-subdomain).
+* **External DNS** — Add the record at your DNS provider, using the *Copy* icon next to its value, then click the *I've updated it* button. The *Copy* icon shows *Copied!* once it has copied the value. CloudCannon checks hourly for up to seven days, and emails you when the *Subdomain* is live. If CloudCannon still can't find the record 48 hours after you marked it as updated, the section lists what usually fixes it. For more information, please read our documentation on [adding the records](/documentation/developer-articles/configure-external-dns/#add-the-records).
+
+When the *Subdomain* has TXT records to add for its certificate, the *DNS* section points you to them under *HTTPS*. For the wildcard certificate of your *Base Domain*, it points you to *Wildcard certificate records* on the *DNS* tab instead.
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Subdomain-Page-DNS-External-Records" alt="A screenshot of the DNS section for www.example.com shows that its record points somewhere else, the CNAME record it needs with a copy icon, the A record CloudCannon found, the Not pointing at CloudCannon status with the I've updated it button, and a footer that says how often CloudCannon checks and when it last checked, with a history icon and the Check now button." title="The DNS section on a Subdomain page" type="screenshot"/>
+
+To check the DNS for a *Subdomain*:
+
+1. Navigate to the page for the *Subdomain*.
+2. Click the *Check now* button in the footer of the table in the *DNS* section.
+
+CloudCannon will check the *Subdomain's* DNS and update the *DNS* section. To see earlier checks, click the *View DNS check history* icon next to the *Check now* button. CloudCannon will open the *DNS checks for [Subdomain]* modal.
+
+The *DNS checks for [Subdomain]* modal lists earlier checks, most recent first. Back-to-back checks with the same result share a row. Each row shows the result of the check, the DNS answer CloudCannon received, whether a test request reached CloudCannon, and when the check ran. A check that couldn't complete is marked *Couldn't check*, and doesn't change the *Subdomain's* status. Click the *Load older results* button to see more. CloudCannon removes results older than 90 days, except the latest complete check.
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Subdomain-Page-DNS-Checks-Modal" alt="A screenshot of the DNS checks for blog.example.com modal shows the record the Subdomain needs, a list of checks with their result, DNS answer, test request outcome, and time, including a Connected check and two checks that couldn't complete, and the Close button." title="The DNS checks modal" type="screenshot"/>
+
+You can check the DNS for each *Subdomain* at most once a minute. For a minute after a check, the *Check now* button is disabled, with the tooltip *Checked less than a minute ago. You can check again in a minute.* Checking requires the `base-domain:settings:details:write` permission, and without it the *Check now* and *I've updated it* buttons are disabled. Hovering over a disabled button shows the permission it needs. CloudCannon also checks every *Subdomain* daily, and, on external DNS, every hour for up to seven days after you click the *I've updated it* button. If CloudCannon couldn't complete the latest check, the section says when the check failed, and keeps the last known status.

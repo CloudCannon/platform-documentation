@@ -1,0 +1,100 @@
+---
+_schema: default
+_uuid: 3d078d52-f9e8-4031-8a3a-020e4b831836
+_created_at: 2026-10-09T00:00:00Z
+details:
+  title: How does hosting work on CloudCannon?
+  description: >-
+    Learn how a visitor's browser reaches your Site on CloudCannon, from your
+    domain registrar and DNS provider to the SSL certificate, the Site
+    CloudCannon serves, and that Site's building mode and routing.
+  image: >-
+    https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+  category:
+    - Explanation
+  related_articles:
+    - _type: developer_articles
+      item: 5804dd03-210e-48cc-a02f-1b29f439ce0e
+    - _type: developer_articles
+      item: 9ed938fc-3211-4641-8859-088852b930e4
+    - _type: developer_articles
+      item: 79cd09be-23e5-4925-87b1-7d57532caa2c
+author_notes:
+  docshots: Added!
+---
+When a visitor enters a web address into their internet browser, such as https://docs.example.com/setup/, their browser uses <comp.GlossaryTerm term="/user/glossary/d/dns.yml">DNS</comp.GlossaryTerm> to find the web server for that website. If you host through CloudCannon, their browser will connect to CloudCannon's servers and check the <comp.GlossaryTerm term="/user/glossary/s/ssl-certificate.yml">SSL certificate</comp.GlossaryTerm> for the web address the visitor requested.
+
+Depending on how you configure hosting in CloudCannon, CloudCannon can return a built <comp.GlossaryTerm term="/user/glossary/s/site.yml">Site</comp.GlossaryTerm> to the visitor, redirect the visitor to a different domain, or send them to your <comp.GlossaryTerm term="/user/glossary/f/fallback-redirect.yml">fallback redirect</comp.GlossaryTerm>.
+
+Your domain registrar, your DNS provider, and your *Custom Domain* and *Site* settings in CloudCannon each control one part of this process.
+
+<comp.Mermaid
+  alt="A diagram shows a visitor's browser following your nameservers to your DNS provider, following the subdomain's DNS record to CloudCannon, and CloudCannon serving a Site, a redirect, or the fallback redirect."
+  chart={`graph LR
+    V["Visitor's browser"] -->|nameservers| D["DNS provider"]
+    D -->|DNS record| C["CloudCannon"]
+    C --> S["Site, redirect, or fallback redirect"]
+  `}
+/>
+
+<comp.Notice info_type="info">
+  Hosting your *Sites* on CloudCannon is optional, but some CloudCannon features are only available for *Sites* that CloudCannon hosts. For more information, please read our documentation on [what external hosting is](/documentation/developer-articles/what-is-external-hosting/).
+</comp.Notice>
+
+## Your domain registrar and DNS provider
+
+Website domains are purchased from a third-party <comp.GlossaryTerm term="/user/glossary/d/domain-registrar.yml">domain registrar</comp.GlossaryTerm>, such as Cloudflare Registrar or Namecheap. Owning the <comp.GlossaryTerm term="/user/glossary/b/base-domain.yml">Base Domain</comp.GlossaryTerm> (e.g., example.com) means you also own every <comp.GlossaryTerm term="/user/glossary/s/subdomain.yml">subdomain</comp.GlossaryTerm> (e.g., www.example.com or docs.example.com) and <comp.GlossaryTerm term="/user/glossary/s/subpath.yml">subpath</comp.GlossaryTerm> (e.g., example.com/staff/) on it.
+
+Your registrar records who owns the domain, and which <comp.GlossaryTerm term="/user/glossary/n/nameserver.yml">nameservers</comp.GlossaryTerm> manage its DNS records. When you host through CloudCannon, you can choose whether you manage your DNS records through CloudCannon as well, or use an external provider. You make this choice when you connect your domain to CloudCannon.
+
+* **CloudCannon DNS** — You set the nameservers in your domain registrar to CloudCannon, and CloudCannon manages the DNS records for each subdomain.
+* **External DNS** — Your nameservers point at a DNS provider other than CloudCannon, such as your domain registrar or Cloudflare, and you add the DNS records there for each subdomain you host through CloudCannon.
+
+For more information, please read our documentation on [what DNS is](/documentation/developer-articles/what-is-dns/), [configuring CloudCannon DNS](/documentation/developer-articles/configure-cloudcannon-dns/) and [configuring external DNS](/documentation/developer-articles/configure-external-dns/).
+
+## Your Custom Domain in CloudCannon
+
+To serve your *Sites* on a domain you own, you must connect it to your <comp.GlossaryTerm term="/user/glossary/o/organization.yml">Organization</comp.GlossaryTerm> as a <comp.GlossaryTerm term="/user/glossary/c/custom-domain.yml">Custom Domain</comp.GlossaryTerm>. Each *Custom Domain* you connect gets its own <comp.GlossaryTerm term="/user/glossary/d/domain-page.yml">Domain page</comp.GlossaryTerm>, where you can see the status of each subdomain and which *Sites* it serves.
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Domain-Overview" alt="A screenshot of the Summary tab on the Domain page shows the Subdomains section with the Add a subdomain row, five subdomains, three that need attention, and the fallback, beside the DNS section, where the nameservers match and two of five subdomains need a change, and the Minimum TLS section set to 1.2." title="The Summary tab on the Domain page" type="screenshot"/>
+
+For more information, please read our documentation on [connecting a Custom Domain to your Organization](/documentation/developer-articles/connect-a-custom-domain-to-your-organization/), [what the Domain page is](/documentation/developer-articles/what-is-the-domain-page/), and [adding a Custom Domain to your Site](/documentation/developer-articles/add-a-custom-domain-to-your-site/).
+
+### Subdomains
+
+In CloudCannon, every web address you host on is a subdomain (e.g., www.example.com, docs.example.com), including the *Base Domain* itself (e.g., example.com). When you add a subdomain, you choose its *Type*, which decides what visitors to the subdomain get once they reach CloudCannon:
+
+* **Site** — CloudCannon serves one or more *Sites*, each at its own subpath. A *Site* at a subpath needs to build its files into a folder that matches the subpath. For more information, please read our documentation on [what a subdomain is](/documentation/developer-articles/what-is-a-subdomain/) and [building your Site for a path](/documentation/developer-articles/add-a-custom-domain-to-your-site/#build-your-site-for-a-path).
+* **Redirect** — CloudCannon sends the visitor to another domain. For more information, please read our documentation on [managing your Redirect Subdomains](/documentation/developer-articles/manage-your-redirect-subdomains/).
+
+Visitors to a subdomain you haven't added, or to a *Site* subdomain with no *Site* yet, go to your fallback redirect. On <comp.GlossaryTerm term="/user/glossary/e/external-dns.yml">external DNS</comp.GlossaryTerm>, visitors only reach a subdomain you haven't added if you also add a wildcard DNS record. For more information, please read our documentation on [updating the fallback redirect for your Custom Domain](/documentation/developer-articles/update-the-fallback-redirect-for-your-custom-domain/).
+
+### How visitors reach CloudCannon
+
+Once you've added a subdomain, its hosting option decides the route visitors take from the DNS record to CloudCannon. Every new subdomain starts on <comp.GlossaryTerm term="/user/glossary/c/cloudcannon-hosting.yml">CloudCannon Hosting</comp.GlossaryTerm>, where visitors reach CloudCannon through Cloudflare's global network.
+
+You can change the hosting option from the *Hosting* section of the subdomain's page. On <comp.GlossaryTerm term="/user/glossary/c/cloudflare-proxy.yml">Cloudflare Proxy</comp.GlossaryTerm>, your own Cloudflare account proxies the subdomain to CloudCannon. On <comp.GlossaryTerm term="/user/glossary/s/single-origin.yml">Single Origin</comp.GlossaryTerm>, DNS points straight at CloudCannon's origin servers, or at your own proxy in front of them. The hosting option decides which DNS records the subdomain needs, so changing it can mean updating your records.
+
+For more information on each hosting option, please read our documentation on [what a subdomain is](/documentation/developer-articles/what-is-a-subdomain/). For the records each hosting option needs, please read our documentation on [choosing how visitors reach a subdomain](/documentation/developer-articles/configure-external-dns/#choose-how-visitors-reach-a-subdomain).
+
+### SSL certificates
+
+Once a subdomain's DNS records point at CloudCannon, CloudCannon can issue its SSL certificate and renew it for you, or you can upload your own. For a subdomain that is already live elsewhere, you can get the certificate before you switch DNS, using TXT records. Each subdomain has its own certificate, which covers every *Site* on that subdomain.
+
+For more information, please read our documentation on [what an SSL certificate is](/documentation/developer-articles/what-is-an-ssl-certificate/), [getting HTTPS ready before you switch DNS](/documentation/developer-articles/add-an-auto-generated-ssl-certificate/#get-https-ready-before-you-switch-dns), and [resolving SSL certificate errors](/documentation/developer-articles/resolve-ssl-certificate-errors/).
+
+## Your Site in CloudCannon
+
+Each *Site* on a subdomain also has its own settings, which decide whether CloudCannon can build and host it, and what visitors see at each path within it.
+
+### Site Building Mode
+
+Each *Site* has a *Site Building Mode*, which you can change on the *Details* page under *Site Settings*. In *Hosted Mode*, the default, CloudCannon builds and hosts your *Site*, and gives it a free <comp.GlossaryTerm term="/user/glossary/t/testing-domain.yml">Testing Domain</comp.GlossaryTerm>. In *Headless Mode*, CloudCannon doesn't build or host your *Site*, but you can still edit its source files.
+
+Your *Site* must be in *Hosted Mode* to serve it on a *Custom Domain*. CloudCannon won't switch a *Site* that has a *Custom Domain* to *Headless Mode*. To switch it, first remove the *Custom Domain* from your *Site*. Switching to *Headless Mode* takes your *Site* offline and stops its builds.
+
+For more information, please read our documentation on [what Site Building Mode is](/documentation/developer-articles/what-is-site-building-mode/), [what Headless Mode is](/documentation/developer-articles/what-is-headless-mode/), and [removing a Custom Domain from your Site](/documentation/developer-articles/remove-a-custom-domain-from-your-site/).
+
+### Routing within your Site
+
+<comp.GlossaryTerm term="/user/glossary/r/routing.yml">Routing</comp.GlossaryTerm> decides what visitors see at each path within your *Site*. By default, CloudCannon serves the file in your build output that matches the path, and a *Site* in *Hosted Mode* can add redirects, headers, a custom 404 page, and extensionless URLs. For more information, please read our documentation on [what routing is](/documentation/developer-articles/what-is-routing/).

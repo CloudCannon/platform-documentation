@@ -7,8 +7,8 @@ Machine-readable style rules for AI agents and automated linters. These rules ar
 **For agents making updates to this file:** Also update the corresponding section in `STYLE_GUIDE.mdx` with the prose explanation and examples. Update the revision history in both files: `last_updated` and `style_guide_version` in the YAML block below, and the `Last Updated` and `Version` fields and the revision history table (Section 4) in `STYLE_GUIDE.mdx`.
 
 ```yaml
-style_guide_version: "2.73"
-last_updated: "2026-10-16"
+style_guide_version: "2.77"
+last_updated: "2026-10-29"
 
 documentation_architecture:
   single_source_of_truth:
@@ -133,6 +133,9 @@ terminology:
     - "Exception"
     - "Resource"
     - "Base Domain"
+    - "Subdomain"  # the CloudCannon object on a Custom Domain; generic DNS sense stays lowercase (see subdomain_vs_dns_subdomain)
+    - "Redirect Subdomain"
+    - "Site Subdomain"
     - "Schema"
     - "Structure"
     - "Configuration File"
@@ -530,6 +533,7 @@ documentation_types:
     numbered_steps:
       content: "imperative_actions_only"
       explanations: "prose_before_list | prose_after_list | prose_between_two_complete_lists"
+      assume_preceding_steps_complete: "Assume the reader has completed every earlier step. A step can rely on the state earlier steps leave behind, including the result of an earlier optional step. Do not add caveats to a step about what an earlier step makes available (e.g. 'This field is available once you select a *Site*'), and do not flag such dependencies in review. Prerequisites from outside the procedure still belong before the list (see prerequisites). Mirrors STYLE_GUIDE.mdx §2.3.5 (Numbered Lists for Steps)."
       outcome_then_media: "The final outcome sentence ('CloudCannon will...') goes immediately after the numbered list. Any comp.DocShot or screenshot belongs AFTER the outcome sentence, not between the last step and the outcome. Order: steps -> outcome sentence -> DocShot. Mirrors STYLE_GUIDE.mdx §2.3.4 (Describe Outcomes)."
       avoid_in_step_text:
         - "Conceptual or background explanation that does not advance the task"
@@ -600,6 +604,9 @@ documentation_types:
           - "Exception"
           - "Resource"
           - "Base Domain"
+          - "Subdomain"
+          - "Redirect Subdomain"
+          - "Site Subdomain"
           - "Schema"
           - "Structure"
           - "Configuration File"
@@ -650,6 +657,18 @@ documentation_types:
           - "permission — ONLY the being-allowed sense, 'permission to [do something]' (you have permission to publish; give someone permission to edit)"
           - "scope — generic sense only (out of scope; the scope of the project)"
           - "exception — generic sense only (the exception is `site-branch`; with the exception of)"
+
+      subdomain_vs_dns_subdomain:
+        rule: "Italicize *Subdomain* (and the compounds *Redirect Subdomain* and *Site Subdomain*, one italic span each) when it names the CloudCannon object you add to a Custom Domain: it serves Sites or redirects, has its own page, hosting, HTTPS, and DNS settings, and is listed on the Subdomains tab. Keep 'subdomain' plain in the generic DNS sense, for an address that is not a CloudCannon object. Headings and link text capitalize without italics. App UI labels (*Add subdomain* button, *Delete subdomain* button) and quoted app messages stay verbatim. Mirrors STYLE_GUIDE.mdx §1.4.1 (Subdomain vs. subdomain)."
+        italic_when_concept:
+          - "add a *Subdomain* to your *Custom Domain*"
+          - "the *Subdomain* page"
+          - "a *Site Subdomain* with no *Site* yet"
+          - "delete a *Redirect Subdomain*"
+        plain_when_generic:
+          - "subdomains you haven't set up"
+          - "an unconfigured subdomain such as typo.example.com"
+          - "the wildcard certificate covers one level of subdomain"
 
       unlabelled_containers_are_still_terms:
         rule: "A UI element does not need a visible label in the app to be a CloudCannon term. Containers such as the Filter Bar, a Card, or the App Sidebar are named by the documentation even though the app renders no such string — the app labels the controls INSIDE them (Add Filter, Save). Never conclude a term is invented because it cannot be found in app source, and never rename a container to match a button it contains. Verify a container's name against existing documentation usage, not a source search. Mirrors STYLE_GUIDE.mdx §1.4.1."
@@ -848,6 +867,7 @@ link_formats:
       explanation_what_title: "'What is/are X?' -> [what X is] / [what X are] — lowercase 'what', verb moved to the end"
       explanation_how_title: "'How do/does X <verb>?' -> [how X <verbs>] — lowercase 'how', drop the auxiliary do/does, conjugate the verb to agree with the subject ('How do Partners access their Client Organizations?' -> [how Partners access their Client Organizations]; 'How does billing work in the Partner Program?' -> [how billing works in the Partner Program])"
       explanation_why_title: "'Why <verb> X?' -> [why to <verb> X]"
+    action_link_exception: "When a sentence names an action the reader takes and another article gives the instructions, the action itself may be the link instead of a separate 'please read our documentation on [X]' sentence (e.g. 'After you [connect a Custom Domain to your Organization](...), you can [add a subdomain to your Custom Domain](...)'). The link text is the action as the sentence phrases it, lowercase, and must say what the reader will find; a bare verb ('[connect]') is too short. Use the frame when the sentence doesn't name the action, and for closing 'For more information' pointers. Established usage (25 links across 24 articles). Mirrors STYLE_GUIDE.mdx §1.4.4 (Linking the Action in a Sentence)."
     inline_noun_reference_exception: "When the link is a courtesy hover-to-learn-more on a noun already in the sentence (not a cross-link pointer), use that noun as the link text, capitalized per the CloudCannon term (e.g. [Testing Domain]), not a rephrased title."
     position_decides_not_termhood: "Grammatical position, not whether the target is a CloudCannon term, decides bare-vs-rephrased. A term-named article is still rephrased when it sits in the cross-link frame ([what Custom Permission Groups are], [sharing a Site with Site Sharing] — NOT [Custom Permission Groups] or [Site Sharing]). Use the bare term only when it's the actual noun of the surrounding sentence (e.g. 'anyone in the [Default Permission Groups] can publish')."
     examples:
@@ -893,7 +913,12 @@ components:
       pricing_and_permissions_order: "When an article genuinely needs both a pricing and a permissions notice (it gates on both plan and permission), place the pricing notice first, immediately followed by the permissions notice, before any other content. Pricing comes first because plan availability is the more fundamental gate — a reader on the wrong plan does not need the permission requirements. Mirrors STYLE_GUIDE.mdx §1.5.1."
       notice_order_at_top: "When more than one top-of-article notice is present, the order is deprecated, then pricing, then permissions. Deprecation is the most fundamental gate: a reader who should not adopt a feature does not need its plan availability or permission requirements. Mirrors STYLE_GUIDE.mdx §1.5.1."
       destructive_action_notice_stack: "For a destructive or irreversible action (e.g. deleting an Organization or Site), stack a permissions notice first (who can perform the action), immediately followed by an important notice stating the irreversibility and what is lost, before any other content. The irreversibility warning is a load-bearing caveat the reader must see before acting, so two notices at the top is expected here, not overuse. Mirrors STYLE_GUIDE.mdx §1.5.1."
-      notice_order_at_top: "When more than one top-of-article notice is present, the order is deprecated, then pricing, then permissions. Deprecation is the most fundamental gate: a reader who should not adopt a feature does not need its plan availability or permission requirements. Mirrors STYLE_GUIDE.mdx §1.5.1."
+    permissions_notice_length:
+      rule: "Keep a permissions notice to one or two sentences. When the page's actions need several permissions, name them in one clause ('with the `X` and `Y` permissions'). A second sentence may add one short condition the reader needs before starting; never add a run of follow-on sentences saying which action needs which permission or where the rule applies. Put per-action detail at the top of the section for that action. If a permission applies only to some of the page's actions, leave it out of the notice and state it in those sections, so the notice doesn't overstate the gate. The Partner form keeps its Custom Permission Groups sentence (see partner_group_in_permissions_notices). Mirrors STYLE_GUIDE.mdx §1.5.1 (permissions, Length)."
+      correct:
+        - "Members of the *Owners*, *Developers*, and *Partner* [Default Permission Groups](…), or [Custom Permission Groups](…) with the `base-domain:settings:details:write` and `site:settings:hosting:write` permissions, can manage the *Sites* on a *Subdomain* and delete *Subdomains*."
+      incorrect:
+        - "…with the `base-domain:settings:details:write` permission, can manage the *Sites* on a *Subdomain*. Adding, swapping, or removing a *Site*… also requires the `site:settings:hosting:write` permission for that *Site*. This applies to the *Subdomain* page and the *Custom Domain* page alike."  # per-action conditions belong in the body
     pricing_notice_content:
       scope: "The pricing notice answers 'can I use this?', not only 'which plan is this on'. Use it for any access gate: a Subscription Plan tier, a private Beta the reader must request access to, or a programme they must belong to. Reserve `important` for caveats about using a feature the reader already has. Mirrors STYLE_GUIDE.mdx §1.5.1."
       non_plan_gate_form: "State the gate and how to get through it. Private Beta: '**This feature is available through a private Beta.**' followed by what it covers and a support contact. If access is granted per account rather than per Organization, say so. Non-plan gates do not take the plan_gate_heading."
@@ -1127,6 +1152,7 @@ validation_rules:
     - "system_focused_feature_description_in_explanation (in explanation articles and 'What is...' guide pages, prefer experiential language — what the user sees and can do — over internal mechanics descriptions)"
     - "vague_shorthand_references (e.g. 'This step covers both' without spelling out the referents)"
     - "settings_destination_wrong_noun (Org Settings destinations called 'sections' instead of 'pages'; Project Settings destinations called 'pages' instead of 'sections'; the People page's Members/Groups/Guests tabs mislabeled as pages or sections)"
+    - "permissions_notice_over_two_sentences (a run of follow-on sentences of per-action permission conditions; name all permissions in one clause and move per-action detail to the body)"
     - "pricing_notice_missing_plan_heading (a Subscription Plan pricing notice without the bold 'Subscription Plan required' heading, or with the gate sentence still in bold)"
   
   ignore:

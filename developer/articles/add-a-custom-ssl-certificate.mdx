@@ -1,12 +1,12 @@
 ---
 _schema: default
 _uuid: fdb6f12b-81f8-4df9-81c0-bf13a7514463
-_created_at: '2021-09-15 23:13:40 +0000'
+_created_at: 2021-09-15T23:13:40Z
 details:
   title: Add a custom SSL certificate
   description: >-
-    Learn how to add custom PEM-encoded SSL certificates to your Site in
-    CloudCannon.
+    Learn how to add custom PEM-encoded SSL certificates to a subdomain of your
+    Custom Domain in CloudCannon, and review or remove them under Org Settings.
   image: >-
     https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
   category:
@@ -21,55 +21,139 @@ details:
 author_notes:
   docshots: Added!
 ---
-<comp.Notice info_type="important">
-  Managing your SSL certificate on CloudCannon requires you to host your <comp.GlossaryTerm term="/user/glossary/s/site.yml">Site</comp.GlossaryTerm> through CloudCannon. If you are hosting your *Site* through an external service, please review their documentation on SSL certification.
+<comp.Notice info_type="permissions">
+  **Permissions required**
+
+  Members of the *Owners*, *Developers*, and *Partner* [Default Permission Groups](/documentation/user-articles/what-are-default-permission-groups/), or [Custom Permission Groups](/documentation/developer-articles/what-are-custom-permission-groups/) with the `base-domain:settings:details:write` and `org:settings:certificate:write` permissions, can add a custom SSL certificate to a *Subdomain*.
 </comp.Notice>
 
-You can purchase a custom SSL certificate from a trusted third-party provider.
+Managing your SSL certificate on CloudCannon requires you to host your <comp.GlossaryTerm term="/user/glossary/s/site.yml">Site</comp.GlossaryTerm> through CloudCannon. If an external service hosts your *Site*, please review its documentation on SSL certificates.
 
-You need the following details to add your custom SSL certificate to a <comp.GlossaryTerm term="/user/glossary/c/custom-domain.yml">Custom Domain</comp.GlossaryTerm> on CloudCannon.
+You can purchase a custom SSL certificate from a trusted third-party provider and upload it to a <comp.GlossaryTerm term="/user/glossary/s/subdomain.yml">Subdomain</comp.GlossaryTerm> of your <comp.GlossaryTerm term="/user/glossary/c/custom-domain.yml">Custom Domain</comp.GlossaryTerm> on CloudCannon. The certificate belongs to the *Subdomain*, so it covers every *Site* on that *Subdomain*. Each certificate you upload is saved to your <comp.GlossaryTerm term="/user/glossary/o/organization.yml">Organization</comp.GlossaryTerm>, so you can choose it for any *Subdomain* it covers, and the *SSL Certificates* page under *Org Settings* lists them all.
 
-* Name (i.e., Domain Name)
+To add a certificate, you need:
+
+* A name your team will recognize
 * Public Key
 * Private Key
 * Certificate Chain (optional)
 
-Your certificate must cover the *Custom Domain* you are adding it to. CloudCannon reads the expiry date from the certificate, so you do not need to enter it.
+Your certificate must cover the *Subdomain* you are adding it to. CloudCannon reads the expiry date from the certificate, so you do not need to enter it.
 
 <comp.Notice info_type="important">
-  Your private key should only be given to your <comp.GlossaryTerm term="/user/glossary/d/dns.yml">DNS</comp.GlossaryTerm> provider. Do not write down your private key in a publicly accessible or insecure place. If you think the security of your private key has been compromised, please generate a new SSL certificate.
+  Give your private key only to the service that serves your website, such as CloudCannon. Do not write down your private key in a publicly accessible or insecure place. If you think the security of your private key has been compromised, please generate a new SSL certificate.
 </comp.Notice>
 
-SSL certificates last for about a year and should be renewed at yearly intervals to maintain your website's security. You can renew your SSL certificate more often, but most websites do not require this level of security.
+CloudCannon can't renew a certificate you upload, so check its expiry date, and upload a new one before it expires.
 
-Before you add an SSL certificate to your *Site*, you must [add a Custom Domain](/documentation/developer-articles/add-a-custom-domain-to-your-site/) to your <comp.GlossaryTerm term="/user/glossary/o/organization.yml">Organization</comp.GlossaryTerm>.
+Before we begin, this article assumes you have [added a Custom Domain](/documentation/developer-articles/add-a-custom-domain-to-your-site/) to your *Site*, or [added a subdomain](/documentation/developer-articles/add-a-subdomain-to-your-custom-domain/) to your *Custom Domain*.
 
-<comp.Notice info_type="info">
-  If you have recently added your *Custom Domain* to your *Site*, CloudCannon may need a few minutes to fetch your domain details before you can add an SSL certificate. If this process takes more than a few minutes, please contact our friendly <a href="https://cloudcannon.com/support/">support team</a>.
-</comp.Notice>
+If your *Organization* already has the certificate, such as one you [uploaded from Org Settings](#upload-a-certificate-from-org-settings), select it from the *Uploaded SSL certificate* dropdown instead of the *New custom SSL certificate* option, and skip to step 15. The dropdown lists your *Organization's* uploaded certificates that haven't expired and aren't being removed.
 
 To add a custom SSL certificate:
 
-1. Navigate to the *Domains Browser* by clicking *Domains* in the *App Sidebar*.
-2. Select the domain to which you want to add a certificate.
-3. Under the *Subdomains* heading, click the card for the subdomain to which you want to add the certificate.
-4. Click the *Configure* button under the *SSL* heading. CloudCannon will open the *Configure SSL* modal.
-5. Select a version number from the *Minimum TLS Version* dropdown.
-6. Select the *New custom SSL certificate* option from the *Custom SSL Certificate* dropdown. CloudCannon will open the *Add SSL Certificate* modal.
-7. Enter the details for *Name*, *Public Key*, *Private Key*, and *Certificate Chain (optional)*.
-8. Click the *Add SSL Certificate* button.
-9. Click the *Update SSL* button.
+1. Log in to CloudCannon.
+2. Select the *Organization* your *Custom Domain* is connected to.
+3. Click the *Domains* link in the <comp.GlossaryTerm term="/user/glossary/a/app-sidebar.yml">App Sidebar</comp.GlossaryTerm>. CloudCannon will open the <comp.GlossaryTerm term="/user/glossary/d/domains-browser.yml">Domains Browser</comp.GlossaryTerm>.
+4. Click the <comp.GlossaryTerm term="/user/glossary/c/card.yml">Card</comp.GlossaryTerm> for the domain to which you want to add a certificate. CloudCannon will open the *Summary* tab of the *Domain* page.
+5. Click the *Subdomains* tab. CloudCannon will open the list of *Subdomains*.
+6. Click the *Card* for the *Subdomain* to which you want to add the certificate. CloudCannon will open the page for that *Subdomain*.
+7. Click the *Configure* button in the *HTTPS* section. CloudCannon will open the *HTTPS for [Subdomain]* modal.
+8. Select the *Use an SSL certificate you upload* option under *SSL certificate*. CloudCannon will show the *Uploaded SSL certificate* dropdown below the options.
+9. Select the *New custom SSL certificate* option from the *Uploaded SSL certificate* dropdown. CloudCannon will open the *Add SSL Certificate* modal.
+10. Enter a name your team will recognize in the *Name* field.
+11. Enter your certificate in the *Public Key* field.
+12. Enter your private key in the *Private Key* field.
+13. (Optional.) Enter your certificate chain in the *Certificate Chain (optional)* field.
+14. Click the *Add SSL Certificate* button.
+15. (Optional.) Check the *Redirect http:// visitors to https://* checkbox under *HTTP*.
+16. Click the *Save HTTPS* button.
 
-CloudCannon will apply your custom SSL certificate to the selected subdomain.
+CloudCannon will apply your custom SSL certificate to the selected *Subdomain*. The *HTTPS* section shows *HTTPS is on* and the date until which the certificate is valid. For what happens when it expires, please read the section on [expiring uploaded certificates](#when-an-uploaded-certificate-expires). If the *Subdomain* is set to use an uploaded certificate but none is selected, the *HTTPS* section shows *HTTPS is off*.
 
-<comp.DocShot docshot_key="CloudCannon-Documentation-Custom-Domain-Add-SSL-Certificate-Modal" alt="A screenshot of the Add SSL Certificate modal shows fields for Name, Public Key, Private Key, and Certificate Chain." title="The Add SSL Certificate modal" type="screenshot" />
+<comp.DocShot docshot_key="CloudCannon-Documentation-Custom-Domain-Add-SSL-Certificate-Modal" alt="A screenshot of the Add SSL Certificate modal shows the Name field, a note that the certificate must cover example.com, and the Public Key and Private Key fields." title="The Add SSL Certificate modal" type="screenshot" />
 
-Alternatively, you can leave the *Custom SSL Certificate* dropdown blank, and CloudCannon will autogenerate an SSL certificate for you.
+If the certificate does not cover the *Subdomain*, CloudCannon shows an error under the *Public Key* field and does not add the certificate.
+
+To return to an auto-generated certificate, select the *Let CloudCannon issue and renew it* option in the *HTTPS for [Subdomain]* modal. CloudCannon starts issuing its own certificate for the *Subdomain* straight away. On <comp.GlossaryTerm term="/user/glossary/c/cloudcannon-hosting.yml">CloudCannon Hosting</comp.GlossaryTerm> and <comp.GlossaryTerm term="/user/glossary/c/cloudflare-proxy.yml">Cloudflare Proxy</comp.GlossaryTerm>, CloudCannon removes the uploaded certificate from the *Subdomain's* Cloudflare custom hostname. For more information, please read our documentation on [adding an auto-generated SSL certificate](/documentation/developer-articles/add-an-auto-generated-ssl-certificate/).
 
 <comp.Notice info_type="info">
   All certificates must use PEM encoding. The placeholder text indicates the correct start and end headers.
 </comp.Notice>
 
+## When an uploaded certificate expires
+
+CloudCannon cannot renew an SSL certificate you upload. The *SSL Certificates* page under *Org Settings* marks the certificate *Expires soon* 30 days before it expires, and CloudCannon emails you 14 days and 3 days before it expires. If you have access to the *Health* tab on your *Organization Home* page, which is available through a private Beta granted to individual accounts rather than to an *Organization*, its *Uploaded SSL certificates are expiring soon* check lists each *Subdomain* that uses the certificate from nine days before it expires.
+
+Before the certificate expires, upload a new one and select it for each *Subdomain* that uses it, or [remove the certificate](#remove-an-uploaded-certificate) so each *Subdomain* switches to the *Let CloudCannon issue and renew it* option while keeping HTTPS on. If a *Subdomain* still uses the certificate when it expires, CloudCannon switches that *Subdomain* to the *Let CloudCannon issue and renew it* option within the hour. Until CloudCannon issues the new certificate, visitors to the *Subdomain* may see a security warning in their browser.
+
+### Action required: the [Certificate Name] SSL certificate expires on [Date]
+
+CloudCannon sends this email 14 days and 3 days before an SSL certificate you uploaded expires, to everyone who can edit the settings of a <comp.GlossaryTerm term="/user/glossary/b/base-domain.yml">Base Domain</comp.GlossaryTerm> (the `base-domain:settings:details:write` permission) with a *Subdomain* that still uses the certificate. The email lists those *Subdomains* and links to the page for the certificate.
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Mailer-Ssl-Uploaded-Certificate-Expiring" alt="A screenshot of the expiring SSL certificate email shows the Marketing wildcard SSL certificate expiring on 12 November 2026, the domains that serve HTTPS with it, what to do before then, and the View the SSL certificate button." title="The expiring SSL certificate email" type="screenshot" />
+
 ## Redirect HTTP to HTTPS
 
-Once your SSL certificate is enabled, users can visit your *Site* on the more secure [HTTPS](/documentation/developer-articles/what-is-an-ssl-certificate/#http-vs-https) URL. CloudCannon will redirect any users who request the <comp.GlossaryTerm term="/user/glossary/h/http.yml">HTTP</comp.GlossaryTerm> URL. For more information on redirects, please read our documentation on [configuring HTTP redirects](/documentation/developer-articles/configure-http-redirects/).
+Once HTTPS is on, visitors can open your *Site* on the more secure HTTPS URL. When you check the *Redirect http:// visitors to https://* checkbox in the *HTTPS for [Subdomain]* modal, CloudCannon redirects anyone who opens the <comp.GlossaryTerm term="/user/glossary/h/http.yml">HTTP</comp.GlossaryTerm> URL on the *Subdomain*, for every *Site* on it. For more information on HTTPS, please read our documentation on [what an SSL certificate is](/documentation/developer-articles/what-is-an-ssl-certificate/#http-vs-https). For more information on redirects, please read our documentation on [configuring HTTP redirects](/documentation/developer-articles/configure-http-redirects/).
+
+## Upload a certificate from Org Settings
+
+You can upload a certificate before you choose it for a *Subdomain*, from the *SSL Certificates* page under *Org Settings*. Viewing the page requires the `org:settings:certificate:read` permission. The page lists your *Organization's* SSL certificates, with the domains each one covers and its status.
+
+To upload a certificate from *Org Settings*:
+
+1. Log in to CloudCannon.
+2. Select the *Organization* that has the certificate.
+3. Click the *Org Settings* link in the *App Sidebar*. CloudCannon will open the *Details* page.
+4. Click the *SSL Certificates* link under the *Hosting* heading. CloudCannon will open the *SSL Certificates* page.
+5. Click the *Add SSL Certificate* button. CloudCannon will open the *Add SSL Certificate* page.
+6. Enter a name your team will recognize in the *Name* field.
+7. Enter your certificate in the *Public Key* field.
+8. Enter your private key in the *Private Key* field.
+9. (Optional.) Enter your certificate chain in the *Certificate Chain (optional)* field.
+10. Click the *Add SSL Certificate* button.
+
+CloudCannon will add the certificate and open its page. To use it, select it from the *Uploaded SSL certificate* dropdown in the *HTTPS for [Subdomain]* modal of each *Subdomain* it covers.
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Org-Settings-SSL-Certificates-List" alt="A screenshot of the SSL Certificates page under Org Settings shows the Add SSL Certificate button and three SSL certificates, each with the domains it covers and a Valid, Expired, or Renews automatically status." title="The SSL Certificates page" type="screenshot" />
+
+## Review an uploaded certificate
+
+To see which *Subdomains* use a certificate and when it expires, click the certificate on the *SSL Certificates* page under *Org Settings*. The page for the certificate shows:
+
+* Its status, next to its name, and the date it expires.
+* The domains the certificate covers. CloudCannon reads these from the certificate, so certificates uploaded before it recorded them don't show this line.
+* The *Domains* list, with each *Subdomain* that serves HTTPS with the certificate, including each <comp.GlossaryTerm term="/user/glossary/r/redirect-subdomain.yml">Redirect Subdomain</comp.GlossaryTerm>. Click a *Subdomain* to open its page.
+
+The *Domains* list only shows *Subdomains* on *Base Domains* you can view.
+
+Each certificate shows one of these statuses, on the *SSL Certificates* page and on its own page:
+
+* *Valid* means the certificate expires in more than 30 days.
+* *Expires soon* means the certificate expires within 30 days. CloudCannon cannot renew an SSL certificate you upload, so upload a new one and select it for each *Subdomain* in the *Domains* list before then.
+* *Expired* means the certificate has expired. CloudCannon switches any *Subdomain* still using it to the *Let CloudCannon issue and renew it* option.
+* *Renews automatically* means CloudCannon renews the certificate itself.
+* *Removing* means you removed the certificate while *Subdomains* still use it. HTTPS stays on while each one switches, and CloudCannon deletes the certificate once each has its own.
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Org-Settings-SSL-Certificate-Page" alt="A screenshot of the page for the example.com wildcard SSL certificate shows a Valid status, the date it expires, the domains it covers, the Domains list with example.com and www.example.com, which redirects to example.com, and the Remove SSL Certificate button in the Remove section." title="The page for an SSL certificate" type="screenshot" />
+
+## Remove an uploaded certificate
+
+Removing a certificate deletes it from CloudCannon, and you cannot recover it. Every *Subdomain* that uses the certificate switches to the *Let CloudCannon issue and renew it* option, including *Subdomains* on *Base Domains* you can't view, which the *Domains* list doesn't show.
+
+If no *Subdomain* uses the certificate, or it has expired, CloudCannon deletes it straight away. Otherwise, HTTPS stays on while each *Subdomain* switches to a certificate CloudCannon issues. Until then, the certificate shows the *Removing* status, and you can't select it in the *HTTPS for [Subdomain]* modal. CloudCannon deletes it once every *Subdomain* has its own certificate, when it expires, or when CloudCannon stops retrying a certificate it can't issue, whichever comes first.
+
+To remove an uploaded certificate:
+
+1. Log in to CloudCannon.
+2. Select the *Organization* that has the certificate.
+3. Click the *Org Settings* link in the *App Sidebar*. CloudCannon will open the *Details* page.
+4. Click the *SSL Certificates* link under the *Hosting* heading. CloudCannon will open the *SSL Certificates* page.
+5. Click the *Card* for the certificate you want to remove. CloudCannon will open the page for that certificate.
+6. Click the *Remove SSL Certificate* button in the *Remove* section. CloudCannon will open the *Remove this SSL certificate?* modal.
+7. Click the *Remove SSL Certificate* button in the modal.
+
+If no *Subdomain* uses the certificate, or it has expired, CloudCannon will delete it and return you to the *SSL Certificates* page. Otherwise, CloudCannon will mark the certificate *Removing*, and its page will list the *Subdomains* still using it until CloudCannon issues their own certificates.
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Org-Settings-SSL-Certificate-Removing" alt="A screenshot of the page for the example.com wildcard SSL certificate shows a Removing status, the Domains list with example.com and www.example.com still using it until CloudCannon issues their replacements, and a note that HTTPS stays on while they switch and CloudCannon deletes it once each has its replacement, when it expires, or if issuing stops retrying." title="An SSL certificate being removed" type="screenshot" />
