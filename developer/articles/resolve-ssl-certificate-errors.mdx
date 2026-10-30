@@ -24,7 +24,7 @@ author_notes:
 <comp.Notice info_type="permissions">
   **Permissions required**
 
-  Members of the *Owners* and *Developers* [Default Permission Groups](/documentation/user-articles/what-are-default-permission-groups/), or [Custom Permission Groups](/documentation/developer-articles/what-are-custom-permission-groups/) with the `base-domain:settings:details:write` permission, can change the HTTPS settings of a subdomain and retry its SSL certificate.
+  Members of the *Owners*, *Developers*, and *Partner* [Default Permission Groups](/documentation/user-articles/what-are-default-permission-groups/), or [Custom Permission Groups](/documentation/developer-articles/what-are-custom-permission-groups/) with the `base-domain:settings:details:write` permission, can change the HTTPS settings of a subdomain and retry its SSL certificate.
 </comp.Notice>
 
 Managing your SSL certificate on CloudCannon requires you to host your <comp.GlossaryTerm term="/user/glossary/s/site.yml">Site</comp.GlossaryTerm> through CloudCannon. If an external service hosts your *Site*, please review its documentation on SSL certificates.
@@ -35,7 +35,7 @@ Most SSL certificate errors come down to <comp.GlossaryTerm term="/user/glossary
 
 ## SSL certificate emails
 
-CloudCannon emails everyone who can edit the settings of the *Base Domain* (the `base-domain:settings:details:write` permission) when a certificate keeps failing to issue, and again once it issues.
+CloudCannon emails everyone who can edit the settings of the <comp.GlossaryTerm term="/user/glossary/b/base-domain.yml">Base Domain</comp.GlossaryTerm> (the `base-domain:settings:details:write` permission) when a certificate keeps failing to issue, and again once it issues.
 
 ### [Action Required] [Subdomain] is failing to generate an SSL certificate
 
@@ -51,24 +51,25 @@ CloudCannon sends this email when a certificate issues after CloudCannon sent th
 
 ## Check your SSL certificate status
 
-The *HTTPS* section of the subdomain page explains the state of the certificate, and the *HTTPS* column of the *Subdomains* tab shows a short status for every subdomain. The *Summary* tab of the *Domain* page also names the subdomains with certificate problems. Click the *View them* button to see those subdomains on the *Subdomains* tab.
+The *HTTPS* section of the subdomain page explains the state of the certificate, and the *HTTPS* column of the *Subdomains* tab shows a short status for every subdomain. The *Summary* tab of the *Domain* page also names the subdomains with certificate problems on the *[Number] of [Number] subdomains need attention* *Card*. Click the *Card* to see those subdomains on the *Subdomains* tab.
 
 If your account has the *Health* tab on the *Organization Home* page, it lists the subdomains across your *Organization* whose SSL certificate has expired, and those whose certificate failed to renew and expires within seven days, with a link to each subdomain page. The *Health* tab is available through a private Beta, which CloudCannon enables for individual accounts. To request access, please contact our friendly <a href="mailto:support@cloudcannon.com?subject=A%20question%20about%20health%20checks">support team</a>.
 
 The *HTTPS* section shows one of these headings:
 
 * **Waiting for DNS** — The subdomain's DNS record doesn't point at CloudCannon yet. HTTPS turns on by itself once it does. On *Cloudflare Proxy*, the heading is *Waiting for your proxied record* until an attempt to issue the certificate fails. If an attempt to issue the certificate has already failed, the section shows which attempt failed, why, and when CloudCannon tries again.
+* **Waiting for nameservers** - Your domain uses CloudCannon DNS, and its nameservers don't point at CloudCannon DNS yet. HTTPS turns on by itself once they do. For more information, please read our documentation on [configuring CloudCannon DNS](/documentation/developer-articles/configure-cloudcannon-dns/).
 * **Turning HTTPS on** — CloudCannon is requesting the certificate. This usually takes a few minutes. If an attempt has already failed for a reason other than DNS, the section shows which attempt failed, why, and when CloudCannon tries again.
 * **HTTPS is on** — The certificate is active, and the section shows the date by which CloudCannon renews it. For an uploaded certificate, it shows the date until which the certificate is valid instead. If an attempt to renew the certificate CloudCannon keeps for its origin servers has failed, a note says so. Visitors are not affected.
 * **Renewing the SSL certificate** — CloudCannon is renewing the certificate, or a renewal attempt failed and CloudCannon is trying again. The current certificate is valid until the date shown, so visitors are not affected. If an attempt failed, the section says why, and when CloudCannon tries again or that it has stopped.
-* **The SSL certificate expires in [Number] days** — Renewal is failing, and the current certificate expires within seven days. Fix the problem before the date shown, or visitors see a security warning.
+* **The SSL certificate expires in [Number] days** — Renewal is failing, and the current certificate expires within seven days. On the last day, the heading reads *The SSL certificate expires today*. Fix the problem before the date shown, or visitors see a security warning.
 * **The SSL certificate expired** — Visitors who open https:// see a security warning. The section says what brings HTTPS back: a successful renewal attempt, the subdomain pointing at CloudCannon again, clicking the *Retry now* button, or uploading a new certificate.
 * **HTTPS could not be turned on** — CloudCannon stopped after 40 failed attempts. Fix the problem, then click the *Retry now* button. If the problem was the subdomain's DNS record, CloudCannon also starts trying again on its own once the record points at CloudCannon.
 * **HTTPS setup timed out** — Cloudflare's request for the certificate timed out. Check that the *DNS* section shows *Connected*, then click the *Retry now* button.
 * **[Subdomain] stopped pointing at CloudCannon** — Cloudflare found that the subdomain's DNS record no longer points at CloudCannon, so HTTPS is off until it does. Change the record at your DNS provider back to the record shown in the *DNS* section, then click the *Retry now* button.
 * **Cloudflare is blocking [Subdomain]** — A zone hold on your *Base Domain* in another Cloudflare account blocks HTTPS for the subdomain. A zone hold is a Cloudflare setting that stops any other Cloudflare account, including CloudCannon's, from serving the domain. Release the zone hold in that account, then click the *Retry now* button. If you don't have access to that account, contact our <a href="https://cloudcannon.com/support/">support team</a>.
 * **CloudCannon could not apply the HTTPS settings** — Cloudflare rejected the HTTPS settings, for example because an uploaded certificate has expired. Click the *Retry now* button, or click the *Configure* button and choose another certificate.
-* **HTTPS is off** — The subdomain is set to use an uploaded certificate, but none is selected. Click the *Configure* button, then choose a certificate or let CloudCannon issue one.
+* **HTTPS is off** — The subdomain is set to use an uploaded certificate, but none is selected. Click the *Configure* button, then choose a certificate or let CloudCannon issue one. If an uploaded certificate expires while a subdomain still uses it, CloudCannon switches that subdomain to *Let CloudCannon issue and renew it* within the hour. For more information, please read our documentation on [adding a custom SSL certificate](/documentation/developer-articles/add-a-custom-ssl-certificate/).
 * **Setting HTTPS up again** and **Updating the SSL certificate**: CloudCannon is changing the certificate. This usually takes a few minutes, and there is nothing to do.
 
 Until HTTPS is on, visitors who open the https:// address of the subdomain see a security warning in their browser.
@@ -79,19 +80,20 @@ To check your SSL certificate status:
 
 1. Click the *Domains* link in the *App Sidebar*. CloudCannon will open the <comp.GlossaryTerm term="/user/glossary/d/domains-browser.yml">Domains Browser</comp.GlossaryTerm>.
 2. Identify the domain you want to check and click the *Card* for the domain. CloudCannon will open the *Summary* tab of the *Domain* page for this <comp.GlossaryTerm term="/user/glossary/c/custom-domain.yml">Custom Domain</comp.GlossaryTerm>.
-3. Open the *Subdomains* tab, then select the subdomain you want to check. CloudCannon will open the page for that subdomain.
-4. Review the status in the *HTTPS* section.
-5. (Optional.) Click the *See the last error* button to open the *HTTPS problem on [Subdomain]* modal.
+3. Click the *Subdomains* tab. CloudCannon will open the list of subdomains.
+4. Click the *Card* for the subdomain you want to check. CloudCannon will open the page for that subdomain.
+5. Review the status in the *HTTPS* section.
+6. (Optional.) Click the *See the last error* button to open the *HTTPS problem on [Subdomain]* modal.
 
 CloudCannon will show the current state of the certificate, and the modal explains the latest failure.
 
-The *HTTPS problem on [Subdomain]* modal shows which attempt failed (e.g., *Attempt 2 of 40*), when it failed, when the next automatic attempt is, and the error code to include if you contact support, with a *Copy* button. Below those details, it explains what went wrong and what to change. When the problem is DNS, the *View DNS checks* link opens the history of CloudCannon's DNS checks for the subdomain. Click the *Retry now* button in the modal to try again immediately.
+The *HTTPS problem on [Subdomain]* modal shows which attempt failed (e.g., *Attempt 2 of 40*), when it failed, when the next automatic attempt is, and the error code to include if you contact support, with a *Copy* icon. Below those details, it explains what went wrong and what to change. When the problem is DNS, the *View DNS checks* link opens the history of CloudCannon's DNS checks for the subdomain. Click the *Retry now* button in the modal to try again immediately.
 
-<comp.DocShot docshot_key="CloudCannon-Documentation-Subdomain-Page-Certificate-Error-Modal" alt="A screenshot of the HTTPS problem on www.example.com modal shows Attempt 2 of 40, when the attempt failed, the next automatic attempt, the error code with a Copy button, an explanation that CloudCannon could not reach the subdomain with a View DNS checks link, and the Close and Retry now buttons." title="The HTTPS problem modal" type="screenshot"/>
+<comp.DocShot docshot_key="CloudCannon-Documentation-Subdomain-Page-Certificate-Error-Modal" alt="A screenshot of the HTTPS problem on www.example.com modal shows Attempt 2 of 40, when the attempt failed, the next automatic attempt, the error code with a Copy icon, an explanation that CloudCannon could not reach the subdomain with a View DNS checks link, and the Close and Retry now buttons." title="The HTTPS problem modal" type="screenshot"/>
 
 ## Check your DNS
 
-The *DNS* section of the subdomain page says whether the subdomain points at CloudCannon, and shows the record it *Needs*, the records CloudCannon *Found*, and its *Status*: *Connected*, *Not pointing at CloudCannon*, *No DNS record*, or *Not checked yet*. Click the *Check now* button to run a new check, or the *History* button to see earlier checks, including the address the subdomain resolved to and whether a test request reached CloudCannon. You can check the DNS for each subdomain at most once a minute. If CloudCannon couldn't complete the latest check, the section says so and keeps the last known status.
+The *DNS* section of the subdomain page says whether the subdomain points at CloudCannon, and shows the record it *Needs*, the records CloudCannon *Found*, and its *Status*: *Connected*, *Not pointing at CloudCannon*, *No DNS record*, *Not checked yet*, or, in the 48 hours after you add the subdomain, change its hosting, or mark its record as updated, *Waiting for DNS*. The footer of the table says how often CloudCannon checks and when it last checked. Click the *Check now* button in the footer to run a new check, or the *View DNS check history* icon to open the *DNS checks for [Subdomain]* modal, which lists earlier checks, including the address the subdomain resolved to and whether a test request reached CloudCannon. You can check the DNS for each subdomain at most once a minute: for a minute after a check, the *Check now* button is disabled, with the tooltip *Checked less than a minute ago. You can check again in a minute.* If CloudCannon couldn't complete the latest check, the footer says so and the table keeps the last known status.
 
 To check your domain's DNS from outside CloudCannon, you can use a public tool such as <a href="https://dnsviz.net/" target="_blank" rel="noopener noreferrer">DNSViz</a>. Enter the subdomain to see which nameservers answer for it, the records they return, and any DNSSEC errors. DNSViz shows errors in red.
 
@@ -137,6 +139,7 @@ The *HTTPS problem on [Subdomain]* modal shows one of these explanations:
 * **The previous request for an SSL certificate expired before it finished** — CloudCannon starts a new request automatically.
 * **The SSL certificate was issued, but it did not finish installing** — CloudCannon tries again automatically, and the next attempt usually succeeds.
 * **A temporary problem at CloudCannon interrupted the request for an SSL certificate** — CloudCannon tries again automatically, and the next attempt usually succeeds. If the error keeps appearing, contact support.
+* **CloudCannon does not issue SSL certificates while the Organization's subscription is suspended** - Update the payment details on the *Subscription* page under *Org Settings*, and CloudCannon tries again automatically.
 * **The request for an SSL certificate failed with an error CloudCannon does not recognize** — Contact support with the error code shown in the modal.
 
 ## Common causes of SSL certificate errors
