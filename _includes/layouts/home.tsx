@@ -18,6 +18,7 @@ interface LinkSection {
   url?: string;
   heading: string;
   description: string;
+  image?: string;
 }
 
 interface CommunitySection {
@@ -140,16 +141,30 @@ export default function HomeLayout(props: Props, helpers: Helpers) {
         {developer_docs && renderDocCard(developer_docs, "developer_docs")}
 
         {/* Partner Documentation Card */}
-        {partner_docs && renderDocCard(partner_docs, "partner_docs", false)}
+        {partner_docs && renderDocCard(partner_docs, "partner_docs")}
 
         {/* Changelog Card */}
         {changelog && (
-          <comp.Card.Card
+          <comp.Card.GridCard
             href={changelog.url}
             title={changelog.heading}
             description={changelog.description}
+            image={changelog.image ? helpers.url(changelog.image) : undefined}
             showArrow
             helpers={helpers}
+            dataEditable={{
+              title: {
+                "data-editable": "text",
+                "data-prop": "changelog.heading",
+              },
+              description: {
+                "data-editable": "text",
+                "data-prop": "changelog.description",
+              },
+              image: changelog.image
+                ? { "data-editable": "src", "data-prop": "changelog.image" }
+                : {},
+            }}
           />
         )}
       </div>
