@@ -165,6 +165,12 @@ Omit a section entirely if it has no entries. Skip the second intro paragraph if
 - Oxford comma
 - Don't invent UI labels — if you can't confirm a name from the diff, ask
 
+## Step 4b: Write the API changelog entry
+
+Changes to the public CloudCannon API (`/api/v0/...`) don't go in the main changelog. Follow `STYLE_GUIDE.mdx` §2.1.5: write an entry at `platform-documentation/developer/reference/api/changelog/<YYYY>/<MM-DD>_<kebab-title>.mdx` with the same `date`, using the *Added*, *Changed*, *Deprecated*, *Removed*, and *Fixes* sections, and end the main entry's **Features & Improvements** with this sentence, word for word:
+
+`* Updated the CloudCannon API, which is in public beta. For more information, please read our [API changelog](/documentation/developer-reference/api/changelog/).`
+
 ## Step 5: Create the branch and write the file
 
 ```bash

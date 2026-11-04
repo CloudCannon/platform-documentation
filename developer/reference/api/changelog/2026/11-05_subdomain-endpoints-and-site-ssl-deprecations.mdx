@@ -1,0 +1,46 @@
+---
+_schema: default
+title: Subdomain endpoints and Site SSL deprecations
+date: 2026-11-05T15:00:00+13:00
+---
+This update added endpoints for managing the *Subdomains* of a *Base Domain*, and deprecated the *Site* SSL endpoints and fields in favor of their *Subdomain* replacements. It also changed `GET /api/v0/base-domains/{base_domain_uuid}/subdomains` to return *Subdomains* rather than *Sites*, which affects any code that reads its items as *Sites*.
+
+## Added
+
+* Added *Subdomain* endpoints under `/api/v0/base-domains/{base_domain_uuid}/subdomains`, allowing you to create, get, update, and delete *Subdomains*.
+* Added `POST …/subdomains/{subdomain_uuid}/sites`, `PUT …/sites/{site_uuid}`, `PUT …/sites/{site_uuid}/swap`, and `DELETE …/sites/{site_uuid}`, allowing you to add a *Site* to a *Subdomain* at a subpath, change its subpath, swap it for another *Site* in one step, and remove it.
+* Added `POST …/subdomains/{subdomain_uuid}/redirect` and `POST …/subdomains/{subdomain_uuid}/site`, allowing you to switch a *Subdomain* between redirecting visitors and serving *Sites*. Redirects use a 301, 302, 307, or 308 status code.
+* Added `POST …/subdomains/{subdomain_uuid}/fallback`, allowing you to make a *Subdomain* the *Fallback Redirect* for its *Base Domain*.
+* Added `POST …/subdomains/{subdomain_uuid}/ssl/retry`, allowing you to retry issuing the *SSL Certificate* for a *Subdomain*, at most once a minute.
+* Added `GET` and `POST …/subdomains/{subdomain_uuid}/checks`, `POST …/subdomains/{subdomain_uuid}/dns/fix`, and `POST …/subdomains/{subdomain_uuid}/dns/updated`, allowing you to list the DNS checks for a *Subdomain*, check its DNS now, fix its record on CloudCannon DNS, and tell CloudCannon you have updated its record.
+* Added `GET /api/v0/base-domains/{base_domain_uuid}/dns/checks`, `POST …/dns/check`, `POST …/dns/nameservers-updated`, `POST …/dns/wildcard-updated`, and `POST …/dns/wildcard-record-updated`, allowing you to list and run nameserver checks, and tell CloudCannon you have updated your nameservers or wildcard records.
+* Added `GET /api/v0/ssl-certificates/{ssl_certificate_uuid}/subdomains`, allowing you to list the *Subdomains* that use an *SSL Certificate*, including *Redirect Subdomains*, on the *Base Domains* you can read.
+* Added the `fallback_redirect_status` and `lower_subdomains` fields to `PUT /api/v0/base-domains/{base_domain_uuid}`, allowing you to set the status code of the *Fallback Redirect*, and to lower the minimum TLS version of your *Subdomains* along with your *Base Domain*.
+* Added DNS setup fields to *Base Domain* responses, such as `dns_setup_stage`, `wildcard_certificate`, `disconnect_blockers`, `found_name_servers`, `wildcard_record_checked_at`, `wildcard_record_found`, and `wildcard_record_updated_at`. Fields that need a live check are filled only by `GET /api/v0/base-domains/{base_domain_uuid}` and the DNS endpoints.
+* Added the `hostnames` and `removal_requested_at` fields to *SSL Certificate* responses, and a `removing` filter to `GET /api/v0/orgs/{org_uuid}/ssl-certificates`.
+* Added a `subdomain_uuid` field to *Site* responses, allowing you to find the *Subdomain* a *Site* is served on.
+
+## Changed
+
+* Changed `GET /api/v0/base-domains/{base_domain_uuid}/subdomains` to return *Subdomains* rather than *Sites*. Each item has its own `uuid`, an `is_fallback` field in place of `is_fallback_redirect`, and a `sites` array in place of `site_uuid` and `site_id`. The list now includes *Redirect Subdomains* and *Subdomains* with no *Site*, and needs only permission to read the *Base Domain*.
+* Changed `PUT /api/v0/sites/{site_uuid}/domain` to stop connecting a new *Base Domain*. It needs the *Base Domain* connected to your *Organization* first, and permission to edit the settings of both the current and the new *Base Domain*.
+* Changed `DELETE /api/v0/ssl-certificates/{ssl_certificate_uuid}` to remove a certificate that *Subdomains* still use, rather than refusing it. Every *Subdomain* that uses it switches to a certificate CloudCannon issues. It returns `202` while *Subdomains* still serve the certificate, and `204` once it is deleted.
+* Changed `DELETE /api/v0/base-domains/{base_domain_uuid}` to refuse while redirects lead to or from the *Base Domain*, and to list each one in the error.
+* Changed `PUT /api/v0/base-domains/{base_domain_uuid}/migrate` to need permission to edit the DNS of the *Base Domain* as well as its settings.
+* Changed the `hosting_choice`, `force_ssl`, `auto_generate_ssl`, and `ssl_certificate` filters on the *Site* list endpoints to match only *Sites* with a *Custom Domain*.
+
+## Deprecated
+
+* Deprecated the *Site* SSL endpoints and fields. They still work, but each has a replacement on the *Subdomain* a *Site* is served on, which the `subdomain_uuid` field on the *Site* identifies.
+  * `PUT /api/v0/sites/{site_uuid}/ssl`, `DELETE /api/v0/sites/{site_uuid}/ssl`, and `PUT /api/v0/sites/{site_uuid}/ssl/cloudflare` are replaced by `PUT /api/v0/base-domains/{base_domain_uuid}/subdomains/{subdomain_uuid}`.
+  * `POST /api/v0/sites/{site_uuid}/ssl/auto` and `POST /api/v0/sites/{site_uuid}/ssl/cloudflare` are replaced by `POST …/subdomains/{subdomain_uuid}/ssl/retry`, and share its limit of one retry a minute.
+  * `POST /api/v0/sites/{site_uuid}/domain/prioritise` is replaced by `POST …/subdomains/{subdomain_uuid}/fallback`.
+  * The `hosting_choice`, `force_ssl`, `auto_generate_ssl`, and `ssl_certificate_id` fields on `PUT /api/v0/sites/{site_uuid}/hosting` are replaced by the same fields on the *Subdomain*. On a *Site* without a *Custom Domain*, these fields return an error unless the value matches the one the *Site* already reports.
+  * The `sites` field on `GET /api/v0/ssl-certificates/{ssl_certificate_uuid}` is replaced by `GET /api/v0/ssl-certificates/{ssl_certificate_uuid}/subdomains`.
+
+## Removed
+
+* Removed the `sites` field from `GET /api/v0/orgs/{org_uuid}/ssl-certificates` and `POST /api/v0/orgs/{org_uuid}/ssl-certificates`.
+* Removed the `wildcard` field from `PUT /api/v0/sites/{site_uuid}/ssl/cloudflare`. Sending it returns an error.
+* Removed the `external` value of `hosting_choice` on `PUT /api/v0/sites/{site_uuid}/hosting`.
+* Removed the `cloudflare_error` filter and the `priority_domain_at` sort from `GET /api/v0/orgs/{org_uuid}/sites` and `GET /api/v0/projects/{project_uuid}/sites`.
