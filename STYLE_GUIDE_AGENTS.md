@@ -7,8 +7,8 @@ Machine-readable style rules for AI agents and automated linters. These rules ar
 **For agents making updates to this file:** Also update the corresponding section in `STYLE_GUIDE.mdx` with the prose explanation and examples. Update the revision history in both files: `last_updated` and `style_guide_version` in the YAML block below, and the `Last Updated` and `Version` fields and the revision history table (Section 4) in `STYLE_GUIDE.mdx`.
 
 ```yaml
-style_guide_version: "2.77"
-last_updated: "2026-10-29"
+style_guide_version: "2.78"
+last_updated: "2026-11-05"
 
 documentation_architecture:
   single_source_of_truth:
@@ -136,6 +136,9 @@ terminology:
     - "Subdomain"  # the CloudCannon object on a Custom Domain; generic DNS sense stays lowercase (see subdomain_vs_dns_subdomain)
     - "Redirect Subdomain"
     - "Site Subdomain"
+    - "Fallback Redirect"
+    - "SSL Certificate"  # also *Custom SSL Certificate*; modifiers stay lowercase (a wildcard *SSL Certificate*)
+    - "DNS Provider"
     - "Schema"
     - "Structure"
     - "Configuration File"
@@ -632,6 +635,10 @@ documentation_types:
           - "Access Review"
           - "Seat"
           - "Health Check"
+          - "Fallback Redirect"
+          - "SSL Certificate"
+          - "Custom SSL Certificate"
+          - "DNS Provider"
         all_input_types: true
       
       do_not_italicize:
