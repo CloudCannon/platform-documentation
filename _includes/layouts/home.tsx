@@ -18,6 +18,7 @@ interface LinkSection {
   url?: string;
   heading: string;
   description: string;
+  image?: string;
 }
 
 interface CommunitySection {
@@ -66,12 +67,13 @@ export default function HomeLayout(props: Props, helpers: Helpers) {
   const renderDocCard = (
     data: DocSection,
     propPrefix: string,
-    hasImage = true,
+    className = "",
   ) => (
     <comp.Card.GridCard
       title={data.heading}
       description={data.description}
-      image={hasImage && data.image ? helpers.url(data.image) : undefined}
+      image={data.image ? helpers.url(data.image) : undefined}
+      className={className}
       helpers={helpers}
       dataEditable={{
         title: {
@@ -84,7 +86,7 @@ export default function HomeLayout(props: Props, helpers: Helpers) {
             "data-prop": `${propPrefix}.description`,
           }
           : {},
-        image: hasImage && data.image
+        image: data.image
           ? { "data-editable": "src", "data-prop": `${propPrefix}.image` }
           : {},
       }}
@@ -140,16 +142,35 @@ export default function HomeLayout(props: Props, helpers: Helpers) {
         {developer_docs && renderDocCard(developer_docs, "developer_docs")}
 
         {/* Partner Documentation Card */}
-        {partner_docs && renderDocCard(partner_docs, "partner_docs", false)}
+        {partner_docs && renderDocCard(
+          partner_docs,
+          "partner_docs",
+          "c-card-grid__card--horizontal c-card-grid__card--image-from-side",
+        )}
 
         {/* Changelog Card */}
         {changelog && (
-          <comp.Card.Card
+          <comp.Card.GridCard
             href={changelog.url}
             title={changelog.heading}
             description={changelog.description}
+            image={changelog.image ? helpers.url(changelog.image) : undefined}
             showArrow
+            className="c-card-grid__card--horizontal"
             helpers={helpers}
+            dataEditable={{
+              title: {
+                "data-editable": "text",
+                "data-prop": "changelog.heading",
+              },
+              description: {
+                "data-editable": "text",
+                "data-prop": "changelog.description",
+              },
+              image: changelog.image
+                ? { "data-editable": "src", "data-prop": "changelog.image" }
+                : {},
+            }}
           />
         )}
       </div>
