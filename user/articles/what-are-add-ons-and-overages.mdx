@@ -1,7 +1,7 @@
 ---
 _schema: default
 _uuid: 41e98105-f43f-4946-b001-98d15954d1af
-_created_at: '2026-04-09 00:00:00 +0000'
+_created_at: 2026-04-09T00:00:00Z
 details:
   title: What are Add-Ons and Overages?
   description: >-
@@ -21,7 +21,7 @@ author_notes:
 ---
 Every <comp.GlossaryTerm term="/user/glossary/s/subscription-plan.yml">Subscription Plan</comp.GlossaryTerm> includes a set number of <comp.GlossaryTerm term="/user/glossary/s/seat.yml">Seats</comp.GlossaryTerm>, along with a set amount of <comp.GlossaryTerm term="/user/glossary/c/custom-domain.yml">Custom Domains</comp.GlossaryTerm>, <comp.GlossaryTerm term="/user/glossary/b/build-time.yml">Build Time</comp.GlossaryTerm>, and <comp.GlossaryTerm term="/user/glossary/h/hosting-bandwidth.yml">Hosting Bandwidth</comp.GlossaryTerm>. If your <comp.GlossaryTerm term="/user/glossary/o/organization.yml">Organization</comp.GlossaryTerm> needs more than your *Subscription Plan* provides, you can pay for more resources. For more information about the cost of <comp.GlossaryTerm term="/user/glossary/a/add-on.yml">Add-Ons</comp.GlossaryTerm> and <comp.GlossaryTerm term="/user/glossary/o/overage.yml">Overages</comp.GlossaryTerm>, please see the <a href="https://cloudcannon.com/pricing/">CloudCannon pricing page</a>.
 
-You can extend your *Subscription Plan* limits and resources in two ways: 
+You can extend your *Subscription Plan* limits and resources in two ways:
 
 * Add an additional *Seat* or *Custom Domain* (called *Add-Ons*)
 * Enable *Overages* to remove *Build Time* and *Hosting Bandwidth* limits and pay for what your *Organization* uses
@@ -31,7 +31,7 @@ You can extend your *Subscription Plan* limits and resources in two ways:
 You can extend each of these resources:
 
 * **Seats** — Add capacity for the people and *Sites* that use your *Organization*. Each <comp.GlossaryTerm term="/user/glossary/o/organization-member.yml">Organization Member</comp.GlossaryTerm> uses one *Seat*, as does each person you invite to a single *Site* through <comp.GlossaryTerm term="/user/glossary/s/site-sharing.yml">Site Sharing</comp.GlossaryTerm>. Each *Site* with <comp.GlossaryTerm term="/user/glossary/g/guest-access.yml">Guest Access</comp.GlossaryTerm> enabled uses one *Seat*, however many *Guests* share its *Guest Password*.
-* **Custom Domains** — Add additional *Custom Domains* to your *Organization*, which you can connect to any number of *Sites*. This includes your apex domain and any subdomains (e.g., `jetstream.com`, `www.jetstream.com`, `shop.jetstream.com`) but not subpaths (e.g., `jetstream.com/blog`).
+* **Custom Domains** — Add additional *Custom Domains* to your *Organization*, which you can connect to any number of *Sites*. This counts each <comp.GlossaryTerm term="/user/glossary/s/subdomain.yml">Subdomain</comp.GlossaryTerm> that serves *Sites*, including your *Base Domain* when it serves a *Site* (e.g., jetstream.com, shop.jetstream.com), but not paths (e.g., jetstream.com/blog). *Subdomains* with no *Site* yet and *Redirect Subdomains* (e.g., www.jetstream.com) are free.
 * **Build Time** — Allow your *Organization Members* to spend more time on *Site* builds, in 1-hour bundles rounded up to the next full bundle. This only applies to *Subscription Plans* that limit *Build Time*.
 * **Hosting Bandwidth** — Allow your *Sites* to serve additional website traffic, in 100 GB bundles rounded up to the next full bundle.
 
@@ -43,7 +43,7 @@ For more information on these topics in general, please read our documentation o
 
 ## How do Add-Ons work?
 
-There is no button to purchase *Add-Ons*. Instead, CloudCannon automatically adds them to your *Subscription Plan* when you [add an Organization Member to your Organization](/documentation/user-articles/add-an-organization-member-to-your-organization/) or [connect a Custom Domain to your Organization](/documentation/developer-articles/connect-a-custom-domain-to-your-organization/). Enabling *Guest Access* on a *Site* also uses a *Seat*. When adding any of these resources would put you over your *Subscription Plan's* limits, CloudCannon shows the *Confirm Billing Change* modal.
+There is no button to purchase *Add-Ons*. Instead, CloudCannon automatically adds them to your *Subscription Plan* when you [add an Organization Member to your Organization](/documentation/user-articles/add-an-organization-member-to-your-organization/), or serve a *Site* on a *Subdomain* that had none, either by [adding a Custom Domain to your Site](/documentation/developer-articles/add-a-custom-domain-to-your-site/) or by [adding a subdomain on the Domain page](/documentation/developer-articles/add-a-subdomain-to-your-custom-domain/). Changing a *Redirect Subdomain* to serve a *Site* counts in the same way. Connecting a *Custom Domain* to your *Organization* is free. Enabling *Guest Access* on a *Site* also uses a *Seat*. When adding an *Organization Member*, enabling *Guest Access*, or serving a *Site* on a new *Subdomain* would put you over your *Subscription Plan's* limits, CloudCannon shows the *Confirm Billing Change* modal.
 
 The *Seats* row on the *Subscription* page under *Org Settings* breaks down how your *Seats* are used, so you can see how many belong to *Organization Members* and how many to *Sites* with *Guest Access* enabled. Charges for extra *Seats* appear on your bill as *Additional Seats*.
 
@@ -56,6 +56,18 @@ If your *Organization* uses a monthly *Billing Period*, the prorated cost of you
 If your *Organization* uses a yearly *Billing Period*, you are billed the prorated cost of your *Add-Ons* immediately. For example, if you add an *Organization Member* when you are 5 months into your *Subscription Plan*, CloudCannon will invoice you for the remaining 7 months of the year. Your *Add-Ons* will then be billed in advance as part of your regular invoices going forward.
 
 *Add-On* charges appear as separate line items on your invoice. For more information on reading your bill, please read our documentation on [understanding your CloudCannon invoice](/documentation/user-articles/understand-your-cloudcannon-invoice/).
+
+### Subdomain billing emails
+
+CloudCannon emails everyone who can view the billing of your *Organization* (the `org:billing:read` permission) when the number of *Subdomains* serving *Sites* changes while your *Organization* has more than your *Subscription Plan* includes. The person who made the change does not receive the email. Each email names the *Subdomain* and, when a person made the change, that person. It shows how many *Subdomains* serve *Sites*, how many your *Subscription Plan* includes, and how many are billed as *Add-Ons*, with an *Open the Subscription page for [Organization]* button.
+
+#### [Name] added an extra Subdomain to [Organization]'s Subscription Plan
+
+CloudCannon sends this email when a *Subdomain* starts serving a *Site* while your *Organization* has more *Subdomains* serving *Sites* than your *Subscription Plan* includes. When no person made the change, the subject is *An extra Subdomain was added to [Organization]'s Subscription Plan*.
+
+#### [Name] removed an extra Subdomain from [Organization]'s Subscription Plan
+
+CloudCannon sends this email when a *Subdomain* stops serving a *Site* while your *Organization* is over the *Subdomains* your *Subscription Plan* includes. When no person made the change, the subject is *An extra Subdomain was removed from [Organization]'s Subscription Plan*.
 
 ## How do Overages work?
 

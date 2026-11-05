@@ -1,10 +1,12 @@
 ---
 _schema: default
 _uuid: 65fbeba4-ea00-410c-84cc-ef701f24ac0a
-_created_at: '2021-09-15 23:13:40 +0000'
+_created_at: 2021-09-15T23:13:40Z
 details:
   title: Configure CloudCannon DNS
-  description: Learn how to configure CloudCannon DNS for your Site.
+  description: >-
+    Learn how to switch a Custom Domain to CloudCannon DNS and point its
+    nameservers at CloudCannon.
   image: >-
     https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
   category:
@@ -13,89 +15,176 @@ details:
     - _type: developer_articles
       item: 5804dd03-210e-48cc-a02f-1b29f439ce0e
     - _type: developer_articles
-      item: 6b2315f7-78a9-4536-baa2-9446ddfa0246
+      item: d42a72aa-9809-4f98-9740-04cb8bbb452c
     - _type: developer_articles
       item: d927f075-234f-4c73-aebb-645da21754cd
 author_notes:
   docshots: Added!
 ---
-CloudCannon DNS allows you to manage your DNS records within CloudCannon for each [Custom Domain](/documentation/developer-articles/what-is-a-custom-domain/) added to your [Organization](/documentation/user-articles/what-is-an-organization/). If you use CloudCannon DNS, you can also use a free [auto-generated SSL certificate](/documentation/developer-articles/add-an-auto-generated-ssl-certificate/) for your Sites.
+<comp.Notice info_type="permissions">
+  **Permissions required**
 
-Before configuring your Site's DNS, you must [add a Custom Domain](/documentation/developer-articles/add-a-custom-domain-to-your-site/).
+  Members of the *Owners*, *Developers*, and *Partner* [Default Permission Groups](/documentation/user-articles/what-are-default-permission-groups/), or [Custom Permission Groups](/documentation/developer-articles/what-are-custom-permission-groups/) with the `base-domain:settings:dns:read` and `base-domain:settings:dns:write` permissions, can view and change the DNS of a *Base Domain*.
+</comp.Notice>
+
+<comp.GlossaryTerm term="/user/glossary/c/cloudcannon-dns.yml">CloudCannon DNS</comp.GlossaryTerm> allows you to manage your DNS Records within CloudCannon for each <comp.GlossaryTerm term="/user/glossary/c/custom-domain.yml">Custom Domain</comp.GlossaryTerm> connected to your <comp.GlossaryTerm term="/user/glossary/o/organization.yml">Organization</comp.GlossaryTerm>. CloudCannon adds the records that point your <comp.GlossaryTerm term="/user/glossary/b/base-domain.yml">Base Domain</comp.GlossaryTerm> and its <comp.GlossaryTerm term="/user/glossary/s/subdomain.yml">Subdomains</comp.GlossaryTerm> at CloudCannon, and the TXT Records for your <comp.GlossaryTerm term="/user/glossary/s/ssl-certificate.yml">SSL Certificates</comp.GlossaryTerm>, for you.
+
+Before we begin, this article assumes you have [connected a Custom Domain to your Organization](/documentation/developer-articles/connect-a-custom-domain-to-your-organization/).
 
 ## Enable CloudCannon DNS
 
-CloudCannon enables CloudCannon DNS for your Site by default. If you want to switch back to CloudCannon DNS from an external DNS service or confirm that you have CloudCannon DNS enabled, you can check the *Domain Settings* page.
+*CloudCannon DNS* is the default <comp.GlossaryTerm term="/user/glossary/d/dns-provider.yml">DNS Provider</comp.GlossaryTerm> when you connect a *Custom Domain*. If your domain uses <comp.GlossaryTerm term="/user/glossary/e/external-dns.yml">External DNS</comp.GlossaryTerm>, you can switch it to *CloudCannon DNS* on the *Details* section of the *Domain Settings* tab. Switching needs the `base-domain:settings:details:read` permission to open the *Details* section, as well as the `base-domain:settings:dns:write` permission.
 
 <comp.Notice info_type="important">
-  Updating your DNS provider can cause downtime for anything connected to your domain, such as your website or custom email address. Please make sure you have a copy of your existing DNS records before you change providers.
+  Updating your *DNS Provider* can cause downtime for anything connected to your domain, such as your website or custom email address. Please make sure you have a copy of your existing DNS Records before you change providers.
 
-  If you need help updating your DNS, please contact our friendly <a href="https://cloudcannon.com/support/">support team</a>.
+  If you need help updating your DNS, please contact our friendly <a href="https://cloudcannon.com/support/">support team</a>. Include the *Custom Domain*, your current *DNS Provider*, and a copy of your existing DNS Records.
 </comp.Notice>
 
 To switch to CloudCannon DNS:
 
-1. Click the *Domains* button in the *App Sidebar*. CloudCannon will open the *Domain Browser*.
-2. Select the domain for which you want to configure DNS by clicking on the *Domain Card*. CloudCannon will open the *Domain* page.
-3. Click the *Domain Settings* tab.
-4. Under *DNS Provider*, select the *CloudCannon DNS* option.
-5. Click the *Update Domain* button.
+1. Log in to CloudCannon.
+2. Select the *Organization* your *Custom Domain* is connected to.
+3. Click the *Custom Domains* link in the <comp.GlossaryTerm term="/user/glossary/a/app-sidebar.yml">App Sidebar</comp.GlossaryTerm>. CloudCannon will open the <comp.GlossaryTerm term="/user/glossary/d/domains-browser.yml">Domains Browser</comp.GlossaryTerm>.
+4. Select the domain for which you want to configure DNS by clicking the <comp.GlossaryTerm term="/user/glossary/c/card.yml">Card</comp.GlossaryTerm> for the domain. CloudCannon will open the *Summary* tab of the *Domain* page.
+5. Click the *Domain Settings* tab. CloudCannon will open the *Details* section.
+6. Under *DNS Provider*, select the *CloudCannon DNS* option. CloudCannon will label the provider you are switching from *(current)* and list *What happens when you switch*.
+7. Click the *Switch to CloudCannon DNS* button.
 
-CloudCannon will now manage your DNS records.
+CloudCannon will create a DNS zone for your domain and add the records CloudCannon needs.
 
-<comp.DocShot docshot_key="CloudCannon-Documentation-Domain-Settings-CloudCannon-DNS" alt="A screenshot of the Domain Settings page shows the DNS Provider radio button is set to CloudCannon DNS." title="The Domain Settings page" type="screenshot" />
+Nothing changes for visitors until you change the <comp.GlossaryTerm term="/user/glossary/n/nameserver.yml">nameservers</comp.GlossaryTerm> at your <comp.GlossaryTerm term="/user/glossary/d/domain-registrar.yml">domain registrar</comp.GlossaryTerm>. Before you change them, add your other DNS Records, such as MX Records for email and TXT Records for site verification, on the *DNS* tab.
 
-## Configure your nameservers
+<comp.DocShot docshot_key="CloudCannon-Documentation-Domain-Domain-Settings-Tab-Details-Switch-To-CloudCannon-DNS" alt="A screenshot of the Details section on the Domain Settings tab shows CloudCannon DNS selected under DNS Provider, External DNS marked (current), and the What happens when you switch steps." title="The Details section on the Domain Settings tab" type="screenshot" />
 
-If you have yet to configure your nameservers or have done so incorrectly, CloudCannon will display a warning with setup instructions. You can find this warning in two places: the *Network* tab of your *Domain* page, and the *Custom Domain* page under *Site Settings*.
+You can also open the *Details* section from the *DNS* tab, by clicking the *change the DNS Provider* link below the *External DNS nameservers* heading at the top of the tab.
 
-<comp.DocShot docshot_key="CloudCannon-Documentation-Domain-Network-Nameserver-Setup" alt="A screenshot of the Domain Network page shows the nameserver setup instructions for a domain with misconfigured nameservers." title="The Domain Network page" type="screenshot" />
+## Move from the legacy CloudCannon DNS
 
-<comp.DocShot docshot_key="CloudCannon-Documentation-Site-Settings-Custom-Domain-Nameserver-Warning" alt="A screenshot of the Custom Domain page under Site Settings shows the nameserver setup warning." title="The Custom Domain page under Site Settings" type="screenshot" />
+Some older *Custom Domains* use the legacy CloudCannon DNS, where you can't add or change DNS Records. Moving your domain to the new CloudCannon DNS creates a DNS zone with a copy of its current records, where you can add and edit them, and nothing changes for visitors until you update the nameservers at your domain registrar. For the steps, please read our documentation on [migrating from the legacy CloudCannon DNS](/documentation/developer-articles/migrate-from-the-legacy-cloudcannon-dns/).
+
+## Point your domain at CloudCannon DNS
+
+Once you enable CloudCannon DNS, you need to replace the nameservers at your domain registrar with CloudCannon's nameservers. Until you do, a setup guide at the top of the *Summary* tab of your *Domain* page walks you through each step. The *Custom Domain* page under *Site Settings* shows the same guide for any <comp.GlossaryTerm term="/user/glossary/s/site.yml">Site</comp.GlossaryTerm> on the domain, and notes that the *Site* stays on its <comp.GlossaryTerm term="/user/glossary/t/testing-domain.yml">Testing Domain</comp.GlossaryTerm> until your domain goes live. The *DNS* tab shows the same guide below its *CloudCannon DNS* heading, a *Configure CloudCannon DNS* link, and a sentence that says how CloudCannon DNS answers for your domain, ending in a *change the DNS Provider* link.
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Site-Settings-Custom-Domain-Setup-Guide" alt="A screenshot of the Custom Domain page under Site Settings for Careers site shows that Careers site goes live at https://careers.example.org/ once careers.example.org points at CloudCannon, and the Point example.org at CloudCannon DNS setup guide, which notes that Careers site stays on careers-site.cloudvent.net until then, with the Update your nameservers step in progress and the 1. Copy your existing DNS Records step with an Open the DNS tab button." title="The setup guide on the Custom Domain page" type="screenshot" />
+
+The setup guide shows a three-step tracker (*Update your nameservers*, *Nameservers match*, and *CloudCannon DNS configured*) and a heading for the step you are on. Once you click the *I've updated my nameservers* button, the first step reads *You updated your nameservers*. While CloudCannon checks your nameservers, the second step reads *Checking nameservers*, and if CloudCannon can't detect them, *Nameservers do not match*:
+
+* **Getting [Base Domain] ready** — CloudCannon is creating the DNS zone for your domain. Your nameservers show once the zone is ready, usually in a moment.
+* **CloudCannon could not create a DNS zone for [Base Domain]** — CloudCannon couldn't create the DNS zone, and shows Cloudflare's reason under *Error reason*. Click the *Retry zone creation* button to try again.
+* **Point [Base Domain] at CloudCannon DNS** — Update the nameservers at your domain registrar.
+* **Waiting for CloudCannon nameservers on [Base Domain]** — Your registrar is handing your domain over to CloudCannon DNS.
+* **[Base Domain]'s nameservers do not match the CloudCannon nameservers** — CloudCannon still can't see your new nameservers 48 hours after you clicked the *I've updated my nameservers* button.
+* **[Base Domain]'s nameservers no longer point at CloudCannon DNS** — Your domain was live on CloudCannon DNS, but its nameservers no longer point at CloudCannon.
+
+If the zone still can't be created after you retry, contact our friendly <a href="https://cloudcannon.com/support/">support team</a>. Include your *Base Domain* and the reason Cloudflare gave in the setup guide.
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Domain-Summary-Setup-Guide-Update-Nameservers" alt="A screenshot of the setup guide on the Summary tab shows the Point example.org at CloudCannon DNS heading, the Update your nameservers step in progress, the 1. Copy your existing DNS Records step with an Open the DNS tab button, and the 2. Update your nameservers table with each required nameserver marked Update needed." title="The setup guide while you update your nameservers" type="screenshot" />
+
+### Add your existing records
+
+Unless you moved from the legacy CloudCannon DNS, CloudCannon doesn't copy records from your current *DNS Provider*. Records at your current *DNS Provider* stop working once you switch nameservers, so add them to CloudCannon DNS first. These usually include MX Records for email and TXT Records for site verification.
+
+The first step of the setup guide, *1. Copy your existing DNS Records*, has an *Open the DNS tab* button on the *Summary* tab, which opens the *DNS* tab. On the *DNS* tab, the same step has a *Scroll to DNS Records* button, which scrolls down to the *DNS records* section. For the steps to add a record, please read our documentation on [adding DNS Records](/documentation/developer-articles/manage-your-dns-records-on-cloudcannon-dns/#add-dns-records).
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Domain-Summary-Nameserver-Setup" alt="A screenshot of the DNS tab on the Domain page shows the CloudCannon DNS heading with a change the DNS Provider link, and the setup guide with the Point pending-dns.com at CloudCannon DNS heading, the Update your nameservers step in progress, the 1. Copy your existing DNS Records step with a Scroll to DNS Records button, and the 2. Update your nameservers table with a required nameserver marked Update needed." title="The setup guide on the DNS tab" type="screenshot" />
+
+### Update your nameservers
+
+The second step of the setup guide, *2. Update your nameservers*, shows a table with one row for each nameserver. It lists each nameserver your domain needs under *Required*, the nameserver CloudCannon *Found* at your registrar, and a *Status* for each. A nameserver that matches shows *Detected*. The check passes only when your registrar lists exactly CloudCannon's nameservers. If your registrar lists a nameserver that CloudCannon DNS doesn't use, its row shows *Remove*.
 
 Configuring your nameservers requires you to use the services provided by your domain registrar. For support, please contact your domain registrar.
 
-To configure your nameservers:
+CloudCannon DNS doesn't support DNSSEC. If DNSSEC is turned on for your domain at your registrar, turn it off before you update your nameservers. Otherwise, resolvers that check DNSSEC reject the answers from CloudCannon DNS, and your domain stops resolving for many visitors.
 
-1. Log in to your third-party domain registrar with the account details used when you purchased your domain name. If you don't know who your domain registrar is, you can enter the domain name into the <a href="https://lookup.icann.org/en/lookup" target="_blank" rel="noopener noreferrer">ICANN website</a> and scroll down to Registrar Information.
-2. Update the nameserver configuration on your domain registrar to the *Expected Nameservers* listed on the *Custom Domain* page. Normally, these are *asa.ns.cloudflare.com* and *roan.ns.cloudflare.com*.
+To update your nameservers:
 
-CloudCannon will update the *Custom Domain* page once your registrar has propagated the updated nameservers. To refresh the page, click the *Check again* button at the bottom.
+1. Log in to your third-party domain registrar with the account details used when you purchased your domain name. If you don't know who your domain registrar is, click the *WHOIS* link in the setup guide.
+2. Click the *Copy* icon next to a nameserver listed under *Required*. The icon will turn into a tick and show *Copied!*.
+3. Paste the nameserver at your domain registrar. Repeat steps 2 and 3 until your registrar lists every nameserver under *Required*, and remove any other nameservers.
+4. Save your changes at your domain registrar.
+5. Click the *I've updated my nameservers* button in the nameservers table.
+
+CloudCannon will check your nameservers every hour, and email you when your domain uses CloudCannon DNS. There's no need to keep the page open. For how long CloudCannon checks hourly, and how to check again immediately, please read the section on [how often CloudCannon checks your nameservers](#how-often-cloudcannon-checks-your-nameservers).
 
 <comp.Notice info_type="info">
-  Domain registrars typically process nameserver updates within 24 hours.
+  Most registrars hand your domain over to CloudCannon DNS within an hour, but it can take up to 48 hours.
 </comp.Notice>
 
-<comp.DocShot docshot_key="CloudCannon-Documentation-Domain-Network-Nameserver-Success" alt="A screenshot of the Domain Network page shows that nameservers are correctly configured." title="The Domain Network page" type="screenshot" />
+<comp.DocShot docshot_key="CloudCannon-Documentation-Domain-Summary-Setup-Guide-Spreading" alt="A screenshot of the setup guide on the Summary tab shows the Waiting for CloudCannon nameservers on example.org heading, the Checking nameservers step in progress, and the Nameservers table with the two required nameservers and the two nameservers found, each marked Checking, and the Marked as updated and Check now buttons." title="The setup guide while your nameservers propagate" type="screenshot" />
 
-<comp.DocShot docshot_key="CloudCannon-Documentation-Site-Settings-Custom-Domain-Nameserver-Success" alt="A screenshot of the Custom Domain page under Site Settings shows that nameservers are correctly configured." title="The Custom Domain page under Site Settings" type="screenshot" />
+If CloudCannon still can't see your new nameservers 48 hours after you clicked *I've updated my nameservers*, the setup guide lists what usually fixes it under *How can I fix this?*:
 
-## Add DNS records
+* Check that the change was saved at your registrar, not only entered.
+* Replace all of the old nameservers. Adding CloudCannon's nameservers alongside them doesn't work.
+* If DNSSEC is on at your registrar, turn it off first.
 
-[DNS records](/documentation/developer-articles/what-is-dns/#what-are-dns-records) are instructions for a Domain Name managed by an authoritative nameserver. By enabling CloudCannon DNS, you allow CloudCannon's servers to manage your DNS records.
+Once you have fixed the problem, click the *I've updated my nameservers* button. CloudCannon will check every hour for another 48 hours.
 
-To add a DNS record:
+If CloudCannon still can't see your nameservers after you have checked each of these, contact our friendly <a href="https://cloudcannon.com/support/">support team</a>. Include your *Base Domain*, the name of your domain registrar, and the nameservers your registrar lists.
 
-1. Click the *Domains* button in the *App Sidebar*. CloudCannon will open the *Domain Browser*.
-2. Select the domain for which you want to configure DNS by clicking on the *Domain Card*. CloudCannon will open the *Domain* page.
-3. Click the *DNS* tab.
-4. Click the *Add Record* button.
-5. In the *Add DNS record* modal, use the *Type* dropdown to select the type of record. Valid options include *A*, *AAAA*, *CNAME*, *MX*, *SPF*, *SRV*, and *TXT*. CloudCannon will update the available fields depending on the record type.
-6. Enter the details for your DNS record. 
-7. (Optional.) Add a *Comment* to your DNS record to help your Organization Members understand the purpose of the record.
-8. Click the *Add Record* button.
+<comp.DocShot docshot_key="CloudCannon-Documentation-Domain-Summary-Setup-Guide-Not-Detected" alt="A screenshot of the setup guide on the Summary tab shows the heading example.org's nameservers do not match the CloudCannon nameservers, a note that CloudCannon has emailed the steps too and when the nameservers were marked as updated, the Nameservers do not match step in the tracker, the How can I fix this? notice, and the start of the Nameservers table." title="The setup guide when your nameservers are not detected" type="screenshot" />
 
-CloudCannon will add the DNS record to your DNS settings.
+When your nameservers switch while you have the *Summary* tab open, the setup guide shows *[Base Domain] now uses CloudCannon DNS!* Click the *Add a Subdomain* button to add a *Subdomain*, or the *Dismiss* button to close the guide. If you open the *Summary* tab after your domain goes live, CloudCannon shows the normal *Summary* tab.
 
-<comp.DocShot docshot_key="CloudCannon-Documentation-Domain-DNS-Add-Record-Modal" alt="A screenshot of the DNS tab on the Domain page showing the Add DNS Record modal with fields for Type, Name, IPv4 Address and TTL." title="The DNS tab on the Domain page" type="screenshot" />
+The *DNS* tab keeps the setup guide once your domain is live, showing *[Base Domain] uses CloudCannon DNS* with three done steps, and the sentence below its heading says *CloudCannon manages your DNS Records for [Base Domain].* Inside the guide, the nameservers collapse into a closed *Nameservers* row with a green tick, which reads *CloudCannon detected the correct nameservers [time] ago. CloudCannon checks these every day.* If the latest check failed, it reads *CloudCannon could not check the nameservers [time] ago.* instead, with when the nameservers were last correct. Click the row to open it and see the nameservers table.
 
-You can edit or delete existing DNS records by clicking the *Context Menu* button for a record and selecting the *Update* or *Remove* option.
+<comp.DocShot docshot_key="CloudCannon-Documentation-Domain-Summary-Setup-Guide-Live" alt="A screenshot of the setup guide on the Summary tab shows example.org now uses CloudCannon DNS!, a three-step tracker with every step done, and the Next, host a Site on example.org section with the Add a Subdomain and Dismiss buttons." title="The setup guide when your domain goes live" type="screenshot" />
 
-### CloudCannon CNAME records
+<comp.DocShot docshot_key="CloudCannon-Documentation-Domain-Summary-Nameserver-Success" alt="A screenshot of the DNS tab on the Domain page shows the CloudCannon DNS heading with a change the DNS Provider link, the setup guide with example.com uses CloudCannon DNS and three done steps, the closed Nameservers row with a green tick noting that CloudCannon detected the correct nameservers 12 minutes ago, and the Required records section noting that all three subdomains point at CloudCannon." title="The DNS tab once the domain is live" type="screenshot" />
 
-When you enable CloudCannon DNS, CloudCannon will add two CNAME records to your DNS records.
+### If your nameservers change
 
-1. \*.example.com is an alias for sites.cloudcannon.com
-2. example.com is an alias for sites.cloudcannon.com
+If the nameservers of a live domain stop pointing at CloudCannon, the setup guide shows when CloudCannon noticed the change. As DNS caches expire, visitors stop reaching the DNS Records you store in CloudCannon, and reach the records at the new nameservers instead.
 
-These records instruct servers completing a DNS lookup for your Site's base domain (and all its subdomains) to search for the IP address of sites.cloudcannon.com. This allows users looking for your website to find the IP address of the CloudCannon server hosting your Site.
+* If you didn't mean to change your nameservers, change them back at your domain registrar, then click the *I've updated my nameservers* button.
+* If you moved your DNS on purpose, click the *Open the Domain Settings tab* button in the *Do you now use a different DNS Provider?* notice to open the *Details* section of the *Domain Settings* tab, and switch your domain to External DNS. This button requires the `base-domain:settings:details:read` permission.
+
+Cloudflare deletes your domain's CloudCannon DNS zone if the nameservers stay changed for seven days. CloudCannon keeps a copy of your DNS Records when it notices the change. If you change the nameservers back after Cloudflare deletes the zone, CloudCannon creates the zone again and restores your records. Cloudflare may give the new zone different nameservers, in which case the setup guide shows the nameservers to set at your registrar.
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Domain-Summary-Setup-Guide-Changed" alt="A screenshot of the setup guide on the Summary tab shows the heading example.org's nameservers no longer point at CloudCannon DNS with the time CloudCannon noticed, the Do you now use a different DNS Provider? notice with an Open the Domain Settings tab button, and the Change the nameservers back table with each required nameserver, the nameserver found, and a Changed status." title="The setup guide when your nameservers change" type="screenshot" />
+
+The *I've updated my nameservers* and *Retry zone creation* buttons require the `base-domain:settings:dns:write` permission. The *Move to the new CloudCannon DNS* button requires both the `base-domain:settings:dns:write` and `base-domain:settings:details:write` permissions. Without them, the buttons are disabled, and hovering over a disabled button shows *You do not have permission to edit the DNS for [Base Domain].* or *You do not have permission to edit the Domain Settings for [Base Domain].* Ask someone in your *Organization* who has these permissions.
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Domain-Summary-Setup-Guide-Read-Only" alt="A screenshot of the setup guide on the Summary tab shows the Point example.org at CloudCannon DNS heading, the 1. Copy your existing DNS Records step with an Open the DNS tab button, and the 2. Update your nameservers table with each required nameserver marked Update needed." title="The setup guide without permission to edit the DNS" type="screenshot" />
+
+If you can't view the DNS of the *Base Domain*, the *Summary* tab replaces the setup guide with a *CloudCannon DNS is not configured for [Base Domain].* notice. Domains on the legacy CloudCannon DNS show the setup guide instead.
+
+### How often CloudCannon checks your nameservers
+
+CloudCannon checks your nameservers daily. It checks every hour until your domain is live, for up to 48 hours after the latest of these: you connected the domain, you set up CloudCannon DNS for it, or you clicked the *I've updated my nameservers* button. If your domain still isn't live after 48 hours, CloudCannon emails you and goes back to checking daily. Click the *I've updated my nameservers* button again to start another 48 hours of hourly checks.
+
+The footer of the nameservers table says how often CloudCannon checks and when it last checked. Once your domain is live, the *DNS* tab shows this in the closed *Nameservers* row instead, and the footer keeps only its buttons. Click the *Check now* button in the footer to check immediately. For a minute after a check, the button is disabled, and hovering over it shows *Checked less than a minute ago. You can check again in a minute.* If CloudCannon couldn't complete the latest check, the footer shows *Could not check* with how long ago the check failed, and the status stays at the last known result.
+
+### View the nameserver check history
+
+To see every recent check of your nameservers, click the *View nameserver check history* icon in the footer of the nameservers table. CloudCannon will open the *Nameserver checks for [Base Domain]* modal, which lists the nameservers your domain needs and the checks, most recent first. Back-to-back checks with the same result share a row.
+
+Each row shows which *DNS Provider* the nameservers CloudCannon found belong to (*CloudCannon DNS*, *Legacy CloudCannon DNS*, or *Another provider*), *Nothing found*, or *Couldn't check*, along with the nameservers found, any error, and when the checks ran. A *Couldn't check* row doesn't change the status of your nameservers. Click the *Load older results* button to see older checks.
+
+You can also list the checks with the [CloudCannon API](/documentation/developer-reference/api/), at `GET /api/v0/base-domains/{base_domain_uuid}/dns/checks`.
+
+### Nameserver emails
+
+CloudCannon emails everyone who can edit the settings of your *Base Domain* (the `base-domain:settings:details:write` permission) about the nameservers of your domain.
+
+#### [Base Domain] now uses CloudCannon DNS
+
+CloudCannon sends this email about 15 minutes after your nameservers switch to CloudCannon, if an earlier check found nameservers that didn't match. It lists what is live on up to four *Subdomains* under *Subdomains live on [Base Domain]*, then, if they apply, *Subdomains with errors*, *Subdomains without a valid SSL Certificate*, *Certificates still issuing*, and *Do you use email on [Base Domain]?* when CloudCannon found no MX Records.
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Mailer-Dns-Live" alt="A screenshot of the email sent when example.com starts using CloudCannon DNS shows the headline example.com now uses CloudCannon DNS, a three-step tracker with every step done, the Subdomains live on example.com list with each subdomain marked Live, and the Subdomains with errors list with a subdomain marked Not pointing at CloudCannon." title="The domain is live email" type="screenshot"/>
+
+#### [Base Domain]'s nameservers do not match the CloudCannon nameservers
+
+CloudCannon sends this email when it still can't see your new nameservers more than 48 hours after you clicked *I've updated my nameservers*. If you didn't click it, CloudCannon counts the 48 hours from when you connected the domain or set up CloudCannon DNS for it, whichever is later, so switching a domain to CloudCannon DNS starts the 48 hours again. CloudCannon only sends the email within seven days of that starting point, and doesn't send it once your domain uses External DNS.
+
+The email lists the nameservers your registrar still has and what usually fixes it, with an *Open the Domain page for [Base Domain]* button that opens your *Domain* page. Once your registrar lists the CloudCannon nameservers, click the *I've updated my nameservers* button on your *Domain* page, and CloudCannon will check every hour again.
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Mailer-Dns-Nameservers-Not-Detected" alt="A screenshot of the nameservers not detected email shows the headline example.com's nameservers do not match the CloudCannon nameservers, a tracker with Nameservers do not match, the nameservers required and the nameservers found marked Not CloudCannon DNS, the Next actions steps, and the How can I fix this? notice." title="The nameservers not detected email" type="screenshot"/>
+
+#### Action required: [Base Domain]'s nameservers no longer point at CloudCannon DNS
+
+CloudCannon sends this email when the nameservers of a live domain change away from CloudCannon. The email names the nameservers your domain uses now. If you didn't mean to change them, change them back at your domain registrar. If you now use another *DNS Provider*, switch your domain to External DNS on the *Domain Settings* tab of your *Domain* page. The email also says when Cloudflare will delete the zone if the nameservers stay changed, and that CloudCannon keeps a copy of your records to restore if you change the nameservers back. Click the *Open the Domain page for [Base Domain]* button to open your *Domain* page.
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Mailer-Dns-Nameservers-Changed" alt="A screenshot of the nameservers changed email shows that example.com no longer uses CloudCannon DNS, the nameservers it uses now, and what to do next." title="The nameservers changed email" type="screenshot"/>

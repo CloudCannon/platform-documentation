@@ -148,11 +148,14 @@ const apiNavSection = {
   heading: "API",
   icon: "api",
   basePath: API_BASE_PATH,
-  items: getApiResources().map((resource) => ({
-    url: `${API_BASE_PATH}${resource.slug}/`,
-    name: resource.title,
-    gid: `api.${resource.slug}`,
-  })),
+  items: [
+    { url: `${API_BASE_PATH}changelog/`, name: "API Changelog", gid: "api.changelog" },
+    ...getApiResources().map((resource) => ({
+      url: `${API_BASE_PATH}${resource.slug}/`,
+      name: resource.title,
+      gid: `api.${resource.slug}`,
+    })),
+  ],
 };
 
 // Schemas index (a single nav link; the index page lists every schema)
@@ -288,6 +291,24 @@ site.use(feed({
   info: {
     title: "CloudCannon Documentation Changelog",
     description: "Latest updates and changes to CloudCannon",
+  },
+  items: {
+    title: "=title",
+    description: "=description",
+    published: "=date",
+    content: "=children",
+  },
+}));
+
+// API changelog RSS feed, kept separate from the main changelog feed
+site.use(feed({
+  output: ["/developer-reference/api/changelog/feed.xml"],
+  query: "api-changelog",
+  sort: "date=desc",
+  limit: 20,
+  info: {
+    title: "CloudCannon API Changelog",
+    description: "Changes to the CloudCannon API, its endpoints, and its fields",
   },
   items: {
     title: "=title",
