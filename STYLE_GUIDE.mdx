@@ -1,7 +1,7 @@
 # CloudCannon Documentation Style Guide
 
 **Last Updated:** November 5, 2026  
-**Version:** 2.78
+**Version:** 2.82
 
 This style guide establishes writing standards for all CloudCannon documentation. It combines patterns from our existing documentation with industry best practices from Microsoft Writing Style Guide, Google Developer Documentation Style Guide, and Write the Docs community standards.
 
@@ -481,6 +481,16 @@ Because *Details* appears in both *Org Settings* and *Project Settings*, the sam
 - ❌ **Avoid:** "Open the *Members* page." (Members is a tab on the *People* page.)
 
 ---
+
+#### 1.3.5 Release stages
+
+CloudCannon releases some features in stages before everyone can use them. Use these three names, with both words capitalized and no italics. Never write "Open Beta", "closed beta", or "beta" on its own for a release stage.
+
+- **Internal Beta** — available to CloudCannon staff only. Don't document an Internal Beta feature, announce it in a changelog, or name it anywhere readers can see.
+- **Private Beta** — available to customers on request. Document it in the `beta/` section, with the Private Beta notice (§1.5.1). Don't announce it in the main changelog.
+- **Public Beta** — available to everyone, but still in development, so CloudCannon may change it. Document it in the main docs, with the Public Beta notice (§1.5.1), and announce it in the changelog, saying it is in Public Beta.
+
+*Private Beta* and *Public Beta* have glossary entries, which link to the CloudCannon Beta page (`beta/index.mdx`). *Internal Beta* has no glossary entry, because readers never meet it.
 
 ### 1.4 Formatting
 
@@ -1115,17 +1125,27 @@ Placement:
 - Clearly state the gate — the plan the feature is available on, or how to request access
 - For a *Subscription Plan* gate, always start with "**Subscription Plan required**" as the heading, matching the "**Permissions required**" heading on permissions notices
 
-For a gate that is not a plan tier, state what the gate is and how to get through it. These notices keep their own form and do not take the "**Subscription Plan required**" heading. A private Beta notice names the Beta and routes the reader to support:
+For a gate that is not a plan tier, state what the gate is and how to get through it. These notices keep their own form and do not take the "**Subscription Plan required**" heading. A Private Beta notice (§1.3.5) names the Private Beta and routes the reader to support:
 
 ```mdx
 <comp.Notice info_type="pricing">
-  **This feature is available through a private Beta.**
+  **This feature is available through a Private Beta.**
 
-  [Feature] is currently available through a private Beta. To request access, please contact our friendly <a href="mailto:success@cloudcannon.com">support team</a>.
+  [Feature] is currently available through a Private Beta. To request access, please contact our friendly <a href="mailto:success@cloudcannon.com">support team</a>.
 </comp.Notice>
 ```
 
 If access is granted per account rather than per *Organization*, say so — otherwise a reader whose colleague has access will read the difference as a bug.
+
+A Public Beta feature (§1.3.5) is not gated, because everyone can use it, so its notice is `important`, not `pricing`. It says the feature is in Public Beta and may change:
+
+```mdx
+<comp.Notice info_type="important">
+  **This feature is in Public Beta.**
+
+  [Feature] is available to everyone, but is still in development, so CloudCannon may change it.
+</comp.Notice>
+```
 
 **Canonical pricing-notice forms:**
 
@@ -1504,7 +1524,7 @@ The documentation assumes every *Organization* uses unified configuration. Descr
 
 Changelogs announce new features, improvements, and bug fixes for CloudCannon releases.
 
-Changelogs document changes that have **shipped to all users**. Exclude features that are still in beta or otherwise unreleased, along with their supporting plumbing (error handling, migrations, API wiring) — even if the code merged during the period the changelog covers.
+Changelogs document changes that have **shipped to all users**. Exclude features in Internal Beta or Private Beta (§1.3.5), or otherwise unreleased, along with their supporting plumbing (error handling, migrations, API wiring) — even if the code merged during the period the changelog covers.
 
 #### 2.1.1 File Naming
 - Location: `changelogs/YYYY/` (where YYYY is the year)
@@ -1521,7 +1541,7 @@ date: 2026-06-23T14:42:44+12:00
 ---
 ```
 
-- `date` is required — an ISO 8601 timestamp in the `+12:00` (NZ) timezone, set to when the changelog is published. It drives ordering, so it must be present even though the rendered page does not always show it.
+- `date` is required — an ISO 8601 timestamp in New Zealand time, set to when the changelog is published. Use `+13:00` while New Zealand Daylight Time is in effect (late September to early April) and `+12:00` for the rest of the year. It drives ordering, so it must be present even though the rendered page does not always show it.
 
 **Title Guidelines:**
 - Should be descriptive, not just a date
@@ -1594,6 +1614,23 @@ Pattern: **Added** *[Name]*, allowing you to *[capability]*. *[Where the control
 - ❌ **Avoid:** "You can now build a *Site* for each *Pull Request*…" (present-tense instruction)
 - ❌ **Avoid:** "Go to *Project Settings* to turn this on." (instructional, not descriptive)
 
+**Give Every Entry a Reason**
+
+The "allowing you to…" clause says what the reader gains, not what the feature is. A clause that restates the feature's name tells the reader nothing new.
+
+- ✅ **Good:** "Added the `hidden_if` and `disabled_if` options to input configuration, allowing you to hide or disable an *Input* based on the values of other *Inputs*."
+- ❌ **Avoid:** "Added the `hidden_if` option, allowing you to hide an *Input* with `hidden_if`." (restates the feature)
+
+Renames, moves, and changed defaults need a reason too. Say why the name changed, or what the new location or default changes for the reader.
+
+- ✅ **Good:** "Renamed the *Team* page under *Org Settings* to *People*, to improve clarity around the people in your *Organization* versus the *Team Plan*."
+- ✅ **Good:** "Moved the HTTP to HTTPS redirect to the *HTTPS* section of the *Custom Domain* page, where it applies to every *Site* on the subdomain."
+- ❌ **Avoid:** "Renamed the *Team* page to *People*." (no reason)
+
+When a new option sits alongside an existing one that still works, say what the new option does that the existing one could not, and that the existing one is unchanged. Readers otherwise assume they need to migrate.
+
+- ✅ **Good:** "Added the `hidden_if` option, allowing you to hide an *Input* based on what another *Input* holds, rather than only whether it holds a value. The `hidden` option is unchanged."
+
 **Nested Detail**
 
 When an entry uses sub-bullets to explain how a feature works, keep the lead bullet in past tense and describe behaviour in the descriptive present. Never issue instructions ("You can now…", "Click *Save*").
@@ -1609,6 +1646,38 @@ When an entry uses sub-bullets to explain how a feature works, keep the lead bul
 
 **Italicize UI Elements**
 - Follow UI formatting rules throughout.
+
+#### 2.1.5 API Changelog
+
+Changes to the CloudCannon API, its endpoints, and its fields have their own changelog in the developer reference, at `/documentation/developer-reference/api/changelog/`, with its own RSS feed at `/documentation/developer-reference/api/changelog/feed.xml`. The main changelog doesn't list API changes. It links to the API changelog with one standard sentence instead.
+
+**When an update changes the API**
+- Add an entry to the API changelog for that update, dated the same as the main changelog entry.
+- End the *Features & Improvements* section of the main changelog with this sentence, word for word:
+
+  "Updated the CloudCannon API, which is in Public Beta. For more information, please read our [API changelog](/documentation/developer-reference/api/changelog/)."
+
+- If an update changes only the API, the main changelog entry can be the standard sentence on its own, under *Features & Improvements*.
+
+**File Naming and Front Matter**
+- Location: `developer/reference/api/changelog/YYYY/`
+- Format: `MM-DD_descriptive-title.mdx`, with the same `_schema`, `title`, and `date` front matter as a changelog (§2.1.1, §2.1.2)
+- Title: name the change to the API in sentence case, such as "Guest Access endpoints" or "Subdomain endpoints and Site SSL deprecations"
+
+**Structure**
+- An introduction of one or two sentences, starting "This update…", that says what changed and calls out anything that breaks existing code.
+- Then these sections, in this order, leaving out any with no entries:
+  - **Added** — new endpoints, fields, parameters, and filters
+  - **Changed** — changed behavior, responses, status codes, permissions, and limits
+  - **Deprecated** — endpoints and fields that still work but have a replacement. Name the replacement in the same bullet.
+  - **Removed** — endpoints, fields, values, filters, and sorts that no longer work
+  - **Fixes** — bugs in the API, starting "Fixed an issue where…"
+
+**Writing Style**
+- Follow §2.1.4: past tense, a leading verb, an "allowing you to…" clause, and a reason for each change.
+- Write endpoints in code with their method and full path, such as `GET /api/v0/base-domains/{base_domain_uuid}/subdomains`. Later endpoints in the same bullet can shorten the shared part of the path with `…`.
+- Write fields, parameters, and values in code, such as `subdomain_uuid`.
+- Describe a breaking change in terms of what existing code sees, such as a field that moved or a response that changed shape.
 
 ---
 
@@ -2473,6 +2542,10 @@ When you update a rule here, update the corresponding rule in `STYLE_GUIDE_AGENT
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.82 | 2026-11-05 | Terminology (§1.3.5 Release stages): defined *Internal Beta* (staff only, never documented or announced), *Private Beta* (customers on request, documented in `beta/`, not in the main changelog), and *Public Beta* (everyone, still in development, documented and announced). Both words capitalized, no italics; "Open Beta" retired. Changelogs (§2.1) now exclude only Internal Beta and Private Beta features. Notices (§1.5.1): capitalized *Private Beta* and added a Public Beta `important` notice. The API changelog's standard sentence (§2.1.5) says "Public Beta". Added `terminology.release_stages` and `pricing_notice_content.public_beta_form` in `STYLE_GUIDE_AGENTS.md` |
+| 2.81 | 2026-11-05 | Changelogs (§2.1.5 API Changelog): added the API changelog at `developer/reference/api/changelog/`, with its own RSS feed. API changes move out of the main changelog, which ends *Features & Improvements* with one standard sentence linking to the API changelog. Entries use *Added*, *Changed*, *Deprecated*, *Removed*, and *Fixes* sections, and write endpoints with their method and full path. Added `documentation_types.api_changelog` and `changelog.api_changes` in `STYLE_GUIDE_AGENTS.md` |
+| 2.80 | 2026-11-05 | Changelogs (§2.1.2 Front Matter): the `date` offset follows New Zealand time, `+13:00` during New Zealand Daylight Time and `+12:00` otherwise, rather than always `+12:00`. Matches the published changelogs, which already use `+13:00` in summer. Updated `documentation_types.changelog.required_front_matter` in `STYLE_GUIDE_AGENTS.md` |
+| 2.79 | 2026-11-05 | Changelogs (§2.1.4 Writing Style): added **Give Every Entry a Reason**. The "allowing you to…" clause must say what the reader gains, not restate the feature's name. Renames, moves, and changed defaults also need a reason (why the name changed, what the new location or default changes). When a new option sits alongside an existing one that still works, the entry says what the new option adds and that the existing one is unchanged, so readers don't assume they must migrate. Added `entry_reason` under `documentation_types.changelog` in `STYLE_GUIDE_AGENTS.md` |
 | 2.78 | 2026-11-05 | Terminology (§1.4.1 Italics): added ***Fallback Redirect***, ***SSL Certificate***, ***Custom SSL Certificate***, and ***DNS Provider*** as features, capitalized and italicized in prose and capitalized without italics in headings and link text. The app's domain screens and emails capitalize all four, and the docs quote them, so lowercase prose sat next to capitalized UI copy. Modifiers stay lowercase (a wildcard *SSL Certificate*, an auto-generated *SSL Certificate*). App labels that still use lowercase are quoted verbatim. Glossary term names updated to match, with a new *DNS Provider* entry. Added to `terminology.capitalized_concepts` and `glossary.italicization_rules.use_asterisks_for.features` in `STYLE_GUIDE_AGENTS.md` |
 | 2.77 | 2026-10-29 | Notices (§1.5.1 `permissions`): added a **Length** rule. A permissions notice is one or two sentences: when the page's actions need several permissions, name them together in one "with the X and Y permissions" clause, and put per-action detail at the top of the section for that action. A permission that only some of the page's actions need stays out of the notice, so the notice doesn't overstate the gate. The *Partner* form keeps its *Custom Permission Groups* sentence. Notices had grown to three or four sentences of per-action conditions, which buried who can act. Added `permissions_notice_length` under `components.notice` in `STYLE_GUIDE_AGENTS.md` |
 | 2.76 | 2026-10-29 | Terminology (§1.4.1 Italics): added ***Subdomain***, ***Redirect Subdomain***, and ***Site Subdomain*** as core concepts, with a **Subdomain vs. subdomain** rule. Italicize *Subdomain* when it names the CloudCannon object you add to a *Custom Domain* (it serves *Sites* or redirects, and has its own page, hosting, HTTPS, and DNS settings); keep "subdomain" plain in the generic DNS sense, for addresses that are not CloudCannon objects (subdomains you haven't set up, wildcard coverage). App UI labels such as the *Add subdomain* button keep their own casing. Applied to the six *Subdomains* pages and the glossary first; the other docs that mention subdomains follow in a later pass. Added to `terminology.capitalized_concepts` and `glossary.italicization_rules.use_asterisks_for.core_concepts`, with `subdomain_vs_dns_subdomain`, in `STYLE_GUIDE_AGENTS.md` |

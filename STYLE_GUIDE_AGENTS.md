@@ -7,7 +7,7 @@ Machine-readable style rules for AI agents and automated linters. These rules ar
 **For agents making updates to this file:** Also update the corresponding section in `STYLE_GUIDE.mdx` with the prose explanation and examples. Update the revision history in both files: `last_updated` and `style_guide_version` in the YAML block below, and the `Last Updated` and `Version` fields and the revision history table (Section 4) in `STYLE_GUIDE.mdx`.
 
 ```yaml
-style_guide_version: "2.78"
+style_guide_version: "2.82"
 last_updated: "2026-11-05"
 
 documentation_architecture:
@@ -190,6 +190,13 @@ terminology:
     "Guest Access": ["Client Sharing"]  # the app renamed the feature
     "People page": ["Team page"]  # the Org Settings page the app renamed
 
+  release_stages:
+    rule: "Name release stages with both words capitalized and no italics. Never 'Open Beta', 'closed beta', or 'beta' on its own for a stage. Mirrors STYLE_GUIDE.mdx §1.3.5."
+    internal_beta: "Internal Beta: CloudCannon staff only. Never documented, announced in a changelog, or named where readers can see it. No glossary entry."
+    private_beta: "Private Beta: customers on request. Documented in the beta/ section with the Private Beta pricing notice. Not announced in the main changelog."
+    public_beta: "Public Beta: everyone, but still in development, so CloudCannon may change it. Documented in the main docs with the Public Beta important notice, and announced in the changelog, saying it is in Public Beta."
+    glossary: "Private Beta and Public Beta have glossary entries linking to /documentation/beta/."
+
 prohibited_phrases:
   - "click here"
   - "read more"
@@ -349,15 +356,17 @@ documentation_types:
     required_front_matter:
       - "_schema"
       - "title"
-      - "date (ISO 8601, +12:00 NZ timezone; publish time; drives ordering)"
+      - "date (ISO 8601 in New Zealand time: +13:00 during NZ Daylight Time, late September to early April, +12:00 otherwise; publish time; drives ordering)"
     title_fallback: "general-fixes (when a release has no notable features)"
-    scope: "Document only features shipped to all users. Exclude beta/unreleased features and their supporting plumbing (error handling, migrations, API wiring), even if merged during the period covered."
+    scope: "Document only features shipped to all users. Exclude Internal Beta, Private Beta, and otherwise unreleased features (terminology.release_stages) and their supporting plumbing; announce Public Beta features as Public Beta (error handling, migrations, API wiring), even if merged during the period covered."
     required_sections:
       - "Features & Improvements"
       - "Fixes"
     dependency_rollup: "Roll up Dependabot/npm_and_yarn/bundler/patch-only bumps into a single closing Fixes line: 'Updated dependencies to patch security vulnerabilities.'"
     tense: "past"
     entry_shape: "Lead with a past-tense verb, then an 'allowing you to…' capability clause, then locate the controls descriptively. Convey what the reader can now do via 'allowing you to…', never 'You can now…'. Pattern: Added *[Name]*, allowing you to *[capability]*. [Where the controls live, stated descriptively.]"
+    entry_reason: "Every entry gives the reader a reason. The 'allowing you to…' clause states what the reader gains, never a restatement of the feature's name. Renames, moves, and changed defaults also state why (why the name changed, what the new location or default changes for the reader). When a new option sits alongside an existing one that still works, say what the new option does that the existing one could not, and that the existing one is unchanged, so readers don't assume they must migrate."
+    api_changes: "List API changes in the API changelog (documentation_types.api_changelog), not the main changelog. End Features & Improvements with this sentence, word for word: 'Updated the CloudCannon API, which is in Public Beta. For more information, please read our [API changelog](/documentation/developer-reference/api/changelog/).' An update that changes only the API can have the standard sentence as its only entry."
     nested_detail: "Sub-bullets explaining how a feature works keep a past-tense lead and describe behaviour in the descriptive present; never instructional ('You can now…', 'Click Save')."
     avoid:
       - "You can now… (present-tense instruction)"
@@ -369,6 +378,26 @@ documentation_types:
       - "Removed"
       - "Fixed"
   
+  api_changelog:
+    purpose: "Record every change to the CloudCannon API, its endpoints, and its fields"
+    location: "developer/reference/api/changelog/YYYY/MM-DD_descriptive-title.mdx"
+    url: "/documentation/developer-reference/api/changelog/ (list), with an RSS feed at /documentation/developer-reference/api/changelog/feed.xml"
+    required_front_matter:
+      - "_schema"
+      - "title (names the change to the API, sentence case)"
+      - "date (same rules as changelog; matches the main changelog entry for the same update)"
+    introduction: "One or two sentences starting 'This update…' that say what changed and call out anything that breaks existing code"
+    sections_in_order:
+      - "Added: new endpoints, fields, parameters, and filters"
+      - "Changed: changed behavior, responses, status codes, permissions, and limits"
+      - "Deprecated: still works but has a replacement; name the replacement in the same bullet"
+      - "Removed: endpoints, fields, values, filters, and sorts that no longer work"
+      - "Fixes: bugs in the API, starting 'Fixed an issue where…'"
+    omit_empty_sections: true
+    style: "Same as changelog: past tense, leading verb, 'allowing you to…', entry_reason"
+    endpoints: "In code with method and full path (GET /api/v0/...). Later endpoints in the same bullet may shorten the shared path with '…'"
+    breaking_changes: "Describe in terms of what existing code sees (a moved field, a changed response shape)"
+
   explanation:
     diataxis_category: "understanding-oriented"
     purpose: "Help users understand concepts, features, context, and best practices"
@@ -927,8 +956,9 @@ components:
       incorrect:
         - "…with the `base-domain:settings:details:write` permission, can manage the *Sites* on a *Subdomain*. Adding, swapping, or removing a *Site*… also requires the `site:settings:hosting:write` permission for that *Site*. This applies to the *Subdomain* page and the *Custom Domain* page alike."  # per-action conditions belong in the body
     pricing_notice_content:
-      scope: "The pricing notice answers 'can I use this?', not only 'which plan is this on'. Use it for any access gate: a Subscription Plan tier, a private Beta the reader must request access to, or a programme they must belong to. Reserve `important` for caveats about using a feature the reader already has. Mirrors STYLE_GUIDE.mdx §1.5.1."
-      non_plan_gate_form: "State the gate and how to get through it. Private Beta: '**This feature is available through a private Beta.**' followed by what it covers and a support contact. If access is granted per account rather than per Organization, say so. Non-plan gates do not take the plan_gate_heading."
+      scope: "The pricing notice answers 'can I use this?', not only 'which plan is this on'. Use it for any access gate: a Subscription Plan tier, a Private Beta the reader must request access to, or a programme they must belong to. Reserve `important` for caveats about using a feature the reader already has. Mirrors STYLE_GUIDE.mdx §1.5.1."
+      non_plan_gate_form: "State the gate and how to get through it. Private Beta: '**This feature is available through a Private Beta.**' followed by what it covers and a support contact. If access is granted per account rather than per Organization, say so. Non-plan gates do not take the plan_gate_heading."
+      public_beta_form: "A Public Beta feature is not gated, so its notice is info_type important, not pricing: '**This feature is in Public Beta.**', a blank line, then '[Feature] is available to everyone, but is still in development, so CloudCannon may change it.' Mirrors STYLE_GUIDE.mdx §1.5.1."
       plan_gate_heading:
         rule: "A Subscription Plan pricing notice has two parts: the bold heading '**Subscription Plan required**', a blank line, then a plain (not bold) sentence stating the gate. Mirrors the 'Permissions required' heading on permissions notices. Only the heading is bold (bold_usage). The heading text is not italicized, matching headings_no_italics. Mirrors STYLE_GUIDE.mdx §1.5.1."
         syntax: "<comp.Notice info_type=\"pricing\">\n  **Subscription Plan required**\n\n  This feature is available on our <a href=\"https://cloudcannon.com/pricing/\">Team or Enterprise Plan</a>.\n</comp.Notice>"
