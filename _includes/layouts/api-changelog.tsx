@@ -106,10 +106,24 @@ export default async function ApiChangelogLayout(
               {isList
                 ? (
                   <>
+                    <comp.Notice info_type="important">
+                      <p>
+                        <strong>The CloudCannon API is in Public Beta.</strong>
+                      </p>
+                      <p>
+                        The API is available to everyone, but is still in
+                        development, so CloudCannon may change it. It is
+                        versioned under the <code>/api/v0/</code> path, and
+                        while it is on a <code>v0</code> version, endpoints and
+                        fields may change or be removed.
+                      </p>
+                    </comp.Notice>
                     <p>
-                      The CloudCannon API is in public beta. This page lists
-                      every change to its endpoints, fields, and behavior,
-                      newest first. For every endpoint, please read our{" "}
+                      This page lists every change to the endpoints, fields,
+                      and behavior of the CloudCannon API, newest first. A
+                      deprecated endpoint or field keeps working, and its entry
+                      here names the replacement. Deprecated endpoints are also
+                      marked in the{" "}
                       <a href="/documentation/developer-reference/api/">
                         API reference
                       </a>.
