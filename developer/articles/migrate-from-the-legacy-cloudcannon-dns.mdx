@@ -1,0 +1,73 @@
+---
+_schema: default
+_uuid: 50a1054a-0d7c-44f2-bb13-1e60d81b1679
+_created_at: 2026-11-05T00:00:00Z
+details:
+  title: Migrate from the legacy CloudCannon DNS
+  description: >-
+    Learn how to migrate a Custom Domain from the legacy CloudCannon DNS to the
+    new CloudCannon DNS, so you can add and edit its DNS Records.
+  image: >-
+    https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+  category:
+    - Instructions
+  related_articles:
+    - _type: developer_articles
+      item: 65fbeba4-ea00-410c-84cc-ef701f24ac0a
+    - _type: developer_articles
+      item: 6566c8e5-c891-424f-8761-9b96f4178076
+    - _type: developer_articles
+      item: 9ed938fc-3211-4641-8859-088852b930e4
+author_notes:
+  docshots: Added!
+---
+<comp.Notice info_type="permissions">
+  **Permissions required**
+
+  Members of the *Owners*, *Developers*, and *Partner* [Default Permission Groups](/documentation/user-articles/what-are-default-permission-groups/), or [Custom Permission Groups](/documentation/developer-articles/what-are-custom-permission-groups/) with the `base-domain:settings:details:write` and `base-domain:settings:dns:write` permissions, can move a *Custom Domain* to the new CloudCannon DNS.
+</comp.Notice>
+
+Some older <comp.GlossaryTerm term="/user/glossary/c/custom-domain.yml">Custom Domains</comp.GlossaryTerm> use the legacy CloudCannon DNS, where you can't add or change DNS Records. Moving your domain to the new <comp.GlossaryTerm term="/user/glossary/c/cloudcannon-dns.yml">CloudCannon DNS</comp.GlossaryTerm> creates a DNS zone with a copy of its current records, where you can add and edit them.
+
+Moving doesn't change anything for visitors straight away. Your website and email keep using the legacy CloudCannon DNS until you update the <comp.GlossaryTerm term="/user/glossary/n/nameserver.yml">nameservers</comp.GlossaryTerm> at your <comp.GlossaryTerm term="/user/glossary/d/domain-registrar.yml">domain registrar</comp.GlossaryTerm>.
+
+This article covers moving a *Custom Domain* off the legacy CloudCannon DNS. To switch a *Custom Domain* from External DNS to CloudCannon DNS, please read our documentation on [configuring CloudCannon DNS](/documentation/developer-articles/configure-cloudcannon-dns/).
+
+## Check whether your domain uses the legacy CloudCannon DNS
+
+A *Custom Domain* on the legacy CloudCannon DNS shows these in CloudCannon:
+
+* The <comp.GlossaryTerm term="/user/glossary/c/card.yml">Card</comp.GlossaryTerm> for the domain in the <comp.GlossaryTerm term="/user/glossary/d/domains-browser.yml">Domains Browser</comp.GlossaryTerm> says *Migrate to new CloudCannon DNS*.
+* The *Summary* tab of the *Domain* page has a setup guide headed *Move [Base Domain] to the new CloudCannon DNS*, and its DNS panel says *Please migrate to the new CloudCannon DNS*.
+* The *DNS* tab says *The legacy CloudCannon DNS manages your DNS Records for [Base Domain].* It lists the current records below a *You cannot change these DNS Records.* notice.
+* The *Details* section of the *Domain Settings* tab shows *Legacy CloudCannon DNS* as the current <comp.GlossaryTerm term="/user/glossary/d/dns-provider.yml">DNS Provider</comp.GlossaryTerm>.
+
+If you need a record changed urgently before you can move your domain, please contact our friendly <a href="https://cloudcannon.com/support/">support team</a>. Include your <comp.GlossaryTerm term="/user/glossary/b/base-domain.yml">Base Domain</comp.GlossaryTerm> and the record you want added, changed, or removed.
+
+## Move your domain
+
+Without both the `base-domain:settings:details:write` and `base-domain:settings:dns:write` permissions, the *Move to the new CloudCannon DNS* button is disabled. Hovering over it shows *You do not have permission to edit the Domain Settings for [Base Domain].* or *You do not have permission to edit the DNS for [Base Domain].*
+
+To move a *Custom Domain* to the new CloudCannon DNS:
+
+1. Log in to CloudCannon.
+2. Select the <comp.GlossaryTerm term="/user/glossary/o/organization.yml">Organization</comp.GlossaryTerm> your *Custom Domain* is connected to.
+3. Click the *Custom Domains* link in the <comp.GlossaryTerm term="/user/glossary/a/app-sidebar.yml">App Sidebar</comp.GlossaryTerm>. CloudCannon will open the *Domains Browser*.
+4. Select the domain you want to move by clicking the *Card* for the domain. CloudCannon will open the *Summary* tab of the *Domain* page.
+5. Click the *Move to the new CloudCannon DNS* button in the setup guide.
+
+CloudCannon will create a DNS zone for your domain and copy in its current records. It also adds the two CNAME Records that point your *Base Domain* and its <comp.GlossaryTerm term="/user/glossary/s/subdomain.yml">Subdomains</comp.GlossaryTerm> at CloudCannon.
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Domain-Summary-Setup-Guide-Legacy" alt="A screenshot of the setup guide on the Summary tab shows the Move example.org to the new CloudCannon DNS heading, which explains that records on the legacy CloudCannon DNS cannot be changed, and the Move to the new CloudCannon DNS button." title="The setup guide on the legacy CloudCannon DNS" type="screenshot" />
+
+The *DNS* tab shows the same setup guide and *Move to the new CloudCannon DNS* button. You can also move from the *Details* section of the *Domain Settings* tab, by selecting the *CloudCannon DNS* option and clicking the *Switch to CloudCannon DNS* button.
+
+## Check the copied records
+
+CloudCannon doesn't show you which records it couldn't copy. Before you update your nameservers, check the records in the *DNS records* section of the *DNS* tab against the records the legacy CloudCannon DNS listed. Pay particular attention to MX Records for email and TXT Records for site verification, which stop working when you switch nameservers if they are missing.
+
+To add a missing record, please read our documentation on [adding DNS Records](/documentation/developer-articles/manage-your-dns-records-on-cloudcannon-dns/#add-dns-records).
+
+## Update your nameservers
+
+Once the DNS zone is ready, the setup guide on the *Summary* tab shows *Point [Base Domain] at CloudCannon DNS*, with the nameservers to set at your domain registrar. Your domain moves to the new CloudCannon DNS once your registrar lists them. For the steps, please read our documentation on [pointing your domain at CloudCannon DNS](/documentation/developer-articles/configure-cloudcannon-dns/#point-your-domain-at-cloudcannon-dns).

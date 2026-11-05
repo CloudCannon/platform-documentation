@@ -7,7 +7,7 @@ Machine-readable style rules for AI agents and automated linters. These rules ar
 **For agents making updates to this file:** Also update the corresponding section in `STYLE_GUIDE.mdx` with the prose explanation and examples. Update the revision history in both files: `last_updated` and `style_guide_version` in the YAML block below, and the `Last Updated` and `Version` fields and the revision history table (Section 4) in `STYLE_GUIDE.mdx`.
 
 ```yaml
-style_guide_version: "2.82"
+style_guide_version: "2.83"
 last_updated: "2026-11-05"
 
 documentation_architecture:
@@ -368,6 +368,9 @@ documentation_types:
     entry_reason: "Every entry gives the reader a reason. The 'allowing you to…' clause states what the reader gains, never a restatement of the feature's name. Renames, moves, and changed defaults also state why (why the name changed, what the new location or default changes for the reader). When a new option sits alongside an existing one that still works, say what the new option does that the existing one could not, and that the existing one is unchanged, so readers don't assume they must migrate."
     api_changes: "List API changes in the API changelog (documentation_types.api_changelog), not the main changelog. End Features & Improvements with this sentence, word for word: 'Updated the CloudCannon API, which is in Public Beta. For more information, please read our [API changelog](/documentation/developer-reference/api/changelog/).' An update that changes only the API can have the standard sentence as its only entry."
     nested_detail: "Sub-bullets explaining how a feature works keep a past-tense lead and describe behaviour in the descriptive present; never instructional ('You can now…', 'Click Save')."
+    grouping: "When a release changes several areas of CloudCannon, group Features & Improvements under ### headings, one per theme. Order groups by what readers meet first: the UI they open, then setup and configuration, then administration (emails, billing). End with an 'Other improvements' group; the api_changes sentence stays its last entry. Sentence case, plain text headings. Fixes is not grouped. Mirrors STYLE_GUIDE.mdx §2.1.3 (Grouping a Large Release)."
+    headline_and_detail: "Each top-level bullet is a headline: past-tense verb, 'allowing you to…' clause, documentation link. Mechanics (controls added, timings, edge cases) go in sub-bullets. Mirrors STYLE_GUIDE.mdx §2.1.4 (Headline and Detail)."
+    permissions: "Name a permission only when it gates a whole page or area. Leave it out of entries about a single button or control; the linked article carries it. Mirrors STYLE_GUIDE.mdx §2.1.4 (Permissions in Changelog Entries)."
     avoid:
       - "You can now… (present-tense instruction)"
       - "Go to X to… (instructional rather than descriptive)"
