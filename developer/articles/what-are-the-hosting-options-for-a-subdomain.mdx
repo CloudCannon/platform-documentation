@@ -1,0 +1,90 @@
+---
+_schema: default
+_uuid: c22516f1-87ea-4b6d-b929-5b3a1833575e
+_created_at: 2026-11-06T00:00:00Z
+details:
+  title: What are the hosting options for a Subdomain?
+  description: >-
+    Learn how CloudCannon Hosting, Cloudflare Proxy, and Single Origin change
+    the route visitors take to your Site, the DNS records each one needs, and
+    when to choose each.
+  image: >-
+    https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+  category:
+    - Explanation
+  related_articles:
+    - _type: developer_articles
+      item: 774ad898-8294-4e96-80b1-a7e79355aba6
+    - _type: developer_articles
+      item: 94808c28-bbc5-40e9-83d5-63ca8d7194de
+    - _type: developer_articles
+      item: d927f075-234f-4c73-aebb-645da21754cd
+author_notes:
+  docshots: Added!
+---
+A hosting option is the setting on a <comp.GlossaryTerm term="/user/glossary/s/subdomain.yml">Subdomain</comp.GlossaryTerm> that decides the route visitors take to reach CloudCannon. Each *Subdomain* on your <comp.GlossaryTerm term="/user/glossary/c/custom-domain.yml">Custom Domain</comp.GlossaryTerm> uses one of three hosting options: <comp.GlossaryTerm term="/user/glossary/c/cloudcannon-hosting.yml">CloudCannon Hosting</comp.GlossaryTerm>, <comp.GlossaryTerm term="/user/glossary/c/cloudflare-proxy.yml">Cloudflare Proxy</comp.GlossaryTerm>, or <comp.GlossaryTerm term="/user/glossary/s/single-origin.yml">Single Origin</comp.GlossaryTerm>.
+
+The hosting option applies to every <comp.GlossaryTerm term="/user/glossary/s/site.yml">Site</comp.GlossaryTerm> on the *Subdomain*, and to visitors of a <comp.GlossaryTerm term="/user/glossary/r/redirect-subdomain.yml">Redirect Subdomain</comp.GlossaryTerm> before they're redirected. It also decides which DNS records the *Subdomain* needs, and when CloudCannon can issue its <comp.GlossaryTerm term="/user/glossary/s/ssl-certificate.yml">SSL Certificate</comp.GlossaryTerm>. Every new *Subdomain* starts on *CloudCannon Hosting*.
+
+This article covers the hosting options for one *Subdomain*. For the whole route from your domain registrar to your *Site*, please read our documentation on [how hosting works on CloudCannon](/documentation/developer-articles/how-does-hosting-work-on-cloudcannon/).
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Subdomain-Page-Hosting-Modal" alt="A screenshot of the Hosting for blog.example.com modal shows the CloudCannon Hosting option, marked Current, with the CNAME record it needs pointing at sites.cloudcannon.com, the Cloudflare Proxy and Single Origin options with a description of when to choose each, and the Save hosting button." title="The Hosting modal" type="screenshot"/>
+
+## Choose a hosting option
+
+To choose between the hosting options:
+
+* **CloudCannon Hosting** — Visitors reach your *Site* through CloudCannon's global network, so pages load quickly everywhere. This is the default and recommended option, and suits most *Subdomains*.
+* **Cloudflare Proxy** — Your own Cloudflare account proxies the *Subdomain* to CloudCannon. Choose this if your DNS is on Cloudflare and you want to keep Cloudflare in front of your *Site*. It isn't available while your *Custom Domain* uses <comp.GlossaryTerm term="/user/glossary/c/cloudcannon-dns.yml">CloudCannon DNS</comp.GlossaryTerm>.
+* **Single Origin** — Visitors reach CloudCannon's origin servers directly, without CloudCannon's global network. Choose this if you run your own proxy or firewall in front of CloudCannon.
+
+## CloudCannon Hosting
+
+On *CloudCannon Hosting*, visitors reach the *CloudCannon CDN*, CloudCannon's global network, which serves your *Site* from the *CloudCannon Origin*. The *Hosting* section of the <comp.GlossaryTerm term="/user/glossary/s/subdomain-page.yml">Subdomain page</comp.GlossaryTerm> shows this route as a diagram.
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Subdomain-Page-Hosting-Diagram-CDN-Element" alt="A screenshot of the Hosting section for blog.example.com shows a diagram of Visitors reaching the CloudCannon CDN, which is connected securely to the CloudCannon Origin, with details of the CNAME record found for sites.cloudcannon.com, the test request that reached CloudCannon, and when CloudCannon last checked." title="The hosting diagram for CloudCannon Hosting" type="ui-snippet"/>
+
+A *Subdomain* on *CloudCannon Hosting* needs a CNAME record that points at `sites.cloudcannon.com`.
+
+Your <comp.GlossaryTerm term="/user/glossary/b/base-domain.yml">Base Domain</comp.GlossaryTerm> (e.g., `example.com`) is the exception on <comp.GlossaryTerm term="/user/glossary/e/external-dns.yml">external DNS</comp.GlossaryTerm>. Your *Base Domain* can't use a CNAME record at your <comp.GlossaryTerm term="/user/glossary/d/dns-provider.yml">DNS Provider</comp.GlossaryTerm>, so it uses two A records instead, which point at `52.8.178.132` and `184.169.135.34`. Those A records point straight at the *CloudCannon Origin*, so visitors to your *Base Domain* don't go through CloudCannon's global network, and your *Site* works the same way. On *CloudCannon DNS*, your *Base Domain* uses a CNAME record like any other *Subdomain*.
+
+CloudCannon issues the *SSL Certificate* once the DNS record points at CloudCannon. On external DNS, for a *Subdomain* other than your *Base Domain*, you can also issue the certificate with TXT records before you switch DNS. This lets a *Subdomain* that is already live elsewhere have its certificate ready before visitors reach CloudCannon. For more information, please read our documentation on [issuing the SSL Certificate with TXT validation](/documentation/developer-articles/add-an-auto-generated-ssl-certificate/#issue-the-ssl-certificate-with-txt-validation).
+
+## Cloudflare Proxy
+
+On *Cloudflare Proxy*, visitors reach your own Cloudflare zone, which proxies them to the *CloudCannon Origin*. The diagram in the *Hosting* section shows *Visitors*, *Your Cloudflare*, and the *CloudCannon Origin*.
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Subdomain-Page-Hosting-Diagram-Cloudflare-Pending-Element" alt="A screenshot of the Hosting section for app.example.com shows a diagram of Visitors, Your Cloudflare, and the CloudCannon Origin, with the connection from Your Cloudflare marked Waiting for your proxied record, and details asking you to add app.example.com to your Cloudflare zone as a proxied CNAME record to orange-cloud.cloudcannon.com." title="The hosting diagram for Cloudflare Proxy" type="ui-snippet"/>
+
+A *Subdomain* on *Cloudflare Proxy* needs a CNAME record in your Cloudflare zone that points at `orange-cloud.cloudcannon.com`, with its proxy status set to *Proxied*. Your Cloudflare zone's SSL/TLS encryption mode must be *Full (strict)*, or Cloudflare won't forward visitors to CloudCannon.
+
+*Cloudflare Proxy* isn't available while your *Custom Domain* uses *CloudCannon DNS*. The *Hosting for [Subdomain]* modal only offers it on external DNS, or for a *Subdomain* that already uses it.
+
+You can issue the *SSL Certificate* before you change your proxied record, by adding a TXT record in your Cloudflare zone. For more information, please read our documentation on [issuing the certificate before you switch a proxied record](/documentation/developer-articles/add-an-auto-generated-ssl-certificate/#issue-the-certificate-before-you-switch-a-proxied-record).
+
+Cloudflare can keep serving files it has cached until they expire or you purge them in Cloudflare. By default, Cloudflare caches static files, such as images, CSS, and JavaScript, but not HTML pages. If your *Site* doesn't show an update, check your Cloudflare cache rules and purge the cache.
+
+For the steps to set up the proxied record, please read our documentation on [configuring Cloudflare Proxy](/documentation/developer-articles/configure-external-dns/#configure-cloudflare-proxy).
+
+## Single Origin
+
+On *Single Origin*, visitors reach the *CloudCannon Origin* directly, or through your own proxy or firewall in front of it. The diagram in the *Hosting* section shows *Visitors* and the *CloudCannon Origin*.
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Subdomain-Page-Hosting-Diagram-Origin-Broken-Element" alt="A screenshot of the Hosting section for www.example.com shows a diagram of Visitors connecting straight to the CloudCannon Origin, marked Not reaching CloudCannon, with details of an A record that doesn't point at CloudCannon, the test request that did not reach CloudCannon, and the View the DNS record button." title="The hosting diagram for Single Origin" type="ui-snippet"/>
+
+Your *Base Domain* on *Single Origin* needs two A records, which point at `52.8.178.132` and `184.169.135.34`. Any other *Subdomain* needs a CNAME record that points at `orange-cloud.cloudcannon.com`.
+
+On *Single Origin*, CloudCannon can only issue the *SSL Certificate* once your DNS points at CloudCannon. You can't issue it with TXT records first, so a *Subdomain* that is live elsewhere has no certificate on CloudCannon until you switch DNS.
+
+For the steps to set up the records, please read our documentation on [configuring Single Origin](/documentation/developer-articles/configure-external-dns/#configure-single-origin).
+
+## Change the hosting option
+
+Changing the hosting option of a *Subdomain* requires permission to edit the settings of the *Base Domain* (the `base-domain:settings:details:write` permission). You change it with the *Configure hosting* button in the *Hosting* section of the *Subdomain page*, which opens the *Hosting for [Subdomain]* modal. The modal shows the DNS records each option needs, and labels the saved option *Current*.
+
+What happens to your DNS records when you save depends on your *DNS Provider*:
+
+* **CloudCannon DNS** — Once your <comp.GlossaryTerm term="/user/glossary/n/nameserver.yml">nameservers</comp.GlossaryTerm> point at CloudCannon, CloudCannon updates the DNS record for the *Subdomain* when you save.
+* **External DNS** — If the new hosting option needs a different record, the modal warns that you need to change it. Visitors keep reaching your *Site* through the old hosting option until you update the record at your *DNS Provider*.
+
+For the steps, please read our documentation on [changing the hosting option for a Subdomain](/documentation/developer-articles/configure-a-subdomains-hosting-https-and-dns/#change-the-hosting-option-for-a-subdomain).
