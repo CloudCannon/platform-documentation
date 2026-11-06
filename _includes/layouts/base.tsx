@@ -228,8 +228,9 @@ export default function BaseLayout(props: Props, helpers: Helpers) {
                 document.body.appendChild(modal);
                 return modal;
               };
-              const openModal = async (label, fill) => {
+              const openModal = async (label, fill, { image = false } = {}) => {
                 const dialog = getModal();
+                dialog.classList.toggle('c-zoom-modal--image', image);
                 dialog.setAttribute('aria-label', label);
                 dialog.showModal();
                 try {
@@ -295,13 +296,16 @@ export default function BaseLayout(props: Props, helpers: Helpers) {
                   },
                 };
               };
-              const openImage = img => openModal(img.alt, stage => {
+              // The modal sizes itself to the image, so wait for it to decode
+              // rather than letting the frame grow as it loads.
+              const openImage = img => openModal(img.alt, async stage => {
                 const copy = new Image();
                 copy.src = img.currentSrc || img.src;
                 copy.alt = img.alt;
+                await copy.decode().catch(() => {});
                 stage.append(copy);
                 return imageZoomer(copy);
-              });
+              }, { image: true });
               document.querySelectorAll('.c-docs-image--zoomable').forEach(frame => {
                 const img = frame.querySelector('img');
                 if (!img) return;
