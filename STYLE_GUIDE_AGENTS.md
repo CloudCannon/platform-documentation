@@ -7,7 +7,7 @@ Machine-readable style rules for AI agents and automated linters. These rules ar
 **For agents making updates to this file:** Also update the corresponding section in `STYLE_GUIDE.mdx` with the prose explanation and examples. Update the revision history in both files: `last_updated` and `style_guide_version` in the YAML block below, and the `Last Updated` and `Version` fields and the revision history table (Section 4) in `STYLE_GUIDE.mdx`.
 
 ```yaml
-style_guide_version: "2.90"
+style_guide_version: "2.91"
 last_updated: "2026-11-06"
 
 documentation_architecture:
@@ -298,6 +298,9 @@ formatting_rules:
       form: "[When/After X], CloudCannon will email everyone [else] in your *Organization* who has permission to [action]. This includes members of the *[Group]* and *[Group]* [Default Permission Groups](…), members of the *Partner* group in a *Client Organization*, and members of [Custom Permission Groups](…) with the `[permission]` permission."
       subsection_order: "Under each email's subject-line heading, without restating recipients: (1) when CloudCannon sends it and any other subject line; (2) the DocShot; (3) what the email shows ('This email shows…'); (4) what to do next: Next actions, the button, and whether CloudCannon emails again, or that nothing is needed; (5) how to stop it: the Unsubscribe from this list link, other emails in the same list, and Manage email preferences, or 'This email has no unsubscribe link.' Check the unsubscribe list in the app's config/mailer_unsubscribe_groups.yml."
       example: "After you connect a *Custom Domain*, CloudCannon will email everyone else in your *Organization* who has permission to edit the settings of that *Custom Domain*. This includes members of the *Owners* and *Developers* [Default Permission Groups](…), members of the *Partner* group in a *Client Organization*, and members of [Custom Permission Groups](…) with the `base-domain:settings:details:write` permission."
+    one_home:
+      rule: "Document each email once, in the instructions article for the task that triggers it. Never list or summarize emails in an Explanation article, a UI surface article, or a separate email index: the subject-line heading makes the email findable by search, and a second copy drifts. An Explanation article may say in one sentence that CloudCannon emails people when something happens, linking to the task article. Mirrors STYLE_GUIDE.mdx §1.2 (Headings) and §2.3.4."
+      incorrect: "A '## Emails about your Custom Domain' section on the Domain page listing every domain email with a one-line summary and a link."
 
   bold_usage:
     rule: "Use bold only for headings/labels inside Notice components and for term names in bulleted definition lists (**Term** — definition). Never use bold for emphasis, UI elements, button or menu names, or inline term definitions. Use italics for UI elements and terms, and Notice components for emphasis. Mirrors STYLE_GUIDE.mdx §1.4.2."
@@ -581,6 +584,7 @@ documentation_types:
         heading: "## Emails after you [action] (see formatting_rules.email_section_headings)"
         intro: "formatting_rules.email_section_headings.intro"
         per_email: "### [subject line with bracketed variables], then formatting_rules.email_section_headings.intro.subsection_order"
+        one_home: "formatting_rules.email_section_headings.one_home"
       troubleshooting:
         when: "The task can fail with a page or message the reader can't resolve from the steps alone."
         heading: "## Troubleshoot [gerund task], e.g. 'Troubleshoot connecting a Custom Domain'"
