@@ -106,7 +106,7 @@ CloudCannon will check every hour for up to seven days after you click the *I've
 
 Whenever the wildcard *SSL Certificate* for your *Base Domain* needs validating, including when it is first issued and each time it renews, the *DNS* tab also lists the TXT Records for that certificate under *Wildcard certificate records*. For the first certificate, the heading reads *Wildcard certificate records (optional)*: the wildcard *SSL Certificate* only covers subdomains you haven't set up, so the setup guide doesn't ask for these records. Add them the same way if you want them.
 
-Below the *Wildcard certificate records* table, the *Automatic renewal record (optional)* table offers a CNAME Record instead: *Add this CNAME record once and the certificate renews by itself, without TXT records. Remove any TXT records with the same name first.* The record points `_acme-challenge.[Base Domain]` (e.g., `_acme-challenge.example.com`) at an address ending in `.dcv.cloudflare.com`, which starts with your *Base Domain*. The *DNS* tab shows the exact value, with a *Copy* icon for the name and the value. If you add it, you don't need to add TXT Records for later renewals.
+Below the *Wildcard certificate records* table, the *Automatic renewal record (optional)* table offers a CNAME Record instead: *Add this CNAME Record once and the certificate renews by itself, without TXT Records. Remove any TXT Records with the same name first.* The record points `_acme-challenge.[Base Domain]` (e.g., `_acme-challenge.example.com`) at an address ending in `.dcv.cloudflare.com`, which starts with your *Base Domain*. The *DNS* tab shows the exact value, with a *Copy* icon for the name and the value. If you add it, you don't need to add TXT Records for later renewals.
 
 <comp.DocShot docshot_key="CloudCannon-Documentation-Domain-DNS-External-Wildcard-Renewal-Delegation" alt="A screenshot of the DNS tab for a domain on External DNS shows two TXT Records for *.example.com under Wildcard certificate records, each marked No DNS Record, with one I've updated it button and a Check now button, and below them the Automatic renewal record (optional) table with the CNAME Record named _acme-challenge.example.com, its Copy icons, and the Optional status." title="The wildcard certificate records on the DNS tab" type="screenshot" />
 
@@ -144,7 +144,7 @@ The *Wildcard record (optional)* table shows a wildcard CNAME Record for your do
 
 Once you have added the wildcard record at your *DNS Provider*, click the *I've updated it* button in its row. The status changes to *Checking*, and CloudCannon checks for the record every hour for up to seven days by looking up a subdomain name that doesn't exist on your domain. Once CloudCannon finds the record, the status changes to *Configured*. CloudCannon also checks the wildcard record each time it checks your nameservers.
 
-When the *DNS* tab isn't listing TXT Records for the wildcard *SSL Certificate*, the *Wildcard certificate* notice below the wildcard record shows the state of that certificate, which covers subdomains you haven't set up: *Setting up*, *HTTPS on*, or *No HTTPS*. While HTTPS is on, the notice shows the date by which the certificate renews, or that it *renews by itself through the CNAME record you added*. If your *Base Domain* is one of your *Subdomains* on CloudCannon, the notice has a *View HTTPS for [Base Domain]* link to its *Subdomain* page.
+When the *DNS* tab isn't listing TXT Records for the wildcard *SSL Certificate*, the *Wildcard certificate* notice below the wildcard record shows the state of that certificate, which covers subdomains you haven't set up: *Setting up*, *HTTPS on*, or *No HTTPS*. While HTTPS is on, the notice shows the date by which the certificate renews, or that it *renews by itself through the CNAME Record you added*. If your *Base Domain* is one of your *Subdomains* on CloudCannon, the notice has a *View HTTPS for [Base Domain]* link to its *Subdomain* page.
 
 Until you add the CNAME Record that renews the wildcard *SSL Certificate* by itself, the *Automatic renewal record (optional)* table lists that record, below the *Wildcard certificate* notice or below the *Wildcard certificate records* table, with the same columns as the other record tables, a *Copy* icon for its name and value, and the status *Optional*. Once CloudCannon finds the record, the table goes away.
 
@@ -190,13 +190,13 @@ The wildcard *SSL Certificate* for your *Base Domain* needs new TXT Records at y
 
 ## Choose how visitors reach a Subdomain
 
-Each *Subdomain* on your *Custom Domain* has its own hosting option, which applies to every *Site* on that *Subdomain*. Changing a *Subdomain's* hosting requires the `base-domain:settings:details:write` permission. You can choose one of three options:
+Each *Subdomain* on your *Custom Domain* has its own hosting option, which applies to every *Site* on that *Subdomain* and decides the records it needs at your *DNS Provider*. Changing a *Subdomain's* hosting requires the `base-domain:settings:details:write` permission. On external DNS, each hosting option needs these records:
 
-* **CloudCannon Hosting** — CloudCannon's global CDN serves the *Subdomain*. This is the default and recommended option. Your *Base Domain* can't point at the CDN on External DNS, so its A Records point straight at CloudCannon's origin instead.
-* **Cloudflare Proxy** — Your own Cloudflare zone proxies the *Subdomain* to CloudCannon's origin.
-* **Single Origin** — DNS points straight at CloudCannon's origin, or through your own proxy.
+* **CloudCannon Hosting** — A CNAME Record pointing at `sites.cloudcannon.com`. Your *Base Domain* uses two A Records instead, which point straight at CloudCannon's origin.
+* **Cloudflare Proxy** — A CNAME Record in your Cloudflare zone pointing at `orange-cloud.cloudcannon.com`, with its proxy status set to *Proxied*.
+* **Single Origin** — A CNAME Record pointing at `orange-cloud.cloudcannon.com`. Your *Base Domain* uses two A Records instead.
 
-For more information on *Subdomains*, please read our documentation on [what a Subdomain is](/documentation/developer-articles/what-is-a-subdomain/).
+For how each hosting option routes visitors, and when to choose it, please read our documentation on [what the hosting options for a Subdomain are](/documentation/developer-articles/what-are-the-hosting-options-for-a-subdomain/).
 
 ## Configure Cloudflare Proxy
 
@@ -233,7 +233,7 @@ To add a CNAME Record:
 Cloudflare will confirm that you own the *Subdomain* from the proxied record, and issue its *SSL Certificate*. To issue the certificate before you change your proxied record, click the *Switch to TXT validation* button in the *HTTPS* section. For more information, please read our documentation on [issuing the certificate before you switch a proxied record](/documentation/developer-articles/add-an-auto-generated-ssl-certificate/#issue-the-certificate-before-you-switch-a-proxied-record).
 
 <comp.Notice info_type="important">
-  If you use *Cloudflare Proxy*, Cloudflare might cache your *Site*. In that case, your *Site* won't show any updates until you clear your Cloudflare cache.
+  If you use *Cloudflare Proxy*, Cloudflare can keep serving files it has cached until they expire or you purge them in Cloudflare. By default, Cloudflare caches static files, such as images, CSS, and JavaScript, but not HTML pages.
 </comp.Notice>
 
 ## Configure Single Origin
