@@ -3,7 +3,6 @@ interface ImageWrapperProps {
   alt?: string;
   title?: string;
   type?: string;
-  zoomable?: boolean;
 }
 
 /**
@@ -13,14 +12,11 @@ interface ImageWrapperProps {
  * Used by DocsImage and DocShot components.
  */
 export default function ImageWrapper(
-  { src, alt, title, type, zoomable }: ImageWrapperProps,
+  { src, alt, title, type }: ImageWrapperProps,
 ) {
   let imageClass = "c-docs-image";
   if (type) {
     imageClass += ` c-docs-image--type-${type}`;
-  }
-  if (zoomable) {
-    imageClass += " c-docs-image--zoomable";
   }
 
   return (
