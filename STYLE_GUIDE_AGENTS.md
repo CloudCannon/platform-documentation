@@ -7,8 +7,8 @@ Machine-readable style rules for AI agents and automated linters. These rules ar
 **For agents making updates to this file:** Also update the corresponding section in `STYLE_GUIDE.mdx` with the prose explanation and examples. Update the revision history in both files: `last_updated` and `style_guide_version` in the YAML block below, and the `Last Updated` and `Version` fields and the revision history table (Section 4) in `STYLE_GUIDE.mdx`.
 
 ```yaml
-style_guide_version: "2.83"
-last_updated: "2026-11-05"
+style_guide_version: "2.84"
+last_updated: "2026-11-06"
 
 documentation_architecture:
   single_source_of_truth:
@@ -1006,6 +1006,17 @@ components:
       screenshot: "Full viewport screenshots showing the entire CloudCannon interface"
       ui-snippet: "Cropped screenshots of specific UI elements like inputs, buttons, dropdowns, or modals"
     naming: "Hyphenated names describing the page and state (e.g., Site-Settings-Syncing-Connected)"
+    caption: "Rendered below every DocShot and DocsImage as the bold title, a middle dot, then the alt text: 'The Site Dashboard · A screenshot of the Site Dashboard shows the Getting Started guide.' The alt half is aria-hidden so screen readers hear the alt once, from the image. Clicking the image or its Expand image button opens an expanded view with zoom controls and the same caption. Mirrors STYLE_GUIDE.mdx §1.5.2 (Caption)."
+    alt_text:
+      form: "One sentence: 'A screenshot of [subject] shows [what is visible].' Use 'A screenshot of' for ui-snippet crops too; never 'A closeup of', 'Screenshot of', or a bare noun phrase."
+      describe_the_image: "Describe what the image actually shows, quoting the exact UI text visible in it, even where it disagrees with the surrounding prose. A mismatched image is fixed by replacing the image or the prose, never by describing the image as the prose expects."
+      plain_text: "No Markdown, asterisks, backticks, or double quotes; the alt is shown verbatim in the caption."
+      length: "15 to 40 words"
+    title:
+      form: "Short sentence-case noun phrase, usually starting 'The', no closing period (e.g., 'The Site Dashboard', 'The Add SSL Certificate modal')."
+      capitalization: "CloudCannon terms and UI labels keep their own capitalization; a generic word after a UI label (page, modal, button, tab, section, banner, list) stays lowercase: 'The Authentication page', never 'The Authentication Page'."
+      distinct_on_page: "Every image on a page has a distinct title. When images show the same screen, name what distinguishes each: 'The Custom Domain page with the Base Domain dropdown open'."
+      not_alt: "Never repeat the alt text as the title."
     warranted:
       rule: "A DocShot earns its place where it shows what prose cannot. Required where the reader must locate something whose position is not obvious from its name (a tab inside a settings page, a control inside a modal, a conditionally visible panel), where the page walks through a screen or a multi-step flow, or where the text describes what something displays rather than only naming it."
       not_warranted: "A single named control inside a numbered step ('Click the *Save changes* button'), a concept page with no UI, a configuration or code reference page."
@@ -1023,6 +1034,7 @@ components:
 
   docsimage:
     usage: "Illustrations, diagrams, conceptual graphics, and external screenshots only. Never for CloudCannon app images — those use comp.DocShot."
+    caption_alt_title: "Same caption, alt_text, and title rules as docshot, except the alt opener matches the image: 'A screenshot of' (other services or websites), 'A diagram of', 'An animation of' (GIFs), or 'An illustration of'. Mirrors STYLE_GUIDE.mdx §1.5.4."
     required_attributes:
       - "path"
       - "alt"
@@ -1056,7 +1068,7 @@ components:
     runtime:
       render_location: "Client-side in the reader's browser."
       script_loading: "An inline detector script in the base layout (_includes/layouts/base.tsx) lazy-imports mermaid.esm.min.mjs and svg-pan-zoom from pinned jsDelivr URLs only when document.querySelector('pre.mermaid') matches. Non-diagram pages do not fetch either library."
-      pan_zoom: "After mermaid.run() resolves, svg-pan-zoom attaches to each rendered SVG with controlIconsEnabled (visible +/- and reset buttons), drag-to-pan, fit/center on init, and mouseWheelZoomEnabled disabled (so page-scroll past a diagram doesn't trigger zoom). Re-attached after every theme-triggered re-render."
+      pan_zoom: "On the page the rendered SVG is fitted to its frame with no pan or zoom, and an Expand diagram button sits in a strip at the bottom of the frame. Clicking the diagram or the button opens a modal that renders a fresh copy of the diagram and attaches svg-pan-zoom with fit/center, drag-to-pan, mouse-wheel zoom, and zoom out, zoom in, reset, and Close buttons. The expand control is rebuilt after every theme-triggered re-render, and a theme change closes the modal."
       theme: "Theme follows document.documentElement.dataset.pfTheme; the script subscribes to MutationObserver on data-pf-theme and re-runs mermaid.initialize + mermaid.run when the reader toggles theme."
       loader: "A spinner + 'Rendering diagram…' label is visible during render; CSS swaps to the rendered SVG once mermaid sets data-processed=true on the pre element."
       noscript_fallback: "When JavaScript is disabled, the raw chart source and the loader are hidden via an inlined <style> in the <noscript> block, and the alt text is shown in italics."
