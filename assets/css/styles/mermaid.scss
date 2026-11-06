@@ -12,7 +12,9 @@
     max-height: 800px;
     margin: 0;
     background: none;
-    padding: 1rem;
+    // The bottom strip holds the controls, so the fitted diagram never
+    // sits underneath them.
+    padding: 1rem 1rem 3.5rem;
     text-align: center;
     border: 1px solid rgba(0, 0, 0, 0.1);
     border-radius: 0.5rem;
@@ -88,14 +90,12 @@
     height: 100%;
   }
 
-  // Sits below the frame rather than over it, so no diagram shape can be
-  // covered by the controls.
   &__controls {
+    position: absolute;
+    right: 0.5rem;
+    bottom: 0.5rem;
     display: flex;
-    justify-content: flex-end;
     gap: 0.125rem;
-    width: fit-content;
-    margin: 0.5rem 0 0 auto;
     padding: 0.25rem;
     background: rgba(245, 245, 245, 0.95);
     border: 1px solid rgba(0, 0, 0, 0.08);
@@ -138,8 +138,52 @@
       }
     }
 
-    button[data-action="zoom-out"] { margin-left: 0.5rem; }
+    button[data-action="expand"],
+    button[data-action="close"] { margin-left: 0.5rem; }
   }
+}
+
+.c-mermaid-modal {
+  width: min(95vw, 1400px);
+  height: 90vh;
+  max-width: none;
+  max-height: none;
+  padding: 0;
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 0.5rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+
+  &[open] {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &::backdrop {
+    background: rgba(0, 0, 0, 0.6);
+  }
+
+  .c-mermaid__controls {
+    align-self: flex-end;
+    margin: 0.5rem 0.5rem 0;
+  }
+
+  &__stage {
+    flex: 1;
+    min-height: 0;
+    padding: 1rem;
+
+    svg {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+  }
+}
+
+html[data-pf-theme="dark"] .c-mermaid-modal {
+  background: rgba(28, 28, 32, 1);
+  border-color: rgba(255, 255, 255, 0.1);
 }
 
 html[data-pf-theme="dark"] .c-mermaid > pre.mermaid {

@@ -233,49 +233,95 @@ export default function BaseLayout(props: Props, helpers: Helpers) {
                     });
                   }
                 };
-                const PAN_STEP = 40;
                 // Wrap each icon URL with helpers.url() so the basePath
                 // (/documentation) is prepended. basePath() only rewrites
                 // src/href in HTML attributes, not JS strings inside script
                 // tags — without this, all these SVGs 404.
                 const ICON_URLS = ${JSON.stringify({
-                  "pan-up": helpers.url(helpers.icon("keyboard_arrow_up:outlined", "material")),
-                  "pan-down": helpers.url(helpers.icon("keyboard_arrow_down:outlined", "material")),
-                  "pan-left": helpers.url(helpers.icon("keyboard_arrow_left:outlined", "material")),
-                  "pan-right": helpers.url(helpers.icon("keyboard_arrow_right:outlined", "material")),
                   "zoom-in": helpers.url(helpers.icon("zoom_in:outlined", "material")),
                   "zoom-out": helpers.url(helpers.icon("zoom_out:outlined", "material")),
                   "reset": helpers.url(helpers.icon("crop_free:outlined", "material")),
+                  "expand": helpers.url(helpers.icon("open_in_full:outlined", "material")),
+                  "close": helpers.url(helpers.icon("close:outlined", "material")),
                 })};
-                const ACTIONS = [
-                  ['pan-left',  'Pan left'],
-                  ['pan-up',    'Pan up'],
-                  ['pan-down',  'Pan down'],
-                  ['pan-right', 'Pan right'],
-                  ['zoom-out',  'Zoom out'],
-                  ['zoom-in',   'Zoom in'],
-                  ['reset',     'Reset view'],
+                const ZOOM_ACTIONS = [
+                  ['zoom-out', 'Zoom out'],
+                  ['zoom-in',  'Zoom in'],
+                  ['reset',    'Reset view'],
                 ];
-                const buildControls = (pre, panZoomInst) => {
-                  pre.parentElement.querySelector('.c-mermaid__controls')?.remove();
+                const PAGE_ACTIONS = [...ZOOM_ACTIONS, ['expand', 'Expand diagram']];
+                const MODAL_ACTIONS = [...ZOOM_ACTIONS, ['close', 'Close']];
+                const makePanel = (actions, onAction) => {
                   const panel = document.createElement('div');
                   panel.className = 'c-mermaid__controls';
-                  panel.innerHTML = ACTIONS.map(([action, label]) =>
+                  panel.innerHTML = actions.map(([action, label]) =>
                     \`<button type="button" data-action="\${action}" aria-label="\${label}" style="--c-mermaid-icon: url('\${ICON_URLS[action]}')"></button>\`
                   ).join('');
                   panel.addEventListener('click', e => {
                     const btn = e.target.closest('button');
-                    if (!btn) return;
-                    const action = btn.dataset.action;
-                    if (action === 'pan-up')         panZoomInst.panBy({ x: 0,         y: PAN_STEP });
-                    else if (action === 'pan-down')  panZoomInst.panBy({ x: 0,         y: -PAN_STEP });
-                    else if (action === 'pan-left')  panZoomInst.panBy({ x: PAN_STEP,  y: 0 });
-                    else if (action === 'pan-right') panZoomInst.panBy({ x: -PAN_STEP, y: 0 });
-                    else if (action === 'zoom-in')   panZoomInst.zoomIn();
-                    else if (action === 'zoom-out')  panZoomInst.zoomOut();
-                    else if (action === 'reset')     { panZoomInst.resetZoom(); panZoomInst.center(); panZoomInst.fit(); }
+                    if (btn) onAction(btn.dataset.action);
                   });
-                  pre.after(panel);
+                  return panel;
+                };
+                const zoom = (panZoomInst, action) => {
+                  if (action === 'zoom-in')       panZoomInst.zoomIn();
+                  else if (action === 'zoom-out') panZoomInst.zoomOut();
+                  else if (action === 'reset')    { panZoomInst.resetZoom(); panZoomInst.center(); panZoomInst.fit(); }
+                };
+                let modal;
+                let modalPanZoom;
+                const getModal = () => {
+                  if (modal) return modal;
+                  modal = document.createElement('dialog');
+                  modal.className = 'c-mermaid-modal';
+                  modal.innerHTML = '<div class="c-mermaid-modal__stage"></div>';
+                  modal.prepend(makePanel(MODAL_ACTIONS, action => {
+                    if (action === 'close') modal.close();
+                    else if (modalPanZoom) zoom(modalPanZoom, action);
+                  }));
+                  modal.addEventListener('click', e => { if (e.target === modal) modal.close(); });
+                  modal.addEventListener('close', () => {
+                    modalPanZoom?.destroy();
+                    modalPanZoom = undefined;
+                    modal.querySelector('.c-mermaid-modal__stage').replaceChildren();
+                  });
+                  document.body.appendChild(modal);
+                  return modal;
+                };
+                // Renders a fresh copy rather than cloning the page SVG, so
+                // the two don't share element IDs (arrowhead markers, styles).
+                const openModal = async pre => {
+                  const dialog = getModal();
+                  dialog.setAttribute('aria-label', pre.closest('.c-mermaid').getAttribute('aria-label'));
+                  dialog.showModal();
+                  try {
+                    const id = 'm-' + Math.random().toString(36).slice(2);
+                    const { svg } = await mermaid.render(id, pre.dataset.mermaidSource);
+                    if (!dialog.open) return;
+                    const stage = dialog.querySelector('.c-mermaid-modal__stage');
+                    stage.innerHTML = svg;
+                    const svgEl = stage.querySelector('svg');
+                    svgEl.style.maxWidth = 'none';
+                    svgEl.setAttribute('width', '100%');
+                    svgEl.setAttribute('height', '100%');
+                    modalPanZoom = svgPanZoom(svgEl, {
+                      controlIconsEnabled: false,
+                      fit: true,
+                      center: true,
+                      mouseWheelZoomEnabled: true,
+                      minZoom: 0.5,
+                      maxZoom: 20,
+                    });
+                  } catch (e) {
+                    console.error('Mermaid modal render failed:', e);
+                  }
+                };
+                const buildControls = (pre, panZoomInst) => {
+                  pre.querySelector('.c-mermaid__controls')?.remove();
+                  pre.appendChild(makePanel(PAGE_ACTIONS, action => {
+                    if (action === 'expand') openModal(pre);
+                    else zoom(panZoomInst, action);
+                  }));
                 };
                 let panZoomInstances = [];
                 const attachPanZoom = () => {
@@ -320,6 +366,7 @@ export default function BaseLayout(props: Props, helpers: Helpers) {
                 // then swap it in atomically. The old (wrong-theme) SVG stays
                 // visible until the swap, so there's no blank frame.
                 new MutationObserver(async () => {
+                  modal?.close();
                   initMermaid();
                   for (const pre of document.querySelectorAll('pre.mermaid')) {
                     const source = pre.dataset.mermaidSource;
