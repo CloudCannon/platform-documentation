@@ -297,13 +297,23 @@ export default function BaseLayout(props: Props, helpers: Helpers) {
                 };
               };
               // The modal sizes itself to the image, so wait for it to decode
-              // rather than letting the frame grow as it loads.
+              // rather than letting the frame grow as it loads. Screenshots
+              // reuse the page's browser-window frame; the clip sits inside it
+              // so a zoomed image can't cover the frame's three dots.
               const openImage = img => openModal(img.alt, async stage => {
                 const copy = new Image();
                 copy.src = img.currentSrc || img.src;
                 copy.alt = img.alt;
                 await copy.decode().catch(() => {});
-                stage.append(copy);
+                const frame = document.createElement('div');
+                frame.className = img.closest('.c-docs-image--type-screenshot')
+                  ? 'c-docs-image c-docs-image--type-screenshot'
+                  : 'c-zoom-modal__frame';
+                const clip = document.createElement('div');
+                clip.className = 'c-zoom-modal__clip';
+                clip.append(copy);
+                frame.append(clip);
+                stage.append(frame);
                 return imageZoomer(copy);
               }, { image: true });
               document.querySelectorAll('.c-docs-image--zoomable').forEach(frame => {
