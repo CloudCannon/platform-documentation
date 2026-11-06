@@ -27,7 +27,7 @@ author_notes:
 
 A <comp.GlossaryTerm term="/user/glossary/c/custom-domain.yml">Custom Domain</comp.GlossaryTerm> is a domain you own and connect to your CloudCannon <comp.GlossaryTerm term="/user/glossary/o/organization.yml">Organization</comp.GlossaryTerm>, so visitors reach your <comp.GlossaryTerm term="/user/glossary/s/site.yml">Site</comp.GlossaryTerm> at your own address (e.g., <a href="https://cloudcannon.com/">cloudcannon.com</a>). If you have [connected a Custom Domain to your Organization](/documentation/developer-articles/connect-a-custom-domain-to-your-organization/), you can host your website content at that web address by adding the *Custom Domain* to your *Site*.
 
-You can host a CloudCannon *Site* on the <comp.GlossaryTerm term="/user/glossary/b/base-domain.yml">Base Domain</comp.GlossaryTerm> (e.g., `example.com`), another <comp.GlossaryTerm term="/user/glossary/s/subdomain.yml">Subdomain</comp.GlossaryTerm> (e.g., `docs.example.com`), or a path on either (e.g., `example.com/staff/`). Several *Sites* can share a *Subdomain*, each at its own path. Every *Site* on a *Subdomain* shares that *Subdomain's* hosting, HTTPS, and DNS settings. A *Site* at a path needs to build into a folder that matches the path. For more information, please read the section on [building your Site for a path](#build-your-site-for-a-path).
+You can host a CloudCannon *Site* on the <comp.GlossaryTerm term="/user/glossary/b/base-domain.yml">Base Domain</comp.GlossaryTerm> (e.g., `example.com`), another <comp.GlossaryTerm term="/user/glossary/s/subdomain.yml">Subdomain</comp.GlossaryTerm> (e.g., `docs.example.com`), or a path on either (e.g., `example.com/staff/`). Several *Sites* can share a *Subdomain*, each at its own path. Every *Site* on a *Subdomain* shares that *Subdomain's* hosting, HTTPS, and DNS settings. A *Site* at a path needs to build into a folder that matches the path. For more information, please read our documentation on [building your Site for a subpath](/documentation/developer-articles/build-your-site-for-a-subpath/).
 
 <comp.DocsImage path="assets/diagrams/CloudCannon-Documentation-URL-Structure-Diagram.png" alt="A diagram of a URL shows labels for protocol, subdomain, domain, top-level domain, subdirectory, slug, and path." title="The parts of a URL" type="ui-snippet" />
 
@@ -73,45 +73,11 @@ In a <comp.GlossaryTerm term="/user/glossary/c/client-organization.yml">Client O
 
 You can also add a *Site* to a *Subdomain* from the *Subdomain* page, which you can open from the *Subdomains* tab of your *Domain* page. For more information, please read our documentation on [managing the Sites on a Subdomain](/documentation/developer-articles/manage-the-sites-on-a-subdomain/).
 
-## Build your Site for a path
-
-If you host your *Site* at a path (e.g., `example.com/docs/`), your build output needs a folder that matches the path. CloudCannon doesn't remove the path from a request before it looks for the file, so it serves `example.com/docs/about/` from `docs/about/index.html` in your build output. Your *Site's* links also need to include the path, so that a link to `/about/` becomes `/docs/about/`.
-
-Many SSGs have a setting that adds a path to your links, but not all of them also build your files into a matching folder. After you add a path, check that your build output has a folder with that name and that every page of your *Site* is inside it.
-
-If your Jekyll *Site* sets `baseurl` in its `_config.yml` file, CloudCannon serves the build output under that `baseurl` instead. Set `baseurl` to the same path (e.g., `/docs`) rather than moving your files.
-
-### Use Reseed to build for a path
-
-<a href="https://github.com/CloudCannon/reseed" target="_blank" rel="noopener noreferrer">Reseed</a> is an open-source tool that copies your build output into a folder named after the path and rewrites the links in your pages to include it. You can run Reseed after your build in a postbuild script:
-
-<comp.CodeBlock language="shell" source="/.cloudcannon/postbuild">
-```
-#!/bin/bash
-
-npx reseed -s _site -d _reseed -b docs
-rm -rf _site
-mv _reseed _site
-```
-</comp.CodeBlock>
-
-Replace `_site` with the *Output Path* of your *Site*, and `docs` with your path. CloudCannon uploads the files in your *Output Path* once the postbuild script finishes, so the script must leave the rewritten files there. For more information, please read our documentation on [extending your build process with hooks](/documentation/developer-articles/extending-your-build-process-with-hooks/) and [configuring your command line options](/documentation/developer-articles/configure-your-command-line-options/).
-
-CloudCannon can also run Reseed as a build step for you.
-
-To run Reseed as a build step:
-
-1. Contact our <a href="https://cloudcannon.com/support/">support team</a> with the name of your *Site* and the path.
-2. Enter the path in the *Baseurl* field on the *Reseed* page under *Site Settings*.
-3. Click the *Update Reseed Details* button.
-
-CloudCannon will rebuild your *Site* with the new path.
-
 ## Review your Site's Custom Domain
 
 Once your *Site* has a *Custom Domain*, the *Custom Domain* page under *Site Settings* shows the address of your *Site* on the *Subdomain*, the same way the *Testing Domain* page shows its *Testing Domain*. The line above the address says which state it is in:
 
-* **[Site Name] goes live at this address once [Subdomain] points at CloudCannon** - The DNS record for the *Subdomain* doesn't point at CloudCannon yet.
+* **[Site Name] goes live at this address once [Subdomain] points at CloudCannon** - The DNS Record for the *Subdomain* doesn't point at CloudCannon yet.
 * **[Site Name] is live at** - Visitors reach your *Site* at this address over HTTPS.
 * **[Site Name] is live at this address, and CloudCannon is turning HTTPS on** - Visitors reach your *Site*, and its *SSL Certificate* is on its way.
 * **[Site Name] is live at this address, but HTTPS is not working, so visitors see a security warning** - The *HTTPS* section under *Subdomain settings* says why.
