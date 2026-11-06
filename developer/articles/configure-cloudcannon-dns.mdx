@@ -165,26 +165,43 @@ Each row shows which *DNS Provider* the nameservers CloudCannon found belong to 
 
 You can also list the checks with the [CloudCannon API](/documentation/developer-reference/api/), at `GET /api/v0/base-domains/{base_domain_uuid}/dns/checks`.
 
-### Nameserver emails
+### Emails about your nameservers
 
-CloudCannon emails everyone who can edit the settings of your *Base Domain* (the `base-domain:settings:details:write` permission) about the nameservers of your domain.
+CloudCannon will email everyone in your *Organization* who has permission to edit the settings of your *Base Domain* about the nameservers of your domain. This includes members of the *Owners* and *Developers* [Default Permission Groups](/documentation/user-articles/what-are-default-permission-groups/), members of the *Partner* group in a <comp.GlossaryTerm term="/user/glossary/c/client-organization.yml">Client Organization</comp.GlossaryTerm>, and members of [Custom Permission Groups](/documentation/developer-articles/what-are-custom-permission-groups/) with the `base-domain:settings:details:write` permission.
 
 #### [Base Domain] now uses CloudCannon DNS
 
-CloudCannon sends this email about 15 minutes after your nameservers switch to CloudCannon, if an earlier check found nameservers that didn't match. It lists what is live on up to four *Subdomains* under *Subdomains live on [Base Domain]*, then, if they apply, *Subdomains with errors*, *Subdomains without a valid SSL Certificate*, *Certificates still issuing*, and *Do you use email on [Base Domain]?* when CloudCannon found no MX Records.
+CloudCannon sends this email about 15 minutes after your nameservers switch to CloudCannon, if an earlier check found nameservers that didn't match.
 
 <comp.DocShot docshot_key="CloudCannon-Documentation-Mailer-Dns-Live" alt="A screenshot of the email sent when example.com starts using CloudCannon DNS shows the headline example.com now uses CloudCannon DNS, a three-step tracker with every step done, the Subdomains live on example.com list with each Subdomain marked Live, the Subdomains with errors, Subdomains without a valid SSL Certificate, and Certificates still issuing lists, a note that CloudCannon found no MX Records, the Next actions, and the Open the Subdomains tab and Open the DNS tab buttons." title="The domain is live email" type="screenshot"/>
+
+This email shows a progress tracker with every step done and what is live on up to four *Subdomains* under *Subdomains live on [Base Domain]*. If they apply, it also lists *Subdomains with errors*, *Subdomains without a valid SSL Certificate*, and *Certificates still issuing*, and asks *Do you use email on [Base Domain]?* when CloudCannon found no MX Records.
+
+Under *Next actions*, the email lists what is left to do, such as adding a *Subdomain* or adding the MX Records for your domain on the *DNS* tab. Depending on what is left, its buttons open the *Subdomains* tab or the *DNS* tab of your *Domain* page, add a *Subdomain*, or open your domain in your browser.
+
+To stop receiving this email, click the *Unsubscribe from this list* link at the bottom of the email. The same list includes other emails, such as when a *Site* build fails or a *Site* can't sync. To choose which lists you receive, click the *Manage email preferences* link instead.
 
 #### [Base Domain]'s nameservers do not match the CloudCannon nameservers
 
 CloudCannon sends this email when it still can't see your new nameservers more than 48 hours after you clicked *I've updated my nameservers*. If you didn't click it, CloudCannon counts the 48 hours from when you connected the domain or set up CloudCannon DNS for it, whichever is later, so switching a domain to CloudCannon DNS starts the 48 hours again. CloudCannon only sends the email within seven days of that starting point, and doesn't send it once your domain uses External DNS.
 
-The email lists the nameservers your registrar still has and what usually fixes it, with an *Open the Domain page for [Base Domain]* button that opens your *Domain* page. Once your registrar lists the CloudCannon nameservers, click the *I've updated my nameservers* button on your *Domain* page, and CloudCannon will check every hour again.
-
 <comp.DocShot docshot_key="CloudCannon-Documentation-Mailer-Dns-Nameservers-Not-Detected" alt="A screenshot of the nameservers not detected email shows the headline example.com's nameservers do not match the CloudCannon nameservers, a tracker at Nameservers do not match, the nameservers required and the nameservers found marked Not CloudCannon DNS, the Next actions, the How can I fix this? list, and the Open the Domain page for example.com button." title="The nameservers not detected email" type="screenshot"/>
+
+This email shows the nameservers required, the nameservers your registrar still has, and a *How can I fix this?* list of what usually fixes it, such as removing old nameservers instead of adding the CloudCannon nameservers alongside them, or turning off DNSSEC, which CloudCannon DNS doesn't support.
+
+Under *Next actions*, the email asks you to check that the nameservers at your domain registrar match, then click the *I've updated my nameservers* button on your *Domain* page. Click the *Open the Domain page for [Base Domain]* button to open your *Domain* page. Clicking the *I've updated my nameservers* button makes CloudCannon check every hour again, and CloudCannon will email you when your domain uses CloudCannon DNS.
+
+To stop receiving this email, click the *Unsubscribe from this list* link at the bottom of the email. The same list includes other emails, such as when a *Site* build fails or a *Site* can't sync. To choose which lists you receive, click the *Manage email preferences* link instead.
 
 #### Action required: [Base Domain]'s nameservers no longer point at CloudCannon DNS
 
-CloudCannon sends this email when the nameservers of a live domain change away from CloudCannon. The email names the nameservers your domain uses now. If you didn't mean to change them, change them back at your domain registrar. If you now use another *DNS Provider*, switch your domain to External DNS on the *Domain Settings* tab of your *Domain* page. The email also says when Cloudflare will delete the zone if the nameservers stay changed, and that CloudCannon keeps a copy of your records to restore if you change the nameservers back. Click the *Open the Domain page for [Base Domain]* button to open your *Domain* page.
+CloudCannon sends this email when the nameservers of a live domain change away from CloudCannon.
 
 <comp.DocShot docshot_key="CloudCannon-Documentation-Mailer-Dns-Nameservers-Changed" alt="A screenshot of the nameservers changed email shows the headline example.com's nameservers no longer point at CloudCannon DNS, when CloudCannon detected the change, the nameservers required and the nameservers found marked Not CloudCannon DNS, the Next actions, when the CloudCannon DNS zone will be deleted, and the Open the Domain page for example.com button." title="The nameservers changed email" type="screenshot"/>
+
+This email shows when CloudCannon detected the change and the nameservers your domain uses now. Until you fix it, visitors and email reach the records stored at the changed nameservers instead of the DNS Records you store in CloudCannon. The email also says when the CloudCannon DNS zone will be deleted if the nameservers stay changed, and that CloudCannon keeps a copy of your DNS Records to restore when you change the nameservers back.
+
+Under *Next actions*, the email asks you to change the nameservers back at your domain registrar if the change was a mistake, or, if you now use another *DNS Provider*, switch your domain to External DNS on the *Domain Settings* tab of your *Domain* page. Click the *Open the Domain page for [Base Domain]* button to open your *Domain* page.
+
+This email has no unsubscribe link.
+

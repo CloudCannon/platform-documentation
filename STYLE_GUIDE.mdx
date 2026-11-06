@@ -1,7 +1,7 @@
 # CloudCannon Documentation Style Guide
 
 **Last Updated:** November 6, 2026  
-**Version:** 2.85
+**Version:** 2.90
 
 This style guide establishes writing standards for all CloudCannon documentation. It combines patterns from our existing documentation with industry best practices from Microsoft Writing Style Guide, Google Developer Documentation Style Guide, and Write the Docs community standards.
 
@@ -296,6 +296,16 @@ When in doubt, trace the claim to its source — code, configuration, or observe
 - Use sentence case for headings (capitalize only the first word and proper nouns).
 - **Do not italicize CloudCannon terms or UI elements in headings.** Headings stay in plain text, even for a term that is italicized in body text. Capitalize CloudCannon terms as usual — just omit the italics.
 - Do not use `<comp.GlossaryTerm>` in headings — glossary terms should only appear in body text.
+- **Name an email section by when or what, not by a bare label.** Use "Emails after you [action]" when every email in the section follows the reader's action, and "Emails about [subject]" when some arrive later or without one. The heading still makes sense when the section is quoted on its own, and avoids "this process". Each email keeps its subject line as its own subheading.
+  - ✅ **Good:** "Emails after you connect a Custom Domain", "Emails about your SSL Certificate"
+  - ❌ **Avoid:** "Domain connected email", "SSL Certificate emails", "Automatic emails associated with this process"
+- **Open an email section with who receives the emails**, in this form: "[When/After X], CloudCannon will email everyone [else] in your *Organization* who has permission to [action]. This includes members of the *[Group]* and *[Group]* [Default Permission Groups](…), members of the *Partner* group in a *Client Organization*, and members of [Custom Permission Groups](…) with the `[permission]` permission." Say what the permission lets someone do before naming it, name the *Default Permission Groups* that hold it, and use "everyone else" when the person who caused the email doesn't receive it. Verify the groups against the app.
+- **Describe each email under its subject line in this order**, without restating who receives it:
+  1. When CloudCannon sends it, and any other subject line it can have.
+  2. The DocShot of the email.
+  3. What the email shows ("This email shows…").
+  4. What to do next: the email's *Next actions*, its button, and whether CloudCannon will email again. If there is nothing to do, say so.
+  5. How to stop receiving it: the *Unsubscribe from this list* link, other emails in the same list, and the *Manage email preferences* link. If the email has no unsubscribe link, say "This email has no unsubscribe link."
 - ✅ **Good:** "Configure your first build"
 - ✅ **Good:** "Branching from the Main Branch"
 - ❌ **Avoid:** "Branching from the *Main Branch*"
@@ -1103,12 +1113,26 @@ Placement:
 - **Must be first in article** — always place immediately after the front matter, before any other content
 - Required for any feature or action that needs specific permissions
 - Always start with "**Permissions required**" as the heading
+- **A permission only one section needs gets its own notice at the top of that section.** Place it immediately after the section heading, before any other content, with the same "**Permissions required**" heading. Write one sentence that names the extra permission with "also" and says what it applies to, without restating the groups from the article's notice:
+
+```mdx
+<comp.Notice info_type="permissions">
+  **Permissions required**
+
+  Connecting a *Custom Domain* from *Site Settings* also requires the `site:settings:hosting:write` permission for the *Site*.
+</comp.Notice>
+```
+
+  The notice stays next to the action when the section is quoted on its own, and the reader sees the extra gate before the steps. The article's own permissions notice still comes first in the article.
 
 Length:
 - **Keep the notice to one or two sentences.** When the page's actions need more than one permission, name them all in a single clause: "…with the `base-domain:settings:details:write` and `site:settings:hosting:write` permissions, can manage the *Sites* on a *Subdomain*." A second sentence can add one short condition the reader needs before they start. Do not add a run of follow-on sentences about which action needs which permission, or where the rule applies.
-- **Put per-action detail in the body**, at the top of the section for that action, so it stays next to the action when the section is quoted on its own (for example, "Changing a *Redirect Subdomain* to serve a *Site* also requires the `site:settings:hosting:write` permission for that *Site*.").
+- **Put per-action detail in a section-level permissions notice**, at the top of the section for that action (see Placement), so it stays next to the action when the section is quoted on its own (for example, "Changing a *Redirect Subdomain* to serve a *Site* also requires the `site:settings:hosting:write` permission for that *Site*.").
 - **Don't overstate the gate.** If most of the page's actions need only one permission and a second applies only to some, name only the first in the notice, and state the second in the sections it applies to. A reader with only the first permission should not read the notice as locking them out of the whole page.
 - The *Partner* form (§1.4.1, Naming the *Partner* Group in Permissions Notices) keeps its second sentence about *Custom Permission Groups* where that applies.
+
+Who to ask:
+- **When a reader lacks a permission, send them to "someone who manages *Permission Groups* in your *Organization*"**, not to "a member of the *Owners* group". The *Owners* group isn't the only one that can grant it: the *Developers* group and any *Custom Permission Group* with `group:member:write` can add people to groups too. Name the permission they need in the same passage: "Connecting a *Custom Domain* requires the `base-domain:create` permission. … Ask someone who manages *Permission Groups* in your *Organization* for this permission."
 
 **`pricing` — Information about whether a feature is available to the reader at all**
 
@@ -1231,7 +1255,7 @@ Placement:
 - **When a `deprecated` notice is present, it comes first.** Deprecation is the most fundamental gate: a reader who should not adopt a feature does not need its plan availability or permission requirements. The full order at the top of an article is deprecated, then pricing, then permissions.
 - If both a pricing notice and a permissions notice are genuinely needed (e.g., for an Instructions article that gates on both plan and permission), place the **pricing notice first**, followed immediately by the permissions notice, before any other content. Pricing comes first because plan availability is the more fundamental gate — readers on the wrong plan don't need to read the permission requirements.
 - **A destructive or irreversible action may stack a `permissions` notice and an `important` notice at the top.** For actions like deleting an *Organization* or *Site*, place the permissions notice first (who can perform the action), immediately followed by an `important` notice stating the irreversibility and what is lost, before any other content. This is the one case where two notices at the start is expected rather than noise: the irreversibility warning is a load-bearing caveat the reader must see before acting, so it belongs at the top for the same reason access gates do.
-- **Always place `pricing` and `permissions` notices at the top of the article**, never in section-level positions. Readers expect to see access gates up front; section-level notices add noise and obscure the canonical statement of requirements. (The `important` notice type can appear inline next to the section it applies to — see its placement guidance above.)
+- **Always place `pricing` notices, and the article's `permissions` notice, at the top of the article.** Readers expect to see access gates up front. The one section-level exception is a `permissions` notice for a permission only that section's action needs (see the `permissions` Placement rules above). (The `important` notice type can appear inline next to the section it applies to — see its placement guidance above.)
 - **Don't restate a parent feature's gates in a sub-feature article.** If *Projects* require Team/Enterprise Plans, articles about specific *Project* sub-features (e.g., *Branch Defaults*, optional tabs, *Deploy Previews*) shouldn't carry their own Team/Enterprise pricing notice covering the same gate — readers without the parent feature wouldn't be in the sub-feature article. The same applies to permissions inherited from a parent feature.
 
 #### 1.5.2 DocShot Component
@@ -2046,6 +2070,7 @@ Use imperative mood (base form of verbs) for instruction article titles. This ma
    - Link to prerequisite instructions
    - Use the pattern: "Before we begin, this article assumes..."
    - Example: "Before we begin, this article assumes you have already configured your Collections."
+   - **Selecting an *Organization* is a conditional prerequisite, not a step.** Most readers belong to one *Organization* and have nothing to select, so never start the steps with "Select the *Organization*…". Put one sentence after the prerequisites instead: "If you are a member of multiple *Organizations*, make sure you select the *Organization* you want to [action] using the *Context Menu* on the *Organization* *Card* in the *App Sidebar* first." Where a path fixes the *Organization*, name it, for example "To connect a *Custom Domain* from *Site Settings*, select the *Organization* that owns the *Site*."
 
 3. **Main Instructions** (multiple sections)
    - Use clear subheadings for different methods or sections
@@ -2058,6 +2083,20 @@ Use imperative mood (base form of verbs) for instruction article titles. This ma
 4. **Next Steps or Additional Information** (optional, inline prose)
    - End with a sentence or short paragraph linking to next steps or related instructions
    - Do not create a `## Related articles` heading — use the front matter `related_articles` field instead
+
+5. **Emails after you [action]** (optional, `##`, after the main instructions)
+   - Include when the task makes CloudCannon send an email. Name the section "Emails after you [action]" (§1.2 Headings).
+   - Open with who receives the emails, by what the permission lets them do, then the *Default Permission Groups* that hold it and the *Custom Permission Groups* form (§1.2 Headings).
+   - Give each email a `###` heading that is its subject line, with variable parts in square brackets: "[Name] added the Custom Domain [Base Domain] to [Organization]".
+   - Under each, in order: when CloudCannon sends it and any other subject line; the DocShot; what the email shows; what to do next (its *Next actions*, its button, and whether CloudCannon emails again); and how to stop receiving it, or "This email has no unsubscribe link."
+
+6. **Troubleshoot [action]** (optional, `##`, last in the article)
+   - Include when the task can fail with a page or message the reader can't resolve from the steps alone. Name the section with the task: "Troubleshoot connecting a Custom Domain".
+   - Open with one paragraph: "If CloudCannon doesn't [outcome], here are some common causes. If you see an error that isn't listed here, contact our <a href="https://cloudcannon.com/support/">support team</a> with [what to bring]." Name what to bring, such as the *Organization* name, what the reader entered, and the full error message. Don't describe what support will do.
+   - Give each cause a `###` heading that quotes or names what the reader sees: the page title ("Permission denied", "Billing issue") or the app's error message ("The domain must not include a subdomain").
+   - Under each, say what causes it, what CloudCannon shows, and how to fix it, with a link to the article that covers the fix. For a missing permission, name the permission and say "Ask someone who manages *Permission Groups* in your *Organization* for this permission." (§1.5.1 Who to ask).
+   - Order the causes from access problems (permissions, billing) to problems with what the reader entered.
+   - Keep error states out of the steps and the prose before them, so the main instructions stay on the path that succeeds.
 
 #### 2.3.5 Writing Style
 
@@ -2576,6 +2615,11 @@ When you update a rule here, update the corresponding rule in `STYLE_GUIDE_AGENT
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.90 | 2026-11-06 | Instructions (§2.3.4 Structure): added two optional closing sections. **Emails after you [action]** gathers the emails the task triggers, with a recipients intro and one subject-line subsection per email (when, DocShot, what it shows, what to do next, how to stop it). **Troubleshoot [action]** comes last: an intro with a pre-loaded support escalation, then one subsection per cause, headed by what the reader sees, ordered from access problems to input problems. Error states move out of the steps and their lead-in prose. Added `documentation_types.instructions.closing_sections` in `STYLE_GUIDE_AGENTS.md` |
+| 2.89 | 2026-11-06 | Notices (§1.5.1 `permissions`, Who to ask): when a reader lacks a permission, send them to "someone who manages *Permission Groups* in your *Organization*" rather than "a member of the *Owners* group", because the *Developers* group and *Custom Permission Groups* with `group:member:write` can grant it too. Added `components.notice.who_to_ask` in `STYLE_GUIDE_AGENTS.md` |
+| 2.88 | 2026-11-06 | Formatting (§1.2 Headings): email sections are named "Emails after you [action]" when every email follows the reader's action, or "Emails about [subject]" otherwise, instead of a bare label such as "Domain connected email" or "Subdomain emails". The heading says when or what the emails are about, so it survives being quoted on its own. Each section opens with a sentence naming who receives the emails, by what the permission lets them do, then the groups that hold it. Added `formatting_rules.email_section_headings` in `STYLE_GUIDE_AGENTS.md` |
+| 2.87 | 2026-11-06 | Instructions (§2.3.4 Prerequisites): selecting an *Organization* is a conditional prerequisite, not a numbered step. Most readers belong to one *Organization*, so a "Select the *Organization*…" step asks them to do something with nothing to do. Instead, one sentence after the prerequisites names the control for readers in more than one: "If you are a member of multiple *Organizations*, make sure you select the *Organization* you want to [action] using the *Context Menu* on the *Organization* *Card* in the *App Sidebar* first." Added `documentation_types.instructions.prerequisites.organization_selection` in `STYLE_GUIDE_AGENTS.md` |
+| 2.86 | 2026-11-06 | Notices (§1.5.1 `permissions`): a permission that only one section's action needs now goes in a section-level `permissions` notice at the top of that section, with the **Permissions required** heading and one "also requires" sentence, instead of a plain sentence in the body. The reader sees the extra gate before the steps, in the same form as the article's own notice. The article-level notice still comes first; `pricing` notices stay at the top of the article. Updated `components.notice.placement.permissions`, `permissions_notice_length` and `general_rules` in `STYLE_GUIDE_AGENTS.md` |
 | 2.85 | 2026-11-06 | Terminology (§1.4.1 DNS Records): capitalize "Record" in *DNS Records* and each record type (*A Record*, *CNAME Record*, *TXT Record*, and so on), with no italics, matching the app and the glossary entries. Quoted UI labels keep the app's casing; "record" on its own stays lowercase. Added `terminology.dns_records` in `STYLE_GUIDE_AGENTS.md` |
 | 2.84 | 2026-11-06 | Terminology (§1.4.1 Subdomain vs. subdomain): the example phrase for an address that isn't a CloudCannon object is now "subdomains you haven't configured", matching the app's "a Subdomain you haven't configured" on the *Summary* tab. Use it in place of "haven't set up", "haven't set up yet", and "haven't added". Updated `subdomain_vs_dns_subdomain.plain_when_generic` in `STYLE_GUIDE_AGENTS.md` |
 | 2.83 | 2026-11-05 | Changelogs (§2.1.3 Structure, §2.1.4 Writing Style): a large release groups *Features & Improvements* under themed `###` headings, ordered by what readers meet first and ending with *Other improvements*. Top-level entries are headlines (verb, "allowing you to…" clause, link) with mechanics in sub-bullets. Entries name a permission only when it gates a whole page or area, not a single button. Added `changelog.grouping`, `changelog.headline_and_detail`, and `changelog.permissions` in `STYLE_GUIDE_AGENTS.md` |
