@@ -248,16 +248,16 @@ export default function BaseLayout(props: Props, helpers: Helpers) {
                   "reset": helpers.url(helpers.icon("crop_free:outlined", "material")),
                 })};
                 const ACTIONS = [
-                  ['pan-up',    'Pan up'],
-                  ['zoom-in',   'Zoom in'],
                   ['pan-left',  'Pan left'],
-                  ['reset',     'Reset view'],
-                  ['pan-right', 'Pan right'],
+                  ['pan-up',    'Pan up'],
                   ['pan-down',  'Pan down'],
+                  ['pan-right', 'Pan right'],
                   ['zoom-out',  'Zoom out'],
+                  ['zoom-in',   'Zoom in'],
+                  ['reset',     'Reset view'],
                 ];
-                const buildControls = (mountTarget, panZoomInst) => {
-                  mountTarget.querySelector('.c-mermaid__controls')?.remove();
+                const buildControls = (pre, panZoomInst) => {
+                  pre.parentElement.querySelector('.c-mermaid__controls')?.remove();
                   const panel = document.createElement('div');
                   panel.className = 'c-mermaid__controls';
                   panel.innerHTML = ACTIONS.map(([action, label]) =>
@@ -275,7 +275,7 @@ export default function BaseLayout(props: Props, helpers: Helpers) {
                     else if (action === 'zoom-out')  panZoomInst.zoomOut();
                     else if (action === 'reset')     { panZoomInst.resetZoom(); panZoomInst.center(); panZoomInst.fit(); }
                   });
-                  mountTarget.appendChild(panel);
+                  pre.after(panel);
                 };
                 let panZoomInstances = [];
                 const attachPanZoom = () => {
