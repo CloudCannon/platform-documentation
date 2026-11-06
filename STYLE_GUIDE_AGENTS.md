@@ -7,7 +7,7 @@ Machine-readable style rules for AI agents and automated linters. These rules ar
 **For agents making updates to this file:** Also update the corresponding section in `STYLE_GUIDE.mdx` with the prose explanation and examples. Update the revision history in both files: `last_updated` and `style_guide_version` in the YAML block below, and the `Last Updated` and `Version` fields and the revision history table (Section 4) in `STYLE_GUIDE.mdx`.
 
 ```yaml
-style_guide_version: "2.91"
+style_guide_version: "2.92"
 last_updated: "2026-11-06"
 
 documentation_architecture:
@@ -465,6 +465,18 @@ documentation_types:
         - "Context and purpose"
         - "Features and functionality"
         - "Related information"
+      ui_surface:
+        applies_to: "A concept definition article ('What is the [surface]?') about a page, browser, or panel, e.g. the Domain page or the Domains Browser. Orients the reader and links to task articles; how-it-works detail stays in the task articles. Mirrors STYLE_GUIDE.mdx §2.2.4 (UI Surface Articles)."
+        order:
+          - "Permissions notice, only if the whole surface is gated; a gated part gets a section-level permissions notice instead"
+          - "Opening (no heading): what the surface is, where it is, how to open it; then a DocShot of the whole surface"
+          - "One ## per area, named with the app's label ('The DNS tab') or the docs term for an unlabeled area ('The Filter Bar'): what it shows, what you can do there, link to the task article"
+          - "Optional closing ## 'Why the [surface] might look different'"
+        closing_section:
+          heading: "## Why the [surface] might look different. Name the surface; never 'this UI' or 'this page', so the heading survives being quoted on its own"
+          subsections: "Only those that apply, as ###, in order: Permissions, Configuration, Subscription Plan (or 'Subscription and Seats' when the gate is an inactive Subscription or a Seat limit, not a plan tier), Partner context. If only one applies, put its content directly under the ##."
+          correct: ["Why the Domain page might look different", "Why the Domains Browser might look different"]
+          incorrect: ["Why this UI might look different", "Alternative states", "What changes what you see"]
       mechanism_question:
         - "Opening answer to the title question"
         - "How it works"
