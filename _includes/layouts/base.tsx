@@ -316,7 +316,7 @@ export default function BaseLayout(props: Props, helpers: Helpers) {
                 stage.append(frame);
                 return imageZoomer(copy);
               }, { image: true });
-              document.querySelectorAll('.c-docs-image--zoomable').forEach(frame => {
+              document.querySelectorAll('.c-docs-image').forEach(frame => {
                 const img = frame.querySelector('img');
                 if (!img) return;
                 frame.append(expandPanel('Expand image', () => openImage(img)));

@@ -25,7 +25,6 @@ export default function DocShot(
       alt={alt}
       title={title}
       type={type}
-      zoomable
     />
   );
 }
