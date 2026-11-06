@@ -7,7 +7,7 @@ Machine-readable style rules for AI agents and automated linters. These rules ar
 **For agents making updates to this file:** Also update the corresponding section in `STYLE_GUIDE.mdx` with the prose explanation and examples. Update the revision history in both files: `last_updated` and `style_guide_version` in the YAML block below, and the `Last Updated` and `Version` fields and the revision history table (Section 4) in `STYLE_GUIDE.mdx`.
 
 ```yaml
-style_guide_version: "2.84"
+style_guide_version: "2.85"
 last_updated: "2026-11-06"
 
 documentation_architecture:
@@ -708,6 +708,19 @@ documentation_types:
           - "subdomains you haven't configured"  # not "haven't set up", "haven't set up yet", or "haven't added"; matches the app's Summary tab
           - "an unconfigured subdomain such as typo.example.com"
           - "the wildcard certificate covers one level of subdomain"
+
+      dns_records:
+        rule: "Capitalize 'Record' in DNS Records and in each record type, with no italics in body text: DNS Record, DNS Records, A Record, AAAA Record, CNAME Record, TXT Record, MX Record, SRV Record, NS Record. Matches the app and the glossary entries. They are DNS terms, not CloudCannon concepts, so they are not italicized. Mirrors STYLE_GUIDE.mdx §1.4.1 (DNS Records)."
+        ui_labels_exempt: "A UI label quoted verbatim keeps the app's casing (the *DNS records* table heading, *Wildcard record (optional)*, *Automatic renewal record (optional)*)."
+        lowercase: "'record' on its own, or with a descriptor that isn't a record type: 'the record', 'the wildcard record', 'the proxied record'."
+        correct:
+          - "add the DNS Records CloudCannon lists"
+          - "a CNAME Record that points at sites.cloudcannon.com"
+          - "two A Records"
+        incorrect:
+          - "add the DNS records CloudCannon lists"
+          - "a CNAME record that points at sites.cloudcannon.com"
+          - "add the *TXT Records*"  # not italicized
 
       unlabelled_containers_are_still_terms:
         rule: "A UI element does not need a visible label in the app to be a CloudCannon term. Containers such as the Filter Bar, a Card, or the App Sidebar are named by the documentation even though the app renders no such string — the app labels the controls INSIDE them (Add Filter, Save). Never conclude a term is invented because it cannot be found in app source, and never rename a container to match a button it contains. Verify a container's name against existing documentation usage, not a source search. Mirrors STYLE_GUIDE.mdx §1.4.1."
