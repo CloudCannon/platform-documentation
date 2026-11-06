@@ -348,6 +348,13 @@ export default function BaseLayout(props: Props, helpers: Helpers) {
                       });
                       panZoomInstances.push(inst);
                       buildControls(pre, inst);
+                      // A drag pans and still ends in a click, so only a
+                      // pointer that barely moved counts as a click to expand.
+                      let pressedAt;
+                      svg.addEventListener('pointerdown', e => { pressedAt = [e.clientX, e.clientY]; });
+                      svg.addEventListener('click', e => {
+                        if (pressedAt && Math.hypot(e.clientX - pressedAt[0], e.clientY - pressedAt[1]) < 5) openModal(pre);
+                      });
                     } catch (e) {
                       console.warn('svg-pan-zoom init failed:', e);
                     }
