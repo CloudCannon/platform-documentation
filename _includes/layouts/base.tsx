@@ -185,12 +185,12 @@ export default function BaseLayout(props: Props, helpers: Helpers) {
                 "expand": helpers.url(helpers.icon("open_in_full:outlined", "material")),
                 "close": helpers.url(helpers.icon("close:outlined", "material")),
               })};
-              const ZOOM_ACTIONS = [
+              const MODAL_ACTIONS = [
                 ['zoom-out', 'Zoom out'],
                 ['zoom-in',  'Zoom in'],
                 ['reset',    'Reset view'],
+                ['close',    'Close'],
               ];
-              const MODAL_ACTIONS = [...ZOOM_ACTIONS, ['close', 'Close']];
               const makePanel = (actions, onAction) => {
                 const panel = document.createElement('div');
                 panel.className = 'c-zoom-controls';
@@ -203,22 +203,9 @@ export default function BaseLayout(props: Props, helpers: Helpers) {
                 });
                 return panel;
               };
-              // Zoomers share one shape so the toolbar and the modal can
-              // drive a Mermaid SVG and a DocShot image the same way.
-              const zoom = (zoomer, action) => {
-                if (action === 'zoom-in')       zoomer.zoomIn();
-                else if (action === 'zoom-out') zoomer.zoomOut();
-                else if (action === 'reset')    zoomer.reset();
-              };
-              // A drag pans and still ends in a click, so only a pointer
-              // that barely moved counts as a click to expand.
-              const expandOnClick = (el, open) => {
-                let pressedAt;
-                el.addEventListener('pointerdown', e => { pressedAt = [e.clientX, e.clientY]; });
-                el.addEventListener('click', e => {
-                  if (pressedAt && Math.hypot(e.clientX - pressedAt[0], e.clientY - pressedAt[1]) < 5) open();
-                });
-              };
+              const expandPanel = (label, open) => makePanel([['expand', label]], open);
+              // Zoomers share one shape so the modal can drive a Mermaid SVG
+              // and a DocShot image the same way.
               let modal;
               let modalZoomer;
               const getModal = () => {
@@ -228,7 +215,9 @@ export default function BaseLayout(props: Props, helpers: Helpers) {
                 modal.innerHTML = '<div class="c-zoom-modal__stage"></div>';
                 modal.prepend(makePanel(MODAL_ACTIONS, action => {
                   if (action === 'close') modal.close();
-                  else if (modalZoomer) zoom(modalZoomer, action);
+                  else if (action === 'zoom-in')  modalZoomer?.zoomIn();
+                  else if (action === 'zoom-out') modalZoomer?.zoomOut();
+                  else if (action === 'reset')    modalZoomer?.reset();
                 }));
                 modal.addEventListener('click', e => { if (e.target === modal) modal.close(); });
                 modal.addEventListener('close', () => {
@@ -251,7 +240,7 @@ export default function BaseLayout(props: Props, helpers: Helpers) {
                   console.error('Zoom modal failed to open:', e);
                 }
               };
-              const imageZoomer = (img, { wheel = false } = {}) => {
+              const imageZoomer = img => {
                 let scale = 1;
                 let x = 0;
                 let y = 0;
@@ -291,7 +280,7 @@ export default function BaseLayout(props: Props, helpers: Helpers) {
                 img.addEventListener('pointermove', onMove);
                 img.addEventListener('pointerup', onUp);
                 img.addEventListener('pointercancel', onUp);
-                if (wheel) img.addEventListener('wheel', onWheel, { passive: false });
+                img.addEventListener('wheel', onWheel, { passive: false });
                 return {
                   zoomIn: () => zoomBy(1.5),
                   zoomOut: () => zoomBy(1 / 1.5),
@@ -311,17 +300,13 @@ export default function BaseLayout(props: Props, helpers: Helpers) {
                 copy.src = img.currentSrc || img.src;
                 copy.alt = img.alt;
                 stage.append(copy);
-                return imageZoomer(copy, { wheel: true });
+                return imageZoomer(copy);
               });
-              document.querySelectorAll('.c-docs-image__viewport').forEach(viewport => {
-                const img = viewport.querySelector('img');
+              document.querySelectorAll('.c-docs-image--zoomable').forEach(frame => {
+                const img = frame.querySelector('img');
                 if (!img) return;
-                const zoomer = imageZoomer(img);
-                viewport.after(makePanel([...ZOOM_ACTIONS, ['expand', 'Expand image']], action => {
-                  if (action === 'expand') openImage(img);
-                  else zoom(zoomer, action);
-                }));
-                expandOnClick(img, () => openImage(img));
+                frame.append(expandPanel('Expand image', () => openImage(img)));
+                img.addEventListener('click', () => openImage(img));
               });
               if (document.querySelector('pre.mermaid')) {
                 const [{ default: mermaid }, { default: svgPanZoom }] = await Promise.all([
@@ -382,12 +367,6 @@ export default function BaseLayout(props: Props, helpers: Helpers) {
                     });
                   }
                 };
-                const svgZoomer = panZoomInst => ({
-                  zoomIn: () => panZoomInst.zoomIn(),
-                  zoomOut: () => panZoomInst.zoomOut(),
-                  reset: () => { panZoomInst.resetZoom(); panZoomInst.center(); panZoomInst.fit(); },
-                  destroy: () => panZoomInst.destroy(),
-                });
                 // Renders a fresh copy rather than cloning the page SVG, so
                 // the two don't share element IDs (arrowhead markers, styles).
                 const openDiagram = pre => openModal(pre.closest('.c-mermaid').getAttribute('aria-label'), async stage => {
@@ -398,26 +377,22 @@ export default function BaseLayout(props: Props, helpers: Helpers) {
                   svgEl.style.maxWidth = 'none';
                   svgEl.setAttribute('width', '100%');
                   svgEl.setAttribute('height', '100%');
-                  return svgZoomer(svgPanZoom(svgEl, {
+                  const panZoom = svgPanZoom(svgEl, {
                     controlIconsEnabled: false,
                     fit: true,
                     center: true,
                     mouseWheelZoomEnabled: true,
                     minZoom: 0.5,
                     maxZoom: 20,
-                  }));
+                  });
+                  return {
+                    zoomIn: () => panZoom.zoomIn(),
+                    zoomOut: () => panZoom.zoomOut(),
+                    reset: () => { panZoom.resetZoom(); panZoom.center(); panZoom.fit(); },
+                    destroy: () => panZoom.destroy(),
+                  };
                 });
-                const buildControls = (pre, panZoomInst) => {
-                  pre.querySelector('.c-zoom-controls')?.remove();
-                  pre.appendChild(makePanel([...ZOOM_ACTIONS, ['expand', 'Expand diagram']], action => {
-                    if (action === 'expand') openDiagram(pre);
-                    else zoom(svgZoomer(panZoomInst), action);
-                  }));
-                };
-                let panZoomInstances = [];
-                const attachPanZoom = () => {
-                  panZoomInstances.forEach(inst => { try { inst.destroy(); } catch (_) {} });
-                  panZoomInstances = [];
+                const attachControls = () => {
                   document.querySelectorAll('.c-mermaid').forEach(figure => {
                     const pre = figure.querySelector('pre.mermaid');
                     const svg = pre?.querySelector('svg');
@@ -428,28 +403,16 @@ export default function BaseLayout(props: Props, helpers: Helpers) {
                     pre.style.aspectRatio = w + ' / ' + h;
                     if (!svg.getAttribute('width'))  svg.setAttribute('width',  '100%');
                     if (!svg.getAttribute('height')) svg.setAttribute('height', '100%');
-                    try {
-                      const inst = svgPanZoom(svg, {
-                        controlIconsEnabled: false,
-                        fit: true,
-                        center: true,
-                        mouseWheelZoomEnabled: false,
-                        minZoom: 0.5,
-                        maxZoom: 10,
-                      });
-                      panZoomInstances.push(inst);
-                      buildControls(pre, inst);
-                      expandOnClick(svg, () => openDiagram(pre));
-                    } catch (e) {
-                      console.warn('svg-pan-zoom init failed:', e);
-                    }
+                    pre.querySelector('.c-zoom-controls')?.remove();
+                    pre.append(expandPanel('Expand diagram', () => openDiagram(pre)));
+                    svg.addEventListener('click', () => openDiagram(pre));
                   });
                 };
                 document.querySelectorAll('pre.mermaid').forEach(el => { el.dataset.mermaidSource = el.textContent; });
                 initMermaid();
                 try {
                   await mermaid.run();
-                  attachPanZoom();
+                  attachControls();
                 } catch (e) {
                   document.querySelectorAll('.c-mermaid__loader-text').forEach(el => { el.textContent = 'Diagram failed to render.'; });
                   console.error('Mermaid render failed:', e);
@@ -472,7 +435,7 @@ export default function BaseLayout(props: Props, helpers: Helpers) {
                       console.error('Mermaid re-render failed:', e);
                     }
                   }
-                  attachPanZoom();
+                  attachControls();
                 }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-pf-theme'] });
               }
             `,
