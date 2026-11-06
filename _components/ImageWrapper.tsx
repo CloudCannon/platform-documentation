@@ -23,20 +23,16 @@ export default function ImageWrapper(
     imageClass += " c-docs-image--zoomable";
   }
 
-  const image = (
-    <img
-      className="c-docs-image__image"
-      src={src}
-      alt={alt}
-      title={title}
-      loading="lazy"
-    />
-  );
-
   return (
     <div className="c-docs-image__wrapper">
       <div className={imageClass}>
-        {zoomable ? <div className="c-docs-image__viewport">{image}</div> : image}
+        <img
+          className="c-docs-image__image"
+          src={src}
+          alt={alt}
+          title={title}
+          loading="lazy"
+        />
       </div>
     </div>
   );
