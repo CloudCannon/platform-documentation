@@ -34,5 +34,5 @@ export function toMarkdown(
 ): string {
   const url =
     `https://cc-screenshots.imgix.net/${docshots.source}/${docshot_key}.webp`;
-  return `![${alt || title || "Screenshot"}](${url})\n\n`;
+  return `![${alt || title || "Screenshot"}](${url}${title ? ` "${title}"` : ""})\n\n`;
 }

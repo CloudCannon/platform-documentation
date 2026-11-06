@@ -18,5 +18,5 @@ export default function DocsImage(
 }
 
 export function toMarkdown({ path, alt, title }: Omit<DocsImageProps, "comp">): string {
-  return `![${alt || title || ""}](${path})\n\n`;
+  return `![${alt || title || ""}](${path}${title ? ` "${title}"` : ""})\n\n`;
 }
