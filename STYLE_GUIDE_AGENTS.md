@@ -7,8 +7,8 @@ Machine-readable style rules for AI agents and automated linters. These rules ar
 **For agents making updates to this file:** Also update the corresponding section in `STYLE_GUIDE.mdx` with the prose explanation and examples. Update the revision history in both files: `last_updated` and `style_guide_version` in the YAML block below, and the `Last Updated` and `Version` fields and the revision history table (Section 4) in `STYLE_GUIDE.mdx`.
 
 ```yaml
-style_guide_version: "2.92"
-last_updated: "2026-11-06"
+style_guide_version: "2.93"
+last_updated: "2026-11-08"
 
 documentation_architecture:
   single_source_of_truth:
@@ -613,11 +613,11 @@ documentation_types:
       example: "Before we begin, this article assumes you have already configured your Collections."
       mirrors: "STYLE_GUIDE.mdx §2.3.4 item 2 (Prerequisites)"
       organization_selection:
-        rule: "Selecting an Organization is a conditional prerequisite, not a numbered step. Most readers belong to one Organization and have nothing to select, so never start the steps with 'Select the *Organization*…'. Put one sentence after the prerequisites instead. Where a path fixes the Organization (it is the one that owns a Site), name it in a second sentence. Mirrors STYLE_GUIDE.mdx §2.3.4 (Prerequisites)."
-        form: "If you are a member of multiple *Organizations*, make sure you select the *Organization* you want to [action] using the *Context Menu* on the *Organization* *Card* in the *App Sidebar* first."
+        rule: "Don't tell the reader to select an Organization. Never start the steps with 'Select the *Organization*…', and don't add a general sentence about switching Organizations: most readers belong to one, and anyone in several works in the one they have open. Name the Organization only where the path depends on a specific one the reader can't tell from the steps (it is the one that owns a Site). Mirrors STYLE_GUIDE.mdx §2.3.4 (Prerequisites)."
         example_fixed_path: "To connect a *Custom Domain* from *Site Settings*, select the *Organization* that owns the *Site*."
         incorrect:
           - "1. Select the *Organization* your *Custom Domain* is connected to."  # a step most readers skip
+          - "If you are a member of multiple *Organizations*, make sure you select the *Organization* you want to [action] using the *Context Menu* on the *Organization* *Card* in the *App Sidebar* first."  # a general switching sentence
     numbered_steps:
       content: "imperative_actions_only"
       explanations: "prose_before_list | prose_after_list | prose_between_two_complete_lists"
