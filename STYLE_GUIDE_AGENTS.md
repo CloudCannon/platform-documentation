@@ -7,7 +7,7 @@ Machine-readable style rules for AI agents and automated linters. These rules ar
 **For agents making updates to this file:** Also update the corresponding section in `STYLE_GUIDE.mdx` with the prose explanation and examples. Update the revision history in both files: `last_updated` and `style_guide_version` in the YAML block below, and the `Last Updated` and `Version` fields and the revision history table (Section 4) in `STYLE_GUIDE.mdx`.
 
 ```yaml
-style_guide_version: "2.94"
+style_guide_version: "2.95"
 last_updated: "2026-11-11"
 
 documentation_architecture:
@@ -1020,6 +1020,10 @@ components:
       destructive_action_notice_stack: "For a destructive or irreversible action (e.g. deleting an Organization or Site), stack a permissions notice first (who can perform the action), immediately followed by an important notice stating the irreversibility and what is lost, before any other content. The irreversibility warning is a load-bearing caveat the reader must see before acting, so two notices at the top is expected here, not overuse. Mirrors STYLE_GUIDE.mdx §1.5.1."
     permissions_notice_length:
       rule: "Keep a permissions notice to one or two sentences. When the page's actions need several permissions, name them in one clause ('with the `X` and `Y` permissions'). A second sentence may add one short condition the reader needs before starting; never add a run of follow-on sentences saying which action needs which permission or where the rule applies. Put per-action detail in a section-level permissions notice at the top of the section for that action (see placement.permissions). If a permission applies only to some of the page's actions, leave it out of the notice and state it in those sections, so the notice doesn't overstate the gate. The Partner form keeps its Custom Permission Groups sentence (see partner_group_in_permissions_notices). Mirrors STYLE_GUIDE.mdx §1.5.1 (permissions, Length)."
+      name_what_it_reveals:
+        rule: "When the permission hides part of the page rather than disabling a control, so a reader without it can't find where to start, name that part in the notice's action clause instead of adding a separate sentence about it. A disabled control with a tooltip needs no mention. Mirrors STYLE_GUIDE.mdx §1.5.1 (permissions, Length)."
+        example: "Members of the *Owners*, *Developers*, and *Partner* [Default Permission Groups](/documentation/user-articles/what-are-default-permission-groups/), or [Custom Permission Groups](/documentation/developer-articles/what-are-custom-permission-groups/) with the `base-domain:delete:write` permission, can see the *Danger* section of the *Domain Settings* tab and disconnect *Custom Domains* from an *Organization*."
+        incorrect: "The *Danger* section only appears on the *Domain Settings* tab if you have the `base-domain:delete:write` permission."  # a separate sentence restating the notice's permission
       correct:
         - "Members of the *Owners*, *Developers*, and *Partner* [Default Permission Groups](…), or [Custom Permission Groups](…) with the `base-domain:settings:details:write` and `site:settings:hosting:write` permissions, can manage the *Sites* on a *Subdomain* and delete *Subdomains*."
       incorrect:
