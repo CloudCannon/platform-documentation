@@ -310,7 +310,9 @@ export default function BaseLayout(props: Props, helpers: Helpers) {
                   const frame = document.createElement('div');
                   frame.className = img.closest('.c-docs-image--type-screenshot')
                     ? 'c-docs-image c-docs-image--type-screenshot'
-                    : 'c-zoom-modal__frame';
+                    : img.closest('.c-docs-image--type-ui-snippet')
+                      ? 'c-zoom-modal__frame c-zoom-modal__frame--ui-snippet'
+                      : 'c-zoom-modal__frame';
                   const clip = document.createElement('div');
                   clip.className = 'c-zoom-modal__clip';
                   clip.append(copy);
