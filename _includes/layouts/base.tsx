@@ -301,8 +301,7 @@ export default function BaseLayout(props: Props, helpers: Helpers) {
               // reuse the page's browser-window frame; the clip sits inside it
               // so a zoomed image can't cover the frame's three dots.
               const openImage = img => {
-                const caption = img.closest('.c-docs-image__wrapper')?.querySelector('.c-docs-image__caption');
-                const label = caption?.querySelector('.c-docs-image__caption-title')?.textContent || img.alt;
+                const label = img.closest('.c-docs-image__wrapper')?.querySelector('.c-docs-image__caption-title')?.textContent || img.alt;
                 return openModal(label, async stage => {
                   const copy = new Image();
                   copy.src = img.currentSrc || img.src;
@@ -311,18 +310,14 @@ export default function BaseLayout(props: Props, helpers: Helpers) {
                   const frame = document.createElement('div');
                   frame.className = img.closest('.c-docs-image--type-screenshot')
                     ? 'c-docs-image c-docs-image--type-screenshot'
-                    : 'c-zoom-modal__frame';
+                    : img.closest('.c-docs-image--type-ui-snippet')
+                      ? 'c-zoom-modal__frame c-zoom-modal__frame--ui-snippet'
+                      : 'c-zoom-modal__frame';
                   const clip = document.createElement('div');
                   clip.className = 'c-zoom-modal__clip';
                   clip.append(copy);
                   frame.append(clip);
                   stage.append(frame);
-                  if (caption) {
-                    const text = document.createElement('p');
-                    text.className = 'c-zoom-modal__caption';
-                    text.append(...caption.cloneNode(true).childNodes);
-                    stage.append(text);
-                  }
                   return imageZoomer(copy);
                 }, { image: true });
               };

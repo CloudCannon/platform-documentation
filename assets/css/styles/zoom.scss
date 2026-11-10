@@ -5,7 +5,7 @@
   display: flex;
   gap: 0.125rem;
   padding: 0.25rem;
-  background: rgba(245, 245, 245, 0.95);
+  background: var(--border-subtle);
   border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: 0.5rem;
   z-index: 2;
@@ -20,14 +20,14 @@
     height: 2rem;
     padding: 0;
     background: #fff;
-    border: 1px solid rgba(0, 0, 0, 0.06);
+    border: 1px solid rgba(0, 0, 0, 0.2);
     border-radius: 0.25rem;
-    color: #333;
+    color: #1a1a1a;
     cursor: pointer;
     transition: background 120ms ease, border-color 120ms ease;
 
-    &:hover { background: rgba(0, 0, 0, 0.04); border-color: rgba(0, 0, 0, 0.12); }
-    &:active { background: rgba(0, 0, 0, 0.08); }
+    &:hover { background: #dcdcdc; border-color: rgba(0, 0, 0, 0.3); }
+    &:active { background: #ccc; }
     &:focus-visible { outline: 2px solid var(--selected-blue, #0066ff); outline-offset: -1px; }
 
     &::before {
@@ -80,8 +80,9 @@
   }
 
   .c-zoom-controls {
-    align-self: flex-end;
-    margin: 0.5rem 0.5rem 0;
+    position: absolute;
+    right: 0.5rem;
+    bottom: 0.5rem;
   }
 
   &__stage {
@@ -90,7 +91,7 @@
     justify-content: center;
     flex: 1;
     min-height: 0;
-    padding: 1rem;
+    padding: 1rem 1rem 3.5rem;
     overflow: hidden;
 
     svg {
@@ -109,49 +110,30 @@
 }
 
 // DocShots: the dialog is see-through and fits the image, so the visible
-// frame hugs the image and the toolbar floats above it on the backdrop.
+// frame hugs the image and the toolbar sits inside its bottom-right corner.
 .c-zoom-modal--image {
   width: fit-content;
   height: fit-content;
   overflow: visible;
-  align-items: flex-end;
-  gap: 0.5rem;
   background: none;
   border: none;
   border-radius: 0;
   box-shadow: none;
 
-  .c-zoom-controls {
-    margin: 0;
-  }
-
   .c-zoom-modal__stage {
     flex: none;
-    flex-direction: column;
-    gap: 0.5rem;
     padding: 0;
     overflow: visible;
-  }
-
-  // inline-size containment stops a long caption widening the modal past
-  // the image, so the caption wraps to the frame's width instead.
-  .c-zoom-modal__caption {
-    align-self: stretch;
-    contain: inline-size;
-    margin: 0;
-    font-size: 0.875rem;
-    color: rgba(255, 255, 255, 0.85);
-
-    .c-docs-image__caption-title {
-      font-weight: 600;
-      color: #fff;
-    }
   }
 
   .c-zoom-modal__frame {
     background: #fff;
     border: var(--border-width) solid var(--border-subtle);
     border-radius: var(--border-radius);
+  }
+
+  .c-zoom-modal__frame--ui-snippet {
+    padding: 20px;
   }
 
   .c-zoom-modal__frame,
@@ -166,8 +148,13 @@
 
     img {
       max-width: min(95vw, 1400px);
-      max-height: calc(90vh - 9rem);
+      max-height: calc(90vh - 1rem);
     }
+  }
+
+  .c-zoom-modal__frame--ui-snippet .c-zoom-modal__clip img {
+    max-width: calc(min(95vw, 1400px) - 40px);
+    max-height: calc(90vh - 1rem - 40px);
   }
 }
 
@@ -178,23 +165,22 @@ html[data-pf-theme="dark"] .c-zoom-modal {
   &.c-zoom-modal--image {
     background: none;
 
-    .c-zoom-modal__frame {
+    .c-zoom-modal__frame:not(.c-zoom-modal__frame--ui-snippet) {
       background: rgba(28, 28, 32, 1);
     }
   }
 }
 
 html[data-pf-theme="dark"] .c-zoom-controls {
-  background: rgba(28, 28, 32, 0.95);
   border-color: rgba(255, 255, 255, 0.08);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
 
   button {
-    background: rgba(60, 60, 68, 1);
-    border-color: rgba(255, 255, 255, 0.06);
-    color: #e5e5e5;
+    background: #262626;
+    border-color: rgba(255, 255, 255, 0.1);
+    color: #fff;
 
-    &:hover { background: rgba(80, 80, 90, 1); border-color: rgba(255, 255, 255, 0.12); }
-    &:active { background: rgba(50, 50, 58, 1); }
+    &:hover { background: #1a1a1a; border-color: rgba(255, 255, 255, 0.2); }
+    &:active { background: #111; }
   }
 }
