@@ -1,0 +1,129 @@
+---
+_schema: default
+_uuid: 3601abed-e220-4049-8817-7dbcbd150bf7
+_created_at: 2026-11-11T00:00:00Z
+details:
+  title: How does CloudCannon check your DNS Records?
+  description: >-
+    Learn when CloudCannon checks the DNS Records of each Subdomain, what each
+    status means, and how to check again or see earlier checks.
+  image: >-
+    https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+  category:
+    - Explanation
+  related_articles:
+    - _type: developer_articles
+      item: 94808c28-bbc5-40e9-83d5-63ca8d7194de
+    - _type: developer_articles
+      item: d927f075-234f-4c73-aebb-645da21754cd
+    - _type: developer_articles
+      item: d42a72aa-9809-4f98-9740-04cb8bbb452c
+author_notes:
+  docshots: Added!
+---
+CloudCannon checks the <comp.GlossaryTerm term="/user/glossary/d/dns-records.yml">DNS Records</comp.GlossaryTerm> of each <comp.GlossaryTerm term="/user/glossary/s/subdomain.yml">Subdomain</comp.GlossaryTerm> on your <comp.GlossaryTerm term="/user/glossary/c/custom-domain.yml">Custom Domain</comp.GlossaryTerm> to find out whether visitors to that *Subdomain* reach CloudCannon. The result appears as a status in the *DNS* section of the <comp.GlossaryTerm term="/user/glossary/s/subdomain-page.yml">Subdomain page</comp.GlossaryTerm>, and in the *Required records* table on the *DNS* tab of the <comp.GlossaryTerm term="/user/glossary/d/domain-page.yml">Domain page</comp.GlossaryTerm>.
+
+CloudCannon checks every *Subdomain* once a day, and more often while it expects a record to change, such as after you tell it you have updated a record. You can also check a *Subdomain* yourself at any time, and see the results of earlier checks.
+
+This article covers the DNS Records of your *Subdomains*, whether your domain uses <comp.GlossaryTerm term="/user/glossary/c/cloudcannon-dns.yml">CloudCannon DNS</comp.GlossaryTerm> or <comp.GlossaryTerm term="/user/glossary/e/external-dns.yml">external DNS</comp.GlossaryTerm>. CloudCannon checks your domain's <comp.GlossaryTerm term="/user/glossary/n/nameserver.yml">nameservers</comp.GlossaryTerm> separately. For more information, please read our documentation on [how often CloudCannon checks your nameservers](/documentation/developer-articles/configure-cloudcannon-dns/#how-often-cloudcannon-checks-your-nameservers).
+
+## What a DNS check looks at
+
+Each check of a *Subdomain* does two things:
+
+* It looks up the A Records and CNAME Records for the *Subdomain*, using a public DNS resolver.
+* It sends a test request to the *Subdomain* to see whether the request reaches CloudCannon.
+
+How CloudCannon uses these results depends on the *Subdomain*:
+
+* **Your Base Domain, and Subdomains on Cloudflare Proxy** — The *Subdomain* is *Configured* when the test request reaches CloudCannon, whatever records it went through. Your <comp.GlossaryTerm term="/user/glossary/b/base-domain.yml">Base Domain</comp.GlossaryTerm> (e.g., `example.com`) can reach CloudCannon through A Records or through your *DNS Provider's* own way of pointing it at a hostname, and a *Subdomain* on <comp.GlossaryTerm term="/user/glossary/c/cloudflare-proxy.yml">Cloudflare Proxy</comp.GlossaryTerm> reaches CloudCannon through your own Cloudflare zone.
+* **Every other Subdomain** — The *Subdomain* is *Configured* when the records CloudCannon finds are exactly the records it needs. The *Record* column in the *DNS* section of the *Subdomain* page shows the record it needs, which depends on its hosting option. For more information, please read our documentation on [what the hosting options for a Subdomain are](/documentation/developer-articles/what-are-the-hosting-options-for-a-subdomain/).
+
+A *Subdomain* that reaches CloudCannon some other way still shows *Not pointing at CloudCannon*. For example, if the *Subdomain* needs a CNAME Record that points at `sites.cloudcannon.com`, A Records that point at CloudCannon's IP addresses don't count. If you use Cloudflare as your <comp.GlossaryTerm term="/user/glossary/d/dns-provider.yml">DNS Provider</comp.GlossaryTerm> and set the record's proxy status to *Proxied* without choosing *Cloudflare Proxy* as the hosting option, CloudCannon finds Cloudflare's addresses instead of the record, so the status is *Not pointing at CloudCannon*. For more information, please read our documentation on [configuring Cloudflare Proxy](/documentation/developer-articles/configure-external-dns/#configure-cloudflare-proxy).
+
+Below the record it needs, the *Record* column lists the other records CloudCannon found at the same name. A found A Record, AAAA Record, or CNAME Record that points somewhere else is marked *Points elsewhere*, and any other record is marked *Existing*. On *CloudCannon DNS*, if the wildcard record for your *Base Domain* serves the *Subdomain*, the record it needs reads *Served by the \*.example.com wildcard*.
+
+## What each DNS Record status means
+
+Each *Subdomain* shows one of these statuses:
+
+* **Configured** — The *Subdomain* reaches CloudCannon.
+* **Not pointing at CloudCannon** — CloudCannon found records for the *Subdomain*, but they don't match the record it needs.
+* **No DNS Record** — CloudCannon found no record for the *Subdomain*.
+* **Not checked yet** — CloudCannon hasn't checked the *Subdomain* yet.
+* **Checking** — CloudCannon expects the record to change soon, and is still looking for it. For more information, please read the section on [why a Subdomain shows Checking](#why-a-subdomain-shows-checking).
+* **Waiting for nameservers** — On *CloudCannon DNS*, your domain's nameservers don't point at CloudCannon DNS yet. The record answers once they do.
+
+On external DNS, the *Wildcard record (optional)* table and the *Automatic renewal record (optional)* table on the *DNS* tab show *Optional* for a record you haven't added, because your *Subdomains* work without it.
+
+Below each status, the *DNS* section of the *Subdomain* page says what CloudCannon found and when it last checked, such as *CloudCannon cannot find the correct DNS Record. Checked 12 minutes ago.*
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Subdomain-Page-DNS-External-Records" alt="A screenshot of the DNS section on a subdomain page shows that the record for www.example.com points somewhere else, with the CNAME Record it needs and its Copy icon, the A Record found, the Not pointing at CloudCannon status, the I've updated it button, and a footer with when CloudCannon last checked, the View DNS check history icon, and the Check now button." title="The DNS section on a Subdomain page" type="screenshot" />
+
+## When CloudCannon checks your DNS Records
+
+CloudCannon checks the DNS Records of a *Subdomain*:
+
+* **When you add the Subdomain** — Once, straight away.
+* **Every day** — Every *Subdomain* on every *Custom Domain*, about once a day.
+* **Every hour after you click the I've updated it button** — On external DNS, for up to seven days, or until the *Subdomain* is live with HTTPS on. Then CloudCannon goes back to checking daily. Adding a *Subdomain* or changing its hosting option doesn't start hourly checks.
+* **When your nameservers start pointing at CloudCannon DNS** — Every *Subdomain* on the domain.
+* **When CloudCannon changes a record for you** — On *CloudCannon DNS*, after you click the *Fix* button, and after you change the hosting option of a *Subdomain*, CloudCannon updates the record, then checks it.
+* **When a live record stops pointing at CloudCannon** — On external DNS, CloudCannon checks again about 15 minutes later before it treats the record as changed.
+* **When you click the Check now button** — For more information, please read the section on [checking a Subdomain now](#check-a-subdomain-now).
+
+The footer of each record table says how CloudCannon checks. On *CloudCannon DNS*, it says *CloudCannon checks daily.* On external DNS, it says *Check now checks every record once.* The footer also says when CloudCannon last checked, or *Not checked yet*.
+
+Sometimes a check can't complete, for example when the lookup or the test request fails. The footer then says *Could not check [time] ago.*, followed by when CloudCannon last completed a check, and the status stays at the last result CloudCannon is sure of.
+
+## Why a Subdomain shows Checking
+
+A new or changed record can take time to reach DNS servers around the world. While CloudCannon expects the record to change, it shows *Checking* instead of *No DNS Record* or *Not pointing at CloudCannon*:
+
+* For 48 hours after you click the *I've updated it* button.
+* If you haven't clicked it, for 48 hours after the latest of these: you added the *Subdomain*, you changed its hosting option, or you changed your domain's *DNS Provider*. On external DNS, this applies only until CloudCannon first finds the record.
+
+Below *Checking*, the *DNS* section says when CloudCannon will check next: *next check within an hour* after you click the *I've updated it* button, or *next check within a day* otherwise. After 48 hours, the status shows what CloudCannon found.
+
+On external DNS, a record that changes after the *Subdomain* is live doesn't show *Checking*. It shows *Not pointing at CloudCannon* or *No DNS Record* straight away.
+
+On external DNS, the *I've updated it* button appears in the *DNS* section of the *Subdomain* page and in the *Required records* table, with *Checks hourly for a week* below it. After you click it, the *DNS* section says *Marked as updated [time] ago. Most DNS Providers publish DNS Records within an hour.* The button stays hidden for seven days. If CloudCannon still can't find the record 48 hours after you clicked it, the *DNS* tab shows a warning that the *Subdomain* is still not pointing at CloudCannon, with what usually fixes it. For the fixes, please read our documentation on [adding the records for external DNS](/documentation/developer-articles/configure-external-dns/#add-the-records).
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Domain-DNS-External-Required-Apex-Www" alt="A screenshot of the DNS tab for example.org shows the Required records table, with two A Records for example.org that point at 52.8.178.132 and 184.169.135.34, a CNAME Record for www.example.org that points at sites.cloudcannon.com, each marked Checking, and an I've updated it button for each Subdomain." title="Subdomains marked Checking in the Required records table" type="screenshot"/>
+
+## Check a Subdomain now
+
+To check a *Subdomain* straight away, click the *Check now* button in the footer of the *DNS* section of its *Subdomain* page. To check every *Subdomain* listed in the *Required records* table on the *DNS* tab, click the *Check now* button in the footer of that table. For the click path to the *Subdomain* page, please read our documentation on [checking the DNS for a Subdomain](/documentation/developer-articles/configure-a-subdomains-hosting-https-and-dns/#check-the-dns-for-a-subdomain).
+
+You can check each *Subdomain* at most once a minute. For a minute after a check, the *Check now* button is disabled, and hovering over it shows *Checked less than a minute ago. You can check again in a minute.*
+
+Checking the records of a *Subdomain*, and clicking the *I've updated it* button, require the `base-domain:settings:details:write` permission. Without it, both buttons are disabled, and hovering over them shows *You do not have permission to edit the Domain Settings for [Base Domain].* Ask someone who manages <comp.GlossaryTerm term="/user/glossary/p/permission-group.yml">Permission Groups</comp.GlossaryTerm> in your <comp.GlossaryTerm term="/user/glossary/o/organization.yml">Organization</comp.GlossaryTerm> for this permission.
+
+On *CloudCannon DNS*, the *DNS* section of the *Subdomain* page has no footer until your nameservers point at CloudCannon DNS, so it has no *Check now* button or check history until then.
+
+## View the DNS check history
+
+To see the earlier checks of a *Subdomain*, click the *View DNS check history* icon next to the *Check now* button in the *DNS* section of its *Subdomain* page. CloudCannon will open the *DNS checks for [Subdomain]* modal.
+
+The modal shows the record the *Subdomain* needs, then its checks, most recent first. Back-to-back checks with the same result share a row. Each row shows:
+
+* **The result** — A status, such as *Configured*, or *Couldn't check* if the check couldn't complete. A *Couldn't check* row doesn't change the *Subdomain's* status.
+* **The DNS answer** — The response code and the records CloudCannon found, or *No records*.
+* **The test request** — *Reached CloudCannon*, the response code and *Didn't reach CloudCannon*, or *Not run*.
+* **When the checks ran** — The start and end time of the checks in the row, and how long they took.
+
+Click the *Load older results* button to see older checks. CloudCannon removes results older than 90 days, except the latest complete check.
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Subdomain-Page-DNS-Checks-Modal" alt="A screenshot of the DNS checks for blog.example.com modal shows the record the Subdomain needs, a list of checks with their result, DNS answer, test request outcome, and time, including a Configured check, two Couldn't check results, and a Not pointing at CloudCannon check, and the Close button." title="The DNS checks modal" type="screenshot"/>
+
+You can also list the checks of a *Subdomain* with the [CloudCannon API](/documentation/developer-reference/api/), at `GET /api/v0/base-domains/{base_domain_uuid}/subdomains/{subdomain_uuid}/checks`.
+
+## How CloudCannon checks the wildcard record
+
+On external DNS, the *Wildcard record (optional)* table on the *DNS* tab shows the wildcard CNAME Record for your domain (e.g., `*.example.com`). To check it, CloudCannon looks up a made-up subdomain of your domain that no other record covers. The wildcard record is *Configured* when that lookup finds a CNAME Record that points at `sites.cloudcannon.com`.
+
+CloudCannon checks the wildcard record each time it checks your nameservers, and every hour for up to seven days after you click the *I've updated it* button in its row. The *Check now* button in the *Wildcard record (optional)* table checks your nameservers and the wildcard record together, so it requires the `base-domain:settings:dns:read` permission instead. Without it, hovering over the button shows *You do not have permission to view the DNS for [Base Domain].*
+
+## Emails about your DNS Records
+
+On external DNS, CloudCannon emails people in your *Organization* when a *Subdomain* you marked as updated goes live, when CloudCannon still can't find a record 48 hours after it started looking, and when the record of a live *Subdomain* stops pointing at CloudCannon. For these emails, please read our documentation on [the emails about your Subdomain's DNS Records](/documentation/developer-articles/configure-external-dns/#emails-about-your-subdomain-s-dns-records).
