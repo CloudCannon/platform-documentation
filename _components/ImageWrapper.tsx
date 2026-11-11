@@ -19,21 +19,28 @@ export default function ImageWrapper(
     imageClass += ` c-docs-image--type-${type}`;
   }
 
+  // The caption repeats the alt text for sighted readers, so it is hidden from
+  // screen readers, which already announce it from the image.
   return (
-    <div className="c-docs-image__wrapper">
+    <figure className="c-docs-image__wrapper">
       <div className={imageClass}>
         <img
           className="c-docs-image__image"
           src={src}
           alt={alt}
-          title={title}
           loading="lazy"
         />
       </div>
-    </div>
+      {(title || alt) && (
+        <figcaption className="c-docs-image__caption">
+          {title && <span className="c-docs-image__caption-title">{title}</span>}
+          {alt && <span aria-hidden="true">{title ? ` · ${alt}` : alt}</span>}
+        </figcaption>
+      )}
+    </figure>
   );
 }
 
 export function toMarkdown({ src, alt, title }: ImageWrapperProps): string {
-  return `![${alt || title || ""}](${src})\n\n`;
+  return `![${alt || title || ""}](${src}${title ? ` "${title}"` : ""})\n\n`;
 }
