@@ -7,8 +7,8 @@ Machine-readable style rules for AI agents and automated linters. These rules ar
 **For agents making updates to this file:** Also update the corresponding section in `STYLE_GUIDE.mdx` with the prose explanation and examples. Update the revision history in both files: `last_updated` and `style_guide_version` in the YAML block below, and the `Last Updated` and `Version` fields and the revision history table (Section 4) in `STYLE_GUIDE.mdx`.
 
 ```yaml
-style_guide_version: "2.98"
-last_updated: "2026-11-12"
+style_guide_version: "2.99"
+last_updated: "2026-11-13"
 
 documentation_architecture:
   single_source_of_truth:
@@ -284,7 +284,7 @@ formatting_rules:
       - "What *Subscription Plan* does my *Organization* use?"
 
   email_section_headings:
-    rule: "Name a section that lists emails 'Emails after you [action]' when every email in it follows the reader's action, or 'Emails about [subject]' when some arrive later or without one. Never a bare label, and never 'this process', which loses its referent when the section is quoted on its own. Each email keeps its subject line as its own subheading. Mirrors STYLE_GUIDE.mdx §1.2 (Headings)."
+    rule: "Name a section that lists emails 'Emails after you [action]' when every email in it follows the reader's action, or 'Emails about [subject]' when some arrive later or without one. Never a bare label, and never 'this process', which loses its referent when the section is quoted on its own. Each email keeps its subject line as its own subheading, except in short_form. Mirrors STYLE_GUIDE.mdx §1.2 (Headings)."
     correct:
       - "Emails after you connect a Custom Domain"
       - "Emails about your SSL Certificate"
@@ -301,6 +301,10 @@ formatting_rules:
     one_home:
       rule: "Document each email once, in the instructions article for the task that triggers it. Never list or summarize emails in an Explanation article, a UI surface article, or a separate email index: the subject-line heading makes the email findable by search, and a second copy drifts. An Explanation article may say in one sentence that CloudCannon emails people when something happens, linking to the task article. Mirrors STYLE_GUIDE.mdx §1.2 (Headings) and §2.3.4."
       incorrect: "A '## Emails about your Custom Domain' section on the Domain page listing every domain email with a one-line summary and a link."
+    short_form:
+      when: "An action in this instructions article sends an email that another instructions article already documents in full, because a different task also sends it. Use the full form whenever this article is the email's only home."
+      rule: "No ### headings and no repeat of the email's contents. Open with one sentence on who receives the emails, by what the permission lets them do, and any Subscription Plan on which CloudCannon doesn't send them; leave the Default Permission Groups to the full form. Then one paragraph per email: the actions in this article that send it, any condition on sending it, and its subject line in italics. Link to where each email is documented at the end of each paragraph when the emails live in different articles, or once after the last email paragraph when one article documents them all. Mirrors STYLE_GUIDE.mdx §2.3.4 item 5."
+      example: "CloudCannon emails everyone else in your *Organization* who has permission to view its billing after some of these actions. CloudCannon doesn't send these emails on the *Enterprise Plan*.\n\nRemoving the last *Site* from a *Subdomain*, … If your *Organization* had more of these *Subdomains* than its *Subscription Plan* includes, CloudCannon sends the *[Name] removed an extra Subdomain from [Organization]'s Subscription Plan* email.\n\nFor more information about this email, please read our documentation on [the emails after you remove a Custom Domain](…)."
 
   bold_usage:
     rule: "Use bold only for headings/labels inside Notice components and for term names in bulleted definition lists (**Term** — definition). Never use bold for emphasis, UI elements, button or menu names, or inline term definitions. Use italics for UI elements and terms, and Notice components for emphasis. Mirrors STYLE_GUIDE.mdx §1.4.2."
@@ -597,6 +601,7 @@ documentation_types:
         intro: "formatting_rules.email_section_headings.intro"
         per_email: "### [subject line with bracketed variables], then formatting_rules.email_section_headings.intro.subsection_order"
         one_home: "formatting_rules.email_section_headings.one_home"
+        short_form: "formatting_rules.email_section_headings.short_form"
       troubleshooting:
         when: "The task can fail with a page or message the reader can't resolve from the steps alone."
         heading: "## Troubleshoot [gerund task], e.g. 'Troubleshoot connecting a Custom Domain'"
@@ -622,6 +627,11 @@ documentation_types:
       content: "imperative_actions_only"
       explanations: "prose_before_list | prose_after_list | prose_between_two_complete_lists"
       assume_preceding_steps_complete: "Assume the reader has completed every earlier step. A step can rely on the state earlier steps leave behind, including the result of an earlier optional step. Do not add caveats to a step about what an earlier step makes available (e.g. 'This field is available once you select a *Site*'), and do not flag such dependencies in review. Prerequisites from outside the procedure still belong before the list (see prerequisites). Mirrors STYLE_GUIDE.mdx §2.3.5 (Numbered Lists for Steps)."
+      branching_steps:
+        rule: "Use sparingly. When a choice in one step changes only the next action or two, put a bullet list under that step, one bullet per choice naming the option (italicized UI label, em dash) and its follow-up actions, then continue the numbered list for the steps every branch shares. When branches differ for more than a couple of steps, or are different outcomes the reader chooses before starting, write a separate set of instructions for each under its own heading. Never nest numbered sub-steps. Mirrors STYLE_GUIDE.mdx §2.3.5 (Numbered Lists for Steps)."
+        correct: "7. If this is the last *Site* on the *Subdomain*, select what happens to it:\n   * *Leave it set up* or *Delete the Subdomain* — (Optional.) …uncheck the checkbox to keep them.\n   * *Redirect visitors* — CloudCannon will show the *Redirect visitors to* field. Enter the domain…\n8. Click the … button."
+        separate_procedures_example: "'Add a Subdomain that serves Sites' and 'Add a Redirect Subdomain' are separate sections, because the Type choice changes most of the steps that follow."
+        incorrect: "Nested numbered sub-steps (7a, 7b, or '   1.' under a step), or one long procedure whose branches diverge for several steps."
       outcome_then_media: "The final outcome sentence ('CloudCannon will...') goes immediately after the numbered list. Any comp.DocShot or screenshot belongs AFTER the outcome sentence, not between the last step and the outcome. Order: steps -> outcome sentence -> DocShot. Mirrors STYLE_GUIDE.mdx §2.3.4 (Describe Outcomes)."
       avoid_in_step_text:
         - "Conceptual or background explanation that does not advance the task"
@@ -973,7 +983,7 @@ link_formats:
       explanation_how_title: "'How do/does X <verb>?' -> [how X <verbs>] — lowercase 'how', drop the auxiliary do/does, conjugate the verb to agree with the subject ('How do Partners access their Client Organizations?' -> [how Partners access their Client Organizations]; 'How does billing work in the Partner Program?' -> [how billing works in the Partner Program])"
       explanation_why_title: "'Why <verb> X?' -> [why to <verb> X]"
     action_link_exception: "When a sentence names an action the reader takes and another article gives the instructions, the action itself may be the link instead of a separate 'please read our documentation on [X]' sentence (e.g. 'After you [connect a Custom Domain to your Organization](...), you can [add a subdomain to your Custom Domain](...)'). The link text is the action as the sentence phrases it, lowercase, and must say what the reader will find; a bare verb ('[connect]') is too short. Use the frame when the sentence doesn't name the action, and for closing 'For more information' pointers. Established usage (25 links across 24 articles). Mirrors STYLE_GUIDE.mdx §1.4.4 (Linking the Action in a Sentence)."
-    section_links: "Link to a heading (#anchor) on another page only when one section of that page is what the reader needs. When the whole page is relevant, link to the page, even if one section covers the exact case: a heading link skips the introduction, prerequisites and permissions that apply to every section, and breaks when the heading is renamed. Mirrors STYLE_GUIDE.mdx §1.4.4 (Linking to a Section)."
+    section_links: "Link to a heading (#anchor) on another page only when one section of that page answers the sentence on its own. When the whole page, or several of its sections, are relevant, link to the page, even if one section covers the exact case: a heading link skips the introduction, prerequisites and permissions that apply to every section, and breaks when the heading is renamed. Mirrors STYLE_GUIDE.mdx §1.4.4 (Linking to a Section)."
     inline_noun_reference_exception: "When the link is a courtesy hover-to-learn-more on a noun already in the sentence (not a cross-link pointer), use that noun as the link text, capitalized per the CloudCannon term (e.g. [Testing Domain]), not a rephrased title."
     position_decides_not_termhood: "Grammatical position, not whether the target is a CloudCannon term, decides bare-vs-rephrased. A term-named article is still rephrased when it sits in the cross-link frame ([what Custom Permission Groups are], [sharing a Site with Site Sharing] — NOT [Custom Permission Groups] or [Site Sharing]). Use the bare term only when it's the actual noun of the surrounding sentence (e.g. 'anyone in the [Default Permission Groups] can publish')."
     examples:

@@ -79,7 +79,7 @@ If the *Subdomain* you enter already exists, CloudCannon adds your *Site* to it:
 
 You can add your *Site* to a *Subdomain* that already exists from the page for that *Subdomain*. To add your *Site* to a new *Subdomain*, use the *Custom Domain* page under *Site Settings* instead.
 
-If your *Site* already has a *Custom Domain*, CloudCannon moves your *Site* to the new address.
+If your *Site* already has a *Custom Domain*, CloudCannon moves your *Site* to the new address. For more information, please read the section on [moving your Site from another Subdomain](#move-your-site-from-another-subdomain).
 
 The *Add a Site* button is disabled unless you can edit the settings of the *Base Domain*. In the *Site* dropdown, *Sites* whose hosting you can't change, and *Sites* already on the *Subdomain*, are disabled.
 
@@ -99,6 +99,42 @@ CloudCannon will serve your *Site* on the *Subdomain* at the path you entered.
 <comp.DocShot docshot_key="CloudCannon-Documentation-Subdomain-Page-Add-Site-Modal" alt="A screenshot of the Add a Site to careers.example.com modal shows Careers site in the Site dropdown, the Subpath field, a warning that Careers site moves from jobs.myownpersonaldomain.com to careers.example.com/careers/, and the Cancel and Add Site buttons." title="The Add a Site modal" type="screenshot"/>
 
 For more information, please read our documentation on [managing the Sites on a Subdomain](/documentation/developer-articles/manage-the-sites-on-a-subdomain/).
+
+## Move your Site from another Subdomain
+
+<comp.Notice info_type="permissions">
+  **Permissions required**
+
+  Choosing what happens to your *Site's* old *Subdomain* also requires the `base-domain:settings:details:write` permission for its *Base Domain*.
+</comp.Notice>
+
+If your *Site* is already live on a *Custom Domain*, adding it to a different *Subdomain* will move it. Additionally, swapping the path a *Site* is served at, or changing a <comp.GlossaryTerm term="/user/glossary/r/redirect-subdomain.yml">Redirect Subdomain</comp.GlossaryTerm> to serve your *Site* will also move it. For more information, please read our documentation on [managing the Sites on a Subdomain](/documentation/developer-articles/manage-the-sites-on-a-subdomain/) and [managing your Redirect Subdomains](/documentation/developer-articles/manage-your-redirect-subdomains/).
+
+If your *Site* is the last *Site* on its old *Subdomain*, CloudCannon asks what happens to the old *Subdomain*:
+
+* **Leave it set up** — The old *Subdomain* stays set up with no *Site*, and its visitors see a 404 page. This is the default.
+* **Redirect visitors** — The old *Subdomain* becomes a redirect that sends every visitor to another domain, keeping the path and query string.
+* **Delete the previous Subdomain** — CloudCannon deletes the old *Subdomain* and its certificate.
+
+To move your *Site* to another *Subdomain*:
+
+1. Click the *Custom Domains* link in the *App Sidebar*. CloudCannon will open the *Domains Browser*.
+2. Click the *Card* for the domain that has the *Subdomain* you want to move your *Site* to. CloudCannon will open the *Summary* tab of the *Domain* page.
+3. Click the *Subdomains* tab. CloudCannon will open the list of *Subdomains*.
+4. Click the *Card* for the *Subdomain*. CloudCannon will open the page for that *Subdomain*.
+5. Click the *Add a Site* button in the *Sites* section. CloudCannon will open the *Add a Site to [Subdomain]* modal.
+6. Select your *Site* from the *Site* dropdown. CloudCannon will show where your *Site* is now and where it moves to.
+7. (Optional.) Enter a path in the *Subpath* field. Leave this field empty to serve your *Site* at the root of the *Subdomain*.
+8. If your *Site* is the last *Site* on its old *Subdomain*, select what happens to the old *Subdomain* under the *Previous Subdomain* heading:
+   * *Leave it set up* or *Delete the previous Subdomain* — (Optional.) If the *Other Redirect Subdomains* notice lists *Subdomains* that redirect to the old *Subdomain*, uncheck the *Delete this other Redirect Subdomain* or *Delete these other Redirect Subdomains* checkbox to keep them. If you leave it checked, CloudCannon deletes them too.
+   * *Redirect visitors* — CloudCannon will show the *Redirect visitors to* field. Enter the domain to which you want to send visitors.
+9. Click the *Add Site* button.
+
+CloudCannon will serve your *Site* on the new *Subdomain* and stop serving it on the old one. If you redirected the old *Subdomain*, CloudCannon also updates the *Redirect Subdomains* that pointed at it to redirect to the new destination.
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Subdomain-Page-Add-Site-Move-Last-Site-Modal" alt="A screenshot of the Add a Site to careers.example.com modal shows that Careers site moves from jobs.myownpersonaldomain.com, the Leave it set up, Redirect visitors, and Delete the previous Subdomain options, and two Redirect Subdomains to delete." title="Moving the last Site from another Subdomain" type="screenshot"/>
+
+If you don't have the `base-domain:details:read` permission for the *Custom Domain* your *Site* is moving from, CloudCannon doesn't show the *Previous Subdomain* options, and leaves the old *Subdomain* set up.
 
 ## Review your Site's Custom Domain
 
@@ -162,6 +198,8 @@ The *Base Domain* dropdown disables any domain whose settings you can't edit and
 ### You do not have permission to edit the Domain Settings for [Base Domain].
 
 This message appears below the *Subdomain settings* heading in place of the settings when you can view the *Custom Domain* but don't have the `base-domain:settings:details:write` permission for its *Base Domain*. Ask someone who manages *Permission Groups* in your *Organization* for this permission.
+
+When you [move your Site from another Subdomain](#move-your-site-from-another-subdomain), this message also appears over the disabled *Previous Subdomain* options if you can view but can't edit the settings of the *Custom Domain* your *Site* is moving from. CloudCannon leaves the old *Subdomain* set up.
 
 ### [Site Name] is served on [address].
 
