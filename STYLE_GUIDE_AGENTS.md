@@ -7,7 +7,7 @@ Machine-readable style rules for AI agents and automated linters. These rules ar
 **For agents making updates to this file:** Also update the corresponding section in `STYLE_GUIDE.mdx` with the prose explanation and examples. Update the revision history in both files: `last_updated` and `style_guide_version` in the YAML block below, and the `Last Updated` and `Version` fields and the revision history table (Section 4) in `STYLE_GUIDE.mdx`.
 
 ```yaml
-style_guide_version: "2.97"
+style_guide_version: "2.98"
 last_updated: "2026-11-12"
 
 documentation_architecture:
@@ -973,6 +973,7 @@ link_formats:
       explanation_how_title: "'How do/does X <verb>?' -> [how X <verbs>] — lowercase 'how', drop the auxiliary do/does, conjugate the verb to agree with the subject ('How do Partners access their Client Organizations?' -> [how Partners access their Client Organizations]; 'How does billing work in the Partner Program?' -> [how billing works in the Partner Program])"
       explanation_why_title: "'Why <verb> X?' -> [why to <verb> X]"
     action_link_exception: "When a sentence names an action the reader takes and another article gives the instructions, the action itself may be the link instead of a separate 'please read our documentation on [X]' sentence (e.g. 'After you [connect a Custom Domain to your Organization](...), you can [add a subdomain to your Custom Domain](...)'). The link text is the action as the sentence phrases it, lowercase, and must say what the reader will find; a bare verb ('[connect]') is too short. Use the frame when the sentence doesn't name the action, and for closing 'For more information' pointers. Established usage (25 links across 24 articles). Mirrors STYLE_GUIDE.mdx §1.4.4 (Linking the Action in a Sentence)."
+    section_links: "Link to a heading (#anchor) on another page only when one section of that page is what the reader needs. When the whole page is relevant, link to the page, even if one section covers the exact case: a heading link skips the introduction, prerequisites and permissions that apply to every section, and breaks when the heading is renamed. Mirrors STYLE_GUIDE.mdx §1.4.4 (Linking to a Section)."
     inline_noun_reference_exception: "When the link is a courtesy hover-to-learn-more on a noun already in the sentence (not a cross-link pointer), use that noun as the link text, capitalized per the CloudCannon term (e.g. [Testing Domain]), not a rephrased title."
     position_decides_not_termhood: "Grammatical position, not whether the target is a CloudCannon term, decides bare-vs-rephrased. A term-named article is still rephrased when it sits in the cross-link frame ([what Custom Permission Groups are], [sharing a Site with Site Sharing] — NOT [Custom Permission Groups] or [Site Sharing]). Use the bare term only when it's the actual noun of the surrounding sentence (e.g. 'anyone in the [Default Permission Groups] can publish')."
     examples:
