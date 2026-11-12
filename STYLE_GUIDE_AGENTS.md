@@ -7,8 +7,8 @@ Machine-readable style rules for AI agents and automated linters. These rules ar
 **For agents making updates to this file:** Also update the corresponding section in `STYLE_GUIDE.mdx` with the prose explanation and examples. Update the revision history in both files: `last_updated` and `style_guide_version` in the YAML block below, and the `Last Updated` and `Version` fields and the revision history table (Section 4) in `STYLE_GUIDE.mdx`.
 
 ```yaml
-style_guide_version: "2.96"
-last_updated: "2026-11-11"
+style_guide_version: "2.97"
+last_updated: "2026-11-12"
 
 documentation_architecture:
   single_source_of_truth:
@@ -613,7 +613,7 @@ documentation_types:
       example: "Before we begin, this article assumes you have already configured your Collections."
       mirrors: "STYLE_GUIDE.mdx §2.3.4 item 2 (Prerequisites)"
       organization_selection:
-        rule: "Don't tell the reader to select an Organization. Never start the steps with 'Select the *Organization*…', and don't add a general sentence about switching Organizations: most readers belong to one, and anyone in several works in the one they have open. Name the Organization only where the path depends on a specific one the reader can't tell from the steps (it is the one that owns a Site). There, write one conditional sentence for readers in several Organizations that names the specific Organization, followed by a link to the switching article. Mirrors STYLE_GUIDE.mdx §2.3.4 (Prerequisites)."
+        rule: "Don't tell the reader to select an Organization. Never start the steps with 'Select the *Organization*…', and don't add a general sentence about switching Organizations: most readers belong to one, and anyone in several works in the one they have open. Name the Organization only where the path depends on a specific one the reader can't tell from the steps (it is the one that owns a Site). There, write one conditional sentence for readers in several Organizations that names the specific Organization, followed by a link to the switching article. Write it once per article, as its own paragraph directly after the 'Before we begin' sentence, or at the end of the introduction when there is none, never before each procedure: only a minority of readers belong to several Organizations, so a section doesn't need the sentence to stand alone. Where procedures depend on different Organizations, name each in the one sentence ('your *Custom Domain* is connected to, or the one that has the certificate,'). Mirrors STYLE_GUIDE.mdx §2.3.4 (Prerequisites)."
         example_fixed_path: "If you are a member of multiple *Organizations*, make sure you select the *Organization* that owns the *Site* first. For more information, please read our documentation on [switching between your Organizations](/documentation/user-articles/switch-between-your-organizations/)."
         incorrect:
           - "1. Select the *Organization* your *Custom Domain* is connected to."  # a step most readers skip
