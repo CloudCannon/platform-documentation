@@ -1,7 +1,7 @@
 # CloudCannon Documentation Style Guide
 
-**Last Updated:** November 5, 2026  
-**Version:** 2.83
+**Last Updated:** November 6, 2026  
+**Version:** 2.84
 
 This style guide establishes writing standards for all CloudCannon documentation. It combines patterns from our existing documentation with industry best practices from Microsoft Writing Style Guide, Google Developer Documentation Style Guide, and Write the Docs community standards.
 
@@ -1243,8 +1243,8 @@ Use for UI screenshots and snippets.
 
 **Required Attributes:**
 - `docshot_key` — The key matching the screenshot filename
-- `alt` — Descriptive alt text for accessibility
-- `title` — A short, human-readable caption for the screenshot
+- `alt` — Descriptive alt text for accessibility, also shown in the caption
+- `title` — A short, human-readable name for the screenshot, shown at the start of the caption
 - `type` — Either `screenshot` or `ui-snippet`
 
 **Types:**
@@ -1254,13 +1254,23 @@ Use for UI screenshots and snippets.
 **Naming Conventions:**
 - `docshot_key` values use hyphenated names that describe the page and state shown in the screenshot (e.g., `Site-Settings-Syncing-Connected`, `Content-Editor-Schema-File`).
 
+**Caption:**
+
+Every DocShot and DocsImage shows a caption below the image: the title in bold, then the alt text, as in **The Site Dashboard** · A screenshot of the Site Dashboard shows the Getting Started guide. Screen readers announce the alt text from the image and skip it in the caption, so they hear it once. Readers can click the image, or its *Expand image* button, to open it in a larger view with zoom controls; the caption appears there too.
+
 **Alt Text:**
 - Always include descriptive alt text.
-- Describe what's visible in the image and its context.
+- Write one sentence in the form "A screenshot of [subject] shows [what is visible]." Use "A screenshot of" for cropped UI snippets too, not "A closeup of", "Screenshot of", or a bare noun phrase.
+- Describe what the image actually shows, using the exact UI text visible in it, even where it disagrees with the surrounding prose. An image that no longer matches its article is fixed by replacing the image or the prose, not by describing the image as the prose expects.
+- Use plain text: no Markdown, asterisks, backticks, or double quotes. The alt text is shown in the caption as written.
+- Aim for 15 to 40 words.
 
 **Title:**
 - Keep titles short and descriptive (e.g., "The Site Dashboard", "The Add SSL Certificate modal").
-- Use sentence case.
+- Use sentence case. CloudCannon terms and UI labels keep their own capitalization; a generic word after a UI label stays lowercase ("The Authentication page", not "The Authentication Page").
+- Write a noun phrase, usually starting with "The", with no closing period.
+- Give every image on a page a distinct title. When two images show the same screen, name what distinguishes each: "The Custom Domain page with the Base Domain dropdown open", "The Custom Domain page with a live custom domain".
+- Never repeat the alt text as the title.
 
 **When a DocShot is warranted:**
 
@@ -1306,10 +1316,12 @@ Use for illustrations, diagrams, and external screenshots only. Do not use it fo
 ```mdx
 <comp.DocsImage 
   path="https://cc-dam.imgix.net/path/to/image.png" 
-  alt="Description of image" 
-  title="Image Title" 
+  alt="A diagram of CloudCannon as the editing hub shows content stored in your Git provider and assets stored in your DAM." 
+  title="How CloudCannon stores content and assets" 
   type="screenshot"/>
 ```
+
+DocsImage follows the DocShot rules for captions, alt text, and titles (§1.5.2), with one difference: the alt text opens with the phrase that matches the image — "A screenshot of" for screenshots of other services or websites, "A diagram of", "An animation of" for GIFs, or "An illustration of".
 
 **When to use DocsImage:**
 - Illustrations, diagrams, or conceptual graphics
@@ -1353,7 +1365,7 @@ Use for diagrams whose meaning is structural — flowcharts, sequence diagrams, 
 
 **How it renders:**
 
-The page ships the chart source inside a `<pre class="mermaid">` block. A small inline script in the base layout detects diagram pages and lazy-loads `mermaid.js` and `svg-pan-zoom` from pinned jsDelivr CDN URLs; on pages without diagrams the script does nothing and neither library is fetched. A loader is visible while the diagram renders, then the SVG replaces it with built-in pan/drag and visible zoom controls. Mouse-wheel zoom is intentionally disabled so readers scrolling past a diagram don't trigger zoom; the visible +/− controls handle zoom. Readers without JavaScript see the `alt` text. The `alt` is also what Pagefind indexes for search.
+The page ships the chart source inside a `<pre class="mermaid">` block. A small inline script in the base layout detects diagram pages and lazy-loads `mermaid.js` and `svg-pan-zoom` from pinned jsDelivr CDN URLs; on pages without diagrams the script does nothing and neither library is fetched. A loader is visible while the diagram renders, then the SVG replaces it, fitted to the frame. On the page, the diagram has no pan or zoom: readers click the diagram, or its *Expand diagram* button, to open it in a larger view with zoom in, zoom out, and reset controls, drag-to-pan, and mouse-wheel zoom. Readers without JavaScript see the `alt` text. The `alt` is also what Pagefind indexes for search.
 
 #### 1.5.6 GlossaryTerm Component
 
@@ -2571,6 +2583,7 @@ When you update a rule here, update the corresponding rule in `STYLE_GUIDE_AGENT
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.84 | 2026-11-06 | Images (§1.5.2 DocShot, §1.5.4 DocsImage, §1.5.5 Mermaid): DocShot and DocsImage now render a visible caption below the image, the title in bold followed by the alt text, and every image opens in an expanded view. Added a **Caption** subsection and expanded the **Alt Text** and **Title** rules to suit visible captions: alt text is one plain-text sentence in the "A screenshot of [subject] shows [what is visible]." form (DocsImage uses the opener that matches the image), and describes what the image actually shows even where the prose disagrees; titles are sentence-case noun phrases, distinct for every image on a page, and never repeat the alt. Replaced the placeholder values in the DocsImage example. Updated the Mermaid **How it renders** paragraph: diagrams no longer pan or zoom on the page and open in an expanded view instead. Mirrored in `STYLE_GUIDE_AGENTS.md` (`docshot`, `docsimage`, `mermaid.runtime`) |
 | 2.83 | 2026-11-05 | Changelogs (§2.1.3 Structure, §2.1.4 Writing Style): a large release groups *Features & Improvements* under themed `###` headings, ordered by what readers meet first and ending with *Other improvements*. Top-level entries are headlines (verb, "allowing you to…" clause, link) with mechanics in sub-bullets. Entries name a permission only when it gates a whole page or area, not a single button. Added `changelog.grouping`, `changelog.headline_and_detail`, and `changelog.permissions` in `STYLE_GUIDE_AGENTS.md` |
 | 2.82 | 2026-11-05 | Terminology (§1.3.5 Release stages): defined *Internal Beta* (staff only, never documented or announced), *Private Beta* (customers on request, documented in `beta/`, not in the main changelog), and *Public Beta* (everyone, still in development, documented and announced). Both words capitalized, no italics; "Open Beta" retired. Changelogs (§2.1) now exclude only Internal Beta and Private Beta features. Notices (§1.5.1): capitalized *Private Beta* and added a Public Beta `important` notice. The API changelog's standard sentence (§2.1.5) says "Public Beta". Added `terminology.release_stages` and `pricing_notice_content.public_beta_form` in `STYLE_GUIDE_AGENTS.md` |
 | 2.81 | 2026-11-05 | Changelogs (§2.1.5 API Changelog): added the API changelog at `developer/reference/api/changelog/`, with its own RSS feed. API changes move out of the main changelog, which ends *Features & Improvements* with one standard sentence linking to the API changelog. Entries use *Added*, *Changed*, *Deprecated*, *Removed*, and *Fixes* sections, and write endpoints with their method and full path. Added `documentation_types.api_changelog` and `changelog.api_changes` in `STYLE_GUIDE_AGENTS.md` |
