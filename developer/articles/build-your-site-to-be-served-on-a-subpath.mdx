@@ -1,0 +1,191 @@
+---
+_schema: default
+_uuid: c2ccc8dc-0842-4066-bfee-813f4e1ea664
+_created_at: 2026-11-06T00:00:00Z
+details:
+  title: Build your Site to be served on a subpath
+  description: >-
+    Learn how to build your Site for the subpath it is served at on your Custom
+    Domain, with Reseed, your SSG's subpath setting, or your folder structure.
+  image: >-
+    https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+  category:
+    - Instructions
+  related_articles:
+    - _type: developer_articles
+      item: 6b2315f7-78a9-4536-baa2-9446ddfa0246
+    - _type: developer_articles
+      item: fbb7360a-b08e-4386-a457-7e9e1d42f885
+    - _type: developer_articles
+      item: db3463f4-8875-4190-986e-13e75c78c0a9
+author_notes:
+  docshots: Added!
+---
+When you serve a <comp.GlossaryTerm term="/user/glossary/s/site.yml">Site</comp.GlossaryTerm> at a <comp.GlossaryTerm term="/user/glossary/s/subpath.yml">subpath</comp.GlossaryTerm> of a <comp.GlossaryTerm term="/user/glossary/s/subdomain.yml">Subdomain</comp.GlossaryTerm> (e.g., `example.com/docs/`), CloudCannon looks for your built files in a folder that matches the subpath. For example, it serves `example.com/docs/about/` from `docs/about/index.html` in your build output. Links and file paths in your *Site* that start with `/` also need to include the subpath, so that a link to `/about/` becomes `/docs/about/` and an image at `/images/logo.png` becomes `/docs/images/logo.png`. A *Site* served at the root of a *Subdomain* (`/`) doesn't need any of these steps.
+
+This article covers the ways to build your *Site* for a subpath, how to check your build output before CloudCannon serves your *Site* there, and how to change the subpath of a live *Site*. It doesn't cover setting the subpath itself.
+
+To serve a *Site* at a subpath, please read our documentation on [adding a Custom Domain to your Site](/documentation/developer-articles/add-a-custom-domain-to-your-site/) or [managing the Sites on a Subdomain](/documentation/developer-articles/manage-the-sites-on-a-subdomain/).
+
+## Choose how to build your Site
+
+Your build output is the set of files your <comp.GlossaryTerm term="/user/glossary/b/build.yml">build</comp.GlossaryTerm> writes to your <comp.GlossaryTerm term="/user/glossary/o/output-path.yml">Output Path</comp.GlossaryTerm>, which CloudCannon serves to visitors. For more information, please read our documentation on [what a Site build is](/documentation/developer-articles/what-is-a-site-build/) and [configuring your first build](/documentation/developer-articles/configure-your-first-build/).
+
+For your website to appear at the subpath of your *Subdomain*, your build output needs a folder named after the subpath, and internal links and file paths that include the subpath. There are three ways to get both:
+
+* **Reseed** — Reseed copies your build output into a folder named after the subpath and adds the subpath to your links and file paths.
+* **Your <comp.GlossaryTerm term="/user/glossary/s/ssg.yml">SSG's</comp.GlossaryTerm> subpath setting** — The setting adds the subpath to your links and file paths, and a postbuild script moves your build output into the folder.
+* **Your repository's folder structure** — If your *Site* is plain HTML with no SSG, put your files in a folder named after the subpath in your repository, and write every link and file path with the subpath (e.g., `/docs/about/`). Your build output then matches the subpath without Reseed or a postbuild script.
+
+If your *Site* uses an SSG, we recommend using Reseed or your SSG's subpath setting rather than moving your source files into a folder. Moving your source files doesn't add the subpath to your internal links and file paths, so you would need to add and maintain each one manually.
+
+Moving your source files also doesn't move every file your SSG writes. Many SSGs write some files to the root of your build output wherever your source files are, such as bundled CSS and JavaScript, the sitemap, and the 404 page. To change the subpath later, you would need to move every file and edit every link and file path again, instead of changing one setting.
+
+<comp.Notice info_type="important">
+  Don't use both Reseed and your SSG's subpath setting. Reseed adds the subpath to every link and file path that starts with `/`, including ones that already have it, so a link to `/docs/about/` becomes `/docs/docs/about/`.
+</comp.Notice>
+
+## Use Reseed to build for a subpath
+
+<a href="https://github.com/CloudCannon/reseed" target="_blank" rel="noopener noreferrer">Reseed</a> is an open-source tool that copies your build output into a folder named after your subpath and rewrites the links in your pages, CSS, and sitemap to include it. You can run Reseed after your build in a [postbuild script](/documentation/developer-articles/extending-your-build-process-with-hooks/):
+
+<comp.CodeBlock language="shell" source="/.cloudcannon/postbuild">
+```
+#!/bin/bash
+
+OUTPUT_PATH=_site #1
+SUBPATH=docs #2
+
+npx reseed -s "$OUTPUT_PATH" -d _reseed -b "$SUBPATH" -o
+rm -rf "$OUTPUT_PATH"
+mv _reseed "$OUTPUT_PATH"
+```
+<comp.Annotation number="1">
+
+Replace `_site` with the *Output Path* of your *Site*.
+
+</comp.Annotation>
+<comp.Annotation number="2">
+
+Replace `docs` with your subpath, without the leading and trailing slashes (e.g., `docs` or `docs/v2`).
+
+</comp.Annotation>
+</comp.CodeBlock>
+
+Save the script as a file named `postbuild` in the `.cloudcannon` folder at the root of your repository. Set `OUTPUT_PATH` to the *Output Path* of your *Site*, and `SUBPATH` to your subpath without the leading and trailing slashes. If Reseed isn't installed, `npx` downloads it before it runs. To run the script in your local development environment, you need <a href="https://nodejs.org/" target="_blank" rel="noopener noreferrer">Node.js</a> 18.17 or later.
+
+The `-o` flag stops Reseed from asking before it replaces the `_reseed` folder, which a build can't answer. If your *Site* has an RSS feed, add `-r` and the path to the feed (e.g., `-r feed.xml`) so Reseed rewrites its links too. CloudCannon uploads the files in your *Output Path* once the postbuild script finishes, so the script must leave the rewritten files there. For more information, please read our documentation on [configuring your command line options](/documentation/developer-articles/configure-your-command-line-options/).
+
+### Run Reseed as a build step
+
+<comp.Notice info_type="permissions">
+  **Permissions required**
+
+  Members of the *Owners*, *Developers*, and *Partner* [Default Permission Groups](/documentation/user-articles/what-are-default-permission-groups/), or [Custom Permission Groups](/documentation/developer-articles/what-are-custom-permission-groups/) with the `site:settings:build:write` permission, can configure Reseed as a build step.
+</comp.Notice>
+
+CloudCannon can also run Reseed as a build step for you, instead of a postbuild script. Our support team turns this on for your *Site*, which adds the *Reseed* page under *Site Settings*. To ask for it, contact our <a href="https://cloudcannon.com/support/">support team</a> with the name of your *Organization*, your *Site*, and the subpath.
+
+To run Reseed as a build step:
+
+1. Navigate to the *Reseed* page under *Site Settings*.
+2. Enter your subpath in the *Baseurl* field (e.g., `docs`).
+3. Click the *Update Reseed Details* button.
+
+CloudCannon will rebuild your *Site* for your subpath.
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Build-Settings-Reseed" alt="A screenshot of the Reseed page under Site Settings shows docs in the Baseurl field, a note that updating the build settings rebuilds the Site, and the Update Reseed Details button." title="The Reseed page" type="screenshot"/>
+
+## Use your SSG's subpath setting
+
+Most SSGs have a setting that adds a subpath to the links and file paths they write. These settings don't change where your SSG writes your files, so your build output still needs moving into a folder named after your subpath. The setting for each SSG is:
+
+* **Astro** — `base` in `astro.config.mjs` (e.g., `base: '/docs'`).
+* **Bridgetown** — `base_path` in `bridgetown.config.yml` (e.g., `base_path: /docs`).
+* **Docusaurus** — `baseUrl` in `docusaurus.config.js` (e.g., `baseUrl: '/docs/'`).
+* **Eleventy** — `pathPrefix` in your Eleventy config file (e.g., `pathPrefix: '/docs/'`), with the HTML Base plugin to add it to your links and file paths.
+* **Gatsby** — `pathPrefix` in `gatsby-config.js` (e.g., `pathPrefix: '/docs'`). Gatsby ignores it unless you build with the `--prefix-paths` flag.
+* **Hexo** — `url` and `root` in `_config.yml` (e.g., `url: https://example.com/docs` and `root: /docs/`).
+* **Hugo** — `baseURL` in your Hugo config file, including the subpath (e.g., `baseURL = 'https://example.com/docs/'`).
+* **Jekyll** — `baseurl` in `_config.yml` (e.g., `baseurl: /docs`). Your templates need the `relative_url` filter to add it to your links and file paths.
+* **Lume** — `location` in `_config.ts` (e.g., `new URL("https://example.com/docs/")`), with the `base_path` plugin to add it to your links and file paths.
+* **Next.js** — `basePath` in `next.config.js` (e.g., `basePath: '/docs'`).
+* **Nuxt** — `app.baseURL` in `nuxt.config.ts` (e.g., `baseURL: '/docs/'`).
+* **SvelteKit** — `paths.base` in `svelte.config.js` (e.g., `base: '/docs'`).
+
+MkDocs, Sphinx, and Slate write relative links, so they don't need a subpath setting, only the folder.
+
+To move your build output into a folder named after your subpath, add a [postbuild script](/documentation/developer-articles/extending-your-build-process-with-hooks/):
+
+<comp.CodeBlock language="shell" source="/.cloudcannon/postbuild">
+```
+#!/bin/bash
+
+OUTPUT_PATH=_site #1
+SUBPATH=docs #2
+
+mkdir -p "_subpath/$(dirname "$SUBPATH")"
+mv "$OUTPUT_PATH" "_subpath/$SUBPATH"
+mv _subpath "$OUTPUT_PATH"
+```
+<comp.Annotation number="1">
+
+Replace `_site` with the *Output Path* of your *Site*.
+
+</comp.Annotation>
+<comp.Annotation number="2">
+
+Replace `docs` with your subpath, without the leading and trailing slashes (e.g., `docs` or `docs/v2`).
+
+</comp.Annotation>
+</comp.CodeBlock>
+
+Save the script as a file named `postbuild` in the `.cloudcannon` folder at the root of your repository. Set `OUTPUT_PATH` to the *Output Path* of your *Site*, and `SUBPATH` to your subpath without the leading and trailing slashes.
+
+## Check your build output for a subpath
+
+Build your *Site* for your subpath and check your build output in your local development environment before you add your *Site* at your subpath. If CloudCannon runs Reseed as a build step for your *Site*, run the [Reseed postbuild script](#use-reseed-to-build-for-a-subpath) locally to check its output.
+
+To check your build output for a subpath:
+
+1. Build your *Site*.
+2. Run your postbuild script, if your *Site* has one.
+3. Check that your *Output Path* has a folder named after your subpath (e.g., `docs/`), and that every page of your *Site* is inside it.
+4. Serve your *Output Path* with a local web server (e.g., `npx serve _site`).
+5. Open your subpath in your browser (e.g., `http://localhost:3000/docs/`).
+6. Click through your *Site*, and check that your pages, images, styles, and scripts load.
+
+If every page and file loads at your subpath, CloudCannon will serve your *Site* at your subpath the same way.
+
+## Change the subpath of a live Site
+
+CloudCannon starts serving your *Site* at a new subpath as soon as you change it, without rebuilding your *Site*. Your current build output only has a folder for the old subpath, so one of the two paths shows no pages until the build output and the subpath match again:
+
+* **Change the subpath first** — Visitors to the new subpath won't find your pages until your *Site* rebuilds with a matching folder. Push your changes for the new subpath straight after, and CloudCannon rebuilds your *Site* when it syncs.
+* **Build for the new subpath first** — Visitors to the old subpath won't find your pages once the new build finishes, until you change the subpath. Change it as soon as the build finishes.
+
+The changes for the new subpath depend on how you build your *Site*:
+
+* **Reseed in a postbuild script** — Set `SUBPATH` in your postbuild script to the new subpath.
+* **Your SSG's subpath setting** — Change the setting to the new subpath, and set `SUBPATH` in your postbuild script to match.
+* **Your repository's folder structure** — Rename the folder in your repository to the new subpath, and update every link and file path to include it.
+
+If CloudCannon runs Reseed as a build step for your *Site*, change the subpath first, then enter the new subpath in the *Baseurl* field on the *Reseed* page. Saving the *Reseed* page rebuilds your *Site*.
+
+## Troubleshoot building your Site for a subpath
+
+If your *Site* doesn't load correctly at your subpath, here are some common causes. If you see a problem that isn't listed here, contact our <a href="https://cloudcannon.com/support/">support team</a> with the name of your *Site*, your subpath, and your postbuild script or the SSG setting you use.
+
+### Your links include the subpath twice
+
+If your links include the subpath twice (e.g., `/docs/docs/about/`), you're using both Reseed and your SSG's subpath setting. Remove one of them.
+
+### Some links or files don't include the subpath
+
+If you use your SSG's subpath setting, it might not reach every link. Check the extra step for your SSG in [Use your SSG's subpath setting](#use-your-ssg-s-subpath-setting), such as Jekyll's `relative_url` filter or Eleventy's HTML Base plugin. Hardcoded links in your templates or content need the subpath added by hand.
+
+If you use Reseed, it rewrites links in your HTML, CSS, and sitemap, but not links your JavaScript creates in the browser. It only rewrites your RSS feed if you add the `-r` flag. Add the subpath to links your JavaScript creates yourself.
+
+### Your Output Path has no folder named after your subpath
+
+Your postbuild script didn't run, or `OUTPUT_PATH` or `SUBPATH` doesn't match your *Site*. Check that the file is at `.cloudcannon/postbuild` and that both values are correct.
