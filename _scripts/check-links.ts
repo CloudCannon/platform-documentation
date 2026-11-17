@@ -26,8 +26,9 @@ const results = await checker.check({
   path: "documentation/",
   serverRoot: "_site",
   recurse: true,
+  checkFragments: true,
   linksToSkip: [
-    "^(?!http://localhost:.*/documentation)",
+    "^(?!http://(localhost|127\\.0\\.0\\.1):.*/documentation)",
     ".*_pagefind.*",
   ],
   urlRewriteExpressions,
