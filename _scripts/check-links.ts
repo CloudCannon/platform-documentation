@@ -41,9 +41,18 @@ console.log(`Scanned total of ${scannedLinks.length} links`);
 const brokenLinks = scannedLinks.filter((x) => x.state === "BROKEN");
 console.log(`Detected ${brokenLinks.length} broken links.`);
 
-brokenLinks.forEach(({ parent, url }) => {
-  console.log(`${parent} -> ${url}`);
-});
+const brokenByUrl = Map.groupBy(brokenLinks, ({ url }) => url);
+console.log(`Across ${brokenByUrl.size} unique URLs:`);
+
+[...brokenByUrl]
+  .sort(([, a], [, b]) => b.length - a.length)
+  .forEach(([url, links]) => {
+    const { status, failureDetails } = links[0];
+    const reason = status ||
+      failureDetails?.map((detail) => String(detail)).join("; ");
+    console.log(`\n[${reason}] ${url} (${links.length})`);
+    links.forEach(({ parent }) => console.log(`  from ${parent}`));
+  });
 
 if (!results.passed) {
   Deno.exit(1);
