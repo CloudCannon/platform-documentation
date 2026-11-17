@@ -673,6 +673,16 @@ site.process([".html"], function processHTMLPages(pages) {
         },
       );
 
+    // ### headings get an id so other pages can link to their sections, but no TOC entry or # link.
+    page.document.querySelectorAll<HTMLElement>("main h3:not([id])").forEach(
+      (el) => {
+        const slug = slugify(el.innerText || el.textContent || "");
+        if (slug) {
+          el.setAttribute("id", fixIdCollisions(slug));
+        }
+      },
+    );
+
     if (hasItems) {
       const h3 = page.document.createElement("h3");
       h3.classList.add("l-toc__heading");
