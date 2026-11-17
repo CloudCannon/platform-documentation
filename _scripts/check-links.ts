@@ -27,6 +27,9 @@ const results = await checker.check({
   serverRoot: "_site",
   recurse: true,
   checkFragments: true,
+  concurrency: 25,
+  retryErrors: true,
+  retryErrorsCount: 3,
   linksToSkip: [
     "^(?!http://(localhost|127\\.0\\.0\\.1):.*/documentation)",
     ".*_pagefind.*",
