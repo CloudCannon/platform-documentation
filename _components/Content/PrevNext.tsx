@@ -9,6 +9,7 @@ interface PrevNextProps {
   prev?: Page;
   next?: Page;
   guideIcon?: string;
+  guideIconInvertForDarkMode?: boolean;
   guideTitle?: string;
   details?: Details;
   totalPages?: number;
@@ -17,7 +18,7 @@ interface PrevNextProps {
 }
 
 export default function PrevNext(
-  { comp, prev, next, guideIcon, guideTitle, details, totalPages, helpers }:
+  { comp, prev, next, guideIcon, guideIconInvertForDarkMode, guideTitle, details, totalPages, helpers }:
     PrevNextProps,
 ) {
   return (
@@ -70,7 +71,7 @@ export default function PrevNext(
           )}
         <div className="c-prev-next-mobile__info">
           <div className="c-prev-next-mobile__pages">
-            {guideIcon && <img src={guideIcon} />} <span>{guideTitle}</span>
+            {guideIcon && <img src={guideIcon} className={guideIconInvertForDarkMode ? "u-grayscale-invert" : undefined} />} <span>{guideTitle}</span>
             {" "}
             ({details?.order}/{totalPages})
           </div>
