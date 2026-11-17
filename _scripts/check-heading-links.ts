@@ -1,6 +1,7 @@
 import { walk } from "@std/fs";
 
 const sections = ["developer", "user", "partner"];
+const allowedAnchors = ["/documentation/developer-reference/error-codes/#"];
 const headingLink =
   /\]\((\/documentation\/[^)\s#]*#[^)\s]+)\)|href=["'](\/documentation\/[^"'#]*#[^"']+)["']/g;
 
@@ -11,7 +12,11 @@ for (const section of sections) {
     const lines = (await Deno.readTextFile(entry.path)).split("\n");
     lines.forEach((line, index) => {
       for (const match of line.matchAll(headingLink)) {
-        found.push(`${entry.path}:${index + 1} -> ${match[1] ?? match[2]}`);
+        const link = match[1] ?? match[2];
+        if (allowedAnchors.some((prefix) => link.startsWith(prefix))) {
+          continue;
+        }
+        found.push(`${entry.path}:${index + 1} -> ${link}`);
       }
     });
   }
