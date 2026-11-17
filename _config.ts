@@ -64,6 +64,7 @@ import {
 } from "./developer/reference/api/_shared/openapi.ts";
 import { buildVeapiDocs, VEAPI_SECTION } from "./_lib/veapi-docs.ts";
 
+// @ts-expect-error: dist/documentation.d.ts belongs to documentation.js and shadows this JSON's types
 import documentation from "@cloudcannon/configuration-types/dist/documentation.json" with {
   type: "json",
 };
