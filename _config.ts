@@ -64,6 +64,7 @@ import {
 } from "./developer/reference/api/_shared/openapi.ts";
 import { buildVeapiDocs, VEAPI_SECTION } from "./_lib/veapi-docs.ts";
 
+// @ts-expect-error: dist/documentation.d.ts belongs to documentation.js and shadows this JSON's types
 import documentation from "@cloudcannon/configuration-types/dist/documentation.json" with {
   type: "json",
 };
@@ -671,6 +672,16 @@ site.process([".html"], function processHTMLPages(pages) {
           appendAnchorHeader(el, slug);
         },
       );
+
+    // ### headings get an id so other pages can link to their sections, but no TOC entry or # link.
+    page.document.querySelectorAll<HTMLElement>("main h3:not([id])").forEach(
+      (el) => {
+        const slug = slugify(el.innerText || el.textContent || "");
+        if (slug) {
+          el.setAttribute("id", fixIdCollisions(slug));
+        }
+      },
+    );
 
     if (hasItems) {
       const h3 = page.document.createElement("h3");
