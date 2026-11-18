@@ -1,0 +1,91 @@
+---
+_schema: default
+_uuid: fe381eec-e94f-4a95-a385-7e6307ec139d
+_created_at: 2026-11-18T00:00:00Z
+details:
+  title: What are GitHub installations?
+  description: >-
+    Learn how CloudCannon GitHub App installations and their allowed
+    repositories control which Git Repositories an Organization can use.
+  image: >-
+    https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+  category:
+    - Explanation
+  related_articles:
+    - _type: developer_articles
+      item: e7995d3d-d73c-4c8e-a0c6-b97a72cf6d75
+    - _type: developer_articles
+      item: 34c19752-2e37-4ac6-a52c-624fd4d69283
+    - _type: developer_articles
+      item: be14efab-623a-47cd-9114-bdd2a5853b23
+author_notes:
+  docshots: Added!
+---
+A GitHub installation is the CloudCannon GitHub App installed on one GitHub organization or personal account. Attaching an installation to your <comp.GlossaryTerm term="/user/glossary/o/organization.yml">Organization</comp.GlossaryTerm> lets your <comp.GlossaryTerm term="/user/glossary/s/site.yml">Sites</comp.GlossaryTerm> and <comp.GlossaryTerm term="/user/glossary/o/organization-member.yml">Organization Members</comp.GlossaryTerm> use the <comp.GlossaryTerm term="/user/glossary/g/git-repository.yml">Git Repositories</comp.GlossaryTerm> you allow on that account, without a GitHub connection of their own.
+
+This article applies to *Organizations* that use the new GitHub integration. An *Organization* on the older GitHub integration syncs through one person's GitHub connection and reaches every *Git Repository* that account can. For the older integration, please read our documentation on [authenticating your Git Provider](/documentation/developer-articles/authenticate-your-git-provider/). To move an *Organization* to the new integration, please read our documentation on [upgrading to the new GitHub integration](/documentation/developer-articles/upgrade-to-the-new-github-integration/).
+
+## Two sides of repository access
+
+Which *Git Repositories* an *Organization* can use is decided in two places:
+
+* On GitHub, the installation's settings decide which *Git Repositories* the CloudCannon GitHub App can reach on the account. The *Configure on GitHub* option on an installation's *Card* takes you there.
+* In CloudCannon, each attached installation serves either every *Git Repository* the GitHub App can reach on the account, including ones added on GitHub later, or only the *Git Repositories* you select.
+
+One installation can serve several *Organizations* with different *Git Repositories*. For example, an agency can attach its GitHub organization to an *Organization* it manages for a client and allow only that client's *Git Repository*, while its own *Organization* allows all of them.
+
+A *Git Repository* has to pass both sides before a *Site* can use it. If a *Git Repository* is missing from the list in CloudCannon, either the CloudCannon GitHub App cannot reach it on GitHub, or your GitHub account cannot.
+
+## The Installations tab
+
+The *GitHub* page under the *Files* heading in your <comp.GlossaryTerm term="/user/glossary/o/org-settings.yml">Org Settings</comp.GlossaryTerm> has an *Installations* tab and a *Sites* tab. The *Installations* tab lists each attached installation as a *Card* showing the GitHub account, whether it is a GitHub organization or a personal account, how many *Git Repositories* it serves (for example, *three of 14 repositories* or *All six repositories*), which *Sites* use it, and who attached it. The *Sites* tab lists every *Site* in your *Organization* that syncs with GitHub.
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Org-GitHub-V3-Installations" alt="A screenshot of the Installations tab on the GitHub page under Org Settings shows a warning that nine Sites cannot sync, an Attach installation button, and Cards for the acme, tom-smith, and bigcorp installations." title="The Installations tab" type="screenshot"/>
+
+For members who can manage GitHub installations, the *Context Menu* on an installation's *Card* has the following options:
+
+* The *Edit repositories* option opens the *Choose repositories from [Account Name]* modal, where you change which *Git Repositories* the installation serves.
+* The *Configure on GitHub* option opens the installation's settings on GitHub, where you change which *Git Repositories* the CloudCannon GitHub App can reach.
+* The *Can I edit this?* option opens the *Your access to [Account Name]* modal, which shows whether your GitHub account can reach the installation.
+* The *Detach* option removes the installation from your *Organization*. Nothing changes on GitHub.
+
+An installation that was uninstalled or reinstalled on GitHub shows *Removed on GitHub*, and its *Context Menu* has *Attach again* and *Install on GitHub again* options in place of the *Edit repositories* and *Configure on GitHub* options. An installation suspended on GitHub shows *Suspended on GitHub*, and its *Context Menu* keeps the *Configure on GitHub* option but not the *Edit repositories* option. When an installation is suspended or removed on GitHub, CloudCannon emails the *Organization Members* who can manage GitHub installations and the person who attached it. For the steps, please read our documentation on [attaching a GitHub installation](/documentation/developer-articles/attach-a-github-installation/).
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Org-GitHub-V3-Installation-Context-Menu" alt="A screenshot of the Installations tab shows the Context Menu on an installation Card with the Edit repositories, Configure on GitHub, Can I edit this?, and Detach options." title="The Context Menu on an installation Card" type="screenshot"/>
+
+## Who can attach an installation
+
+Attaching an installation, or adding *Git Repositories* to one, needs two things:
+
+* The `org:settings:git:provider:write` *Permission* in CloudCannon, which members of the *Owners* and *Developers* [Default Permission Groups](/documentation/user-articles/what-are-default-permission-groups/) have, and which a [Custom Permission Group](/documentation/developer-articles/what-are-custom-permission-groups/) can be granted.
+* A GitHub connection on your own account that can reach the installation. You connect GitHub on the *OAuth Providers* page under *Account Settings*. GitHub lists an installation for your account only when you have access to a *Git Repository* on it, along with the *Git Repositories* you can reach.
+
+The *All repositories* option is available only when your GitHub account can reach every *Git Repository* the installation can. If your GitHub account reaches some of them, you can add the ones it reaches. If it cannot reach the installation at all, you can still remove *Git Repositories* from an installation and detach it, because neither gives your *Organization* access to anything new.
+
+The person who attached an installation can detach it from the *OAuth Providers* page under *Account Settings* without the `org:settings:git:provider:write` *Permission*.
+
+The *Can I edit this?* option on an installation's *Card* opens the *Your access to [Account Name]* modal. The modal lists the checks CloudCannon makes with your GitHub connection and says whether you can attach the installation and add its *Git Repositories*. If GitHub is not connected to your account, your connection predates the CloudCannon GitHub App, or GitHub refused it, the modal shows a *Connect GitHub* or *Reconnect GitHub* button.
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Org-GitHub-V3-Why-Cannot-Edit-Modal" alt="A screenshot of the Your access to tom-smith modal shows that the account is connected to GitHub as heather-lee but cannot see the CloudCannon GitHub App on tom-smith, so it cannot attach tom-smith or add its repositories." title="The Your access to [Account Name] modal" type="screenshot"/>
+
+## Sites that cannot sync
+
+When a *Site* syncs with a *Git Repository* that its installation does not serve, the *Installations* tab shows a warning that reads *[Number] Sites cannot sync until the GitHub installations they use are attached and allow their repositories*, with an *Attach installations* button. The *Syncing* page under *Site Settings* for each affected *Site* shows a notice that reads *This Site stops syncing on its next sync*, with the reason and an *Attach [Account Name]*, *Attach again*, *Edit repositories*, or *Configure on GitHub* button for the fix. Once the *Site* fails to sync, the *Site Dashboard* and the *Syncing* page show a *Sync failed* message with a *Give this Organization access to [Repository Name]* recommendation.
+
+The reason is one of the following:
+
+* Not attached means the GitHub account that owns the *Git Repository* is not attached to your *Organization*. Attach it, after installing the CloudCannon GitHub App on the account if it is not there yet.
+* Not allowed means the *Git Repository* is not one of the installation's allowed *Git Repositories* in CloudCannon. Add it to the *Git Repositories* your *Organization* allows.
+* No access on GitHub means the CloudCannon GitHub App cannot reach the *Git Repository* on GitHub. Give it access on GitHub.
+* *Suspended on GitHub* means the CloudCannon GitHub App is suspended on the account. Unsuspend it on GitHub to resume syncing.
+* *Removed on GitHub* means the account was uninstalled or reinstalled on GitHub. Install the CloudCannon GitHub App on the account again if needed, then attach it to resume syncing.
+
+*Organization Members* without the `org:settings:git:provider:write` *Permission* see the reason with a message asking them to contact an *Organization Member* with permission to manage GitHub installations.
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Syncing-GitHub-V3-Needs-Access" alt="A screenshot of the Syncing page under Site Settings shows a notice that this Site stops syncing on its next sync because acme/handbook is not one of acme's allowed repositories, with an Edit repositories button." title="The Syncing page with a Site that needs access" type="screenshot"/>
+
+## Your attached installations
+
+The *OAuth Providers* page under *Account Settings* lists every *Organization* where you attached a GitHub installation or added its *Git Repositories*, under the *Your attached installations* heading. Each *Card* names the *Organization* the installation is attached to. A *Card* for an installation you attached shows the *Git Repositories* it allows and when you attached it, with a *Detach* button. A *Card* for an installation where you only added *Git Repositories* lists them and shows *You added these repositories*; only the person who attached it can detach it here. Revoking your GitHub authorization on this page leaves these installations attached.
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Account-Settings-GitHub-Attachments" alt="A screenshot of the OAuth Providers page under Account Settings shows the Your attached installations heading with Cards for acme and heather-lee in My Organization and acme in Northwind POC, each with a Detach button." title="The Your attached installations list" type="screenshot"/>
