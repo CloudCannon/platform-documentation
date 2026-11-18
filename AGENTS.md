@@ -131,7 +131,7 @@ When an article is being renamed or moved between sections (e.g. `developer/arti
     - Body markdown links to the old URL — update to the new URL.
     - Grep for the article slug across the repo (`grep -rn "<old-url-fragment>" --include="*.mdx" --include="*.yml" --include="*.json"`) to catch all references.
 
-Run `deno task build` after the move to confirm nav and links resolve.
+Run `deno task build`, then `deno task check-links`, to confirm nav and links resolve. The old URL must not appear in the check's list of links that redirect: if it does, update the links on the pages listed under it.
 
 ---
 

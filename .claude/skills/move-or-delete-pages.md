@@ -45,3 +45,7 @@ For every URL that no longer exists, add a redirect:
 ## 5. Do not create stub articles as redirects
 
 Never create a stub MDX file that exists only to link to another article. Use `routing.json` redirects instead.
+
+## 6. Check the links
+
+Run `deno task build`, then `deno task check-links`. The check must pass, and the old URL must not appear in its list of links that redirect. If it does, the pages listed under it still link to the old URL: update those links. A page under `developer-reference/` gets its links from the `configuration-types` package, so fix those in that repo.

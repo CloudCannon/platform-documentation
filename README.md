@@ -38,7 +38,7 @@ Deno doesn't have a separate dependency-install step; the first run will downloa
 | `serve` | `deno task serve` | Full build with Pagefind + start dev server. Slow, and can run out of memory |
 | `serve:local-docshots` | `deno task serve:local-docshots` | Same as `serve`, plus local docshots * |
 | `build` | `deno task build` | Build the static site with Pagefind. Used by CI |
-| `check-links` | `deno task check-links` | Check for broken internal links |
+| `check-links` | `deno task check-links` | Check for broken internal links, and list links that go through a `routing.json` redirect |
 | `check-images` | `deno task check-images` | Check for broken images (local, DocShot, and external) |
 
 \* These tasks create a symlink to `../app/app/assets/e2e/screenshots`, so DocShots resolve against your local screenshots instead of the published ones. This only works if you have the [app](https://github.com/CloudCannon/app) repo cloned as a sibling directory. The app repo is a private repository only available to CloudCannon employees.
