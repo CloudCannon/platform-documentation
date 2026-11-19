@@ -22,116 +22,203 @@ author_notes:
 <comp.Notice info_type="permissions">
   **Permissions required**
 
-  Members of the *Owners*, *Developers*, and *Partner* [Default Permission Groups](/documentation/user-articles/what-are-default-permission-groups/), or [Custom Permission Groups](/documentation/developer-articles/what-are-custom-permission-groups/) with the `site:settings:hosting:write` and `base-domain:settings:details:write` permissions, can add a *Custom Domain* to a *Site*. Adding a domain your *Organization* hasn't connected yet requires the `base-domain:create` permission instead of `base-domain:settings:details:write`.
+  Members of the *Owners*, *Developers*, and *Partner* [Default Permission Groups](/documentation/user-articles/what-are-default-permission-groups/), or [Custom Permission Groups](/documentation/developer-articles/what-are-custom-permission-groups/) with the `site:settings:hosting:write` and `base-domain:settings:details:write` permissions, can add a *Custom Domain* to a *Site*.
 </comp.Notice>
 
-A <comp.GlossaryTerm term="/user/glossary/c/custom-domain.yml">Custom Domain</comp.GlossaryTerm> is a domain you own and connect to your CloudCannon <comp.GlossaryTerm term="/user/glossary/o/organization.yml">Organization</comp.GlossaryTerm>, so visitors reach your <comp.GlossaryTerm term="/user/glossary/s/site.yml">Site</comp.GlossaryTerm> at your own address (e.g., <a href="https://cloudcannon.com/">cloudcannon.com</a>). If you have [connected a Custom Domain to your Organization](/documentation/developer-articles/connect-a-custom-domain-to-your-organization/), you can host your website content at that web address by adding the *Custom Domain* to your *Site*.
+A <comp.GlossaryTerm term="/user/glossary/c/custom-domain.yml">Custom Domain</comp.GlossaryTerm> is a domain you own and connect to your CloudCannon <comp.GlossaryTerm term="/user/glossary/o/organization.yml">Organization</comp.GlossaryTerm>, so visitors reach your <comp.GlossaryTerm term="/user/glossary/s/site.yml">Site</comp.GlossaryTerm> at your own address (e.g., <a href="https://cloudcannon.com/">cloudcannon.com</a>). Adding the *Custom Domain* to your *Site* tells CloudCannon to serve the *Site* at that address.
 
-You can host a CloudCannon *Site* on the <comp.GlossaryTerm term="/user/glossary/b/base-domain.yml">Base Domain</comp.GlossaryTerm> (e.g., `example.com`), another <comp.GlossaryTerm term="/user/glossary/s/subdomain.yml">Subdomain</comp.GlossaryTerm> (e.g., `docs.example.com`), or a path on either (e.g., `example.com/staff/`). Several *Sites* can share a *Subdomain*, each at its own path. Every *Site* on a *Subdomain* shares that *Subdomain's* hosting, HTTPS, and DNS settings. A *Site* at a path needs to build into a folder that matches the path. For more information, please read the section on [building your Site for a path](#build-your-site-for-a-path).
+You can host a *Site* on the <comp.GlossaryTerm term="/user/glossary/b/base-domain.yml">Base Domain</comp.GlossaryTerm> (e.g., `example.com`), another <comp.GlossaryTerm term="/user/glossary/s/subdomain.yml">Subdomain</comp.GlossaryTerm> (e.g., `docs.example.com`), or a path on either (e.g., `example.com/staff/`). A *Site* at a path needs to build into a folder that matches the path. For more information, please read our documentation on [what a Subdomain is](/documentation/developer-articles/what-is-a-subdomain/) and [building your Site to be served on a subpath](/documentation/developer-articles/build-your-site-to-be-served-on-a-subpath/).
 
-<comp.DocsImage path="assets/diagrams/CloudCannon-Documentation-URL-Structure-Diagram.png" alt="A diagram of a URL shows labels for protocol, subdomain, domain, top-level domain, subdirectory, slug, and path." title="The parts of a URL" type="ui-snippet" />
+Before we begin, this article assumes you have [connected a Custom Domain to your Organization](/documentation/developer-articles/connect-a-custom-domain-to-your-organization/), and that your *Site* is in <comp.GlossaryTerm term="/user/glossary/h/hosted-mode.yml">Hosted Mode</comp.GlossaryTerm>. CloudCannon hides the *Custom Domain* page for a *Site* in <comp.GlossaryTerm term="/user/glossary/h/headless-mode.yml">Headless Mode</comp.GlossaryTerm>. For more information, please read our documentation on [what Site Building Mode is](/documentation/developer-articles/what-is-site-building-mode/). If you have the `base-domain:create` permission, you can also connect a new domain from the *Base Domain* dropdown. If you are a member of multiple *Organizations*, make sure you select the *Organization* that owns the *Site* first. For more information, please read our documentation on [switching between your Organizations](/documentation/user-articles/switch-between-your-organizations/).
 
-When you add the *Base Domain* (e.g., `example.com`) as a new *Subdomain*, CloudCannon also adds `www.example.com` as a redirect to it, if `www.example.com` does not already exist. When you add `www.example.com` as a new *Subdomain*, CloudCannon adds `example.com` as a redirect to `www.example.com` in the same way.
+There are two ways to add a *Custom Domain* to your *Site*: from the *Custom Domain* page under your *Site Settings*, or from the page for a *Subdomain* that already exists on your <comp.GlossaryTerm term="/user/glossary/d/domain-page.yml">Domain page</comp.GlossaryTerm>.
 
-Before we begin, this article assumes you have [connected a Custom Domain to your Organization](/documentation/developer-articles/connect-a-custom-domain-to-your-organization/), and that your *Site* is in *Hosted Mode*. CloudCannon hides the *Custom Domain* page for a *Site* in *Headless Mode*. For more information, please read our documentation on [what Site Building Mode is](/documentation/developer-articles/what-is-site-building-mode/).
+<comp.Notice info_type="info">
+  You can also add a *Subdomain* that serves your *Site* from the *Subdomains* tab of the *Domain* page. Both ways have the same result: a *Subdomain* that serves your *Site*. For more information, please read our documentation on [adding a Subdomain to your Custom Domain](/documentation/developer-articles/add-a-subdomain-to-your-custom-domain/).
+</comp.Notice>
 
-## Add a Custom Domain from Site Settings
+Before adding your *Site*, CloudCannon may ask you to confirm:
+
+* **An extra cost** — If the *Subdomain* has no other *Sites* and takes your *Organization* over the number of *Subdomains* serving *Sites* that its <comp.GlossaryTerm term="/user/glossary/s/subscription-plan.yml">Subscription Plan</comp.GlossaryTerm> includes. After you accept, if your *Organization* has no payment method, CloudCannon opens the *Add your Credit Card* modal. For more information, please read our documentation on [what Add-Ons and Overages are](/documentation/user-articles/what-are-add-ons-and-overages/).
+* **A shorter Free Trial** — In a <comp.GlossaryTerm term="/user/glossary/c/client-organization.yml">Client Organization</comp.GlossaryTerm> on its extended six-month <comp.GlossaryTerm term="/user/glossary/f/free-trial.yml">Free Trial</comp.GlossaryTerm>, serving a *Site* on a *Subdomain* that had no *Sites* shortens the trial so that it ends five days later, on every *Subscription Plan* except the <comp.GlossaryTerm term="/user/glossary/e/enterprise-plan.yml">Enterprise Plan</comp.GlossaryTerm>. For more information, please read our documentation on [how billing works in the Partner Program](/documentation/partner-articles/how-does-billing-work-in-the-partner-program/).
+
+## Add a Custom Domain from your Site Settings
 
 To add a *Custom Domain* to your *Site*:
 
-1. Log in to CloudCannon.
-2. Select the *Organization* with the *Site* you want to add a *Custom Domain* to.
-3. Click the *Sites* link in the <comp.GlossaryTerm term="/user/glossary/a/app-sidebar.yml">App Sidebar</comp.GlossaryTerm>. CloudCannon will open the <comp.GlossaryTerm term="/user/glossary/s/sites-browser.yml">Sites Browser</comp.GlossaryTerm>.
-4. Click the <comp.GlossaryTerm term="/user/glossary/c/card.yml">Card</comp.GlossaryTerm> for the *Site* you want to add a *Custom Domain* to. CloudCannon will open the *Dashboard* for that *Site*.
-5. Navigate to the *Custom Domain* page under *Site Settings*. CloudCannon will open the *Custom Domain* page.
-6. Select the *Custom Domain* you want to add using the *Base Domain* dropdown.
-7. (Optional.) Enter a *Subdomain* in the *Subdomain* text field. Leave this field empty to host your *Site* on the *Base Domain* itself.
-8. (Optional.) Enter a path in the *Subpath* text field (e.g., `/jobs/`), using lowercase letters, numbers, `_`, and `-`. Leave this field empty to host your *Site* at the root of the *Subdomain*.
-9. Click the *Add custom domain* button.
+1. Click the *Sites* link in the <comp.GlossaryTerm term="/user/glossary/a/app-sidebar.yml">App Sidebar</comp.GlossaryTerm>. CloudCannon will open the <comp.GlossaryTerm term="/user/glossary/s/sites-browser.yml">Sites Browser</comp.GlossaryTerm>.
+2. Click the <comp.GlossaryTerm term="/user/glossary/c/card.yml">Card</comp.GlossaryTerm> for the *Site* you want to add a *Custom Domain* to. CloudCannon will open the *Dashboard* for that *Site*.
+3. Navigate to the *Custom Domain* page under *Site Settings*. CloudCannon will open the *Custom Domain* page.
+4. Select the *Custom Domain* you want to add using the *Base Domain* dropdown.
+5. (Optional.) Enter a *Subdomain* in the *Subdomain* text field. Leave this field empty to host your *Site* on the *Base Domain* itself.
+6. (Optional.) Enter a path in the *Subpath* text field (e.g., `/jobs/`), using lowercase letters, numbers, `_`, and `-`, with a `/` between folders (e.g., `/docs/v2/`). Leave this field empty to host your *Site* at the root of the *Subdomain*.
+7. Click the *Add custom domain* button.
 
-CloudCannon will add your *Site* to the *Subdomain*. Visitors reach your *Site* on your *Custom Domain* once the DNS for the *Subdomain* points at CloudCannon. Until then, your *Site* stays on its [Testing Domain](/documentation/user-articles/what-is-a-testing-domain/), and the *Custom Domain* page shows a setup guide:
+CloudCannon will add your *Site* to the *Subdomain*.
 
-* **CloudCannon DNS** — If the nameservers of your domain don't point at <comp.GlossaryTerm term="/user/glossary/c/cloudcannon-dns.yml">CloudCannon DNS</comp.GlossaryTerm> yet, the guide shows the nameservers to set at your <comp.GlossaryTerm term="/user/glossary/d/domain-registrar.yml">domain registrar</comp.GlossaryTerm>. Without the `base-domain:settings:dns:read` permission, the guide asks you to finish setting up DNS but doesn't list the nameservers. For more information, please read our documentation on [configuring CloudCannon DNS](/documentation/developer-articles/configure-cloudcannon-dns/).
-* **External DNS** — On <comp.GlossaryTerm term="/user/glossary/e/external-dns.yml">external DNS</comp.GlossaryTerm>, the guide shows how far along setup is, and its *Scroll to DNS Records* button scrolls to the *DNS* section, which lists the record the *Subdomain* needs at your *DNS Provider*, with a *Copy* icon next to each value and the *I've updated it* button. For more information, please read our documentation on [configuring external DNS](/documentation/developer-articles/configure-external-dns/).
+<comp.DocShot docshot_key="CloudCannon-Documentation-Site-Settings-Custom-Domain-Add-Domain" alt="A screenshot of the Custom Domain page under Site Settings shows example.com in the Base Domain dropdown, www in the Subdomain field with a note that example.com is added as a redirect to www.example.com, and the Add custom domain button." title="Adding a Custom Domain on the Custom Domain page" type="screenshot"/>
+
+Visitors reach your *Site* on your *Custom Domain* once the DNS for the *Subdomain* points at CloudCannon. Until then, your *Site* stays on its [Testing Domain](/documentation/user-articles/what-is-a-testing-domain/), and the *Custom Domain* page shows a setup guide:
+
+* **CloudCannon DNS** — If the nameservers of your domain don't point at <comp.GlossaryTerm term="/user/glossary/c/cloudcannon-dns.yml">CloudCannon DNS</comp.GlossaryTerm> yet, the guide shows the nameservers to set at your <comp.GlossaryTerm term="/user/glossary/d/domain-registrar.yml">domain registrar</comp.GlossaryTerm>. Without the `base-domain:settings:dns:read` permission, the guide says that *CloudCannon DNS* isn't configured for your domain and that you don't have permission to edit its DNS, and doesn't list the nameservers. For more information, please read our documentation on [configuring CloudCannon DNS](/documentation/developer-articles/configure-cloudcannon-dns/).
+* **External DNS** — On <comp.GlossaryTerm term="/user/glossary/e/external-dns.yml">external DNS</comp.GlossaryTerm>, the guide shows how far along setup is, and its *Scroll to DNS Records* button scrolls to the *DNS* section, which lists the record the *Subdomain* needs at your <comp.GlossaryTerm term="/user/glossary/d/dns-provider.yml">DNS Provider</comp.GlossaryTerm>, with a *Copy* icon next to each value and the *I've updated it* button. For more information, please read our documentation on [configuring external DNS](/documentation/developer-articles/configure-external-dns/).
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Site-Settings-Custom-Domain-Setup-Guide-External" alt="A screenshot of the Custom Domain page under Site Settings shows that Careers site goes live at https://careers.example.org/ once careers.example.org points at CloudCannon, and the A Subdomain requires DNS Record updates setup guide with the Scroll to DNS Records button." title="The setup guide on the Custom Domain page" type="screenshot"/>
+
+<comp.Notice info_type="info">
+  When you add the *Base Domain* (e.g., `example.com`) as a new *Subdomain*, CloudCannon also adds `www.example.com` as a redirect to it, if `www.example.com` does not already exist. When you add `www.example.com` as a new *Subdomain*, CloudCannon adds `example.com` as a redirect to `www.example.com` in the same way.
+</comp.Notice>
 
 If the *Subdomain* you enter already exists, CloudCannon adds your *Site* to it:
 
+* **The Subdomain has no Sites yet** — Your *Site* becomes the first *Site* on it and uses its hosting and HTTPS settings. Before you add it, the *Custom Domain* page tells you (e.g., *jobs.example.com is set up and waiting for a site.*).
 * **The Subdomain already serves Sites** — Your *Site* joins it and uses its hosting, HTTPS, and DNS settings. The path you choose must not already be in use on the *Subdomain*.
 * **The Subdomain is a redirect** — Adding your *Site* stops the redirect and serves your *Site* on the *Subdomain* instead. Before you add it, the *Custom Domain* page warns you (e.g., *www.example.com redirects to example.com now. Adding Marketing site stops the redirect and serves Marketing site there.*).
 
-The *Base Domain* dropdown disables any domain whose settings you can't edit and labels it *No permission*. If you have the `base-domain:create` permission, you can also connect a new domain from the dropdown. For more information, please read our documentation on [connecting a Custom Domain to your Organization](/documentation/developer-articles/connect-a-custom-domain-to-your-organization/).
+## Add your Site from the Subdomain page
 
-<comp.DocShot docshot_key="CloudCannon-Documentation-Site-Settings-Custom-Domain-Domain-Dropdown" alt="A screenshot of the Custom Domain page under Site Settings shows the Base Domain dropdown open, listing the Connect a new domain option and an existing domain." title="The Custom Domain page with the Base Domain dropdown open" type="screenshot"/>
+You can add your *Site* to a *Subdomain* that already exists from the page for that *Subdomain*. To add your *Site* to a new *Subdomain*, use the *Custom Domain* page under *Site Settings* instead.
 
-<comp.DocShot docshot_key="CloudCannon-Documentation-Site-Settings-Custom-Domain-Add-Domain" alt="A screenshot of the Custom Domain page under Site Settings shows example.com selected in the Base Domain dropdown, www in the Subdomain field with a note that example.com is added as a redirect to www.example.com, the Subpath field, and the Add custom domain button." title="The Custom Domain page" type="screenshot"/>
+If your *Site* already has a *Custom Domain*, CloudCannon moves your *Site* to the new address. For more information, please read the section on [moving your Site from another Subdomain](#move-your-site-from-another-subdomain).
 
-<comp.DocShot docshot_key="CloudCannon-Documentation-Site-Settings-Custom-Domain-Setup-Guide-External" alt="A screenshot of the Custom Domain page under Site Settings shows that Careers site goes live at https://careers.example.org/ once careers.example.org points at CloudCannon, then the A Subdomain requires DNS Record updates setup guide, with a three-step tracker, a note that Careers site stays on careers-site.cloudvent.net until then, and a Scroll to DNS Records button, above the Danger zone section with the Remove custom domain button." title="The setup guide on the Custom Domain page" type="screenshot"/>
+The *Add a Site* button is disabled unless you can edit the settings of the *Base Domain*. In the *Site* dropdown, *Sites* whose hosting you can't change, and *Sites* already on the *Subdomain*, are disabled.
 
-If the *Subdomain* has no other *Sites* and takes your *Organization* over the number of *Subdomains* serving *Sites* that its <comp.GlossaryTerm term="/user/glossary/s/subscription-plan.yml">Subscription Plan</comp.GlossaryTerm> includes, CloudCannon will ask you to confirm the extra cost before adding it. If your *Organization* has no payment method, CloudCannon opens the *Add your Credit Card* modal instead. For more information, please read our documentation on [what Add-Ons and Overages are](/documentation/user-articles/what-are-add-ons-and-overages/).
+To add your *Site* from the *Subdomain* page:
 
-In a <comp.GlossaryTerm term="/user/glossary/c/client-organization.yml">Client Organization</comp.GlossaryTerm> on its extended six-month <comp.GlossaryTerm term="/user/glossary/f/free-trial.yml">Free Trial</comp.GlossaryTerm>, serving a *Site* on a *Subdomain* that had no *Sites* shortens the trial so that it ends five days later, whether or not the *Client Organization* is still within the limits of its *Subscription Plan*. CloudCannon asks you to confirm before it shortens the trial. For more information, please read our documentation on [how billing works in the Partner Program](/documentation/partner-articles/how-does-billing-work-in-the-partner-program/).
+1. Click the *Custom Domains* link in the *App Sidebar*. CloudCannon will open the <comp.GlossaryTerm term="/user/glossary/d/domains-browser.yml">Domains Browser</comp.GlossaryTerm>.
+2. Click the *Card* for the domain that has the *Subdomain*. CloudCannon will open the *Summary* tab of the *Domain* page.
+3. Click the *Subdomains* tab. CloudCannon will open the list of *Subdomains*.
+4. Click the *Card* for the *Subdomain*. CloudCannon will open the page for that *Subdomain*.
+5. Click the *Add a Site* button in the *Sites* section. CloudCannon will open the *Add a Site to [Subdomain]* modal.
+6. Select your *Site* from the *Site* dropdown.
+7. (Optional.) Enter a path in the *Subpath* field. Leave this field empty to serve your *Site* at the root of the *Subdomain*.
+8. Click the *Add Site* button.
 
-You can also add a *Site* to a *Subdomain* from the *Subdomain* page, which you can open from the *Subdomains* tab of your *Domain* page. For more information, please read our documentation on [managing the Sites on a Subdomain](/documentation/developer-articles/manage-the-sites-on-a-subdomain/).
+CloudCannon will serve your *Site* on the *Subdomain* at the path you entered.
 
-## Build your Site for a path
+<comp.DocShot docshot_key="CloudCannon-Documentation-Subdomain-Page-Add-Site-Modal" alt="A screenshot of the Add a Site to careers.example.com modal shows Careers site in the Site dropdown, the Subpath field, a warning that Careers site moves from jobs.myownpersonaldomain.com to careers.example.com/careers/, and the Cancel and Add Site buttons." title="The Add a Site modal" type="screenshot"/>
 
-If you host your *Site* at a path (e.g., `example.com/docs/`), your build output needs a folder that matches the path. CloudCannon doesn't remove the path from a request before it looks for the file, so it serves `example.com/docs/about/` from `docs/about/index.html` in your build output. Your *Site's* links also need to include the path, so that a link to `/about/` becomes `/docs/about/`.
+For more information, please read our documentation on [managing the Sites on a Subdomain](/documentation/developer-articles/manage-the-sites-on-a-subdomain/).
 
-Many SSGs have a setting that adds a path to your links, but not all of them also build your files into a matching folder. After you add a path, check that your build output has a folder with that name and that every page of your *Site* is inside it.
+## Move your Site from another Subdomain
 
-If your Jekyll *Site* sets `baseurl` in its `_config.yml` file, CloudCannon serves the build output under that `baseurl` instead. Set `baseurl` to the same path (e.g., `/docs`) rather than moving your files.
+<comp.Notice info_type="permissions">
+  **Permissions required**
 
-### Use Reseed to build for a path
+  Choosing what happens to your *Site's* old *Subdomain* also requires the `base-domain:settings:details:write` permission for its *Base Domain*.
+</comp.Notice>
 
-<a href="https://github.com/CloudCannon/reseed" target="_blank" rel="noopener noreferrer">Reseed</a> is an open-source tool that copies your build output into a folder named after the path and rewrites the links in your pages to include it. You can run Reseed after your build in a postbuild script:
+If your *Site* is already live on a *Custom Domain*, adding it to a different *Subdomain* will move it. Additionally, swapping the path a *Site* is served at, or changing a <comp.GlossaryTerm term="/user/glossary/r/redirect-subdomain.yml">Redirect Subdomain</comp.GlossaryTerm> to serve your *Site* will also move it. For more information, please read our documentation on [managing the Sites on a Subdomain](/documentation/developer-articles/manage-the-sites-on-a-subdomain/) and [managing your Redirect Subdomains](/documentation/developer-articles/manage-your-redirect-subdomains/).
 
-<comp.CodeBlock language="shell" source="/.cloudcannon/postbuild">
-```
-#!/bin/bash
+If your *Site* is the last *Site* on its old *Subdomain*, CloudCannon asks what happens to the old *Subdomain*:
 
-npx reseed -s _site -d _reseed -b docs
-rm -rf _site
-mv _reseed _site
-```
-</comp.CodeBlock>
+* **Leave it set up** — The old *Subdomain* stays set up with no *Site*, and its visitors see a 404 page. This is the default.
+* **Redirect visitors** — The old *Subdomain* becomes a redirect that sends every visitor to another domain, keeping the path and query string.
+* **Delete the previous Subdomain** — CloudCannon deletes the old *Subdomain* and its certificate.
 
-Replace `_site` with the *Output Path* of your *Site*, and `docs` with your path. CloudCannon uploads the files in your *Output Path* once the postbuild script finishes, so the script must leave the rewritten files there. For more information, please read our documentation on [extending your build process with hooks](/documentation/developer-articles/extending-your-build-process-with-hooks/) and [configuring your command line options](/documentation/developer-articles/configure-your-command-line-options/).
+To move your *Site* to another *Subdomain*:
 
-CloudCannon can also run Reseed as a build step for you.
+1. Click the *Custom Domains* link in the *App Sidebar*. CloudCannon will open the *Domains Browser*.
+2. Click the *Card* for the domain that has the *Subdomain* you want to move your *Site* to. CloudCannon will open the *Summary* tab of the *Domain* page.
+3. Click the *Subdomains* tab. CloudCannon will open the list of *Subdomains*.
+4. Click the *Card* for the *Subdomain*. CloudCannon will open the page for that *Subdomain*.
+5. Click the *Add a Site* button in the *Sites* section. CloudCannon will open the *Add a Site to [Subdomain]* modal.
+6. Select your *Site* from the *Site* dropdown. CloudCannon will show where your *Site* is now and where it moves to.
+7. (Optional.) Enter a path in the *Subpath* field. Leave this field empty to serve your *Site* at the root of the *Subdomain*.
+8. If your *Site* is the last *Site* on its old *Subdomain*, select what happens to the old *Subdomain* under the *Previous Subdomain* heading:
+   * *Leave it set up* or *Delete the previous Subdomain* — (Optional.) If the *Other Redirect Subdomains* notice lists *Subdomains* that redirect to the old *Subdomain*, uncheck the *Delete this other Redirect Subdomain* or *Delete these other Redirect Subdomains* checkbox to keep them. If you leave it checked, CloudCannon deletes them too.
+   * *Redirect visitors* — CloudCannon will show the *Redirect visitors to* field. Enter the domain to which you want to send visitors.
+9. Click the *Add Site* button.
 
-To run Reseed as a build step:
+CloudCannon will serve your *Site* on the new *Subdomain* and stop serving it on the old one. If you redirected the old *Subdomain*, CloudCannon also updates the *Redirect Subdomains* that pointed at it to redirect to the new destination.
 
-1. Contact our <a href="https://cloudcannon.com/support/">support team</a> with the name of your *Site* and the path.
-2. Enter the path in the *Baseurl* field on the *Reseed* page under *Site Settings*.
-3. Click the *Update Reseed Details* button.
+<comp.DocShot docshot_key="CloudCannon-Documentation-Subdomain-Page-Add-Site-Move-Last-Site-Modal" alt="A screenshot of the Add a Site to careers.example.com modal shows that Careers site moves from jobs.myownpersonaldomain.com, the Leave it set up, Redirect visitors, and Delete the previous Subdomain options, and two Redirect Subdomains to delete." title="Moving the last Site from another Subdomain" type="screenshot"/>
 
-CloudCannon will rebuild your *Site* with the new path.
+If you don't have the `base-domain:details:read` permission for the *Custom Domain* your *Site* is moving from, CloudCannon doesn't show the *Previous Subdomain* options, and leaves the old *Subdomain* set up.
 
 ## Review your Site's Custom Domain
 
-Once your *Site* has a *Custom Domain*, the *Custom Domain* page under *Site Settings* shows the address of your *Site* on the *Subdomain*, the same way the *Testing Domain* page shows its *Testing Domain*. The line above the address says which state it is in:
+Once your *Site* has a *Custom Domain*, the *Custom Domain* page under *Site Settings* shows your *Site's* address on the *Subdomain*, a *Danger zone* section, and the *Subdomain settings*.
 
-* **[Site Name] goes live at this address once [Subdomain] points at CloudCannon** - The DNS record for the *Subdomain* doesn't point at CloudCannon yet.
-* **[Site Name] is live at** - Visitors reach your *Site* at this address over HTTPS.
-* **[Site Name] is live at this address, and CloudCannon is turning HTTPS on** - Visitors reach your *Site*, and its *SSL Certificate* is on its way.
-* **[Site Name] is live at this address, but HTTPS is not working, so visitors see a security warning** - The *HTTPS* section under *Subdomain settings* says why.
+<comp.DocShot docshot_key="CloudCannon-Documentation-Site-Settings-Custom-Domain-Success" alt="A screenshot of the Custom Domain page under Site Settings shows that Sendit is live at https://example.com/, and, under the Subdomain settings heading, the Sites section with Sendit labeled This site at the root path." title="The Custom Domain page for a Site with a Custom Domain" type="screenshot"/>
 
-Until the *Subdomain* is live, the setup guide appears below the address. The *Danger zone* section above the *Subdomain settings* heading has the *Remove custom domain* button, which stops hosting your *Site* on the *Subdomain*. For more information, please read our documentation on [removing a Custom Domain from your Site](/documentation/developer-articles/remove-a-custom-domain-from-your-site/).
+### Your Site's address
 
-Below the *Subdomain settings* heading, a line links to the page for the *Subdomain* on your *Domain* page, and the page for the *Subdomain* follows, without its heading. It has the same *Sites*, *Hosting*, *HTTPS*, *DNS*, and *Danger zone* sections as the *Subdomain* page you open from the *Subdomains* tab of your *Domain* page, because these settings belong to the *Subdomain* and apply to every *Site* on it. The *Sites* section lists every *Site* the *Subdomain* serves, with the path at which each *Site* is served, and labels your *Site* with *This site*.
+On the *Custom Domain* page, a sentence above your *Site's* full address (e.g., `https://example.com/docs/`) tells you whether visitors can reach your *Site* there yet:
 
-From the *Subdomain settings*, you can:
+* **[Site Name] goes live at this address once [Subdomain] points at CloudCannon** — The DNS Record for the *Subdomain* doesn't point at CloudCannon yet.
+* **[Site Name] is live at** — Visitors reach your *Site* at this address over HTTPS.
+* **[Site Name] is live at this address, and CloudCannon is turning HTTPS on** — Visitors reach your *Site*, and its <comp.GlossaryTerm term="/user/glossary/s/ssl-certificate.yml">SSL Certificate</comp.GlossaryTerm> is on its way.
+* **[Site Name] is live at this address, but HTTPS is not working, so visitors see a security warning** — The *HTTPS* section under *Subdomain settings* says why.
 
-* Click the *Add a Site* button in the *Sites* section to serve another *Site* on the *Subdomain*.
-* Click the <comp.GlossaryTerm term="/user/glossary/c/context-menu.yml">Context Menu</comp.GlossaryTerm> for a *Site* in the *Sites* section and select the *Open Site*, *Swap for another Site*, *Change Subpath*, or *Remove from [Subdomain]* option. For more information, please read our documentation on [managing the Sites on a Subdomain](/documentation/developer-articles/manage-the-sites-on-a-subdomain/).
-* Click the *Configure hosting* button in the *Hosting* section or the *Configure HTTPS* button in the *HTTPS* section, or check the DNS in the *DNS* section. For more information, please read our documentation on [configuring a Subdomain's hosting, HTTPS, and DNS](/documentation/developer-articles/configure-a-subdomains-hosting-https-and-dns/).
-* Click the *Change Subdomain Type* button next to *Change Subdomain type to Redirect* in the *Danger zone* section to change the *Subdomain* into a redirect to another domain. For more information, please read our documentation on [managing your Redirect Subdomains](/documentation/developer-articles/manage-your-redirect-subdomains/#change-a-subdomain-that-serves-sites-to-a-redirect).
-* Click the *Delete Subdomain* button in the *Danger zone* section to delete the *Subdomain*. For more information, please read our documentation on [deleting a Subdomain](/documentation/developer-articles/manage-the-sites-on-a-subdomain/#delete-a-subdomain).
+Until the *Subdomain* is live, the setup guide appears below the address.
 
-<comp.DocShot docshot_key="CloudCannon-Documentation-Site-Settings-Custom-Domain-Success" alt="A screenshot of the Custom Domain page under Site Settings shows that Sendit is live at https://example.com/, the Danger zone section with the Remove custom domain button, and, under the Subdomain settings heading, a link to the page for example.com and the Sites section with the Add a Site button and Sendit labeled This site at the root path." title="The Custom Domain page" type="screenshot"/>
+<comp.DocShot docshot_key="CloudCannon-Documentation-Site-Settings-Custom-Domain-Setup-Guide-External" alt="A screenshot of the Custom Domain page under Site Settings shows that Careers site goes live at https://careers.example.org/ once careers.example.org points at CloudCannon, and the A Subdomain requires DNS Record updates setup guide with the Scroll to DNS Records button." title="The Custom Domain page before the Subdomain is live" type="screenshot"/>
 
-If a change in the *Subdomain settings* takes your *Site* off the *Subdomain*, such as removing or swapping your *Site*, changing the *Subdomain* to a redirect, or deleting the *Subdomain*, CloudCannon opens the *[Site Name] is no longer on [Subdomain]* modal. The modal explains what happened and that your *Site* keeps its *Testing Domain*. Click the *Stay here* button to stay on the *Custom Domain* page, or the *Go to [Subdomain] settings* button to open the page for the *Subdomain*. If you deleted the *Subdomain*, the second button is *Go to subdomains*, and it opens the *Subdomains* tab instead.
+### Danger zone
 
-If you can view the *Custom Domain* but don't have the `base-domain:settings:details:write` permission for its *Base Domain*, a sentence that explains which permission you need replaces the *Subdomain settings*. If you don't have the `base-domain:details:read` permission for the *Custom Domain*, the *Custom Domain* page shows only your *Site's* address, with a *Subpath for [Site Name]* field, an *Update Subpath* button, and the *Remove custom domain* button. All three are disabled, and hovering over each one shows a tooltip that names the permission you need. To change the path or remove the *Custom Domain*, ask a member of your *Organization* who can edit the settings of the *Base Domain* (the `base-domain:settings:details:write` permission), such as a member of the *Owners*, *Developers*, or *Partner* [Default Permission Groups](/documentation/user-articles/what-are-default-permission-groups/), to make the change.
+The *Danger zone* section above the *Subdomain settings* heading on the *Custom Domain* page has the *Remove custom domain* button, which stops hosting your *Site* on the *Subdomain*. For more information, please read our documentation on [removing a Custom Domain from your Site](/documentation/developer-articles/remove-a-custom-domain-from-your-site/).
 
-You should also check the [SSL Certificate](/documentation/developer-articles/what-is-an-ssl-certificate/) for your *Site's* *Subdomain*. For more information, please read our documentation on [adding an auto-generated SSL Certificate](/documentation/developer-articles/add-an-auto-generated-ssl-certificate/) or [adding a Custom SSL Certificate](/documentation/developer-articles/add-a-custom-ssl-certificate/).
+### Subdomain settings
+
+Under the *Subdomain settings* heading, the *Custom Domain* page shows the same sections as the page for the *Subdomain* on your *Domain* page: *Sites*, *Hosting*, *HTTPS*, *DNS*, and *Danger zone*. You can see all the *Sites* these settings apply to under the *Sites* section. For more information, please read our documentation on [managing the Sites on a Subdomain](/documentation/developer-articles/manage-the-sites-on-a-subdomain/), [configuring a Subdomain's hosting, HTTPS, and DNS](/documentation/developer-articles/configure-a-subdomains-hosting-https-and-dns/), and [managing your Redirect Subdomains](/documentation/developer-articles/manage-your-redirect-subdomains/).
+
+To check or change the *SSL Certificate* for your *Subdomain*, click the *Configure HTTPS* button in the *HTTPS* section under *Subdomain settings*. For more information, please read our documentation on [adding an auto-generated SSL Certificate](/documentation/developer-articles/add-an-auto-generated-ssl-certificate/) or [adding a Custom SSL Certificate](/documentation/developer-articles/add-a-custom-ssl-certificate/).
+
+## Emails after you add a Custom Domain
+
+If adding your *Site* makes a *Subdomain* start serving *Sites* while your *Organization* has more *Subdomains* serving *Sites* than its *Subscription Plan* includes, CloudCannon will email everyone else in your *Organization* who has permission to view its billing. This includes members of the *Owners* and *Billing* [Default Permission Groups](/documentation/user-articles/what-are-default-permission-groups/), members of the *Partner* group in a *Client Organization*, and members of [Custom Permission Groups](/documentation/developer-articles/what-are-custom-permission-groups/) with the `org:billing:read` permission. CloudCannon doesn't send this email on the *Enterprise Plan*.
+
+### [Name] added an extra Subdomain to [Organization]'s Subscription Plan
+
+The subject names the person who made the change. When no person made the change, the subject is *An extra Subdomain was added to [Organization]'s Subscription Plan* instead.
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Mailer-Pricing-Domain-Added" alt="A screenshot of the extra Subdomain added email shows the headline Heather Scott added an extra Subdomain to Jetstream's Subscription Plan, the counts of Subdomains serving Sites, included, and billed as Add-Ons, and the Open the Subscription page button." title="The extra Subdomain added email" type="screenshot"/>
+
+This email names the *Subdomain* that started serving a *Site*, how many *Subdomains* your *Subscription Plan* includes, and the price of each extra one. It also shows how many *Subdomains* serve *Sites* and how many are billed as <comp.GlossaryTerm term="/user/glossary/a/add-on.yml">Add-Ons</comp.GlossaryTerm>. The email is for your information, and you don't need to do anything. To review the extra cost, click the *Open the Subscription page for [Organization]* button to open the *Subscription* page under *Org Settings*. CloudCannon will email again if a *Subdomain* stops serving *Sites* while your *Organization* is over the number its *Subscription Plan* includes. For more information, please read our documentation on [what Add-Ons and Overages are](/documentation/user-articles/what-are-add-ons-and-overages/).
+
+To stop receiving this email, click the *Unsubscribe from this list* link at the bottom of the email. The same list includes other emails, such as when CloudCannon adds more <comp.GlossaryTerm term="/user/glossary/h/hosting-bandwidth.yml">Hosting Bandwidth</comp.GlossaryTerm> or <comp.GlossaryTerm term="/user/glossary/b/build-time.yml">Build Time</comp.GlossaryTerm>, or when your *Subscription Plan* changes. To choose which lists you receive, click the *Manage email preferences* link instead.
+
+## Troubleshoot adding a Custom Domain
+
+If CloudCannon doesn't add your *Custom Domain*, or the *Custom Domain* page doesn't show the controls you expect, here are some common causes. If you see an error that isn't listed here, contact our <a href="https://cloudcannon.com/support/">support team</a> with the name of your *Organization* and *Site*, the address you tried to add, and the full error message.
+
+### There is no Custom Domain page
+
+CloudCannon hides the *Custom Domain* page under *Site Settings* for a *Site* in *Headless Mode*. Switch your *Site* to *Hosted Mode* to add a *Custom Domain*. For more information, please read our documentation on [what Site Building Mode is](/documentation/developer-articles/what-is-site-building-mode/).
+
+### Billing issue
+
+If your *Organization's* <comp.GlossaryTerm term="/user/glossary/s/subscription.yml">Subscription</comp.GlossaryTerm> is inactive, or your *Organization* doesn't have enough <comp.GlossaryTerm term="/user/glossary/s/seat.yml">Seats</comp.GlossaryTerm>, the *Custom Domain* page shows a *Billing issue* page instead of the *Base Domain* dropdown. If your *Site* already has a *Custom Domain*, the page shows only the *Remove custom domain* button. For more information, please read our documentation on [what happens when a payment fails](/documentation/user-articles/what-happens-when-a-payment-fails/).
+
+### No permission
+
+The *Base Domain* dropdown disables any domain whose settings you can't edit and labels it *No permission*. Ask someone who manages *Permission Groups* in your *Organization* for the `base-domain:settings:details:write` permission for that domain.
+
+### You do not have permission to edit the Domain Settings for [Base Domain].
+
+This message appears below the *Subdomain settings* heading in place of the settings when you can view the *Custom Domain* but don't have the `base-domain:settings:details:write` permission for its *Base Domain*. Ask someone who manages *Permission Groups* in your *Organization* for this permission.
+
+When you [move your Site from another Subdomain](#move-your-site-from-another-subdomain), this message also appears over the disabled *Previous Subdomain* options if you can view but can't edit the settings of the *Custom Domain* your *Site* is moving from. CloudCannon leaves the old *Subdomain* set up.
+
+### [Site Name] is served on [address].
+
+If you don't have the `base-domain:details:read` permission for the *Custom Domain*, the *Custom Domain* page shows the name of the *Subdomain*, *[Site Name] is served on [address].*, a *Subpath for [Site Name]* field, an *Update Subpath* button, and the *Remove custom domain* button. If you also lack the `site:settings:hosting:write` or `base-domain:settings:details:write` permission, all three controls are disabled, and hovering over each one shows a tooltip that names the permission you need. To change the path or remove the *Custom Domain*, ask someone who manages *Permission Groups* in your *Organization* for the permission the tooltip names, or ask someone who can edit the settings of the *Base Domain* to make the change for you.
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Site-Settings-Custom-Domain-Site-Only" alt="A screenshot of the Custom Domain page under Site Settings shows that Engineering blog is served on blog.example.com/, with the Subpath for Engineering blog field, the Update Subpath button, and the Remove custom domain button all disabled." title="The Custom Domain page without permission to view the Custom Domain" type="screenshot"/>
+
+### Domain already in use. Add a subpath to have two sites on the same domain
+
+Another *Site* is already served at the root of the *Subdomain*. Enter a path in the *Subpath* field to serve your *Site* alongside it, or enter a different *Subdomain*.
+
+### Domain can only contain letters, numbers, dots and hyphens
+
+The *Subdomain* field contains a character that a domain name can't use. Remove it, then click the *Add custom domain* button again.
+
+### Subpaths can only use lowercase letters, numbers, hyphens, and underscores, with a slash at the start and end.
+
+Change the path in the *Subpath* field to use only those characters, with a `/` at the start and end (e.g., `/jobs/`).
+
+### This Subpath is already in use.
+
+Another *Site* on the *Subdomain* is already served at that path. Enter a different path in the *Subpath* field.

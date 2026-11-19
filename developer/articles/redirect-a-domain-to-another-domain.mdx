@@ -1,0 +1,150 @@
+---
+_schema: default
+_uuid: c8d3cace-3bec-4b01-a5f8-602a8d5eaca7
+_created_at: 2026-11-11T00:00:00Z
+details:
+  title: Redirect a domain to another domain
+  description: >-
+    Learn how to send every visitor on one domain, such as an old brand name,
+    to the same path on another domain, using Redirect Subdomains.
+  image: >-
+    https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+  category:
+    - Instructions
+  related_articles:
+    - _type: developer_articles
+      item: 0c1841c4-89f6-48e5-b8e5-8bdbf1fdc69d
+    - _type: developer_articles
+      item: af57cd28-38ef-49f0-9673-8809ee7299c0
+    - _type: developer_articles
+      item: 9c25997c-8237-4f48-a474-037304cd3982
+author_notes:
+  docshots: Added!
+---
+<comp.Notice info_type="permissions">
+  **Permissions required**
+
+  Members of the *Owners*, *Developers*, and *Partner* [Default Permission Groups](/documentation/user-articles/what-are-default-permission-groups/), or [Custom Permission Groups](/documentation/developer-articles/what-are-custom-permission-groups/) with the `base-domain:settings:details:write` permission, can redirect a domain to another domain.
+</comp.Notice>
+
+To send every visitor on one domain to another domain (e.g., from an old brand name, `old-example.com`, to `example.com`), you don't need a <comp.GlossaryTerm term="/user/glossary/s/site.yml">Site</comp.GlossaryTerm>. Instead, you connect the old domain to your <comp.GlossaryTerm term="/user/glossary/o/organization.yml">Organization</comp.GlossaryTerm> and add two <comp.GlossaryTerm term="/user/glossary/r/redirect-subdomain.yml">Redirect Subdomains</comp.GlossaryTerm> on it: one for its <comp.GlossaryTerm term="/user/glossary/b/base-domain.yml">Base Domain</comp.GlossaryTerm> (`old-example.com`), and one for `www.old-example.com`. Each redirect keeps the path and query string, so a visitor to `old-example.com/pricing?ref=ad` arrives at `example.com/pricing?ref=ad`.
+
+*Redirect Subdomains* do not count toward the number of <comp.GlossaryTerm term="/user/glossary/s/subdomain.yml">Subdomains</comp.GlossaryTerm> serving *Sites* that your <comp.GlossaryTerm term="/user/glossary/s/subscription-plan.yml">Subscription Plan</comp.GlossaryTerm> includes. For more information on how redirects work, including their status codes, please read our documentation on [managing your Redirect Subdomains](/documentation/developer-articles/manage-your-redirect-subdomains/).
+
+To redirect only some paths to another domain, or to send each old path to a different new path, serve a *Site* on the old domain and use a `routing.json` file instead. For more information, please read our documentation on [configuring custom routing](/documentation/developer-articles/configure-custom-routing/).
+
+Before we begin, this article assumes you have [connected the old domain to your Organization](/documentation/developer-articles/connect-a-custom-domain-to-your-organization/). If the new domain is also connected to your *Organization*, the address you redirect to (e.g., `example.com`) must already be a *Subdomain* on it. If you are a member of multiple *Organizations*, make sure you select the *Organization* the old domain is connected to first. For more information, please read our documentation on [switching between your Organizations](/documentation/user-articles/switch-between-your-organizations/).
+
+How you add the redirects depends on whether the old domain already serves your *Site* on CloudCannon:
+
+* If it does, move your *Site* to the new domain and choose to redirect the old domain. CloudCannon turns the old domain into a *Redirect Subdomain*, and you don't need to change its DNS.
+* If it doesn't, add a *Redirect Subdomain* for the *Base Domain* of the old domain and another for `www`, then point the old domain's DNS at CloudCannon.
+
+## If your old domain is hosted on CloudCannon
+
+<comp.Notice info_type="permissions">
+  **Permissions required**
+
+  Moving your *Site* to the new domain also requires the `site:settings:hosting:write` permission for the *Site*, and the `base-domain:settings:details:write` permission for both domains.
+</comp.Notice>
+
+If CloudCannon already serves your *Site* on the old domain, then the *Base Domain* of the old domain is a <comp.GlossaryTerm term="/user/glossary/s/site-subdomain.yml">Site Subdomain</comp.GlossaryTerm>, and its `www` *Subdomain* is usually a *Redirect Subdomain* added by CloudCannon automatically, or vice versa.
+
+To serve your content on the new domain, you can move your *Site* to the new domain, either by [adding a Subdomain that serves your Site](/documentation/developer-articles/add-a-subdomain-to-your-custom-domain/#add-a-subdomain-that-serves-sites), or by [adding your Site to a Subdomain that already exists](/documentation/developer-articles/add-a-custom-domain-to-your-site/#add-your-site-from-the-subdomain-page).
+
+If your *Site* is the only *Site* on the old *Subdomain*, moving it leaves the old *Subdomain* with nothing to serve. The *Add a Subdomain* modal or the *Add a Site to [Subdomain]* modal asks what should happen to it under the *Previous Subdomain* heading.
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Subdomain-Page-Add-Site-Move-Last-Site-Modal" alt="A screenshot of the Add a Site to careers.example.com modal shows the Previous Subdomain heading, which asks what should happen to jobs.myownpersonaldomain.com, with the Leave it set up, Redirect visitors, and Delete the previous Subdomain options below it." title="The Previous Subdomain choice when you move the last Site" type="screenshot"/>
+
+To redirect the old domain, select the *Redirect visitors* option and enter the new domain (e.g., `example.com`) in the *Redirect visitors to* field, then click the *Add Subdomain* or *Add Site* button.
+
+CloudCannon will turn the old *Subdomain* into a *Redirect Subdomain*. It will also update any other *Redirect Subdomains* on the old domain that pointed at it, such as `www`. You don't need to change the DNS of the old domain, because it already points at CloudCannon and has its <comp.GlossaryTerm term="/user/glossary/s/ssl-certificate.yml">SSL Certificates</comp.GlossaryTerm>.
+
+For more information, please read the "Move your Site from another Subdomain" section of our documentation on [adding a Custom Domain to your Site](/documentation/developer-articles/add-a-custom-domain-to-your-site/).
+
+## If your old domain isn't hosted on CloudCannon
+
+If CloudCannon doesn't serve a *Site* on the old domain, add a *Redirect Subdomain* for its *Base Domain* and another for `www`, then point the old domain's DNS at CloudCannon. The new domain can be hosted on CloudCannon or anywhere else.
+
+To serve your *Site* on the new domain with CloudCannon, set that up before you add the redirects, because each redirect to a domain connected to your *Organization* must point at a *Subdomain* that already exists. For more information, please read our documentation on [adding a Custom Domain to your Site](/documentation/developer-articles/add-a-custom-domain-to-your-site/).
+
+### Redirect the Base Domain of the old domain
+
+First, add a *Redirect Subdomain* for the *Base Domain* of the old domain (e.g., `old-example.com`), which sends its visitors to the new domain.
+
+To redirect the *Base Domain* of the old domain:
+
+1. Click the *Custom Domains* link in the <comp.GlossaryTerm term="/user/glossary/a/app-sidebar.yml">App Sidebar</comp.GlossaryTerm>. CloudCannon will open the <comp.GlossaryTerm term="/user/glossary/d/domains-browser.yml">Domains Browser</comp.GlossaryTerm>.
+2. Click the <comp.GlossaryTerm term="/user/glossary/c/card.yml">Card</comp.GlossaryTerm> for the old domain. CloudCannon will open the *Summary* tab of the <comp.GlossaryTerm term="/user/glossary/d/domain-page.yml">Domain page</comp.GlossaryTerm>.
+3. Click the *Subdomains* tab. CloudCannon will open the list of *Subdomains* on the old domain.
+4. Click the *Add a Subdomain* button in the top right of the *Subdomains* tab. CloudCannon will open the *Add a Subdomain* modal.
+5. Leave the *Subdomain* field empty to add the *Base Domain* itself.
+6. Select the *Redirect* option from the *Type* dropdown. CloudCannon will show the *Redirect visitors to* field and the *Status code* dropdown.
+7. Enter the new domain (e.g., `example.com`) in the *Redirect visitors to* field.
+8. (Optional.) Select a status code from the *Status code* dropdown. Leave it on *301 permanent redirect* for a permanent move.
+9. Click the *Add Subdomain* button.
+
+CloudCannon will add the *Redirect Subdomain* for the *Base Domain* to the list on the *Subdomains* tab.
+
+The first *Subdomain* you add to a domain becomes its <comp.GlossaryTerm term="/user/glossary/f/fallback-redirect.yml">Fallback Redirect</comp.GlossaryTerm>, so if the *Base Domain* is the first *Subdomain* you add, visitors to other subdomains of the old domain that you haven't yet configured are redirected to the new domain too, once the old domain's DNS sends those subdomains to CloudCannon. You [point the DNS of the old domain at CloudCannon](#point-the-old-domain-s-dns-at-cloudcannon) in a later step of this article.
+
+### Redirect www on the old domain
+
+Next, add a *Redirect Subdomain* for `www` on the old domain (e.g., `www.old-example.com`), which sends its visitors to the new domain. Unlike a *Subdomain* that serves a *Site*, a *Redirect Subdomain* doesn't come with a `www` redirect, so you add it yourself.
+
+To redirect `www` on the old domain:
+
+1. Click the *Custom Domains* link in the *App Sidebar*. CloudCannon will open the *Domains Browser*.
+2. Click the *Card* for the old domain. CloudCannon will open the *Summary* tab of the *Domain* page.
+3. Click the *Subdomains* tab. CloudCannon will open the list of *Subdomains* on the old domain.
+4. Click the *Add a Subdomain* button in the top right of the *Subdomains* tab. CloudCannon will open the *Add a Subdomain* modal.
+5. Enter `www` in the *Subdomain* field.
+6. Select the *Redirect* option from the *Type* dropdown. CloudCannon will show the *Redirect visitors to* field, with the old domain filled in.
+7. Replace the old domain with the new domain (e.g., `example.com`) in the *Redirect visitors to* field.
+8. (Optional.) Select a status code from the *Status code* dropdown.
+9. Click the *Add Subdomain* button.
+
+CloudCannon will add the *Redirect Subdomain* for `www` to the list on the *Subdomains* tab.
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Domain-Subdomains-Tab-Add-Redirect-Modal" alt="A screenshot of the Add a Subdomain modal shows www in the Subdomain field, the Type dropdown set to Redirect, example.com in the Redirect visitors to field, 301 permanent redirect in the Status code dropdown, and the Add Subdomain button." title="The Add a Subdomain modal for a Redirect Subdomain" type="screenshot"/>
+
+If you leave the old domain in the *Redirect visitors to* field, visitors to `www` on the old domain are redirected twice, first to the *Base Domain* of the old domain and then to the new domain. CloudCannon shows *Avoid a double redirect by entering example.com instead.* below the field, but still lets you save. If CloudCannon can't use the destination you enter in the *Redirect visitors to* field, it shows why below the field. For each message, please read the "Troubleshoot managing your Redirect Subdomains" section of our documentation on [managing your Redirect Subdomains](/documentation/developer-articles/manage-your-redirect-subdomains/).
+
+### Point the old domain's DNS at CloudCannon
+
+<comp.Notice info_type="permissions">
+  **Permissions required**
+
+  On external DNS, viewing the records to add also requires the `base-domain:settings:dns:read` permission for the old domain, which shows the *DNS* tab of its *Domain* page.
+</comp.Notice>
+
+Then, point the DNS of the old domain at CloudCannon. Visitors only reach the redirects once it does.
+
+What you need to do depends on the <comp.GlossaryTerm term="/user/glossary/d/dns-provider.yml">DNS Provider</comp.GlossaryTerm> you chose when you connected the old domain:
+
+* **CloudCannon DNS** — Once the nameservers of the old domain point at <comp.GlossaryTerm term="/user/glossary/c/cloudcannon-dns.yml">CloudCannon DNS</comp.GlossaryTerm>, the records CloudCannon added when you set up the domain cover both *Redirect Subdomains*, and other subdomains of the old domain reach your *Fallback Redirect*. You don't need to add any records. If the redirects don't work once the nameservers point at CloudCannon DNS, check the records on the *DNS* tab of the old domain's *Domain* page. For more information, please read our documentation on [configuring CloudCannon DNS](/documentation/developer-articles/configure-cloudcannon-dns/).
+* **External DNS** — On <comp.GlossaryTerm term="/user/glossary/e/external-dns.yml">external DNS</comp.GlossaryTerm>, at your *DNS Provider*, add the records listed in the *Required records* table on the *DNS* tab of the old domain's *Domain* page, then click the *I've updated it* button. The *Base Domain* needs two A Records, which point at `52.8.178.132` and `184.169.135.34`, and `www` needs a CNAME Record that points at `sites.cloudcannon.com`. For more information, please read the "Add the records" section of our documentation on [configuring external DNS](/documentation/developer-articles/configure-external-dns/).
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Domain-DNS-External-Required-Apex-Www" alt="A screenshot of the Required records table on the DNS tab for example.org shows two A Records for example.org and a CNAME Record for www.example.org that points at sites.cloudcannon.com, each marked Checking, with an I've updated it button for each." title="The Required records table on the DNS tab" type="screenshot"/>
+
+If the old domain uses Cloudflare as its *DNS Provider* and its records are proxied, please read the "Configure Cloudflare Proxy" section of our documentation on [configuring external DNS](/documentation/developer-articles/configure-external-dns/).
+
+Before you add the records on external DNS, check whether the old domain is still live somewhere else. If it is, visitors can see a security warning for a short time after you switch DNS, until CloudCannon issues the certificate. You can issue the certificate for `www` on the old domain with TXT Records before you switch. This isn't available for the *Base Domain*. For more information, please read the "Issue the SSL Certificate with TXT validation" section of our documentation on [adding an auto-generated SSL Certificate](/documentation/developer-articles/add-an-auto-generated-ssl-certificate/).
+
+On external DNS, other subdomains of the old domain only reach your *Fallback Redirect* if you also add the record in the *Wildcard record (optional)* table, and the records for the wildcard *SSL Certificate* so visitors reach them over HTTPS. For more information, please read the "Renew the wildcard SSL Certificate on external DNS" section of our documentation on [adding an auto-generated SSL Certificate](/documentation/developer-articles/add-an-auto-generated-ssl-certificate/).
+
+### HTTPS after you point the DNS
+
+CloudCannon issues an *SSL Certificate* for each *Redirect Subdomain* once its DNS points at CloudCannon, so visitors who open an `https://` address on the old domain are redirected securely. Redirects send visitors to the new domain over HTTPS when the new domain has an *SSL Certificate*.
+
+## Troubleshoot redirecting a domain
+
+If CloudCannon doesn't add a redirect, or the *Domain* page doesn't show the controls you expect, here are some common causes. If you see an error that isn't listed here, contact our <a href="https://cloudcannon.com/support/">support team</a> with the name of your *Organization*, the old and new domains, and the full error message.
+
+### You do not have permission to edit the Domain Settings for [Base Domain].
+
+This message appears when you hover over the disabled *Add a Subdomain* button. You don't have the `base-domain:settings:details:write` permission for the old domain. Ask someone who manages <comp.GlossaryTerm term="/user/glossary/p/permission-group.yml">Permission Groups</comp.GlossaryTerm> in your *Organization* for this permission.
+
+### This Subdomain is already in use.
+
+The *Subdomain* you entered already exists on the old domain. Change where it redirects instead of adding it again. For more information, please read the "Change where a redirect goes" section of our documentation on [managing your Redirect Subdomains](/documentation/developer-articles/manage-your-redirect-subdomains/).

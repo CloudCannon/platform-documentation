@@ -7,8 +7,8 @@ Machine-readable style rules for AI agents and automated linters. These rules ar
 **For agents making updates to this file:** Also update the corresponding section in `STYLE_GUIDE.mdx` with the prose explanation and examples. Update the revision history in both files: `last_updated` and `style_guide_version` in the YAML block below, and the `Last Updated` and `Version` fields and the revision history table (Section 4) in `STYLE_GUIDE.mdx`.
 
 ```yaml
-style_guide_version: "2.84"
-last_updated: "2026-11-06"
+style_guide_version: "2.102"
+last_updated: "2026-11-17"
 
 documentation_architecture:
   single_source_of_truth:
@@ -283,6 +283,29 @@ formatting_rules:
       - "Branching from the *Main Branch*"
       - "What *Subscription Plan* does my *Organization* use?"
 
+  email_section_headings:
+    rule: "Name a section that lists emails 'Emails after you [action]' when every email in it follows the reader's action, or 'Emails about [subject]' when some arrive later or without one. Never a bare label, and never 'this process', which loses its referent when the section is quoted on its own. Each email keeps its subject line as its own subheading, except in short_form. Mirrors STYLE_GUIDE.mdx §1.2 (Headings)."
+    correct:
+      - "Emails after you connect a Custom Domain"
+      - "Emails about your SSL Certificate"
+      - "Emails about your nameservers"
+    incorrect:
+      - "Domain connected email"
+      - "SSL Certificate emails"
+      - "Automatic emails associated with this process"
+    intro:
+      rule: "Open the section with who receives the emails. Say what the permission lets someone do before naming it, name the Default Permission Groups that hold it (verified against the app), and use 'everyone else' when the person who caused the email doesn't receive it."
+      form: "[When/After X], CloudCannon will email everyone [else] in your *Organization* who has permission to [action]. This includes members of the *[Group]* and *[Group]* [Default Permission Groups](…), members of the *Partner* group in a *Client Organization*, and members of [Custom Permission Groups](…) with the `[permission]` permission."
+      subsection_order: "Under each email's subject-line heading, without restating recipients: (1) when CloudCannon sends it and any other subject line; (2) the DocShot; (3) what the email shows ('This email shows…'); (4) what to do next: Next actions, the button, and whether CloudCannon emails again, or that nothing is needed; (5) how to stop it: the Unsubscribe from this list link, other emails in the same list, and Manage email preferences, or 'This email has no unsubscribe link.' Check the unsubscribe list in the app's config/mailer_unsubscribe_groups.yml."
+      example: "After you connect a *Custom Domain*, CloudCannon will email everyone else in your *Organization* who has permission to edit the settings of that *Custom Domain*. This includes members of the *Owners* and *Developers* [Default Permission Groups](…), members of the *Partner* group in a *Client Organization*, and members of [Custom Permission Groups](…) with the `base-domain:settings:details:write` permission."
+    one_home:
+      rule: "Document each email once, in the instructions article for the task that triggers it. Never list or summarize emails in an Explanation article, a UI surface article, or a separate email index: the subject-line heading makes the email findable by search, and a second copy drifts. An Explanation article may say in one sentence that CloudCannon emails people when something happens, linking to the task article. Mirrors STYLE_GUIDE.mdx §1.2 (Headings) and §2.3.4."
+      incorrect: "A '## Emails about your Custom Domain' section on the Domain page listing every domain email with a one-line summary and a link."
+    short_form:
+      when: "An action in this instructions article sends an email that another instructions article already documents in full, because a different task also sends it. Use the full form whenever this article is the email's only home."
+      rule: "No ### headings and no repeat of the email's contents. Open with one sentence on who receives the emails, by what the permission lets them do, and any Subscription Plan on which CloudCannon doesn't send them; leave the Default Permission Groups to the full form. Then one paragraph per email: the actions in this article that send it, any condition on sending it, and its subject line in italics. Link to where each email is documented at the end of each paragraph when the emails live in different articles, or once after the last email paragraph when one article documents them all. Mirrors STYLE_GUIDE.mdx §2.3.4 item 5."
+      example: "CloudCannon emails everyone else in your *Organization* who has permission to view its billing after some of these actions. CloudCannon doesn't send these emails on the *Enterprise Plan*.\n\nRemoving the last *Site* from a *Subdomain*, … If your *Organization* had more of these *Subdomains* than its *Subscription Plan* includes, CloudCannon sends the *[Name] removed an extra Subdomain from [Organization]'s Subscription Plan* email.\n\nFor more information about this email, please read our documentation on [the emails after you remove a Custom Domain](…)."
+
   bold_usage:
     rule: "Use bold only for headings/labels inside Notice components and for term names in bulleted definition lists (**Term** — definition). Never use bold for emphasis, UI elements, button or menu names, or inline term definitions. Use italics for UI elements and terms, and Notice components for emphasis. Mirrors STYLE_GUIDE.mdx §1.4.2."
     use_for:
@@ -446,6 +469,18 @@ documentation_types:
         - "Context and purpose"
         - "Features and functionality"
         - "Related information"
+      ui_surface:
+        applies_to: "A concept definition article ('What is the [surface]?') about a page, browser, or panel, e.g. the Domain page or the Domains Browser. Orients the reader and links to task articles; how-it-works detail stays in the task articles. Mirrors STYLE_GUIDE.mdx §2.2.4 (UI Surface Articles)."
+        order:
+          - "Permissions notice, only if the whole surface is gated; a gated part gets a section-level permissions notice instead"
+          - "Opening (no heading): what the surface is, where it is, how to open it; then a DocShot of the whole surface"
+          - "One ## per area, named with the app's label ('The DNS tab') or the docs term for an unlabeled area ('The Filter Bar'): what it shows, what you can do there, link to the task article"
+          - "Optional closing ## 'Why the [surface] might look different'"
+        closing_section:
+          heading: "## Why the [surface] might look different. Name the surface; never 'this UI' or 'this page', so the heading survives being quoted on its own"
+          subsections: "Only those that apply, as ###, in order: Permissions, Configuration, Subscription Plan (or 'Subscription and Seats' when the gate is an inactive Subscription or a Seat limit, not a plan tier), Partner context. If only one applies, put its content directly under the ##."
+          correct: ["Why the Domain page might look different", "Why the Domains Browser might look different"]
+          incorrect: ["Why this UI might look different", "Alternative states", "What changes what you see"]
       mechanism_question:
         - "Opening answer to the title question"
         - "How it works"
@@ -558,6 +593,23 @@ documentation_types:
       item: "[UUID of related article]"
       guide_link_rule: "When linking to a guide, include only one page from that guide (normally the index). Do not list multiple pages from the same guide as separate items."
     step_format: "numbered_list"
+    closing_sections:
+      order: "After the main instructions: 'Emails after you [action]' (optional), then 'Troubleshoot [action]' (optional, always last). Mirrors STYLE_GUIDE.mdx §2.3.4 items 5-6."
+      emails:
+        when: "The task makes CloudCannon send an email."
+        heading: "## Emails after you [action] (see formatting_rules.email_section_headings)"
+        intro: "formatting_rules.email_section_headings.intro"
+        per_email: "### [subject line with bracketed variables], then formatting_rules.email_section_headings.intro.subsection_order"
+        one_home: "formatting_rules.email_section_headings.one_home"
+        short_form: "formatting_rules.email_section_headings.short_form"
+      troubleshooting:
+        when: "The task can fail with a page or message the reader can't resolve from the steps alone."
+        heading: "## Troubleshoot [gerund task], e.g. 'Troubleshoot connecting a Custom Domain'"
+        intro: "If CloudCannon doesn't [outcome], here are some common causes. If you see an error that isn't listed here, contact our <a href=\"https://cloudcannon.com/support/\">support team</a> with [what to bring]."
+        intro_rules: "Name what to bring (Organization name, what the reader entered, the full error message). Never describe what support will do."
+        per_cause: "### heading that quotes or names what the reader sees (page title such as 'Permission denied', or the app's error message). Body: cause, what CloudCannon shows, how to fix it, link to the article covering the fix. Missing permission: name it and use components.notice.who_to_ask."
+        order: "Access problems (permissions, billing) first, then problems with what the reader entered."
+        keep_out_of_steps: "Error states don't go in the steps or the prose before them; the main instructions stay on the path that succeeds."
     lead_in_sentence:
       rule: "Introduce every numbered list with a stem sentence naming the task and ending in a colon (e.g. 'To switch Organizations:'). Never jump from a heading straight into step 1."
       rationale: "The reader must know what the steps accomplish before following them."
@@ -565,10 +617,21 @@ documentation_types:
       rule: "When a task depends on prior setup or a separate action, state it as a prerequisite BEFORE the ordered list — in the intro prose, a 'Before you...' section, or the pattern 'Before we begin, this article assumes...'. Never encode a prerequisite as a numbered step; steps are actions within THIS task. Link to the prerequisite instructions."
       example: "Before we begin, this article assumes you have already configured your Collections."
       mirrors: "STYLE_GUIDE.mdx §2.3.4 item 2 (Prerequisites)"
+      organization_selection:
+        rule: "Don't tell the reader to select an Organization. Never start the steps with 'Select the *Organization*…', and don't add a general sentence about switching Organizations: most readers belong to one, and anyone in several works in the one they have open. Name the Organization only where the path depends on a specific one the reader can't tell from the steps (it is the one that owns a Site). There, write one conditional sentence for readers in several Organizations that names the specific Organization, followed by a link to the switching article. Write it once per article, in the same paragraph as the 'Before we begin' sentence, straight after it, or as its own paragraph at the end of the introduction when there is none, never before each procedure: only a minority of readers belong to several Organizations, so a section doesn't need the sentence to stand alone. Where procedures depend on different Organizations, name each in the one sentence ('your *Custom Domain* is connected to, or the one that has the certificate,'). Mirrors STYLE_GUIDE.mdx §2.3.4 (Prerequisites)."
+        example_fixed_path: "If you are a member of multiple *Organizations*, make sure you select the *Organization* that owns the *Site* first. For more information, please read our documentation on [switching between your Organizations](/documentation/user-articles/switch-between-your-organizations/)."
+        incorrect:
+          - "1. Select the *Organization* your *Custom Domain* is connected to."  # a step most readers skip
+          - "If you are a member of multiple *Organizations*, make sure you select the *Organization* you want to [action] using the *Context Menu* on the *Organization* *Card* in the *App Sidebar* first."  # a general switching sentence: any Organization would do, so it names none
     numbered_steps:
       content: "imperative_actions_only"
       explanations: "prose_before_list | prose_after_list | prose_between_two_complete_lists"
       assume_preceding_steps_complete: "Assume the reader has completed every earlier step. A step can rely on the state earlier steps leave behind, including the result of an earlier optional step. Do not add caveats to a step about what an earlier step makes available (e.g. 'This field is available once you select a *Site*'), and do not flag such dependencies in review. Prerequisites from outside the procedure still belong before the list (see prerequisites). Mirrors STYLE_GUIDE.mdx §2.3.5 (Numbered Lists for Steps)."
+      branching_steps:
+        rule: "Use sparingly. When a choice in one step changes only the next action or two, put a bullet list under that step, one bullet per choice naming the option (italicized UI label, em dash) and its follow-up actions, then continue the numbered list for the steps every branch shares. When branches differ for more than a couple of steps, or are different outcomes the reader chooses before starting, write a separate set of instructions for each under its own heading. Never nest numbered sub-steps. Mirrors STYLE_GUIDE.mdx §2.3.5 (Numbered Lists for Steps)."
+        correct: "7. If this is the last *Site* on the *Subdomain*, select what happens to it:\n   * *Leave it set up* or *Delete the Subdomain* — (Optional.) …uncheck the checkbox to keep them.\n   * *Redirect visitors* — CloudCannon will show the *Redirect visitors to* field. Enter the domain…\n8. Click the … button."
+        separate_procedures_example: "'Add a Subdomain that serves Sites' and 'Add a Redirect Subdomain' are separate sections, because the Type choice changes most of the steps that follow."
+        incorrect: "Nested numbered sub-steps (7a, 7b, or '   1.' under a step), or one long procedure whose branches diverge for several steps."
       outcome_then_media: "The final outcome sentence ('CloudCannon will...') goes immediately after the numbered list. Any comp.DocShot or screenshot belongs AFTER the outcome sentence, not between the last step and the outcome. Order: steps -> outcome sentence -> DocShot. Mirrors STYLE_GUIDE.mdx §2.3.4 (Describe Outcomes)."
       avoid_in_step_text:
         - "Conceptual or background explanation that does not advance the task"
@@ -705,9 +768,22 @@ documentation_types:
           - "a *Site Subdomain* with no *Site* yet"
           - "delete a *Redirect Subdomain*"
         plain_when_generic:
-          - "subdomains you haven't set up"
+          - "subdomains you haven't configured"  # not "haven't set up", "haven't set up yet", or "haven't added"; matches the app's Summary tab
           - "an unconfigured subdomain such as typo.example.com"
           - "the wildcard certificate covers one level of subdomain"
+
+      dns_records:
+        rule: "Capitalize 'Record' in DNS Records and in each record type, with no italics in body text: DNS Record, DNS Records, A Record, AAAA Record, CNAME Record, TXT Record, MX Record, SRV Record, NS Record. Matches the app and the glossary entries. They are DNS terms, not CloudCannon concepts, so they are not italicized. Mirrors STYLE_GUIDE.mdx §1.4.1 (DNS Records)."
+        ui_labels_exempt: "A UI label quoted verbatim keeps the app's casing (the *DNS records* table heading, *Wildcard record (optional)*, *Automatic renewal record (optional)*)."
+        lowercase: "'record' on its own, or with a descriptor that isn't a record type: 'the record', 'the wildcard record', 'the proxied record'."
+        correct:
+          - "add the DNS Records CloudCannon lists"
+          - "a CNAME Record that points at sites.cloudcannon.com"
+          - "two A Records"
+        incorrect:
+          - "add the DNS records CloudCannon lists"
+          - "a CNAME record that points at sites.cloudcannon.com"
+          - "add the *TXT Records*"  # not italicized
 
       unlabelled_containers_are_still_terms:
         rule: "A UI element does not need a visible label in the app to be a CloudCannon term. Containers such as the Filter Bar, a Card, or the App Sidebar are named by the documentation even though the app renders no such string — the app labels the controls INSIDE them (Add Filter, Save). Never conclude a term is invented because it cannot be found in app source, and never rename a container to match a button it contains. Verify a container's name against existing documentation usage, not a source search. Mirrors STYLE_GUIDE.mdx §1.4.1."
@@ -907,6 +983,7 @@ link_formats:
       explanation_how_title: "'How do/does X <verb>?' -> [how X <verbs>] — lowercase 'how', drop the auxiliary do/does, conjugate the verb to agree with the subject ('How do Partners access their Client Organizations?' -> [how Partners access their Client Organizations]; 'How does billing work in the Partner Program?' -> [how billing works in the Partner Program])"
       explanation_why_title: "'Why <verb> X?' -> [why to <verb> X]"
     action_link_exception: "When a sentence names an action the reader takes and another article gives the instructions, the action itself may be the link instead of a separate 'please read our documentation on [X]' sentence (e.g. 'After you [connect a Custom Domain to your Organization](...), you can [add a subdomain to your Custom Domain](...)'). The link text is the action as the sentence phrases it, lowercase, and must say what the reader will find; a bare verb ('[connect]') is too short. Use the frame when the sentence doesn't name the action, and for closing 'For more information' pointers. Established usage (25 links across 24 articles). Mirrors STYLE_GUIDE.mdx §1.4.4 (Linking the Action in a Sentence)."
+    section_links: "Link to a section on another page (/page/#heading) when the sentence needs that one section and it sits well down the page; without the anchor the reader lands at the top of a long page and has to hunt. The link text says what the section holds. Link to the page when the section opens it, or when the whole page or several of its sections are relevant. Only # and ## headings get an anchor on the published page: for a ### section, link to the ## section it sits in, or, where that section is long or opens the page, name the ### heading in quotation marks before a page link ('please read the \"[Heading]\" section of our documentation on [page rephrase](/documentation/.../page/)'). A section link can't be redirected, so when you rename or remove a heading, search for links to it and fix them in the same change; the link check fails on a missing anchor, and a link from outside the docs lands at the top of the page. Each section carries its own permissions and caveats, because a section link skips the top of the page. Same-page links ('please read the section on [X](#x)') are fine. Link to an entry's `id` on a reference page when the `id` is the identifier the link text quotes, such as an error code ([`FS-402-02`](/documentation/developer-reference/error-codes/#fs-402-02)). A section many articles need on its own is a candidate for its own article. Mirrors STYLE_GUIDE.mdx §1.4.4 (Linking to a Section)."
     inline_noun_reference_exception: "When the link is a courtesy hover-to-learn-more on a noun already in the sentence (not a cross-link pointer), use that noun as the link text, capitalized per the CloudCannon term (e.g. [Testing Domain]), not a rephrased title."
     position_decides_not_termhood: "Grammatical position, not whether the target is a CloudCannon term, decides bare-vs-rephrased. A term-named article is still rephrased when it sits in the cross-link frame ([what Custom Permission Groups are], [sharing a Site with Site Sharing] — NOT [Custom Permission Groups] or [Site Sharing]). Use the bare term only when it's the actual noun of the surrounding sentence (e.g. 'anyone in the [Default Permission Groups] can publish')."
     examples:
@@ -947,17 +1024,25 @@ components:
       info: "Inline, close to relevant content. Must not be the first element in an article."
       important: "Can be first if the information affects the entire article; otherwise inline."
       deprecated: "Must be first in article, before any other notice or content. Applies to the whole article; do not repeat per section. When an article documents a deprecated method alongside a current one, scope the notice to the method by naming it in the status sentence. Mirrors STYLE_GUIDE.mdx §1.5.1."
-      permissions: "Must be at the top of the article, immediately after front matter, before any body content. Always start with bold 'Permissions required' heading. When a pricing notice is also present, the pricing notice comes first and the permissions notice immediately follows it (see pricing_and_permissions_order)."
+      permissions: "Must be at the top of the article, immediately after front matter, before any body content. Always start with bold 'Permissions required' heading. When a pricing notice is also present, the pricing notice comes first and the permissions notice immediately follows it (see pricing_and_permissions_order). A permission that only one section's action needs goes in a section-level permissions notice immediately after that section's heading, before any other content: the same 'Permissions required' heading, then one sentence naming the extra permission with 'also' and what it applies to, without restating the article notice's groups (e.g. 'Connecting a *Custom Domain* from *Site Settings* also requires the `site:settings:hosting:write` permission for the *Site*.'). Mirrors STYLE_GUIDE.mdx §1.5.1."
       pricing: "Can be first if the entire feature is gated; otherwise inline. A Subscription Plan gate always starts with the bold 'Subscription Plan required' heading (see pricing_notice_content.plan_gate_heading). When both a pricing and a permissions notice are present, the pricing notice comes first (see pricing_and_permissions_order)."
       pricing_and_permissions_order: "When an article genuinely needs both a pricing and a permissions notice (it gates on both plan and permission), place the pricing notice first, immediately followed by the permissions notice, before any other content. Pricing comes first because plan availability is the more fundamental gate — a reader on the wrong plan does not need the permission requirements. Mirrors STYLE_GUIDE.mdx §1.5.1."
       notice_order_at_top: "When more than one top-of-article notice is present, the order is deprecated, then pricing, then permissions. Deprecation is the most fundamental gate: a reader who should not adopt a feature does not need its plan availability or permission requirements. Mirrors STYLE_GUIDE.mdx §1.5.1."
       destructive_action_notice_stack: "For a destructive or irreversible action (e.g. deleting an Organization or Site), stack a permissions notice first (who can perform the action), immediately followed by an important notice stating the irreversibility and what is lost, before any other content. The irreversibility warning is a load-bearing caveat the reader must see before acting, so two notices at the top is expected here, not overuse. Mirrors STYLE_GUIDE.mdx §1.5.1."
     permissions_notice_length:
-      rule: "Keep a permissions notice to one or two sentences. When the page's actions need several permissions, name them in one clause ('with the `X` and `Y` permissions'). A second sentence may add one short condition the reader needs before starting; never add a run of follow-on sentences saying which action needs which permission or where the rule applies. Put per-action detail at the top of the section for that action. If a permission applies only to some of the page's actions, leave it out of the notice and state it in those sections, so the notice doesn't overstate the gate. The Partner form keeps its Custom Permission Groups sentence (see partner_group_in_permissions_notices). Mirrors STYLE_GUIDE.mdx §1.5.1 (permissions, Length)."
+      rule: "Keep a permissions notice to one or two sentences. When the page's actions need several permissions, name them in one clause ('with the `X` and `Y` permissions'). A second sentence may add one short condition the reader needs before starting; never add a run of follow-on sentences saying which action needs which permission or where the rule applies. Put per-action detail in a section-level permissions notice at the top of the section for that action (see placement.permissions). If a permission applies only to some of the page's actions, leave it out of the notice and state it in those sections, so the notice doesn't overstate the gate. The Partner form keeps its Custom Permission Groups sentence (see partner_group_in_permissions_notices). Mirrors STYLE_GUIDE.mdx §1.5.1 (permissions, Length)."
+      name_what_it_reveals:
+        rule: "When the permission hides part of the page rather than disabling a control, so a reader without it can't find where to start, name that part in the notice's action clause instead of adding a separate sentence about it. A disabled control with a tooltip needs no mention. Mirrors STYLE_GUIDE.mdx §1.5.1 (permissions, Length)."
+        example: "Members of the *Owners*, *Developers*, and *Partner* [Default Permission Groups](/documentation/user-articles/what-are-default-permission-groups/), or [Custom Permission Groups](/documentation/developer-articles/what-are-custom-permission-groups/) with the `base-domain:delete:write` permission, can see the *Danger* section of the *Domain Settings* tab and disconnect *Custom Domains* from an *Organization*."
+        incorrect: "The *Danger* section only appears on the *Domain Settings* tab if you have the `base-domain:delete:write` permission."  # a separate sentence restating the notice's permission
       correct:
         - "Members of the *Owners*, *Developers*, and *Partner* [Default Permission Groups](…), or [Custom Permission Groups](…) with the `base-domain:settings:details:write` and `site:settings:hosting:write` permissions, can manage the *Sites* on a *Subdomain* and delete *Subdomains*."
       incorrect:
-        - "…with the `base-domain:settings:details:write` permission, can manage the *Sites* on a *Subdomain*. Adding, swapping, or removing a *Site*… also requires the `site:settings:hosting:write` permission for that *Site*. This applies to the *Subdomain* page and the *Custom Domain* page alike."  # per-action conditions belong in the body
+        - "…with the `base-domain:settings:details:write` permission, can manage the *Sites* on a *Subdomain*. Adding, swapping, or removing a *Site*… also requires the `site:settings:hosting:write` permission for that *Site*. This applies to the *Subdomain* page and the *Custom Domain* page alike."  # per-action conditions belong in section-level notices
+    who_to_ask:
+      rule: "When a reader lacks a permission, send them to 'someone who manages *Permission Groups* in your *Organization*', not 'a member of the *Owners* group'. The Developers group and Custom Permission Groups with group:member:write can add people to groups too. Name the permission needed in the same passage. Mirrors STYLE_GUIDE.mdx §1.5.1 (Who to ask)."
+      correct: "Ask someone who manages *Permission Groups* in your *Organization* for this permission."
+      incorrect: "Ask a member of the *Owners* group in your *Organization*."
     pricing_notice_content:
       scope: "The pricing notice answers 'can I use this?', not only 'which plan is this on'. Use it for any access gate: a Subscription Plan tier, a Private Beta the reader must request access to, or a programme they must belong to. Reserve `important` for caveats about using a feature the reader already has. Mirrors STYLE_GUIDE.mdx §1.5.1."
       non_plan_gate_form: "State the gate and how to get through it. Private Beta: '**This feature is available through a Private Beta.**' followed by what it covers and a support contact. If access is granted per account rather than per Organization, say so. Non-plan gates do not take the plan_gate_heading."
@@ -992,6 +1077,7 @@ components:
           - "This feature has been deprecated. It is highly recommended you update."  # no maintenance position, no named replacement
           - "Since October 2025, this method of visual editing has been deprecated."  # date without the position or the replacement
     general_rules:
+      - "Pricing notices and the article's permissions notice go at the top of the article. The one section-level exception is a permissions notice for a permission only that section's action needs (see placement.permissions)."
       - "Prefer one notice at the start of an article (deprecated, permissions, pricing, or important — never info). Two exceptions where stacking at the top is expected: (1) an article gating on both plan and permission stacks pricing then permissions (see pricing_and_permissions_order); (2) a destructive/irreversible action stacks the permissions notice then an important irreversibility notice (see destructive_action_notice_stack). When a deprecated notice is present it precedes all others (see notice_order_at_top)."
       - "Keep notice text concise"
   
