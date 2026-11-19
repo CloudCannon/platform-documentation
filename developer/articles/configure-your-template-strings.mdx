@@ -77,11 +77,13 @@ Placeholders support several filters. Filters occur after the placeholder key, w
 For some filters, you can provide extra parameters for more flexibility. Add extra parameters by including a `=` character after the filter name.
 
 * `truncate` removes any extra characters beyond a specified number. For example, `{title|truncate=10}` will resolve to the first 10 characters of a message.
+* `substring` extracts a section of a string, using the <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/substring" title="MDN documentation for substring" target="_blank" rel="noopener noreferrer">JavaScript substring method</a>. You can specify a start and end index separated by a comma. For example, `{title|substring=1}` resolves to every character after the first. `{title|substring=1,2}` resolves to the 1 character only.
+* `strip_leading_date` removes a date from the start of a string (or after a single `/`). The date can be any string composed of three numbers, where one number is 4 digits long and the other two are 1 or 2 digits, and which are separated by dashes, underscores, periods, or commas. For example `"/2025-12-01-blog.md"|strip_leading_date` will resolve to `/blog.md`.
 * `default` allows you to provide a fallback value, in case the data is empty
 * `if` resolves to the data, if the parameter is "truthy"
 * `unless` resolves to the data, if the parameter is "falsy"
-* `substring` extracts a section of a string, using the <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/substring" title="MDN documentation for substring" target="_blank" rel="noopener noreferrer">JavaScript substring method</a>. You can specify a start and end index separated by a comma. For example, `{title|substring=1}` resolves to every character after the first. `{title|substring=1,2}` resolves to the 1 character only.
-* `strip_leading_date` removes a date from the start of a string (or after a single `/`). The date can be any string composed of three numbers, where one number is 4 digits long and the other two are 1 or 2 digits, and which are separated by dashes, underscores, periods, or commas. For example `"/2025-12-01-blog.md"|strip_leading_date` will resolve to `/blog.md`.
+
+See Disambiguating filters below for information about disambiguating between fixed and data placeholders in filters with parameters.
 
 ### Filtering examples
 
@@ -206,3 +208,47 @@ Here are some examples of how we can transform this data using different filters
   We can search an array using and print the value of a key each time it appears in that array. If one key is empty, we can use a fallback value using the `default` filter.
 </comp.Annotation>
 </comp.CodeBlock>
+
+### Disambiguating filters
+
+If you have a data placeholder which shares a name with a fixed placeholder, you may need to disambiguate between the two. The `default`, `if`, and `unless` filters can all be suffixed with `_data` or `_fixed` so they resolve against only data or fixed placeholders, respectively.
+
+For example, imagine you have a *Collection* of files which have an optional `slug` field which can determine the output location of the page.
+
+<comp.CodeBlock language="YAML" source="blog.mdx">
+```
+title: Blog
+slug: /blog-posts/
+```
+</comp.CodeBlock>
+
+When we configure the `url` in `collections_config`, we want it to resolve to the `slug` from the front matter if it exists, or CloudCannon's fixed "slug" placeholder otherwise.
+
+<comp.CodeBlock language="annotated">
+```
+{slug|default_fixed=slug} #1
+// /blog-posts/
+
+{"This has a slug"|if_data=slug} #2
+// This has a slug
+
+{"There is no fixed placeholder called Example"|unless_fixed=example} #3
+// There is no fixed placeholder called Example
+```
+<comp.Annotation number="1">
+
+  Because we've used curly braces, `slug` checks the "slug" field from the front matter. Since the value is not empty, the fallback is not used. If `slug` were empty, `default_fixed` would fall back to the fixed "slug" placeholder.
+
+</comp.Annotation>
+<comp.Annotation number="2">
+
+  `if_data` checks the data placeholders for "slug" and, if it exists, returns the value on the left side of the filter.
+
+</comp.Annotation>
+<comp.Annotation number="3">
+
+  `unless_fixed` checks the fixed placeholders for "example" and, if it finds nothing, returns the value on the left side of the filter.
+
+</comp.Annotation>
+</comp.CodeBlock>
+
