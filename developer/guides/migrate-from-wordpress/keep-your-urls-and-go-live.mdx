@@ -1,0 +1,110 @@
+---
+_schema: default
+_uuid: 0859e5ea-692c-4233-8905-4d9841ebd21f
+_created_at: 2026-11-17T00:00:00Z
+details:
+  title: Keep your URLs and go live
+  order: 7
+  image: >-
+    https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+  description: Redirect your old WordPress URLs, check your new Site, and move your domain from WordPress to CloudCannon.
+  start_nav_group: null
+  related_articles: null
+author_notes:
+  docshots: Not applicable
+---
+Search engines, bookmarks, and other websites link to your existing WordPress URLs. On this page, you will make sure those links keep working on your new <comp.GlossaryTerm term="/user/glossary/s/site.yml">Site</comp.GlossaryTerm>, check the *Site* before your visitors move to it, and move your domain from WordPress to CloudCannon.
+
+## Compare your old and new URLs
+
+Your new *Site* can keep many of your WordPress URLs unchanged. Your SSG decides the URL of each page, so if your SSG templates use the `slug` key from your front matter and the same URL pattern as WordPress, the URL stays the same.
+
+Use the URL patterns you recorded in the [planning step](/documentation/developer-guides/migrate-from-wordpress/plan-your-migration/) to list every pattern your new *Site* changes. Common examples are:
+
+* Date-based post URLs, such as `/2024/05/my-post/`, that become `/blog/my-post/`.
+* Category and tag archives, such as `/category/news/`.
+* Author archives, such as `/author/jane/`.
+* Paginated lists of posts, such as `/page/2/` or `/category/news/page/2/`.
+* The RSS feed at `/feed/`.
+* Links to files in `/wp-content/uploads/` that now live in a different uploads folder.
+
+Each changed pattern needs a redirect, so a visitor who follows an old link arrives at the new page.
+
+## Redirect your old URLs
+
+<comp.Notice info_type="important">
+  Redirects in the `.cloudcannon/routing.json` file work only for *Sites* hosted on CloudCannon. If you host your *Site* externally, or use CloudCannon in *Headless Mode*, set up your redirects with your hosting provider instead.
+</comp.Notice>
+
+For a *Site* hosted on CloudCannon, add redirects to a file named `routing.json` in a `.cloudcannon` folder at the root of your repository. Each entry in the `routes` array redirects visitors `from` an old URL `to` a new one, with an HTTP `status` code. Use the 308 status code, which tells browsers and search engines that the page has moved permanently.
+
+A `from` URL can contain `(.*)` to match the rest of a URL, and the `to` URL can reuse the matched text as `$1`. CloudCannon uses the first rule that matches a URL, so list specific rules before general ones:
+
+<comp.CodeBlock language="json" source=".cloudcannon/routing.json">
+```
+{
+  "routes": [
+    {
+      "from": "/2024/05/my-post/",
+      "to": "/blog/my-post/",
+      "status": 308
+    },
+    {
+      "from": "/category/(.*)",
+      "to": "/blog/categories/$1",
+      "status": 308
+    },
+    {
+      "from": "/feed/",
+      "to": "/rss.xml",
+      "status": 308
+    },
+    {
+      "from": "/wp-content/uploads/(.*)",
+      "to": "/uploads/$1",
+      "status": 308
+    }
+  ]
+}
+```
+</comp.CodeBlock>
+
+Replace the paths in this example with your own. For date-based post URLs, a single pattern that matches every date could also match other URLs on your *Site*, so generate one rule per post from the `date` and `slug` keys in your front matter. A short script that reads each Markdown file and writes the `routes` array saves you from writing each rule by hand.
+
+The redirect for `/wp-content/uploads/` works because your `uploads` folder keeps the same year and month folders as WordPress. A redirect does not apply to a URL where your new *Site* still has a file, so if your SSG outputs a page at an old URL, visitors see that page instead. Invalid JSON in `routing.json` causes your *Site's* builds to fail, so check the file in a JSON validator before you push it. For every option, please read our documentation on [configuring custom routing](/documentation/developer-articles/configure-custom-routing/).
+
+## Rebuild your site features
+
+Before you go live, rebuild the features from the feature audit in the planning step. If your *Site* is hosted on CloudCannon, contact forms can send submissions to an <comp.GlossaryTerm term="/user/glossary/i/inbox.yml">Inbox</comp.GlossaryTerm> in CloudCannon. For more information, please read our documentation on [connecting your Site to an Inbox](/documentation/developer-articles/connecting-your-site-to-an-inbox/). If you host your *Site* elsewhere, use a third-party form service instead. Features CloudCannon does not provide, such as comments or site search, need a third-party service or a tool that runs in your SSG build.
+
+## Build your Site
+
+CloudCannon needs a successful build of your *Site* before it can serve your pages, apply your redirects, or show your pages in the <comp.GlossaryTerm term="/user/glossary/v/visual-editor.yml">Visual Editor</comp.GlossaryTerm>. To build your *Site*, configure the build settings for your SSG in CloudCannon, such as the command that builds your website. For more information, please read our documentation on [configuring your first build](/documentation/developer-articles/configure-your-first-build/).
+
+## Check your Site on the Testing Domain
+
+After your first successful build, CloudCannon publishes your *Site* to a <comp.GlossaryTerm term="/user/glossary/t/testing-domain.yml">Testing Domain</comp.GlossaryTerm>, a URL such as `grey-grouse.cloudvent.net`. By default, search engines do not index the *Testing Domain*, so you can check your *Site* there while your WordPress site keeps serving your visitors. Anyone with the URL can still open it. To keep it private, please read our documentation on [enabling password authentication](/documentation/developer-articles/enable-password-authentication/).
+
+On the *Testing Domain*, check:
+
+* A sample of pages from each post type, comparing them with the same pages on your WordPress site.
+* Several old URLs from each changed pattern, to confirm they redirect to the right page.
+* Images, downloads, and links between pages.
+* Forms and any other features you rebuilt.
+* Posts that were private, pending review, or scheduled in WordPress do not appear.
+
+For more information, please read our documentation on [what a Testing Domain is](/documentation/user-articles/what-is-a-testing-domain/).
+
+## Move your domain to CloudCannon
+
+To connect a domain to your <comp.GlossaryTerm term="/user/glossary/o/organization.yml">Organization</comp.GlossaryTerm>, you need the `base-domain:create` permission. To add it to your *Site*, you also need the `site:settings:hosting:write` permission. Members of the *Owners*, *Developers*, and *Partner* [Default Permission Groups](/documentation/user-articles/what-are-default-permission-groups/) have both.
+
+When your *Site* is ready, move your domain to CloudCannon. Moving a domain changes where its <comp.GlossaryTerm term="/user/glossary/d/dns-records.yml">DNS Records</comp.GlossaryTerm> point, so your visitors move from your WordPress server to CloudCannon as those changes take effect.
+
+Before you change anything, write down your domain's current *DNS Records*, including the MX records that deliver your email. Your WordPress host may manage your DNS and your email as well as your website. If you move your domain's nameservers to CloudCannon DNS, add your existing records there too, or your email will stop arriving.
+
+First, [connect your domain to your Organization](/documentation/developer-articles/connect-a-custom-domain-to-your-organization/). Then [add the Custom Domain to your Site](/documentation/developer-articles/add-a-custom-domain-to-your-site/), so CloudCannon serves your *Site* on it. Serving a *Site* on a domain counts toward the number your <comp.GlossaryTerm term="/user/glossary/s/subscription-plan.yml">Subscription Plan</comp.GlossaryTerm> includes. For the limits, and how this affects a <comp.GlossaryTerm term="/user/glossary/c/client-organization.yml">Client Organization</comp.GlossaryTerm> on a <comp.GlossaryTerm term="/user/glossary/f/free-trial.yml">Free Trial</comp.GlossaryTerm>, please read our documentation on [what a Custom Domain is](/documentation/developer-articles/what-is-a-custom-domain/).
+
+Keep your WordPress server and your backups until you are confident the new *Site* is working. If you need to move back, you can restore the *DNS Records* you wrote down, so your domain points at your WordPress server again.
+
+In the next step of this guide, we'll point you to resources for your team and for configuring your new *Site* further.

@@ -1,0 +1,264 @@
+---
+_schema: default
+_uuid: c256f3fd-4d7b-41d0-808e-1803f5a05bea
+_created_at: 2026-11-17T00:00:00Z
+details:
+  title: Set up your Site in CloudCannon
+  order: 6
+  image: >-
+    https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+  description: Add your converted content to an SSG project, create a Site, and configure Collections and inputs for your WordPress content.
+  start_nav_group: null
+  related_articles: null
+author_notes:
+  docshots: Added!
+---
+Your Markdown files hold your content, but they are not a website yet. On this page, you will add them to an SSG project, create a <comp.GlossaryTerm term="/user/glossary/s/site.yml">Site</comp.GlossaryTerm> on CloudCannon from that project, and configure CloudCannon so your team can edit each type of content.
+
+## Add your content to an SSG project
+
+A Static Site Generator (SSG) builds your website from your content files and a set of layouts and templates. Your WordPress theme did this job before, so you will need templates for your SSG that display each of your post types. You can build these yourself, or start from an existing project for your SSG and adapt it. CloudCannon supports SSGs including Astro, Eleventy, Hugo, Jekyll, Next.js, and SvelteKit. For help choosing, please read our documentation on [selecting your Static Site Generator](/documentation/developer-articles/select-your-ssg/).
+
+Each SSG expects content in particular folders. Copy each post type's folder from the conversion output, such as `posts` or `custom/services`, into its own folder in your SSG project, such as `content/posts` for posts and `content/services` for a services post type. Then copy the contents of your `media-export` folder into an `uploads` folder where your SSG serves static files from, keeping its year and month folders. For Hugo, use `static/uploads`. For Astro and Next.js, use `public/uploads`. For Eleventy and Jekyll, use an `uploads` folder at the root of your project, and make sure your SSG copies it to your built website. Your content links to these files at `/uploads/`, which you set up in the [conversion step](/documentation/developer-guides/migrate-from-wordpress/convert-your-content-to-markdown/).
+
+Build your website locally and check a few pages of each post type before you continue. Then push your project to a <comp.GlossaryTerm term="/user/glossary/g/git-repository.yml">Git Repository</comp.GlossaryTerm> on GitHub, GitLab, or Bitbucket.
+
+## Create your Site
+
+To create a *Site* from your *Git Repository*, click the *Sites* button in the <comp.GlossaryTerm term="/user/glossary/a/app-sidebar.yml">App Sidebar</comp.GlossaryTerm> to open the <comp.GlossaryTerm term="/user/glossary/s/sites-browser.yml">Sites Browser</comp.GlossaryTerm>, then click the *+ Create a Site* button. If your <comp.GlossaryTerm term="/user/glossary/o/organization.yml">Organization</comp.GlossaryTerm> has no *Sites* yet, click the *Add your own files to CloudCannon* card on your <comp.GlossaryTerm term="/user/glossary/o/organization-home.yml">Organization Home</comp.GlossaryTerm> page instead. CloudCannon will open the *Create a Site* page.
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Create-a-Site-Page-Complete" alt="A screenshot of the Create a Site page shows all fields are complete." title="The Create a Site page with all fields complete" type="screenshot"/>
+
+Use the *File source* dropdown to select your <comp.GlossaryTerm term="/user/glossary/g/git-provider.yml">Git Provider</comp.GlossaryTerm>. If CloudCannon shows an *Authorize* button, click it and follow your *Git Provider's* instructions to give CloudCannon access. Select your repository using the *Repository* dropdown. Under *Branch setup*, select the *Use an existing branch* radio button and select your branch using the *Branch* dropdown. Enter a name in the *Site name* field, then click the *Create Site and start syncing* button. CloudCannon will open your <comp.GlossaryTerm term="/user/glossary/s/site-dashboard.yml">Site Dashboard</comp.GlossaryTerm> and sync your files.
+
+For a full walkthrough of each field on the *Create a Site* page, please read our documentation on [creating a Site](/documentation/developer-guides/getting-started-with-cloudcannon/create-a-site/).
+
+## Create your Configuration File
+
+The <comp.GlossaryTerm term="/user/glossary/c/configuration-files.yml">CloudCannon Configuration File</comp.GlossaryTerm> tells CloudCannon how your *Site* is structured and how your team edits it. It is a file named `cloudcannon.config.yml` at the root of your repository.
+
+When your files have synced, the *Getting Started with Editing* in-app guide on your *Site Dashboard* shows the *Create your CloudCannon Configuration File* task. Click the *+ Create my Configuration File* button. CloudCannon will open the *Create my Configuration File* modal.
+
+<comp.DocShot docshot_key="CloudCannon-Documentation-Site-Dashboard-Create-Config-File-Modal" alt="A screenshot of the Create my Configuration File modal shows a dropdown for selecting your SSG and a checkbox for Use a custom source." title="The Create my Configuration File modal" type="screenshot"/>
+
+Select your SSG using the *Static Site Generator* dropdown, then click the *Next* button. CloudCannon detects which folders in your repository contain content files and suggests each one as a <comp.GlossaryTerm term="/user/glossary/c/collection.yml">Collection</comp.GlossaryTerm>, with a checkbox to include or exclude it. Select the checkbox for each folder that holds a post type, then click the *Create my Configuration File* button. CloudCannon will create `cloudcannon.config.yml` at the root of your *Site's* files, and your *Collections* will appear in the <comp.GlossaryTerm term="/user/glossary/s/site-navigation.yml">Site Navigation</comp.GlossaryTerm>.
+
+To commit the new file to your *Git Repository*, click the *Save* button in the <comp.GlossaryTerm term="/user/glossary/s/site-header.yml">Site Header</comp.GlossaryTerm>, then click the *Save all* button in the *Save changes* modal. For more information about the modal's options, please read our documentation on [creating your CloudCannon Configuration File](/documentation/developer-guides/getting-started-with-cloudcannon/create-your-cloudcannon-configuration-file/).
+
+The rest of this page adds to your *Configuration File*. You can edit it in your local copy of the repository after you pull the new file, then push your changes for CloudCannon to sync.
+
+## Configure a Collection for each post type
+
+A *Collection* is a group of related files with a similar format, such as a folder of blog posts. Each *Collection* appears in the *Site Navigation*, where your team can browse, add, and edit its files. Most WordPress post types map to one *Collection* each.
+
+Open `cloudcannon.config.yml` and check the `collections_config` key. Each *Collection* needs a `path`, the folder that holds its files relative to your *Site's* source folder. Add any post type you did not select in the modal.
+
+Each *Collection* also has a `url`, the output URL of each file. CloudCannon uses it to open files in the <comp.GlossaryTerm term="/user/glossary/v/visual-editor.yml">Visual Editor</comp.GlossaryTerm> and to link to them on your live website. Because your front matter has a `slug` key from WordPress, you can use it in the URL with a `{slug}` placeholder:
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+```
+
+collections_config:
+  posts:
+    path: content/posts___1___
+    url: /blog/{slug}/___2___
+  pages:
+    path: content/pages
+    url: /{slug}/
+  services:
+    path: content/services
+    url: /services/{slug}/
+
+```
+<comp.Annotation number="1">
+
+  The `path` is the folder that holds your posts, relative to your *Site's* source folder. Use the folders from your SSG project.
+
+</comp.Annotation>
+<comp.Annotation number="2">
+
+  The `{slug}` placeholder reads the `slug` key from each file's front matter.
+
+</comp.Annotation>
+</comp.MultiCodeBlock>
+
+The `url` key tells CloudCannon where your SSG outputs each file. It does not change where your SSG outputs them, so it must match the URLs your SSG templates produce. For every placeholder you can use, please read our documentation on [updating the output URL for a Collection](/documentation/developer-articles/update-the-output-url-for-a-collection/).
+
+## Configure inputs for your custom fields
+
+An <comp.GlossaryTerm term="/user/glossary/i/input.yml">input</comp.GlossaryTerm> is the editing control CloudCannon shows for a front matter key, such as a text field, a date picker, or a dropdown. If you have not configured an input, CloudCannon chooses one from the key's name and value. For your custom fields, configure the input type yourself using the `_inputs` key, so each field behaves the way it did in WordPress.
+
+Use the ACF field group JSON files from the [export step](/documentation/developer-guides/migrate-from-wordpress/export-your-wordpress-content/) to find each field's type. This table lists common ACF field types and the CloudCannon input type that fits each one:
+
+<comp.OptionsTable>
+  <comp.OptionsRow label="Text" type_markdown="`text`">
+    A single line of text.
+  </comp.OptionsRow>
+  <comp.OptionsRow label="Text Area" type_markdown="`textarea`">
+    Several lines of plain text.
+  </comp.OptionsRow>
+  <comp.OptionsRow label="WYSIWYG Editor" type_markdown="`markdown` or `html`">
+    Formatted text. Use `markdown` to store the value as Markdown, or `html` to store it as HTML.
+  </comp.OptionsRow>
+  <comp.OptionsRow label="Number, Range" type_markdown="`number`, `range`">
+    A number, typed in or chosen with a slider.
+  </comp.OptionsRow>
+  <comp.OptionsRow label="Email, URL, oEmbed" type_markdown="`email`, `url`">
+    An email address or a URL. For oEmbed, store the URL of the media to embed.
+  </comp.OptionsRow>
+  <comp.OptionsRow label="Image" type_markdown="`image`">
+    An image file, uploaded or chosen from existing files.
+  </comp.OptionsRow>
+  <comp.OptionsRow label="File" type_markdown="`file` or `document`">
+    Any file, or a document such as a PDF.
+  </comp.OptionsRow>
+  <comp.OptionsRow label="Gallery" type_markdown="`array`">
+    An array input whose items are images.
+  </comp.OptionsRow>
+  <comp.OptionsRow label="Select, Radio Button, Button Group" type_markdown="`select`, `choice`">
+    One value from a list of options.
+  </comp.OptionsRow>
+  <comp.OptionsRow label="Checkbox" type_markdown="`multiselect`, `multichoice`">
+    Several values from a list of options.
+  </comp.OptionsRow>
+  <comp.OptionsRow label="True / False" type_markdown="`checkbox` or `switch`">
+    An on or off value.
+  </comp.OptionsRow>
+  <comp.OptionsRow label="Date Picker, Date Time Picker" type_markdown="`date`, `datetime`">
+    A date, or a date and time.
+  </comp.OptionsRow>
+  <comp.OptionsRow label="Time Picker" type_markdown="`time`">
+    A time of day.
+  </comp.OptionsRow>
+  <comp.OptionsRow label="Color Picker" type_markdown="`color`">
+    A color value.
+  </comp.OptionsRow>
+  <comp.OptionsRow label="Link" type_markdown="`url` or `object`">
+    A URL on its own, or an object input with keys for the URL and link text.
+  </comp.OptionsRow>
+  <comp.OptionsRow label="Group" type_markdown="`object`">
+    A set of related keys grouped together.
+  </comp.OptionsRow>
+  <comp.OptionsRow label="Repeater" type_markdown="`array`">
+    A list of items that share the same keys.
+  </comp.OptionsRow>
+  <comp.OptionsRow label="Flexible Content" type_markdown="`array`">
+    A list of items that can each have a different shape. Define each shape as a <comp.GlossaryTerm term="/user/glossary/s/structure.yml">Structure</comp.GlossaryTerm>.
+  </comp.OptionsRow>
+  <comp.OptionsRow label="Taxonomy, Relationship, Post Object, Page Link, User" type_markdown="`select`, `multiselect`">
+    One or several values chosen from a <comp.GlossaryTerm term="/user/glossary/d/dataset.yml">Dataset</comp.GlossaryTerm> or another *Collection*. The next section shows how to populate these.
+  </comp.OptionsRow>
+</comp.OptionsTable>
+
+You can configure inputs for one *Collection* by adding `_inputs` inside it. For example, for the services post type from the [planning step](/documentation/developer-guides/migrate-from-wordpress/plan-your-migration/):
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+```
+
+collections_config:
+  services:
+    path: content/services
+    url: /services/{slug}/
+    _inputs:___1___
+      duration:
+        type: text
+      key_benefits:
+        type: array___2___
+      process_steps:
+        type: array
+
+```
+<comp.Annotation number="1">
+
+  These inputs apply only to files in the services *Collection*.
+
+</comp.Annotation>
+<comp.Annotation number="2">
+
+  An array input lets your team add, remove, and reorder items in a list.
+
+</comp.Annotation>
+</comp.MultiCodeBlock>
+
+For the options each input type supports, please read our documentation on [what inputs are](/documentation/user-articles/what-are-inputs/), and the configuration article for each input type it links to.
+
+## Turn taxonomies into select inputs
+
+In WordPress, a taxonomy holds a list of terms that you assign to posts. In CloudCannon, you can keep that list in a data file and use it as the options for a select input, so your team chooses from the same terms.
+
+Create a data file for each taxonomy, containing its terms as a list. For example, `data/industries.yml`:
+
+<comp.CodeBlock language="yaml" source="data/industries.yml">
+```
+- Healthcare
+- Finance
+- Technology
+```
+</comp.CodeBlock>
+
+Then define the file as a *Dataset* using the `data_config` key, and reference it from a select or multiselect input using `options.values`:
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+```
+
+data_config:
+  industries:___1___
+    path: data/industries.yml
+collections_config:
+  services:
+    path: content/services
+    url: /services/{slug}/
+    _inputs:
+      industry:
+        type: multiselect
+        options:
+          values: data.industries___2___
+
+```
+<comp.Annotation number="1">
+
+  The *Dataset* named `industries` reads its options from `data/industries.yml`.
+
+</comp.Annotation>
+<comp.Annotation number="2">
+
+  The `industry` input offers each term in the `industries` *Dataset* as an option.
+
+</comp.Annotation>
+</comp.MultiCodeBlock>
+
+For taxonomies that grow as your team writes, such as tags, you can set `allow_create: true` in the input `options` so your team can add new values while editing. For a relationship to another post type, such as linking a service to its case studies, set `values` to `collections.` followed by the *Collection* name, such as `collections.case_studies`. For more information, please read our documentation on [populating a Select input](/documentation/developer-articles/populate-a-select-input/).
+
+## Add schemas for new files
+
+When your team adds a new file to a *Collection*, CloudCannon can start it from a template that already has every front matter key the post type needs. This template is called a <comp.GlossaryTerm term="/user/glossary/s/schema.yml">Schema</comp.GlossaryTerm>. Create a *Schema* for each post type from the front matter of one of its converted files, so new content matches the content you migrated. For more information, please read our documentation on [creating a schema](/documentation/developer-articles/create-a-schema/).
+
+## Set your uploads folder
+
+When your team uploads an image or file in CloudCannon, CloudCannon saves it to the uploads folder, which is `uploads` by default. Set the `paths.uploads` key to your `uploads` folder, with placeholders that add the year and month, so new uploads follow the same structure as the files you migrated:
+
+<comp.MultiCodeBlock language="YAML" translate_into={["json"]} source="cloudcannon.config.yml">
+```
+
+paths:
+  static: static___1___
+  uploads: static/uploads/{date|year}/{date|month}___2___
+
+```
+<comp.Annotation number="1">
+
+  The folder your SSG serves static files from, such as `static` for Hugo or `public` for Astro and Next.js. CloudCannon leaves this folder out of the links it writes, so a new upload links to `/uploads/` rather than `/static/uploads/`. Leave out `static` for Eleventy and Jekyll.
+
+</comp.Annotation>
+<comp.Annotation number="2">
+
+  The `{date|year}` and `{date|month}` placeholders read the `date` key from the file your team is editing. For Eleventy and Jekyll, use `uploads/{date|year}/{date|month}`.
+
+</comp.Annotation>
+</comp.MultiCodeBlock>
+
+For more information, please read our documentation on [adjusting the uploads path](/documentation/developer-articles/adjusting-the-uploads-path/).
+
+Push your *Configuration File* changes to your *Git Repository*. Once CloudCannon has synced them, open a few files from each *Collection* in CloudCannon and check that each custom field shows the input you configured.
+
+In the next step of this guide, we'll keep your old WordPress URLs working and move your domain to CloudCannon.

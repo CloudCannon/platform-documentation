@@ -1,0 +1,151 @@
+---
+_schema: default
+_uuid: d2df56b3-ed97-4e7c-a959-39b5147be88b
+_created_at: 2026-11-17T00:00:00Z
+details:
+  title: Export your WordPress content
+  order: 4
+  image: >-
+    https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+  description: Export your WordPress posts and pages, copy your Media Library, and save your custom field definitions and data.
+  start_nav_group: null
+  related_articles: null
+author_notes:
+  docshots: Not applicable
+---
+WordPress keeps your content in three places: the database holds your posts, pages, and custom field values, the `wp-content/uploads` folder holds your media files, and plugins such as Advanced Custom Fields (ACF) hold the definitions of your custom fields. On this page, you will export each of them.
+
+Run the commands on this page on the server, from your WordPress installation directory. Like the commands in the [planning step](/documentation/developer-guides/migrate-from-wordpress/plan-your-migration/), they save their files in the `wordpress-migration` folder in your home directory, outside the public website.
+
+## Export your posts and pages
+
+WordPress exports content as a WordPress eXtended RSS (WXR) file, an XML file that contains your posts, pages, custom post types, categories, tags, authors, and comments. The conversion tool in the next step of this guide reads this file.
+
+To export your content with WP-CLI, run:
+
+<comp.CodeBlock language="shell" source="Terminal">
+```
+wp export --dir=$HOME/wordpress-migration/exports
+```
+</comp.CodeBlock>
+
+WP-CLI exports every post type by default. It splits the export into files of 15 MB or less, so a large site produces several XML files in the `exports` folder inside `wordpress-migration`.
+
+You can also export from the WordPress admin. On the *Tools* > *Export* page, select the *All content* radio button, then click the *Download Export File* button. We recommend WP-CLI, because it splits a large export into several files.
+
+## Copy your Media Library
+
+The export file lists your Media Library items, but it does not contain the files themselves. Copy the `wp-content/uploads` folder so you have every file, including PDFs and other documents.
+
+<comp.CodeBlock language="shell" source="Terminal">
+```
+mkdir -p ~/wordpress-migration/media-export
+cp -r wp-content/uploads/. ~/wordpress-migration/media-export/
+```
+</comp.CodeBlock>
+
+WordPress stores the details of each Media Library item in the database, not in the files: its ID, which custom fields use to refer to the item, and its alt text. To save the ID, file path, and alt text of each item, run:
+
+<comp.CodeBlock language="shell" source="Terminal">
+```
+wp db query "SELECT p.ID, f.meta_value AS file, a.meta_value AS alt_text FROM wp_posts p JOIN wp_postmeta f ON p.ID = f.post_id AND f.meta_key = '_wp_attached_file' LEFT JOIN wp_postmeta a ON p.ID = a.post_id AND a.meta_key = '_wp_attachment_image_alt' WHERE p.post_type = 'attachment'" > ~/wordpress-migration/media-files.tsv
+```
+</comp.CodeBlock>
+
+Each row has an item's ID, its path inside the uploads folder, such as `2024/05/hero.jpg`, and its alt text, if it has any.
+
+Every `wp db query` command on this page assumes the default `wp_` database table prefix. If your site uses a different prefix, replace `wp_` in the table names. You can find your prefix in the `$table_prefix` setting in `wp-config.php`.
+
+## Export your custom fields
+
+Custom fields hold structured data that does not fit in the main content of a post, such as the duration of a service or a list of key benefits. In CloudCannon, custom fields become front matter keys, and you will configure an input for each one. You need two things from WordPress: the definition of each field, and the values stored on each post.
+
+### Export your ACF field definitions
+
+If your site uses the Advanced Custom Fields plugin, the field definitions tell you each field's name, type, and options.
+
+ACF 6.8 and later adds WP-CLI commands that export your field groups as JSON. To export every field group, run:
+
+<comp.CodeBlock language="shell" source="Terminal">
+```
+wp acf json export --dir=$HOME/wordpress-migration/acf-json
+```
+</comp.CodeBlock>
+
+Without any filter options, this command also exports any post types, taxonomies, and options pages you created in ACF. For every option, please read the <a href="https://www.advancedcustomfields.com/resources/wp-cli-commands/" target="_blank" rel="noopener noreferrer">ACF documentation on WP-CLI commands</a>.
+
+On older versions of ACF, use its Local JSON feature instead. Create a folder named `acf-json` in your active theme's folder on the server, and make sure the server can write to it. Then open each field group in the WordPress admin and save it. ACF will write a JSON file for each field group to the `acf-json` folder, and from then on your live site loads its field groups from those files. The theme folder is public, so copy the files to your migration folder:
+
+<comp.CodeBlock language="shell" source="Terminal">
+```
+cp -r wp-content/themes/your-theme/acf-json ~/wordpress-migration/
+```
+</comp.CodeBlock>
+
+Replace `your-theme` with the folder name of your active theme. For more information, please read the <a href="https://www.advancedcustomfields.com/resources/local-json/" target="_blank" rel="noopener noreferrer">ACF documentation on Local JSON</a>.
+
+You will use these files when you configure inputs for your <comp.GlossaryTerm term="/user/glossary/c/collection.yml">Collections</comp.GlossaryTerm>, later in this guide.
+
+### Export your custom field values
+
+The conversion tool in the next step of this guide does not convert custom field values into front matter. To keep a full record of the values stored on each post, run:
+
+<comp.CodeBlock language="shell" source="Terminal">
+```
+wp db query "SELECT p.ID, p.post_name, p.post_type, m.meta_key, m.meta_value FROM wp_posts p JOIN wp_postmeta m ON p.ID = m.post_id WHERE m.meta_key NOT LIKE '\_%' AND p.post_status IN ('publish', 'draft', 'pending', 'future', 'private')" > ~/wordpress-migration/custom-field-values.tsv
+```
+</comp.CodeBlock>
+
+WordPress and many plugins store internal settings in keys that start with an underscore, so this query leaves those out. It also leaves out posts in the trash. The file has one row per field value, with the post's ID and slug so you can match each value to its Markdown file.
+
+Some ACF field types store their values in a form you will need to translate. An image or file field stores the ID of a Media Library item rather than its URL, which you can match against the IDs in `media-files.tsv`. A repeater field stores the number of rows under the field's name, and each value in its own key, such as `process_steps_0_title` for the title in the first row.
+
+### Export your featured images
+
+WordPress stores each post's featured image as the ID of a Media Library item, in a key that starts with an underscore, so the previous query leaves it out. To save the path of each post's featured image, relative to your uploads folder, run:
+
+<comp.CodeBlock language="shell" source="Terminal">
+```
+wp db query "SELECT p.ID, p.post_name, a.meta_value AS featured_image FROM wp_posts p JOIN wp_postmeta t ON p.ID = t.post_id AND t.meta_key = '_thumbnail_id' JOIN wp_postmeta a ON a.post_id = t.meta_value AND a.meta_key = '_wp_attached_file' WHERE p.post_status IN ('publish', 'draft', 'pending', 'future', 'private')" > ~/wordpress-migration/featured-images.tsv
+```
+</comp.CodeBlock>
+
+Each row has a post ID and a path such as `2024/05/hero.jpg`, inside the `wp-content/uploads` folder you copied earlier.
+
+## Export your menus
+
+WordPress stores your navigation menus in the database, and the conversion tool in the next step of this guide skips them. To list your menus, run:
+
+<comp.CodeBlock language="shell" source="Terminal">
+```
+wp menu list --fields=term_id,name,slug,locations --format=csv > ~/wordpress-migration/menus.csv
+```
+</comp.CodeBlock>
+
+Then export the items in each menu:
+
+<comp.CodeBlock language="shell" source="Terminal">
+```
+wp menu item list main-menu --fields=db_id,menu_item_parent,title,link --format=csv > ~/wordpress-migration/menu-main-menu.csv
+```
+</comp.CodeBlock>
+
+Replace `main-menu` with the slug of each menu from `menus.csv`, in both places. Each row has the item's ID, the ID of its parent item for a nested item, its title, and its link.
+
+## List your unpublished posts
+
+Your XML export includes posts that are private, pending review, or scheduled for a future date. Your visitors cannot see these posts in WordPress, so you will need to find them after you convert your content. To list them, run:
+
+<comp.CodeBlock language="shell" source="Terminal">
+```
+wp db query "SELECT ID, post_type, post_status, post_name FROM wp_posts WHERE post_status IN ('private', 'pending', 'future')" > ~/wordpress-migration/unpublished-posts.tsv
+```
+</comp.CodeBlock>
+
+Each row has a post ID, its post type, its status, and its slug.
+
+Copy the `wordpress-migration` folder to your computer. Then delete it from the server, because the database backup in it contains your whole WordPress database.
+
+By the end of this step, you will have an XML export of your content, a copy of your Media Library, your custom field definitions and values, your featured images, your menus, and a list of your unpublished posts.
+
+In the next step of this guide, we'll convert your XML export into Markdown files with front matter.

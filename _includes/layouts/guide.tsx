@@ -188,6 +188,7 @@ export default function GuideLayout(props: Props, helpers: Helpers) {
             prev={prev}
             next={next}
             guideIcon={guide_icon}
+            guideIconInvertForDarkMode={guide_icon_invert_for_dark_mode}
             guideTitle={guide_title}
             details={details}
             totalPages={totalPages}

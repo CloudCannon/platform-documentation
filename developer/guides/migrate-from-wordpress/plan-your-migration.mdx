@@ -1,0 +1,127 @@
+---
+_schema: default
+_uuid: ddf6ea45-a405-445f-8bf1-42599c5dd29b
+_created_at: 2026-11-17T00:00:00Z
+details:
+  title: Plan your migration
+  order: 3
+  image: >-
+    https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+  description: Back up your WordPress site and record its content types, taxonomies, plugins, URLs, and features.
+  start_nav_group: null
+  related_articles: null
+author_notes:
+  docshots: Not applicable
+---
+Before you export anything, take a full backup of your WordPress site and make an inventory of what it contains. The inventory tells you which <comp.GlossaryTerm term="/user/glossary/c/collection.yml">Collections</comp.GlossaryTerm>, inputs, and redirects you will need in CloudCannon, and which plugin features you will need to replace on your new <comp.GlossaryTerm term="/user/glossary/s/site.yml">Site</comp.GlossaryTerm>.
+
+Run the commands on this page on the server, from your WordPress installation directory. Your web server usually makes the files in that directory public, so anyone could download a file you save there. Save the files these commands create in a folder outside it instead, such as a `wordpress-migration` folder in your home directory:
+
+<comp.CodeBlock language="shell" source="Terminal">
+```
+mkdir -p ~/wordpress-migration
+```
+</comp.CodeBlock>
+
+## Back up your WordPress site
+
+A backup lets you restore your WordPress site exactly as it was if something goes wrong during the migration. Back up both the database and the files.
+
+To export the database, use WP-CLI:
+
+<comp.CodeBlock language="shell" source="Terminal">
+```
+wp db export ~/wordpress-migration/wordpress-backup.sql
+```
+</comp.CodeBlock>
+
+To back up the files, archive your whole WordPress directory. This includes your themes, plugins, and the `wp-content/uploads` folder that holds your Media Library.
+
+<comp.CodeBlock language="shell" source="Terminal">
+```
+tar -czf ~/wordpress-migration/wordpress-files-backup.tar.gz .
+```
+</comp.CodeBlock>
+
+The `.` in this command archives the directory you are in, which is your WordPress installation. Copy both backup files somewhere other than the server.
+
+## List your content types
+
+WordPress organizes content into post types. Posts and pages are built in, and themes and plugins can add custom post types such as services, products, or team members. Each post type you want to keep will usually become one *Collection* in CloudCannon.
+
+To list your post types and how many items each one has, run:
+
+<comp.CodeBlock language="shell" source="Terminal">
+```
+wp post-type list --fields=name,label,public,count --format=csv > ~/wordpress-migration/post-types.csv
+```
+</comp.CodeBlock>
+
+WordPress also registers internal post types, such as revisions and navigation menu items. The `public` column helps you tell them apart: post types your visitors see are usually public.
+
+Taxonomies group your content, such as categories, tags, or a custom taxonomy like industry. Each taxonomy you keep will usually become a list of options for a select input in CloudCannon. To list your taxonomies, the post types they apply to, and how many terms each has, run:
+
+<comp.CodeBlock language="shell" source="Terminal">
+```
+wp taxonomy list --fields=name,label,object_type,count --format=csv > ~/wordpress-migration/taxonomies.csv
+```
+</comp.CodeBlock>
+
+For each post type you keep, note the custom fields it uses, the templates that display it, and any relationships to other post types. A short YAML or text file per post type is enough:
+
+<comp.CodeBlock language="yaml" source="services.yml">
+```
+post_type: services
+taxonomies:
+  - industry
+  - service_type
+custom_fields:
+  - duration
+  - process_steps
+  - key_benefits
+templates:
+  - single-service.php
+  - archive-service.php
+relationships:
+  - case_studies
+  - team_members
+```
+</comp.CodeBlock>
+
+## Record your URL structure
+
+Your visitors, search engines, and other websites link to your existing URLs. Write down the URL pattern for each post type and taxonomy so you can keep those URLs working after the move.
+
+In the WordPress admin, the *Settings* > *Permalinks* page shows the pattern for posts, such as `/%year%/%monthnum%/%postname%/` or `/%postname%/`. Custom post types and taxonomy archives usually have their own patterns, such as `/services/[post name]/` or `/category/[category name]/`. If the *Category base* or *Tag base* field on the same page has a value, your category or tag URLs start with that value instead of `/category/` or `/tag/`. Note the pattern for each one, along with any other URLs you know are linked from elsewhere, such as your RSS feed at `/feed/`.
+
+## Audit your plugins
+
+Plugins add features to WordPress that a static website handles in other ways. To list your active plugins, run:
+
+<comp.CodeBlock language="shell" source="Terminal">
+```
+wp plugin list --status=active --fields=name,title,version --format=csv > ~/wordpress-migration/plugins.csv
+```
+</comp.CodeBlock>
+
+For each plugin, record what it does and whether your new *Site* needs that feature. Many plugins exist to manage the database, caching, or security of a WordPress server, and have no equivalent to replace. Others add features your visitors use, such as forms, search, or comments, and you will need to rebuild those. For example:
+
+<comp.CodeBlock language="plaintext" source="plugins-audit.csv">
+```
+Plugin,Purpose,Needed after migration,Replacement
+Yoast SEO,Page titles and meta descriptions,Yes,SEO fields in front matter and SSG templates
+Contact Form 7,Contact form,Yes,CloudCannon Inbox
+SearchWP,Site search,Yes,A static search tool such as Pagefind
+WP Super Cache,Page caching,No,None needed
+```
+</comp.CodeBlock>
+
+## Audit your site features
+
+Some features are part of your theme rather than a plugin, such as search, comments, or a newsletter signup. List each feature your visitors use, how WordPress provides it, and how you plan to provide it on your new *Site*.
+
+If your *Site* is hosted on CloudCannon, CloudCannon can receive its form submissions in an <comp.GlossaryTerm term="/user/glossary/i/inbox.yml">Inbox</comp.GlossaryTerm>. If you host your *Site* elsewhere, use a third-party form service instead. For more information, please read our documentation on [what a form is](/documentation/developer-articles/what-is-a-form/). For features CloudCannon does not provide, such as comments or site search, you can use a third-party service or a tool that runs as part of your SSG build.
+
+By the end of this step, you will have a backup of your WordPress site, and a record of its post types, taxonomies, URLs, plugins, and features. Keep these files: if you contact our support team about your migration, they describe your site in the detail support needs.
+
+In the next step of this guide, we'll export your content, media, and custom fields from WordPress.

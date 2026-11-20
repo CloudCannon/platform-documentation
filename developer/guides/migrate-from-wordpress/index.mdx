@@ -1,0 +1,56 @@
+---
+_schema: default
+_uuid: 0182a1e7-b4c8-426a-96fe-5efb0b6a9095
+_created_at: 2026-11-17T00:00:00Z
+details:
+  title: Introduction
+  order: 1
+  image: >-
+    https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+  description: Plan, export, and convert the content of a self-hosted WordPress site, then set it up as a Site on CloudCannon.
+  start_nav_group: null
+  related_articles: null
+author_notes:
+  docshots: Not applicable
+---
+Welcome to the WordPress migration guide! 👋 If you have a self-hosted WordPress site and want to manage its content in CloudCannon, you are in the right place.
+
+WordPress stores your content in a database and renders each page with PHP when a visitor requests it. CloudCannon works with your website's files, which we recommend storing in a <comp.GlossaryTerm term="/user/glossary/g/git-repository.yml">Git Repository</comp.GlossaryTerm>: your content lives in Markdown and data files, and a <comp.GlossaryTerm term="/user/glossary/s/ssg.yml">Static Site Generator</comp.GlossaryTerm> (SSG) turns those files into HTML. Moving from WordPress to CloudCannon means getting your content out of the database and into files, then giving those files a home in a CloudCannon <comp.GlossaryTerm term="/user/glossary/s/site.yml">Site</comp.GlossaryTerm>.
+
+In this guide, we'll cover how to:
+
+* Find the CloudCannon equivalent of each WordPress concept, such as post types, custom fields, and roles.
+* Back up your WordPress site and take an inventory of its content, plugins, and features.
+* Export your posts, pages, media, and custom fields.
+* Convert your WordPress export to Markdown files with front matter.
+* Create a *Site* on CloudCannon and configure <comp.GlossaryTerm term="/user/glossary/c/collection.yml">Collections</comp.GlossaryTerm> and inputs for your content.
+* Keep your existing URLs working and move your domain to CloudCannon.
+
+This guide covers your content. It does not cover rebuilding your WordPress theme: you will need layouts and templates for your SSG to display your content, which you can build yourself or take from an existing SSG starter.
+
+## Which WordPress sites this guide covers
+
+This guide is for self-hosted WordPress sites, where you can run commands on the server and access the database. Several steps use <a href="https://wp-cli.org/" target="_blank" rel="noopener noreferrer">WP-CLI</a>, the WordPress command-line tool.
+
+If your site is hosted on WordPress.com, or your host does not give you shell access, you will not be able to run the WP-CLI commands in this guide. You can still export your posts and pages from the WordPress admin, and every step from [converting your content to Markdown](/documentation/developer-guides/migrate-from-wordpress/convert-your-content-to-markdown/) onward applies once you have that export file, except the parts that use the files from the WP-CLI commands in the export step, such as your custom field values, featured images, and menus. The conversion tool treats private, pending, and scheduled posts as ordinary posts, so before you build your website, find them using the *Private*, *Pending*, and *Scheduled* filters on the *Posts* page of the WordPress admin. Eleventy Import, listed below, can also import directly from a WordPress.com site or an export file, without WP-CLI.
+
+## If you already know which SSG you want
+
+Some SSGs have their own WordPress import tools, which convert your content into the format that SSG expects. If one of these matches the SSG you plan to use, you can use it in place of the export and conversion steps in this guide:
+
+* **Eleventy** — <a href="https://github.com/11ty/import" target="_blank" rel="noopener noreferrer">Eleventy Import</a>, a command-line tool that imports a WordPress site into an Eleventy project from the site itself or from a WordPress export file.
+* **Hugo** — <a href="https://github.com/SchumacherFM/wordpress-to-hugo-exporter" target="_blank" rel="noopener noreferrer">wordpress-to-hugo-exporter</a>, a WordPress plugin that exports your site formatted for Hugo.
+* **Jekyll and Hugo** — <a href="https://github.com/benbalter/wordpress-static-site-exporter" target="_blank" rel="noopener noreferrer">Static Site Exporter</a>, a WordPress plugin that exports your posts, pages, and media as Markdown files for Jekyll, Hugo, and other SSGs.
+
+We still recommend completing the [planning step](/documentation/developer-guides/migrate-from-wordpress/plan-your-migration/) first, so you know what custom post types, fields, and features you need to bring across. After using an import tool, continue from the step where you [set up your Site in CloudCannon](/documentation/developer-guides/migrate-from-wordpress/set-up-your-site-in-cloudcannon/).
+
+## Before we begin
+
+Before we begin, this guide assumes:
+
+- You have administrator access to your WordPress site.
+- You have shell access to the server that runs WordPress, with WP-CLI installed.
+- You have <a href="https://nodejs.org/" target="_blank" rel="noopener noreferrer">Node.js</a>, Git, and your chosen SSG installed on your computer.
+- You have a CloudCannon account and an account with a <comp.GlossaryTerm term="/user/glossary/g/git-provider.yml">Git Provider</comp.GlossaryTerm> such as GitHub, GitLab, or Bitbucket.
+
+Keep your WordPress site running until your domain points at CloudCannon and you are confident the new *Site* works. You will switch your domain over to CloudCannon only after you have checked the new *Site*, so your visitors see no gap.

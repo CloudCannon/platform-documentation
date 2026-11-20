@@ -1,0 +1,103 @@
+---
+_schema: default
+_uuid: b000084c-6021-498b-bebc-93017f28c722
+_created_at: 2026-11-17T00:00:00Z
+details:
+  title: Convert your content to Markdown
+  order: 5
+  image: >-
+    https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+  description: Convert your WordPress export to Markdown files with front matter, then clean up and check the result.
+  start_nav_group: null
+  related_articles: null
+author_notes:
+  docshots: Not applicable
+---
+Your XML export contains your content as HTML inside one or more files. On this page, you will convert it into one Markdown file per post or page, each with <comp.GlossaryTerm term="/user/glossary/f/front-matter.yml">front matter</comp.GlossaryTerm> at the top. Front matter is a block of YAML that holds structured data about a file, such as its title, date, and categories. Your SSG reads front matter when it builds your website, and CloudCannon shows each front matter key as an input when you edit the file.
+
+Run the commands on this page on your computer, from your copy of the `wordpress-migration` folder.
+
+## Convert your export
+
+We recommend <a href="https://github.com/lonekorean/wordpress-export-to-markdown" target="_blank" rel="noopener noreferrer">wordpress-export-to-markdown</a>, an open-source tool that converts a WordPress export into Markdown files. It converts posts, pages, drafts, and custom post types.
+
+If you run the tool without options, it starts a wizard that asks you each question. To run it without the wizard, pass every option on the command line:
+
+<comp.CodeBlock language="shell" source="Terminal">
+```
+npx wordpress-export-to-markdown --wizard=false --input=exports/export.xml --output=markdown-output --post-folders=false --save-images=none --frontmatter-fields=id,title,slug,date,categories,tags,excerpt,draft
+```
+</comp.CodeBlock>
+
+Replace `exports/export.xml` with the path to your export file. If WP-CLI split your export into several files, run the command once for each file with the same `--output` folder. The tool does not overwrite files that already exist in the output folder.
+
+The options in this command control how the tool lays out your files:
+
+* **`--post-folders=false`** — Writes each post as a single Markdown file named after its slug, such as `my-post.md`, so all the posts of one post type sit together in one folder.
+* **`--save-images=none`** — Leaves your images where they are. Image links keep pointing at your WordPress uploads folder, and you will move every image at once from your copy of the Media Library later on this page.
+* **`--frontmatter-fields`** — Sets which front matter keys each file has, in order. Including `id` and `slug` lets you match each file to the custom field values you exported, and to its old URL.
+
+The tool puts each post type in its own folder inside the output folder: posts in `posts`, pages in `pages`, and each custom post type in a folder named after it inside `custom`, such as `custom/services`. Drafts go in a `_drafts` folder inside their post type's folder. Each of these folders will become one <comp.GlossaryTerm term="/user/glossary/c/collection.yml">Collection</comp.GlossaryTerm> in CloudCannon. The tool skips internal post types, such as Media Library items, revisions, and navigation menu items.
+
+The tool treats only posts with the WordPress status *Draft* as drafts. It converts private posts, posts pending review, and scheduled posts as ordinary posts, so they would appear on your website after your first build, including posts that were private. Use the `unpublished-posts.tsv` file from the [export step](/documentation/developer-guides/migrate-from-wordpress/export-your-wordpress-content/) to find each one by its `id` key. Before you build your website, delete each one you don't want to keep, or mark it as a draft the way your SSG expects, such as `draft: true` in its front matter.
+
+For every option the tool supports, please read the <a href="https://github.com/lonekorean/wordpress-export-to-markdown" target="_blank" rel="noopener noreferrer">wordpress-export-to-markdown documentation</a>.
+
+## Clean up your content
+
+The converted Markdown can still contain WordPress shortcodes. Review them before you move your content into your SSG project.
+
+Shortcodes are WordPress tags in square brackets, such as `[gallery ids="12,13"]` or `[contact-form-7 id="5"]`. A plugin turns each shortcode into HTML when WordPress renders the page, so without WordPress they appear as plain text. The conversion tool adds a backslash before each square bracket and underscore in plain text, so a shortcode appears in your Markdown files as `\[gallery ids="12,13"\]`. Markdown links and images use square brackets without backslashes, so do not remove bracketed text with a single find-and-replace. Instead, list the shortcodes your content uses:
+
+<comp.CodeBlock language="shell" source="Terminal">
+```
+grep -rhoE '\\\[/?[a-z][a-z0-9_\\-]*' markdown-output | tr -d '\\' | sort | uniq -c | sort -rn
+```
+</comp.CodeBlock>
+
+This command prints each shortcode name and how many times it appears, with closing tags such as `[/my_shortcode` listed separately. It finds only bracketed text from your WordPress content, not Markdown links or images. For each shortcode, decide whether to remove it, replace it with Markdown or HTML, or rebuild it as a component in your SSG. The plugin audit from the [planning step](/documentation/developer-guides/migrate-from-wordpress/plan-your-migration/) tells you which plugin each shortcode belongs to.
+
+Check the front matter of a few files of each post type. Make sure the dates, categories, and tags are correct, and that the keys match what your SSG templates expect.
+
+## Add your custom field values
+
+The conversion tool does not add custom field values to your front matter. Use the `custom-field-values.tsv` and `featured-images.tsv` files from the [export step](/documentation/developer-guides/migrate-from-wordpress/export-your-wordpress-content/) to add them. Each row has a post ID, which matches the `id` key in your front matter. For a featured image, write its path from `featured-images.tsv` after `/uploads/`, such as `/uploads/2024/05/hero.jpg`. For an image or file field, find the ID it stores in `media-files.tsv`, and write that file's path after `/uploads/` in the same way. The same file holds the alt text of each image, if your templates need it for featured images or image fields.
+
+How you add them depends on the number of posts and fields. For a small site, you can add them by hand. For a larger site, write a short script that reads the file and writes each value into the matching Markdown file's front matter. Use the front matter key names you want in CloudCannon, such as `duration` or `key_benefits`, because you will configure an input for each key later in this guide.
+
+## Convert your menus
+
+Your SSG templates will build your navigation menus from data files. Use the menu files from the export step to create a data file for each menu, such as `data/menus/main-menu.yml`, with the title and link of each item. To nest an item under another, match its `menu_item_parent` to the parent item's `db_id`. Menu links are full URLs on your WordPress domain, so change each link to your own site into a path, such as `/about/`.
+
+## Organize your media
+
+Your images, PDFs, and other media files are in the `media-export` folder you copied earlier, in the same year and month folders WordPress used, such as `2024/05/hero.jpg`. WordPress also saved resized copies of each image there, such as `hero-1024x683.jpg`, which your content may link to.
+
+You will copy this folder into your SSG project as a single `uploads` folder, keeping its structure, so every file is at `/uploads/` followed by its WordPress path. Your Markdown files still link to your WordPress uploads folder. To update every link to point at `/uploads/`, run:
+
+<comp.CodeBlock language="shell" source="Terminal">
+```
+grep -rl 'wp-content/uploads/' markdown-output | xargs perl -pi -e 's#(https?://(www\.)?example\.com)?/wp-content/uploads/#/uploads/#g'
+```
+</comp.CodeBlock>
+
+Replace `example\.com` with your domain, keeping the backslash before each dot. This command changes your files in place, so keep a copy of `markdown-output` until you have checked the result.
+
+You will tell CloudCannon about this folder when you set up your <comp.GlossaryTerm term="/user/glossary/s/site.yml">Site</comp.GlossaryTerm>, so new uploads go to the same place.
+
+## Check your converted content
+
+Before you move on, check that everything from your inventory came across. Use the counts in `post-types.csv` and `taxonomies.csv` from the planning step to confirm that:
+
+* The number of Markdown files for each post type matches the number of items in WordPress.
+* Every post has a title, a date, and a slug in its front matter.
+* Categories, tags, and custom taxonomy terms are present in the front matter.
+* Custom field values are present in the front matter.
+* Links to images and other media files start with `/uploads/`, and no links to `wp-content/uploads` remain.
+* No shortcodes remain, unless you plan to handle them in your SSG.
+* Every post from `unpublished-posts.tsv` is deleted or marked as a draft.
+* Special characters, such as accented letters and quotation marks, display correctly.
+
+By the end of this step, you will have a folder of Markdown files with front matter, and a copy of your Media Library ready to move into your SSG project.
+
+In the next step of this guide, we'll create a *Site* on CloudCannon and configure *Collections* and inputs for your content.
