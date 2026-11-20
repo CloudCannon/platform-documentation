@@ -1,9 +1,9 @@
 ---
 _schema: default
-title: ZIP upload completion checks the upload key
+title: ZIP checksum format and 500 error fixes
 date: 2026-11-20T14:14:40+13:00
 ---
-This update changed `POST /api/v0/sites/{site_uuid}/files/zip` to check that the ZIP file it completes is one you uploaded, and that its checksum is an MD5 hash. It also fixed several endpoints that returned a `500` error to an API key or on unexpected input.
+This update changed `POST /api/v0/sites/{site_uuid}/files/zip` to require an MD5 checksum, which returns a `422` error to code that sends any other checksum format. It also fixed several endpoints that returned a `500` error to an API key or on unexpected input.
 
 ## Changed
 
@@ -15,7 +15,6 @@ This update changed `POST /api/v0/sites/{site_uuid}/files/zip` to check that the
 
 ## Fixes
 
-* Fixed an issue where `POST /api/v0/sites/{site_uuid}/files/zip` accepted a `zip.key` for a ZIP file uploaded by someone else. The `zip.key` must now be a ZIP file under the `prefix` that `GET /api/v0/upload-data` returned to the same API key or user. Any other key returns a `422` error.
 * Fixed an issue where several endpoints returned a `500` error to a request made with an API key:
   * `POST` and `DELETE /api/v0/groups/{group_uuid}/members` on the *Owners Permission Group* now return `403`.
   * `POST /api/v0/groups/{group_uuid}/members` now invites an email address that has no CloudCannon account, without recording who sent the invitation.
