@@ -7,8 +7,8 @@ Machine-readable style rules for AI agents and automated linters. These rules ar
 **For agents making updates to this file:** Also update the corresponding section in `STYLE_GUIDE.mdx` with the prose explanation and examples. Update the revision history in both files: `last_updated` and `style_guide_version` in the YAML block below, and the `Last Updated` and `Version` fields and the revision history table (Section 4) in `STYLE_GUIDE.mdx`.
 
 ```yaml
-style_guide_version: "2.84"
-last_updated: "2026-11-06"
+style_guide_version: "2.85"
+last_updated: "2026-11-18"
 
 documentation_architecture:
   single_source_of_truth:
@@ -895,8 +895,8 @@ link_formats:
   ui_elements_in_links:
     rule: "Drop italics when a UI element or Core Concept term (e.g. *Organization Member*, *Site*) is used as link text"
     reason: "Link formatting (underline/color) already provides visual distinction; combining italics and links creates visual clutter"
-    correct: "[Data Editor](/documentation/articles/what-is-the-data-editor/)"
-    incorrect: "[*Data Editor*](/documentation/articles/what-is-the-data-editor/)"
+    correct: "[Data Editor](/documentation/user-articles/what-is-the-data-editor/)"
+    incorrect: "[*Data Editor*](/documentation/user-articles/what-is-the-data-editor/)"
 
   cross_link_pointer:
     rule: "When pointing readers to another article inline, use the sentence frame 'please read our documentation on [descriptive phrase]'. The link text is a lowercase descriptive rephrase of the target article's title — NEVER the verbatim title-cased article name, which duplicates the Pagefind result title."
