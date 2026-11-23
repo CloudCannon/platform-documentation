@@ -1,0 +1,25 @@
+---
+_schema: default
+title: ZIP checksum format and 500 error fixes
+date: 2026-11-20T14:14:40+13:00
+---
+This update changed `POST /api/v0/sites/{site_uuid}/files/zip` to require an MD5 checksum, which returns a `422` error to code that sends any other checksum format. It also fixed several endpoints that returned a `500` error to an API key or on unexpected input.
+
+## Changed
+
+* Changed `POST /api/v0/sites/{site_uuid}/files/zip` to require `zip.checksum` to be the MD5 hash of the uploaded ZIP file, as 32 hexadecimal characters without quotes. Any other value returns a `422` error.
+
+## Removed
+
+* Removed the `id` filter from `GET /api/v0/users/access_keys`. Access keys have no `id` field, so the filter returned a `500` error.
+
+## Fixes
+
+* Fixed an issue where several endpoints returned a `500` error to a request made with an API key:
+  * `POST` and `DELETE /api/v0/groups/{group_uuid}/members` on the *Owners Permission Group* now return `403`.
+  * `POST /api/v0/groups/{group_uuid}/members` now invites an email address that has no CloudCannon account, without recording who sent the invitation.
+  * `GET /api/v0/orgs/{org_uuid}/members/{email}` now returns the *Organization Member*.
+  * `POST` and `DELETE /api/v0/sites/{site_uuid}/watchers` now return `403`, as watching a *Site* needs a user account.
+* Fixed an issue where `GET` and `DELETE /api/v0/scheduled-builds/{scheduled_build_uuid}` returned a `500` error for a *Scheduled Build* that does not exist. They now return `403`.
+* Fixed an issue where `POST /api/v0/sites/{site_uuid}/output-providers` with a `storage_provider` of `ftp` returned a `500` error when `custom_data` was missing or not an object. It now returns a `422` error.
+* Fixed an issue where `DELETE /api/v0/base-domains/{base_domain_uuid}/dns/records/{record_id}` returned a `500` error for a record that Cloudflare had already deleted. It now returns `204`, as for any other deleted record.
