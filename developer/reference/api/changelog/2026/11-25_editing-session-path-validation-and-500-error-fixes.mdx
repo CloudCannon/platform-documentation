@@ -1,0 +1,26 @@
+---
+_schema: default
+title: Editing session path validation and 500 error fixes
+date: 2026-11-25T11:20:11+13:00
+---
+This update changed the editing session endpoints to refuse any path outside the *Site* or inside a `.git` folder, and changed `PUT` on *Site Inboxes* and *Site DAMs* to refuse a connection to another *Organization*. It also fixed several endpoints that returned a `500` error on unexpected input or a rejected *Git Provider* connection.
+
+## Changed
+
+* Changed the editing session endpoints that write to a path to return a `422` error when the path contains a `..` segment or a `.git` folder, in any case and at any depth, to stop a request from writing outside the *Site's* files or into its Git history. This applies to:
+  * The `target` of `POST /api/v0/editing_sessions/{editing_session_uuid}/upload_file`, `POST …/move_path`, and `POST …/clone_path`.
+  * The `path` of `POST /api/v0/editing_sessions/{editing_session_uuid}/files` and `PUT /api/v0/editing_session_files/{editing_session_file_uuid}/path`.
+* Changed `PUT /api/v0/site-inboxes/{site_inbox_uuid}` to return a `422` error when the new `inbox_uuid` belongs to a different *Organization* from the *Site*. Previously, only `POST` checked this.
+* Changed `PUT /api/v0/site-dams/{site_dam_uuid}` to return a `422` error when the new `dam_uuid` belongs to a different *Organization* from the *Site*. Previously, only `POST` checked this.
+
+## Fixes
+
+* Fixed an issue where every endpoint that accepts `sort_attribute` and `sort_direction` returned a `500` error when `sort_attribute` or `sort_direction` was an array or object. They now use the default order, as for any unrecognized value.
+* Fixed an issue where `POST`, `PUT`, and `DELETE /api/v0/sites/{site_uuid}/providers`, `POST …/providers/sync`, and `POST …/providers/reconnect` returned a `500` error when Bitbucket rejected the stored connection. They now return a `422` error asking you to reconnect your *Git Provider*.
+* Fixed an issue where the following endpoints returned a `500` error for a GitLab connection with no access token, or when CloudCannon could not look up the *Git Provider's* domain. A GitLab connection with no access token now returns the same `422` error as a rejected GitLab connection, and a failed domain lookup returns a `422` error asking you to try again.
+  * `GET /api/v0/orgs/{org_uuid}/providers/{provider}/installations`, `GET …/repositories`, and `GET …/repositories/{repository}/branches`
+  * `GET /api/v0/projects/{project_uuid}/branches` and `GET …/pull-requests`
+  * The `/api/v0/sites/{site_uuid}/providers/branches`, `/api/v0/sites/{site_uuid}/providers/pull-requests`, and `/api/v0/sites/{site_uuid}/providers/upstream-pull-requests` endpoints
+* Fixed an issue where `GET /api/v0/orgs/{org_uuid}/providers/{provider}/installations` returned a `500` error for a provider other than GitHub or GitHub Enterprise Server. It now returns a `422` error.
+* Fixed an issue where `POST /api/v0/groups/{group_uuid}/members` and `POST /api/v0/users/invites/accept` returned a `500` error for an *Organization* with a canceled subscription.
+* Fixed an issue where `PUT /api/v0/orgs/{org_uuid}` returned a `500` error when `flags` was not an object. It now returns a `422` error.
