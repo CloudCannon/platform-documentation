@@ -7,8 +7,8 @@ Machine-readable style rules for AI agents and automated linters. These rules ar
 **For agents making updates to this file:** Also update the corresponding section in `STYLE_GUIDE.mdx` with the prose explanation and examples. Update the revision history in both files: `last_updated` and `style_guide_version` in the YAML block below, and the `Last Updated` and `Version` fields and the revision history table (Section 4) in `STYLE_GUIDE.mdx`.
 
 ```yaml
-style_guide_version: "2.84"
-last_updated: "2026-11-06"
+style_guide_version: "2.104"
+last_updated: "2026-11-25"
 
 documentation_architecture:
   single_source_of_truth:
@@ -216,11 +216,27 @@ voice_and_tense:
   voice: "active"
   person: "second"
   tense:
-    articles: "present"
+    always_true_or_current_state: "present"
+    consequences: "future"  # of a reader action, a condition being met, or a scheduled event
+    inside_until_when_if_after_before: "present"
     instruction_steps: "imperative"
-    instruction_outcomes: "future"
-    changelogs: "past"
-  contractions: "allowed"
+    changelogs_and_troubleshooting_history: "past"
+    correct:
+      - "Collections appear in the *Site Navigation*."
+      - "When usage reaches 100%, CloudCannon will lock builds for your *Organization*."
+      - "Builds will stay locked until the allowance resets."
+    incorrect:
+      - "Collections will appear in the *Site Navigation*."
+      - "When usage reaches 100%, CloudCannon locks builds for your *Organization*."
+      - "Builds will stay locked until the allowance will reset."
+    rationale: "Present tense for consequences reads like a specification; 'will' marks what depends on an action or event. Mirrors STYLE_GUIDE.mdx §1.1.4 (Tense)."
+  contractions:
+    rule: "Contractions are tone, not for alarms. Use common contractions in neutral explanations. Never use one in a warning or an error: an error message, a Notice that warns about something irreversible or a failure, or any sentence about a failure. Write it out in full there. Mirrors STYLE_GUIDE.mdx §1.2.1 (Contractions)."
+    correct:
+      - "If HTTPS is already on, you don't need to do anything else."
+      - "Deleting an *Organization* cannot be undone."
+    incorrect:
+      - "Deleting an *Organization* can't be undone."  # contraction in a warning
   user_focused_language:
     rule: "Frame actions and solutions from the user's perspective, not the system's"
     correct:
