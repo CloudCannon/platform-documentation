@@ -5,7 +5,10 @@ _created_at: '2021-09-15 23:13:40 +0000'
 details:
   title: Configure caching between builds
   description: Learn how to cache files and folders between builds to speed up subsequent builds.
-  image: /documentation/static/CloudCannonDocumentationog.jpg
+  image: >-
+    https://cc-dam.imgix.net/documentation/images/default-thumbnail/2023-Q4/CloudCannon-Documentation-Thumbnail.png
+  category:
+    - Instructions
   related_articles:
     - _type: developer_articles
       item: 4ec69df4-a6d9-4ff1-8d1e-19781acd55b0
@@ -16,39 +19,97 @@ details:
 author_notes:
   docshots: Needs docshots
 ---
-CloudCannon lets you choose certain files and folders to cache between builds. This can let you bypass install steps, speeding up subsequent builds.
+<comp.Notice info_type="permissions">
+  **Permissions required**
 
-### Preserved paths
+  Members of the *Owners*, *Developers*, and *Partner* [Default Permission Groups](/documentation/user-articles/what-are-default-permission-groups/), or [Custom Permission Groups](/documentation/developer-articles/what-are-custom-permission-groups/) with the `site:settings:build:write` permission, can change the caching options for a *Site*.
+</comp.Notice>
 
-Preserved Paths let you set a comma-separated list of paths that should not be deleted in subsequent builds. These can be folders or full filenames.
+CloudCannon lets you choose certain files and folders to cache between builds of your <comp.GlossaryTerm term="/user/glossary/s/site.yml">Site</comp.GlossaryTerm>. Caching files can let you skip install steps, which speeds up later builds.
 
-Be careful caching files, as this could result in files sticking around after deleting them from the repo. A good rule is that these paths should also be good examples of paths for your `.gitignore` file.
+## Preserved paths
 
-If you are doing any image processing or plugin-level caching, specify that directory, or the full filename. A specific example would be caching your `node_modules/` directory, which would allow `npm install` commands to run more quickly on subsequent builds.
+The *Preserved Paths* field lets you set a comma-separated list of path prefixes that should not be deleted in subsequent builds. A path prefix can be a folder or a full filename.
+
+Caching files can leave old files in place after you delete them from your <comp.GlossaryTerm term="/user/glossary/g/git-repository.yml">Git Repository</comp.GlossaryTerm>. A good rule is that a preserved path should also belong in your `.gitignore` file.
+
+If your build processes images or uses a plugin with its own cache, add that folder or file. For example, preserving `node_modules/` lets `npm install` run more quickly on later builds.
 
 To update your preserved paths:
 
-1. Navigate to the *Configuration* tab under *Site Settings*, and *Builds*.
-2. Click on the *Caching Options* card to expand it.
-3. Enter a comma-separated list of file paths you want to preserve between builds.
-4. Click the *Update Configuration* button.
+1. Navigate to the *Build configuration* page under *Site Settings*.
+2. Click the *Caching options* card. CloudCannon will expand the card to show the *Preserved Paths* field and the *Preserve Output* checkbox.
+3. Enter a comma-separated list of path prefixes you want to preserve between builds in the *Preserved Paths* field.
+4. Click the *Update Configuration and Build* button. CloudCannon will save your build configuration and start a build.
+
+After each successful build command, CloudCannon will save the files that match your *Preserved Paths*, if they changed since the last save. CloudCannon stores this cache on a disk that every build server shares, so the next build of your *Site* can restore it whichever server runs that build.
+
+If builds are locked on your *Site*, the button reads *Update Configuration*.
 
 <comp.Notice info_type="info">
-  If a build is interrupted before it finishes, CloudCannon starts the next build without your preserved paths, so files left behind by the interrupted build cannot affect it.
+  If a build is interrupted before it finishes, CloudCannon will delete the cache and start the next build without your preserved paths, so files left behind by the interrupted build cannot affect it.
 </comp.Notice>
 
-## Caching Gem installs
+## Preserve output
 
-Installing your Gems can take quite some time.
+*Preserve Output* lets you cache the files in your <comp.GlossaryTerm term="/user/glossary/o/output.yml">output</comp.GlossaryTerm> directory between builds. Your output directory is the folder set in the *Output Path* field on the *Build configuration* page.
 
-To save time on consecutive builds CloudCannon does the following:
+To preserve your output:
 
-1. Installs your gems to a local folder
-2. Caches that folder based on your `Gemfile.lock`
-3. When no local gems are found, CloudCannon will build your site using the cached installs from your previous build
+1. Navigate to the *Build configuration* page under *Site Settings*.
+2. Click the *Caching options* card. CloudCannon will expand the card to show the *Preserved Paths* field and the *Preserve Output* checkbox.
+3. Select the *Preserve Output* checkbox.
+4. Click the *Update Configuration and Build* button. CloudCannon will save your build configuration and start a build.
 
-To disable this feature, go to *Site Settings* / *Build*.
+CloudCannon will cache the files in your output directory between builds of your *Site*.
 
-<comp.Notice info_type="info">
-  Older Jekyll sites on CloudCannon will have this caching disabled to prevent changes to their build environment. Enabling this can greatly improve editing experience.
-</comp.Notice>
+If builds are locked on your *Site*, the button reads *Update Configuration*.
+
+## Preserved paths in your build log
+
+When your *Site* has *Preserved Paths* set, your build log shows whether CloudCannon restored your preserved paths before the build and whether it saved them afterward. These lines appear in the main build only, not in post-processing or other build steps. A *Site* without *Preserved Paths* set shows none of these lines.
+
+For where to find your build logs, please read our documentation on [what a Site build is](/documentation/developer-articles/what-is-a-site-build/).
+
+### Before the build
+
+When your *Site* has *Preserved Paths* set, your build log shows one of these lines before the build, under `$ cloudcannon files pull` and just before the line that starts `Syncing`:
+
+* `Downloading preserved paths from cache... done` — CloudCannon restored your preserved paths from the cache.
+* `Preserved paths up to date` — the server running this build already had the latest saved copy of your preserved paths, so CloudCannon had nothing to download.
+* `Restoring preserved files failed` — CloudCannon could not restore your preserved paths, and the build continued without them. This line appears in red.
+
+In the first two lines, `done` and `up to date` appear in green. If restoring fails partway, the `Downloading preserved paths from cache...` line appears without `done`, followed by the red line.
+
+If none of these lines appears, the build started without your preserved paths. The build log does not show a separate line for this. It happens:
+
+* On the first build of a *Site*, or the first build after you set *Preserved Paths*.
+* On the build after an interrupted build, which starts without your preserved paths on purpose.
+* After a build that saved no files, which shows `Removing preserved paths cache... done`.
+* When CloudCannon has removed the cache because your *Site* has not built for 5 days. A failed build counts as a build.
+
+### After the build
+
+When your *Site* has *Preserved Paths* set, your build log shows one of these lines after a successful build, under `$ cloudcannon files push` and before the line that starts `Uploading files`:
+
+* `Writing preserved paths to cache... done` — your preserved paths changed since CloudCannon last saved them, or there was no cache yet, so CloudCannon saved them.
+* `Preserved paths unchanged` — your preserved paths are the same as last time, so CloudCannon saved nothing.
+* `Removing preserved paths cache... done` — no files matched your *Preserved Paths* after the build, so CloudCannon deleted the cache. The next build will start without preserved paths.
+* `Saving preserved files failed` — CloudCannon could not save your preserved paths, but the build still succeeded. This line appears in red.
+
+In the first two lines, `done` and `unchanged` appear in green. If saving fails partway, the `Writing preserved paths to cache...` line appears without `done`, followed by the red line.
+
+A failed build saves nothing and shows none of these lines. If the next build runs on the same server, it can start with files the failed build changed in your preserved paths.
+
+### Repeated cache failures
+
+If `Restoring preserved files failed` or `Saving preserved files failed` appears in your build log for several builds in a row, contact <a href="https://cloudcannon.com/support/">CloudCannon support</a>. Have your *Site* name, the date and time of the affected builds, and the failed line from your build log ready.
+
+## Caching gem installs
+
+On a *Site* built with Jekyll or Bridgetown that has a `Gemfile`, you can cache your installed gems so later builds do not install them again. Caching gems takes two settings on the *Build configuration* page, which CloudCannon suggests for these *Sites*:
+
+* `.bundle_cache/` in the *Preserved Paths* field on the *Caching options* card.
+* An environment variable named `GEM_HOME` with the value `/usr/local/__site/src/.bundle_cache/`, which you add with the *Add Environment Variable* button on the *Environment options* card.
+
+The *Preserved Paths* entry does nothing without `GEM_HOME`. `GEM_HOME` is what makes Bundler install your gems into the `.bundle_cache/` folder, so CloudCannon can cache that folder between builds.
