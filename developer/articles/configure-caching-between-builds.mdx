@@ -42,12 +42,12 @@ To update your preserved paths:
 3. Enter a comma-separated list of path prefixes you want to preserve between builds in the *Preserved Paths* field.
 4. Click the *Update Configuration and Build* button. CloudCannon will save your build configuration and start a build.
 
-CloudCannon will save the files that match your *Preserved Paths* after each successful build, and restore them before the next build of your *Site*.
+After each successful build command, CloudCannon will save the files that match your *Preserved Paths*, if they changed since the last save. CloudCannon stores this cache on a disk that every build server shares, so the next build of your *Site* can restore it whichever server runs that build.
 
 If builds are locked on your *Site*, the button reads *Update Configuration*.
 
 <comp.Notice info_type="info">
-  If a build is interrupted before it finishes, CloudCannon will start the next build without your preserved paths, so files left behind by the interrupted build cannot affect it.
+  If a build is interrupted before it finishes, CloudCannon will delete the cache and start the next build without your preserved paths, so files left behind by the interrupted build cannot affect it.
 </comp.Notice>
 
 ## Preserve output
@@ -76,15 +76,17 @@ For where to find your build logs, please read our documentation on [what a Site
 When your *Site* has *Preserved Paths* set, your build log shows one of these lines before the build, under `$ cloudcannon files pull` and just before the line that starts `Syncing`:
 
 * `Downloading preserved paths from cache... done` — CloudCannon restored your preserved paths from the cache.
-* `Preserved paths up to date` — your preserved paths were already in place from the previous build, so CloudCannon had nothing to download.
+* `Preserved paths up to date` — the server running this build already had the latest saved copy of your preserved paths, so CloudCannon had nothing to download.
 * `Restoring preserved files failed` — CloudCannon could not restore your preserved paths, and the build continued without them. This line appears in red.
+
+In the first two lines, `done` and `up to date` appear in green. If restoring fails partway, the `Downloading preserved paths from cache...` line appears without `done`, followed by the red line.
 
 If none of these lines appears, the build started without your preserved paths. The build log does not show a separate line for this. It happens:
 
 * On the first build of a *Site*, or the first build after you set *Preserved Paths*.
 * On the build after an interrupted build, which starts without your preserved paths on purpose.
 * After a build that saved no files, which shows `Removing preserved paths cache... done`.
-* When CloudCannon has removed the cache for a *Site* that has not built for a long time.
+* When CloudCannon has removed the cache because your *Site* has not built for 5 days. A failed build counts as a build.
 
 ### After the build
 
@@ -95,7 +97,9 @@ When your *Site* has *Preserved Paths* set, your build log shows one of these li
 * `Removing preserved paths cache... done` — no files matched your *Preserved Paths* after the build, so CloudCannon deleted the cache. The next build will start without preserved paths.
 * `Saving preserved files failed` — CloudCannon could not save your preserved paths, but the build still succeeded. This line appears in red.
 
-A failed build saves nothing and shows none of these lines. The next build will restore your preserved paths from the last successful build.
+In the first two lines, `done` and `unchanged` appear in green. If saving fails partway, the `Writing preserved paths to cache...` line appears without `done`, followed by the red line.
+
+A failed build saves nothing and shows none of these lines. If the next build runs on the same server, it can start with files the failed build changed in your preserved paths.
 
 ### Repeated cache failures
 
@@ -103,10 +107,9 @@ If `Restoring preserved files failed` or `Saving preserved files failed` appears
 
 ## Caching gem installs
 
-Installing your gems can add time to every build.
+On a *Site* built with Jekyll or Bridgetown that has a `Gemfile`, you can cache your installed gems so later builds do not install them again. Caching gems takes two settings on the *Build configuration* page, which CloudCannon suggests for these *Sites*:
 
-To save time on consecutive builds, CloudCannon does the following:
+* `.bundle_cache/` in the *Preserved Paths* field on the *Caching options* card.
+* An environment variable named `GEM_HOME` with the value `/usr/local/__site/src/.bundle_cache/`, which you add with the *Add Environment Variable* button on the *Environment options* card.
 
-1. Installs your gems to a local folder
-2. Caches that folder based on your `Gemfile.lock`
-3. When no local gems are found, CloudCannon will build your *Site* using the cached installs from your previous build
+The *Preserved Paths* entry does nothing without `GEM_HOME`. `GEM_HOME` is what makes Bundler install your gems into the `.bundle_cache/` folder, so CloudCannon can cache that folder between builds.
